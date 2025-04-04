@@ -122,16 +122,21 @@ module CheckIn
       missing_data
     end
 
-    # Logs information about missing fields
+    # Logs information about missing fields and increments failure metrics
     #
     # @param missing_data [Array<String>] List of missing field names
     # @return [void]
     def log_missing_fields(missing_data)
-      logger.info({ message: "TravelClaimNotificationJob failed without retry: missing #{missing_data.join(', ')}" })
+      missing_data = missing_data.join(', ')
+      logger.info({ message: "TravelClaimNotificationJob failed without retry: missing #{missing_data}" })
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
+
+      tags = ['service:check-in', "function: Travel Claim Notification Failure due to missing fields #{missing_data}"]
+      StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
     end
 
     # Parses the appointment date string into a Date object
+    # On failure, logs the error and increments failure metrics with custom tags
     #
     # @param date_string [String] Appointment date in YYYY-MM-DD format
     # @return [Date, nil] Parsed date if format is valid, nil otherwise
@@ -140,6 +145,9 @@ module CheckIn
     rescue
       logger.info({ message: 'TravelClaimNotificationJob failed without retry: invalid appointment date format' })
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
+      tags = ['service:check-in', "function: Travel Claim Notification Failure due to invalid appointment date format"]
+      StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
+
       # return nil to end job without retrying
       nil
     end
