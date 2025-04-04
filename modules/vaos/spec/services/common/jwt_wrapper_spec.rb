@@ -7,7 +7,7 @@ describe Common::JwtWrapper do
   subject { described_class.new(settings, service_config) }
 
   let(:service_name) { 'TestService' }
-  let(:service_config) { instance_double('Configuration', service_name:) }
+  let(:service_config) { instance_double(VAOS::Configuration, service_name:) }
   let(:settings) do
     OpenStruct.new(
       key_path: '/path/to/key.pem',
