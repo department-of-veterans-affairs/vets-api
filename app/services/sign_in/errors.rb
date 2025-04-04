@@ -18,6 +18,7 @@ module SignIn
     class AccessTokenSignatureMismatchError < StandardError; end
     class AccessTokenMalformedJWTError < StandardError; end
     class AccessTokenExpiredError < StandardError; end
+    class AccessTokenUnauthenticatedError < StandardError; end
     class AntiCSRFMismatchError < StandardError; end
     class SessionNotAuthorizedError < StandardError; end
     class TokenTheftDetectedError < StandardError; end

@@ -29,6 +29,20 @@ vamobile.update!(authentication: SignIn::Constants::Auth::API,
                  terms_of_use_url: 'http://localhost:3001/terms-of-use',
                  refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
 
+vaokta = SignIn::ClientConfig.find_or_initialize_by(client_id: 'okta_test')
+vaokta.update!(authentication: SignIn::Constants::Auth::API,
+               anti_csrf: false,
+               redirect_uri: 'fake://this-is-fake',
+               access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+               access_token_audience: 'okta',
+               pkce: true,
+               logout_redirect_uri: 'http://localhost:3001',
+               enforced_terms: SignIn::Constants::Auth::VA_TERMS,
+               terms_of_use_url: 'http://localhost:3001/terms-of-use',
+               shared_sessions: true,
+               json_api_compatibility: false,
+               refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
+
 # Create Config for localhost mocked authentication client
 vamobile_mock = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamobile_test')
 vamobile_mock.update!(authentication: SignIn::Constants::Auth::API,
