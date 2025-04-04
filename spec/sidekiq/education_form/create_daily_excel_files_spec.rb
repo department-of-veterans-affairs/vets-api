@@ -75,7 +75,6 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     end
 
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
-
       before do
         application_form.saved_claim.form = {}.to_json
         create(:va10282)

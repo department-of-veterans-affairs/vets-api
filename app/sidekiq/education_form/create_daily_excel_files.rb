@@ -188,7 +188,7 @@ module EducationForm
     end
 
     def upload_file_to_s3(filename)
-      log_info("Form 10282 S3 Upload: Begin")
+      log_info('Form 10282 S3 Upload: Begin')
       client = Aws::S3::Client.new(
         region: Settings.form_10282.s3.region,
         access_key_id: Settings.form_10282.s3.aws_access_key_id,
@@ -201,8 +201,8 @@ module EducationForm
         body: File.open("tmp/#{filename}"),
         content_type: 'text/plain'
       )
-      log_info("Form 10282 S3 Upload: Complete")
-    rescue StandardError => e
+      log_info('Form 10282 S3 Upload: Complete')
+    rescue => e
       log_exception(DailyExcelFileError.new("Failed S3 upload: #{e.message}"))
       raise
     end
