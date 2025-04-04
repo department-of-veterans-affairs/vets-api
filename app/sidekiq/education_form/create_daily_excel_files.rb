@@ -42,6 +42,8 @@ module EducationForm
 
     # rubocop:disable Metrics/MethodLength
     def perform
+      return unless Flipper.enabled?(:form_10282_s3_upload)
+
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
       excel_file_event = ExcelFileEvent.build_event(filename)

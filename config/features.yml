@@ -2118,4 +2118,7 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
+  form_10282_s3_upload:
+    actor_type: user
+    description: If enabled, run daily job to process 10282 form submissions and upload resulting data to S3
 

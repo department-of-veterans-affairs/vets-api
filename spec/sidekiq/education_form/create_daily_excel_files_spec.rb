@@ -20,6 +20,17 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     FileUtils.rm_rf('tmp/*.csv')
   end
 
+  context 'with the feature flag disabled' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form_10282_s3_upload).and_return(false)
+    end
+
+    it 'just returns immediately' do
+      expect(s3_client).to_not receive(:put_object)
+      expect { described_class.new.perform }.to_not change { EducationBenefitsClaim.unprocessed.count }
+    end
+  end
+
   context 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
