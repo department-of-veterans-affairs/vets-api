@@ -283,7 +283,7 @@ GEM
     blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (7.0.1)
+    brakeman (7.0.2)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -1365,7 +1365,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument
+  statsd-instrument (= 3.9.8)
   strong_migrations
   super_diff
   swagger-blocks
