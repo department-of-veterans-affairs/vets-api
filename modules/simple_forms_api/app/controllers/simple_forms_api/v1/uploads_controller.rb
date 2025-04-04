@@ -247,7 +247,7 @@ module SimpleFormsApi
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
-        return unless Rails.env.production? || Rails.env.test?
+        return unless %w[production staging test].include?(Settings.vsp_environment)
 
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
         attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
