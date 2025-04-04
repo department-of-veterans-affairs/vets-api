@@ -191,9 +191,15 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
           response = subject.call
 
           expect(response['meta']).to include(expected_response['meta'])
-          expect(response['meta']['veteran']['vnp_mail_id']).to include(expected_response['meta']['veteran']['vnp_mail_id'])
-          expect(response['meta']['veteran']['vnp_email_id']).to include(expected_response['meta']['veteran']['vnp_email_id'])
-          expect(response['meta']['veteran']['vnp_phone_id']).to include(expected_response['meta']['veteran']['vnp_phone_id'])
+          expect(response['meta']['veteran']['vnp_mail_id']).to include(
+            expected_response['meta']['veteran']['vnp_mail_id']
+          )
+          expect(response['meta']['veteran']['vnp_email_id']).to include(
+            expected_response['meta']['veteran']['vnp_email_id']
+          )
+          expect(response['meta']['veteran']['vnp_phone_id']).to include(
+            expected_response['meta']['veteran']['vnp_phone_id']
+          )
         end
       end
     end
