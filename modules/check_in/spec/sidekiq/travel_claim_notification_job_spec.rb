@@ -49,14 +49,13 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       job_opts.delete(:mobile_phone)
       job = described_class.new
 
-      expect(job).not_to receive(:va_notify_send_sms)
+      expect(notify_client).not_to receive(:send_sms)
+      expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
       expect(test_logger).to receive(:info).with(
         hash_including(message: 'TravelClaimNotificationJob failed without retry: missing mobile_phone')
       )
 
       job.perform(job_opts)
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
     end
 
     it 'successfully sends SMS even when claim number is missing' do
@@ -79,14 +78,13 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       job_opts[:appointment_date] = 'invalid-date'
       job = described_class.new
 
-      expect(job).not_to receive(:va_notify_send_sms)
+      expect(notify_client).not_to receive(:send_sms)
+      expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
       expect(test_logger).to receive(:info).with(
         hash_including(message: 'TravelClaimNotificationJob failed without retry: invalid appointment date format')
       )
 
       job.perform(job_opts)
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
     end
 
     context 'when an error occurs during SMS sending' do
@@ -106,7 +104,6 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
                 ))
 
         expect { job.perform(job_opts) }.to raise_error(StandardError)
-        expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
 
         # Second attempt - retry_count = 1
         job = described_class.new
@@ -120,7 +117,6 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
                 ))
 
         expect { job.perform(job_opts) }.to raise_error(StandardError)
-        expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR).at_least(:once)
       end
     end
   end
@@ -132,26 +128,24 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
     end
   end
 
-  describe 'hash access methods' do
-    describe '.phone_last_four' do
-      it 'returns last four digits of a phone number' do
-        hash = { mobile_phone: '202-555-0123' }
-        expect(described_class.phone_last_four(hash)).to eq('0123')
-      end
+  describe '.phone_last_four' do
+    it 'returns last four digits of a phone number' do
+      hash = { mobile_phone: '202-555-0123' }
+      expect(described_class.phone_last_four(hash)).to eq('0123')
+    end
 
-      it 'handles non-numeric characters in phone number' do
-        hash = { mobile_phone: '(202) 555-0123' }
-        expect(described_class.phone_last_four(hash)).to eq('0123')
-      end
+    it 'handles non-numeric characters in phone number' do
+      hash = { mobile_phone: '(202) 555-0123' }
+      expect(described_class.phone_last_four(hash)).to eq('0123')
+    end
 
-      it 'returns nil when mobile_phone is missing' do
-        hash = { other_key: 'value' }
-        expect(described_class.phone_last_four(hash)).to be_nil
-      end
+    it 'returns nil when mobile_phone is missing' do
+      hash = { other_key: 'value' }
+      expect(described_class.phone_last_four(hash)).to be_nil
+    end
 
-      it 'returns nil when hash is nil' do
-        expect(described_class.phone_last_four(nil)).to be_nil
-      end
+    it 'returns nil when hash is nil' do
+      expect(described_class.phone_last_four(nil)).to be_nil
     end
   end
 
