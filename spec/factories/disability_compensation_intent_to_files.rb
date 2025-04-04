@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'evss/intent_to_file/intent_to_file'
+require 'disability_compensation/responses/intent_to_files_response'
 
 FactoryBot.define do
-  factory :evss_intent_to_file, class: 'EVSS::IntentToFile::IntentToFile' do
+  factory :disability_compensation_intent_to_file, class: 'DisabilityCompensation::ApiProvider::IntentToFile' do
     id { 1 }
     creation_date { Time.current }
     expiration_date { 1.year.from_now }
