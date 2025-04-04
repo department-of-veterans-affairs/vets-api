@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'logging/monitor'
+require 'kafka/concerns/topic'
 
 module Kafka
   # This Monitor class is responsible for tracking and logging various events related to the Kafka service.
   # It inherits from the ZeroSilentFailures::Monitor class and provides methods to track the
   # success and failure of submissions.
   class Monitor < Logging::Monitor
+    include Kafka::Topic
     # metric prefix
     STATSD_KEY_PREFIX = 'api.kafka_service'
 
@@ -19,8 +21,9 @@ module Kafka
     #
     # @param topic [String] The Kafka topic to which the message will be sent
     # @param payload [Hash] The message payload to be sent to the Kafka topic
-    def track_submission_success(topic, payload)
+    def track_submission_success(use_test_topic, payload)
       payload.dig('data', 'ICN') && (payload['data']['ICN'] = '[REDACTED]')
+      topic = get_topic(use_test_topic:)
 
       additional_context = { topic:, payload: }
       track_request(
@@ -38,8 +41,9 @@ module Kafka
     # @param topic [String] The Kafka topic to which the message will be sent
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     # @param e [Error] the error which occurred
-    def track_submission_failure(topic, payload, e)
+    def track_submission_failure(use_test_topic, payload, e)
       payload.dig('data', 'ICN') && (payload['data']['ICN'] = '[REDACTED]')
+      topic = get_topic(use_test_topic:)
 
       additional_context = {
         topic:,
@@ -63,8 +67,9 @@ module Kafka
     # @param topic [String] The Kafka topic to which the message will be sent
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     #
-    def track_submission_exhaustion(msg, topic, payload)
+    def track_submission_exhaustion(msg, use_test_topic, payload)
       payload.dig('data', 'ICN') && (payload['data']['ICN'] = '[REDACTED]')
+      topic = get_topic(use_test_topic:)
 
       additional_context = {
         topic:,

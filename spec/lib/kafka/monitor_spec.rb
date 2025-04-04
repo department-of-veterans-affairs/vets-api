@@ -5,7 +5,8 @@ require 'kafka/monitor'
 
 RSpec.describe Kafka::Monitor do
   let(:monitor) { described_class.new }
-  let(:topic) { 'kafka-topic' }
+  let(:use_test_topic) { false }
+  let(:topic) { 'submission_trace_form_status_change_test' }
   let(:payload) { { 'data' => { 'ICN' => '123' } } }
   let(:error) { StandardError.new('Something went wrong') }
 
@@ -19,7 +20,7 @@ RSpec.describe Kafka::Monitor do
         topic:,
         payload:
       )
-      monitor.track_submission_success(topic, payload)
+      monitor.track_submission_success(use_test_topic, payload)
     end
   end
 
@@ -34,19 +35,19 @@ RSpec.describe Kafka::Monitor do
         payload:,
         errors: error.message
       )
-      monitor.track_submission_failure(topic, payload, error)
+      monitor.track_submission_failure(use_test_topic, payload, error)
     end
   end
 
   describe '#track_submission_exhaustion' do
     it 'logs sidekiq job exhaustion' do
-      msg = { 'args' => [topic, payload] }
+      msg = { 'args' => [use_test_topic, payload] }
 
       log = "Kafka::EventBusSubmissionJob for #{topic} exhausted!"
       exhausted_payload = {
         message: msg,
         payload:,
-        topic: 'kafka-topic'
+        topic:
       }
 
       expect(monitor).to receive(:track_request).with(
@@ -57,7 +58,7 @@ RSpec.describe Kafka::Monitor do
         **exhausted_payload
       )
 
-      monitor.track_submission_exhaustion(msg, topic, payload)
+      monitor.track_submission_exhaustion(msg, use_test_topic, payload)
     end
   end
 end

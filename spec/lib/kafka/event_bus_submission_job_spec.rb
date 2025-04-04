@@ -9,6 +9,7 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
   let(:payload) { { 'data' => { 'ICN' => 'id' } } }
   let(:monitor) { instance_double(Kafka::Monitor) }
   let(:producer) { instance_double(Kafka::AvroProducer) }
+  let(:use_test_topic) { false }
 
   before do
     allow(Kafka::Monitor).to receive(:new).and_return(monitor)
@@ -20,9 +21,9 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
 
   describe '#perform' do
     it 'produces a message to the Kafka topic and tracks success' do
-      described_class.new.perform(topic, payload)
-      expect(producer).to have_received(:produce).with(topic, payload)
-      expect(monitor).to have_received(:track_submission_success).with(topic, payload)
+      described_class.new.perform(payload)
+      expect(producer).to have_received(:produce).with(payload:, use_test_topic:)
+      expect(monitor).to have_received(:track_submission_success).with(use_test_topic, payload)
     end
 
     context 'when an error occurs during production' do
@@ -34,9 +35,9 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
 
       it 'tracks the failure and raises the error' do
         expect do
-          described_class.new.perform(topic, payload)
+          described_class.new.perform(payload)
         end.to raise_error(StandardError, 'Error')
-        expect(monitor).to have_received(:track_submission_failure).with(topic, payload, error)
+        expect(monitor).to have_received(:track_submission_failure).with(use_test_topic, payload, error)
       end
     end
   end
