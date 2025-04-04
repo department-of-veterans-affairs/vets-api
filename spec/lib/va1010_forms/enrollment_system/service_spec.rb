@@ -57,7 +57,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
       allow(Rails.logger).to receive(:error)
     end
 
-    context "When an 'Ox::ParseError' is raised" do
+    context "when an 'Ox::ParseError' is raised" do
       before do
         allow_any_instance_of(Common::Client::Base).to receive(:perform)
           .and_raise(
@@ -82,7 +82,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
           )
 
           pii_log = PersonalInformationLog.last
-          expect(pii_log.error_class).to eq('Form1010Ezr FailedWithFormattingError')
+          expect(pii_log.error_class).to eq('Form1010Ezr FailedWithParsingError')
           expect(pii_log.data).to eq(File.read('spec/fixtures/form1010_ezr/submission_body.xml'))
           expect(Rails.logger).to have_received(:error).with(
             '10-10EZR form submission failed: invalid format, elements overlap at line 1, column 212 [parse.c:626]'

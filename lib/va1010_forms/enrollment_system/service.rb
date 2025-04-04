@@ -42,7 +42,7 @@ module VA1010Forms
         if e.is_a?(Ox::ParseError)
           PersonalInformationLog.create!(
             data: submission_body,
-            error_class: 'Form1010Ezr FailedWithFormattingError'
+            error_class: 'Form1010Ezr FailedWithParsingError'
           )
         end
 
