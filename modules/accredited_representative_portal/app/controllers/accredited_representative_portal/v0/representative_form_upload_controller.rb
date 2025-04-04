@@ -23,7 +23,7 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         attachment.save
-        render json: RepresentativeAttachmentFormSerializer.new(attachment)
+        render json: serialize_attachment(attachment)
       end
 
       private
@@ -110,6 +110,21 @@ module AccreditedRepresentativePortal
 
         notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
+      end
+
+      def serialize_attachment(attachment)
+        {
+          data: {
+            id: attachment.id,
+            type: 'representative_attachment_form',
+            attributes: {
+              confirmationCode: attachment.guid,
+              name: attachment.original_filename,
+              size: attachment.size,
+              warnings: attachment.warnings
+            }
+          }
+        }
       end
     end
   end
