@@ -215,7 +215,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           it 'increments StatsD, logs the error, and does not retry' do
             expect(Rails.logger).to receive(:info).with(full_log_msg)
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_did_not_retry')
-            expect(StatsD).to_not receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+            expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
             expect(ezr_service).to receive(:log_submission_failure_to_sentry).with(
               form, '1010EZR failure did not retry', 'failure_did_not_retry'
             )
