@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob::Personalisations do
+RSpec.describe AccreditedRepresentativePortal::Personalisations do
   describe '.generate' do
     let(:notification) { create(:power_of_attorney_request_notification, type:) }
 

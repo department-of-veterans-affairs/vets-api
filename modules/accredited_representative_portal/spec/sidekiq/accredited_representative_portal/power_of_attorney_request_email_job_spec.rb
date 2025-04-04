@@ -7,7 +7,9 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
   let(:email) { 'test@example.com' }
   let(:template_id) { 'template-id' }
   let(:type) { 'declined' }
-  let(:personalisation) { { 'name' => 'Test User' } }
+  let(:personalisation) do
+    AccreditedRepresentativePortal::Personalisations::Declined.generate(power_of_attorney_request_notification)
+  end
   let(:api_key) { 'test-api-key' }
   let(:response) { Struct.new(:id).new(Faker::Internet.uuid) }
   let(:client) { instance_double(VaNotify::Service) }
@@ -27,7 +29,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
 
       expect(power_of_attorney_request_notification.notification_id).to be_nil
 
-      described_class.new.perform(power_of_attorney_request_notification.id, personalisation,
+      described_class.new.perform(power_of_attorney_request_notification.id, nil,
                                   api_key)
 
       power_of_attorney_request_notification.reload
