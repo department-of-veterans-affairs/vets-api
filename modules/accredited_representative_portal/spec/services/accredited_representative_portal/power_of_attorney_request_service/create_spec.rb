@@ -34,7 +34,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
           },
           'dateOfBirth' => '1981-12-31',
           'relationship' => 'Spouse',
-          'phone' => '2225555555',
+          'phone' => '222-555-5555',
           'email' => 'claimant@example.com'
         },
         'veteran' => {
@@ -57,7 +57,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
           'dateOfBirth' => '1980-12-31',
           'serviceNumber' => '123123123',
           'serviceBranch' => 'ARMY',
-          'phone' => '5555555555',
+          'phone' => '555-555-5555',
           'email' => 'veteran@example.com'
         }
       }
@@ -229,6 +229,53 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
             expect(result[:errors]).to eq(['Validation failed: Claimant must exist'])
           end
         end
+      end
+    end
+
+    describe '#sanitize_phone_number' do
+      it 'removes all non-digit characters' do
+        expect(subject.send(:sanitize_phone_number, '(555) 123-4567')).to eq('5551234567')
+        expect(subject.send(:sanitize_phone_number, '555.987.6543')).to eq('5559876543')
+        expect(subject.send(:sanitize_phone_number, '555-555-5555')).to eq('5555555555')
+      end
+
+      it 'returns digits unchanged' do
+        expect(subject.send(:sanitize_phone_number, '1234567890')).to eq('1234567890')
+      end
+
+      it 'returns empty string if input has no digits' do
+        expect(subject.send(:sanitize_phone_number, 'abc-def')).to eq('')
+      end
+    end
+
+    describe '#deep_apply!' do
+      let(:input) do
+        {
+          'veteran' => {
+            'name' => { 'first' => 'John' },
+            'phone' => '(555) 123-4567',
+            'address' => {
+              'phone' => '555.987.6543'
+            }
+          },
+          'dependent' => {
+            'phone' => '222-333-4444'
+          }
+        }
+      end
+
+      let(:sanitizer) { ->(val) { val.gsub(/\D/, '') } }
+
+      it 'sanitizes all phone numbers' do
+        result = subject.send(:deep_apply!, input, 'phone', &sanitizer)
+        expect(result['veteran']['phone']).to eq('5551234567')
+        expect(result['veteran']['address']['phone']).to eq('5559876543')
+        expect(result['dependent']['phone']).to eq('2223334444')
+      end
+
+      it 'leaves other values untouched' do
+        result = subject.send(:deep_apply!, input, 'phone', &sanitizer)
+        expect(result['veteran']['name']['first']).to eq('John')
       end
     end
   end

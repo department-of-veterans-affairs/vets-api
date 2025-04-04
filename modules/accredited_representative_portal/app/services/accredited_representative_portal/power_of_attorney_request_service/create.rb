@@ -11,7 +11,7 @@ module AccreditedRepresentativePortal
       #   2. the holder_type is always an AccreditedOrganization
       def initialize(claimant:, form_data:, poa_code:, registration_number: nil)
         @claimant = claimant
-        @form_data = form_data
+        @form_data = deep_apply!(form_data, 'phone', &method(:sanitize_phone_number))
         @poa_code = poa_code
         @registration_number = registration_number
 
@@ -65,6 +65,28 @@ module AccreditedRepresentativePortal
         end
 
         request
+      end
+
+      def deep_apply!(data, target_key, &block)
+        case data
+        when Hash
+          data.each do |key, value|
+            if key.to_s == target_key && value.is_a?(String)
+              data[key] = yield(value)
+            else
+              deep_apply!(value, target_key, &block)
+            end
+          end
+        when Array
+          data.each { |item| deep_apply!(item, target_key, &block) }
+        end
+
+        data
+      end
+
+      # removes all non-digit characters from the phone number
+      def sanitize_phone_number(phone_number)
+        phone_number.gsub(/\D/, '') if phone_number.present?
       end
 
       def unresolved_requests
