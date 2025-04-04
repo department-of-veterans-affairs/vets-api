@@ -67,7 +67,6 @@ module EducationForm
         formatted_records = format_records(records)
         write_csv_file(formatted_records, filename)
 
-        email_excel_files(filename)
         upload_file_to_s3(filename)
 
         # Make records processed and add excel file event for rake job
@@ -186,10 +185,6 @@ module EducationForm
 
     def log_info(message)
       logger.info(message)
-    end
-
-    def email_excel_files(contents)
-      CreateExcelFilesMailer.build(contents).deliver_now
     end
 
     def upload_file_to_s3(filename)

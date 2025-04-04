@@ -82,11 +82,10 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
         ActionMailer::Base.deliveries.clear
       end
 
-      it 'processes records and sends email' do
+      it 'processes records and uploads to S3' do
         with_settings(Settings, hostname: 'staging-api.va.gov') do
           expect(s3_client).to receive(:put_object)
           expect { described_class.new.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(2).to(0)
-          expect(ActionMailer::Base.deliveries.count).to be > 0
         end
       end
     end
