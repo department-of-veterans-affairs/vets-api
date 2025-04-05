@@ -3,6 +3,44 @@
 require 'rails_helper'
 require_relative '../support/shared_examples_for_base_form'
 
+RSpec.shared_examples 'point_of_contact_name' do
+  context 'should use point of contact name' do
+    let(:name) { 'Pointy Contact' }
+
+    before do
+      data.merge!(
+        {
+          'living_situation' => { 'NONE' => true },
+          'point_of_contact_name' => name
+        }
+      )
+    end
+
+    it 'returns the point of contact name' do
+      expect(described_class.new(data).notification_first_name).to eq name
+    end
+  end
+end
+
+RSpec.shared_examples 'point_of_contact_email' do
+  context 'should use point of contact email' do
+    let(:email) { 'pointy@contact.com' }
+
+    before do
+      data.merge!(
+        {
+          'living_situation' => { 'NONE' => true },
+          'point_of_contact_email' => email
+        }
+      )
+    end
+
+    it 'returns the point of contact email' do
+      expect(described_class.new(data).notification_email_address).to eq email
+    end
+  end
+end
+
 RSpec.describe SimpleFormsApi::VBA2010207 do
   it_behaves_like 'zip_code_is_us_based', %w[veteran_mailing_address non_veteran_mailing_address]
 
@@ -106,6 +144,8 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       it 'returns the veteran first name' do
         expect(described_class.new(data).notification_first_name).to eq 'Veteran'
       end
+
+      it_behaves_like 'point_of_contact_name'
     end
 
     context 'preparer is non-veteran' do
@@ -122,6 +162,8 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       it 'returns the non-veteran first name' do
         expect(described_class.new(data).notification_first_name).to eq 'Non-Veteran'
       end
+
+      it_behaves_like 'point_of_contact_name'
     end
 
     context 'preparer is third party' do
@@ -153,6 +195,8 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       it 'returns the veteran email address' do
         expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
+
+      it_behaves_like 'point_of_contact_email'
     end
 
     context 'preparer is non-veteran' do
@@ -166,6 +210,8 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       it 'returns the non-veteran email address' do
         expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
+
+      it_behaves_like 'point_of_contact_email'
     end
 
     context 'preparer is third party' do
