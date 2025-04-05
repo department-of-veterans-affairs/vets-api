@@ -492,7 +492,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       context 'and the Lighthouse DirectDeposit service does not have the account info' do
-        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil) }
+        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
 
         it 'does not set payment information' do
           expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
