@@ -43,6 +43,7 @@ MyHealth::Engine.routes.draw do
         get :food_journal, on: :collection
         get :activity_journal, on: :collection
         get :medications, on: :collection
+        get :emergency_contacts, on: :collection
       end
       resources :patient, only: %i[index] do
         get :demographic, on: :collection

@@ -55,6 +55,10 @@ module MyHealth
         def medications
           render json: bb_client.get_sei_medications.to_json
         end
+
+        def emergency_contacts
+          render json: bb_client.get_sei_emergency_contacts.to_json
+        end
       end
     end
   end

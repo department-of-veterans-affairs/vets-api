@@ -445,6 +445,36 @@ describe BBInternal::Client do
     end
   end
 
+  describe '#get_sei_emergency_contacts' do
+    it "retrieves the patient's emergency contacts" do
+      VCR.use_cassette 'mr_client/bb_internal/get_sei_emergency_contacts' do
+        emergency_contacts = client.get_sei_emergency_contacts
+
+        expect(emergency_contacts).to be_an(Array)
+        expect(emergency_contacts).not_to be_empty
+
+        first_record = emergency_contacts.first
+        expect(first_record).to be_a(Hash)
+        expect(first_record).to have_key('firstName')
+        expect(first_record['firstName']).to be_a(String)
+        expect(first_record).to have_key('lastName')
+        expect(first_record['lastName']).to be_a(String)
+        expect(first_record).to have_key('contactInfoContactMethod')
+        expect(first_record['contactInfoContactMethod']).to be_a(String)
+        expect(first_record).to have_key('contactInfoEmail')
+        expect(first_record['contactInfoEmail']).to be_a(String)
+        expect(first_record).to have_key('addressStreet1')
+        expect(first_record['addressStreet1']).to be_a(String)
+        expect(first_record).to have_key('addressCity')
+        expect(first_record['addressCity']).to be_a(String)
+        expect(first_record).to have_key('addressState')
+        expect(first_record['addressState']).to be_a(String)
+        expect(first_record).to have_key('addressPostalCode')
+        expect(first_record['addressPostalCode']).to be_a(String)
+      end
+    end
+  end
+
   describe '#invalid?' do
     let(:session_data) { OpenStruct.new(icn:, patient_id:, expired?: session_expired) }
 
