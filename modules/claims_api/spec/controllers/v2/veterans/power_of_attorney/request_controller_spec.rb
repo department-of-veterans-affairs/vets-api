@@ -327,36 +327,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
       end
 
-      context 'when the feature flag is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return(true)
-        end
-
-        it 'enqueues the VANotifyDeclinedJob' do
-          mock_ccg(scopes) do |auth_header|
-            VCR.use_cassette('mpi/find_candidate/valid') do
-              expect do
-                decide_request_with(id:, decision:, auth_header:,
-                                    representative_id:)
-              end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
-            end
-          end
-        end
-      end
-
-      context 'when the feature flag is disabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return(false)
-        end
-
-        it 'does not enqueue the VANotifyDeclinedJob' do
+      it 'enqueues the VANotifyDeclinedJob' do
+        mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('mpi/find_candidate/valid') do
-            mock_ccg(scopes) do |auth_header|
-              expect do
-                decide_request_with(id:, decision:, auth_header:,
-                                    representative_id:)
-              end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
-            end
+            expect do
+              decide_request_with(id:, decision:, auth_header:,
+                                  representative_id:)
+            end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
           end
         end
       end
