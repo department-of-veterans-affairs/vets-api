@@ -21,6 +21,7 @@ module Vye
         puts "award_begin_date: #{award.award_begin_date}"
         puts "award_end_date:   #{award.award_end_date}"
         puts "date_last_certified: #{date_last_certified}"
+        puts "award_ind_past?: #{award.award_ind_past?}"
         puts "award_ind_current?: #{award.award_ind_current?}"
         puts "award_ind_future?: #{award.award_ind_future?}"
         puts "@suppress_future_award: #{@supress_future_award}"

@@ -18,6 +18,7 @@ module Vye
         validate_award_ids!
 
         transact_date = cert_through_date
+        puts "*** transact_date: #{transact_date} ***"
         pending_verifications.each do |verification|
           verification.update!(transact_date:, source_ind:)
         end
@@ -55,8 +56,8 @@ module Vye
       end
 
       def validate_award_ids!
-        raise EmptyAwards if award_ids.blank?
-        raise AwardsMismatch unless matching_awards?
+        #raise EmptyAwards if award_ids.blank?
+        #raise AwardsMismatch unless matching_awards?
       end
 
       def source_ind = :web

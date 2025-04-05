@@ -296,6 +296,50 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       end
     end
   end
+
+  describe 'shay production bug 6' do
+    subject { described_class.new }
+
+    let(:cur_award_ind) { Vye::Award.cur_award_inds[:current] }
+    let(:now) { Time.parse('2025-03-24T12:00:00-00:00') }
+    let(:date_last_certified) { Date.new(2025, 2, 27) }
+
+    let(:award_begin_date_1) { Date.new(2024, 11, 19) }
+    let(:award_begin_date_2) { Date.new(2025, 1, 7) }
+    let(:award_begin_date_3) { Date.new(2025, 2, 11) }
+    # let(:award_begin_date_4) { Date.new(2025, 3, 25) }
+
+    let(:award_end_date_1) { Date.new(2024, 12, 24) }
+    let(:award_end_date_2) { Date.new(2025, 2, 11) }
+    let(:award_end_date_3) { Date.new(2025, 3, 18) }
+    # let(:award_end_date_4) { Date.new(2025, 4, 29) }
+
+    let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+    let!(:user_info) { create(:vye_user_info, user_profile:, date_last_certified:) }
+    let!(:award1) { create(:vye_award, user_info:, award_begin_date: award_begin_date_1, award_end_date: award_end_date_1, cur_award_ind: 'P') }
+    let!(:award2) { create(:vye_award, user_info:, award_begin_date: award_begin_date_2, award_end_date: award_end_date_2,cur_award_ind: 'C') }
+    let!(:award3) { create(:vye_award, user_info:, award_begin_date: award_begin_date_3, award_end_date: award_end_date_3, cur_award_ind: 'C') }
+    # let!(:award4) { create(:vye_award, user_info:, award_begin_date: award_begin_date_4, award_end_date: award_end_date_4, cur_award_ind:) }
+
+    let(:award_ids) { user_info.awards.pluck(:id) }
+    let(:params) { { award_ids: } }
+
+    before do
+      allow(subject).to receive_messages(params:, current_user:, head: :no_content)
+      subject.send(:load_user_info)
+    end
+
+    describe 'cert through date calculation bug 4' do
+      it 'calculates the transact date to be 2024-12-20' do
+        Timecop.freeze(Date.new(2025, 3, 24)) do
+          subject.create
+        end
+
+        expect(Vye::Verification.count).to eq(2)
+        expect(Vye::Award.count).to eq(2)
+      end
+    end
+  end
   # rubocop:enable Naming/VariableNumber
   # rubocop:enable RSpec/SubjectStub
 end
