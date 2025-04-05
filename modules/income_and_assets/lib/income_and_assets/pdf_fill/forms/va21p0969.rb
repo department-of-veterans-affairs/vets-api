@@ -586,7 +586,7 @@ module PdfFill
               question_number: 11,
               question_suffix: '(2)',
               question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
             },
             # Q3
             'payer' => {
@@ -616,9 +616,9 @@ module PdfFill
             },
             # Q6
             'incomeLastReceivedDate' => {
-              'month' => { key: "", # TODO -> Key here },
-              'day' => { key: "", # TODO -> Key here },
-              'year' => { key: "", # TODO -> Key here }
+              'month' => { key: "" }, # TODO -> Key here
+              'day' => { key: "" }, # TODO -> Key here
+              'year' => { key: "" } # TODO -> Key here
             },
             'incomeLastReceivedDateOverflow' => {
               question_num: 11,
@@ -628,13 +628,13 @@ module PdfFill
             # Q7
             'grossAnnualAmount' => {
               'thousands' => {
-                key: "", # TODO -> Key here
+                key: "" # TODO -> Key here
               },
               'dollars' => {
-                key: "", # TODO -> Key here
+                key: "" # TODO -> Key here
               },
               'cents' => {
-                key: "", # TODO -> Key here
+                key: "" # TODO -> Key here
               }
             },
             'grossAnnualAmountOverflow' => {
