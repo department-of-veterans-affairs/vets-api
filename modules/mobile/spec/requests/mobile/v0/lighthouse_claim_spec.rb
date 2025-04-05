@@ -24,7 +24,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
     context 'when the claim is found' do
       before do
         allow(Flipper).to receive(:enabled?).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
       end
 
       it 'matches our schema is successfully returned with the 200 status',
@@ -93,10 +93,10 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         end
       end
 
-      context 'when :cst_suppress_evidence_requests_mobile is enabled' do
+      context 'when :cst_suppress_evidence_requests is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(true)
         end
 
         it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
@@ -110,10 +110,10 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         end
       end
 
-      context 'when :cst_suppress_evidence_requests_mobile is disabled' do
+      context 'when :cst_suppress_evidence_requests is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests_mobile).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
         end
 
         it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
