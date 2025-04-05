@@ -194,7 +194,6 @@ RSpec/SpecFilePathFormat:
     - 'spec/lib/sm/client/message_drafts_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
     - 'spec/lib/mail_automation/integration/client_spec.rb'
-    - 'spec/lib/virtual_regional_office/integration/client_spec.rb'
     - 'spec/rakelib/piilog_repl/piilog_helpers_spec.rb'
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
