@@ -53,14 +53,14 @@ class Form526StatusPollingJob
     submission_id = form_submission.id
 
     if %w[error expired].include? status
-      log_result('failure', submission_id)
+      log_result('failure', submission)
       form_submission.rejected!
       notify_veteran(submission_id)
     elsif status == 'vbms'
-      log_result('true_success', submission_id)
+      log_result('true_success', submission)
       form_submission.accepted!
     elsif status == 'success'
-      log_result('paranoid_success', submission_id)
+      log_result('paranoid_success', submission)
       form_submission.paranoid_success!
       # Send Received Email once Backup Path is successful!
       if Flipper.enabled?(:disability_526_send_received_email_from_backup_path)
@@ -74,11 +74,21 @@ class Form526StatusPollingJob
     end
   end
 
-  def log_result(result, submission_id)
+  def log_result(result, submission)
     StatsD.increment("#{STATS_KEY}.526.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-
-    Rails.logger.warn('Form526StatusPollingJob submission failure', { result:, submission_id: }) if result == 'failure'
+    current_state = submission.aasm_state
+    created_at = submission.created_at
+    time_to_transition = Time.zone.now - created_at
+    log_hash = {
+      result:,
+      to_state: result,
+      submission_id: submission.id,
+      time_to_transition:,
+      current_state:,
+      created_at:
+    }
+    Rails.logger.warn('Form526StatusPollingJob submission failure', log_hash)
   end
 
   def notify_veteran(submission_id)
