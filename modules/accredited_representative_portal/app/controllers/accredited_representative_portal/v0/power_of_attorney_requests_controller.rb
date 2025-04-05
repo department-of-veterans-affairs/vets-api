@@ -15,6 +15,29 @@ module AccreditedRepresentativePortal
       end
 
       def index
+        # Parallel decrypt all encrypted fields
+        Parallel.map(poa_requests, in_threads: poa_requests.size) do |request|
+          request.tap do |r|
+            if r.power_of_attorney_form.present?
+              form = r.power_of_attorney_form
+              form.data                # Main form data
+              form.claimant_city      # Location fields
+              form.claimant_state_code
+              form.claimant_zip_code
+            end
+
+            if r.resolution.present?
+              r.resolution.reason     # Resolution reason
+            end
+
+            if r.form_submission.present?
+              sub = r.form_submission
+              sub.service_response    # Service response
+              sub.error_message      # Error details
+            end
+          end
+        end
+
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: {
           data: serializer.serializable_hash,
