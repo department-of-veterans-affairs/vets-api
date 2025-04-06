@@ -37,18 +37,18 @@ class Form0781StateSnapshotJob
   def load_snapshot_state
     {
       # New 0781 form metrics
-      new_0781_in_progress_forms: new_0781_in_progress_forms,
-      new_0781_submissions: new_0781_submissions,
-      new_0781_successful_submissions: new_0781_successful_submissions,
-      new_0781_failed_submissions: new_0781_failed_submissions,
-      new_0781_primary_path_submissions: new_0781_primary_path_submissions,
-      new_0781_secondary_path_submissions: new_0781_secondary_path_submissions,
+      new_0781_in_progress_forms:,
+      new_0781_submissions:,
+      new_0781_successful_submissions:,
+      new_0781_failed_submissions:,
+      new_0781_primary_path_submissions:,
+      new_0781_secondary_path_submissions:,
 
       # Old 0781 form metrics
-      old_0781_in_progress_forms: old_0781_in_progress_forms,
-      old_0781_submissions: old_0781_submissions,
-      old_0781_successful_submissions: old_0781_successful_submissions,
-      old_0781_failed_submissions: old_0781_failed_submissions
+      old_0781_in_progress_forms:,
+      old_0781_submissions:,
+      old_0781_successful_submissions:,
+      old_0781_failed_submissions:
     }
   end
 
@@ -92,16 +92,16 @@ class Form0781StateSnapshotJob
 
   def new_0781_primary_path_submissions
     form526_submissions.where('created_at >= ?', ROLLOUT_DATE)
-                     .where.not(submitted_claim_id: nil)
-                     .select { |sub| new_0781_form?(sub) }
-                     .pluck(:id)
+                       .where.not(submitted_claim_id: nil)
+                       .select { |sub| new_0781_form?(sub) }
+                       .pluck(:id)
   end
 
   def new_0781_secondary_path_submissions
     form526_submissions.where('created_at >= ?', ROLLOUT_DATE)
-                     .where(submitted_claim_id: nil)
-                     .select { |sub| new_0781_form?(sub) }
-                     .pluck(:id)
+                       .where(submitted_claim_id: nil)
+                       .select { |sub| new_0781_form?(sub) }
+                       .pluck(:id)
   end
 
   # Helper methods for old 0781 form metrics
