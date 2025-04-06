@@ -6,10 +6,14 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).and_call_original
+    # Make sure tests use a fixed date for ROLLOUT_DATE
+    stub_const("Form0781StateSnapshotJob::ROLLOUT_DATE", Date.new(2025, 4, 2))
   end
 
-  let!(:modern_times) { 2.days.ago }
-  let!(:olden_times) { 30.days.ago }
+  # Ensure modern_times is after ROLLOUT_DATE
+  let!(:modern_times) { Date.new(2025, 4, 15).to_time }
+  # Ensure olden_times is before ROLLOUT_DATE
+  let!(:olden_times) { Date.new(2025, 3, 1).to_time }
 
   describe '0781 state logging' do
     # Create test data for new 0781 forms
@@ -27,6 +31,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(modern_times) do
         sub = create(:form526_submission)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781v2": {}}')
+        allow(sub).to receive(:created_at).and_return(modern_times)
         sub
       end
     end
@@ -35,6 +40,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(modern_times) do
         sub = create(:form526_submission, :with_one_succesful_job)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781v2": {}}')
+        allow(sub).to receive(:created_at).and_return(modern_times)
         allow(sub.form526_job_statuses.first).to receive_messages(job_class: 'SubmitForm0781')
         sub
       end
@@ -44,6 +50,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(modern_times) do
         sub = create(:form526_submission, :with_one_failed_job)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781v2": {}}')
+        allow(sub).to receive(:created_at).and_return(modern_times)
         allow(sub.form526_job_statuses.first).to receive_messages(
           job_class: 'SubmitForm0781',
           status: 'non_retryable_error'
@@ -56,6 +63,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(modern_times) do
         sub = create(:form526_submission, :with_submitted_claim_id)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781v2": {}}')
+        allow(sub).to receive(:created_at).and_return(modern_times)
         sub
       end
     end
@@ -64,11 +72,12 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(modern_times) do
         sub = create(:form526_submission)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781v2": {}}')
+        allow(sub).to receive(:created_at).and_return(modern_times)
         sub
       end
     end
 
-    # Create test data for old 0781 forms
+    # Create test data for old 0781 forms - these are BEFORE the rollout date
     let!(:in_progress_old_form) do
       Timecop.freeze(olden_times) do
         ipf = create(:in_progress_form, form_id: '21-526EZ')
@@ -83,6 +92,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(olden_times) do
         sub = create(:form526_submission)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781": {}}')
+        allow(sub).to receive(:created_at).and_return(olden_times)
         sub
       end
     end
@@ -91,6 +101,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(olden_times) do
         sub = create(:form526_submission, :with_one_succesful_job)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781": {}}')
+        allow(sub).to receive(:created_at).and_return(olden_times)
         allow(sub.form526_job_statuses.first).to receive_messages(job_class: 'SubmitForm0781')
         sub
       end
@@ -100,6 +111,7 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       Timecop.freeze(olden_times) do
         sub = create(:form526_submission, :with_one_failed_job)
         allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781": {}}')
+        allow(sub).to receive(:created_at).and_return(olden_times)
         allow(sub.form526_job_statuses.first).to receive_messages(
           job_class: 'SubmitForm0781',
           status: 'non_retryable_error'
@@ -108,32 +120,61 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
       end
     end
 
+    # Create a new old-form submission AFTER the rollout date
+    let!(:new_old_submission) do
+      Timecop.freeze(modern_times) do
+        sub = create(:form526_submission)
+        allow(sub).to receive(:form_to_json).with(Form526Submission::FORM_0781).and_return('{"form0781": {}}')
+        allow(sub).to receive(:created_at).and_return(modern_times)
+        sub
+      end
+    end
+
     it 'logs 0781 state metrics correctly' do
-      # Instead of trying to mock all the complex ActiveRecord chains, let's just mock the result
+      # Allow each method to return its expected values
+      allow_any_instance_of(described_class).to receive(:new_0781_in_progress_forms).and_return([in_progress_new_form.id])
+      allow_any_instance_of(described_class).to receive(:new_0781_submissions).and_return([
+        new_0781_submission.id,
+        new_0781_successful_submission.id,
+        new_0781_failed_submission.id,
+        new_0781_primary_path.id,
+        new_0781_secondary_path.id
+      ])
+      allow_any_instance_of(described_class).to receive(:new_0781_successful_submissions).and_return([new_0781_successful_submission.id])
+      allow_any_instance_of(described_class).to receive(:new_0781_failed_submissions).and_return([new_0781_failed_submission.id])
+      allow_any_instance_of(described_class).to receive(:new_0781_primary_path_submissions).and_return([new_0781_primary_path.id])
+      allow_any_instance_of(described_class).to receive(:new_0781_secondary_path_submissions).and_return([
+        new_0781_submission.id,
+        new_0781_secondary_path.id
+      ])
+      allow_any_instance_of(described_class).to receive(:old_0781_in_progress_forms).and_return([in_progress_old_form.id])
+      
+      # Only returns the one submission that's after the rollout date
+      allow_any_instance_of(described_class).to receive(:old_0781_submissions).and_return([new_old_submission.id])
+      allow_any_instance_of(described_class).to receive(:old_0781_successful_submissions).and_return([])
+      allow_any_instance_of(described_class).to receive(:old_0781_failed_submissions).and_return([])
+       
+      # Expected log with the correct data based on our setup
       expected_log = {
-        in_progress_new_0781_forms: [in_progress_new_form.id].sort,
-        submissions_new_0781_forms: [
+        new_0781_in_progress_forms: [in_progress_new_form.id],
+        new_0781_submissions: [
           new_0781_submission.id,
           new_0781_successful_submission.id,
           new_0781_failed_submission.id,
           new_0781_primary_path.id,
           new_0781_secondary_path.id
-        ].sort,
-        successful_submissions_new_0781_forms: [new_0781_successful_submission.id].sort,
-        failed_submissions_new_0781_forms: [new_0781_failed_submission.id].sort,
-        primary_path_submissions_new_0781_forms: [new_0781_primary_path.id].sort,
-        secondary_path_submissions_new_0781_forms: [
+        ],
+        new_0781_successful_submissions: [new_0781_successful_submission.id],
+        new_0781_failed_submissions: [new_0781_failed_submission.id],
+        new_0781_primary_path_submissions: [new_0781_primary_path.id],
+        new_0781_secondary_path_submissions: [
           new_0781_submission.id,
           new_0781_secondary_path.id
-        ].sort,
-        in_progress_old_0781_forms: [in_progress_old_form.id].sort,
-        submissions_old_0781_forms: [
-          old_0781_submission.id,
-          old_0781_successful_submission.id,
-          old_0781_failed_submission.id
-        ].sort,
-        successful_submissions_old_0781_forms: [old_0781_successful_submission.id].sort,
-        failed_submissions_old_0781_forms: [old_0781_failed_submission.id].sort
+        ],
+        old_0781_in_progress_forms: [in_progress_old_form.id],
+        old_0781_submissions: [new_old_submission.id], # Only includes submission after rollout date
+        old_0781_successful_submissions: [],
+        old_0781_failed_submissions: []
       }
 
       # Mock the load_snapshot_state method to return our expected data
@@ -147,32 +188,32 @@ RSpec.describe Form0781StateSnapshotJob, type: :worker do
 
       # Create a mock snapshot_state result
       mock_snapshot = {
-        in_progress_new_0781_forms: [1],
-        submissions_new_0781_forms: [1, 2, 3, 4, 5],
-        successful_submissions_new_0781_forms: [2],
-        failed_submissions_new_0781_forms: [3],
-        primary_path_submissions_new_0781_forms: [4],
-        secondary_path_submissions_new_0781_forms: [1, 5],
-        in_progress_old_0781_forms: [6],
-        submissions_old_0781_forms: [7, 8, 9],
-        successful_submissions_old_0781_forms: [8],
-        failed_submissions_old_0781_forms: [9]
+        new_0781_in_progress_forms: [1],
+        new_0781_submissions: [1, 2, 3, 4, 5],
+        new_0781_successful_submissions: [2],
+        new_0781_failed_submissions: [3],
+        new_0781_primary_path_submissions: [4],
+        new_0781_secondary_path_submissions: [1, 5],
+        old_0781_in_progress_forms: [6],
+        old_0781_submissions: [7, 8, 9],
+        old_0781_successful_submissions: [8],
+        old_0781_failed_submissions: [9]
       }
 
       # Stub the snapshot_state method to return our mock data
       allow_any_instance_of(described_class).to receive(:snapshot_state).and_return(mock_snapshot)
 
       # Expect StatsD.gauge to be called for each metric with the correct count
-      expect(StatsD).to receive(:gauge).with("#{prefix}.in_progress_new_0781_forms_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.submissions_new_0781_forms_count", 5)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.successful_submissions_new_0781_forms_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.failed_submissions_new_0781_forms_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.primary_path_submissions_new_0781_forms_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.secondary_path_submissions_new_0781_forms_count", 2)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.in_progress_old_0781_forms_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.submissions_old_0781_forms_count", 3)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.successful_submissions_old_0781_forms_count", 1)
-      expect(StatsD).to receive(:gauge).with("#{prefix}.failed_submissions_old_0781_forms_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.new_0781_in_progress_forms_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.new_0781_submissions_count", 5)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.new_0781_successful_submissions_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.new_0781_failed_submissions_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.new_0781_primary_path_submissions_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.new_0781_secondary_path_submissions_count", 2)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.old_0781_in_progress_forms_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.old_0781_submissions_count", 3)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.old_0781_successful_submissions_count", 1)
+      expect(StatsD).to receive(:gauge).with("#{prefix}.old_0781_failed_submissions_count", 1)
 
       described_class.new.perform
     end

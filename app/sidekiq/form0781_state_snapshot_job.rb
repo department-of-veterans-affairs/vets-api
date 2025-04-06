@@ -6,6 +6,7 @@ class Form0781StateSnapshotJob
   sidekiq_options retry: false
 
   STATSD_PREFIX = 'form0781.state.snapshot'
+  ROLLOUT_DATE = Date.new(2025, 4, 2)
 
   def perform
     write_0781_snapshot
@@ -36,18 +37,18 @@ class Form0781StateSnapshotJob
   def load_snapshot_state
     {
       # New 0781 form metrics
-      in_progress_new_0781_forms: new_0781_in_progress_forms,
-      submissions_new_0781_forms: new_0781_submissions,
-      successful_submissions_new_0781_forms: new_0781_successful_submissions,
-      failed_submissions_new_0781_forms: new_0781_failed_submissions,
-      primary_path_submissions_new_0781_forms: new_0781_primary_path_submissions,
-      secondary_path_submissions_new_0781_forms: new_0781_secondary_path_submissions,
+      new_0781_in_progress_forms: new_0781_in_progress_forms,
+      new_0781_submissions: new_0781_submissions,
+      new_0781_successful_submissions: new_0781_successful_submissions,
+      new_0781_failed_submissions: new_0781_failed_submissions,
+      new_0781_primary_path_submissions: new_0781_primary_path_submissions,
+      new_0781_secondary_path_submissions: new_0781_secondary_path_submissions,
 
       # Old 0781 form metrics
-      in_progress_old_0781_forms: old_0781_in_progress_forms,
-      submissions_old_0781_forms: old_0781_submissions,
-      successful_submissions_old_0781_forms: old_0781_successful_submissions,
-      failed_submissions_old_0781_forms: old_0781_failed_submissions
+      old_0781_in_progress_forms: old_0781_in_progress_forms,
+      old_0781_submissions: old_0781_submissions,
+      old_0781_successful_submissions: old_0781_successful_submissions,
+      old_0781_failed_submissions: old_0781_failed_submissions
     }
   end
 
@@ -55,7 +56,7 @@ class Form0781StateSnapshotJob
   def new_0781_in_progress_forms
     InProgressForm.where(form_id: '21-526EZ')
                   .select { |ipf| new_mental_health_workflow?(ipf) }
-                  .map(&:id).sort
+                  .pluck(:id)
   end
 
   def new_mental_health_workflow?(ipf)
@@ -63,46 +64,51 @@ class Form0781StateSnapshotJob
   end
 
   def new_0781_submissions
-    Form526Submission
+    form526_submissions
+      .where('created_at >= ?', ROLLOUT_DATE)
       .select { |sub| new_0781_form?(sub) }
-      .map(&:id).sort
+      .pluck(:id)
   end
 
   def new_0781_successful_submissions
-    Form526Submission
+    form526_submissions
+      .where('created_at >= ?', ROLLOUT_DATE)
       .select do |sub|
         next unless new_0781_form?(sub)
 
         form0781_job_success?(sub)
-      end.map(&:id).sort
+      end.pluck(:id)
   end
 
   def new_0781_failed_submissions
-    Form526Submission
+    form526_submissions
+      .where('created_at >= ?', ROLLOUT_DATE)
       .select do |sub|
         next unless new_0781_form?(sub)
 
         form0781_job_failure?(sub)
-      end.map(&:id).sort
+      end.pluck(:id)
   end
 
   def new_0781_primary_path_submissions
-    Form526Submission.where.not(submitted_claim_id: nil)
+    form526_submissions.where('created_at >= ?', ROLLOUT_DATE)
+                     .where.not(submitted_claim_id: nil)
                      .select { |sub| new_0781_form?(sub) }
-                     .map(&:id).sort
+                     .pluck(:id)
   end
 
   def new_0781_secondary_path_submissions
-    Form526Submission.where(submitted_claim_id: nil)
+    form526_submissions.where('created_at >= ?', ROLLOUT_DATE)
+                     .where(submitted_claim_id: nil)
                      .select { |sub| new_0781_form?(sub) }
-                     .map(&:id).sort
+                     .pluck(:id)
   end
 
   # Helper methods for old 0781 form metrics
   def old_0781_in_progress_forms
     InProgressForm.where(form_id: '21-526EZ')
                   .select { |ipf| old_ptsd_types_selected?(ipf) }
-                  .map(&:id).sort
+                  .pluck(:id)
   end
 
   def old_ptsd_types_selected?(ipf)
@@ -110,30 +116,37 @@ class Form0781StateSnapshotJob
   end
 
   def old_0781_submissions
-    Form526Submission
+    form526_submissions
+      .where('created_at >= ?', ROLLOUT_DATE)
       .reject { |sub| new_0781_form?(sub) }
-      .map(&:id).sort
+      .pluck(:id)
   end
 
   def old_0781_successful_submissions
-    Form526Submission
+    form526_submissions
+      .where('created_at >= ?', ROLLOUT_DATE)
       .select do |sub|
         next if new_0781_form?(sub)
 
         form0781_job_success?(sub)
-      end.map(&:id).sort
+      end.pluck(:id)
   end
 
   def old_0781_failed_submissions
-    Form526Submission
+    form526_submissions
+      .where('created_at >= ?', ROLLOUT_DATE)
       .select do |sub|
         next if new_0781_form?(sub)
 
         form0781_job_failure?(sub)
-      end.map(&:id).sort
+      end.pluck(:id)
   end
 
   # Common helper methods
+  def form526_submissions
+    @form526_submissions ||= Form526Submission.all
+  end
+
   def new_0781_form?(submission)
     JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))&.keys&.include?('form0781v2')
   end

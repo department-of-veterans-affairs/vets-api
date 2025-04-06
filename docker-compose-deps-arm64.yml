@@ -1,0 +1,19 @@
+version: '3.4'
+services:
+  redis:
+    image: redis:6.2-alpine
+    platform: linux/arm64
+    ports:
+      - "63790:6379"
+  postgres:
+    image: postgis/postgis:15-3.3-alpine
+    platform: linux/arm64
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    volumes:
+      - ./data:/var/lib/postgresql/data:cached
+    ports:
+      - "54320:5432"
+volumes:
+ shared-vol:
