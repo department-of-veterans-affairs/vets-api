@@ -57,8 +57,12 @@ module SignIn
       service_levels.include?(acr)
     end
 
-    def device_sso_enabled?
+    def api_sso_enabled?
       api_auth? && shared_sessions
+    end
+
+    def web_sso_enabled?
+      cookie_auth? && shared_sessions
     end
 
     private

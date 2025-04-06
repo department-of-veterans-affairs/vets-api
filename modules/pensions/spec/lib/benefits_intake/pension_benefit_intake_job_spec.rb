@@ -5,6 +5,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/notification_email'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
@@ -21,6 +22,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:pension_kafka_event_bus_submission_enabled).and_return(true)
 
       job.instance_variable_set(:@claim, claim)
       allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
@@ -49,6 +51,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -71,6 +74,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -89,6 +93,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
+      expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
       expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
@@ -107,6 +112,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(BenefitsIntake::Service).not_to receive(:new)
       expect(claim).not_to receive(:to_pdf)
 
+      expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
       expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
@@ -293,8 +299,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occured',
-        'queue' => nil }
+      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
     end
 
     before do
@@ -304,6 +310,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     context 'when retries are exhausted' do
       it 'logs a distinct error when no claim_id provided' do
         Pensions::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+          expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
@@ -313,6 +320,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
           exhaustion_msg['args'] = [claim.id]
 
@@ -325,6 +333,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
           exhaustion_msg['args'] = [claim.id, 2]
 
@@ -336,6 +345,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
+          expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
           exhaustion_msg['args'] = [claim.id - 1, 2]
 

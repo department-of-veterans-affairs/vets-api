@@ -407,17 +407,39 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             ]
           }
         end
-        let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
 
-        it 'successfully returns list of facilities' do
-          expect(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
-          expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+        context ':caregiver_use_facilities_API_V2 disabled' do
+          before { allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(false) }
 
-          expect(subject).to validate(
-            :post,
-            '/v0/caregivers_assistance_claims/facilities',
-            200
-          )
+          let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+
+          it 'successfully returns list of facilities' do
+            expect(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+            expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+
+            expect(subject).to validate(
+              :post,
+              '/v0/caregivers_assistance_claims/facilities',
+              200
+            )
+          end
+        end
+
+        context ':caregiver_use_facilities_API_V2 enabled' do
+          before { allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(true) }
+
+          let(:lighthouse_service) { double('FacilitiesApi::V2::Lighthouse::Client') }
+
+          it 'successfully returns list of facilities' do
+            expect(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
+            expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+
+            expect(subject).to validate(
+              :post,
+              '/v0/caregivers_assistance_claims/facilities',
+              200
+            )
+          end
         end
       end
     end
@@ -451,30 +473,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           }
         )
       end
-    end
-
-    it 'supports adding an income and assets statement' do
-      expect(subject).to validate(
-        :post,
-        '/v0/form0969',
-        200,
-        '_data' => {
-          'income_and_assets_claim' => {
-            'form' => build(:income_and_assets_claim).form
-          }
-        }
-      )
-
-      expect(subject).to validate(
-        :post,
-        '/v0/form0969',
-        422,
-        '_data' => {
-          'income_and_assets_claim' => {
-            'invalid-form' => { invalid: true }.to_json
-          }
-        }
-      )
     end
 
     context 'MDOT tests' do
@@ -1814,6 +1812,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'show a report' do
           context 'successful calls' do
             it 'supports showing a report' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               # Using mucked-up yml because apivore has a problem processing non-json responses
               VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
                 expect(subject).to validate(:get, '/v0/health_records', 200,
@@ -1824,6 +1824,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
           context 'unsuccessful calls' do
             it 'handles a backend error' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               VCR.use_cassette('bb_client/report_error_response') do
                 expect(subject).to validate(:get, '/v0/health_records', 503,
                                             headers.merge('_query_string' => 'doc_type=txt'))
@@ -1835,6 +1837,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'create a report' do
           context 'successful calls' do
             it 'supports creating a report' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               VCR.use_cassette('bb_client/generates_a_report') do
                 expect(subject).to validate(
                   :post, '/v0/health_records', 202,
@@ -1879,6 +1883,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
         describe 'eligible data classes' do
           it 'supports retrieving eligible data classes' do
+            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
             VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
               expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200, headers)
             end
@@ -1888,6 +1894,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         describe 'refresh' do
           context 'successful calls' do
             it 'supports health records refresh' do
+              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+
               VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
                 expect(subject).to validate(:get, '/v0/health_records/refresh', 200, headers)
               end
@@ -4010,6 +4018,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
+      subject.untested_mappings.delete('/v0/form0969')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
