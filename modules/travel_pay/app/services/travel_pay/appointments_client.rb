@@ -21,7 +21,7 @@ module TravelPay
     def get_all_appointments(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       query_path = if params.empty?
                      'api/v1.2/appointments'
                    else
