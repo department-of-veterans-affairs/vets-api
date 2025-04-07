@@ -842,7 +842,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         .with(hash_including('form' => form_data))
         .and_return(health_care_application)
 
-      allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
       expect(PdfFill::Filler).to receive(:fill_form).exactly(3).times.and_raise(StandardError, 'error filling form')
 
       expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
