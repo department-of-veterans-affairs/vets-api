@@ -13,7 +13,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       status: 'delivered',
       notification_type: 'email',
       to: 'user@example.com',
-      status_reason: '',
+      status_reason: ''
     }
   end
   let(:callback_route) { '/va_notify/callbacks' }
