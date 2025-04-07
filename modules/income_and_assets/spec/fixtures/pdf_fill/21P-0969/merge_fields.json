@@ -397,9 +397,30 @@
       "haveAuthorityOrControlOfTrustOverflow": true
     }
   ],
+  "discontinuedIncomes": [
+    {
+      "grossAnnualAmount": 100000,
+      "incomeLastReceivedDate": "2024-01-01",
+      "incomeFrequency": "RECURRING",
+      "incomeType": "Interest",
+      "payer": "James Doe",
+      "recipientName": "Jane Doe",
+      "recipientRelationship": "OTHER",
+      "otherRecipientRelationshipType": "Sibling"
+    },
+    {
+      "grossAnnualAmount": 200000,
+      "incomeLastReceivedDate": "2024-02-01",
+      "incomeFrequency": "ONE_TIME",
+      "incomeType": "Dividends",
+      "payer": "James Doe",
+      "recipientRelationship": "SPOUSE"
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
   "assetTransfer": 0,
-  "trust": 0
+  "trust": 0,
+  "discontinuedIncome": 0
 }
