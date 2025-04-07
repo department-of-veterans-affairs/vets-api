@@ -518,11 +518,15 @@ namespace :form526 do
         end
 
         vname = "#{fs.auth_headers['va_eauth_firstName']} #{fs.auth_headers['va_eauth_lastName']}"
-        icn = Account.lookup_by_user_uuid(fs.user_uuid).first&.icn
+        icn = fs.user_account&.icn
         if icn.blank?
-          # TODO: make this work for blank icn's
-          puts "icn blank #{fs.id}"
-          next
+          mpi_response = MPI::Service.new.find_profile_by_edipi(edipi: fs['va_eauth_dodedipnid'])
+          if mpi_response.ok? && mpi_response.profile.icn.present?
+            icn = mpi_response.profile.icn
+          else
+            puts "icn blank #{fs.id}"
+            next
+          end
         end
         user = OpenStruct.new(participant_id: fs.auth_headers['va_eauth_pid'], icn:, common_name: vname,
                               ssn:)
@@ -684,9 +688,10 @@ namespace :form526 do
   desc 'pretty print MPI profile for submission'
   task mpi: :environment do |_, args|
     def puts_mpi_profile(submission)
-      ids = {}
-      ids[:edipi] = edipi submission.auth_headers
-      ids[:icn] = icn ids[:edipi]
+      edipi = submission.auth_headers['va_eauth_dodedipnid']
+      raise Error, 'no edipi' unless edipi
+
+      ids = { edipi:, icn: submission.user_account&.icn || fetch_mpi_icn(edipi:) }
 
       pp mpi_profile(user_identity(**ids)).as_json
     end
@@ -707,17 +712,9 @@ namespace :form526 do
       OpenStruct.new mhv_icn: icn, edipi:
     end
 
-    def edipi(auth_headers)
-      auth_headers['va_eauth_dodedipnid']
-    end
-
-    def icn(edipi)
-      raise Error, 'no edipi' unless edipi
-
-      icns = Account.where(edipi:).pluck :icn
-      raise Error, 'multiple icns' if icns.uniq.length > 1
-
-      icns.first
+    def fetch_mpi_icn(edipi:)
+      mpi_response = MPI::Service.new.find_profile_by_edipi(edipi:)
+      mpi_response.profile.icn if mpi_response.ok? && mpi_response.profile.icn.present?
     end
 
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }
