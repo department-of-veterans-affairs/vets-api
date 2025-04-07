@@ -17,8 +17,9 @@ module Kafka
       payload = msg['args'].first
       use_test_topic = msg['args'].second
       topic = get_topic(use_test_topic:)
+      redacted_payload = redact_icn(payload)
 
-      monitor.track_submission_exhaustion(msg, topic, payload)
+      monitor.track_submission_exhaustion(msg, topic, redacted_payload)
     end
 
     # Performs the job of producing a message to a Kafka topic
@@ -30,9 +31,11 @@ module Kafka
       topic = get_topic(use_test_topic:)
 
       Kafka::AvroProducer.new.produce(payload, topic)
-      @monitor.track_submission_success(topic, payload)
+      redacted_payload = redact_icn(payload)
+      @monitor.track_submission_success(topic, redacted_payload)
     rescue => e
-      @monitor.track_submission_failure(topic, payload, e)
+      redacted_payload = redact_icn(payload)
+      @monitor.track_submission_failure(topic, redacted_payload, e)
       raise e
     end
   end

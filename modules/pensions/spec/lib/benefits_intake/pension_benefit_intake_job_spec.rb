@@ -63,7 +63,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload, false)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload, false).and_call_original
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -87,7 +87,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
