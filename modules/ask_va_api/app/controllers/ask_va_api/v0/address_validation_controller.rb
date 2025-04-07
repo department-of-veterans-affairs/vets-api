@@ -7,7 +7,7 @@ require 'va_profile/v3/address_validation/service'
 
 module AskVAApi
   module V0
-    class AddressValidationController < ApplicationController
+    class AddressValidationController < ::ApplicationController
       skip_before_action :authenticate
       skip_before_action :verify_authenticity_token
       service_tag 'profile'
