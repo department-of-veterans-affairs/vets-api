@@ -7,6 +7,7 @@ require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
 require 'hca/overrides_parser'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
@@ -128,8 +129,7 @@ class HealthCareApplication < ApplicationRecord
     save!
     Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
 
-    # SEND "received" message to EventBus
-    Kafka::EventBusSubmissionJob.perform_async('submission_trace_mock_stage', build_event_payload('received')) if Flipper.enabled?(:hca_kafka_submission_enabled)
+    send_event_bus_event('received')
 
     if email.present?
       submit_async
@@ -223,10 +223,7 @@ class HealthCareApplication < ApplicationRecord
       timestamp: result[:timestamp]
     )
 
-    Kafka::EventBusSubmissionJob.perform_async(
-      'submission_trace_mock_stage',
-      build_event_payload('sent', result[:formSubmissionId].to_s)
-    ) if Flipper.enabled?(:hca_kafka_submission_enabled)
+    send_event_bus_event('sent', result[:formSubmissionId].to_s)
 
     Rails.logger.info '~~~~~~~~~~~~~~~ sent'
   end
@@ -259,7 +256,7 @@ class HealthCareApplication < ApplicationRecord
       }
     }
 
-    payload['data'].merge!('nextID' => next_id.to_s) if next_id
+    payload['data'].merge!('nextID' => next_id.to_s) if next_id.present?
     payload
   end
 
@@ -318,11 +315,8 @@ class HealthCareApplication < ApplicationRecord
 
   def log_submission_failure_details
     return if parsed_form.blank?
-    Kafka::EventBusSubmissionJob.perform_async(
-      # replace with prod topic name
-      'submission_trace_mock_stage',
-      build_event_payload('error')
-    ) if Flipper.enabled?(:hca_kafka_submission_enabled)
+
+    send_event_bus_event('error')
 
     PersonalInformationLog.create!(
       data: parsed_form,
@@ -370,5 +364,14 @@ class HealthCareApplication < ApplicationRecord
         errors.add(:form, v.to_s)
       end
     end
+  end
+
+  def send_event_bus_event(status, next_id = nil)
+    return unless Flipper.enabled?(:hca_kafka_submission_enabled)
+
+    payload = build_event_payload(status, next_id)
+    Kafka::EventBusSubmissionJob.perform_async(
+      'submission_trace_mock_stage', payload
+    )
   end
 end
