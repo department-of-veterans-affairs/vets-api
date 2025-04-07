@@ -8,16 +8,22 @@ require 'income_and_assets/helpers'
 
 # rubocop:disable Metrics/ClassLength
 
-module PdfFill
+module IncomeAndAssets::PdfFill
   # Forms
   module Forms
     # The Va21p0969 Form
-    class Va21p0969 < FormBase
-      include FormHelper
+    class Va21p0969 < ::PdfFill::Forms::FormBase
+      include ::PdfFill::Forms::FormHelper
       include IncomeAndAssets::Helpers
 
       # Hash iterator
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      # The ID of the form being processed
+      FORM_ID = '21P-0969'
+
+      # The path to the PDF template for the form
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
 
       # Hash keys
       KEY = {
@@ -559,7 +565,17 @@ module PdfFill
             question_suffix: '(m)',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
+        },
+        # Section 13
+        # NOTE: No overflow for this section
+        # 13a
+        'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
+        'statementOfTruthDate' => {
+          'month' => { key: 'F[0].#subform[9].DateSigned13bMonth[0]' },
+          'day' => { key: 'F[0].#subform[9].DateIncomeLastPaidMonthDay[0]' },
+          'year' => { key: 'F[0].#subform[9].DateIncomeLastPaidMonthYear[0]' }
         }
+        # 13b
       }.freeze
 
       # Post-process form data to match the expected format.
@@ -577,6 +593,7 @@ module PdfFill
         expand_owned_assets
         expand_asset_transfers
         expand_trusts
+        expand_statement_of_truth
 
         form_data
       end
@@ -830,6 +847,18 @@ module PdfFill
           overflow["#{fieldname}Overflow"] = trust[fieldname]
         end
         expanded.merge(overflow)
+      end
+
+      # Section 13
+      ##
+      # Expands statement of truth section
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_statement_of_truth
+        # We want today's date in the form 'YYYY-MM-DD' as that's the format it comes
+        # back from vets-website in
+        form_data['statementOfTruthDate'] = split_date(Date.current.iso8601)
       end
     end
   end

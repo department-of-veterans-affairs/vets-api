@@ -401,5 +401,10 @@
   "associatedIncome": 0,
   "ownedAsset": 0,
   "assetTransfer": 0,
-  "trust": 0
+  "trust": 0,
+  "statementOfTruthDate": {
+    "month": "12",
+    "day": "31",
+    "year": "2016"
+  }
 }
