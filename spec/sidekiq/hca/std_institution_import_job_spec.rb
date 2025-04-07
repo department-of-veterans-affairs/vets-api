@@ -123,10 +123,20 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
         CSV
       end
 
-      it 'enqueues HCA::HealthFacilitiesImportJob' do
+      it 'enqueues when :hca_cache_facilities_job is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities_job).and_return(true)
         allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
 
         expect(HCA::HealthFacilitiesImportJob).to receive(:perform_async)
+
+        described_class.new.perform
+      end
+
+      it 'does not enqueue when :hca_cache_facilities_job is disabled' do
+        allow(Flipper).to receive(:enabled?).with(:hca_cache_facilities_job).and_return(false)
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
+
+        expect(HCA::HealthFacilitiesImportJob).not_to receive(:perform_async)
 
         described_class.new.perform
       end

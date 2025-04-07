@@ -133,7 +133,7 @@ FactoryBot.define do
               NOAA
               USPHS
             ].sample,
-            phone: Faker::PhoneNumber.phone_number.gsub(/\D/, ''),
+            phone: Faker::PhoneNumber.phone_number,
             email: Faker::Internet.email
           }
         }

@@ -9,52 +9,42 @@ class LogService
   end
 
   def call(action, tags: {}, &block)
-    span = nil
+    return if Rails.env.production?
 
-    trace_and_annotate_action(action, tags) do |s|
-      @span = span = s
-
-      if block
-        if block.arity == 1
-          block.call(span)
-        else
-          @elapsed_time = Benchmark.realtime { @result = block.call }
-        end
-      end
-    end
-
+    trace_and_annotate_action(action, tags) { time_action(&block) }
     log_timing_metric(action)
     result
   rescue => e
-    handle_logging_error(action, e, span)
+    handle_logging_error(action, e)
   end
 
   private
 
   def trace_and_annotate_action(action, tags)
-    @tracer.trace(action) do |span|
-      yield(span) if block_given?
-      set_tags_and_metrics(span, action, tags)
+    @tracer.trace(action) do |s|
+      @span = s
+      yield
+      set_tags_and_metrics(action, tags)
     end
   end
 
-  def set_tags_and_metrics(span, action, tags)
-    tags.each { |key, value| span.set_tag(key.to_s, value.to_s) }
+  def set_tags_and_metrics(action, tags)
+    tags.each { |key, value| span.set_tag(key, value) }
+    span.set_metric("#{action}.time", (elapsed_time * 1000).to_i)
+  end
 
-    # Prevent error if @elapsed_time is nil
-    span.set_metric("#{action}.time", (elapsed_time * 1000).to_i) if elapsed_time
+  def time_action
+    @elapsed_time = Benchmark.realtime { @result = yield }
   end
 
   def log_timing_metric(action)
-    @logger.info("Timing for #{action}: #{(elapsed_time * 1000).to_i}ms") if elapsed_time
+    @logger.info("Timing for #{action}: #{(elapsed_time * 1000).to_i}ms")
   end
 
-  def handle_logging_error(action, error, span)
+  def handle_logging_error(action, error)
     @logger.error("Error logging action #{action}: #{error.message}")
-    if span
-      span.set_tag('error', true)
-      span.set_tag('error.msg', error.message)
-      span.set_error(error) if span.respond_to?(:set_error)
-    end
+    span&.set_tag('error', true)
+    span&.set_tag('error.msg', error.message)
+    nil
   end
 end
