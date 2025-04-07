@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'datadog'
+require 'ves_api/client'
 
 module IvcChampva
   module V1
@@ -28,22 +29,15 @@ module IvcChampva
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
 
-          # TODO: add same feature toggle as below for VES integration
-          # expect this formatter to raise errors if data is invalid
-          # ves_request = IvcChampva::VesDataFormatter.format(parsed_form_data)
-          statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
+          ves_request = prepare_ves_request(form_id, parsed_form_data)
 
+          statuses, error_message = call_handle_file_uploads(form_id, parsed_form_data)
           response = build_json(statuses, error_message)
+
+          submit_ves_request(form_id, ves_request) if response[:status] == 200
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
-            # TODO: Add feature toggle around this
-            # TODO: Make call to VES with parsed_form_data e.g.,
-
-            # ves_client = IvcChampva::VesApi::Client.new
-            # ves_client.submit_1010d('fake-id', 'fake-user', ves_request)
-
-            # TODO: Add error handling for VES failures.
           end
 
           render json: response[:json], status: response[:status]
@@ -52,6 +46,36 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      # Prepares data for VES, raising an exception if this cannot be done
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @return [IvcChampva::VesRequest, nil] the formatted request data
+      def prepare_ves_request(form_id, parsed_form_data)
+        ves_request = nil
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
+           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+          # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
+          ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+          raise 'Failed to format data for VES submission' if ves_request.nil?
+        end
+        ves_request
+      end
+
+      # Submits data to VES while ignoring any errors that occur
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [IvcChampva::VesRequest, nil] ves_request the formatted request data
+      def submit_ves_request(form_id, ves_request)
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) && Settings.vsp_environment != 'production' &&
+           form_id == 'vha_10_10d' && !ves_request.nil?
+          ves_client = IvcChampva::VesApi::Client.new
+          begin
+            ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
+          rescue => e
+            Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
+          end
+        end
       end
 
       def call_handle_file_uploads(form_id, parsed_form_data)
@@ -96,13 +120,8 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
-          if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
-            unlocked = unlock_file(params['file'], params['password'])
-            attachment.file = params['password'] ? unlocked : params['file']
-          else
-            attachment.file = params['file']
-          end
-
+          unlocked = unlock_file(params['file'], params['password'])
+          attachment.file = params['password'] ? unlocked : params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -131,7 +150,7 @@ module IvcChampva
 
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 
@@ -162,7 +181,7 @@ module IvcChampva
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
 

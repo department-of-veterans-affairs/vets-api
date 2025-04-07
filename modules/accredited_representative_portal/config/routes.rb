@@ -19,6 +19,9 @@ AccreditedRepresentativePortal::Engine.routes.draw do
       resources :in_progress_forms, only: %i[update show destroy]
     end
 
+    post '/submit_representative_form', to: 'representative_form_upload#submit'
+    post '/representative_form_upload', to: 'representative_form_upload#upload_scanned_form'
+
     resources :power_of_attorney_requests, only: %i[index show] do
       resource :decision, only: :create, controller: 'power_of_attorney_request_decisions'
     end
@@ -26,5 +29,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     namespace :claimant do
       post 'power_of_attorney_requests', to: 'power_of_attorney_requests#index'
     end
+
+    resources :intent_to_file, only: %i[show create]
   end
 end
