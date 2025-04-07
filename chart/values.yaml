@@ -2,7 +2,7 @@ parameters:
   - SETTINGS__HOSTNAME
   - SETTINGS__VIRTUAL_HOSTS
   - SETTINGS__VSP_ENVIRONMENT
-appName:
+appName: vets-api
 target_env:
 domain:
 manualRoll:
@@ -14,7 +14,7 @@ image:
 git_container_repo:
 git_container_version:
 vsp_environment:
-affinityWeight:
+affinityWeight: 100
 mockData:
   enabled: false
   branch: master
@@ -34,12 +34,12 @@ web:
   strategyType:
   maxSurge:
   maxUnavailable:
-  containers:
-    ports:
-      - containerPort:
-        name: web
-      - containerPort:
-        name:
+    containers:
+      ports:
+        - containerPort: 3000
+          name: web
+        - containerPort: 9293
+          name: stats
   healthCheck:
     host:
   livenessProbe:
