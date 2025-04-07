@@ -20,6 +20,7 @@ module MyHealth
       attribute :attachments do |object|
         (1..4).each_with_object([]) do |i, array|
           unless object.send("attachment#{i}_id").nil?
+            # TODO: do we need to validate the attachment filetype?
             attachment = {
               id: object.send("attachment#{i}_id"),
               message_id: object.message_id,

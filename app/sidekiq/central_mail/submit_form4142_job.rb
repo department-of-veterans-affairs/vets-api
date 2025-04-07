@@ -155,6 +155,7 @@ module CentralMail
     end
 
     def upload_to_central_mail
+      # TODO: do we need to validate the attachment filetype?
       CentralMail::Service.new.upload(processor.request_body)
     end
 

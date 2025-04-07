@@ -18,6 +18,7 @@ module SimpleFormsApi
       end
 
       def upload_scanned_form
+        # TODO: do we need to validate the attachment filetype?
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']

@@ -132,6 +132,7 @@ module BenefitsIntake
     #
     # @returns [String] path to file
     #
+    # TODO: is this being used consistently?
     def valid_document?(document:)
       result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
       raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?

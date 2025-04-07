@@ -53,6 +53,7 @@ module SimpleFormsApi
 
       def submit_supporting_documents
         if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
+          # TODO: do we need to validate the attachment filetype?
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
           file_path = params['file'].tempfile.path

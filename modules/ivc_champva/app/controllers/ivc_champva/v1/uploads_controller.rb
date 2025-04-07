@@ -88,6 +88,7 @@ module IvcChampva
 
       # Modified from claim_documents_controller.rb:
       def unlock_file(file, file_password) # rubocop:disable Metrics/MethodLength
+        # TODO: do we need to validate the attachment filetype?
         return file unless File.extname(file) == '.pdf' && file_password
 
         pdftk = PdfForms.new(Settings.binaries.pdftk)
@@ -118,6 +119,7 @@ module IvcChampva
 
       def submit_supporting_documents
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
+          # TODO: do we need to validate the attachment filetype?
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
           unlocked = unlock_file(params['file'], params['password'])

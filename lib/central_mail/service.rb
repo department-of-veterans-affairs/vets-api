@@ -30,6 +30,7 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength
     def upload(body)
+      # TODO: do we need to validate the attachment filetype?
       Sentry.set_extras(
         request: {
           metadata: body['metadata']

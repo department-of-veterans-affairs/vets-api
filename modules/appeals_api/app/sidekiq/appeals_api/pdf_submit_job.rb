@@ -43,6 +43,7 @@ module AppealsApi
       begin
         stamped_pdf = AppealsApi::PdfConstruction::Generator.new(appeal, pdf_version:).generate
         appeal.update_status!(status: 'submitting')
+        # TODO: do we need to validate the attachment filetype?
         upload_to_central_mail(appeal, stamped_pdf)
         FileUtils.rm_f(stamped_pdf)
       rescue AppealsApi::UploadError => e

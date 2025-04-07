@@ -25,6 +25,7 @@ class LighthouseSupplementalDocumentUploadProvider
     @form526_submission = form526_submission
     @va_document_type = va_document_type
     @statsd_metric_prefix = statsd_metric_prefix
+    # TODO: do we need to validate the attachment filetype?
     @supporting_evidence_attachment = supporting_evidence_attachment
   end
 

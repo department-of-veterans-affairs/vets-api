@@ -93,6 +93,7 @@ module EVSS
       private
 
       def send_notification_mailer(submission, supporting_evidence_attachment_guid)
+        # TODO: do we need to validate the attachment filetype?
         form_attachment = SupportingEvidenceAttachment.find_by!(guid: supporting_evidence_attachment_guid)
 
         # We need to obscure the original filename as it may contain PII

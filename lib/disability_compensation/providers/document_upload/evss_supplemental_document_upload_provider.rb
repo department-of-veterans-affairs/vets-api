@@ -17,6 +17,7 @@ class EVSSSupplementalDocumentUploadProvider
     @va_document_type = va_document_type
     @statsd_metric_prefix = statsd_metric_prefix
     # Unused for EVSS uploads:
+    # TODO: do we need to validate the attachment filetype?
     @supporting_evidence_attachment = supporting_evidence_attachment
   end
 

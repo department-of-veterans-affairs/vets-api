@@ -860,6 +860,7 @@ module HCA
 
       veteran['attachments']&.each_with_index do |attachment, i|
         guid = attachment['confirmationCode']
+        # TODO: do we need to validate the attachment filetype?
         form_attachment = HCAAttachment.find_by(guid:) || Form1010EzrAttachment.find_by(guid:)
 
         next if form_attachment.nil?

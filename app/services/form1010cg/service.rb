@@ -27,6 +27,7 @@ module Form1010cg
       poa_attachment_path = nil
 
       if poa_attachment_id
+        # TODO: do we need to validate the attachment filetype?
         attachment = Form1010cg::Attachment.find_by(guid: claim.parsed_form['poaAttachmentId'])
         poa_attachment_path = attachment.to_local_file if attachment
       end
