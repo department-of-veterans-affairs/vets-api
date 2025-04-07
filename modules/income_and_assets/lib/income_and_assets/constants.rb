@@ -38,7 +38,7 @@ module IncomeAndAssets
     INCOME_FREQUENCIES = {
       'RECURRING' => 0,
       'IRREGULAR' => 1,
-      'ONE_TIME_PAYMENT' => 2
+      'ONE_TIME' => 2
     }.freeze
 
     # Types of account income
