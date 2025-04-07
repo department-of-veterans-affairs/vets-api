@@ -495,7 +495,7 @@ http_interactions:
                 },
                 "patient": {
                   "reference": "Patient/30163",
-                  "display": "Amy V. Shaw"
+                  "display": "Jane V. Testuser"
                 },
                 "encounter": {
                   "reference": "Encounter/30164"
@@ -507,7 +507,7 @@ http_interactions:
                 },
                 "asserter": {
                   "reference": "Patient/30163",
-                  "display": "P. van de Heuvel"
+                  "display": "P. van de Testuser"
                 },
                 "lastOccurrence": "2012-05-24",
                 "reaction": [ {
