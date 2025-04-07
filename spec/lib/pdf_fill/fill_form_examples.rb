@@ -56,6 +56,8 @@ RSpec.shared_examples 'a form filler' do |options|
           end
 
           it 'fills the form correctly' do
+            allow(saved_claim).to receive :pdf_overflow_tracking
+
             if type == 'overflow'
               the_extras_generator = nil
 
