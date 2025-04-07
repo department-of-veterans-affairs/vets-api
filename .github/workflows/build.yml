@@ -85,12 +85,12 @@ jobs:
             ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
             ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.version.outputs.version }}
           cache-from: |
-            type=registry,ref=${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+            type=registry,ref=${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}
           cache-to: type=inline,mode=max
   deploy:
     needs: build_and_push
     if: github.ref == 'refs/heads/master' && ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
+      uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
