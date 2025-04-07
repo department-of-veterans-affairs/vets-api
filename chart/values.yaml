@@ -34,12 +34,12 @@ web:
   strategyType:
   maxSurge:
   maxUnavailable:
-    containers:
-      ports:
-        - containerPort: 3000
-          name: web
-        - containerPort: 9293
-          name: stats
+  containers:
+    ports:
+      - containerPort: 3000
+        name: web
+      - containerPort: 9293
+        name: stats
   healthCheck:
     host:
   livenessProbe:
