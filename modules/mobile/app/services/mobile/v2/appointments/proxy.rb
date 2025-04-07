@@ -37,7 +37,8 @@ module Mobile
         def include_params
           {
             clinics: true,
-            facilities: true
+            facilities: true,
+            travel_pay_claims: false
           }
         end
 
