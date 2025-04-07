@@ -144,10 +144,12 @@ module MedicalRecords
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
-                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
-                                                   'status:not': 'entered-in-error' } })
+                           search: { parameters: {
+                             patient: patient_fhir_id,
+                             category: 'http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note',
+                             'status:not': 'entered-in-error'
+                           } })
 
       # Sort the bundle of notes based on the date field appropriate to each note type.
       sort_bundle_with_criteria(bundle, :desc) do |resource|

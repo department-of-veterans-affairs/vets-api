@@ -55,16 +55,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
           original_method.call(args[0], random_string)
         end
-        Flipper.disable(:simple_forms_email_confirmations)
-        Flipper.enable(:submission_pdf_s3_upload)
       end
 
       after do
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         Common::FileHelpers.delete_file_if_exists(metadata_file)
-        Flipper.enable(:simple_forms_email_confirmations)
-        Flipper.disable(:submission_pdf_s3_upload)
       end
 
       shared_examples 'form submission' do |form, is_authenticated|
@@ -95,9 +91,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
           if is_authenticated
             it 'clears the InProgressForm' do
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(InProgressForm, :count).by(-1)
+              initial_count = InProgressForm.count
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              final_count = InProgressForm.count
+              expect(final_count).to eq(initial_count - 1)
             end
           end
 
@@ -286,8 +285,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         context 'transliteration succeeds' do
           it 'responds with ok' do
-            Flipper.disable(:form21_0966_confirmation_email)
-
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'form_with_accented_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -295,8 +292,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
-
-            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
 

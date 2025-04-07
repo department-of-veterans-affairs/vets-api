@@ -676,7 +676,7 @@ module PdfFill
       # Formats a date string into the format MM/DD/YYYY.
       # If the date is in the "YYYY-MM-XX" format, it converts it to "MM/YYYY".
       def format_date(date_string)
-        return if date_string.nil?
+        return if date_string.blank?
 
         # Handle 1990-08-XX format where the day is not provided
         if date_string.match?(/^\d{4}-\d{2}-XX$/)
