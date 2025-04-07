@@ -35,8 +35,11 @@ module ClaimsApi
           file_number = check_file_number_exists!
           claimant_information = validate_dependent_claimant!(poa_code:)
 
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
-                                                                                          source_name:, header_hash:)
+          primary_identifier = {}
+          primary_identifier[:header_hash] = header_hash || primary_identifier[:header_md5] = header_md5
+
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(primary_identifier,
+                                                                                          source_name)
 
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             attributes = {

@@ -26,16 +26,8 @@ module ClaimsApi
     before_save :set_md5
     before_save :set_header_hash
 
-    # rubocop: disable Metrics/ParameterLists
-    def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil,
-                                              header_hash: nil, form_data_hash: nil)
-      primary_identifier = {}
-      primary_identifier[:id] = id if id.present?
+    def self.find_using_identifier_and_source(primary_identifier, source_name)
       # md5 deprecated 3/26/2025 due to security: https://github.com/department-of-veterans-affairs/vets-api/security/code-scanning/852
-      primary_identifier[:header_md5] = header_md5 if header_md5.present?
-      primary_identifier[:md5] = md5 if md5.present?
-      primary_identifier[:header_hash] = header_hash if header_hash.present?
-      primary_identifier[:form_data_hash] = form_data_hash if form_data_hash.present?
       # it's possible to have duplicate POAs, so be sure to return the most recently created match
       poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
       poas = poas.select { |poa| poa.source_data['name'] == source_name }
@@ -43,7 +35,6 @@ module ClaimsApi
 
       poas.last
     end
-    # rubocop: enable Metrics/ParameterLists
 
     def fetch_file_path(uploader)
       if Settings.evss.s3.uploads_enabled
