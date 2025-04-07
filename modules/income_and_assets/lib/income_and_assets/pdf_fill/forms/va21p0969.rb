@@ -539,7 +539,7 @@ module IncomeAndAssets
             'trustUsedForMedicalExpensesOverflow' => {
               question_num: 8,
               question_suffix: '(j)',
-              question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+              question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?' # rubocop:disable Layout/LineLength
             },
             # 8k
             'monthlyMedicalReimbursementAmount' => {
