@@ -308,8 +308,7 @@ module BBInternal
     end
 
     def get_sei_emergency_contacts
-      # response = perform(:get, "usermgmt/emergencycontacts/#{@session.user_id}", nil, token_headers)
-      response = perform(:get, 'usermgmt/emergencycontacts/11383839', nil, token_headers)
+      response = perform(:get, "usermgmt/emergencycontacts/#{@session.user_id}", nil, token_headers)
       response.body
     end
 
