@@ -952,14 +952,6 @@ module IncomeAndAssets::PdfFill
       # @return [Hash]
       #
       def expand_income_receipt_waiver(waiver)
-        # {
-        #   "expectedIncome": 400000,
-        #   "paymentResumeDate": "2026-01-10",
-        #   "waivedGrossMonthlyIncome": 300000,
-        #   "payer": "James Doe",
-        #   "recipientName": "Jordan Doe",
-        #   "recipientRelationship": "PARENT"
-        # }
         recipient_relationship = waiver['recipientRelationship']
         payment_resume_date = waiver['paymentResumeDate']
 
