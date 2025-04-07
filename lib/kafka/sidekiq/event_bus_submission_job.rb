@@ -2,10 +2,13 @@
 
 require 'kafka/avro_producer'
 require 'kafka/monitor'
+require 'kafka/concerns/topic'
 
 module Kafka
   class EventBusSubmissionJob
     include Sidekiq::Job
+    include Kafka::Topic
+
     sidekiq_options retry: 3, queue: 'low'
 
     # retry exhaustion
@@ -13,8 +16,9 @@ module Kafka
       monitor = Kafka::Monitor.new
       payload = msg['args'].first
       use_test_topic = msg['args'].second
+      topic = get_topic(use_test_topic:)
 
-      monitor.track_submission_exhaustion(msg, use_test_topic, payload)
+      monitor.track_submission_exhaustion(msg, topic, payload)
     end
 
     # Performs the job of producing a message to a Kafka topic
@@ -23,10 +27,12 @@ module Kafka
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     def perform(payload, use_test_topic: false)
       @monitor = Kafka::Monitor.new
-      Kafka::AvroProducer.new.produce(payload:, use_test_topic:)
-      @monitor.track_submission_success(use_test_topic, payload)
+      topic = get_topic(use_test_topic:)
+
+      Kafka::AvroProducer.new.produce(payload, topic)
+      @monitor.track_submission_success(topic, payload)
     rescue => e
-      @monitor.track_submission_failure(use_test_topic, payload, e)
+      @monitor.track_submission_failure(topic, payload, e)
       raise e
     end
   end

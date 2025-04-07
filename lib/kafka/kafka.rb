@@ -25,9 +25,9 @@ module Kafka
   # @param next_id [String, nil] (Optional) The next identifier in the process
   #
   # @return [void]
-  def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil)
+  # rubocop:disable Metrics/ParameterLists
+  def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil, use_test_topic: false)
     Kafka::EventBusSubmissionJob.perform_async(
-      'submission_trace_mock_dev',
       {
         'data' => {
           'ICN' => icn,
@@ -36,7 +36,9 @@ module Kafka
           'submissionName' => submission_name,
           'state' => state
         }
-      }
+      },
+      use_test_topic
     )
   end
+  # rubocop:enable Metrics/ParameterLists
 end

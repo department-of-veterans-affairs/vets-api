@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require 'active_support/concern'
-
 module Kafka
   module Topic
-    extend ActiveSupport::Concern
-
     # Selects the Kafka topic name.
     #
     # @param use_test_topic [Boolean] Whether to use the test topic. Defaults to false.

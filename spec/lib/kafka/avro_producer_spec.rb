@@ -7,6 +7,7 @@ require 'kafka/schema_registry/service'
 
 describe Kafka::AvroProducer do
   let(:avro_producer) { described_class.new }
+  let(:topic) { 'submission_trace_form_status_change_test' }
   let(:valid_payload) do
     {
       'priorId' => nil,
@@ -81,8 +82,8 @@ describe Kafka::AvroProducer do
       context 'of an existing schema' do
         it 'produces a message to the specified topic' do
           VCR.use_cassette('kafka/topics') do
-            avro_producer.produce(valid_payload)
-            avro_producer.produce(valid_test_payload, use_test_topic: true)
+            avro_producer.produce(valid_payload, topic)
+            avro_producer.produce(valid_test_payload, 'submission_trace_mock_test')
             expect(avro_producer.producer.client.messages.length).to eq(2)
             topic_1_messages = avro_producer.producer.client.messages_for('submission_trace_form_status_change_test')
             expect(topic_1_messages.length).to eq(1)
@@ -97,7 +98,7 @@ describe Kafka::AvroProducer do
 
           VCR.use_cassette('kafka/topics404') do
             expect do
-              avro_producer.produce(valid_payload)
+              avro_producer.produce(valid_payload, 'topic-999')
             end.to raise_error(Faraday::ResourceNotFound)
           end
         end
@@ -111,23 +112,21 @@ describe Kafka::AvroProducer do
     end
 
     it 'triggers MessageInvalidError if empty string topic is provided' do
-      allow(Settings.kafka_producer).to receive(:topic_name).and_return('')
       expect(Rails.logger).to receive(:error).with(/Message is invalid/)
 
       # Send an invalid message to trigger an error (no topic provided)
       expect do
-        avro_producer.produce(valid_payload)
+        avro_producer.produce(valid_payload, '')
       end.to raise_error(WaterDrop::Errors::MessageInvalidError,
                          { topic: 'no topic provided' }.to_s)
     end
 
     it 'triggers MessageInvalidError if nil topic is provided' do
-      allow(Settings.kafka_producer).to receive(:topic_name).and_return(nil)
       expect(Rails.logger).to receive(:error).with(/Message is invalid/)
 
       # Send an invalid message to trigger an error (no topic provided)
       expect do
-        avro_producer.produce(valid_payload)
+        avro_producer.produce(valid_payload, nil)
       end.to raise_error(WaterDrop::Errors::MessageInvalidError,
                          { topic: 'no topic provided' }.to_s)
     end
@@ -143,7 +142,7 @@ describe Kafka::AvroProducer do
       # Send an invalid message to trigger an error (no payload provided)
       expect do
         VCR.use_cassette('kafka/topics') do
-          avro_producer.produce(large_payload)
+          avro_producer.produce(large_payload, topic)
         end
       end.to raise_error(WaterDrop::Errors::MessageInvalidError,
                          { payload: 'is more than `max_payload_size` config value' }.to_s)
@@ -157,7 +156,7 @@ describe Kafka::AvroProducer do
 
       # Trigger the error and handle it
       expect do
-        avro_producer.produce(valid_payload)
+        avro_producer.produce(valid_payload, topic)
       end.to raise_error(StandardError)
     end
 
@@ -170,7 +169,7 @@ describe Kafka::AvroProducer do
       # Trigger the error and handle it
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce(valid_payload)
+          avro_producer.produce(valid_payload, topic)
         end.to raise_error(WaterDrop::Errors::ProduceError)
       end
     end
@@ -183,7 +182,7 @@ describe Kafka::AvroProducer do
       # Trigger the error using an invalid schema
       VCR.use_cassette('kafka/topics') do
         expect do
-          avro_producer.produce(invalid_payload)
+          avro_producer.produce(invalid_payload, topic)
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
