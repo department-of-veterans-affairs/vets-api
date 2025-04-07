@@ -456,7 +456,6 @@ module IncomeAndAssets::PdfFill
         'trusts' => {
           limit: 1,
           first_key: 'establishedDate',
-          first_subsection: 'B',
           # 8b
           'establishedDate' => {
             'month' => { key: "F[0].Page_10[0].Month8b[#{ITERATOR}]" },
@@ -539,8 +538,7 @@ module IncomeAndAssets::PdfFill
           'trustUsedForMedicalExpensesOverflow' => {
             question_num: 8,
             question_suffix: '(j)',
-            question_text:
-              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+            question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -581,20 +579,20 @@ module IncomeAndAssets::PdfFill
           },
           'recipientRelationshipOverflow' => {
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (1)",
+            question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship11[#{ITERATOR}]",
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (1)",
+            question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
           },
           # Q2
           'recipientName' => {
             key: "F[0].IncomeRecipientName11[#{ITERATOR}]",
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (2)",
+            question_suffix: '(2)',
             question_text:
               'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
           },
@@ -602,14 +600,14 @@ module IncomeAndAssets::PdfFill
           'payer' => {
             key: "F[0].IncomePayer11[#{ITERATOR}]",
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (3)",
+            question_suffix: '(3)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
           },
           # Q4
           'incomeType' => {
             key: "F[0].TypeOfIncomeReceived11[#{ITERATOR}]",
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (4)",
+            question_suffix: '(4)',
             question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)'
           },
           # Q5
@@ -618,7 +616,7 @@ module IncomeAndAssets::PdfFill
           },
           'incomeFrequencyOverflow' => {
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (5)",
+            question_suffix: '(5)',
             question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED'
           },
           # Q6
@@ -629,7 +627,7 @@ module IncomeAndAssets::PdfFill
           },
           'incomeLastReceivedDateOverflow' => {
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (6)",
+            question_suffix: '(6)',
             question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)'
           },
           # Q7
@@ -646,7 +644,7 @@ module IncomeAndAssets::PdfFill
           },
           'grossAnnualAmountOverflow' => {
             question_num: 11,
-            question_suffix: ". #{SUBSECTION}. (7)",
+            question_suffix: '(7)',
             question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
           }
         }
