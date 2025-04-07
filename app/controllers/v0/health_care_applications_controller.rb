@@ -79,15 +79,9 @@ module V0
     end
 
     def facilities
-      if Flipper.enabled?(:hca_cache_facilities)
-        import_facilities_if_empty
-        facilities = HealthFacility.where(postal_name: params[:state])
-        render json: facilities.map { |facility| { id: facility.station_number, name: facility.name } }
-      else
-        lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
-
-        render(json: active_facilities(lighthouse_facilities))
-      end
+      import_facilities_if_empty
+      facilities = HealthFacility.where(postal_name: params[:state])
+      render json: facilities.map { |facility| { id: facility.station_number, name: facility.name } }
     end
 
     def download_pdf
@@ -113,58 +107,12 @@ module V0
       "10-10EZ_#{first_name}_#{last_name}.pdf"
     end
 
-    def active_facilities(lighthouse_facilities)
-      active_ids = active_ves_facility_ids
-      lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
-    end
-
-    def active_ves_facility_ids
-      ids = cached_ves_facility_ids
-
-      return ids if ids.any?
-      return ids if Flipper.enabled?(:hca_retrieve_facilities_without_repopulating)
-
-      HCA::StdInstitutionImportJob.new.perform
-
-      cached_ves_facility_ids
-    end
-
-    def cached_ves_facility_ids
-      StdInstitutionFacility.active.pluck(:station_number).compact
-    end
-
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
     end
 
-    def lighthouse_facilities_service
-      if Flipper.enabled?(:hca_ez_use_facilities_v2)
-        @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
-      end
-
-      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
-    end
-
-    def lighthouse_facilities_params
-      params.except(:format).permit(
-        :zip,
-        :state,
-        :lat,
-        :long,
-        :radius,
-        :bbox,
-        :visn,
-        :type,
-        :services,
-        :mobile,
-        :page,
-        :per_page,
-        facilityIds: []
-      )
-    end
-
     def import_facilities_if_empty
-      HCA::HealthFacilitiesImportJob.new.perform unless HealthFacility.exists?
+      HCA::StdInstitutionImportJob.new.perform unless HealthFacility.exists?
     end
 
     def record_submission_attempt

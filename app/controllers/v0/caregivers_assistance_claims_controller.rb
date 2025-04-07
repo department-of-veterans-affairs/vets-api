@@ -68,7 +68,12 @@ module V0
     private
 
     def lighthouse_facilities_service
-      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
+      @lighthouse_facilities_service ||=
+        if Flipper.enabled?(:caregiver_use_facilities_API_V2)
+          FacilitiesApi::V2::Lighthouse::Client.new
+        else
+          Lighthouse::Facilities::V1::Client.new
+        end
     end
 
     def lighthouse_facilities_params
