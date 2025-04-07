@@ -23,7 +23,8 @@ module VANotify
                             source_location: notification.source_location,
                             template_id: notification.template_id,
                             callback_metadata: notification.callback_metadata,
-                            status: notification.status
+                            status: notification.status,
+                            status_reason: notification.status_reason
                           })
 
         VANotify::DefaultCallback.new(notification).call
