@@ -1,0 +1,4 @@
+[console_scripts]
+pdf2html = pdftranscript.pdf2html:main
+pdftranscript = pdftranscript.transcript:main
+pdfttf = pdftranscript.ttf:main
