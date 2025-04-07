@@ -3,10 +3,15 @@
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
 require 'va_profile/v2/contact_information/service'
+require 'user_audit_logger'
 
 module Vet360
   module Writeable
     extend ActiveSupport::Concern
+
+    PROFILE_AUDIT_LOG_TYPES = { email: 'update_email_address',
+                                address: 'update_mailing_address',
+                                telephone: 'update_phone_number' }.freeze
 
     # For the passed VAProfile model type and params, it:
     #   - builds and validates a VAProfile models
@@ -23,6 +28,7 @@ module Vet360
       record = build_record(type, params)
       validate!(record)
       response = write_valid_record!(http_verb, type, record)
+      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES.keys.include?(type)
       render_new_transaction!(type, response)
     end
 
@@ -48,6 +54,14 @@ module Vet360
       model.constantize
            .new(params)
            .set_defaults(@current_user)
+    end
+
+    def create_user_audit_log(type)
+      UserAuditLogger.new(user_action_event_identifier: PROFILE_AUDIT_LOG_TYPES[type],
+                          subject_user_verification: @current_user.user_verification,
+                          status: :success,
+                          acting_ip_address: request.remote_ip,
+                          acting_user_agent: request.user_agent).perform
     end
 
     def validate!(record)
