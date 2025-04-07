@@ -38,7 +38,6 @@ module AskVAApi
       end
 
       Rails.logger.error("Error during #{action}: #{exception.message}")
-      Rails.logger.debug { "Safe fields:\n#{JSON.pretty_generate(safe_fields)}" }
     end
   end
 end
