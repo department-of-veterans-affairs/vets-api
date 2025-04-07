@@ -27,18 +27,17 @@ module Kafka
   # @return [void]
   # rubocop:disable Metrics/ParameterLists
   def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil, use_test_topic: false)
-    Kafka::EventBusSubmissionJob.perform_async(
-      {
-        'data' => {
-          'ICN' => icn,
-          'currentID' => current_id,
-          'nextID' => next_id,
-          'submissionName' => submission_name,
-          'state' => state
-        }
-      },
-      use_test_topic
-    )
+    payload = {
+      'data' => {
+        'ICN' => icn,
+        'currentID' => current_id,
+        'nextID' => next_id,
+        'submissionName' => submission_name,
+        'state' => state
+      }
+    }
+
+    Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
   end
   # rubocop:enable Metrics/ParameterLists
 end
