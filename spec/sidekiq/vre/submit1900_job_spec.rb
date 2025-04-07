@@ -24,8 +24,8 @@ describe VRE::Submit1900Job do
 
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
-    { 'args' => [], 'class' => 'VRE::Submit1900Job', 'error_message' => 'An error occured',
-      'queue' => nil }
+    { 'args' => [], 'class' => 'VRE::Submit1900Job', 'error_message' => 'An error occurred',
+      'queue' => 'default' }
   end
 
   describe '#perform' do
