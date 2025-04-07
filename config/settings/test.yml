@@ -1353,6 +1353,9 @@ ssoe_eauth_cookie:
   domain: localhost
   name: vagov_saml_request_localhost
   secure: false
+statsd:
+  host: ~
+  port: ~
 terms_of_use:
   current_version: v1
   enabled_clients: vaweb, mhv, myvahealth
