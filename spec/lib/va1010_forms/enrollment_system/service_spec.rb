@@ -64,6 +64,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
             Ox::ParseError,
             'invalid format, elements overlap at line 1, column 212 [parse.c:626]'
           )
+        allow(PersonalInformationLog).to receive(:create!)
       end
 
       it "creates a 'PersonalInformationLog' with the submission body data", run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
@@ -81,11 +82,12 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
             'invalid format, elements overlap at line 1, column 212 [parse.c:626]'
           )
 
-          pii_log = PersonalInformationLog.last
-          expect(pii_log.error_class).to eq('Form1010Ezr FailedWithParsingError')
-          expect(pii_log.data).to eq(File.read('spec/fixtures/form1010_ezr/submission_body.xml'))
           expect(Rails.logger).to have_received(:error).with(
             '10-10EZR form submission failed: invalid format, elements overlap at line 1, column 212 [parse.c:626]'
+          )
+          expect(PersonalInformationLog).to have_received(:create!).with(
+            data: File.read('spec/fixtures/form1010_ezr/submission_body.xml'),
+            error_class: 'Form1010Ezr FailedWithParsingError'
           )
         end
       end

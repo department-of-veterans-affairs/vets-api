@@ -143,6 +143,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     before do
       allow(User).to receive(:find).with(user.uuid).and_return(user)
       allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
+      allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
     end
 
     context 'when submission has an error' do
@@ -153,13 +154,10 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
            'logs exception to sentry, and sends a failure email' do
           allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
           allow(StatsD).to receive(:increment)
-          # Because we're calling the 'log_submission_failure' method from a new instance
-          # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
-          allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
 
           expect(StatsD).to receive(:increment).with('api.1010ezr.enrollment_system_validation_error')
           expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
-          expect(ezr_service).to receive(:log_submission_failure_to_sentry).with(
+          expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
             form,
             '1010EZR failure',
             'failure'
@@ -183,10 +181,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           allow(StatsD).to receive(:increment)
           allow(Rails.logger).to receive(:info)
           allow(VANotify::EmailJob).to receive(:perform_async)
+          allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
           allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
-          # Because we're calling the 'log_submission_failure' method from a new instance
-          # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
-          allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
           allow(ezr_service).to receive(:submit_sync).and_raise(Ox::ParseError.new(error_msg))
         end
 
@@ -199,7 +195,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_did_not_retry')
             expect(Rails.logger).to receive(:info).with(full_log_msg)
             expect_submission_failure_email_and_statsd_increments
-            expect(ezr_service).to receive(:log_submission_failure_to_sentry).with(
+            expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
               form, '1010EZR failure did not retry', 'failure_did_not_retry'
             )
             # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
@@ -210,13 +206,14 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
         context 'when the send failure email flipper is disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:ezr_use_va_notify_on_submission_failure).and_return(false)
+            allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
           end
 
           it 'increments StatsD, logs the error, and does not retry' do
             expect(Rails.logger).to receive(:info).with(full_log_msg)
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_did_not_retry')
             expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
-            expect(ezr_service).to receive(:log_submission_failure_to_sentry).with(
+            expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
               form, '1010EZR failure did not retry', 'failure_did_not_retry'
             )
             # The Sidekiq::JobRetry::Skip error will fail the job and not retry it

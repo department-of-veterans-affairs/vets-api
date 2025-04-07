@@ -33,7 +33,7 @@ module HCA
 
         send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
 
-        Form1010Ezr::Service.new(nil).log_submission_failure_to_sentry(
+        Form1010Ezr::Service.log_submission_failure_to_sentry(
           parsed_form,
           '1010EZR total failure',
           'total_failure'
@@ -76,7 +76,7 @@ module HCA
 
       PersonalInformationLog.create!(data: parsed_form, error_class: 'Form1010Ezr EnrollmentSystemValidationFailure')
 
-      Form1010Ezr::Service.new(nil).log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       self.class.log_exception_to_sentry(e)
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
     rescue Ox::ParseError => e
@@ -86,7 +86,7 @@ module HCA
 
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
 
-      Form1010Ezr::Service.new(nil).log_submission_failure_to_sentry(
+      Form1010Ezr::Service.log_submission_failure_to_sentry(
         parsed_form, '1010EZR failure did not retry', 'failure_did_not_retry'
       )
       # The Sidekiq::JobRetry::Skip error will fail the job and not retry it

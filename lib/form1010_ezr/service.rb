@@ -12,7 +12,7 @@ module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::Utils
-    include SentryLogging
+    extend SentryLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 
@@ -26,6 +26,32 @@ module Form1010Ezr
     def initialize(user)
       super()
       @user = user
+    end
+
+    def self.veteran_initials(parsed_form)
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
+      }
+    end
+
+    # @param [JSON] parsed_form
+    # @param [String] sentry_msg
+    # @param [String] sentry_context - identifier specific to the error
+    def self.log_submission_failure_to_sentry(
+      parsed_form,
+      sentry_msg,
+      sentry_context
+    )
+      if parsed_form.present?
+        log_message_to_sentry(
+          sentry_msg.to_s,
+          :error,
+          veteran_initials(parsed_form),
+          ezr: :"#{sentry_context}"
+        )
+      end
     end
 
     def submit_async(parsed_form)
@@ -73,32 +99,6 @@ module Form1010Ezr
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
       log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
       raise e
-    end
-
-    # @param [JSON] parsed_form
-    # @param [String] sentry_msg
-    # @param [String] sentry_context - identifier specific to the error
-    def log_submission_failure_to_sentry(
-      parsed_form,
-      sentry_msg,
-      sentry_context
-    )
-      if parsed_form.present?
-        log_message_to_sentry(
-          sentry_msg.to_s,
-          :error,
-          veteran_initials(parsed_form),
-          ezr: :"#{sentry_context}"
-        )
-      end
-    end
-
-    def veteran_initials(parsed_form)
-      {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
-        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
-        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
-      }
     end
 
     private
