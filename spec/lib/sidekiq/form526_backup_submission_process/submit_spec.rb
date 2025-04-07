@@ -17,6 +17,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   end
 
   let(:user) { create(:user, :loa3) }
+  let(:icn) { user.icn }
+  let(:user_account) { create(:user_account, icn:, id: user.user_account_uuid) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -27,7 +29,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive(:enabled).and_return(false)
     end
 
-    let!(:submission) { create(:form526_submission, :with_everything) }
+    let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
 
     it 'creates a submission job' do
       expect { subject.perform_async(submission.id) }.to change(subject.jobs, :size).by(1)
@@ -42,7 +44,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     let(:timestamp) { Time.now.utc }
 
     context 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, user_account:) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do

@@ -28,8 +28,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
   end
 
   describe '#choose_provider' do
-    let(:account) { create(:account) }
-    let(:submission) { create(:form526_submission, user_uuid: account.idme_uuid, submit_endpoint: 'claims_api') }
+    let(:user) { create(:user, :loa3) }
+    let(:icn) { user.icn }
+    let(:user_account) { create(:user_account, icn:, id: user.user_account_uuid) }
+    let(:submission) { create(:form526_submission, user_account:, submit_endpoint: 'claims_api') }
 
     it 'delegates to the ApiProviderFactory with the correct data' do
       auth_headers = {}
@@ -38,7 +40,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers:, breakered: true },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: }),
           feature_toggle: nil
         }
       )
@@ -59,7 +61,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers: submission.auth_headers, breakered: true },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: }),
           feature_toggle: nil
         }
       ).and_call_original

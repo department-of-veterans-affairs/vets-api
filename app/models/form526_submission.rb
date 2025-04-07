@@ -466,13 +466,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def account
-    # first, check for an ICN on the UserAccount associated to the submission, return it if found
-    account = user_account
-    return account if account&.icn.present?
+    return user_account if user_account.icn.present?
 
-    # next, check MPI for profile information using the saved EDIPI
+    # check MPI for profile information using the saved EDIPI
     mpi_response = MPI::Service.new.find_profile_by_edipi(edipi: auth_headers['va_eauth_dodedipnid'])
-    OpenStruct.new(icn: mpi_response.profile.icn) if mpi_response && mpi_response.profile.icn.present?
+    OpenStruct.new(icn: mpi_response.profile.icn) if mpi_response.ok? && mpi_response.profile.icn.present?
   end
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov

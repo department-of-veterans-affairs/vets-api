@@ -658,6 +658,7 @@ RSpec.describe Form526Submission do
       headers = JSON.parse auth_headers.to_json
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -742,6 +743,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -768,6 +770,7 @@ RSpec.describe Form526Submission do
       subject do
         Form526Submission.new(
           user_uuid: user.uuid,
+          user_account:,
           saved_claim_id: saved_claim.id,
           form_json:,
           birls_ids_tried: birls_ids_tried.to_json
@@ -794,6 +797,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -836,6 +840,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -1564,32 +1569,35 @@ RSpec.describe Form526Submission do
   end
 
   describe 'ICN retrieval' do
-    context 'various ICN retrieval scenarios' do
-      let(:user) { create(:user, :loa3) }
-      let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+    let(:user) { create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    end
+    let(:submission) do
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id)
+    end
+    let!(:form526_submission) { create(:form526_submission) }
+
+    context 'when the submission includes a UserAccount with an ICN, as expected' do
+      it 'uses the submission\'s user account ICN' do
+        submission.user_account = UserAccount.new(icn: '123498767V222222')
+        account = submission.account
+        expect(account.icn).to eq('123498767V222222')
+      end
+    end
+
+    context 'when the submission does not have a UserAccount with an ICN' do
       let(:mpi_profile) { build(:mpi_profile) }
-      let(:auth_headers) do
-        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-      end
-      let(:submission) do
-        create(:form526_submission,
-               user_uuid: user.uuid,
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id)
-      end
-      let!(:form526_submission) { create(:form526_submission) }
+      let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
       before do
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(profile_response)
       end
 
-      it 'submissions user account has an ICN, as expected' do
-        submission.user_account = UserAccount.new(icn: '123498767V222222')
-        account = submission.account
-        expect(account.icn).to eq('123498767V222222')
-      end
-
-      it 'submissions user account has no ICN, lookup from MPI with edipi' do
+      it 'uses the auth_headers EDIPI to look up account information from MPI' do
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
