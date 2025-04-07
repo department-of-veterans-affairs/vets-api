@@ -78,7 +78,7 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
       power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
       header_hash = power_of_attorney.header_hash
 
-      power_of_attorney.update_columns header_hash: nil
+      power_of_attorney.update_columns header_hash: nil # rubocop:disable Rails/SkipsModelValidations
 
       header_hash_id = { header_hash: }
       res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_hash_id, 'source_name')
