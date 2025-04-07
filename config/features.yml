@@ -1151,6 +1151,10 @@ features:
     actor_type: user
     description: Enables/disables ipe content
     enable_in_development: true
+  mhv_medications_ipe_show_hide_criteria:
+    actor_type: user
+    description: toggles criteria to show/hide ipe
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
