@@ -185,7 +185,7 @@ module Pensions
       Kafka.submit_event(
         icn: @user_account&.icn.to_s,
         current_id: @claim&.confirmation_number.to_s,
-        submission_name: Pensions::FORM_ID,
+        submission_name: 'F527EZ',
         state: Kafka::State::SENT,
         next_id: @intake_service&.uuid.to_s
       )

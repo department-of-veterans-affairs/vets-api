@@ -14,16 +14,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   let(:service) { double('service') }
   let(:monitor) { double('monitor') }
   let(:user_account_uuid) { 123 }
-  let(:uuid) { '98a3d97a-581f-4cf3-91e3-38c3857cb4fc' }
-  let(:confirmation_number) { '1c66278a-391b-4000-90b8-34a34da7936e' }
-  let(:kafka_payload) do
-    { 'data' =>
-  { 'ICN' => '',
-    'currentID' => '1c66278a-391b-4000-90b8-34a34da7936e',
-    'nextID' => '98a3d97a-581f-4cf3-91e3-38c3857cb4fc',
-    'state' => 'sent',
-    'submissionName' => '21P-527EZ' } }
-  end
 
   describe '#perform' do
     let(:response) { double('response') }
@@ -50,8 +40,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(monitor).to receive :track_submission_attempted
       allow(monitor).to receive :track_submission_success
       allow(monitor).to receive :track_submission_retry
-      allow_any_instance_of(Pensions::SavedClaim).to receive(:confirmation_number).and_return(confirmation_number)
-      allow_any_instance_of(BenefitsIntake::Service).to receive(:uuid).and_return(uuid)
     end
 
     context 'Feature pension_submitted_email_notification=false' do
@@ -63,7 +51,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload, false).and_call_original
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -72,9 +59,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(job).to receive(:send_confirmation_email)
         expect(job).not_to receive(:send_submitted_email)
         expect(job).to receive(:cleanup_file_paths)
-        expect do
-          job.perform(claim.id, :user_uuid)
-        end.to change(Kafka::EventBusSubmissionJob.jobs, :size).by(1)
+
+        job.perform(claim.id, :user_uuid)
       end
     end
 
@@ -133,6 +119,39 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
         "Unable to find SavedClaim::Pension #{claim.id}"
       )
+    end
+
+    context 'kafka job' do
+      let(:kafka_payload) do
+        { 'ICN' => '',
+          'currentId' => '1c66278a-391b-4000-90b8-34a34da7936e',
+          'nextId' => '98a3d97a-581f-4cf3-91e3-38c3857cb4fc',
+          'submissionName' => 'F527EZ',
+          'state' => 'sent',
+          'vasiId' => '2103',
+          'systemName' => 'VA_gov',
+          'timestamp' => '2025-04-07T23:34:05Z' }
+      end
+      let(:uuid) { '98a3d97a-581f-4cf3-91e3-38c3857cb4fc' }
+      let(:confirmation_number) { '1c66278a-391b-4000-90b8-34a34da7936e' }
+
+      before { Timecop.freeze('2025-04-07T23:34:05Z') }
+      after { Timecop.return }
+
+      it 'triggers the event bus tracesubmission job successfully' do
+        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+        allow_any_instance_of(Pensions::SavedClaim).to receive(:confirmation_number).and_return(confirmation_number)
+        allow_any_instance_of(BenefitsIntake::Service).to receive(:uuid).and_return(uuid)
+        expect(UserAccount).to receive(:find)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload, false).and_call_original
+
+        VCR.use_cassette('kafka/topics') do
+          Sidekiq::Testing.inline! do
+            expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
+            job.perform(claim.id, :user_uuid)
+          end
+        end
+      end
     end
 
     # perform

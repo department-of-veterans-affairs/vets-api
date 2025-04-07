@@ -5,6 +5,10 @@ require 'kafka/sidekiq/event_bus_submission_job'
 # Namespace for Kafka-related classes and modules
 module Kafka
   # Defines constants representing various states in the Kafka event processing lifecycle
+
+  VASI_ID = '2103'
+  SYSTEM_NAME = 'VA_gov'
+
   module State
     # Indicates that the event has been received
     RECEIVED = 'received'
@@ -28,15 +32,15 @@ module Kafka
   # rubocop:disable Metrics/ParameterLists
   def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil, use_test_topic: false)
     payload = {
-      'data' => {
-        'ICN' => icn,
-        'currentID' => current_id,
-        'nextID' => next_id,
-        'submissionName' => submission_name,
-        'state' => state
-      }
+      'ICN' => icn,
+      'currentId' => current_id,
+      'nextId' => next_id,
+      'submissionName' => submission_name,
+      'state' => state,
+      'vasiId' => VASI_ID,
+      'systemName' => SYSTEM_NAME,
+      'timestamp' => Time.current.iso8601
     }
-
     Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
   end
   # rubocop:enable Metrics/ParameterLists
