@@ -127,8 +127,8 @@ namespace :connectivity do
 
   desc 'Check StatsD'
   task statsd: :environment do
-    if Settings.statsd.host.present?
-      puts "StatsD configured for #{Settings.statsd.host}."
+    if Settings.statsd.host.present? && Settings.statsd.port.present?
+      puts "StatsD configured for #{Settings.statsd.host}:#{Settings.statsd.port}."
     else
       puts 'StatsD not configured!'
     end
