@@ -17,4 +17,10 @@ describe Ccra::BaseService do
       expect(subject.config).to equal(config)
     end
   end
+
+  describe '#settings' do
+    it 'returns the CCRA settings from VAOS configuration' do
+      expect(subject.settings).to eq(Settings.vaos.ccra)
+    end
+  end
 end

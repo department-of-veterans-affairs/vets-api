@@ -19,7 +19,7 @@ class TestTokenService < VAOS::SessionService
     super(user)
     @user = user
     @config = OpenStruct.new(
-      access_token_url: 'https://test.example.com/token',
+      access_token_url: 'https://login.wellhive.com/oauth2/default/v1/token',
       grant_type: 'client_credentials',
       scopes: 'test.scope',
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
