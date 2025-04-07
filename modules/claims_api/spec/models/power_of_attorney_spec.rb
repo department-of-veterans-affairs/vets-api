@@ -68,31 +68,24 @@ RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
     it 'can find a sha256 hash' do
       attributes.merge!({ source_data: })
       power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
-      power_of_attorney.set_header_hash
-      power_of_attorney.save
-
-      primary_identifier = {}
-      primary_identifier[:header_hash] = power_of_attorney.header_hash
-
+      primary_identifier = { header_hash: power_of_attorney.header_hash }
       res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(primary_identifier, 'source_name')
       expect(res.source_data).to eq(source_data)
     end
 
-    it 'can find an md5 record' do
+    it 'can find an md5 record when missing sha256' do
       attributes.merge!({ source_data: })
       power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
+      header_hash = power_of_attorney.header_hash
 
-      headers = auth_headers.except('va_eauth_authenticationauthority',
-                                    'va_eauth_service_transaction_id',
-                                    'va_eauth_issueinstant',
-                                    'Authorization')
-      Digest::MD5.hexdigest headers.to_json
-      power_of_attorney.save
+      power_of_attorney.update_columns header_hash: nil
 
-      primary_identifier = {}
-      primary_identifier[:md5] = power_of_attorney.md5
+      header_hash_id = { header_hash: }
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_hash_id, 'source_name')
+      expect(res).to be_blank
 
-      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(primary_identifier, 'source_name')
+      md5_id = { md5: power_of_attorney.md5 }
+      res = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(md5_id, 'source_name')
       expect(res.source_data).to eq(source_data)
     end
   end
