@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   module V0
     module Claimant
       class PowerOfAttorneyRequestsController < ApplicationController
+        before_action :check_feature_toggle
         before_action do
           authorize PowerOfAttorneyRequest
         end
@@ -35,6 +36,15 @@ module AccreditedRepresentativePortal
             :accredited_organization,
             { resolution: :resolving }
           ]
+        end
+
+        def check_feature_toggle
+          unless Flipper.enabled?(:accredited_representative_portal_search, @current_user)
+            message = 'The accredited_representative_portal_search feature flag is disabled ' \
+                      "for the user with uuid: #{@current_user.uuid}"
+
+            raise Common::Exceptions::Forbidden, detail: message
+          end
         end
       end
     end
