@@ -363,7 +363,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.13.0)
+    datadog (2.14.0)
       datadog-ruby_core_source (~> 3.4)
       libdatadog (~> 16.0.1.1.0)
       libddwaf (~> 1.21.0.0.1)
@@ -1085,7 +1085,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.9)
+    statsd-instrument (3.9.8)
     stringio (3.1.2)
     strong_migrations (2.2.1)
       activerecord (>= 7)
