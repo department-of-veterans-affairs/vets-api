@@ -1091,7 +1091,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              data['veteran_email_address'],
+              data['third_party_email_address'],
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'Joey Jo',
@@ -1104,7 +1104,7 @@ describe SimpleFormsApi::Notification::Email do
         end
 
         context('when the email is not provided') do
-          before { data['veteran_email_address'] = nil }
+          before { data['third_party_email_address'] = nil }
 
           it 'sends the confirmation email' do
             send_email
@@ -1171,7 +1171,7 @@ describe SimpleFormsApi::Notification::Email do
             send_email
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              data['non_veteran_email_address'],
+              data['third_party_email_address'],
               'form20_10207_confirmation_email_template_id',
               {
                 'first_name' => 'Joe',
@@ -1184,7 +1184,7 @@ describe SimpleFormsApi::Notification::Email do
         end
 
         context('when the email is not provided') do
-          before { data['non_veteran_email_address'] = nil }
+          before { data['third_party_email_address'] = nil }
 
           it 'sends the confirmation email' do
             send_email

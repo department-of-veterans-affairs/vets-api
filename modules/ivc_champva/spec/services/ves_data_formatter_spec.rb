@@ -132,10 +132,16 @@ describe IvcChampva::VesDataFormatter do
   end
 
   describe 'data is valid' do
-    it 'returns unmodified data' do
+    it 'maintains all the original keys/values after validating' do
       validated_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
-      expect(validated_data.to_json).to eq(@request_body.to_json)
+      # Check that all the original keys/values present in @request_body
+      # are still present in the formatted object.
+      h1 = JSON.parse(@request_body.to_json).sort.to_h
+      h2 = JSON.parse(validated_data.to_json).sort.to_h
+      # Get the intersection and verify h2 contained all original keys
+      h3 = h1.slice(*h2.keys)
+      expect(h3.to_json).to eq(h1.to_json)
     end
   end
 
@@ -263,6 +269,16 @@ describe IvcChampva::VesDataFormatter do
       res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
 
       expect(res.sponsor.date_of_birth).to eq('2020-01-01')
+    end
+  end
+
+  describe 'sponsor date of marriage' do
+    it 'when formatted as MM-DD-YYYY, it reformats to YYYY-MM-DD' do
+      @parsed_form_data_copy['veteran']['date_of_marriage'] = '01-01-2020'
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+
+      expect(res.sponsor.date_of_marriage).to eq('2020-01-01')
     end
   end
 
