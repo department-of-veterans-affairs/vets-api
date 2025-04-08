@@ -8,7 +8,9 @@ module AccreditedRepresentativePortal
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
       skip_after_action :verify_pundit_authorization, only: :upload_scanned_form
-      before_action :validate_power_of_attorney, only: :submit
+      before_action(only: :submit) do
+        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
+      end
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
@@ -114,6 +116,16 @@ module AccreditedRepresentativePortal
 
         notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
+      end
+
+      def get_icn
+        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+
+        if mpi.profile&.icn
+          mpi.profile.icn
+        else
+          raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
+        end
       end
     end
   end
