@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class PrescriptionsController < RxController
+    class PrescriptionsController < MyHealth::RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
       include MyHealth::RxGroupingHelper
