@@ -55,14 +55,19 @@ RSpec.shared_context 'shared data' do
         get_location_error: 'false',
         selected_facility: nil,
         review_page_view: { open_chapters: [] },
-        files: [{ file_name: nil, file_content: nil }],
+        files: [
+          {
+            file_name: 'veteran_photo.JpEg',
+            file_content: '/9j/4AAQSkZJRgABAQAAAQABAAD'
+          }
+        ],
         school_obj: {}
       }
     }
   end
   let(:translated_payload) do
     { AreYouTheDependent: false,
-      AttachmentPresent: false,
+      AttachmentPresent: true,
       CaregiverZipCode: nil,
       ContactMethod: 722_310_000,
       DependentDOB: '2000-01-01',
@@ -95,7 +100,12 @@ RSpec.shared_context 'shared data' do
       VeteranDateOfDeath: nil,
       VeteranRelationship: 722_310_007,
       WhoWasTheirCounselor: nil,
-      ListOfAttachments: nil,
+      ListOfAttachments: [
+        {
+          FileName: 'veteran_photo.jpeg',
+          FileContent: '/9j/4AAQSkZJRgABAQAAAQABAAD'
+        }
+      ],
       SubmitterProfile: { FirstName: 'Your',
                           MiddleName: nil,
                           LastName: 'Self',
