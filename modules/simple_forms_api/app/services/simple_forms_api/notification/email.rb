@@ -85,7 +85,9 @@ module SimpleFormsApi
 
       def template_id
         template_id_suffix = TEMPLATE_IDS[form_number][notification_type.to_s]
-        template_id_suffix = TEMPLATE_IDS['vba_20_10207']['point_of_contact_error'] if should_send_to_point_of_contact?
+        if form.should_send_to_point_of_contact?
+          template_id_suffix = TEMPLATE_IDS['vba_20_10207']['point_of_contact_error']
+        end
         @_template_id ||= Settings.vanotify.services.va_gov.template_id[template_id_suffix]
       end
 
@@ -176,10 +178,6 @@ module SimpleFormsApi
         # All email templates require confirmation_number except :duplicate for 26-4555 (SAHSHA)
         # Only 26-4555 supports the :duplicate notification_type
         notification_type != :duplicate
-      end
-
-      def should_send_to_point_of_contact?
-        form_number == 'vba_20_10207' && form.send_to_point_of_contact?
       end
     end
   end

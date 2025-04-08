@@ -3,25 +3,6 @@
 require 'rails_helper'
 require_relative '../support/shared_examples_for_base_form'
 
-RSpec.shared_examples 'point_of_contact_name' do
-  context 'should use point of contact name' do
-    let(:name) { 'Pointy Contact' }
-
-    before do
-      data.merge!(
-        {
-          'living_situation' => { 'NONE' => true },
-          'point_of_contact_name' => name
-        }
-      )
-    end
-
-    it 'returns the point of contact name' do
-      expect(described_class.new(data).notification_first_name).to eq name
-    end
-  end
-end
-
 RSpec.shared_examples 'point_of_contact_email' do
   context 'should use point of contact email' do
     let(:email) { 'pointy@contact.com' }
@@ -144,8 +125,6 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       it 'returns the veteran first name' do
         expect(described_class.new(data).notification_first_name).to eq 'Veteran'
       end
-
-      it_behaves_like 'point_of_contact_name'
     end
 
     context 'preparer is non-veteran' do
@@ -162,8 +141,6 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       it 'returns the non-veteran first name' do
         expect(described_class.new(data).notification_first_name).to eq 'Non-Veteran'
       end
-
-      it_behaves_like 'point_of_contact_name'
     end
 
     context 'preparer is third party' do
@@ -179,6 +156,56 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
 
       it 'returns the third party first name' do
         expect(described_class.new(data).notification_first_name).to eq 'Third Party'
+      end
+    end
+  end
+
+  describe '#notification_last_name' do
+    context 'preparer is veteran' do
+      let(:data) do
+        {
+          'preparer_type' => 'veteran',
+          'veteran_full_name' => {
+            'first' => 'Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
+
+      it 'returns the veteran last name' do
+        expect(described_class.new(data).notification_last_name).to eq 'Eteranvay'
+      end
+    end
+
+    context 'preparer is non-veteran' do
+      let(:data) do
+        {
+          'preparer_type' => 'non-veteran',
+          'non_veteran_full_name' => {
+            'first' => 'Non-Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
+
+      it 'returns the non-veteran last name' do
+        expect(described_class.new(data).notification_last_name).to eq 'Eteranvay'
+      end
+    end
+
+    context 'preparer is third party' do
+      let(:data) do
+        {
+          'preparer_type' => 'third-party',
+          'third_party_full_name' => {
+            'first' => 'Third Party',
+            'last' => 'Eteranvay'
+          }
+        }
+      end
+
+      it 'returns the third party last name' do
+        expect(described_class.new(data).notification_last_name).to eq 'Eteranvay'
       end
     end
   end
@@ -224,6 +251,65 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
 
       it 'returns the third party email address' do
         expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+  end
+
+  describe '#notification_point_of_contact_name' do
+    let(:name) { 'Pointy Contact' }
+    let(:data) do
+      { 'point_of_contact_name' => name }
+    end
+
+    it 'returns the point of contact name' do
+      expect(described_class.new(data).notification_point_of_contact_name).to eq name
+    end
+  end
+
+  describe '#should_send_to_point_of_contact?' do
+    let(:data) { {} }
+
+    context 'preparer is not third party' do
+      %w[veteran non-veteran].each do |preparer_type|
+        before { data['preparer_type'] = preparer_type }
+
+        context 'living situation is NONE' do
+          before { data['living_situation'] = { 'NONE' => true } }
+
+          it 'returns true' do
+            expect(described_class.new(data).should_send_to_point_of_contact?).to be true
+          end
+        end
+
+        context 'living situation is not NONE' do
+          before { data['living_situation'] = { 'NONE' => false } }
+
+          it 'returns false' do
+            expect(described_class.new(data).should_send_to_point_of_contact?).to be false
+          end
+        end
+      end
+    end
+
+    context 'preparer is third party' do
+      %w[third-party-non-veteran third-party-veteran].each do |preparer_type|
+        before { data['preparer_type'] = preparer_type }
+
+        context 'living situation is NONE' do
+          before { data['living_situation'] = { 'NONE' => true } }
+
+          it 'returns false' do
+            expect(described_class.new(data).should_send_to_point_of_contact?).to be false
+          end
+        end
+
+        context 'living situation is not NONE' do
+          before { data['living_situation'] = { 'NONE' => false } }
+
+          it 'returns false' do
+            expect(described_class.new(data).should_send_to_point_of_contact?).to be false
+          end
+        end
       end
     end
   end
