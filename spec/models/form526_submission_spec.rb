@@ -1351,52 +1351,13 @@ RSpec.describe Form526Submission do
       )
     end
 
-    context 'evss provider' do
-      before do
-        VCR.insert_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected')
-      end
-
-      after do
-        VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected')
-      end
-
-      context 'when all corresponding rated disabilities are not service-connected' do
-        let(:form_json_filename) { 'only_526_asthma.json' }
-
-        it 'returns true' do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-          expect(subject).to be_truthy
-        end
-      end
-
-      context 'when some but not all corresponding rated disabilities are not service-connected' do
-        let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
-
-        it 'returns false' do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-          expect(subject).to be_falsey
-        end
-      end
-
-      context 'when some disabilities do not have a ratedDisabilityId yet' do
-        let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
-
-        it 'returns false' do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-          expect(subject).to be_falsey
-        end
-      end
-    end
-
     context 'Lighthouse provider' do
       before do
-        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.insert_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
 
       after do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.eject_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
       end
 
@@ -1668,6 +1629,165 @@ RSpec.describe Form526Submission do
         submission.save!
         account = submission.account
         expect(account.icn).to eq('123498767V555555')
+      end
+    end
+  end
+
+  context 'Upload document type metrics logging' do
+    let!(:in_progress_form) do
+      ipf = create(:in_progress_526_form, user_uuid: user.uuid)
+      fd = ipf.form_data
+      fd = JSON.parse(fd)
+      fd['privateMedicalRecordAttachments'] = private_medical_record_attachments
+      fd['additionalDocuments'] = additional_documents
+      ipf.update!(form_data: fd)
+      ipf
+    end
+    let(:private_medical_record_attachments) { [] }
+    let(:additional_documents) { [] }
+
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    def expect_log_statement(additional_docs_by_type, private_medical_docs_by_type)
+      return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
+
+      expect(Rails.logger).to have_received(:info).with(
+        'Form526 evidence document type metrics',
+        {
+          id: subject.id,
+          additional_docs_by_type:,
+          private_medical_docs_by_type:
+        }
+      )
+    end
+
+    def expect_documents_metrics(group_name, docs_by_type)
+      return if docs_by_type.blank?
+
+      docs_by_type.each do |type, count|
+        expect(StatsD).to have_received(:increment).with(
+          "worker.document_type_metrics.#{group_name}_document_type",
+          count,
+          tags: ["document_type:#{type}", 'source:form526']
+        )
+      end
+    end
+
+    context 'when form data has no documents' do
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has empty documents element' do
+      let(:additional_documents) { [{}] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has unexpected documents element' do
+      let(:additional_documents) { ["something's up"] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect_log_statement({ 'unknown' => 1 }, {})
+        expect_documents_metrics('additional_documents', { 'unknown' => 1 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
+
+    context 'when form data has additional documents' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type1' },
+          { 'name' => 'doc2', 'attachmentId' => 'type2' },
+          { 'name' => 'doc3', 'attachmentId' => 'type2' }
+        ]
+      end
+
+      it 'logs document type metrics for additional documents' do
+        subject.start
+        expect_log_statement({ 'type1' => 1, 'type2' => 2 }, {})
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
+
+    context 'when form data has private medical records' do
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type3' },
+          { 'name' => 'doc2', 'attachmentId' => 'type3' },
+          { 'name' => 'doc3', 'attachmentId' => 'type4' }
+        ]
+      end
+
+      it 'logs document type metrics for private medical records' do
+        subject.start
+        expect_log_statement({}, { 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', {})
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
+      end
+    end
+
+    context 'when form data has both additional documents and private medical records' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type1' },
+          { 'name' => 'doc2', 'attachmentId' => 'type2' },
+          { 'name' => 'doc3', 'attachmentId' => 'type2' }
+        ]
+      end
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc4', 'attachmentId' => 'type3' },
+          { 'name' => 'doc5', 'attachmentId' => 'type3' },
+          { 'name' => 'doc6', 'attachmentId' => 'type4' }
+        ]
+      end
+
+      it 'logs summary metrics with document type breakdowns' do
+        subject.start
+        expect_log_statement({ 'type1' => 1, 'type2' => 2 }, { 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
+      end
+    end
+
+    context 'when documents have no attachmentId' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1' },
+          { 'name' => 'doc2' }
+        ]
+      end
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc3' }
+        ]
+      end
+
+      it 'uses "unknown" as the attachment type' do
+        subject.start
+        expect_log_statement({ 'unknown' => 2 }, { 'unknown' => 1 })
+        expect_documents_metrics('additional_documents', { 'unknown' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'unknown' => 1 })
       end
     end
   end

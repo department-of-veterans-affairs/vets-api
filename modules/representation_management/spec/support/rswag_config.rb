@@ -34,6 +34,10 @@ class RepresentationManagement::RswagConfig
       {
         name: 'Power of Attorney',
         description: 'Retrieves the Power of Attorney for a veteran, if any.'
+      },
+      {
+        name: 'Power of Attorney Requests',
+        description: 'Digital Submission of VA Form 21-22'
       }
     ]
   end
@@ -42,12 +46,13 @@ class RepresentationManagement::RswagConfig
     {
       accreditedIndividual: accredited_individual_schema,
       accreditedOrganization: accredited_organization_schema,
-      error: error,
-      errors: errors,
+      error:,
+      errors:,
       errorModel: error_model,
       powerOfAttorneyResponse: power_of_attorney_response,
       veteranServiceOrganization: veteran_service_organization_schema,
-      veteranServiceRepresentative: veteran_service_representative_schema
+      veteranServiceRepresentative: veteran_service_representative_schema,
+      poaRequest: poa_request_response
     }
   end
 
@@ -130,6 +135,53 @@ class RepresentationManagement::RswagConfig
     }
   end
 
+  def poa_request_response
+    {
+      type: :object,
+      properties: {
+        data: {
+          type: :object,
+          properties: {
+            id: {
+              type: :string,
+              example: '0bfddcc5-fe3c-4ffb-a4c7-70f5e23bde23',
+              description: 'The identifier of the newly created Power of Attorney Request'
+            },
+            type: poa_request_type,
+            attributes: poa_request_attributes
+          }
+        }
+      }
+    }
+  end
+
+  def poa_request_type
+    {
+      type: :string,
+      description: 'The type of resource created',
+      example: 'power_of_attorney_request'
+    }
+  end
+
+  def poa_request_attributes
+    {
+      type: :object,
+      properties: {
+        created_at: {
+          type: :string,
+          description: 'The timestamp of when the resource was created',
+          example: '2020-01-01T12:00:00.000Z'
+        },
+        expires_at: {
+          type: :string,
+          description: 'The timestamp of when the resource expires',
+          example: '2020-03-01T12:00:00.000Z'
+        }
+      },
+      required: %w[created_at expires_at]
+    }
+  end
+
   def power_of_attorney_attributes
     {
       type: :object,
@@ -190,7 +242,7 @@ class RepresentationManagement::RswagConfig
         }
       }
     )
-    accredited_data_structure(data_structure_type, attributes, uuid: uuid)
+    accredited_data_structure(data_structure_type, attributes, uuid:)
   end
 
   def accredited_organization_schema
@@ -199,7 +251,7 @@ class RepresentationManagement::RswagConfig
 
   def veteran_service_organization_schema
     optional_attributes = { can_accept_digital_poa_requests: { type: :boolean, example: true } }
-    build_organization_schema(uuid: false, optional_attributes: optional_attributes)
+    build_organization_schema(uuid: false, optional_attributes:)
   end
 
   def common_organization_attributes
@@ -214,7 +266,7 @@ class RepresentationManagement::RswagConfig
 
   def build_organization_schema(uuid: true, optional_attributes: {})
     attributes = common_organization_attributes.merge(optional_attributes)
-    accredited_data_structure('organization', attributes, uuid: uuid)
+    accredited_data_structure('organization', attributes, uuid:)
   end
 
   def accredited_data_structure(type, attributes, uuid: true)

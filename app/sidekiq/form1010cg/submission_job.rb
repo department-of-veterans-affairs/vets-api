@@ -28,9 +28,10 @@ module Form1010cg
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _e|
-      StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
+      claim_id = msg['args'][0]
+      StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{claim_id}"])
 
-      claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
+      claim = SavedClaim::CaregiversAssistanceClaim.find(claim_id)
       send_failure_email(claim)
     end
 
@@ -41,9 +42,13 @@ module Form1010cg
     def notify(params)
       # Add 1 to retry_count to match retry_monitoring logic
       retry_count = Integer(params['retry_count']) + 1
+      claim_id = params['args'][0]
 
       StatsD.increment("#{STATSD_KEY_PREFIX}applications_retried") if retry_count == 1
-      StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries", tags: ["params:#{params}"]) if retry_count == 10
+      if retry_count == 10
+        StatsD.increment("#{STATSD_KEY_PREFIX}failed_ten_retries",
+                         tags: ["params:#{params}", "claim_id:#{claim_id}"])
+      end
     end
 
     def perform(claim_id)
@@ -68,7 +73,7 @@ module Form1010cg
 
     class << self
       def send_failure_email(claim)
-        unless can_send_failure_email?(claim)
+        unless claim.parsed_form.dig('veteran', 'email')
           StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
           return
         end
@@ -88,15 +93,7 @@ module Form1010cg
           CALLBACK_METADATA
         )
 
-        StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent")
-      end
-
-      private
-
-      def can_send_failure_email?(claim)
-        Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure) && claim.parsed_form.dig(
-          'veteran', 'email'
-        )
+        StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent", tags: ["claim_id:#{claim.id}"])
       end
     end
   end

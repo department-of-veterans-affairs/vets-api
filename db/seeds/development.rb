@@ -39,6 +39,20 @@ vamobile_mock.update!(authentication: SignIn::Constants::Auth::API,
                       access_token_audience: 'vamobile',
                       refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
 
+vaokta = SignIn::ClientConfig.find_or_initialize_by(client_id: 'okta_test')
+vaokta.update!(authentication: SignIn::Constants::Auth::API,
+               anti_csrf: false,
+               redirect_uri: 'http://localhost:3002/auth/callback',
+               access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+               access_token_audience: 'okta',
+               pkce: true,
+               logout_redirect_uri: 'http://localhost:3001',
+               enforced_terms: SignIn::Constants::Auth::VA_TERMS,
+               terms_of_use_url: 'http://localhost:3001/terms-of-use',
+               shared_sessions: true,
+               json_api_compatibility: false,
+               refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
+
 # Create Config for localhost mocked authentication client
 vamock = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamock')
 vamock.update!(authentication: SignIn::Constants::Auth::MOCK,
@@ -177,3 +191,17 @@ mhv_ac.update!(
 SignIn::ServiceAccountConfig.where(certificates: nil).update(certificates: [])
 SignIn::ServiceAccountConfig.where(scopes: nil).update(scopes: [])
 SignIn::ClientConfig.where(certificates: nil).update(certificates: [])
+
+# Create UserActionEvents
+config_file_path = Rails.root.join('config', 'audit_log', 'user_action_events.yml')
+unless File.exist?(config_file_path)
+  Rails.logger.info('[UserActionEvent] Setup Error: UserActionEvents config file not found')
+  return
+end
+YAML.load_file(config_file_path).each do |identifier, event_config|
+  event = UserActionEvent.find_or_initialize_by(identifier:)
+  event.attributes = event_config
+  event.save!
+rescue => e
+  Rails.logger.info("[UserActionEvent] Setup Error: #{e.message}")
+end

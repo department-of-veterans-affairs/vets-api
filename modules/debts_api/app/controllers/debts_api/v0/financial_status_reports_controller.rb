@@ -38,7 +38,9 @@ module DebtsApi
       def rehydrate
         submission_id = params[:submission_id]
 
-        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid, submission_id:)
+        DebtsApi::V0::FsrRehydrationService.attempt_rehydration(user_uuid: current_user.uuid,
+                                                                user_account: current_user.user_account,
+                                                                submission_id:)
 
         render json: { result: 'FSR rehydrated' }
       rescue ActiveRecord::RecordNotFound
@@ -139,7 +141,7 @@ module DebtsApi
             :stocks_and_other_bonds,
             :real_estate_owned,
             :total_assets,
-            { automobiles: %i[make model year resale_value],
+            { automobiles: %i[make model resale_value year],
               other_assets: name_amount }
           ],
           installment_contracts_and_other_debts: [
@@ -210,7 +212,7 @@ module DebtsApi
             {
               monetary_assets: %i[name amount],
               other_assets: %i[name amount],
-              automobiles: %i[make model resale_value]
+              automobiles: %i[make model resale_value year]
             }
           ],
           benefits: { spouse_benefits: %i[compensation_and_pension education] },
@@ -279,6 +281,15 @@ module DebtsApi
             :composite_debt_id,
             :selected_debt_id,
             :debt_type,
+            :file_number,
+            { fiscal_transaction_data: %i[debt_id debt_increase_amount hines_code offset_amount offset_type
+                                          payment_type transaction_admin_amount transaction_court_amount
+                                          transaction_date transaction_description transaction_explanation
+                                          transaction_fiscal_code transaction_fiscal_source
+                                          transaction_fiscal_year transaction_interest_amount
+                                          transaction_marshall_amount transaction_principal_amount
+                                          transaction_total_amount] },
+            { debt_history: %i[date letter_code description] },
             :p_s_seq_num,
             :p_s_tot_seq_num,
             :p_s_facility_num,

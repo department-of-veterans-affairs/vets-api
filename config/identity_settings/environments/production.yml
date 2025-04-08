@@ -1,0 +1,81 @@
+idme:
+  client_cert_path: /srv/vets-api/secret/sign-in-service-oauth-prod.pem
+  client_id: 4b0e5276cea986f6cd2525be1ab788f7
+  client_key_path: /srv/vets-api/secret/sign-in-service-oauth-prod-key.pem
+  oauth_url: https://api.id.me
+  redirect_uri: https://api.va.gov/v0/sign_in/callback
+
+logingov:
+  client_cert_path: /srv/vets-api/secret/sign-in-service-oauth-prod.pem
+  client_id: https://eauth.va.gov/isam/sps/saml20sp/saml20
+  client_key_path: /srv/vets-api/secret/sign-in-service-oauth-prod-key.pem
+  logout_redirect_uri: https://api.va.gov/v0/sign_in/logingov_logout_proxy
+  oauth_public_key: /srv/vets-api/secret/logingov_oauth_prod_pub.pem
+  oauth_url: https://secure.login.gov
+  redirect_uri: https://api.va.gov/v0/sign_in/callback
+
+map_services:
+  appointments_client_id: 3cf08c719c8c69eb
+  chatbot_client_id: 2bb9803acfc3
+  check_in_client_id: bc75b71c7e67
+  client_cert_path: /srv/vets-api/secret/mobile-application-platform-prod.pem
+  client_key_path: /srv/vets-api/secret/mobile-application-platform-prod-key.pem
+  oauth_url: https://veteran.apps.va.gov
+  secure_token_service:
+    mock: false
+  sign_up_service:
+    mock: false
+  sign_up_service_client_id: c7d6e0fc9a39
+  sign_up_service_url: https://staff.apps.va.gov
+
+mhv:
+  account_creation:
+    host: https://apigw.myhealth.va.gov
+    mock: false
+    sts:
+      issuer: https://api.va.gov
+      service_account_id: e23aebb01255a8a157691d43ab7d5bcd
+
+mvi:
+  client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-prod-cert.pem
+  client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  mock: false
+  processing_code: P
+  url: https://fwdproxy-prod.vfs.va.gov:4434/psim_webservice/IdMWebService
+
+saml_ssoe:
+  callback_url: https://api.va.gov/v1/sessions/callback
+  cert_path: /srv/vets-api/secret/vagov-ssoe-saml-prod-cert.pem
+  idp_metadata_file: /app/config/ssoe_idp_prod_metadata_isam.xml
+  issuer: https://ssoe-sp-prod.va.gov
+  key_path: /srv/vets-api/secret/vagov-ssoe-saml-prod-key.pem
+  logout_app_key: https://ssoe-sp-prod.va.gov
+  logout_url: https://eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-prod.va.gov
+  request_signing: true
+  response_encryption: true
+  response_signing: true
+  tou_decline_logout_app_key: https://ssoe-sp-prod.va.gov/agreements_declined
+
+session_cookie:
+  secure: true
+
+sign_in:
+  arp_client_id: fe0d4b2cac7935e7eec5946b8ee31643
+  cookies_secure: true
+  info_cookie_domain: va.gov
+  jwt_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-prod-key.pem
+  jwt_old_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-prod-key-old.pem
+  sts_client:
+    base_url: https://api.va.gov
+    key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://va.gov/sign-in
+  web_origins:
+    - https://identity.va.gov
+    - https://staging.identity.va.gov
+    - https://sandbox.identity.va.gov
+    - https://dev.identity.va.gov
+
+ssoe_eauth_cookie:
+  domain: .va.gov
+  name: vagov_saml_request_prod
+  secure: true

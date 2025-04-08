@@ -2,6 +2,8 @@
 
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/constants'
+require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_claims/utilities/helpers'
 
 module V0
   class BenefitsClaimsController < ApplicationController
@@ -16,6 +18,10 @@ module V0
 
       claims['data'].each do |claim|
         update_claim_type_language(claim)
+        # Add has_failed_uploads field for document uploads that were added
+        if Flipper.enabled?(:cst_show_document_upload_status)
+          claim['attributes']['hasFailedUploads'] = add_has_failed_uploads(claim)
+        end
       end
 
       tap_claims(claims['data'])
@@ -42,20 +48,13 @@ module V0
       # be removed when we move to Lighthouse Benefits Documents for document uploads
       claim['data']['attributes']['canUpload'] = !@current_user.birls_id.nil?
 
+      # Add Evidence Submissions section for document uploads that were added
+      if Flipper.enabled?(:cst_show_document_upload_status)
+        claim['data']['attributes']['evidenceSubmissions'] = add_evidence_submissions(claim['data'])
+      end
+
       # We want to log some details about claim type patterns to track in DataDog
-      claim_info = claim['data']['attributes']
-      ::Rails.logger.info('Claim Type Details',
-                          { message_type: 'lh.cst.claim_types',
-                            claim_type: claim_info['claimType'],
-                            claim_type_code: claim_info['claimTypeCode'],
-                            num_contentions: claim_info['contentions'].count,
-                            ep_code: claim_info['endProductCode'],
-                            current_phase_back: claim_info['claimPhaseDates']['currentPhaseBack'],
-                            latest_phase_type: claim_info['claimPhaseDates']['latestPhaseType'],
-                            decision_letter_sent: claim_info['decisionLetterSent'],
-                            development_letter_sent: claim_info['developmentLetterSent'],
-                            claim_id: params[:id] })
-      log_evidence_requests(params[:id], claim_info)
+      log_claim_details(claim['data']['attributes'])
 
       tap_claims([claim['data']])
 
@@ -122,6 +121,67 @@ module V0
       if language_map.key?(claim.dig('attributes', 'claimType'))
         claim['attributes']['claimType'] = language_map[claim['attributes']['claimType']]
       end
+    end
+
+    def add_has_failed_uploads(claim)
+      failed_evidence_submissions = EvidenceSubmission.where(
+        claim_id: claim['id'],
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+      )
+      failed_evidence_submissions.count.positive?
+    end
+
+    def add_evidence_submissions(claim)
+      evidence_submissions = EvidenceSubmission.where(claim_id: claim['id'])
+      tracked_items = claim['attributes']['trackedItems']
+
+      filter_evidence_submissions(evidence_submissions, tracked_items)
+    end
+
+    def filter_evidence_submissions(evidence_submissions, tracked_items)
+      filtered_evidence_submissions = []
+      evidence_submissions.each do |es|
+        filtered_evidence_submissions.push(build_filtered_evidence_submission_record(es, tracked_items))
+      end
+
+      filtered_evidence_submissions
+    end
+
+    def build_filtered_evidence_submission_record(evidence_submission, tracked_items)
+      personalisation = JSON.parse(evidence_submission.template_metadata)['personalisation']
+      tracked_item_display_name = BenefitsClaims::Utilities::Helpers.get_tracked_item_display_name(
+        evidence_submission.tracked_item_id,
+        tracked_items
+      )
+
+      { acknowledgement_date: evidence_submission.acknowledgement_date,
+        claim_id: evidence_submission.claim_id,
+        created_at: evidence_submission.created_at,
+        delete_date: evidence_submission.delete_date,
+        document_type: personalisation['document_type'],
+        failed_date: evidence_submission.failed_date,
+        file_name: personalisation['file_name'],
+        id: evidence_submission.id,
+        lighthouse_upload: evidence_submission.job_class == 'Lighthouse::EvidenceSubmissions::DocumentUpload',
+        tracked_item_id: evidence_submission.tracked_item_id,
+        tracked_item_display_name:,
+        upload_status: evidence_submission.upload_status,
+        va_notify_status: evidence_submission.va_notify_status }
+    end
+
+    def log_claim_details(claim_info)
+      ::Rails.logger.info('Claim Type Details',
+                          { message_type: 'lh.cst.claim_types',
+                            claim_type: claim_info['claimType'],
+                            claim_type_code: claim_info['claimTypeCode'],
+                            num_contentions: claim_info['contentions'].count,
+                            ep_code: claim_info['endProductCode'],
+                            current_phase_back: claim_info['claimPhaseDates']['currentPhaseBack'],
+                            latest_phase_type: claim_info['claimPhaseDates']['latestPhaseType'],
+                            decision_letter_sent: claim_info['decisionLetterSent'],
+                            development_letter_sent: claim_info['developmentLetterSent'],
+                            claim_id: params[:id] })
+      log_evidence_requests(params[:id], claim_info)
     end
 
     def log_evidence_requests(claim_id, claim_info)

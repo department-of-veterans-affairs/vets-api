@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.shared_examples 'a representative email or phone update process' do |flag_type, attribute, valid_value, invalid_value| # rubocop:disable Layout/LineLength
+RSpec.shared_examples 'a representative email or phone update process' do |flag_type, attribute, valid_value, _invalid_value| # rubocop:disable Layout/LineLength
   let(:id) { '123abc' }
   let(:address_changed) { flag_type == 'address' }
   let(:email_changed) { flag_type == 'email' }
@@ -13,72 +13,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
-      create_flagged_records(flag_type)
-      allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
-    end
-
-    it "updates the #{flag_type} and the associated flagged records" do
-      flagged_records =
-        RepresentationManagement::FlaggedVeteranRepresentativeContactData
-        .where(representative_id: id, flag_type:)
-
-      flagged_records.each do |record|
-        expect(record.flagged_value_updated_at).to be_nil
-      end
-
-      subject.perform(json_data)
-      representative.reload
-
-      expect(representative.send(attribute)).to eq(valid_value)
-
-      flagged_records.each do |record|
-        record.reload
-        expect(record.flagged_value_updated_at).not_to be_nil
-      end
-    end
-
-    it 'does not call validate_address or VAProfile::AddressValidation::Service.new' do
-      subject.perform(json_data)
-
-      expect(VAProfile::AddressValidation::Service).not_to have_received(:new)
-    end
-  end
-
-  context 'when address_exists is false' do
-    let(:address_exists) { false }
-
-    before do
-      Flipper.disable(:va_v3_contact_information_service)
-      create_flagged_records(flag_type)
-    end
-
-    it "does not update the #{flag_type} or the associated flagged records" do
-      flagged_records =
-        RepresentationManagement::FlaggedVeteranRepresentativeContactData
-        .where(representative_id: id, flag_type:)
-
-      flagged_records.each do |record|
-        expect(record.flagged_value_updated_at).to be_nil
-      end
-
-      subject.perform(json_data)
-      representative.reload
-
-      expect(representative.send(attribute)).to eq(invalid_value)
-
-      flagged_records.each do |record|
-        record.reload
-        expect(record.flagged_value_updated_at).to be_nil
-      end
-    end
-  end
-
-  context 'when address_exists is true for V3/AddressValidation' do
-    let(:address_exists) { true }
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
       create_flagged_records(flag_type)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
@@ -219,7 +154,6 @@ RSpec.describe Representatives::Update do
     end
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response_v2)
     end
 
@@ -228,7 +162,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          "Representatives::Update: Error processing job: unexpected token at 'invalid json'"
+          "Representatives::Update: Error processing job: unexpected character: 'invalid json'"
         )
 
         subject.perform(invalid_json_data)
@@ -260,7 +194,6 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
-        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -294,7 +227,6 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
-        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -328,7 +260,6 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
-        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -540,7 +471,6 @@ RSpec.describe Representatives::Update do
 
       context 'when the first retry has non-zero coordinates' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1_v2)
         end
@@ -561,7 +491,6 @@ RSpec.describe Representatives::Update do
 
       context 'when the second retry has non-zero coordinates' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
                                                                    api_response2_v2)
@@ -583,7 +512,6 @@ RSpec.describe Representatives::Update do
 
       context 'when the third retry has non-zero coordinates' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
                                                                    api_response_with_zero_v2, api_response3_v2)
@@ -605,7 +533,6 @@ RSpec.describe Representatives::Update do
 
       context 'when the retry coordinates are all zero' do
         before do
-          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
                                                                    api_response_with_zero_v2, api_response_with_zero_v2)
@@ -730,7 +657,7 @@ RSpec.describe Representatives::Update do
 
       before do
         validation_service = VAProfile::V3::AddressValidation::Service
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
         allow_any_instance_of(validation_service).to receive(:candidate).and_return(api_response_v3)
       end
 
@@ -739,7 +666,7 @@ RSpec.describe Representatives::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            "Representatives::Update: Error processing job: unexpected token at 'invalid json'"
+            "Representatives::Update: Error processing job: unexpected character: 'invalid json'"
           )
 
           subject.perform(invalid_json_data)

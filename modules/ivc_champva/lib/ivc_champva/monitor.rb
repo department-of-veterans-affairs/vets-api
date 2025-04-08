@@ -98,7 +98,7 @@ module IvcChampva
 
     def track_s3_put_object_error(key, error, response = nil)
       additional_context = {
-        key: key,
+        key:,
         error_message: error.message,
         error_class: error.class.name,
         backtrace: error.backtrace&.join("\n") # Safe navigation operator
@@ -116,7 +116,7 @@ module IvcChampva
 
     def track_s3_upload_file_error(key, error)
       additional_context = {
-        key: key,
+        key:,
         error_message: error.message,
         error_class: error.class.name,
         backtrace: error.backtrace&.join("\n") # Safe navigation operator
@@ -136,6 +136,37 @@ module IvcChampva
       track_request('warn', "IVC ChampVa Forms - failed to upload all documents for submission: #{form_uuid}",
                     "#{STATS_KEY}.s3_upload_error",
                     call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Logs UUID and error message when an error occurs in pdf_stamper.rb
+    #
+    # @param [String] form_uuid UUID of the form submission with failed uploads
+    # @param [String] err_message Error message received
+    def track_pdf_stamper_error(form_uuid, err_message)
+      additional_context = { form_uuid:, err_message: }
+      track_request('warn', "IVC ChampVa Forms - an error occurred during pdf stamping: #{form_uuid}",
+                    "#{STATS_KEY}.pdf_stamper_error",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # Logs response from VES after submitting a form
+    #
+    # @param [String] form_uuid UUID of the form submission
+    # @param [integer] status HTTP status code received from VES
+    # @param [String] messages Full response received from VES
+    def track_ves_response(form_uuid, status, messages)
+      additional_context = { form_uuid:, status:, messages: }
+      if status == 200
+        track_request('info', "IVC ChampVa Forms - Successful submission to VES for form #{form_uuid}",
+                      "#{STATS_KEY}.ves_response.success",
+                      call_location: caller_locations.first, **additional_context)
+      else
+        track_request('error', "IVC ChampVa Forms - Error on submission to VES for form #{form_uuid}",
+                      "#{STATS_KEY}.ves_response.failure",
+                      call_location: caller_locations.first, **additional_context)
+      end
     end
   end
 end

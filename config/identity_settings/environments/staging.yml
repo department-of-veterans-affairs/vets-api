@@ -1,0 +1,69 @@
+idme:
+  client_cert_path: /srv/vets-api/secret/sign-in-service-oauth-lowers.pem
+  client_id: dde0b5b8bfc023a093830e64ef83f148
+  client_key_path: /srv/vets-api/secret/sign-in-service-oauth-lowers-key.pem
+  redirect_uri: https://staging-api.va.gov/v0/sign_in/callback
+
+logingov:
+  client_cert_path: /srv/vets-api/secret/sign-in-service-oauth-lowers.pem
+  client_key_path: /srv/vets-api/secret/sign-in-service-oauth-lowers-key.pem
+  logout_redirect_uri: https://staging-api.va.gov/v0/sign_in/logingov_logout_proxy
+  oauth_public_key: /srv/vets-api/secret/logingov_oauth_pub.pem
+  redirect_uri: https://staging-api.va.gov/v0/sign_in/callback
+
+map_services:
+  client_cert_path: /srv/vets-api/secret/mobile-application-platform-lowers.pem
+  client_key_path: /srv/vets-api/secret/mobile-application-platform-lowers-key.pem
+  secure_token_service:
+    mock: false
+  sign_up_service:
+    mock: false
+
+mhv:
+  account_creation:
+    host: https://apigw-sysb.aws.myhealth.va.gov
+    mock: false
+    sts:
+      issuer: https://staging-api.va.gov
+      service_account_id: 59d4a3199f42179e510e867cc786d8ac
+
+mvi:
+  client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
+  client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  mock: false
+  url: https://fwdproxy-staging.vfs.va.gov:4434/psim_webservice/stage1a/IdMWebService
+
+saml_ssoe:
+  callback_url: https://staging-api.va.gov/v1/sessions/callback
+  cert_path: /srv/vets-api/secret/vagov-ssoe-saml-staging-cert.pem
+  idp_metadata_file: /app/config/ssoe_idp_sqa_metadata_isam.xml
+  issuer: https://ssoe-sp-staging.va.gov
+  key_path: /srv/vets-api/secret/vagov-ssoe-saml-staging-key.pem
+  logout_app_key: https://ssoe-sp-staging.va.gov
+  logout_url: https://sqa.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-staging.va.gov
+  request_signing: true
+  response_encryption: true
+  response_signing: true
+  tou_decline_logout_app_key: https://ssoe-sp-staging.va.gov/agreements_declined
+
+session_cookie:
+  secure: true
+
+sign_in:
+  arp_client_id: ce6db4d7974daf061dccdd21ba9add14
+  cookies_secure: true
+  info_cookie_domain: va.gov
+  jwt_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-lowers-key.pem
+  jwt_old_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-lowers-key-old.pem
+  sts_client:
+    base_url: https://staging-api.va.gov
+    key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://staging.va.gov/sign-in
+  vamobile_client_id:
+    - vamobile
+    - vamobile_test
+
+ssoe_eauth_cookie:
+  domain: .va.gov
+  name: vagov_saml_request_staging
+  secure: true

@@ -80,15 +80,15 @@ describe Burials::PdfFill::Forms::Va21p530ez do
       end
     end
 
-    context 'with a regular location of death' do
+    context 'with a regular location of death in new format' do
       let(:form_data) do
         {
           'locationOfDeath' => {
-            'location' => 'nursingHomeUnpaid',
-            'nursingHomeUnpaid' => {
-              'facilityName' => 'facility name',
-              'facilityLocation' => 'Washington, DC'
-            }
+            'location' => 'nursingHomeUnpaid'
+          },
+          'nursingHomeUnpaid' => {
+            'facilityName' => 'facility name',
+            'facilityLocation' => 'Washington, DC'
           }
         }
       end

@@ -11,7 +11,7 @@ describe IvcChampva::S3 do
 
   let(:s3_instance) do
     IvcChampva::S3.new(
-      region: region,
+      region:,
       bucket: bucket_name
     )
   end
@@ -29,6 +29,9 @@ describe IvcChampva::S3 do
 
       before do
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(response_double)
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_log_all_s3_uploads, @current_user)
+          .and_return(true)
       end
 
       it 'returns success response' do
@@ -57,7 +60,6 @@ describe IvcChampva::S3 do
         allow(Flipper).to receive(:enabled?)
           .with(:champva_log_all_s3_uploads, @current_user)
           .and_return(true)
-        Flipper.enable(:champva_log_all_s3_uploads)
       end
 
       it 'returns failure response with status code and body' do
@@ -81,7 +83,6 @@ describe IvcChampva::S3 do
         allow(Flipper).to receive(:enabled?)
           .with(:champva_log_all_s3_uploads, @current_user)
           .and_return(true)
-        Flipper.enable(:champva_log_all_s3_uploads)
       end
 
       it 'returns failure response with exception message' do
@@ -109,7 +110,6 @@ describe IvcChampva::S3 do
         allow(Flipper).to receive(:enabled?)
           .with(:champva_log_all_s3_uploads, @current_user)
           .and_return(true)
-        Flipper.enable(:champva_log_all_s3_uploads)
       end
 
       it 'returns failure response with status code' do

@@ -43,7 +43,7 @@ describe TravelPay::ClaimAssociationService do
             'id' => '73611905-71bf-46ed-b1ec-e790593b8565',
             'claimNumber' => 'TC0004',
             'claimName' => '9d81c1a1-cd05-47c6-be97-d14dec579893',
-            'claimStatus' => 'Claim Submitted',
+            'claimStatus' => 'ClaimSubmitted',
             'appointmentDateTime' => nil,
             'facilityName' => 'Tomah VA Medical Center',
             'createdOn' => '2023-12-29T22:00:57.915Z',
@@ -209,7 +209,6 @@ describe TravelPay::ClaimAssociationService do
       appts.each do |appt|
         expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
         expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-        expect(appt['travelPayClaim']['metadata']['message']).to include(/Invalid date./i)
       end
     end
   end
@@ -379,7 +378,6 @@ describe TravelPay::ClaimAssociationService do
                                                                        })
       expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
       expect(appt['travelPayClaim']['metadata']['success']).to be(false)
-      expect(appt['travelPayClaim']['metadata']['message']).to include(/Invalid date./i)
     end
   end
 end

@@ -254,7 +254,7 @@ module Pensions
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_account_uuid: user_account_uuid,
+        user_account_uuid:,
         claim_id: msg['args'].first,
         form_id: claim&.form_id,
         message: msg,
@@ -263,8 +263,8 @@ module Pensions
       call_location = caller_locations.first
 
       if claim
+        # silent failure tracking in email callback
         Pensions::NotificationEmail.new(claim.id).deliver(:error)
-        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
       else
         log_silent_failure(additional_context, user_account_uuid, call_location:)
       end

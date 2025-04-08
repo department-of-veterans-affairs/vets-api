@@ -5,35 +5,17 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :request do
   describe 'POST #create' do
     let(:user) { create(:user, :loa3) }
+    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
     let(:base_path) { '/representation_management/v0/power_of_attorney_requests' }
-    let(:organization) { create(:organization) } # This is the legacy organization
-    let(:representative) { create(:representative) } # This is the legacy representative
+    let(:organization) { create(:organization, can_accept_digital_poa_requests: accepts_digital_requests) }
+    let(:accepts_digital_requests) { true }
+    let(:representative) { create(:representative) }
     let(:params) do
       {
         power_of_attorney_request: {
-          record_consent: '',
-          consent_address_change: '',
+          record_consent: true,
+          consent_address_change: true,
           consent_limits: [],
-          claimant: {
-            date_of_birth: '1980-12-31',
-            relationship: 'Spouse',
-            phone: '5555555555',
-            email: 'claimant@example.com',
-            name: {
-              first: 'John',
-              middle: 'Middle', # This is a middle name as submitted by the frontend
-              last: 'Claimant'
-            },
-            address: {
-              address_line1: '123 Fake Claimant St',
-              address_line2: '',
-              city: 'Portland',
-              state_code: 'OR',
-              country: 'USA', # This is a 3 character country code as submitted by the frontend
-              zip_code: '12345',
-              zip_code_suffix: '6789'
-            }
-          },
           veteran: {
             ssn: '123456789',
             va_file_number: '123456789',
@@ -44,7 +26,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
             email: 'veteran@example.com',
             name: {
               first: 'John',
-              middle: 'Middle', # This is a middle name as submitted by the frontend
+              middle: 'Middle',
               last: 'Veteran'
             },
             address: {
@@ -52,7 +34,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
               address_line2: '',
               city: 'Portland',
               state_code: 'OR',
-              country: 'USA', # This is a 3 character country code as submitted by the frontend
+              country: 'USA',
               zip_code: '12345',
               zip_code_suffix: '6789'
             }
@@ -65,53 +47,54 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
       }
     end
 
-    context 'with a signed in user' do
-      before do
-        sign_in_as(user)
-      end
-
-      context 'When submitting all fields with valid data' do
+    context 'when appoint_a_representative_enable_v2_features is enabled' do
+      context 'with a signed in user' do
         before do
-          params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
-          post(base_path, params:)
+          sign_in_as(user)
+          allow(Flipper).to receive(:enabled?).with(:appoint_a_representative_enable_v2_features).and_return(true)
         end
 
-        it 'responds with a ok status' do
-          expect(response).to have_http_status(:ok)
+        context 'When submitting all fields with valid data' do
+          let(:poa_request) do
+            OpenStruct.new(id: 'efd18b43-4421-4539-941a-7397fadfe5dc',
+                           created_at: '2025-02-21T00:00:00.000000000Z'.to_datetime,
+                           expires_at: '2025-04-22T00:00:00.000000000Z'.to_datetime)
+          end
+
+          before do
+            allow_any_instance_of(RepresentationManagement::PowerOfAttorneyRequestService::Orchestrate)
+              .to receive(:call)
+              .and_return({ request: poa_request })
+          end
+
+          it 'responds with a 201/created status' do
+            post(base_path, params:)
+
+            expect(response).to have_http_status(:created)
+          end
+
+          it 'responds with the newly created PowerOfAttorneyRequest' do
+            post(base_path, params:)
+
+            parsed_response = JSON.parse(response.body)
+
+            expect(parsed_response['data']['id']).to eq(poa_request.id)
+          end
         end
 
-        it 'responds with the expected message' do
-          expect(response.body).to eq({ message: 'Email enqueued' }.to_json)
-        end
-      end
+        context 'when form validation fails' do
+          before do
+            params[:power_of_attorney_request][:veteran][:name][:first] = nil
+            post(base_path, params:)
+          end
 
-      context 'when submitting with a veteran service number - TEMPORARY FOR FRONTEND TESTING' do
-        before do
-          post(base_path, params: params)
-        end
+          it 'responds with a 422/unprocessable_entity status' do
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
 
-        it 'responds with the unprocessable_entity status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ['render_error_state_for_failed_submission'] }.to_json)
-        end
-      end
-
-      context 'when submitting without the veteran first name for a single validation error' do
-        before do
-          params[:power_of_attorney_request][:veteran][:service_number] = nil # TEMPORARY FOR FRONTEND TESTING
-          params[:power_of_attorney_request][:veteran][:name][:first] = nil
-          post(base_path, params:)
-        end
-
-        it 'responds with an unprocessable entity status' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
+          it 'responds with an error message specifying the failed validation(s)' do
+            expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
+          end
         end
       end
     end
@@ -121,6 +104,19 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
         post(base_path, params:)
 
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when appoint_a_representative_enable_v2_features is disabled' do
+      before do
+        sign_in_as(user)
+        allow(Flipper).to receive(:enabled?).with(:appoint_a_representative_enable_v2_features).and_return(false)
+      end
+
+      it 'returns a 404/not_found status' do
+        post(base_path, params:)
+
+        expect(response).to have_http_status(:not_found)
       end
     end
   end

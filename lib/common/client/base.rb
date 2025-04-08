@@ -85,7 +85,11 @@ module Common
           end
 
           if handlers.include?(Breakers::UptimeMiddleware)
-            return connection if handlers.first == Breakers::UptimeMiddleware
+            if handlers.first == Breakers::UptimeMiddleware
+              message = "Please pass a service_name argument to the Breakers middleware for service: #{service_name}"
+              warn(message) unless connection.app.service_name
+              return connection
+            end
 
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
@@ -127,7 +131,8 @@ module Common
                       end
 
         response_hash = e.response&.to_hash
-        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
+        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body),
+                                       headers: response_hash&.dig(:headers))
         raise client_error
       end
 

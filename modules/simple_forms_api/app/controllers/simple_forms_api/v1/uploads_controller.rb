@@ -103,9 +103,7 @@ module SimpleFormsApi
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
 
-        if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
-        end
+        send_intent_received_email(parsed_form_data, confirmation_number, expiration_date) if confirmation_number
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
       rescue Common::Exceptions::UnprocessableEntity, Exceptions::BenefitsClaimsApiDownError => e
@@ -127,15 +125,13 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, reference_number: }
         )
 
-        if Flipper.enabled?(:simple_forms_email_confirmations)
-          case status
-          when 'VALIDATED', 'ACCEPTED'
-            send_sahsha_email(parsed_form_data, :confirmation, reference_number)
-          when 'REJECTED'
-            send_sahsha_email(parsed_form_data, :rejected, reference_number)
-          when 'DUPLICATE'
-            send_sahsha_email(parsed_form_data, :duplicate)
-          end
+        case status
+        when 'VALIDATED', 'ACCEPTED'
+          send_sahsha_email(parsed_form_data, :confirmation, reference_number)
+        when 'REJECTED'
+          send_sahsha_email(parsed_form_data, :rejected, reference_number)
+        when 'DUPLICATE'
+          send_sahsha_email(parsed_form_data, :duplicate)
         end
 
         { json: { reference_number:, status:, submission_api: 'sahsha' }, status: lgy_response.status }
@@ -155,13 +151,13 @@ module SimpleFormsApi
         )
 
         if status == 200
-          if Flipper.enabled?(:simple_forms_email_confirmations)
+          begin
             send_confirmation_email(parsed_form_data, confirmation_number)
+          rescue => e
+            Rails.logger.error('Simple forms api - error sending confirmation email', error: e)
           end
 
-          presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
-                               upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
-                             end
+          presigned_s3_url = upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
         end
 
         build_response(confirmation_number, presigned_s3_url, status)
@@ -251,6 +247,8 @@ module SimpleFormsApi
       end
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
+        return unless %w[production staging test].include?(Settings.vsp_environment)
+
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
         attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
@@ -317,7 +315,7 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type: :confirmation,
           user: @current_user
@@ -333,7 +331,7 @@ module SimpleFormsApi
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           expiration_date: Time.zone.parse(expiration_date).strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type: :received,
           user: @current_user
@@ -348,7 +346,7 @@ module SimpleFormsApi
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
-        notification_email = SimpleFormsApi::NotificationEmail.new(
+        notification_email = SimpleFormsApi::Notification::Email.new(
           config,
           notification_type:,
           user: @current_user

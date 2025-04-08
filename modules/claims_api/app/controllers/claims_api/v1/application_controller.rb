@@ -233,10 +233,12 @@ module ClaimsApi
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
         vet.icn = vet&.mpi_icn
+        # This will cache using the ICN as the KEY in Redis now if it is present
+        vet.recache_mpi_data
         vet
       end
 
-      def set_tags_and_extra_context
+      def set_sentry_tags_and_extra_context
         RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
         Sentry.set_tags(source: 'claims_api')
       end

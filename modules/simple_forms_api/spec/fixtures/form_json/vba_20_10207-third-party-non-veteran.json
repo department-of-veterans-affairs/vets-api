@@ -5,6 +5,8 @@
     "last": "Third-Pty-Non-Vet"
   },
   "third_party_type": "power-of-attorney",
+  "third_party_email_address": "third.party@example.com",
+  "non_veteran_email_address": "john.non-veteran@example.com",
   "non_veteran_full_name": {
     "first": "John",
     "last": "Non-Veteran"

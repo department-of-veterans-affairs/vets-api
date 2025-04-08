@@ -133,7 +133,7 @@ class SavedClaim < ApplicationRecord
     claim_va_notifications.create!(
       form_type: form_id,
       email_sent: true,
-      email_template_id: email_template_id
+      email_template_id:
     )
   end
 
@@ -146,8 +146,12 @@ class SavedClaim < ApplicationRecord
   def va_notification?(email_template_id)
     claim_va_notifications.find_by(
       form_type: form_id,
-      email_template_id: email_template_id
+      email_template_id:
     )
+  end
+
+  def regional_office
+    []
   end
 
   private

@@ -266,7 +266,7 @@ module ClaimsApi
 
       service_periods.each do |service_period|
         if service_period['activeDutyBeginDate'].present?
-          start_date = if DATE_REGEX.match?((service_period['activeDutyBeginDate']))
+          start_date = if DATE_REGEX.match?(service_period['activeDutyBeginDate'])
                          Date.strptime(service_period['activeDutyBeginDate'],
                                        '%m-%d-%Y')
                        else
@@ -274,7 +274,7 @@ module ClaimsApi
                        end
         end
         if service_period['activeDutyEndDate'].present?
-          end_date = if DATE_REGEX.match?((service_period['activeDutyEndDate']))
+          end_date = if DATE_REGEX.match?(service_period['activeDutyEndDate'])
                        Date.strptime(service_period['activeDutyEndDate'],
                                      '%m-%d-%Y')
                      else
@@ -568,7 +568,7 @@ module ClaimsApi
 
     def transform_empty_unit_name!
       reserves = form_data&.dig('serviceInformation', 'reservesNationalGuardService')
-      return if reserves.nil?
+      return if reserves.blank?
 
       unit_name = reserves['unitName']
       unit_name = unit_name.presence || ' '

@@ -6,6 +6,7 @@ VAOS::Engine.routes.draw do
     get '/appointments', to: 'appointments#index'
     get '/appointments/:appointment_id', to: 'appointments#show'
     put '/appointments/:id', to: 'appointments#update'
+    get '/eps_appointments/:id', to: 'eps_appointments#show'
     get '/providers', to: 'providers#index'
     get '/providers/:provider_id', to: 'providers#show'
     get 'community_care/eligibility/:service_type', to: 'cc_eligibility#show'
@@ -21,5 +22,9 @@ VAOS::Engine.routes.draw do
     post '/appointments', to: 'appointments#create'
     post '/appointments/draft', to: 'appointments#create_draft'
     post '/appointments/submit', to: 'appointments#submit_referral_appointment'
+
+    # Referrals routes
+    get '/referrals', to: 'referrals#index'
+    get '/referrals/:id', to: 'referrals#show'
   end
 end

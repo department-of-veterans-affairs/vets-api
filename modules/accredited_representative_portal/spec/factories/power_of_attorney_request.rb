@@ -5,21 +5,30 @@ FactoryBot.define do
     association :claimant, factory: :user_account
     association :power_of_attorney_form, strategy: :build
 
-    accredited_individual_registration_number { Faker::Number.unique.number(digits: 8) }
-    accredited_individual {
-      create(:representative,
-             representative_id: accredited_individual_registration_number,
-             first_name: Faker::Name.unique.first_name,
-             last_name: Faker::Name.unique.last_name)
-    }
-
-    accredited_organization {
-      create(:organization)
-    }
-    power_of_attorney_holder_type { 'AccreditedOrganization' }
-
     transient do
+      poa_code { Faker::Alphanumeric.alphanumeric(number: 3) }
+      accredited_individual { nil }
       resolution_created_at { nil }
+    end
+
+    power_of_attorney_holder_type { 'veteran_service_organization' }
+
+    after(:build) do |poa_request, evaluator|
+      poa_request.accredited_organization = evaluator.accredited_organization ||
+                                            create(:organization)
+
+      if evaluator.accredited_individual
+        poa_request.accredited_individual = evaluator.accredited_individual
+      else
+        accredited_individual =
+          create(:representative,
+                 representative_id: Faker::Number.unique.number(digits: 6),
+                 poa_codes: [evaluator.poa_code])
+
+        poa_request.accredited_individual = accredited_individual
+      end
+
+      poa_request.power_of_attorney_holder_poa_code = evaluator.poa_code if evaluator.poa_code.present?
     end
 
     trait :with_acceptance do
@@ -29,6 +38,24 @@ FactoryBot.define do
           :acceptance,
           power_of_attorney_request: poa_request,
           resolution_created_at: evaluator.resolution_created_at
+        )
+      end
+    end
+
+    trait :with_form_submission do
+      after(:build) do |poa_request, _evaluator|
+        poa_request.power_of_attorney_form_submission = build(:power_of_attorney_form_submission,
+                                                              status: :succeeded,
+                                                              power_of_attorney_request: poa_request)
+      end
+    end
+
+    trait :with_failed_form_submission do
+      after(:build) do |poa_request, _evaluator|
+        poa_request.power_of_attorney_form_submission = build(
+          :power_of_attorney_form_submission,
+          power_of_attorney_request: poa_request,
+          status: :failed
         )
       end
     end
@@ -49,6 +76,17 @@ FactoryBot.define do
         poa_request.resolution = build(
           :power_of_attorney_request_resolution,
           :expiration,
+          power_of_attorney_request: poa_request,
+          resolution_created_at: evaluator.resolution_created_at
+        )
+      end
+    end
+
+    trait :with_replacement do
+      after(:build) do |poa_request, evaluator|
+        poa_request.resolution = build(
+          :power_of_attorney_request_resolution,
+          :replacement,
           power_of_attorney_request: poa_request,
           resolution_created_at: evaluator.resolution_created_at
         )

@@ -48,19 +48,22 @@ module Efolder
 
     def bgs_doc_uuids
       uuids = []
-      BGS::UploadedDocumentService
-        .new(@user)
-        .get_documents
-        .each do |claim|
-          uploaded_docs = claim[:uplded_dcmnts]
-          if uploaded_docs.is_a?(Hash)
-            uuids << uploaded_docs[:uuid_txt]
-          else
-            uploaded_docs.each do |doc|
+      documents = BGS::UploadedDocumentService.new(@user).get_documents || []
+
+      documents.each do |claim|
+        uploaded_docs = claim[:uplded_dcmnts]
+        if uploaded_docs.is_a?(Hash) && uploaded_docs.key?(:uuid_txt)
+          uuids << uploaded_docs[:uuid_txt]
+        else
+          uploaded_docs&.each do |doc|
+            if doc.is_a?(Hash) && doc.key?(:uuid_txt) # rubocop:disable Style/IfUnlessModifier
               uuids << doc[:uuid_txt]
             end
           end
         end
+      rescue => e
+        Rails.logger.debug { "Error processing bgs efolder claim: #{e.message}" }
+      end
       uuids.compact
     end
 

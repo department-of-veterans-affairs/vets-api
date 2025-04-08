@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
+    uri: <MDOT_URL>/supplies
     body:
       encoding: UTF-8
       string: '{"veteranFullName":{"first":"Greg","middle":"A","last":"Anderson"},"veteranAddress":{"street":"101 Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postalCode":"64117"},"order":[{"productId":"1"},{"productId":"4"}],"additionalRequests":""}'

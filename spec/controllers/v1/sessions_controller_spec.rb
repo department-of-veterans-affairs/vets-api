@@ -83,6 +83,11 @@ RSpec.describe V1::SessionsController, type: :controller do
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
   end
 
+  after do
+    saml_user { nil }
+    successful_logout_response { nil }
+  end
+
   describe 'GET #new' do
     subject(:call_endpoint) { get(:new, params:) }
 
@@ -175,7 +180,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'and the operation param is invalid' do
-            subject(:call_endpoint) { get(:new, params: params) }
+            subject(:call_endpoint) { get(:new, params:) }
 
             let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
 
@@ -458,6 +463,31 @@ RSpec.describe V1::SessionsController, type: :controller do
             end
           end
         end
+
+        context 'when type is mhv' do
+          let(:params) { { type:, operation: } }
+          let(:type) { 'mhv' }
+          let(:expected_tags) do
+            [
+              "type:#{type}",
+              'version:v1',
+              'client_id:vaweb',
+              "operation:#{operation}"
+            ]
+          end
+
+          context 'when operation is mhv_exception' do
+            let(:operation) { 'mhv_exception' }
+
+            it 'increments statsd with the expected tags' do
+              expect do
+                call_endpoint
+              end.to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: expected_tags, **once)
+
+              expect(response).to have_http_status(:ok)
+            end
+          end
+        end
       end
 
       context 'routes requiring auth' do
@@ -580,6 +610,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       uri.query = expected_redirect_params
       uri.to_s
     end
+    let(:user_action_event_identifier) { 'sign_in' }
+    let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
 
     context 'when too much time passed to consume the SAML Assertion' do
       let(:error_code) { '005' }
@@ -608,9 +640,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+        context 'and authentication occurred with a application in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
           context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
@@ -630,9 +662,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+        context 'and auth occurred with an application not in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
           end
 
           it 'redirects to expected auth page' do
@@ -644,6 +676,35 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when user has accepted the current terms of use' do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
+        end
+      end
+
+      context 'after redirecting the client' do
+        let(:user_action) { create(:user_action, user_action_event:) }
+        let(:expected_ip_address) { cookies.request.remote_ip }
+        let(:expected_user_agent) { cookies.request.user_agent }
+        let(:expected_audit_log) { 'User audit log created' }
+        let(:expected_audit_log_payload) do
+          { user_action_event: user_action_event.id,
+            user_action_event_details: user_action_event.details,
+            status: :success,
+            user_action: user_action.id }
+        end
+
+        before do
+          allow(UserAction).to receive(:create!).and_return(user_action)
+          allow(UserAuditLogger).to receive(:new).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect(UserAuditLogger).to receive(:new).with(user_action_event_identifier:,
+                                                        subject_user_verification: user.user_verification,
+                                                        status: :success,
+                                                        acting_ip_address: expected_ip_address,
+                                                        acting_user_agent: expected_user_agent)
+          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
+          call_endpoint
         end
       end
     end
@@ -661,9 +722,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+        context 'and authentication occurred with a application in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
           context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
@@ -683,9 +744,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+        context 'and auth occurred with an application not in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
           end
 
           it 'redirects to expected auth page' do
@@ -697,6 +758,35 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when user has accepted the current terms of use' do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
+        end
+      end
+
+      context 'after redirecting the client' do
+        let(:user_action) { create(:user_action, user_action_event:) }
+        let(:expected_ip_address) { cookies.request.remote_ip }
+        let(:expected_user_agent) { cookies.request.user_agent }
+        let(:expected_audit_log) { 'User audit log created' }
+        let(:expected_audit_log_payload) do
+          { user_action_event: user_action_event.id,
+            user_action_event_details: user_action_event.details,
+            status: :success,
+            user_action: user_action.id }
+        end
+
+        before do
+          allow(UserAction).to receive(:create!).and_return(user_action)
+          allow(UserAuditLogger).to receive(:new).and_call_original
+          allow(Rails.logger).to receive(:info).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect(UserAuditLogger).to receive(:new).with(user_action_event_identifier:,
+                                                        subject_user_verification: user.user_verification,
+                                                        status: :success,
+                                                        acting_ip_address: expected_ip_address,
+                                                        acting_user_agent: expected_user_agent)
+          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
+          call_endpoint
         end
       end
     end

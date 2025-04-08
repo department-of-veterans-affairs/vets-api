@@ -2,13 +2,8 @@
 
 module PdfFill
   class ExtrasGenerator
-    attr_reader :extras_redesign
-
-    def initialize(form_name: nil, extras_redesign: false, start_page: 1)
+    def initialize
       @generate_blocks = []
-      @form_name = form_name
-      @extras_redesign = extras_redesign
-      @start_page = start_page
     end
 
     def create_block(value, metadata)
@@ -20,12 +15,14 @@ module PdfFill
         i = metadata[:i]
         prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text("#{prefix}:", { style: extras_redesign ? :normal : :bold })
-        pdf.text(value.to_s, { style: extras_redesign ? :bold : :normal })
+        pdf.text("#{prefix}:", style: :bold)
+        pdf.text(value.to_s, style: :normal)
       end
     end
 
     def add_text(value, metadata)
+      return unless metadata.fetch(:overflow, true)
+
       unless text?
         @generate_blocks << {
           metadata: {},
@@ -67,38 +64,16 @@ module PdfFill
       pdf.font('Roboto')
     end
 
-    def set_header(pdf)
-      pdf.repeat :all do
-        pdf.bounding_box(
-          [pdf.bounds.left, pdf.bounds.top],
-          width: pdf.bounds.width
-        ) do
-          pdf.text("<b>ATTACHMENT</b> to VA Form #{@form_name}",
-                   align: :left,
-                   size: 14.5,
-                   leading: 2,
-                   inline_format: true)
-          pdf.stroke_horizontal_rule
-        end
-      end
-    end
-
-    def add_page_numbers(pdf)
-      pdf.number_pages('Page <page>',
-                       start_count_at: @start_page,
-                       at: [pdf.bounds.right - 50, 0],
-                       align: :right,
-                       size: 9)
-    end
-
-    def generate_pdf(file_path, generate_blocks)
+    def generate
+      folder = 'tmp/pdfs'
+      FileUtils.mkdir_p(folder)
+      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
+      generate_blocks = sort_generate_blocks
       Prawn::Document.generate(file_path) do |pdf|
         set_font(pdf)
-        set_header(pdf) if extras_redesign
-
         render_pdf_content(pdf, generate_blocks)
-        add_page_numbers(pdf) if extras_redesign
       end
+      file_path
     end
 
     def render_pdf_content(pdf, generate_blocks)
@@ -112,15 +87,6 @@ module PdfFill
           block[:block].call(pdf)
         end
       end
-    end
-
-    def generate
-      folder = 'tmp/pdfs'
-      FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
-      generate_blocks = sort_generate_blocks
-      generate_pdf(file_path, generate_blocks)
-      file_path
     end
   end
 end

@@ -36,9 +36,8 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BadRequestError
-          extend Swagger::Responses::RecordNotFoundError
 
-          key :description, 'Get a single travel reimbursment claim summary'
+          key :description, 'Get a single travel reimbursment claim details'
           key :operationId, 'getTravelPayClaimById'
           key :tags, %w[travel_pay]
 
@@ -53,9 +52,9 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'Successfully retrieved claim for a user'
+            key :description, 'Successfully retrieved claim details for a user'
             schema do
-              key :$ref, :TravelPayClaimSummary
+              key :$ref, :TravelPayClaimDetails
             end
           end
         end
@@ -73,11 +72,15 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, 'appt_datetime'
-            key :in, :query
-            key :description, 'Appointment claim submission datetime'
-            key :required, false
-            key :type, :string
+            key :name, :appointmentDatetime
+            key :in, :body
+            key :description, 'Appointment claim start time'
+            key :required, true
+            schema do
+              property :appointmentDatetime do
+                key :type, :string
+              end
+            end
           end
 
           response 201 do

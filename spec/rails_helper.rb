@@ -28,6 +28,7 @@ require 'support/vcr'
 require 'support/mdot_helpers'
 require 'support/financial_status_report_helpers'
 require 'support/poa_stub'
+require 'support/sm_spec_helper'
 require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
@@ -82,6 +83,20 @@ VCR.configure do |c|
   end
 end
 
+VCR.configure do |config|
+  ignored_uris = [
+    'http://169.254.169.254/latest/api/token' # ec2
+  ]
+
+  config.ignore_request do |request|
+    ignored_uris.include?(request.uri)
+  end
+end
+
+Datadog.configure do |c|
+  c.tracing.enabled = false
+end
+
 ActiveRecord::Migration.maintain_test_schema!
 
 require 'sidekiq/testing'
@@ -133,6 +148,7 @@ RSpec.configure do |config|
   # examples within a transaction, remove the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
+  config.include FactoryBot::Syntax::Methods
 
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and

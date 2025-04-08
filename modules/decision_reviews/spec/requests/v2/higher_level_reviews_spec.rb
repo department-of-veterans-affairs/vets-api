@@ -93,6 +93,10 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
     end
 
     context 'when an error occurs with the api call' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
+      end
+
       it 'adds to the PersonalInformationLog' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
           expect(personal_information_logs.count).to be 0
@@ -103,7 +107,9 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
             message: "Exception occurred while submitting Higher Level Review: #{extra_error_log_message}",
             backtrace: anything
           )
-          expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+          expect(Rails.logger).to receive(:error) do |message|
+            expect(message).to include(extra_error_log_message)
+          end
           allow(StatsD).to receive(:increment)
           expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
 

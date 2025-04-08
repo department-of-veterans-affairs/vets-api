@@ -370,8 +370,6 @@ describe 'PowerOfAttorney',
         'data' => {
           'attributes' => {
             'poaCodes' => %w[002 003 083],
-            'pageSize' => '3',
-            'pageIndex' => '1',
             'filter' => {
               'status' => %w[NEW ACCEPTED DECLINED],
               'state' => 'OR',

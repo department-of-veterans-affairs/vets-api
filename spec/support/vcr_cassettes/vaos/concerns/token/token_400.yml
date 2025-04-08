@@ -1,0 +1,31 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<VAOS_EPS_TOKEN_URL>"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=test.scope&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=test-jwt-assertion
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Sat, 11 Jan 2025 00:05:30 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"errorCode":"invalid_client","errorSummary":"Invalid value for ''client_id'' parameter.","errorLink":"invalid_client","errorId":"test123","errorCauses":[]}'
+  recorded_at: Sat, 11 Jan 2025 00:05:30 GMT
+recorded_with: VCR 6.3.1 

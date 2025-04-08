@@ -22,7 +22,7 @@
           "additionalProperties": false,
           "required": [
             "veteran",
-            "poa",
+            "representative",
             "recordConsent",
             "consentAddressChange"
           ],
@@ -60,7 +60,7 @@
                     "addressLine1",
                     "city",
                     "stateCode",
-                    "country",
+                    "countryCode",
                     "zipCode"
                   ],
                   "properties" : {
@@ -86,10 +86,11 @@
                       "pattern": "^[a-z,A-Z]{2}$",
                       "example": "OR"
                     },
-                    "country": {
-                      "description": "Country of the address. USA is the value to use for United States based addresses, US will not work.",
+                    "countryCode": {
+                      "description": "Country code of the address.",
                       "type": "string",
-                      "example": "USA"
+                      "example": "US",
+                      "pattern": "^[A-Za-z0-9-]{2,6}$"
                     },
                     "zipCode": {
                       "description": "Zipcode (First 5 digits) of the address.",
@@ -175,10 +176,11 @@
                       "pattern": "^[a-z,A-Z]{2}$",
                       "example": "OR"
                     },
-                    "country": {
-                      "description": "Country of the address. Required if claimant information provided.",
+                    "countryCode": {
+                      "description": "Country code of the address. Required if claimant information provided.",
                       "type": ["string", "null"],
-                      "example": "USA"
+                      "example": "US",
+                      "pattern": "^[A-Za-z0-9-]{2,6}$"
                     },
                     "zipCode": {
                       "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -231,29 +233,18 @@
                 }
               }
             },
-            "poa": {
+            "representative": {
               "description": "Details of the requested Power of Attorney representing the veteran.",
               "type": "object",
               "additionalProperties": false,
               "required": [
-                "poaCode",
-                "registrationNumber"
+                "poaCode"
               ],
               "properties": {
                 "poaCode": {
                   "description": "The POA code of the accredited representative or organization.",
                   "type": "string",
                   "example": "A1Q"
-                },
-                "registrationNumber": {
-                  "description": "Registration Number of the accredited representative.",
-                  "type": "string",
-                  "example": "12345"
-                },
-                "jobTitle": {
-                  "description": "Job title of the accredited representative.",
-                  "type": "string",
-                  "example": "Veteran Service Representative"
                 }
               }
             },
