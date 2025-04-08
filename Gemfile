@@ -157,7 +157,7 @@ gem 'sign_in_service'
 gem 'slack-notify'
 gem 'socksify'
 gem 'staccato'
-gem 'statsd-instrument', '3.9.8' # 3.9.9 breaking change - Address Family IPv6
+gem 'statsd-instrument'
 gem 'strong_migrations'
 gem 'swagger-blocks'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
