@@ -1078,6 +1078,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_161056) do
     t.uuid "application_uuid"
     t.string "ves_status"
     t.jsonb "ves_data"
+    t.text "encrypted_kms_key"
+    t.text "ves_request_data_ciphertext"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
