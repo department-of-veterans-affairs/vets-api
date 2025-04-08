@@ -11,14 +11,11 @@ module VAOS
 
         raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
 
-        referral_detail = fetch_referral_detail(appointment)
         provider = fetch_provider(appointment)
-        enriched_provider = Eps::EnrichedProvider.from_referral(provider, referral_detail)
-
         response = OpenStruct.new(
           id: appointment[:id],
           appointment:,
-          provider: enriched_provider
+          provider:
         )
 
         render json: Eps::EpsAppointmentSerializer.new(response)
