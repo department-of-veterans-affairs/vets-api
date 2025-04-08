@@ -51,8 +51,8 @@ module DecisionReviews
 
     def perform_all
       enabled? &&
-        (secondary_forms_enabled? &&
-        (submissions.present? || submission_uploads.present? || errored_secondary_forms.present?))
+        secondary_forms_enabled? &&
+        (submissions.present? || submission_uploads.present? || errored_secondary_forms.present?)
     end
 
     def vanotify_service

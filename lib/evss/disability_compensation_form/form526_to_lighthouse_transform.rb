@@ -421,7 +421,7 @@ module EVSS
 
       def transform_other_exposures(other_exposures, specify_other_exposures)
         if none_of_these(other_exposures) &&
-           (specify_other_exposures.present? && specify_other_exposures['description'].blank?)
+           specify_other_exposures.present? && specify_other_exposures['description'].blank?
           return nil
         end
 
