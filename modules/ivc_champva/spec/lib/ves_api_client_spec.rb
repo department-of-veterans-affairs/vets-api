@@ -22,12 +22,42 @@ RSpec.describe IvcChampva::VesApi::Client do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
         end.not_to raise_error
       end
+
+      it 'calls monitor.track_request' do
+        expect(client.monitor).to receive(:track_request).with(
+          'info',
+          "IVC ChampVa Forms - Successful submission to VES for form #{transaction_uuid}",
+          'api.ivc_champva_form.ves_response.success',
+          call_location: anything,
+          form_uuid: transaction_uuid,
+          messages: '{}',
+          status: 200
+        )
+
+        client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+      end
     end
 
     context '400 response from VES' do
       let(:response) { instance_double(Faraday::Response, status: 400, body: '{}') }
 
       it 'raises a VesApiError' do
+        expect do
+          client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+        end.to raise_error(IvcChampva::VesApi::VesApiError)
+      end
+
+      it 'calls monitor.track_request' do
+        expect(client.monitor).to receive(:track_request).with(
+          'error',
+          "IVC ChampVa Forms - Error on submission to VES for form #{transaction_uuid}",
+          'api.ivc_champva_form.ves_response.failure',
+          call_location: anything,
+          form_uuid: transaction_uuid,
+          messages: '{}',
+          status: 400
+        )
+
         expect do
           client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
         end.to raise_error(IvcChampva::VesApi::VesApiError)

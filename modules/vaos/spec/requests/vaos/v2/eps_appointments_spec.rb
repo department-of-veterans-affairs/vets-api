@@ -17,8 +17,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
     # Setup a memory store for caching instead of using Rails.cache
     allow(Rails).to receive(:cache).and_return(memory_store)
-    # Cache the token for CCRA service
-    Rails.cache.write(Ccra::BaseService::REDIS_TOKEN_KEY, access_token)
+    # Cache the token for EPS service
     Rails.cache.write(Eps::BaseService::REDIS_TOKEN_KEY, access_token)
 
     Settings.vaos ||= OpenStruct.new

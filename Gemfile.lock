@@ -1365,7 +1365,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument (= 3.9.8)
+  statsd-instrument
   strong_migrations
   super_diff
   swagger-blocks
