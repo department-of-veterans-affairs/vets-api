@@ -116,21 +116,21 @@ module AskVAApi
         end
 
         def build_residency_state_data
+          residency_state = inquiry_params.dig(:state_or_residency, :residency_state).presence
+          family_location = inquiry_params[:family_members_location_of_residence].presence
+          your_location   = inquiry_params[:your_location_of_residence].presence
+
+          fallback_location = family_location || your_location
+
           {
-            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
-              inquiry_params[:family_members_location_of_residence] || inquiry_params[:your_location_of_residence],
-            StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
-              fetch_state_code(inquiry_params[:family_members_location_of_residence] ||
-              inquiry_params[:your_location_of_residence])
+            Name: fetch_state(residency_state) || fallback_location,
+            StateCode: residency_state || fetch_state_code(fallback_location)
           }
         end
 
         def build_state_data(obj, key)
-          state = if key.nil?
-                    inquiry_params[obj]
-                  else
-                    inquiry_params.dig(obj, key)
-                  end
+          raw_state = key.nil? ? inquiry_params[obj] : inquiry_params.dig(obj, key)
+          state = raw_state.presence
 
           {
             Name: fetch_state(state),
