@@ -8,17 +8,25 @@ on:
 permissions:
   contents: read
 jobs:
-  compare_sha:
+  debug_workflow_context:
     runs-on: ubuntu-latest
-    name: Compare sha
+    name: Debug Workflow Context
     steps:
-      - name: Compare commit ids
+      - name: Compare commit ids and workflow details
         run: |
           echo "github.sha: ${{ github.sha }}"
           echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
           echo "github.event.pull_request.merge_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}"
           echo "github.event.head_commit.id: ${{ github.event.head_commit.id }}"
           echo "github.event.workflow_run.head_commit.id: ${{ github.event.workflow_run.head_commit.id }}"
+          echo "github.ref: ${{ github.ref }}"
+          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "github.event.workflow_run.name: ${{ github.event.workflow_run.name }}"
+          echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "Deploy condition: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}"
 
   build_and_push:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -28,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_commit.id }}
 
       - name: Setup Environment
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
@@ -69,7 +79,7 @@ jobs:
           cache-to: type=inline
   deploy:
     needs: build_and_push
-    if: github.event.workflow_run.head_branch == 'master' && ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@master
     with:
       ecr_repository: "vets-api"
