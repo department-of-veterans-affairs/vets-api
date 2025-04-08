@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
+ActiveRecord::Schema[7.2].define(version: 2025_03_28_181133) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -23,7 +23,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "bpds_submission_status", ["pending", "submitted"]
   create_enum "itf_remediation_status", ["unprocessed"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -431,6 +433,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
   end
 
+  create_table "bpds_submission_attempts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "bpds_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
+    t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
+    t.jsonb "error_message_ciphertext", comment: "encrypted error message from the bpds submission"
+    t.jsonb "response_ciphertext", comment: "encrypted response from the bpds submission"
+    t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
+    t.string "bpds_id", comment: "ID of the submission in BPDS"
+    t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
+  end
+
+  create_table "bpds_submissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "bpds_submission_status"
+    t.string "form_id", null: false, comment: "form type of the submission"
+    t.string "va_claim_id", comment: "claim ID in VA (non-vets-api) systems"
+    t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
+  end
+
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
     t.string "state", default: "pending", null: false
     t.integer "saved_claim_id", null: false
@@ -470,7 +495,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.text "encrypted_kms_key"
     t.string "cid"
     t.string "transaction_id"
+    t.string "header_hash"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
+    t.index ["header_hash"], name: "index_claims_api_auto_established_claims_on_header_hash"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
     t.index ["veteran_icn"], name: "index_claims_api_auto_established_claims_on_veteran_icn"
@@ -538,6 +565,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.text "source_data_ciphertext"
     t.text "encrypted_kms_key"
     t.string "cid"
+    t.string "header_hash"
+    t.index ["header_hash"], name: "index_claims_api_power_of_attorneys_on_header_hash"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
@@ -1067,6 +1096,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
     t.index ["form526_submission_id"], name: "index_lighthouse526_document_uploads_on_form526_submission_id"
     t.index ["form_attachment_id"], name: "index_lighthouse526_document_uploads_on_form_attachment_id"
     t.index ["status_last_polled_at"], name: "index_lighthouse526_document_uploads_on_status_last_polled_at"
+  end
+
+  create_table "lighthouse_submission_attempts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
+    t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
+    t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
+    t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
+    t.datetime "lighthouse_updated_at", comment: "timestamp of the last update from lighthouse"
+    t.string "benefits_intake_uuid"
+    t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
+  end
+
+  create_table "lighthouse_submissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
+    t.string "form_id", null: false, comment: "form type of the submission"
+    t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
@@ -1846,6 +1897,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   add_foreign_key "ar_power_of_attorney_request_withdrawals", "ar_power_of_attorney_requests", column: "superseding_power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
+  add_foreign_key "bpds_submission_attempts", "bpds_submissions"
   add_foreign_key "claim_va_notifications", "saved_claims"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
@@ -1863,6 +1915,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_03_17_205848) do
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
+  add_foreign_key "lighthouse_submission_attempts", "lighthouse_submissions"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"

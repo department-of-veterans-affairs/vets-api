@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require 'user_audit_logger'
+
 module SignIn
   class TokenResponseGenerator
     attr_reader :grant_type, :code, :code_verifier, :client_assertion, :client_assertion_type, :assertion,
-                :subject_token, :subject_token_type, :actor_token, :actor_token_type, :client_id, :cookies
+                :subject_token, :subject_token_type, :actor_token, :actor_token_type, :client_id, :cookies,
+                :request_attributes
 
-    def initialize(params:, cookies:)
+    def initialize(params:, cookies:, request_attributes:)
       @grant_type = params[:grant_type]
       @code = params[:code]
       @code_verifier = params[:code_verifier]
@@ -18,6 +21,7 @@ module SignIn
       @actor_token_type = params[:actor_token_type]
       @client_id = params[:client_id]
       @cookies = cookies
+      @request_attributes = request_attributes
     end
 
     def perform
@@ -40,6 +44,7 @@ module SignIn
                                                client_assertion_type:).perform
       session_container = SessionCreator.new(validated_credential:).perform
 
+      create_user_audit_log(user_verification: validated_credential.user_verification)
       sign_in_logger.info('session created', session_container.access_token.to_s)
 
       TokenSerializer.new(session_container:, cookies:).perform
@@ -73,6 +78,14 @@ module SignIn
           access_token:
         }
       }
+    end
+
+    def create_user_audit_log(user_verification:)
+      UserAuditLogger.new(user_action_event_identifier: 'sign_in',
+                          subject_user_verification: user_verification,
+                          status: :success,
+                          acting_ip_address: request_attributes[:remote_ip],
+                          acting_user_agent: request_attributes[:user_agent]).perform
     end
   end
 end

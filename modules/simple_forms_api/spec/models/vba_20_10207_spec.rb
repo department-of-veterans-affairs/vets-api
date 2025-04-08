@@ -155,28 +155,28 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       end
     end
 
-    context 'preparer is third party veteran' do
+    context 'preparer is non-veteran' do
       let(:data) do
         {
-          'preparer_type' => 'third-party-veteran',
-          'veteran_email_address' => 'a@b.com'
-        }
-      end
-
-      it 'returns the veteran email address' do
-        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
-      end
-    end
-
-    context 'preparer is anything else' do
-      let(:data) do
-        {
-          'preparer_type' => 'space-alien',
+          'preparer_type' => 'non-veteran',
           'non_veteran_email_address' => 'a@b.com'
         }
       end
 
       it 'returns the non-veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
+      end
+    end
+
+    context 'preparer is third party' do
+      let(:data) do
+        {
+          'preparer_type' => 'third-party',
+          'third_party_email_address' => 'a@b.com'
+        }
+      end
+
+      it 'returns the third party email address' do
         expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
     end

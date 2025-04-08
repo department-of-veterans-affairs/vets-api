@@ -21,12 +21,12 @@ module Ccra
       referral = attributes['Referral']
       return if referral.blank?
 
-      @expiration_date = referral['ReferralExpirationDate'] || referral['referralExpirationDate'] 
+      @expiration_date = referral['ReferralExpirationDate'] || referral['referralExpirationDate']
       @type_of_care = referral['CategoryOfCare'] || referral['categoryOfCare']
       @provider_name = referral['TreatingProvider'] || referral['treatingProvider']
       @location = referral['TreatingFacility'] || referral['treatingFacility']
       @referral_number = referral['ReferralNumber'] || referral['referralNumber']
-      
+
       # New fields
       @network = referral['network']
       @network_code = referral['networkCode']
@@ -45,7 +45,7 @@ module Ccra
       @treating_facility = @location  # treating_facility is an alias for location
       @treating_facility_fax = referral['treatingFacilityFax']
       @treating_facility_phone = referral['treatingFacilityPhone']
-      
+
       # Complex nested objects
       @appointments = referral['appointments']
       @referring_facility_info = referral['referringFacilityInfo']

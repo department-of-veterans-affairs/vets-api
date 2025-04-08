@@ -546,8 +546,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
-  describe '#device_sso_enabled?' do
-    subject { client_config.device_sso_enabled? }
+  describe '#api_sso_enabled?' do
+    subject { client_config.api_sso_enabled? }
 
     context 'when authentication method is set to API' do
       let(:authentication) { SignIn::Constants::Auth::API }

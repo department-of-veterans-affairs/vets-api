@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c0f2a9bcf5f6eefd2182732732b1d6e17473db3d
+  revision: 005c292c915aaf1df1f702ab0c44614ec6789df6
   branch: master
   specs:
-    vets_json_schema (24.12.0)
+    vets_json_schema (24.12.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -105,6 +105,7 @@ PATH
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
+    income_and_assets (0.1.0)
     income_limits (0.1.0)
     ivc_champva (0.1.0)
     meb_api (0.1.0)
@@ -243,20 +244,21 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1072.0)
-    aws-sdk-core (3.220.2)
+    aws-partitions (1.1082.0)
+    aws-sdk-core (3.222.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
       jmespath (~> 1, >= 1.6.1)
+      logger
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-kms (1.99.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.182.0)
+    aws-sdk-s3 (1.183.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -282,7 +284,7 @@ GEM
     blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (7.0.0)
+    brakeman (7.0.2)
       racc
     breakers (1.0)
       base64 (~> 0.2)
@@ -292,7 +294,7 @@ GEM
     bundler-audit (0.9.2)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
-    byebug (11.1.3)
+    byebug (12.0.0)
     carrierwave (3.1.1)
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -362,10 +364,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.12.2)
+    datadog (2.14.0)
       datadog-ruby_core_source (~> 3.4)
       libdatadog (~> 16.0.1.1.0)
-      libddwaf (~> 1.18.0.0.1)
+      libddwaf (~> 1.21.0.0.1)
       logger
       msgpack
     datadog-ruby_core_source (3.4.0)
@@ -382,7 +384,7 @@ GEM
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
-    diff-lcs (1.5.1)
+    diff-lcs (1.6.1)
     docile (1.4.0)
     dogstatsd-ruby (5.6.6)
     domain_name (0.6.20240107)
@@ -492,9 +494,9 @@ GEM
     flipper-active_record (1.3.4)
       activerecord (>= 4.2, < 9)
       flipper (~> 1.3.4)
-    flipper-active_support_cache_store (1.3.2)
+    flipper-active_support_cache_store (1.3.4)
       activesupport (>= 4.2, < 9)
-      flipper (~> 1.3.2)
+      flipper (~> 1.3.4)
     flipper-ui (1.3.4)
       erubi (>= 1.0.0, < 2.0.0)
       flipper (~> 1.3.4)
@@ -648,16 +650,16 @@ GEM
     libdatadog (16.0.1.1.0)
     libdatadog (16.0.1.1.0-aarch64-linux)
     libdatadog (16.0.1.1.0-x86_64-linux)
-    libddwaf (1.18.0.0.1)
+    libddwaf (1.21.0.0.1)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.1-aarch64-linux)
+    libddwaf (1.21.0.0.1-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.1-java)
+    libddwaf (1.21.0.0.1-java)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.1-x86_64-linux)
+    libddwaf (1.21.0.0.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.7.2)
+    liquid (5.8.3)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -680,7 +682,7 @@ GEM
     marcel (1.0.4)
     matrix (0.4.2)
     memoist (0.16.2)
-    method_source (1.0.0)
+    method_source (1.1.0)
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
@@ -722,14 +724,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.18.4)
+    nokogiri (1.18.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.4-aarch64-linux-gnu)
+    nokogiri (1.18.7-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.4-java)
+    nokogiri (1.18.7-java)
       racc (~> 1.4)
-    nokogiri (1.18.4-x86_64-linux-gnu)
+    nokogiri (1.18.7-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -808,16 +810,16 @@ GEM
       prawn (>= 1.3.0, < 3.0.0)
     prettyprint (0.2.0)
     prism (1.4.0)
-    pry (0.14.2)
+    pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    pry (0.14.2-java)
+    pry (0.15.2-java)
       coderay (~> 1.1)
       method_source (~> 1.0)
       spoon (~> 0.0)
-    pry-byebug (3.10.1)
-      byebug (~> 11.0)
-      pry (>= 0.13, < 0.15)
+    pry-byebug (3.11.0)
+      byebug (~> 12.0)
+      pry (>= 0.13, < 0.16)
     pstore (0.1.3)
     psych (5.2.3)
       date
@@ -896,9 +898,9 @@ GEM
     rchardet (1.8.0)
     rdoc (6.12.0)
       psych (>= 4.0.0)
-    redis (5.3.0)
+    redis (5.4.0)
       redis-client (>= 0.22.0)
-    redis-client (0.23.0)
+    redis-client (0.24.0)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
@@ -959,11 +961,11 @@ GEM
       rspec-support (~> 3.13)
     rspec-retry (0.6.2)
       rspec-core (> 3.3)
-    rspec-sidekiq (5.0.0)
+    rspec-sidekiq (5.1.0)
       rspec-core (~> 3.0)
       rspec-expectations (~> 3.0)
       rspec-mocks (~> 3.0)
-      sidekiq (>= 5, < 8)
+      sidekiq (>= 5, < 9)
     rspec-support (3.13.2)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
@@ -1084,9 +1086,9 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.8)
+    statsd-instrument (3.9.9)
     stringio (3.1.2)
-    strong_migrations (2.2.1)
+    strong_migrations (2.3.0)
       activerecord (>= 7)
     strscan (3.1.2)
     strscan (3.1.2-java)
@@ -1144,7 +1146,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.25.0)
+    webmock (3.25.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1263,6 +1265,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  income_and_assets!
   income_limits!
   iso_country_codes
   ivc_champva!
@@ -1363,7 +1366,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument (= 3.9.8)
+  statsd-instrument
   strong_migrations
   super_diff
   swagger-blocks

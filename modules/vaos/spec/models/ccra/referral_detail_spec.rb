@@ -69,7 +69,7 @@ describe Ccra::ReferralDetail do
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.location).to eq('VA Medical Center')
       expect(subject.referral_number).to eq('VA0000005681')
-      
+
       # New simple attributes
       expect(subject.network).to eq('Veteran Affairs Payment')
       expect(subject.network_code).to eq('VA')
@@ -88,7 +88,7 @@ describe Ccra::ReferralDetail do
       expect(subject.treating_facility).to eq('VA Medical Center')
       expect(subject.treating_facility_fax).to eq('na')
       expect(subject.treating_facility_phone).to eq('505-248-4062')
-      
+
       # Complex nested objects
       expect(subject.appointments).to be_an(Array)
       expect(subject.appointments.first).to include('appointmentDate' => '2025-05-07')
@@ -113,7 +113,7 @@ describe Ccra::ReferralDetail do
         expect(subject.provider_name).to be_nil
         expect(subject.location).to be_nil
         expect(subject.referral_number).to be_nil
-        
+
         # New simple attributes
         expect(subject.network).to be_nil
         expect(subject.network_code).to be_nil
@@ -121,7 +121,7 @@ describe Ccra::ReferralDetail do
         expect(subject.referral_date).to be_nil
         expect(subject.referring_facility).to be_nil
         expect(subject.status).to be_nil
-        
+
         # Complex nested objects - just checking a few as examples
         expect(subject.appointments).to be_nil
         expect(subject.referring_facility_info).to be_nil
@@ -143,7 +143,7 @@ describe Ccra::ReferralDetail do
         expect(subject.provider_name).to be_nil
         expect(subject.location).to be_nil
         expect(subject.referral_number).to be_nil
-        
+
         # New simple attributes
         expect(subject.network).to be_nil
         expect(subject.network_code).to be_nil
@@ -151,17 +151,17 @@ describe Ccra::ReferralDetail do
         expect(subject.referral_date).to be_nil
         expect(subject.referring_facility).to be_nil
         expect(subject.status).to be_nil
-        
+
         # Complex nested objects - just checking a few as examples
         expect(subject.appointments).to be_nil
         expect(subject.referring_facility_info).to be_nil
         expect(subject.treating_facility_address).to be_nil
       end
     end
-    
+
     context 'with camelCase keys' do
       subject { described_class.new(camel_case_attributes) }
-      
+
       let(:camel_case_attributes) do
         {
           'Referral' => {
@@ -173,7 +173,7 @@ describe Ccra::ReferralDetail do
           }
         }
       end
-      
+
       it 'sets attributes correctly from camelCase keys' do
         expect(subject.expiration_date).to eq('2024-05-27')
         expect(subject.type_of_care).to eq('CARDIOLOGY')

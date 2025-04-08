@@ -1231,26 +1231,26 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           allow_any_instance_of(Eps::ProviderService)
             .to receive(:get_drive_times)
             .and_return(OpenStruct.new(drive_times_response))
-            
+
           # Mock the validation methods to return success
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:check_referral_data_validation)
             .and_return({ success: true })
-            
+
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:check_referral_usage)
             .and_return({ success: true })
-            
+
           # Mock the fetch_provider_slots method
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:fetch_provider_slots)
             .and_return(OpenStruct.new(slots_response))
-            
+
           # Direct mock of fetch_drive_times too
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:fetch_drive_times)
             .and_return(OpenStruct.new(drive_times_response))
-            
+
           # Properly mock the provider data being set in the response
           allow_any_instance_of(Eps::DraftAppointmentSerializer).to receive(:serializable_hash).and_return(expected_response)
         end
@@ -1261,7 +1261,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             post '/vaos/v2/appointments/draft', params: draft_params
 
             expect(response).to have_http_status(:created)
-            
+
             # Verify that we got a response with the correct ID instead of checking the exact content
             # This is more flexible and less likely to break
             response_body = JSON.parse(response.body)
@@ -1296,21 +1296,21 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           allow_any_instance_of(Eps::ProviderService)
             .to receive(:search_provider_services)
             .and_return(OpenStruct.new(empty_provider_search_response))
-            
+
           # Make sure slots are returned
           allow_any_instance_of(Eps::ProviderService)
             .to receive(:get_provider_slots)
             .and_return(OpenStruct.new({ 'slots' => [] }))
-            
+
           # Mock the validation methods to return success
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:check_referral_data_validation)
             .and_return({ success: true })
-            
+
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:check_referral_usage)
             .and_return({ success: true })
-            
+
           # Mock the fetch_provider_slots method
           allow_any_instance_of(VAOS::V2::AppointmentsController)
             .to receive(:fetch_provider_slots)
@@ -1323,12 +1323,68 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             post '/vaos/v2/appointments/draft', params: draft_params
 
             expect(response).to have_http_status(:created)
-            
+
             # Verify structure without checking exact content
             response_body = JSON.parse(response.body)
             expect(response_body.dig('data', 'id')).to eq(draft_appointment_response[:id])
             expect(response_body.dig('data', 'attributes', 'provider')).to be_nil
           end
+        end
+      end
+
+      context 'when the upstream service returns a 500 error' do
+        it 'returns a bad_gateway status and appropriate error message' do
+          VCR.use_cassette('vaos/eps/get_appointments/500_error') do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+              VCR.use_cassette('vaos/eps/get_drive_times/200') do
+                VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                  VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                    VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                      VCR.use_cassette 'vaos/eps/token/token_200' do
+                        post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                        expect(response).to have_http_status(:bad_gateway)
+                        response_body = JSON.parse(response.body)
+                        expect(response_body).to have_key('errors')
+                        expect(response_body['errors']).to be_an(Array)
+
+                        error = response_body['errors'].first
+                        expect(error).to include(
+                          'title' => 'Bad Gateway',
+                          'detail' => 'Received an an invalid response from the upstream server',
+                          'code' => 'VAOS_502',
+                          'status' => '502',
+                          'source' => {
+                            'vamfUrl' => 'https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey',
+                            'vamfBody' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}',
+                            'vamfStatus' => 500
+                          }
+                        )
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when Redis connection fails' do
+        it 'returns a bad_gateway status and appropriate error message' do
+          # Mock the Redis client to raise a connection error
+          redis_client = instance_double(Eps::RedisClient)
+          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
+                                                                               'Redis connection refused')
+
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          expect(response).to have_http_status(:bad_gateway)
+
+          response_obj = JSON.parse(response.body)
+          expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
+          expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
         end
       end
     end
