@@ -30,7 +30,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
       job.instance_variable_set(:@intake_service, service)
       allow(BenefitsIntake::Service).to receive(:new).and_return(service)
-      allow(service).to receive(:uuid).and_return('98a3d97a-581f-4cf3-91e3-38c3857cb4fc')
+      allow(service).to receive(:uuid)
       allow(service).to receive(:request_upload)
       allow(service).to receive_messages(location:, perform_upload: response)
       allow(response).to receive(:success?).and_return true
@@ -146,7 +146,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       it 'triggers the event bus tracesubmission job successfully' do
         allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
         allow_any_instance_of(Pensions::SavedClaim).to receive(:confirmation_number).and_return(confirmation_number)
-        allow_any_instance_of(BenefitsIntake::Service).to receive(:uuid).and_return(next_id)
+        allow(service).to receive(:uuid).and_return(next_id)
         expect(UserAccount).to receive(:find)
         expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload, false).and_call_original
 

@@ -4,7 +4,6 @@ require 'avro'
 require 'kafka/producer_manager'
 require 'kafka/schema_registry/service'
 require 'logger'
-require 'kafka/concerns/topic'
 
 module Kafka
   class AvroProducer
