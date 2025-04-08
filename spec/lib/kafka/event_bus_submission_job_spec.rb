@@ -21,7 +21,7 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
   describe '#perform' do
     it 'produces a message to the Kafka topic and tracks success' do
       described_class.new.perform(payload)
-      expect(producer).to have_received(:produce).with(payload, topic)
+      expect(producer).to have_received(:produce).with(topic, payload)
       expect(monitor).to have_received(:track_submission_success).with(topic, payload)
     end
 

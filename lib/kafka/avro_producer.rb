@@ -16,7 +16,7 @@ module Kafka
       @schema_id = nil
     end
 
-    def produce(payload, topic, schema_version: 'latest')
+    def produce(topic, payload, schema_version: 'latest')
       schema = get_schema(topic, schema_version)
       encoded_payload = encode_payload(schema, payload)
       producer.produce_sync(topic:, payload: encoded_payload)

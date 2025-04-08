@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'logging/monitor'
-require 'kafka/concerns/topic'
 
 module Kafka
   # This Monitor class is responsible for tracking and logging various events related to the Kafka service.
   # It inherits from the ZeroSilentFailures::Monitor class and provides methods to track the
   # success and failure of submissions.
   class Monitor < Logging::Monitor
-    include Kafka::Topic
     # metric prefix
     STATSD_KEY_PREFIX = 'api.kafka_service'
 

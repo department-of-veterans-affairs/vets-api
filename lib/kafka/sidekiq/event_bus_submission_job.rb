@@ -26,16 +26,15 @@ module Kafka
     #
     # @param topic [String] The Kafka topic to which the message will be sent
     # @param payload [Hash] The message payload to be sent to the Kafka topic
-
-    def perform(pay, use_test_topic = false) # rubocop:disable Style/OptionalBooleanParameter
+    def perform(payload, use_test_topic = false) # rubocop:disable Style/OptionalBooleanParameter
       @monitor = Kafka::Monitor.new
       topic = get_topic(use_test_topic:)
 
-      Kafka::AvroProducer.new.produce(pay, topic)
-      redacted_payload = redact_icn(pay)
+      Kafka::AvroProducer.new.produce(topic, payload)
+      redacted_payload = redact_icn(payload)
       @monitor.track_submission_success(topic, redacted_payload)
     rescue => e
-      redacted_payload = redact_icn(pay)
+      redacted_payload = redact_icn(payload)
       @monitor.track_submission_failure(topic, redacted_payload, e)
       raise e
     end
