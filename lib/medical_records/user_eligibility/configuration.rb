@@ -19,7 +19,7 @@ module UserEligibility
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.medical_records.host}/v1/usermgmt/usereligibility/"
+      "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/usermgmt/usereligibility/"
     end
 
     ##
