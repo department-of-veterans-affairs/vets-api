@@ -414,6 +414,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       subject { job.generate_metadata }
 
       before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
         job.instance_variable_set('@claim', claim_v2)
         job.instance_variable_set('@form_path', 'pdf_path')
         job.instance_variable_set('@attachment_paths', ['attachment_path'])

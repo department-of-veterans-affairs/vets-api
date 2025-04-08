@@ -78,6 +78,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:decision_review_failure_notification_email_job_enabled)
                                             .and_return(true)
         allow(Flipper).to receive(:enabled?).with(:decision_review_notify_4142_failures).and_return(false)
