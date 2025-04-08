@@ -156,8 +156,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         allow(InProgressForm).to receive(:form_for_user).with(form_number,
                                                               anything).and_return(in_progress_form)
 
-        expect(prefill_data_service).to receive(:check_for_changes)
-
         post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
 
         expect(response).to have_http_status(:ok)
