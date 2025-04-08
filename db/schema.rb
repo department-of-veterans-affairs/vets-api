@@ -926,6 +926,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_161056) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_form_email_matches_profile_logs_on_user_account_id"
     t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
   end
 
@@ -1909,6 +1910,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_161056) do
   add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
   add_foreign_key "form5655_submissions", "user_accounts"
+  add_foreign_key "form_email_matches_profile_logs", "user_accounts"
   add_foreign_key "form_submission_attempts", "form_submissions"
   add_foreign_key "form_submissions", "saved_claims"
   add_foreign_key "form_submissions", "user_accounts"
