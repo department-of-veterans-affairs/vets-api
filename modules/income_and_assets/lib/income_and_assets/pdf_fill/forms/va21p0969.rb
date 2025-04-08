@@ -571,9 +571,9 @@ module IncomeAndAssets::PdfFill
         # 13a
         'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
         'statementOfTruthDate' => {
-          'month' => { key: 'F[0].#subform[9].DateSigned13bMonth[0]' },
-          'day' => { key: 'F[0].#subform[9].DateIncomeLastPaidMonthDay[0]' },
-          'year' => { key: 'F[0].#subform[9].DateIncomeLastPaidMonthYear[0]' }
+          'month' => { key: 'F[0].DateSigned13bMonth[0]' },
+          'day' => { key: 'F[0].DateSigned13bDay[0]' },
+          'year' => { key: 'F[0].DateSigned13bYear[0]' }
         }
         # 13b
       }.freeze
