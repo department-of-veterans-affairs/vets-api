@@ -112,8 +112,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       resp = JSON.parse(response.body)
       expect(resp).to eq({
                            'data' => {
-                             'id' => attachment.id,
-                             'type' => 'representative_attachment_form',
+                             'id' => attachment.id.to_s,
+                             'type' => 'persistent_attachment_va_form',
                              'attributes' => {
                                'confirmationCode' => attachment.guid,
                                'name' => 'doctors-note.gif',
