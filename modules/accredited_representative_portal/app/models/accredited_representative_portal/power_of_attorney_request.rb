@@ -8,7 +8,8 @@ module AccreditedRepresentativePortal
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            required: true # for now
+            required: true, # for now
+            dependent: :destroy
 
     # TODO: Enforce this in the DB.
     has_one :power_of_attorney_form_submission
