@@ -569,16 +569,15 @@ module IncomeAndAssets::PdfFill
         # 10a
         'unreportedAsset' => { key: 'F[0].#subform[8].DependentsHaveAssetsNotReported10a[0]' },
         'unreportedAssets' => {
-          limit: 1,
+          limit: 4,
           first_key: 'assetOwnerRelationship',
           # 10b
-          'assetOwnerRelationship' => {
-            'veteran' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
-            'spouse' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
-            'custodianOfChild' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
-            'child' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
-            'parent' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
-            'other' => { key: "F[0].OtherRelationship10[#{ITERATOR}]" }
+          'assetOwnerRelationship' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
+          'otherRelationshipType' => {
+            key: "F[0].OtherRelationship10[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(1)',
+            question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
           },
           'assetOwnerRelationshipOverflow' => {
             question_num: 10,
@@ -586,7 +585,7 @@ module IncomeAndAssets::PdfFill
             question_text: 'SPECIFY ASSET OWNER\'S RELATIONSHIP TO THE VETERAN'
           },
           # 10c
-          'assetType' => { key: 'F[0].Page_10[0].TypeOfAsset10[0]' },
+          'assetType' => { key: "F[0].TypeOfAsset10[#{ITERATOR}]" },
           'assetTypeOverflow' => {
             question_num: 10,
             question_suffix: '(d)',
@@ -605,7 +604,7 @@ module IncomeAndAssets::PdfFill
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           },
           # 10e
-          'assetLocation' => { key: 'F[0].AssetLocation' },
+          'assetLocation' => { key: "F[0].AssetLocation[#{ITERATOR}]" },
           'assetLocationOverflow' => {
             question_num: 10,
             question_suffix: '(e)',
@@ -893,7 +892,7 @@ module IncomeAndAssets::PdfFill
       #
       def expand_unreported_assets
         unreported_assets = form_data['unreportedAssets']
-        form_data['unreportedAssets'] = unreported_assets&.length ? 'YES' : 'NO'
+        form_data['unreportedAsset'] = unreported_assets&.length ? 'YES' : 'NO'
         form_data['unreportedAssets'] = unreported_assets&.map do |asset|
           expand_unreported_asset(asset)
         end
@@ -910,9 +909,9 @@ module IncomeAndAssets::PdfFill
           'assetOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[asset['assetOwnerRelationship']],
           'recipientName' => asset['recipientName'],
           'assetType' => asset['assetType'],
-          'ownedPortionValue' => split_currency_amount_lg(asset['ownedPortionValue'])
+          'ownedPortionValue' => split_currency_amount(asset['ownedPortionValue']),
+          'assetLocation' => asset['assetLocation']
         }
-
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = asset[fieldname]
