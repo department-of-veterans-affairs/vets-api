@@ -6,6 +6,7 @@ require 'pdf_fill/form_value'
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
+    SUBSECTION = '%subsection%'
     EXTRAS_TEXT = "See add'l info page"
 
     attr_reader :extras_generator
@@ -52,6 +53,10 @@ module PdfFill
       end
     end
 
+    def increment_char(char, amount = 0)
+      (char.ord + amount).chr
+    end
+
     def overflow?(key_data, value, from_array_overflow = false)
       return false if value.blank? || from_array_overflow
 
@@ -69,10 +74,18 @@ module PdfFill
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
+
+      first_subsection = key_data[:first_subsection]
+      question_suffix = key_data[:question_suffix].clone
+      if first_subsection.present? && i.present?
+        subsection = increment_char(first_subsection, i)
+        question_suffix = question_suffix.gsub('%subsection%', subsection)
+      end
+
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i:, top_level_key:, overflow:
+        key_data.slice(:question_num, :question_text).merge(
+          question_suffix:, i:, top_level_key:, overflow:
         )
       )
     end
@@ -129,6 +142,10 @@ module PdfFill
 
       if has_overflow
         first_key = pdftk_keys[:first_key]
+
+        pdftk_keys.each_value do |v|
+          v[:first_subsection] = pdftk_keys[:first_subsection] if v.is_a?(Hash) && pdftk_keys.key?(:first_subsection)
+        end
 
         transform_data(
           form_data: { first_key => EXTRAS_TEXT },
