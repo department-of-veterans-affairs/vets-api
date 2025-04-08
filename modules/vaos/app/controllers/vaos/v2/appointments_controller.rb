@@ -21,9 +21,6 @@ module VAOS
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
       PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
-
-      rescue_from Redis::BaseError, with: :handle_redis_error
-
       def index
         appointments[:data].each do |appt|
           set_facility_error_msg(appt) if include_index_params[:facilities]
@@ -68,30 +65,18 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
-
-        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
-
-        referral_validation = check_referral_data_validation(cached_referral_data)
-        unless referral_validation[:success]
-          render json: referral_validation[:json], status: referral_validation[:status] and return
-        end
-
-        referral_usage = check_referral_usage(referral_id)
-        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
-
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
+        draft_appointment = Eps::DraftAppointmentService.new(current_user).create_draft_appointment(referral_id, pagination_params)
+        serialized_draft_appointment = Eps::DraftAppointmentSerializer.new(draft_appointment)
+        render json: serialized_draft_appointment, status: :created
+      rescue Eps::DraftAppointmentServiceError => e
+        detail = "#{e.message}: #{e.detail}"
+        status = normalize_draft_appointment_service_error_status(e.status)
+        render json: { errors: [{ title: 'Failed to create draft appointment', detail: }] },
+               status:
+      rescue => e
+        status = normalize_error_status(e.respond_to?(:status) ? e.status : nil)
+        render json: { errors: [{ title: 'Failed to create draft appointment', detail: e.message }] },
+               status:
       end
 
       def update
@@ -452,150 +437,24 @@ module VAOS
         }
       end
 
-      # Fetches available provider slots using referral data.
-      #
-      # @param referral_data [Hash] Includes:
-      #   - `:provider_id` [String] The provider's ID.
-      #   - `:appointment_type_id` [String] The appointment type.
-      #   - `:start_date` [String] The earliest appointment date (ISO 8601).
-      #   - `:end_date` [String] The latest appointment date (ISO 8601).
-      #
-      # @return [Array, nil] Available slots array or nil if error occurs
-      #
-      def fetch_provider_slots(referral_data)
-        eps_provider_service.get_provider_slots(
-          referral_data[:provider_id],
-          {
-            appointmentTypeId: referral_data[:appointment_type_id],
-            startOnOrAfter: referral_data[:start_date],
-            startBefore: referral_data[:end_date]
-          }
-        )
-      end
-
-      def fetch_drive_times(provider)
-        user_address = current_user.vet360_contact_info&.residential_address
-
-        return nil unless user_address&.latitude && user_address.longitude
-
-        eps_provider_service.get_drive_times(
-          destinations: {
-            provider.id => {
-              latitude: provider.location[:latitude],
-              longitude: provider.location[:longitude]
-            }
-          },
-          origin: {
-            latitude: user_address.latitude,
-            longitude: user_address.longitude
-          }
-        )
-      end
-
       ##
-      # Checks if a referral is already in use by cross referrencing referral number against complete
-      # list of existing appointments
+      # Normalizes error status codes according to our policy:
+      # - All 5xx errors are converted to :bad_gateway
+      # - Other status codes are passed through
+      # - nil status defaults to :bad_gateway
       #
-      # @param referral_id [String] the referral number to check.
-      # @return [Hash] Result hash:
-      #   - If referral is unused: { success: true }
-      #   - If an error occurs: { success: false, json: { message: ... }, status: :bad_gateway }
-      #   - If referral exists: { success: false, json: { message: ... }, status: :unprocessable_entity }
+      # @param status [Symbol, Integer, nil] The input status code
+      # @return [Symbol] The normalized status code
       #
-      # TODO: pass in date from cached referral data to use as range for CCRA appointments call
-      def check_referral_usage(referral_id)
-        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+      def normalize_draft_appointment_service_error_status(status)
+        return :bad_gateway if status.nil?
 
-        if check[:error]
-          { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
-            status: :bad_gateway }
-        elsif check[:exists]
-          { success: false, json: { message: 'No new appointment created: referral is already used' },
-            status: :unprocessable_entity }
+        numeric_status = status.is_a?(Symbol) ? Rack::Utils.status_code(status) : status
+
+        if numeric_status.is_a?(Integer) && numeric_status >= 500
+          :bad_gateway
         else
-          { success: true }
-        end
-      end
-
-      ##
-      # Handles Redis connection and operational errors throughout the controller.
-      # Provides a consistent error response when Redis is unavailable or operations fail.
-      #
-      # @param error [Redis::BaseError] The Redis exception that was raised
-      # @return [void]
-      # @see Redis::BaseError
-      def handle_redis_error(error)
-        Rails.logger.error("Redis error: #{error.message}")
-        StatsD.increment("#{STATSD_KEY}.redis_error")
-        render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
-               status: :bad_gateway
-      end
-
-      ##
-      # Validates that all required referral data attributes are present
-      #
-      # @param referral_data [Hash, nil] The referral data from the cache
-      # @return [Hash] Hash with :valid boolean and :missing_attributes array
-      def validate_referral_data(referral_data)
-        return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
-
-        required_attributes = %i[provider_id appointment_type_id start_date end_date]
-        missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
-
-        {
-          valid: missing_attributes.empty?,
-          missing_attributes: missing_attributes.map(&:to_s).join(', ')
-        }
-      end
-
-      ##
-      # Validates referral data and builds a formatted response object
-      #
-      # @param referral_data [Hash, nil] The referral data from the cache
-      # @return [Hash] Result hash:
-      #   - If data is valid: { success: true }
-      #   - If data is invalid: { success: false, json: { errors: [...] }, status: :unprocessable_entity }
-      def check_referral_data_validation(referral_data)
-        validation_result = validate_referral_data(referral_data)
-        if validation_result[:valid]
-          { success: true }
-        else
-          missing_attributes = validation_result[:missing_attributes]
-          {
-            success: false,
-            json: {
-              errors: [{
-                title: 'Invalid referral data',
-                detail: "Required referral data is missing or incomplete: #{missing_attributes}"
-              }]
-            },
-            status: :unprocessable_entity
-          }
-        end
-      end
-
-      ##
-      # Fetches provider slots and builds a formatted response object
-      #
-      # @param referral_data [Hash] The referral data containing appointment details
-      # @return [Hash] Result hash:
-      #   - If slots are retrieved: { success: true, slots: [...] }
-      #   - If slots cannot be retrieved: { success: false, json: { errors: [...] }, status: :bad_gateway }
-      def build_provider_slots_response(referral_data)
-        slots = fetch_provider_slots(referral_data)
-        if slots.nil?
-          {
-            success: false,
-            json: {
-              errors: [{
-                title: PROVIDER_SLOTS_ERROR_MSG,
-                detail: 'Unable to retrieve available appointment slots'
-              }]
-            },
-            status: :bad_gateway
-          }
-        else
-          { success: true, slots: }
+          status
         end
       end
     end

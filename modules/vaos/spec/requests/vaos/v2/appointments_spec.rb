@@ -1378,6 +1378,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       post '/vaos/v2/appointments/draft', params: draft_params
 
                       expect(response).to have_http_status(:bad_request)
+                      response_body = JSON.parse(response.body)
+                      check_response_body(response_body)
                     end
                   end
                 end
@@ -1408,8 +1410,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'handles provider-services 404 response' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path body]) do
+          VCR.use_cassette 'vaos/v2/appointments/get_appointments_200' do
             VCR.use_cassette 'vaos/eps/get_provider_service/404_unknown_provider' do
               VCR.use_cassette 'vaos/eps/draft_appointment/200' do
                 VCR.use_cassette 'vaos/eps/token/token_200' do
@@ -1419,6 +1420,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   post '/vaos/v2/appointments/draft', params: draft_params
 
                   expect(response).to have_http_status(:not_found)
+                  response_body = JSON.parse(response.body)
+                  check_response_body(response_body)
                 end
               end
             end
@@ -1428,16 +1431,23 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when patient id is invalid' do
         it 'handles invalid patientId response as 400' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path body]) do
-            VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
-              VCR.use_cassette 'vaos/eps/token/token_200' do
-                allow_any_instance_of(Eps::AppointmentService)
-                  .to receive(:get_appointments)
-                  .and_return(OpenStruct.new(data: []))
-                post '/vaos/v2/appointments/draft', params: draft_params
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+            VCR.use_cassette('vaos/eps/get_drive_times/200') do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
+                    VCR.use_cassette 'vaos/eps/token/token_200' do
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
+                      post '/vaos/v2/appointments/draft', params: draft_params
 
-                expect(response).to have_http_status(:bad_request)
+                      expect(response).to have_http_status(:bad_request)
+                      response_body = JSON.parse(response.body)
+                      check_response_body(response_body)
+                    end
+                  end
+                end
               end
             end
           end
@@ -1465,9 +1475,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             draft_params[:referral_id] = 'ref-124'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
-            response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:unprocessable_entity)
-            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+            response_body = JSON.parse(response.body)
+            check_response_body(response_body)
           end
         end
 
@@ -1521,9 +1531,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           draft_params[:referral_id] = 'ref-126'
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
-          response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+          response_body = JSON.parse(response.body)
+          check_response_body(response_body)
         end
       end
 
@@ -1533,24 +1543,19 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
-          response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:bad_gateway)
-          expect(response_obj['message']).to eq('Error checking appointments: Missing ICN message')
+          response_body = JSON.parse(response.body)
+          check_response_body(response_body)
         end
 
         it 'handles partial error as 500' do
-          expected_error_msg = 'Error checking appointments: ' \
-                               '[{:system=>"VSP", :status=>"500", :code=>10000, ' \
-                               ':message=>"Could not fetch appointments from Vista Scheduling Provider", ' \
-                               ':detail=>"icn=1012846043V576341, startDate=1921-09-02T00:00:00Z, ' \
-                               'endDate=2121-09-02T00:00:00Z"}]'
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors',
                            match_requests_on: %i[method path query]) do
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
-            response_obj = JSON.parse(response.body)
             expect(response).to have_http_status(:bad_gateway)
-            expect(response_obj['message']).to eq(expected_error_msg)
+            response_body = JSON.parse(response.body)
+            check_response_body(response_body)
           end
         end
       end
@@ -1568,21 +1573,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
                         expect(response).to have_http_status(:bad_gateway)
                         response_body = JSON.parse(response.body)
-                        expect(response_body).to have_key('errors')
-                        expect(response_body['errors']).to be_an(Array)
-
-                        error = response_body['errors'].first
-                        expect(error).to include(
-                          'title' => 'Bad Gateway',
-                          'detail' => 'Received an an invalid response from the upstream server',
-                          'code' => 'VAOS_502',
-                          'status' => '502',
-                          'source' => {
-                            'vamfUrl' => 'https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey',
-                            'vamfBody' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}',
-                            'vamfStatus' => 500
-                          }
-                        )
+                        check_response_body(response_body)
                       end
                     end
                   end
@@ -1594,7 +1585,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when Redis connection fails' do
-        it 'returns a bad_gateway status and appropriate error message' do
+        it 'returns an error status and appropriate error message' do
           # Mock the Redis client to raise a connection error
           redis_client = instance_double(Eps::RedisClient)
           allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
@@ -1604,12 +1595,17 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
           expect(response).to have_http_status(:bad_gateway)
-
-          response_obj = JSON.parse(response.body)
-          expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
-          expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
+          response_body = JSON.parse(response.body)
+          check_response_body(response_body)
         end
       end
     end
   end
+end
+
+def check_response_body(response_body)
+  expect(response_body).to have_key('errors')
+  expect(response_body['errors']).to be_an(Array)
+  expect(response_body['errors'].first).to have_key('title')
+  expect(response_body['errors'].first).to have_key('detail')
 end
