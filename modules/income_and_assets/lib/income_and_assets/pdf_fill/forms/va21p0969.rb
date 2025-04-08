@@ -576,7 +576,7 @@ module IncomeAndAssets::PdfFill
           'otherRelationshipType' => {
             key: "F[0].OtherRelationship10[#{ITERATOR}]",
             question_num: 10,
-            question_suffix: '(1)',
+            question_suffix: '(b)',
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
           },
           'assetOwnerRelationshipOverflow' => {
@@ -585,8 +585,8 @@ module IncomeAndAssets::PdfFill
             question_text: 'SPECIFY ASSET OWNER\'S RELATIONSHIP TO THE VETERAN'
           },
           # 10c
-          'assetType' => { key: "F[0].TypeOfAsset10[#{ITERATOR}]" },
-          'assetTypeOverflow' => {
+          'assetType' => {
+            key: "F[0].TypeOfAsset10[#{ITERATOR}]",
             question_num: 10,
             question_suffix: '(d)',
             question_text: 'SPECIFY TYPE OF ASSET (CASH, ART, ETC.)'
@@ -604,8 +604,8 @@ module IncomeAndAssets::PdfFill
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           },
           # 10e
-          'assetLocation' => { key: "F[0].AssetLocation[#{ITERATOR}]" },
-          'assetLocationOverflow' => {
+          'assetLocation' => {
+            key: "F[0].AssetLocation[#{ITERATOR}]",
             question_num: 10,
             question_suffix: '(e)',
             question_text: 'SPECIFY ASSET LOCATION (FINANCIAL INSTITUTION, PROPERTY ADDRESS, ETC.)'
