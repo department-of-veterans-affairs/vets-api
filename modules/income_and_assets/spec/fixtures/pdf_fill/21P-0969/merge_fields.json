@@ -402,14 +402,14 @@
       "assetOwnerRelationship": {
         "veteran": 0
       },
-      "assetType": "cash",
+      "assetType": "Cash",
       "ownedPortionValue": {
-        "cents": "99",
-        "dollars": "100",
-        "thousands": "00",
-        "millions": "1"
+        "cents": "44",
+        "dollars": "333",
+        "thousands": "222",
+        "millions": "011"
       },
-      "assetLocation": "123 Street Rd."
+      "assetLocation": "Financial institution"
     }
   ],
   "unassociatedIncome": "YES",
