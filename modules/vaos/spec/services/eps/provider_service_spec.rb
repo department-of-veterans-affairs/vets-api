@@ -327,15 +327,15 @@ describe Eps::ProviderService do
 
     let(:valid_response) do
       double('Response', status: 200, body: {
-        count: 1,
-        providerServices: [
-          {
-            id: '69cd9203-5e92-47a3-aa03-94b03752872a',
-            name: 'Acme Medical Group',
-            npi: '1245319599'
-          }
-        ]
-      })
+               count: 1,
+               providerServices: [
+                 {
+                   id: '69cd9203-5e92-47a3-aa03-94b03752872a',
+                   name: 'Acme Medical Group',
+                   npi: '1245319599'
+                 }
+               ]
+             })
     end
 
     context 'when the request is successful' do

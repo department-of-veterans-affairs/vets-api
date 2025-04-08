@@ -1134,7 +1134,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   'timezone' => 'America/New_York'
                 },
                 'networkIds' => ['sandbox-network-5vuTac8v'],
-                'schedulingNotes' => 'New patients need to send their previous records to the office prior to their appt.',
+                'schedulingNotes' => 'New patients need to send their previous records to
+                  the office prior to their appt.',
                 'appointmentTypes' => [
                   {
                     'id' => 'ov',
@@ -1252,7 +1253,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             .and_return(OpenStruct.new(drive_times_response))
 
           # Properly mock the provider data being set in the response
-          allow_any_instance_of(Eps::DraftAppointmentSerializer).to receive(:serializable_hash).and_return(expected_response)
+          allow_any_instance_of(Eps::DraftAppointmentSerializer).to receive(:serializable_hash)
+            .and_return(expected_response)
         end
 
         it 'creates a draft appointment and returns provider data' do

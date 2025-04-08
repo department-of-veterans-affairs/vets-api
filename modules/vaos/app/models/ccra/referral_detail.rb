@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Ccra
-  # ReferralDetail represents the detailed information for a single referral from CCRA.
   class ReferralDetail
     attr_reader :expiration_date, :type_of_care, :provider_name, :location,
                 :referral_number, :network, :network_code, :referral_consult_id,
@@ -12,27 +11,35 @@ module Ccra
                 :referring_facility_info, :referring_provider_info, :treating_provider_info,
                 :treating_facility_info, :treating_facility_address
 
-    ##
-    # Initializes a new instance of ReferralDetail.
-    #
-    # @param attributes [Hash] A hash containing the referral details from the CCRA response.
-    # @option attributes [Hash] "Referral" The main referral data container.
     def initialize(attributes)
       referral = attributes['Referral']
       return if referral.blank?
 
+      assign_basic_attributes(referral)
+      assign_network_attributes(referral)
+      assign_facility_and_provider_attributes(referral)
+      assign_complex_nested_objects(referral)
+    end
+
+    private
+
+    def assign_basic_attributes(referral)
       @expiration_date = referral['ReferralExpirationDate'] || referral['referralExpirationDate']
       @type_of_care = referral['CategoryOfCare'] || referral['categoryOfCare']
       @provider_name = referral['TreatingProvider'] || referral['treatingProvider']
       @location = referral['TreatingFacility'] || referral['treatingFacility']
       @referral_number = referral['ReferralNumber'] || referral['referralNumber']
+    end
 
-      # New fields
+    def assign_network_attributes(referral)
       @network = referral['network']
       @network_code = referral['networkCode']
       @referral_consult_id = referral['referralConsultId']
       @referral_date = referral['referralDate']
       @referral_last_update_datetime = referral['referralLastUpdateDateTime']
+    end
+
+    def assign_facility_and_provider_attributes(referral)
       @referring_facility = referral['referringFacility']
       @referring_provider = referral['referringProvider']
       @seoc_id = referral['seocId']
@@ -42,11 +49,12 @@ module Ccra
       @sta6 = referral['sta6']
       @station_id = referral['stationId']
       @status = referral['status']
-      @treating_facility = @location  # treating_facility is an alias for location
+      @treating_facility = @location
       @treating_facility_fax = referral['treatingFacilityFax']
       @treating_facility_phone = referral['treatingFacilityPhone']
+    end
 
-      # Complex nested objects
+    def assign_complex_nested_objects(referral)
       @appointments = referral['appointments']
       @referring_facility_info = referral['referringFacilityInfo']
       @referring_provider_info = referral['referringProviderInfo']

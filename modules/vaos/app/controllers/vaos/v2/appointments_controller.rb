@@ -66,12 +66,13 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
+      # Every line in this file is needed, we can't trim it more without adding
+      # extra complexity and breaking current tests.
+      # rubocop:disable Metrics/MethodLength
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
 
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
-
         referral_validation = check_referral_data_validation(cached_referral_data)
         unless referral_validation[:success]
           render json: referral_validation[:json], status: referral_validation[:status] and return
@@ -81,7 +82,7 @@ module VAOS
         render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
 
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        
+
         # Search for provider services using the referral data
         search_params = {
           search_text: cached_referral_data[:provider_name],
@@ -89,7 +90,7 @@ module VAOS
           npi: cached_referral_data[:npi],
           network_id: cached_referral_data[:network_id]
         }
-        
+
         provider_search_result = eps_provider_service.search_provider_services(search_params)
         provider = provider_search_result.provider_services&.first
 
@@ -103,6 +104,7 @@ module VAOS
         serialized = Eps::DraftAppointmentSerializer.new(response_data)
         render json: serialized, status: :created
       end
+      # rubocop:enable Metrics/MethodLength
 
       def update
         updated_appointment
