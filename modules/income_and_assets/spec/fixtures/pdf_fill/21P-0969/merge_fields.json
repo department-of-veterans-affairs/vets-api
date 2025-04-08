@@ -397,9 +397,25 @@
       "haveAuthorityOrControlOfTrustOverflow": true
     }
   ],
+  "unreportedAssets": [
+    {
+      "assetOwnerRelationship": {
+        "veteran": 0
+      },
+      "assetType": "cash",
+      "ownedPortionValue": {
+        "cents": "99",
+        "dollars": "100",
+        "thousands": "00",
+        "millions": "1"
+      },
+      "assetLocation": "123 Street Rd."
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
   "assetTransfer": 0,
-  "trust": 0
+  "trust": 0,
+  "unreportedAsset": "YES"
 }
