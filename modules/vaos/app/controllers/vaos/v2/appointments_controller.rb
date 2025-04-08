@@ -21,9 +21,6 @@ module VAOS
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
       PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
-
-      rescue_from Redis::BaseError, with: :handle_redis_error
-
       def index
         appointments[:data].each do |appt|
           set_facility_error_msg(appt) if include_index_params[:facilities]
@@ -68,30 +65,18 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
-
-        cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
-
-        referral_validation = check_referral_data_validation(cached_referral_data)
-        unless referral_validation[:success]
-          render json: referral_validation[:json], status: referral_validation[:status] and return
-        end
-
-        referral_usage = check_referral_usage(referral_id)
-        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
-
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
+        draft_appointment = Eps::DraftAppointmentService.new(current_user).create_draft_appointment(referral_id, pagination_params)
+        serialized_draft_appointment = Eps::DraftAppointmentSerializer.new(draft_appointment)
+        render json: serialized_draft_appointment, status: :created
+      rescue Eps::DraftAppointmentServiceError => e
+        detail = "#{e.message}: #{e.detail}"
+        status = normalize_draft_appointment_service_error_status(e.status)
+        render json: { errors: [{ title: 'Failed to create draft appointment', detail: }] },
+               status:
+      rescue => e
+        status = normalize_error_status(e.respond_to?(:status) ? e.status : nil)
+        render json: { errors: [{ title: 'Failed to create draft appointment', detail: e.message }] },
+               status:
       end
 
       def update
@@ -596,6 +581,27 @@ module VAOS
           }
         else
           { success: true, slots: }
+        end
+      end
+
+      ##
+      # Normalizes error status codes according to our policy:
+      # - All 5xx errors are converted to :bad_gateway
+      # - Other status codes are passed through
+      # - nil status defaults to :bad_gateway
+      #
+      # @param status [Symbol, Integer, nil] The input status code
+      # @return [Symbol] The normalized status code
+      #
+      def normalize_draft_appointment_service_error_status(status)
+        return :bad_gateway if status.nil?
+
+        numeric_status = status.is_a?(Symbol) ? Rack::Utils.status_code(status) : status
+
+        if numeric_status.is_a?(Integer) && numeric_status >= 500
+          :bad_gateway
+        else
+          status
         end
       end
     end
