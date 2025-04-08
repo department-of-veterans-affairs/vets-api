@@ -2,6 +2,7 @@
 
 require 'json'
 require 'common/client/base'
+require 'ivc_champva/monitor'
 require_relative 'configuration'
 
 module IvcChampva
@@ -25,7 +26,7 @@ module IvcChampva
           req.body = ves_request_data.to_json
         end
 
-        # TODO: log the response
+        monitor.track_ves_response(transaction_uuid, resp.status, resp.body)
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
       rescue => e
@@ -45,6 +46,15 @@ module IvcChampva
           'transactionUUId' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }
+      end
+
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [IvcChampva::Monitor]
+      #
+      def monitor
+        @monitor ||= IvcChampva::Monitor.new
       end
     end
   end
