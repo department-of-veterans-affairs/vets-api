@@ -136,7 +136,11 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       let(:confirmation_number) { '1c66278a-391b-4000-90b8-34a34da7936e' }
 
       before { Timecop.freeze('2025-04-07T23:34:05Z') }
-      after { Timecop.return }
+
+      after do
+        Timecop.return
+        Kafka::ProducerManager.instance.producer.client.reset
+      end
 
       it 'triggers the event bus tracesubmission job successfully' do
         allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)

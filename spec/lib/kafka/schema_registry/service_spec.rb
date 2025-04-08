@@ -8,17 +8,36 @@ describe Kafka::SchemaRegistry::Service do
   let(:topic_name) { 'submission_trace_form_status_change_test' }
   let(:version) { '1' }
   let(:topic_1_response) do
-    { 'subject' => 'submission_trace_form_status_change_test-value',
+    {
+      'subject' => 'submission_trace_form_status_change_test-value',
       'version' => 1,
       'id' => 5,
-      'schema' => "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.submissiontrace.form.data\"\
-,\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"]},{\"name\":\"currentId\",\"type\":\"string\"},\
-{\"name\":\"nextId\",\"type\":[\"null\",\"string\"]},{\"name\":\"icn\",\"type\":[\"null\",\"string\"]},\
-{\"name\":\"vasiId\",\"type\":\"string\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\
-\"name\":\"systemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}]},\
-{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"submissionName\",\"symbols\":[\"F1010EZ\"\
-,\"F527EZ\"]}]},{\"name\":\"state\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"string\"},\
-{\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]}]}"}
+      'schema' => "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\
+\"namespace\":\"gov.va.submissiontrace.form.data\",\"fields\":\
+[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"],\"doc\":\
+\"ID that represents a unique identifier from a upstream system\"}\
+,{\"name\":\"currentId\",\"type\":\"string\",\"doc\":\
+\"ID that represents a unique identifier in the current system\"},\
+{\"name\":\"nextId\",\"type\":[\"null\",\"string\"],\
+\"doc\":\"ID that represents a unique identifier in the downstream system\"}\
+,{\"name\":\"icn\",\"type\":[\"null\",\"string\"],\"doc\":\
+\"Unique Veteran ID to identify the Veteran independently of other IDs provided\"}\
+,{\"name\":\"vasiId\",\"type\":\"string\",\"doc\":\"ID that represents\
+ a unique identifier in the Veteran Affairs Systems Inventory (VASI)\"},\
+{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\"name\":\"SystemName\",\
+\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}],\"doc\":\
+\"System submitting status update, e.g. va.gov\"},{\"name\":\"submissionName\",\
+\"type\":[{\"type\":\"enum\",\"name\":\"SubmissionName\",\"symbols\":\
+[\"F1010EZ\",\"F527EZ\"]}],\"doc\":\"Form or name of the submission; \
+should be the same across systems, e.g. 526ez, 4142, \
+Notice Of Disagreement, etc.\"},{\"name\":\"state\",\"type\":\"string\",\
+\"doc\":\"What triggered the event, limited to this set (but not enforced):\
+ received, sent, error, completed\"},{\"name\":\"timestamp\",\"type\":\
+\"string\",\"doc\":\"Current datetime in JS standard format ISO 8601\"},\
+{\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\
+\"string\"}],\"doc\":\"(Optional) for cases when more than one current \
+ID is appropriate\"}]}"
+    }
   end
 
   describe '#subject_versions' do
