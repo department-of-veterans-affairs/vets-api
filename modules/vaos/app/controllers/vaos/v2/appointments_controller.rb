@@ -68,21 +68,20 @@ module VAOS
       end
 
       def create_draft
-        # binding.pry
         referral_id = draft_params[:referral_id]
         # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
-        cached_patient_info = eps_redis_client.fetch_attribute(referral_number: referral_id, attribute: :patient)
+        cached_patient_info = eps_redis_client.referral_read(referral_number: referral_id)
         if cached_patient_info&.[](:icn).nil?
           # if there is no cached referral, fetch referral from ccra service and save to cache
           referral_for_validation = ccra_referral_service.get_referral(referral_id, '2')
-          eps_redis_client.save(referral_number: referral_id, referral: referral_for_validation)
+          eps_redis_client.referral_write(referral_number: referral_id, referral: referral_for_validation)
           patient_id_for_validation = referral_for_validation.dig(:data, :attributes, :referral, :patient, :icn)
         else
-          patient_id_for_validation = cached_patient_info&.[](:icn)
+          patient_id_for_validation = cached_patient_info.dig(:data, :attributes, :referral, :patient, :icn)
         end
 
         unless validate_ref_id(patient_id_for_validation, current_user&.[](:icn_with_aaid))
-          render json: {}, status: 401 and return
+          render json: {}, status: :unauthorized and return
         end
 
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
@@ -198,8 +197,8 @@ module VAOS
       end
 
       def validate_ref_id(ref_id, user_id)
-        # binding.pry
         return false if ref_id.nil? || user_id.nil?
+
         icn_s = user_id.to_s
         icn_match = icn_s[/(\d{10}V\d{6})/]
         ref_id == icn_match

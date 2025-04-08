@@ -15,6 +15,10 @@ module Eps
       @settings = Settings.vaos.eps
     end
 
+    def referral_cache
+      @referral_cache ||= ActiveSupport::Cache::MemoryStore.new
+    end
+
     # Retrieves the token from the Redis cache.
     #
     # @return [String, nil] the token if it exists, otherwise nil
@@ -62,6 +66,11 @@ module Eps
       fetch_attribute(referral_number:, attribute: :end_date)
     end
 
+    # TODO: determine if this is needed once referral data is finalized
+    def referral(referral_number:)
+      fetch_attribute(referral_number:, attribute: :referral)
+    end
+
     # Saves the referral information to the Redis cache.
     #
     # @param referral_number [String] the referral number
@@ -99,6 +108,32 @@ module Eps
 
       parsed_identifiers = Oj.load(identifiers).with_indifferent_access
       parsed_identifiers.dig(:data, :attributes)
+    end
+
+    # TODO: determine if this is needed once referral data is finalized
+    def fetch_nested_referral_attribute(referral_number:, attribute:)
+      identifiers = referral_identifiers(referral_number:)
+      return nil if identifiers.nil?
+
+      parsed_identifiers = Oj.load(identifiers).with_indifferent_access
+
+      parsed_identifiers.dig(:data, :attributes, :referral, :patient, attribute)
+    end
+
+    def referral_write(referral_number:, referral:)
+      referral_cache.write(
+        "vaos_eps_referral_object_#{referral_number}",
+        referral,
+        namespace: 'vaos-eps-cache',
+        expires_in: redis_token_expiry
+      )
+    end
+
+    def referral_read(referral_number:)
+      referral_cache.read(
+        "vaos_eps_referral_object_#{referral_number}",
+        namespace: 'vaos-eps-cache'
+      )
     end
 
     private

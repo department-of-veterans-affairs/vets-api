@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../../app/services/eps/redis_client.rb'
+require_relative '../../../../app/services/eps/redis_client'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
@@ -1111,7 +1111,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               }
             }
           }
-        }  
+        }
       }
     end
 
@@ -1122,8 +1122,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
 
       allow_any_instance_of(Ccra::ReferralService)
-                        .to receive(:get_referral)
-                        .and_return(referral_response)
+        .to receive(:get_referral)
+        .and_return(referral_response)
 
       allow(Rails).to receive(:cache).and_return(memory_store)
       Rails.cache.clear
@@ -1598,9 +1598,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           redis_client = instance_double(Eps::RedisClient)
           allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
           allow(redis_client).to receive(:fetch_attribute).and_raise(Redis::BaseError,
-                                                                               'Redis connection refused')
+                                                                     'Redis connection refused')
           allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
                                                                                'Redis connection refused')
+          allow(redis_client).to receive(:referral_read).and_raise(Redis::BaseError,
+                                                                   'Redis connection refused')
 
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 

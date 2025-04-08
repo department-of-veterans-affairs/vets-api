@@ -25,6 +25,39 @@ describe Eps::RedisClient do
     }.to_json
   end
 
+  let(:referral_response) do
+    {
+      data: {
+        attributes: {
+          referral: {
+            patient: {
+              birthSex: 'F',
+              dob: '1953-04-01',
+              email: 'valid@somedomain.com',
+              first_name: 'Judy',
+              gender: 'F',
+              home_address: {
+                address1: '20 W 34TH ST APT 2368A',
+                city: 'NEW YORK',
+                country: 'United States',
+                state: 'New York',
+                zip_code: '10118'
+              },
+              icn: '1012845331V153043',
+              last_name: 'MORRISON',
+              m_name: 'Snow',
+              patient_id: '466',
+              ssn: '796061976',
+              telephone_business: '(703)652-0000',
+              telephone_home: '+1 (510) 4104799',
+              telephone_mobile: '+1 (317) 9087069'
+            }
+          }
+        }
+      }
+    }.to_json
+  end
+
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
@@ -227,6 +260,44 @@ describe Eps::RedisClient do
         Timecop.travel(redis_token_expiry.from_now) do
           expect(redis_client.fetch_referral_attributes(referral_number:)).to be_nil
         end
+      end
+    end
+  end
+
+  describe '#referral_read' do
+    context 'when cache exists' do
+      before do
+        redis_client.referral_write(referral_number:, referral: referral_response)
+      end
+
+      it 'reads from cache' do
+        expect(redis_client.referral_read(referral_number:)).to eq(referral_response)
+      end
+    end
+
+    context 'when cache has expired' do
+      before do
+        redis_client.referral_write(referral_number:, referral: referral_response)
+      end
+
+      it 'reads from cache' do
+        Timecop.travel(redis_token_expiry.from_now) do
+          expect(redis_client.referral_read(referral_number:)).to be_nil
+        end
+      end
+    end
+
+    context 'when cache is empty' do
+      it 'returns nil' do
+        expect(redis_client.referral_read(referral_number:)).to be_nil
+      end
+    end
+  end
+
+  describe '#referral_write' do
+    context 'when referral object is written to cache' do
+      it 'returns true' do
+        expect(redis_client.referral_write(referral_number:, referral: referral_response)).to be(true)
       end
     end
   end
