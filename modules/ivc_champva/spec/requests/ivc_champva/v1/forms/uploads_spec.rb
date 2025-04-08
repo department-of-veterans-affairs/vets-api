@@ -30,6 +30,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
+    allow(ves_request).to receive(:transaction_uuid).and_return('78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
   end
 
   after do

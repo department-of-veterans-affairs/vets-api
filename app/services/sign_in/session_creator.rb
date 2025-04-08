@@ -16,7 +16,8 @@ module SignIn
                            access_token: create_new_access_token,
                            anti_csrf_token:,
                            client_config:,
-                           device_secret:)
+                           device_secret:,
+                           web_sso_client: web_sso_session_id.present?)
     end
 
     private
@@ -95,7 +96,7 @@ module SignIn
     end
 
     def refresh_created_time
-      @refresh_created_time ||= Time.zone.now
+      @refresh_created_time ||= web_sso_session_creation || Time.zone.now
     end
 
     def refresh_expiration_time
@@ -130,6 +131,14 @@ module SignIn
 
     def client_config
       @client_config ||= validated_credential.client_config
+    end
+
+    def web_sso_session_id
+      @web_sso_session_id ||= validated_credential.web_sso_session_id
+    end
+
+    def web_sso_session_creation
+      OAuthSession.find_by(id: web_sso_session_id)&.refresh_creation
     end
   end
 end

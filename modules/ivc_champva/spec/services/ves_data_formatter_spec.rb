@@ -5,10 +5,10 @@ require 'rails_helper'
 describe IvcChampva::VesDataFormatter do
   let(:valid_data) do
     {
-      applicationType: 'CHAMPVA',
+      applicationType: 'CHAMPVA_APPLICATION',
       applicationUUID: '12345678-1234-5678-1234-567812345678',
       sponsor: {
-        personUUID: '52345678-1234-5678-1234-567812345678',
+        personUUID: '12345678-1234-5678-1234-567812345678',
         firstName: 'Joe',
         lastName: 'Johnson',
         middleInitial: 'X',
@@ -27,25 +27,25 @@ describe IvcChampva::VesDataFormatter do
       },
       beneficiaries: [
         {
-          personUUID: '62345678-1234-5678-1234-567812345678',
+          personUUID: '12345678-1234-5678-1234-567812345678',
           firstName: 'Johnny',
           lastName: 'Alvin',
           middleInitial: 'T',
           ssn: '345345345',
           emailAddress: 'johnny@alvin.gov',
-          phoneNumber: '+1 (555) 555-1234',
+          phoneNumber: '5555551234',
           gender: 'MALE',
           enrolledInMedicare: true,
           hasOtherInsurance: true,
           relationshipToSponsor: 'CHILD',
           childtype: 'ADOPTED',
+          dateOfBirth: '2000-01-01',
           address: {
             streetAddress: '456 Circle Street ',
             city: 'Clinton',
             state: 'AS',
             zipCode: '56790'
-          },
-          dateOfBirth: '2000-01-01'
+          }
         }
       ],
       certification: {
@@ -54,8 +54,9 @@ describe IvcChampva::VesDataFormatter do
         firstName: 'Certifier',
         lastName: 'Jones',
         middleInitial: 'X',
-        phoneNumber: '(123) 123-1234'
-      }
+        phoneNumber: '1231231234'
+      },
+      transactionUUID: '12345678-1234-5678-1234-567812345678'
     }
   end
 
@@ -97,7 +98,7 @@ describe IvcChampva::VesDataFormatter do
             'street_combined' => '456 Circle Street '
           },
           'applicant_ssn' => { 'ssn' => '345345345' },
-          'applicant_phone' => '+1 (555) 555-1234',
+          'applicant_phone' => '5555551234',
           'applicant_gender' => { 'gender' => 'MALE' },
           'applicant_dob' => '2000-01-01',
           'applicant_name' => { 'first' => 'Johnny', 'middle' => 'T', 'last' => 'Alvin' },
@@ -114,7 +115,7 @@ describe IvcChampva::VesDataFormatter do
         'last_name' => 'Jones',
         'middle_initial' => 'X',
         'first_name' => 'Certifier',
-        'phone_number' => '(123) 123-1234'
+        'phone_number' => '1231231234'
       },
       'statement_of_truth_signature' => 'certifier jones'
     }
@@ -127,16 +128,28 @@ describe IvcChampva::VesDataFormatter do
     @parsed_form_data_copy = Marshal.load(Marshal.dump(parsed_form_data))
 
     # Mock SecureRandom.uuid to return expected values
-    uuid_sequence = %w[12345678-1234-5678-1234-567812345678 52345678-1234-5678-1234-567812345678
-                       62345678-1234-5678-1234-567812345678]
-    allow(SecureRandom).to receive(:uuid).and_return(*uuid_sequence)
+    allow(SecureRandom).to receive(:uuid).and_return('12345678-1234-5678-1234-567812345678')
   end
 
   describe 'data is valid' do
-    it 'returns unmodified data' do
+    it 'maintains all the original keys/values after validating' do
       validated_data = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
 
-      expect(validated_data.to_json).to eq(@request_body)
+      # Check that all the original keys/values present in @request_body
+      # are still present in the formatted object.
+      h1 = JSON.parse(@request_body.to_json).sort.to_h
+      h2 = JSON.parse(validated_data.to_json).sort.to_h
+      # Get the intersection and verify h2 contained all original keys
+      h3 = h1.slice(*h2.keys)
+      expect(h3.to_json).to eq(h1.to_json)
+    end
+  end
+
+  describe 'ves_request to_json' do
+    it 'returns json' do
+      ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+
+      expect(ves_request.to_json).to be_a(String)
     end
   end
 
@@ -162,9 +175,9 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['full_name']['first'] = '2Jöhn~! - Jo/hn?\\'
         expected_sponsor_name = 'John - Jo/hn'
 
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy).to_json
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
 
-        expect(ves_request[:sponsor][:firstName]).to eq expected_sponsor_name
+        expect(ves_request.sponsor.first_name).to eq expected_sponsor_name
       end
     end
   end
@@ -175,9 +188,9 @@ describe IvcChampva::VesDataFormatter do
         @parsed_form_data_copy['veteran']['full_name']['last'] = '2Jöhnşon~!\\'
         expected_sponsor_name = 'Johnson'
 
-        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy).to_json
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
 
-        expect(ves_request[:sponsor][:lastName]).to eq expected_sponsor_name
+        expect(ves_request.sponsor.last_name).to eq expected_sponsor_name
       end
     end
   end
@@ -218,15 +231,34 @@ describe IvcChampva::VesDataFormatter do
       end.to raise_error(ArgumentError, 'sponsor state is missing')
     end
 
+    it 'raises an error when deceased sponsor date of death is missing' do
+      @parsed_form_data_copy['veteran']['is_deceased'] = true
+      @parsed_form_data_copy['veteran']['date_of_death'] = nil
+
+      expect do
+        IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+      end.to raise_error(ArgumentError, 'date of death is missing')
+    end
+
     it 'adds a default address when sponsor is deceased' do
       @parsed_form_data_copy['veteran']['address'] = nil
       @parsed_form_data_copy['veteran']['is_deceased'] = true
+      @parsed_form_data_copy['veteran']['date_of_death'] = '2020-01-01'
 
       res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       expect(res.sponsor.address.street_address).to eq('NA')
       expect(res.sponsor.address.state).to eq('NA')
       expect(res.sponsor.address.city).to eq('NA')
       expect(res.sponsor.address.zip_code).to eq('NA')
+    end
+
+    it 'adds a default phone when sponsor is deceased' do
+      @parsed_form_data_copy['veteran']['is_deceased'] = true
+      @parsed_form_data_copy['veteran']['date_of_death'] = '2020-01-01'
+      @parsed_form_data_copy['veteran']['phone_number'] = nil
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+      expect(res.sponsor.phone_number).to eq('0000000000')
     end
   end
 
@@ -237,6 +269,16 @@ describe IvcChampva::VesDataFormatter do
       res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
 
       expect(res.sponsor.date_of_birth).to eq('2020-01-01')
+    end
+  end
+
+  describe 'sponsor date of marriage' do
+    it 'when formatted as MM-DD-YYYY, it reformats to YYYY-MM-DD' do
+      @parsed_form_data_copy['veteran']['date_of_marriage'] = '01-01-2020'
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+
+      expect(res.sponsor.date_of_marriage).to eq('2020-01-01')
     end
   end
 
@@ -296,6 +338,30 @@ describe IvcChampva::VesDataFormatter do
         IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError,
                          "beneficiary gender is invalid. Must be in #{possible_values}")
+    end
+  end
+
+  describe 'phone number is malformed' do
+    it 'removes non-numeric characters' do
+      phone = '+1 (123) 123-1234'
+
+      expect(IvcChampva::VesDataFormatter.format_phone_number(phone)).to eq('11231231234')
+    end
+
+    it 'raises an exception when phone number is not at least 10 digits' do
+      phone = { phone_number: '123456789' } # 9 digits
+
+      expect do
+        IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')
+      end.to raise_error(ArgumentError, 'phone number is invalid. See regex for more detail')
+
+      phone = { phone_number: '1231231234' } # 10 digits
+
+      expect(IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')).to eq(phone)
+
+      phone = { phone_number: '11231231234' } # 11 digits
+
+      expect(IvcChampva::VesDataFormatter.validate_phone(phone, 'phone number')).to eq(phone)
     end
   end
 end

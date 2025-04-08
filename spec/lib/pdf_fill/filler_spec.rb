@@ -48,11 +48,6 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '21P-0969',
-        factory: :income_and_assets_claim,
-        use_vets_json_schema: true
-      },
-      {
         form_id: '10-10CG',
         factory: :caregivers_assistance_claim,
         input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
@@ -96,6 +91,8 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
+              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
+
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign: })
 
               if type == 'overflow'
@@ -116,6 +113,63 @@ describe PdfFill::Filler, type: :model do
             end
           end
         end
+      end
+    end
+  end
+
+  describe '#stamp_form' do
+    let(:file_path) { 'tmp/test.pdf' }
+    let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
+    let(:datestamp_pdf) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:stamped_path) { 'tmp/test_stamped.pdf' }
+    let(:final_path) { 'tmp/test_final.pdf' }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf)
+      allow(datestamp_pdf).to receive(:run).and_return(stamped_path, final_path)
+    end
+
+    it 'stamps the form with footer and header' do
+      expected_footer = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
+                        'Signee signed with an identity-verified account.'
+
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with(file_path).ordered
+      expect(datestamp_pdf).to receive(:run).with(
+        text: expected_footer,
+        x: 5,
+        y: 5,
+        text_only: true,
+        size: 9
+      ).ordered.and_return(stamped_path)
+
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with(stamped_path).ordered
+      expect(datestamp_pdf).to receive(:run).with(
+        text: 'VA.gov Submission',
+        x: 510,
+        y: 775,
+        text_only: true,
+        size: 9
+      ).ordered.and_return(final_path)
+
+      expect(File).to receive(:delete).with(stamped_path)
+
+      result = described_class.stamp_form(file_path, submit_date)
+      expect(result).to eq(final_path)
+    end
+
+    context 'when an error occurs' do
+      before do
+        allow(datestamp_pdf).to receive(:run).and_raise(StandardError, 'PDF Error')
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs the error and returns the original file path' do
+        result = described_class.stamp_form(file_path, submit_date)
+
+        expect(Rails.logger).to have_received(:error).with(
+          "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
+        )
+        expect(result).to eq(file_path)
       end
     end
   end

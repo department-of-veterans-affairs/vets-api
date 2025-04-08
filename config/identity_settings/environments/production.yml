@@ -68,6 +68,7 @@ sign_in:
   sts_client:
     base_url: https://api.va.gov
     key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://va.gov/sign-in
   web_origins:
     - https://identity.va.gov
     - https://staging.identity.va.gov

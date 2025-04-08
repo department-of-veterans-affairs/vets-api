@@ -407,17 +407,39 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             ]
           }
         end
-        let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
 
-        it 'successfully returns list of facilities' do
-          expect(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
-          expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+        context ':caregiver_use_facilities_API_V2 disabled' do
+          before { allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(false) }
 
-          expect(subject).to validate(
-            :post,
-            '/v0/caregivers_assistance_claims/facilities',
-            200
-          )
+          let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+
+          it 'successfully returns list of facilities' do
+            expect(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+            expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+
+            expect(subject).to validate(
+              :post,
+              '/v0/caregivers_assistance_claims/facilities',
+              200
+            )
+          end
+        end
+
+        context ':caregiver_use_facilities_API_V2 enabled' do
+          before { allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(true) }
+
+          let(:lighthouse_service) { double('FacilitiesApi::V2::Lighthouse::Client') }
+
+          it 'successfully returns list of facilities' do
+            expect(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
+            expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+
+            expect(subject).to validate(
+              :post,
+              '/v0/caregivers_assistance_claims/facilities',
+              200
+            )
+          end
         end
       end
     end
@@ -451,30 +473,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           }
         )
       end
-    end
-
-    it 'supports adding an income and assets statement' do
-      expect(subject).to validate(
-        :post,
-        '/v0/form0969',
-        200,
-        '_data' => {
-          'income_and_assets_claim' => {
-            'form' => build(:income_and_assets_claim).form
-          }
-        }
-      )
-
-      expect(subject).to validate(
-        :post,
-        '/v0/form0969',
-        422,
-        '_data' => {
-          'income_and_assets_claim' => {
-            'invalid-form' => { invalid: true }.to_json
-          }
-        }
-      )
     end
 
     context 'MDOT tests' do
@@ -4020,6 +4018,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/coe/document_download/{id}')
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
+      subject.untested_mappings.delete('/v0/form0969')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
