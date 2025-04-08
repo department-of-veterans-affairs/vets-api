@@ -16,17 +16,23 @@ module DebtManagementCenter
 
     def initialize(user)
       super(user)
-      @debts = if Flipper.enabled?(:debts_cache_dmc_empty_response)
-                 init_cached_debts
-               else
-                 init_debts
-               end
+      @debts = nil
     end
 
-    def get_debts
+    def get_debts(count_only: false)
+      if count_only
+        # Get only the count directly from the API
+        with_monitoring_and_error_handling do
+          response = fetch_debts_from_dmc(count_only: true)
+          StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts_count.success")
+          return response
+        end
+      end
+
+      load_debts unless @debts
+
       has_dependent_debts = veteran_has_dependent_debts?
       debts = debts_with_sorted_histories
-      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.success")
       {
         has_dependent_debts:,
         debts:
@@ -37,6 +43,8 @@ module DebtManagementCenter
     end
 
     def get_debt_by_id(id)
+      load_debts unless @debts
+
       debt_store = DebtManagementCenter::DebtStore.find(@user.uuid)
 
       raise DebtNotFound if debt_store.blank?
@@ -50,6 +58,7 @@ module DebtManagementCenter
     end
 
     def veteran_has_dependent_debts?
+      load_debts unless @debts
       @debts.any? { |debt| debt['payeeNumber'] != '00' }
     end
 
@@ -67,43 +76,49 @@ module DebtManagementCenter
       "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
     end
 
-    # Provided the cached version of this continues to work as intended, this method is not needed 8/5/24
-    def init_debts
-      with_monitoring_and_error_handling do
-        Rails.logger.info('DebtManagement - DebtService#init_debts')
-        options = { timeout: 30 }
-        DebtManagementCenter::DebtsResponse.new(
-          perform(
-            :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
-          ).body
-        ).debts
-      end
+    def load_debts
+      @debts = init_cached_debts
     end
 
     def init_cached_debts
       StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.fired")
 
+      cache_key = "debts_data_#{@user.uuid}"
+      cached_response = Rails.cache.read(cache_key)
+
+      if cached_response
+        StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.cached_response_returned")
+        return DebtManagementCenter::DebtsResponse.new(cached_response).debts
+      end
+
+      response = fetch_debts_from_dmc
+
+      if response.is_a?(Array) && response.empty?
+        # DMC refreshes DB at 5am every morning
+        Rails.cache.write(cache_key, response, expires_in: self.class.time_until_5am_utc)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.empty_response_cached")
+      end
+
+      response
+    end
+
+    def fetch_debts_from_dmc(count_only: false)
       with_monitoring_and_error_handling do
-        cache_key = "debts_data_#{@user.uuid}"
-        cached_response = Rails.cache.read(cache_key)
-
-        if cached_response
-          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.cached_response_returned")
-          return DebtManagementCenter::DebtsResponse.new(cached_response).debts
-        end
-
         options = { timeout: 30 }
-        response = perform(
-          :post, Settings.dmc.debts_endpoint, { fileNumber: @file_number }, nil, options
-        ).body
+        payload = { fileNumber: @file_number }
+        payload[:countOnly] = true if count_only
 
-        if response.is_a?(Array) && response.empty?
-          # DMC refreshes DB at 5am every morning
-          Rails.cache.write(cache_key, response, expires_in: self.class.time_until_5am_utc)
-          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.empty_response_cached")
-        end
-
+        response = perform(:post, Settings.dmc.debts_endpoint, payload, nil, options).body
+        
+        return response if count_only
+        
         DebtManagementCenter::DebtsResponse.new(response).debts
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.fetch_debts_from_dmc.fail", tags: [
+          "error:#{e.class.name}",
+          "status:#{e.respond_to?(:status) ? e.status : 'unknown'}"
+        ])
+        raise e
       end
     end
 
