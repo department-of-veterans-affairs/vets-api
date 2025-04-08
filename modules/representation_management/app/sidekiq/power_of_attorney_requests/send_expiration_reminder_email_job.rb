@@ -23,11 +23,13 @@ module PowerOfAttorneyRequests
     def fetch_requests_to_remind
       range = 31.days.ago..30.days.ago
 
-      AccreditedRepresentativePortal::PowerOfAttorneyRequest
-        .unresolved
-        .where(created_at: range)
-        .left_outer_joins(:notifications)
-        .where.not(ar_power_of_attorney_request_notifications: { type: 'expiring' })
+      requests_in_range = AccreditedRepresentativePortal::PowerOfAttorneyRequest
+                          .unresolved
+                          .where(created_at: range)
+
+      requests_in_range.reject do |request|
+        request.notifications.exists?(type: 'expiring')
+      end
     end
 
     def log_error(message)

@@ -15,17 +15,16 @@ RSpec.describe PowerOfAttorneyRequests::SendExpiredEmailJob, type: :job do
     context 'when there are no requests' do
       it 'does not queue any emails' do
         expect { subject.perform }.not_to raise_error
-        expect(VANotify::EmailJob.jobs).to be_empty
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.jobs).to be_empty
       end
     end
 
     context 'when there are requests on the expiration date' do
       let!(:request) { create(:power_of_attorney_request, created_at: 60.5.days.ago) }
-      let(:claimant) { form.parsed_data['dependent'] || form.parsed_data['veteran'] }
 
       it 'queues an email for each request' do
         expect { subject.perform }.not_to raise_error
-        expect(VANotify::EmailJob.jobs.size).to eq(1)
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.jobs.size).to eq(1)
       end
     end
 
@@ -34,7 +33,7 @@ RSpec.describe PowerOfAttorneyRequests::SendExpiredEmailJob, type: :job do
 
       it 'does not queue any emails' do
         expect { subject.perform }.not_to raise_error
-        expect(VANotify::EmailJob.jobs).to be_empty
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.jobs).to be_empty
       end
     end
 
@@ -43,7 +42,7 @@ RSpec.describe PowerOfAttorneyRequests::SendExpiredEmailJob, type: :job do
 
       it 'does not queue any emails' do
         expect { subject.perform }.not_to raise_error
-        expect(VANotify::EmailJob.jobs).to be_empty
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.jobs).to be_empty
       end
     end
   end

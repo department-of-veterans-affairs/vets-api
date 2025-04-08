@@ -24,11 +24,13 @@ module PowerOfAttorneyRequests
     def fetch_requests_to_inform_of_expiration
       range = 61.days.ago..60.days.ago
 
-      AccreditedRepresentativePortal::PowerOfAttorneyRequest
-        .unresolved
-        .where(created_at: range)
-        .left_outer_joins(:notifications)
-        .where.not(ar_power_of_attorney_request_notifications: { type: 'expired' })
+      requests_in_range = AccreditedRepresentativePortal::PowerOfAttorneyRequest
+                          .unresolved
+                          .where(created_at: range)
+
+      requests_in_range.reject do |request|
+        request.notifications.exists?(type: 'expired')
+      end
     end
 
     def log_error(message)
