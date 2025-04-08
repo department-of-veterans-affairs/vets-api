@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module V2
-    class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
+    class AppointmentsController < VAOS::BaseController
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
@@ -66,45 +66,24 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
-      # Every line in this file is needed, we can't trim it more without adding
-      # extra complexity and breaking current tests.
-      # rubocop:disable Metrics/MethodLength
       def create_draft
         referral_id = draft_params[:referral_id]
-
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
-        referral_validation = check_referral_data_validation(cached_referral_data)
-        unless referral_validation[:success]
-          render json: referral_validation[:json], status: referral_validation[:status] and return
-        end
 
-        referral_usage = check_referral_usage(referral_id)
-        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
+        # Check validations with early returns
+        validation = check_referral_data_validation(cached_referral_data)
+        render(json: validation[:json], status: validation[:status]) and return unless validation[:success]
 
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
+        usage = check_referral_usage(referral_id)
+        render(json: usage[:json], status: usage[:status]) and return unless usage[:success]
 
-        # Search for provider services using the referral data
-        search_params = {
-          search_text: cached_referral_data[:provider_name],
-          appointment_id: draft_appointment.id,
-          npi: cached_referral_data[:npi],
-          network_id: cached_referral_data[:network_id]
-        }
+        # Create draft appointment and prepare response
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        provider = find_provider(draft.id, cached_referral_data)
+        response_data = build_draft_response(draft, provider, cached_referral_data)
 
-        provider_search_result = eps_provider_service.search_provider_services(search_params)
-        provider = provider_search_result.provider_services&.first
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: provider ? fetch_drive_times(provider) : nil
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
+        render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
-      # rubocop:enable Metrics/MethodLength
 
       def update
         updated_appointment
@@ -130,6 +109,27 @@ module VAOS
       end
 
       private
+
+      def find_provider(appointment_id, referral_data)
+        search_params = {
+          search_text: referral_data[:provider_name],
+          appointment_id:,
+          npi: referral_data[:npi],
+          network_id: referral_data[:network_id]
+        }
+
+        provider_search_result = eps_provider_service.search_provider_services(search_params)
+        provider_search_result.provider_services&.first
+      end
+
+      def build_draft_response(draft_appointment, provider, referral_data)
+        OpenStruct.new(
+          id: draft_appointment.id,
+          provider:,
+          slots: fetch_provider_slots(referral_data),
+          drive_time: provider ? fetch_drive_times(provider) : nil
+        )
+      end
 
       def set_facility_error_msg(appointment)
         appointment[:location] = FACILITY_ERROR_MSG if appointment[:location_id].present? && appointment[:location].nil?
