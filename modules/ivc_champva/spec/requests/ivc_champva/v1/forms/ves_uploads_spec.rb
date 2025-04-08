@@ -7,7 +7,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
   # This spec file focuses on testing the refactored workflows introduced in the uploads controller
   # with the VES integrsation.
 
-  let(:ves_request) { double('IvcChampva::VesRequest', application_uuid: 'test-uuid') }
+  let(:ves_request) { double('IvcChampva::VesRequest', application_uuid: 'test-uuid', transaction_uuid: 'fake-id') }
   let(:ves_client) { double('IvcChampva::VesApi::Client') }
   let(:ves_response) { double('IvcChampva::VesApi::Response', status: 200, body: { result: 'success' }) }
   let(:mock_form) { double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid') }
@@ -94,7 +94,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
         end
 
         it 'handles VES API errors gracefully and still returns success' do
-          allow(ves_client).to receive(:submit_1010d).and_raise(IvcChampva::VesApi::VesApiError.new('api error'))
+          allow(ves_client).to receive(:submit_1010d).and_raise(StandardError.new('api error'))
 
           post '/ivc_champva/v1/forms', params: form_data
 

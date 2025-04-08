@@ -95,7 +95,7 @@ module IvcChampva
           ves_client = IvcChampva::VesApi::Client.new
           response = nil
           begin
-            ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
+            response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
           rescue => e
             Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
           end
@@ -125,11 +125,10 @@ module IvcChampva
 
       def call_handle_file_uploads(form_id, parsed_form_data)
         if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          statuses, error_messages = handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+          handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
         else
-          statuses, error_messages = handle_file_uploads(form_id, parsed_form_data)
+          handle_file_uploads(form_id, parsed_form_data)
         end
-        [statuses, error_messages]
       end
 
       ##
@@ -137,11 +136,10 @@ module IvcChampva
       # based on the feature flag
       def call_upload_form(form_id, file_paths, metadata)
         if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
-          statuses, error_messages = upload_form_with_refactored_retry(form_id, file_paths, metadata)
+          upload_form_with_refactored_retry(form_id, file_paths, metadata)
         else
-          statuses, error_messages = upload_form(form_id, file_paths, metadata)
+          upload_form(form_id, file_paths, metadata)
         end
-        [statuses, error_messages]
       end
 
       # Modified from claim_documents_controller.rb:
