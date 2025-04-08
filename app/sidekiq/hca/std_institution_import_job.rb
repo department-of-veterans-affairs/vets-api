@@ -71,7 +71,7 @@ module HCA
 
         import_institutions_from_csv(data)
 
-        HCA::HealthFacilitiesImportJob.perform_async if Flipper.enabled?(:hca_cache_facilities_job)
+        HCA::HealthFacilitiesImportJob.perform_async
         Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")

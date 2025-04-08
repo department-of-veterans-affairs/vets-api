@@ -1344,9 +1344,6 @@ ssoe_eauth_cookie:
   domain: <%= ENV['ssoe_eauth_cookie__domain'] %>
   name: <%= ENV['ssoe_eauth_cookie__name'] %>
   secure: <%= ENV['ssoe_eauth_cookie__secure'] %>
-statsd:
-  host: <%= ENV['statsd__host'] %>
-  port: 8125
 terms_of_use:
   current_version: v1
   enabled_clients: <%= ENV['terms_of_use__enabled_clients'] %>
@@ -1637,7 +1634,6 @@ vanotify:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
   ccra:
-    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: <%= ENV['vaos__ccra__mock'] %>

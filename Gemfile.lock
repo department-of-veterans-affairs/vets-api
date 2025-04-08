@@ -244,20 +244,21 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1072.0)
-    aws-sdk-core (3.220.2)
+    aws-partitions (1.1082.0)
+    aws-sdk-core (3.222.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
       jmespath (~> 1, >= 1.6.1)
+      logger
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-kms (1.99.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.182.0)
+    aws-sdk-s3 (1.183.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -363,10 +364,10 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.12.2)
+    datadog (2.14.0)
       datadog-ruby_core_source (~> 3.4)
       libdatadog (~> 16.0.1.1.0)
-      libddwaf (~> 1.18.0.0.1)
+      libddwaf (~> 1.21.0.0.1)
       logger
       msgpack
     datadog-ruby_core_source (3.4.0)
@@ -493,9 +494,9 @@ GEM
     flipper-active_record (1.3.4)
       activerecord (>= 4.2, < 9)
       flipper (~> 1.3.4)
-    flipper-active_support_cache_store (1.3.2)
+    flipper-active_support_cache_store (1.3.4)
       activesupport (>= 4.2, < 9)
-      flipper (~> 1.3.2)
+      flipper (~> 1.3.4)
     flipper-ui (1.3.4)
       erubi (>= 1.0.0, < 2.0.0)
       flipper (~> 1.3.4)
@@ -649,16 +650,16 @@ GEM
     libdatadog (16.0.1.1.0)
     libdatadog (16.0.1.1.0-aarch64-linux)
     libdatadog (16.0.1.1.0-x86_64-linux)
-    libddwaf (1.18.0.0.1)
+    libddwaf (1.21.0.0.1)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.1-aarch64-linux)
+    libddwaf (1.21.0.0.1-aarch64-linux)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.1-java)
+    libddwaf (1.21.0.0.1-java)
       ffi (~> 1.0)
-    libddwaf (1.18.0.0.1-x86_64-linux)
+    libddwaf (1.21.0.0.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.7.2)
+    liquid (5.8.3)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -723,14 +724,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.18.4)
+    nokogiri (1.18.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.4-aarch64-linux-gnu)
+    nokogiri (1.18.7-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.4-java)
+    nokogiri (1.18.7-java)
       racc (~> 1.4)
-    nokogiri (1.18.4-x86_64-linux-gnu)
+    nokogiri (1.18.7-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -1085,9 +1086,9 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.8)
+    statsd-instrument (3.9.9)
     stringio (3.1.2)
-    strong_migrations (2.2.1)
+    strong_migrations (2.3.0)
       activerecord (>= 7)
     strscan (3.1.2)
     strscan (3.1.2-java)
@@ -1365,7 +1366,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument (= 3.9.8)
+  statsd-instrument
   strong_migrations
   super_diff
   swagger-blocks
