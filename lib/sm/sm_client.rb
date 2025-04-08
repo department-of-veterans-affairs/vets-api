@@ -11,7 +11,7 @@ module SM
   ##
   # Core class responsible for SM API interface operations on va.gov
   #
-  class Client < Common::Client::Base
+  class SMClient < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
     configuration SM::Configuration
     client_session SM::ClientSession
