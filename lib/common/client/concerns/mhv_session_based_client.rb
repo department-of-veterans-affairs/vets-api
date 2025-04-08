@@ -80,7 +80,9 @@ module Common
         end
 
         def auth_headers
-          config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => session.user_id.to_s)
+          base_headers = config.base_request_headers.merge('appToken' => config.app_token,
+                                                           'mhvCorrelationId' => session.user_id.to_s)
+          get_headers(base_headers) # Call get_headers to include x-api-key if applicable
         end
       end
     end
