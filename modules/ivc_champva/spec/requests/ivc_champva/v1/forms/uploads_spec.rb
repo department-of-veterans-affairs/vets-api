@@ -217,7 +217,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
   end
 
   describe 'stored ves data is encrypted' do
-
     it 'ves_request_data is encrypted' do
       # This is the only part of the test we actually need
       expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
