@@ -397,6 +397,58 @@
       "haveAuthorityOrControlOfTrustOverflow": true
     }
   ],
+  "annuities": [
+    {
+      "addedFundsDate": {
+        "month": "02",
+        "day": "02",
+        "year": "2022"
+      },
+      "addedFundsAmount": {
+        "cents": "22",
+        "dollars": "222",
+        "thousands": "222",
+        "millions": "2"
+      },
+      "addedFundsAfterEstablishment": 0,
+      "canBeLiquidated": 0,
+      "surrenderValue": {
+        "cents": "88",
+        "dollars": "777",
+        "thousands": "666",
+        "millions": "5"
+      },
+      "receivingIncomeFromAnnuity": 0,
+      "annualReceivedIncome": {
+        "cents": "44",
+        "dollars": "333",
+        "thousands": "222",
+        "millions": "1"
+      },
+      "revocable": 0,
+      "establishedDate": {
+        "month": "01",
+        "day": "01",
+        "year": "2020"
+      },
+      "marketValueAtEstablishment": {
+        "cents": "89",
+        "dollars": "568",
+        "thousands": "234",
+        "millions": "1"
+      },
+      "addedFundsDateOverflow": "2022-02-02",
+      "addedFundsAmountOverflow": 2222222.22,
+      "addedFundsAfterEstablishmentOverflow": true,
+      "canBeLiquidatedOverflow": true,
+      "surrenderValueOverflow": 5666777.88,
+      "receivingIncomeFromAnnuityOverflow": true,
+      "annualReceivedIncomeOverflow": 1222333.44,
+      "revocableOverflow": true,
+      "establishedDateOverflow": "2020-01-01",
+      "marketValueAtEstablishmentOverflow": 1234568.89
+    }
+  ],
   "discontinuedIncomes": [
     {
       "grossAnnualAmount": {
@@ -493,6 +545,7 @@
   "ownedAsset": 0,
   "assetTransfer": 0,
   "trust": 0,
+  "annuity": 0,
   "discontinuedIncome": 0,
   "incomeReceiptWaiver": 0
 }

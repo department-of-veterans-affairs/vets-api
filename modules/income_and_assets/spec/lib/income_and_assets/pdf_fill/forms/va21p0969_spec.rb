@@ -19,8 +19,6 @@ describe IncomeAndAssets::PdfFill::Forms::Va21p0969 do
       # These are temporary changes and will be resolved as the mappings for the other sections get merged in
       # Section 6
       form_data.delete('royaltiesAndOtherProperties')
-      # Section 9
-      form_data.delete('annuities')
       # Section 10
       form_data.delete('unreportedAssets')
 
