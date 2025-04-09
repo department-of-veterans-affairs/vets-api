@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:referral_id) { '5682' }
+  let(:encrypted_uuid) { 'encrypted-5682' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:referral_statuses) { "'S','BP','AP','AC','A','I'" }
   let(:referral_mode) { 'C' }
@@ -12,6 +13,8 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
+    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_id).and_return(encrypted_uuid)
+    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_id)
   end
 
   describe 'GET index' do
@@ -101,7 +104,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
       end
 
       it 'throws unauthorized exception' do
-        get "/vaos/v2/referrals/#{referral_id}"
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
 
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)).to eq(resp)
@@ -120,14 +123,14 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
       end
 
       it 'returns a referral detail in JSON:API format' do
-        get "/vaos/v2/referrals/#{referral_id}"
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
 
         expect(response).to have_http_status(:ok)
 
         response_data = JSON.parse(response.body)
         expect(response_data).to have_key('data')
         expect(response_data['data']['id']).to eq(referral_id)
-        expect(response_data['data']['type']).to eq('referral')
+        expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']['attributes']['type_of_care']).to eq('CARDIOLOGY')
         expect(response_data['data']['attributes']['provider_name']).to eq('Dr. Smith')
         expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
@@ -144,7 +147,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         end
 
         it 'passes the correct mode to the service' do
-          get "/vaos/v2/referrals/#{referral_id}", params: { mode: custom_mode }
+          get "/vaos/v2/referrals/#{encrypted_uuid}", params: { mode: custom_mode }
 
           expect(response).to have_http_status(:ok)
         end

@@ -11,6 +11,9 @@ module Ccra
 
     attribute :type_of_care
 
+    # Include the encrypted referral number for use in URLs to prevent PII in logs
+    attribute :uuid
+
     attribute :expiration_date do |referral|
       referral.expiration_date&.strftime('%Y-%m-%d')
     end

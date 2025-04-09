@@ -7,11 +7,14 @@ module Ccra
     include JSONAPI::Serializer
 
     set_id :referral_number
-    set_type :referral
+    set_type :referrals
 
     attribute :type_of_care
     attribute :provider_name
     attribute :location
     attribute :expiration_date
+
+    # Include the encrypted referral ID for use in URLs
+    attribute :uuid
   end
 end

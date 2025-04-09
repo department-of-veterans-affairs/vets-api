@@ -3,7 +3,8 @@
 module Ccra
   # ReferralListEntry represents the essential referral data from the CCRA ReferralList endpoint.
   class ReferralListEntry
-    attr_reader :type_of_care, :referral_id, :expiration_date
+    attr_reader :type_of_care, :expiration_date
+    attr_accessor :referral_id, :uuid
 
     ##
     # Initializes a new instance of ReferralListEntry.
@@ -16,6 +17,7 @@ module Ccra
     def initialize(attributes)
       @type_of_care = attributes['CategoryOfCare']
       @referral_id = attributes['ID']
+      @uuid = nil # Will be set by controller
 
       start_date = parse_date(attributes['StartDate'])
       days = attributes['SEOCNumberOfDays'].to_i if attributes['SEOCNumberOfDays'].present?

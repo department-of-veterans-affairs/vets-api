@@ -5,6 +5,7 @@ module Ccra
   class ReferralDetail
     attr_reader :expiration_date, :type_of_care, :provider_name, :location,
                 :referral_number, :phone_number
+    attr_accessor :uuid
 
     ##
     # Initializes a new instance of ReferralDetail.
@@ -21,6 +22,7 @@ module Ccra
       @location = referral['TreatingFacility']
       @referral_number = referral['ReferralNumber']
       @phone_number = referral['ProviderPhone'] || referral['FacilityPhone']
+      @uuid = nil # Will be set by controller
     end
   end
 end
