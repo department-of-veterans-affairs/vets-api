@@ -11,7 +11,7 @@ module AccreditedRepresentativePortal
     end
 
     def upload_scanned_form?
-      authorize_poa
+      @user.user_account.active_power_of_attorney_holders.size.positive?
     end
   end
 end

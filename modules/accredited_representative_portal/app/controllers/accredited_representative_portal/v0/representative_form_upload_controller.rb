@@ -7,8 +7,7 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-      skip_after_action :verify_pundit_authorization, only: :upload_scanned_form
-      before_action(only: :submit) do
+      before_action do
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
       end
 
