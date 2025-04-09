@@ -34,6 +34,7 @@ module PdfFill
           metadata = subq[:metadata]
           label = metadata[:question_label].presence || metadata[:question_text]
           value = subq[:value].to_s.gsub("\n", '<br/>')
+          value = "<i>#{value}</i>" if value == "no response"
           "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
         end
       end
