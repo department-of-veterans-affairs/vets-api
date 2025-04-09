@@ -494,11 +494,58 @@
       "incomeLastReceivedDateOverflow": "05/01/2000"
     }
   ],
+  "incomeReceiptWaivers": [
+    {
+      "expectedIncome": {
+        "cents": "90",
+        "dollars": "567",
+        "thousands": "123"
+      },
+      "paymentResumeDate": {
+        "month": "04",
+        "day": "01",
+        "year": "2026"
+      },
+      "waivedGrossMonthlyIncome": {
+        "cents": "78",
+        "dollars": "456",
+        "thousands": "123"
+      },
+      "payer": "Bank of America",
+      "recipientName": "George Bankman",
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "expectedIncomeOverflow": 123567.9,
+      "waivedGrossMonthlyIncomeOverflow": 123456.78,
+      "paymentResumeDateOverflow": "04/01/2026",
+      "paymentWillNotResume": 0,
+      "paymentWillNotResumeOverflow": "NO"
+    },
+    {
+      "waivedGrossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "100",
+        "thousands": "00"
+      },
+      "payer": "Bank of America",
+      "recipientName": "John Smith",
+      "recipientRelationship": 4,
+      "recipientRelationshipOverflow": "PARENT",
+      "expectedIncomeOverflow": null,
+      "waivedGrossMonthlyIncomeOverflow": 100,
+      "expectedIncome": {},
+      "paymentResumeDate": null,
+      "paymentResumeDateOverflow": null,
+      "paymentWillNotResume": 1,
+      "paymentWillNotResumeOverflow": "YES"
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
   "assetTransfer": 0,
   "trust": 0,
   "annuity": 0,
-  "discontinuedIncome": 0
+  "discontinuedIncome": 0,
+  "incomeReceiptWaiver": 0
 }
