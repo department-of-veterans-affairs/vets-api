@@ -922,6 +922,7 @@ mdot:
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
+  breakers: <= ENV['mdot__breakers'] %>
 mhv:
   account:
     mock: <%= ENV['mhv__account__mock'] %>
