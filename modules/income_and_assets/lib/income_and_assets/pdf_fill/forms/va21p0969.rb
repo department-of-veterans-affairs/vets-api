@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
+require 'income_and_assets/pdf_fill/forms/sections/section11'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -566,89 +567,9 @@ module IncomeAndAssets::PdfFill
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
         },
-        # Section 11
-        # 11a
-        'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
-        # 11b-11c (only space for 2 on form)
-        'discontinuedIncomes' => {
-          limit: 2,
-          first_key: 'otherRecipientRelationshipType',
-          # Q1
-          'recipientRelationship' => {
-            key: "F[0].RelationshipToVeteran11[#{ITERATOR}]"
-          },
-          'recipientRelationshipOverflow' => {
-            question_num: 11,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          # Q2
-          'recipientName' => {
-            key: "F[0].IncomeRecipientName11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(2)',
-            question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
-          },
-          # Q3
-          'payer' => {
-            key: "F[0].IncomePayer11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
-          },
-          # Q4
-          'incomeType' => {
-            key: "F[0].TypeOfIncomeReceived11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(4)',
-            question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)'
-          },
-          # Q5
-          'incomeFrequency' => {
-            key: "F[0].FrequencyOfIncomeReceived[#{ITERATOR}]"
-          },
-          'incomeFrequencyOverflow' => {
-            question_num: 11,
-            question_suffix: '(5)',
-            question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED'
-          },
-          # Q6
-          'incomeLastReceivedDate' => {
-            'month' => { key: "F[0].DateIncomeLastPaidMonth11[#{ITERATOR}]" },
-            'day' => { key: "F[0].DateIncomeLastPaidDay11[#{ITERATOR}]" },
-            'year' => { key: "F[0].DateIncomeLastPaidYear11[#{ITERATOR}]" }
-          },
-          'incomeLastReceivedDateOverflow' => {
-            question_num: 11,
-            question_suffix: '(6)',
-            question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)'
-          },
-          # Q7
-          'grossAnnualAmount' => {
-            'thousands' => {
-              key: "F[0].GrossAnnualAmount1_11[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].GrossAnnualAmount2_11[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].GrossAnnualAmount3_11[#{ITERATOR}]"
-            }
-          },
-          'grossAnnualAmountOverflow' => {
-            question_num: 11,
-            question_suffix: '(7)',
-            question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
-          }
-        }
       }.freeze
+
+      KEY.merge(Section11::KEY)
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
@@ -665,7 +586,7 @@ module IncomeAndAssets::PdfFill
         expand_owned_assets
         expand_asset_transfers
         expand_trusts
-        expand_discontinued_incomes
+        Section11.expand(form_data)
 
         form_data
       end
