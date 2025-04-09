@@ -469,6 +469,7 @@ class Form526Submission < ApplicationRecord
     return user_account if user_account&.icn.present?
 
     Rails.logger.info("Form526Submission::account - no UserAccount ICN found for user #{user_uuid}")
+    # query MPI by EDIPI first & attributes second for user ICN
     query_mpi_account
   end
 
@@ -632,8 +633,12 @@ class Form526Submission < ApplicationRecord
         birth_date: auth_headers['va_eauth_birthdate']&.to_date.to_s,
         ssn: auth_headers['va_eauth_pnid']
       )
-      icn = attrs_response.ok? && attrs_response.profile.icn.present? ? attrs_response.profile.icn : nil
-      OpenStruct.new(icn:)
+      if attrs_response.ok? && attrs_response.profile.icn.present?
+        OpenStruct.new(icn: attrs_response.profile.icn)
+      else
+        Rails.logger.info("Form526Submission::account - no MPI response to attributes query for user #{user_uuid}")
+        OpenStruct.new(icn: nil)
+      end
     end
   end
 
