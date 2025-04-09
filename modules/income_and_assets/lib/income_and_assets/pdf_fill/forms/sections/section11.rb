@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/form_helper'
-
 module IncomeAndAssets
   module PdfFill::Forms
     class Section11
-      extend ::PdfFill::Forms::FormHelper
-      extend IncomeAndAssets::Helpers
+    include ::PdfFill::Forms::FormHelper
+    include IncomeAndAssets::Helpers
 
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
@@ -96,14 +94,14 @@ module IncomeAndAssets
         }
       }.freeze
 
-      def self.expand(form_data)
+      def expand(form_data)
         incomes = form_data['discontinuedIncomes']
 
         form_data['discontinuedIncome'] = incomes&.length ? 0 : 1
         form_data['discontinuedIncomes'] = incomes&.map { |income| expand_item(income) }
       end
 
-      def self.expand_item(item)
+      def expand_item(item)
         recipient_relationship = item['recipientRelationship']
         income_frequency = item['incomeFrequency']
         income_last_received_date = item['incomeLastReceivedDate']

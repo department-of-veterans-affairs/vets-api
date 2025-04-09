@@ -6,7 +6,6 @@ module IncomeAndAssets
   #
   module Helpers
     include ActiveSupport::NumberHelper
-    extend self
 
     # Small currency lengths
     CURRENCY_LENGTHS_SM = { 'cents' => 2, 'dollars' => 3, 'thousands' => 2 }.freeze

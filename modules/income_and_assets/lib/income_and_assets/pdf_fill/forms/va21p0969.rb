@@ -26,8 +26,8 @@ module IncomeAndAssets::PdfFill
       # The path to the PDF template for the form
       TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
 
-      # Hash keys
-      KEY = {
+      # Form configuration hash (using "key" instead of "KEY" here as we will be modifying this later)
+      key = {
         # 1a
         'veteranFullName' => {
           # form allows up to 39 characters but validation limits to 30,
@@ -671,11 +671,15 @@ module IncomeAndAssets::PdfFill
             question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
           }
         }
-      }.freeze
+      }
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      KEY = KEY.merge(Section11::KEY)
+      SECTIONS = [Section11]
+
+      SECTIONS.each { |section| key = key.merge(section::KEY) }
+
+      KEY = key.freeze
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
@@ -693,7 +697,8 @@ module IncomeAndAssets::PdfFill
         expand_asset_transfers
         expand_trusts
         expand_annuities
-        Section11.expand(form_data)
+
+        SECTIONS.each { |section| section.new.expand(form_data) }
 
         form_data
       end
