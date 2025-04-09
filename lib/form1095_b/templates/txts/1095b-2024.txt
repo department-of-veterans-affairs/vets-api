@@ -171,17 +171,11 @@ Instructions for Recipient
 
 This Form 1095-B provides information about the individuals in your tax family (yourself, spouse, and dependents) who had certain health coverage (referred to as "minimum essential coverage") for some or all months during the year. Minimum essential coverage includes government-sponsored programs, eligible employer-sponsored plans, individual market plans, and other coverage the Department of Health and Human Services designates as minimum essential coverage.
 
-If individuals in your tax family are eligible for certain types of minimum
-essential coverage, you may not be eligible for the premium tax credit. For
-more information on the premium tax credit, see Pub. 974, Premium Tax
-Credit (PTC).
+If individuals in your tax family are eligible for certain types of minimum essential coverage, you may not be eligible for the premium tax credit. For more information on the premium tax credit, see Pub. 974, Premium Tax Credit (PTC).
 
 TIP Providers of minimum essential coverage are required to furnish only one Form 1095-B for all individuals whose coverage is reported on that form. As the recipient of this Form 1095-B, you should provide a copy to other individuals covered under the policy if they request it for their records.
 
-It should say: Additional information. For additional information about the tax provisions
-of the Affordable Care Act (ACA) and the premium tax credit, see
-www.irs.gov/ACA or call the IRS Healthcare Hotline for ACA questions
-(800-919-0452).
+Additional information. For additional information about the tax provisions of the Affordable Care Act (ACA) and the premium tax credit, see www.irs.gov/ACA or call the IRS Healthcare Hotline for ACA questions (800-919-0452).
 
 Part I. Responsible Individual, lines 1-9. Part I reports information about you and the coverage.
 
@@ -217,7 +211,7 @@ Name of responsible individual-First name, middle name, last name ----
 Social security number (SSN) or other TIN ----
 Date of birth (if SSN or other TIN is not available) ----
 
-Part IV Covered Individuals � Continuation Sheet
+Part IV Covered Individuals - Continuation Sheet
 
 29
 (a) Name of covered individual(s) First name, middle initial, last name ----
