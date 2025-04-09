@@ -27,6 +27,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
+  accredited_representative_portal_search:
+    actor_type: user
+    description: Enables the people search of the accredited representative portal 
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -820,10 +824,6 @@ features:
     actor_type: user
     description: Enables form 5495 email submission confirmation (VaNotify)
     enable_in_development: true
-  simple_forms_email_confirmations:
-    actor_type: user
-    description: Enables form email submission confirmations (for allowed email types via VaNotify)
-    enable_in_development: true
   simple_forms_email_notifications:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
@@ -977,6 +977,10 @@ features:
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_labs_and_tests_enabled:
+    actor_type: user
+    description: Control fetching lab and test data from UHD (SCDF) service (web)
     enable_in_development: false
   mhv_accelerated_delivery_vital_signs_enabled:
     actor_type: user
@@ -1326,6 +1330,10 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
+  saved_claim_pdf_overflow_tracking:
+    actor_type: user
+    description: When enabled, record metrics for claims which have overflow in the generated pdf
+    enable_in_development: true
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
@@ -1429,10 +1437,6 @@ features:
     actor_type: user
     description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal
     enable_in_development: true
-  submission_pdf_s3_upload:
-    actor_type: user
-    description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
-    enable_in_development: false
   meb_1606_30_automation:
     actor_type: user
     description: Enables MEB form to handle Chapter 1606/30 forms as well as Chapter 33.
@@ -1814,9 +1818,6 @@ features:
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
-  disability_compensation_lighthouse_intent_to_file_provider:
-    actor_type: user
-    description: If enabled uses the lighthouse intent to file endpoint
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job

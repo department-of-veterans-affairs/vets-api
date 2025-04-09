@@ -4,11 +4,14 @@ module AskVAApi
   class ApplicationController < ::ApplicationController
     service_tag 'ask-va'
 
+    around_action :handle_exceptions
+
     private
 
     def handle_exceptions
       yield
-    rescue ErrorHandler::ServiceError, Crm::ErrorHandler::ServiceError => e
+    rescue ErrorHandler::ServiceError, Crm::ErrorHandler::ServiceError,
+           Common::Exceptions::ValidationErrors, Inquiries::InquiriesCreatorError => e
       log_and_render_error('service_error', e, :unprocessable_entity)
     rescue => e
       log_and_render_error('unexpected_error', e, :internal_server_error)
@@ -16,15 +19,24 @@ module AskVAApi
 
     def log_and_render_error(action, exception, status)
       log_error(action, exception)
-      render json: { error: exception.message }, status:
+      render json: exception.respond_to?(:to_h) ? exception.to_h : { error: exception.message }, status:
     end
 
     def log_error(action, exception)
+      safe_fields = exception.try(:context).try(:[], :safe_fields)
+
       LogService.new.call(action) do |span|
         span.set_tag('error', true)
         span.set_tag('error.msg', exception.message)
         span.set_error(exception)
+
+        if safe_fields.present?
+          safe_fields.each do |key, value|
+            span.set_tag("safe_field.#{key}", value.to_s)
+          end
+        end
       end
+
       Rails.logger.error("Error during #{action}: #{exception.message}")
     end
   end
