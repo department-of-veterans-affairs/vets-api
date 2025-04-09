@@ -766,7 +766,7 @@ module IncomeAndAssets::PdfFill
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section11]
+      SECTIONS = [Section11].freeze
 
       SECTIONS.each { |section| key = key.merge(section::KEY) }
 
