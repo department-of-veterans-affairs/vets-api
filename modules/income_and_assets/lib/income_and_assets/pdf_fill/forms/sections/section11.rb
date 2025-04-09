@@ -1,5 +1,4 @@
 require 'pdf_fill/forms/form_helper'
-require 'income_and_assets/helpers'
 
 module IncomeAndAssets
   module PdfFill::Forms
@@ -109,8 +108,7 @@ module IncomeAndAssets
 
         # NOTE: recipientName, payer, and incomeType are already part of the income hash
         # and do not need to be overflowed / overriden as they are free text fields
-        overflow_fields = %w[recipientRelationship incomeFrequency
-                             grossAnnualAmount]
+        overflow_fields = %w[recipientRelationship incomeFrequency grossAnnualAmount]
 
         expanded = item.clone
         overflow_fields.each do |field|
