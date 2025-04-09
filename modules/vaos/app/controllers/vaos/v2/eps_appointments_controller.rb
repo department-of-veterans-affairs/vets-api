@@ -24,24 +24,6 @@ module VAOS
       private
 
       ##
-      # Retrieves referral details from CCRA service for the given appointment if a referral number is present.
-      #
-      # @param appointment [Hash] The appointment data containing referral information
-      # @return [Ccra::ReferralDetail, nil] The referral details if found, nil otherwise
-      def fetch_referral_detail(appointment)
-        referral_number = appointment.dig(:referral, :referral_number)
-        return nil if referral_number.blank?
-
-        begin
-          # TODO: Need correct mode parameter, this one is hard-coded based on examples
-          ccra_referral_service.get_referral(referral_number, '2')
-        rescue => e
-          Rails.logger.error "Failed to retrieve referral details: #{e.message}"
-          nil
-        end
-      end
-
-      ##
       # Fetches provider information for the given appointment.
       #
       # @param appointment [Hash] The appointment data containing provider service ID
@@ -67,10 +49,6 @@ module VAOS
 
       def appointment_service
         @appointment_service ||= Eps::AppointmentService.new(current_user)
-      end
-
-      def ccra_referral_service
-        @ccra_referral_service ||= Ccra::ReferralService.new(current_user)
       end
 
       def provider
