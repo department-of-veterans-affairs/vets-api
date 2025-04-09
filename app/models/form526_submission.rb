@@ -175,12 +175,10 @@ class Form526Submission < ApplicationRecord
     name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
-    {
-      first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
+    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
       middle: nil,
       last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil
-    }
+      suffix: nil }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
@@ -469,8 +467,8 @@ class Form526Submission < ApplicationRecord
     return user_account if user_account&.icn.present?
 
     Rails.logger.info("Form526Submission::account - no UserAccount ICN found for user #{user_uuid}")
-    # query MPI by EDIPI first & attributes second for user ICN
-    query_mpi_account
+    # query MPI by EDIPI first & attributes second for user ICN, return in OpenStruct
+    get_icn_from_mpi
   end
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
@@ -480,8 +478,7 @@ class Form526Submission < ApplicationRecord
   # @param invoker: string where the Received Email trigger is being called from
   def send_submitted_email(invoker)
     if Flipper.enabled?(:disability_526_send_form526_submitted_email)
-      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
+      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid}, submission: #{id} from #{invoker}")
       first_name = get_first_name
       params = personalization_parameters(first_name)
       Form526SubmittedEmailJob.perform_async(params)
@@ -493,8 +490,7 @@ class Form526Submission < ApplicationRecord
   # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status
   # @param invoker: string where the Received Email trigger is being called from
   def send_received_email(invoker)
-    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
+    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid}, submission: #{id} from #{invoker}")
     first_name = get_first_name
     params = personalization_parameters(first_name)
     Form526ConfirmationEmailJob.perform_async(params)
@@ -616,30 +612,44 @@ class Form526Submission < ApplicationRecord
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 
-  def get_past_submissions
-    Form526Submission.where(user_uuid:).where.not(user_account_id:)
-  end
-
-  def query_mpi_account
-    mpi_service = MPI::Service.new
-    edipi_response = mpi_service.find_profile_by_edipi(edipi: auth_headers['va_eauth_dodedipnid'])
-    if edipi_response.ok? && edipi_response.profile.icn.present?
-      OpenStruct.new(icn: edipi_response.profile.icn)
+  def get_icn_from_mpi
+    edipi_response_profile = edipi_mpi_profile_query(auth_headers['va_eauth_dodedipnid'])
+    if edipi_response_profile&.icn.present?
+      OpenStruct.new(icn: edipi_response_profile.icn)
     else
-      Rails.logger.info("Form526Submission::account - no MPI response to EDIPI query for user #{user_uuid}")
-      attrs_response = mpi_service.find_profile_by_attributes(
-        first_name: auth_headers['va_eauth_firstName'],
-        last_name: auth_headers['va_eauth_lastName'],
-        birth_date: auth_headers['va_eauth_birthdate']&.to_date.to_s,
-        ssn: auth_headers['va_eauth_pnid']
-      )
-      if attrs_response.ok? && attrs_response.profile.icn.present?
-        OpenStruct.new(icn: attrs_response.profile.icn)
+      Rails.logger.info("Form526Submission::account - unable to look up MPI profile with EDIPI for user #{user_uuid}")
+      attributes_response_profile = attributes_mpi_profile_query(auth_headers)
+      if attributes_response_profile&.icn.present?
+        OpenStruct.new(icn: attributes_response_profile.icn)
       else
-        Rails.logger.info("Form526Submission::account - no MPI response to attributes query for user #{user_uuid}")
+        Rails.logger.info("Form526Submission::account - no ICN present for user #{user_uuid}")
         OpenStruct.new(icn: nil)
       end
     end
+  end
+
+  def edipi_mpi_profile_query(edipi)
+    return unless edipi
+
+    edipi_response = mpi_service.find_profile_by_edipi(edipi:)
+    edipi_response.profile if edipi_response.ok? && edipi_response.profile.icn.present?
+  end
+
+  def attributes_mpi_profile_query(auth_headers)
+    required_attributes = %w[va_eauth_firstName va_eauth_lastName va_eauth_birthdate va_eauth_pnid]
+    return unless required_attributes.all? { |attr| auth_headers[attr].present? }
+
+    attributes_response = mpi_service.find_profile_by_attributes(
+      first_name: auth_headers['va_eauth_firstName'],
+      last_name: auth_headers['va_eauth_lastName'],
+      birth_date: auth_headers['va_eauth_birthdate']&.to_date.to_s,
+      ssn: auth_headers['va_eauth_pnid']
+    )
+    attributes_response.profile if attributes_response.ok? && attributes_response.profile.icn.present?
+  end
+
+  def mpi_service
+    @mpi_service ||= MPI::Service.new
   end
 
   def user
