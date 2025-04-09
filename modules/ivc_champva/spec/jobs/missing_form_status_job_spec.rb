@@ -136,8 +136,11 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
   end
 
   it 'ignores forms created within the last 1 minute' do
+    # We created 3 test forms above
     forms[0].update(created_at: Time.zone.now) # Created within the last minute
-    forms[1].update(created_at: 1.minute.ago) # Created more than 1 minute ago
+    # Created more than 1 minute ago
+    forms[1].update(created_at: 2.minutes.ago)
+    forms[2].update(created_at: 3.minutes.ago)
 
     # Perform the job that checks form statuses
     job.perform
