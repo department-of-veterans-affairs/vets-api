@@ -16,7 +16,7 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles') }
+  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', user_account_uuid: SecureRandom.uuid) }
   let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -1591,10 +1591,11 @@ RSpec.describe Form526Submission do
 
     context 'when the submission does not have a UserAccount with an ICN' do
       let(:mpi_profile) { build(:mpi_profile) }
-      let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:edipi_profile_response) { mpi_profile_response }
 
       before do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(edipi_profile_response)
       end
 
       it 'uses the auth_headers EDIPI to look up account information from MPI' do
@@ -1603,6 +1604,47 @@ RSpec.describe Form526Submission do
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
         account = submission.account
         expect(account.icn).to eq(mpi_profile.icn)
+      end
+
+      context 'when the MPI lookup by EDIPI fails' do
+        let(:edipi_profile_response) { create(:find_profile_not_found_response) }
+        let(:attributes_profile_response) { mpi_profile_response }
+
+        before do
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+                                             .and_return(attributes_profile_response)
+        end
+
+        it 'uses the auth_headers user attributes to look up account information from MPI' do
+          submission.user_account = UserAccount.create!(icn: nil)
+          submission.save!
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+            first_name: user.first_name,
+            last_name: user.last_name,
+            ssn: user.ssn,
+            birth_date: user.birth_date
+          )
+          account = submission.account
+          expect(account.icn).to eq(mpi_profile.icn)
+        end
+
+        context 'when the MPI lookup by attributes fails' do
+          let(:attributes_profile_response) { create(:find_profile_not_found_response) }
+
+          it 'does not return a UserAccount with an ICN' do
+            submission.user_account = UserAccount.create!(icn: nil)
+            submission.save!
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+              first_name: user.first_name,
+              last_name: user.last_name,
+              ssn: user.ssn,
+              birth_date: user.birth_date
+            )
+            account = submission.account
+            expect(account.icn).to be_nil
+          end
+        end
       end
     end
   end

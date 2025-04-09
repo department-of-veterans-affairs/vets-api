@@ -466,11 +466,10 @@ class Form526Submission < ApplicationRecord
   end
 
   def account
-    return user_account if user_account.icn.present?
+    return user_account if user_account&.icn.present?
 
-    # check MPI for profile information using the saved EDIPI
-    mpi_response = MPI::Service.new.find_profile_by_edipi(edipi: auth_headers['va_eauth_dodedipnid'])
-    OpenStruct.new(icn: mpi_response.profile.icn) if mpi_response.ok? && mpi_response.profile.icn.present?
+    Rails.logger.info("Form526Submission::account - no UserAccount ICN found for user #{user_uuid}")
+    query_mpi_account
   end
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
@@ -614,6 +613,28 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def get_past_submissions
+    Form526Submission.where(user_uuid:).where.not(user_account_id:)
+  end
+
+  def query_mpi_account
+    mpi_service = MPI::Service.new
+    edipi_response = mpi_service.find_profile_by_edipi(edipi: auth_headers['va_eauth_dodedipnid'])
+    if edipi_response.ok? && edipi_response.profile.icn.present?
+      OpenStruct.new(icn: edipi_response.profile.icn)
+    else
+      Rails.logger.info("Form526Submission::account - no MPI response to EDIPI query for user #{user_uuid}")
+      attrs_response = mpi_service.find_profile_by_attributes(
+        first_name: auth_headers['va_eauth_firstName'],
+        last_name: auth_headers['va_eauth_lastName'],
+        birth_date: auth_headers['va_eauth_birthdate']&.to_date.to_s,
+        ssn: auth_headers['va_eauth_pnid']
+      )
+      icn = attrs_response.ok? && attrs_response.profile.icn.present? ? attrs_response.profile.icn : nil
+      OpenStruct.new(icn:)
+    end
   end
 
   def user
