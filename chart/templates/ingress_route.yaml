@@ -4,7 +4,7 @@
 {{- if .Values.web.ingress.enabled }}
 {{- $root := . -}}
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: {{ $root.Values.traefikApiVersion }}
 kind: IngressRoute
 metadata:
   name: {{ .Values.appName }}
@@ -31,7 +31,7 @@ spec:
     {{- end }}
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: {{ $root.Values.traefikApiVersion }}
 kind: Middleware
 metadata:
   name: traefik-real-ip
@@ -44,7 +44,7 @@ spec:
 
 {{- if .Values.web.ingress.headers.enabled }}
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: {{ $root.Values.traefikApiVersion }}
 kind: Middleware
 metadata:
   name: traefik-real-ip-headers
