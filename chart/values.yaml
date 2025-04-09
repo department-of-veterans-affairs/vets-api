@@ -22,6 +22,7 @@ matchExpressions:
   key: app
   operator: In
 topologyKey: kubernetes.io/hostname
+traefikApiVersion: traefik.containo.us/v1alpha1
 annotations:
   ad.datadoghq.com/vets-api-web.checks:
 serviceAccount:
