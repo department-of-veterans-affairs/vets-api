@@ -12,14 +12,13 @@ module MyHealth
     protected
 
     def client
+      Rails.logger.info('Client is being set for VA.gov')
       if Flipper.enabled?(:mhv_medications_client_test, current_user)
-        Rails.logger.info('Client is being set for VA.gov')
         @client = Rx::MedicationsClient.new(
           session: { user_id: current_user.mhv_correlation_id },
           upstream_request: request
         )
       else
-        Rails.logger.info('Client is being set for VA.gov')
         @client ||= Rx::MedicationsClient.new(
           session: { user_id: current_user.mhv_correlation_id },
           upstream_request: request
