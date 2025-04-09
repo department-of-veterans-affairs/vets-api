@@ -83,7 +83,39 @@ module IvcChampva
           handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
         else
           handle_file_uploads(form_id, parsed_form_data)
+          # TODO: make this condition more precise - e.g.: if 10-10d AND <some marker indicating OHI>
+          if form_id == 'vha_10_10d'
+            # 10-10ds should also produce OHI if appropriate
+            ohi_merge(form_id, parsed_form_data)
+          end
         end
+      end
+
+      def ohi_merge(_form_id, parsed_form_data)
+        # Here is where we could do any data modifications needed to make the
+        # OHI forms generate properly. Currently:
+        # - Iterates through each applicant and creates a modified
+        #   `parsed_form_data` for each applicant
+        # - Calls `handle_file_uploads` with new data acting like it's a pure
+        #   OHI form generation call (this produces an OHI with its own UUID)
+        # TODO:
+        # - Need to de-duplicate supporting docs. Remove any 10-10d-specific
+        #   supporting doc properties, and similarly only include the supporting
+        #   docs that are relevant to this particular applicant (though, with
+        #   proper implementation of the merge on FE that should be automatic)
+        statuses = []
+        error_message = []
+
+        parsed_form_data['applicants'].each do |app|
+          pfd = {}.merge(parsed_form_data).except('applicants').merge(app)
+          pfd['form_number'] = '10-7959C'
+          # s will be `[200]`, and e will be [] (if all goes well)
+          s, e = handle_file_uploads('vha_10_7959c', pfd)
+          statuses.concat s
+          error_message.concat e
+        end
+
+        [statuses, error_message]
       end
 
       # Modified from claim_documents_controller.rb:
@@ -204,7 +236,10 @@ module IvcChampva
       end
 
       def get_attachment_ids_and_form(parsed_form_data)
-        form_id = get_form_id
+        # Modified form_id so that rather than looking at the original
+        # `params` object (via `get_form_id`), we just look at what's in
+        # `parsed_form_data`, which lets us modify it during the OHI merge flow:
+        form_id = FORM_NUMBER_MAP[parsed_form_data['form_number']]
         form_class = "IvcChampva::#{form_id.titleize.gsub(' ', '')}".constantize
         additional_pdf_count = form_class.const_defined?(:ADDITIONAL_PDF_COUNT) ? form_class::ADDITIONAL_PDF_COUNT : 1
         applicant_key = form_class.const_defined?(:ADDITIONAL_PDF_KEY) ? form_class::ADDITIONAL_PDF_KEY : 'applicants'
