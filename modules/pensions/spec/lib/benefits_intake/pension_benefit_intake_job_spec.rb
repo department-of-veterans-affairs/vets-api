@@ -299,8 +299,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occurred',
-        'queue' => 'low' }
+      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occured',
+        'queue' => nil }
     end
 
     before do
