@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pdf_fill/forms/form_helper'
 
 module IncomeAndAssets
@@ -92,7 +94,7 @@ module IncomeAndAssets
             question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
           }
         }
-      }
+      }.freeze
 
       def self.expand(form_data)
         incomes = form_data['discontinuedIncomes']
