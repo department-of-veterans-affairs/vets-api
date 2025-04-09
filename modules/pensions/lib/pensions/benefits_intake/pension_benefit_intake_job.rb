@@ -5,7 +5,7 @@ require 'lighthouse/benefits_intake/metadata'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
-require 'kafka/kafka'
+require 'kafka/concerns/kafka'
 
 module Pensions
   ##
@@ -45,7 +45,7 @@ module Pensions
         Kafka.submit_event(
           icn: user_icn,
           current_id: claim&.confirmation_number.to_s,
-          submission_name: 'F527EZ',
+          submission_name: Pensions::FORM_ID,
           state: Kafka::State::ERROR
         )
       end
@@ -185,7 +185,7 @@ module Pensions
       Kafka.submit_event(
         icn: @user_account&.icn.to_s,
         current_id: @claim&.confirmation_number.to_s,
-        submission_name: 'F527EZ',
+        submission_name: Pensions::FORM_ID,
         state: Kafka::State::SENT,
         next_id: @intake_service&.uuid.to_s
       )

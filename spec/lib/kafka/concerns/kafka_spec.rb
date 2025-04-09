@@ -1,22 +1,19 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'kafka/concerns/topic'
+require 'kafka/concerns/kafka'
 
-RSpec.describe Kafka::Topic do
-  let(:dummy_class) { Class.new { include Kafka::Topic } }
-  let(:instance) { dummy_class.new }
-
+RSpec.describe Kafka do
   describe '#get_topic' do
     context 'when use_test_topic is false' do
       it 'returns the production topic name' do
-        expect(instance.get_topic(use_test_topic: false)).to eq('submission_trace_form_status_change_test')
+        expect(Kafka.get_topic(use_test_topic: false)).to eq('submission_trace_form_status_change_test')
       end
     end
 
     context 'when use_test_topic is true' do
       it 'returns the test topic name' do
-        expect(instance.get_topic(use_test_topic: true)).to eq('submission_trace_mock_test')
+        expect(Kafka.get_topic(use_test_topic: true)).to eq('submission_trace_mock_test')
       end
     end
   end
@@ -27,7 +24,7 @@ RSpec.describe Kafka::Topic do
       let(:expected) { { 'icn' => '[REDACTED]', 'name' => 'test' } }
 
       it 'redacts the ICN value' do
-        expect(instance.redact_icn(input)).to eq(expected)
+        expect(Kafka.redact_icn(input)).to eq(expected)
       end
     end
 
@@ -54,7 +51,7 @@ RSpec.describe Kafka::Topic do
       end
 
       it 'redacts the nested ICN value' do
-        expect(instance.redact_icn(input)).to eq(expected)
+        expect(Kafka.redact_icn(input)).to eq(expected)
       end
     end
 
@@ -77,7 +74,7 @@ RSpec.describe Kafka::Topic do
       end
 
       it 'redacts ICN values in the array' do
-        expect(instance.redact_icn(input)).to eq(expected)
+        expect(Kafka.redact_icn(input)).to eq(expected)
       end
     end
 
@@ -85,7 +82,7 @@ RSpec.describe Kafka::Topic do
       let(:input) { { 'name' => 'test', 'data' => { 'value' => 123 } } }
 
       it 'returns the hash unchanged' do
-        expect(instance.redact_icn(input)).to eq(input)
+        expect(Kafka.redact_icn(input)).to eq(input)
       end
     end
 
@@ -93,7 +90,21 @@ RSpec.describe Kafka::Topic do
       let(:input) { 'not a hash' }
 
       it 'returns the input unchanged' do
-        expect(instance.redact_icn(input)).to eq(input)
+        expect(Kafka.redact_icn(input)).to eq(input)
+      end
+    end
+  end
+
+  describe '#truncate_form_id' do
+    context 'when form_id contains a dash' do
+      it 'returns the truncated form ID with "F" prefix' do
+        expect(Kafka.truncate_form_id('21P-527EZ')).to eq('F527EZ')
+      end
+    end
+
+    context 'when form_id does not contain a dash' do
+      it 'returns the form ID with "F" prefix' do
+        expect(Kafka.truncate_form_id('1010EZ')).to eq('F1010EZ')
       end
     end
   end

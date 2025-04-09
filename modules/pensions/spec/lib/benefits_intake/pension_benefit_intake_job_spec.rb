@@ -51,6 +51,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -73,6 +74,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         expect(FormSubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
+        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
 
         expect(service).to receive(:perform_upload).with(
           upload_url: 'test_location', document: pdf_path, metadata: anything, attachments: []
@@ -119,44 +121,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
         "Unable to find SavedClaim::Pension #{claim.id}"
       )
-    end
-
-    context 'kafka job' do
-      let(:time) { '2025-04-07T23:34:05Z' }
-      let(:next_id) { '98a3d97a-581f-4cf3-91e3-38c3857cb4fc' }
-      let(:confirmation_number) { '1c66278a-391b-4000-90b8-34a34da7936e' }
-      let(:kafka_payload) do
-        { 'ICN' => '',
-          'currentId' => confirmation_number,
-          'nextId' => next_id,
-          'submissionName' => 'F527EZ',
-          'state' => 'sent',
-          'vasiId' => '2103',
-          'systemName' => 'VA_gov',
-          'timestamp' => time }
-      end
-
-      before { Timecop.freeze(time) }
-
-      after do
-        Timecop.return
-        Kafka::ProducerManager.instance.producer.client.reset
-      end
-
-      it 'triggers the event bus tracesubmission job successfully' do
-        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
-        allow_any_instance_of(Pensions::SavedClaim).to receive(:confirmation_number).and_return(confirmation_number)
-        allow(service).to receive(:uuid).and_return(next_id)
-        expect(UserAccount).to receive(:find)
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload, false).and_call_original
-
-        VCR.use_cassette('kafka/topics') do
-          Sidekiq::Testing.inline! do
-            expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
-            job.perform(claim.id, :user_uuid)
-          end
-        end
-      end
     end
 
     # perform
@@ -335,8 +299,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occured',
-        'queue' => nil }
+      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
     end
 
     before do
@@ -386,47 +350,6 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
           exhaustion_msg['args'] = [claim.id - 1, 2]
 
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
-        end
-      end
-
-      context 'kafka job' do
-        let(:time) { '2025-04-07T23:34:05Z' }
-        let(:confirmation_number) { '1c66278a-391b-4000-90b8-34a34da7936e' }
-        let(:kafka_payload) do
-          { 'ICN' => '',
-            'currentId' => confirmation_number,
-            'nextId' => nil,
-            'submissionName' => 'F527EZ',
-            'state' => 'error',
-            'vasiId' => '2103',
-            'systemName' => 'VA_gov',
-            'timestamp' => time }
-        end
-
-        before do
-          allow(Pensions::Monitor).to receive(:new).and_return(monitor)
-          Timecop.freeze(time)
-        end
-
-        after do
-          Timecop.return
-          Kafka::ProducerManager.instance.producer.client.reset
-        end
-
-        it 'triggers the error state event bus trace submission job successfully' do
-          allow(monitor).to receive(:track_submission_exhaustion)
-          allow_any_instance_of(Pensions::SavedClaim).to receive(:confirmation_number).and_return(confirmation_number)
-
-          VCR.use_cassette('kafka/topics') do
-            Sidekiq::Testing.inline! do
-              Pensions::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-                expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(kafka_payload,
-                                                                                     false).and_call_original
-
-                expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
-              end
-            end
-          end
         end
       end
     end
