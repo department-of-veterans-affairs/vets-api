@@ -5,6 +5,8 @@ require 'date'
 module PdfFill
   module Forms
     module FormHelper
+      extend self
+
       def split_ssn(veteran_social_security_number)
         return if veteran_social_security_number.blank?
 

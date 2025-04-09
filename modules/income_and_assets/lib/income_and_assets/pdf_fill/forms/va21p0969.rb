@@ -566,10 +566,12 @@ module IncomeAndAssets::PdfFill
             question_suffix: '(m)',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
-        },
+        }
       }.freeze
 
-      KEY.merge(Section11::KEY)
+      # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
+      # Going to add them in reverse order so that the keys maintain the previous ordering
+      KEY = KEY.merge(Section11::KEY)
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
@@ -840,54 +842,6 @@ module IncomeAndAssets::PdfFill
           overflow["#{fieldname}Overflow"] = trust[fieldname]
         end
         expanded.merge(overflow)
-      end
-
-      # Section 11
-
-      ##
-      # Expands discontinued incomes by processing each discontinued income entry and setting an indicator
-      # based on the presence of discontinued incomes.
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_discontinued_incomes
-        incomes = form_data['discontinuedIncomes']
-
-        form_data['discontinuedIncome'] = incomes&.length ? 0 : 1
-        form_data['discontinuedIncomes'] = incomes&.map { |income| expand_discontinued_income(income) }
-      end
-
-      ##
-      # Expands a discontinued incomes's data by processing its attributes and transforming them into
-      # structured output
-      #
-      # @param income [Hash]
-      # @return [Hash]
-      #
-      def expand_discontinued_income(income)
-        recipient_relationship = income['recipientRelationship']
-        income_frequency = income['incomeFrequency']
-        income_last_received_date = income['incomeLastReceivedDate']
-
-        # NOTE: recipientName, payer, and incomeType are already part of the income hash
-        # and do not need to be overflowed / overriden as they are free text fields
-        overflow_fields = %w[recipientRelationship incomeFrequency
-                             grossAnnualAmount]
-
-        expanded = income.clone
-        overflow_fields.each do |field|
-          expanded["#{field}Overflow"] = income[field]
-        end
-
-        overrides = {
-          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
-          'incomeFrequency' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
-          'incomeLastReceivedDate' => split_date(income_last_received_date),
-          'incomeLastReceivedDateOverflow' => format_date_to_mm_dd_yyyy(income_last_received_date),
-          'grossAnnualAmount' => split_currency_amount_sm(income['grossAnnualAmount'])
-        }
-
-        expanded.merge(overrides)
       end
     end
   end

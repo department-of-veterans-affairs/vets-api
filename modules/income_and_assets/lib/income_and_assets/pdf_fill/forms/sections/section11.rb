@@ -2,10 +2,10 @@ require 'pdf_fill/forms/form_helper'
 require 'income_and_assets/helpers'
 
 module IncomeAndAssets
-  module PdfFill
+  module PdfFill::Forms
     class Section11
-      include ::PdfFill::Forms::FormHelper
-      include IncomeAndAssets::Helpers
+      extend ::PdfFill::Forms::FormHelper
+      extend IncomeAndAssets::Helpers
 
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
