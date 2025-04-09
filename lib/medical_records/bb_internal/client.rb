@@ -307,6 +307,11 @@ module BBInternal
       end
     end
 
+    def get_sei_emergency_contacts
+      response = perform(:get, "usermgmt/emergencycontacts/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
     private
 
     def with_custom_base_path(custom_base_path)

@@ -6,12 +6,13 @@ require 'simple_forms_api_submission/metadata_validator'
 module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
+      include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
       skip_after_action :verify_pundit_authorization
 
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
-        check_for_changes
         status, confirmation_number = upload_response
+        send_confirmation_email(params, confirmation_number) if status == 200
         render json: { status:, confirmation_number: }
       end
 
@@ -39,7 +40,8 @@ module AccreditedRepresentativePortal
           timestamp: Time.current
         )
         stamper.stamp_pdf
-        metadata = validated_metadata
+        raw_metadata = validated_metadata
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
         status, confirmation_number = upload_pdf(file_path, metadata)
         file_size = File.size(file_path).to_f / (2**20)
 
@@ -52,19 +54,6 @@ module AccreditedRepresentativePortal
 
       def find_attachment_path(confirmation_code)
         PersistentAttachment.find_by(guid: confirmation_code).to_pdf.to_s
-      end
-
-      def validated_metadata
-        raw_metadata = {
-          'veteranFirstName' => form_params.dig('formData', 'veteranFullName', 'first'),
-          'veteranLastName' => form_params.dig('formData', 'veteranFullName', 'last'),
-          'fileNumber' => form_params.dig('formData', 'veteranSsn'),
-          'zipCode' => form_params.dig(:formData, :postalCode),
-          'source' => 'VA Platform Digital Forms',
-          'docType' => form_data[:formNumber],
-          'businessLine' => 'CMP'
-        }
-        SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
       end
 
       def upload_pdf(file_path, metadata)
@@ -98,7 +87,7 @@ module AccreditedRepresentativePortal
 
       def log_upload_details(location, uuid)
         Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
-        Rails.logger.info('Accredited Rep Form Upload  - preparing to upload scanned PDF to benefits intake',
+        Rails.logger.info('Accredited Rep Form Upload - preparing to upload scanned PDF to benefits intake',
                           { location:, uuid: })
       end
 
@@ -110,40 +99,17 @@ module AccreditedRepresentativePortal
         )
       end
 
-      def check_for_changes
-        in_progress_form = InProgressForm.form_for_user(form_data[:formNumber], @current_user)
-        if in_progress_form
+      def send_confirmation_email(_params, confirmation_number)
+        new_form_data = create_new_form_data
+        config = {
+          form_number: form_data[:formNumber],
+          form_data: new_form_data,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          confirmation_number:
+        }
 
-          prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
-                                                                        form_data:,
-                                                                        form_id: form_data[:formNumber])
-          prefill_data_service.check_for_changes
-        end
-      end
-
-      def form_params
-        params.require(:representative_form_upload).permit(
-          :confirmationCode,
-          :location,
-          :formNumber,
-          :formName,
-          formData: [
-            :veteranSsn,
-            :formNumber,
-            :postalCode,
-            :veteranDateOfBirth,
-            :email,
-            :postal_code,
-            :claimantDateOfBirth,
-            { claimantFullName: %i[first last] },
-            :claimantSsn,
-            { veteranFullName: %i[first last] }
-          ]
-        )
-      end
-
-      def form_data
-        form_params['formData'] || {}
+        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
+        notification_email.send
       end
     end
   end

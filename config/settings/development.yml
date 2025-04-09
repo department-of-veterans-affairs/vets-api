@@ -416,7 +416,6 @@ evss:
   mock_common_service: true
   mock_disabilities_form: true
   mock_gi_bill_status: false
-  mock_itf: true
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
@@ -927,6 +926,7 @@ mcp:
     url: https://fake_url.com:9000
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
@@ -1359,9 +1359,6 @@ ssoe_eauth_cookie:
   domain: localhost
   name: vagov_saml_request_localhost
   secure: false
-statsd:
-  host: ~
-  port: ~
 terms_of_use:
   current_version: v1
   enabled_clients: vaweb, mhv, myvahealth
@@ -1652,7 +1649,6 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false
