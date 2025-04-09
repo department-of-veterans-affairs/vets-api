@@ -1060,7 +1060,6 @@ module IncomeAndAssets::PdfFill
         expanded.merge(overrides)
       end
 
-
       # Section 12
       ##
       # Expands income receipt waivers by processing each income receipt waiver entry and setting an indicator
