@@ -417,7 +417,6 @@ evss:
   mock_common_service: <%= ENV['evss__mock_common_service'] %>
   mock_disabilities_form: <%= ENV['evss__mock_disabilities_form'] %>
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
-  mock_itf: <%= ENV['evss__mock_itf'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
@@ -919,6 +918,7 @@ mcp:
     url: <%= ENV['mcp__vbs_v2__url'] %>
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
