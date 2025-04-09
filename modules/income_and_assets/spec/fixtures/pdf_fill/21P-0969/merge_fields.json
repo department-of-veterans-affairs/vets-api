@@ -397,9 +397,55 @@
       "haveAuthorityOrControlOfTrustOverflow": true
     }
   ],
+  "discontinuedIncomes": [
+    {
+      "grossAnnualAmount": {
+        "cents": "78",
+        "dollars": "456",
+        "thousands": "123"
+      },
+      "incomeLastReceivedDate": {
+        "month": "01",
+        "day": "01",
+        "year": "2022"
+      },
+      "incomeFrequency": 2,
+      "incomeType": "Dividends",
+      "payer": "Banking America",
+      "recipientName": "John Smith",
+      "recipientRelationship": 5,
+      "otherRecipientRelationshipType": "Sibling",
+      "recipientRelationshipOverflow": "OTHER",
+      "incomeFrequencyOverflow": "ONE_TIME",
+      "grossAnnualAmountOverflow": 123456.78,
+      "incomeLastReceivedDateOverflow": "01/01/2022"
+    },
+    {
+      "grossAnnualAmount": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "200"
+      },
+      "incomeLastReceivedDate": {
+        "month": "05",
+        "day": "01",
+        "year": "2000"
+      },
+      "incomeFrequency": 1,
+      "incomeType": "Interest",
+      "payer": "George Smith",
+      "recipientName": "Brandon Johnson",
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "incomeFrequencyOverflow": "IRREGULAR",
+      "grossAnnualAmountOverflow": 200000,
+      "incomeLastReceivedDateOverflow": "05/01/2000"
+    }
+  ],
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
   "assetTransfer": 0,
-  "trust": 0
+  "trust": 0,
+  "discontinuedIncome": 0
 }
