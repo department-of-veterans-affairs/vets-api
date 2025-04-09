@@ -21,11 +21,13 @@ module Kafka
 
       # List all versions for a subject
       def subject_versions(topic)
+        validate_topic(topic)
         request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects/#{topic}-value/versions", idempotent: true)
       end
 
       # Get a specific version for a subject
       def subject_version(topic, version = 'latest')
+        validate_topic(topic)
         request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects/#{topic}-value/versions/#{version}", idempotent: true)
       end
 
@@ -36,6 +38,7 @@ module Kafka
 
       # Check if a schema exists. Returns nil if not found.
       def check(topic, schema)
+        validate_topic(topic)
         data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects/#{topic}-value",
                        method: :post,
                        expects: [200, 404],
@@ -51,6 +54,7 @@ module Kafka
       # - false if incompatible
       # http://docs.confluent.io/3.1.2/schema-registry/docs/api.html#compatibility
       def compatible?(topic, schema, version = 'latest')
+        validate_topic(topic)
         data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/compatibility/subjects/#{topic}-value/versions/#{version}",
                        method: :post,
                        expects: [200, 404],
@@ -65,6 +69,7 @@ module Kafka
       # - a list of compatibility issues
       # https://docs.confluent.io/platform/current/schema-registry/develop/api.html#sr-api-compatibility
       def compatibility_issues(topic, schema, version = 'latest')
+        validate_topic(topic)
         data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/compatibility/subjects/#{topic}-value/versions/#{version}",
                        method: :post,
                        expects: [200, 404],
@@ -79,6 +84,7 @@ module Kafka
 
       # Get config for subject
       def subject_config(topic)
+        validate_topic(topic)
         request("#{SCHEMA_REGISTRY_PATH_PREFIX}/config/#{topic}-value", idempotent: true)
       end
 
@@ -91,6 +97,10 @@ module Kafka
         end
 
         JSON.parse(response.body)
+      end
+
+      def validate_topic(topic)
+        raise WaterDrop::Errors::MessageInvalidError.new(topic: 'no topic provided') if topic.blank?
       end
     end
   end

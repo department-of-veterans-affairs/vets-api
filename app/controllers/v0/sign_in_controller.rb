@@ -4,6 +4,8 @@ require 'sign_in/logger'
 
 module V0
   class SignInController < SignIn::ApplicationController
+    include SignIn::SSOAuthorizable
+
     skip_before_action :authenticate,
                        only: %i[authorize callback token refresh revoke revoke_all_sessions logout
                                 logingov_logout_proxy]
@@ -180,7 +182,7 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      unless access_token_authenticate(skip_error_handling: true)
+      unless access_token_authenticate(skip_render_error: true)
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
 

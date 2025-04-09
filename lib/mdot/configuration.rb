@@ -4,6 +4,9 @@ require 'common/client/configuration/rest'
 
 module MDOT
   class Configuration < Common::Client::Configuration::REST
+    self.open_timeout = Settings.mdot.timeout || 5
+    self.read_timeout = Settings.mdot.timeout || 5
+
     def service_name
       'MDOT'
     end
@@ -21,18 +24,11 @@ module MDOT
         f.response :snakecase, symbolize: false
         f.response :json
         f.adapter Faraday.default_adapter
-
-        f.options.timeout = timeout_in_seconds
-        f.options.open_timeout = timeout_in_seconds
       end
     end
 
     def mock_enabled?
       Settings.mdot.mock || false
-    end
-
-    def timeout_in_seconds
-      Settings.mdot.timeout || 30
     end
   end
 end
