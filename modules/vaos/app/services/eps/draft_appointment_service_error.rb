@@ -20,10 +20,7 @@ module Eps
     #        (note: all 5xx status codes are automatically converted to :bad_gateway)
     # @param detail [String, nil] Detailed error information
     #
-    def initialize(message, status: nil, detail: nil)
-      # Convert any numeric 5xx status to :bad_gateway
-      status = :bad_gateway if status.is_a?(Integer) && status >= 500
-
+    def initialize(message, detail: nil, status: nil)
       @status = status || extract_status(detail)
       @detail = detail
       super(message)

@@ -68,16 +68,6 @@ describe Eps::DraftAppointmentServiceError do
         error = described_class.new('Resource not found error', detail: 'code: "VAOS_404"')
         expect(error.status).to eq(404)
       end
-
-      it 'converts 5xx status codes to :bad_gateway' do
-        error = described_class.new(
-          'Upstream service error',
-          detail: 'Bad Gateway',
-          status: 502
-        )
-
-        expect(error.status).to eq(:bad_gateway)
-      end
     end
 
     context 'with Redis errors' do
