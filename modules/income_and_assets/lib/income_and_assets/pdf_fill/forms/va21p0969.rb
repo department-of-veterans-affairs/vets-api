@@ -1187,7 +1187,7 @@ module IncomeAndAssets
         # NOTE: recipientName, payer, and incomeType are already part of the income hash
         # and do not need to be overflowed / overriden as they are free text fields
         overflow_fields = %w[recipientRelationship incomeFrequency
-                              grossAnnualAmount]
+                             grossAnnualAmount]
 
         expanded = income.clone
         overflow_fields.each do |field|
