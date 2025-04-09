@@ -88,9 +88,13 @@ module AskVAApi
           return if inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
-            file_name = file[:file_name].sub(/\.([^.]+)$/) { ".#{::Regexp.last_match(1).downcase}" }
+            file_name = normalize_file_name(file[:file_name])
             { FileName: file_name, FileContent: file[:file_content] }
           end
+        end
+
+        def normalize_file_name(file_name)
+          file_name.sub(/\.([^.]+)$/) { ".#{::Regexp.last_match(1).downcase}" }
         end
 
         def build_school_object
