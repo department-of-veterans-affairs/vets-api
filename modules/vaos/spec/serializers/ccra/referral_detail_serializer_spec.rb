@@ -40,6 +40,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:attributes][:location]).to eq(location)
         expect(serialized_data[:data][:attributes][:expirationDate]).to eq(expiration_date)
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
+        expect(serialized_data[:data][:attributes][:uuid]).to eq(encrypted_uuid)
       end
     end
 

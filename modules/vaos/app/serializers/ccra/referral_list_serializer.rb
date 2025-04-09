@@ -12,6 +12,7 @@ module Ccra
 
     attribute :type_of_care
     attribute :referral_number
+    attribute :uuid
 
     # Include the expiration date formatted as YYYY-MM-DD
     attribute :expiration_date do |referral|

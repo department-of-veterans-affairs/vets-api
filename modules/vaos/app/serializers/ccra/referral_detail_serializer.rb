@@ -15,5 +15,6 @@ module Ccra
     attribute :location
     attribute :expiration_date
     attribute :referral_number
+    attribute :uuid
   end
 end
