@@ -28,6 +28,18 @@ RSpec.describe PowerOfAttorneyRequests::SendExpirationReminderEmailJob, type: :j
       end
     end
 
+    context 'when there requests in the reminder range with existing notifications' do
+      let!(:request) { create(:power_of_attorney_request, created_at: 30.5.days.ago) }
+      let!(:notification) do
+        create(:power_of_attorney_request_notification, power_of_attorney_request: request, type: 'expiring')
+      end
+
+      it 'does not queue any emails' do
+        expect { subject.perform }.not_to raise_error
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.jobs).to be_empty
+      end
+    end
+
     context 'when there are requests before the reminder range' do
       let!(:request) { create(:power_of_attorney_request, created_at: 31.days.ago) }
 
