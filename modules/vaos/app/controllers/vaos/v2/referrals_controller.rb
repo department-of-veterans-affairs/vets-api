@@ -16,7 +16,7 @@ module VAOS
         # Add encrypted UUIDs to the referrals for URL usage
         add_referral_uuids(response)
 
-        render json: Ccra::ReferralListSerializer.new(response).serializable_hash
+        render json: Ccra::ReferralListSerializer.new(response)
       end
 
       # GET /v2/referrals/:uuid
@@ -33,7 +33,7 @@ module VAOS
         # Add uuid to the detailed response
         response.uuid = referral_uuid
 
-        render json: Ccra::ReferralDetailSerializer.new(response).serializable_hash
+        render json: Ccra::ReferralDetailSerializer.new(response)
       end
 
       private
@@ -46,8 +46,8 @@ module VAOS
         return referrals unless referrals.respond_to?(:each)
 
         referrals.each do |referral|
-          # Add encrypted UUID from the referral id
-          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_id)
+          # Add encrypted UUID from the referral number
+          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_number)
         end
       end
 

@@ -6,7 +6,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
   describe 'serialization' do
     context 'with a valid referral detail' do
       let(:referral_number) { 'VA0000005681' }
-      let(:referral_uuid) { 'encrypted123456' }
+      let(:encrypted_uuid) { 'encrypted123456' }
       let(:type_of_care) { 'CARDIOLOGY' }
       let(:provider_name) { 'Dr. Smith' }
       let(:location) { 'VA Medical Center' }
@@ -21,7 +21,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           location:,
           expiration_date:
         )
-        result.uuid = referral_uuid
+        result.uuid = encrypted_uuid
         result
       end
 
@@ -33,13 +33,13 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       end
 
       it 'serializes the referral detail correctly' do
-        expect(serialized_data[:data][:id]).to eq(referral_number)
+        expect(serialized_data[:data][:id]).to eq(encrypted_uuid)
         expect(serialized_data[:data][:type]).to eq(:referrals)
-        expect(serialized_data[:data][:attributes][:type_of_care]).to eq(type_of_care)
-        expect(serialized_data[:data][:attributes][:provider_name]).to eq(provider_name)
+        expect(serialized_data[:data][:attributes][:typeOfCare]).to eq(type_of_care)
+        expect(serialized_data[:data][:attributes][:providerName]).to eq(provider_name)
         expect(serialized_data[:data][:attributes][:location]).to eq(location)
-        expect(serialized_data[:data][:attributes][:expiration_date]).to eq(expiration_date)
-        expect(serialized_data[:data][:attributes][:uuid]).to eq(referral_uuid)
+        expect(serialized_data[:data][:attributes][:expirationDate]).to eq(expiration_date)
+        expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
       end
     end
 
@@ -65,13 +65,13 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:serialized_data) { serializer.serializable_hash }
 
       it 'includes nil attributes in JSON:API format' do
-        expect(serialized_data[:data][:id]).to eq(referral_number)
+        expect(serialized_data[:data][:id]).to be_nil
         expect(serialized_data[:data][:type]).to eq(:referrals)
-        expect(serialized_data[:data][:attributes][:type_of_care]).to eq(type_of_care)
-        expect(serialized_data[:data][:attributes][:provider_name]).to be_nil
+        expect(serialized_data[:data][:attributes][:typeOfCare]).to eq(type_of_care)
+        expect(serialized_data[:data][:attributes][:providerName]).to be_nil
         expect(serialized_data[:data][:attributes][:location]).to be_nil
-        expect(serialized_data[:data][:attributes][:expiration_date]).to be_nil
-        expect(serialized_data[:data][:attributes][:uuid]).to be_nil
+        expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
+        expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
       end
     end
 

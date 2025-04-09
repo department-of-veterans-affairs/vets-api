@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  let(:referral_id) { '5682' }
+  let(:referral_number) { '5682' }
   let(:encrypted_uuid) { 'encrypted-5682' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:referral_statuses) { "'S','BP','AP','AC','A','I'" }
@@ -13,8 +13,8 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
-    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_id).and_return(encrypted_uuid)
-    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_id)
+    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_number).and_return(encrypted_uuid)
+    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_number)
   end
 
   describe 'GET index' do
@@ -64,10 +64,11 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         # Verify first referral entry structure
         first_referral = response_data['data'].first
-        expect(first_referral['id']).to eq('5682')
+        expect(first_referral['id']).to eq('encrypted-5682')
         expect(first_referral['type']).to eq('referrals')
-        expect(first_referral['attributes']['type_of_care']).to eq('CARDIOLOGY')
-        expect(first_referral['attributes']['expiration_date']).to eq('2024-05-27')
+        expect(first_referral['attributes']['typeOfCare']).to eq('CARDIOLOGY')
+        expect(first_referral['attributes']['referralNumber']).to eq('5682')
+        expect(first_referral['attributes']['expirationDate']).to eq('2024-05-27')
       end
 
       context 'with a custom status parameter' do
@@ -113,12 +114,12 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
     context 'when called with authorization' do
       let(:user) { build(:user, :vaos, :loa3) }
-      let(:referral_detail) { build(:ccra_referral_detail, referral_number: referral_id) }
+      let(:referral_detail) { build(:ccra_referral_detail, referral_number:) }
 
       before do
         sign_in_as(user)
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-          .with(referral_id, referral_mode)
+          .with(referral_number, referral_mode)
           .and_return(referral_detail)
       end
 
@@ -129,12 +130,13 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         response_data = JSON.parse(response.body)
         expect(response_data).to have_key('data')
-        expect(response_data['data']['id']).to eq(referral_id)
+        expect(response_data['data']['id']).to eq(encrypted_uuid)
         expect(response_data['data']['type']).to eq('referrals')
-        expect(response_data['data']['attributes']['type_of_care']).to eq('CARDIOLOGY')
-        expect(response_data['data']['attributes']['provider_name']).to eq('Dr. Smith')
+        expect(response_data['data']['attributes']['typeOfCare']).to eq('CARDIOLOGY')
+        expect(response_data['data']['attributes']['providerName']).to eq('Dr. Smith')
         expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
-        expect(response_data['data']['attributes']['expiration_date']).to eq('2024-05-27')
+        expect(response_data['data']['attributes']['expirationDate']).to eq('2024-05-27')
+        expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
       end
 
       context 'with a custom mode parameter' do
@@ -142,7 +144,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         before do
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-            .with(referral_id, custom_mode)
+            .with(referral_number, custom_mode)
             .and_return(referral_detail)
         end
 
