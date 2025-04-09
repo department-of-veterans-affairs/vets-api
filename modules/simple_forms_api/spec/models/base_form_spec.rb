@@ -25,8 +25,8 @@ RSpec.describe SimpleFormsApi::BaseForm do
   end
 
   describe '#should_send_to_point_of_contact?' do
-    it 'returns falses' do
-      expect(described_class.new.should_send_to_point_of_contact?).to eq false
+    it 'returns false' do
+      expect(described_class.new({}).should_send_to_point_of_contact?).to be false
     end
   end
 end
