@@ -43,7 +43,10 @@ describe Eps::EnrichedProvider do
 
     context 'when provider is nil' do
       it 'returns nil' do
-        result = described_class.from_referral(nil, build(:ccra_referral_detail, treating_facility_phone: '555-555-5555'))
+        result = described_class.from_referral(
+          nil,
+          build(:ccra_referral_detail, treating_facility_phone: '555-555-5555')
+        )
         expect(result).to be_nil
       end
     end
