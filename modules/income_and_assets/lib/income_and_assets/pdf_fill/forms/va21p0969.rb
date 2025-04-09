@@ -566,6 +566,110 @@ module IncomeAndAssets::PdfFill
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
         },
+        # 9a
+        'annuity' => { key: 'F[0].#subform[8].DependentsEstablishedAnnuity9a[0]' },
+        'annuities' => {
+          limit: 1,
+          first_key: 'establishedDate',
+          # 9b
+          'establishedDate' => {
+            'month' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedYear[#{ITERATOR}]" }
+          },
+          'establishedDateOverflow' => {
+            question_num: 9,
+            question_suffix: '(b)',
+            question_text: 'SPECIFY DATE ANNUITY WAS ESTABLISHED'
+          },
+          # 9c
+          'marketValueAtEstablishment' => {
+            'millions' => { key: "F[0].#subform[8].MarketAnnuity1_9c[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].MarketAnnuity2_9c[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].MarketAnnuity3_9c[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
+          },
+          'marketValueAtEstablishmentOverflow' => {
+            question_num: 9,
+            question_suffix: '(c)',
+            question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE'
+          },
+          # 9d
+          'addedFundsAfterEstablishment' => { key: 'F[0].#subform[8].AddedFundsToAnnuity9d[0]' },
+          'addedFundsAfterEstablishmentOverflow' => {
+            question_num: 9,
+            question_suffix: '(d)',
+            question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?'
+          },
+          # 9e
+          'addedFundsDate' => {
+            'month' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredYear[#{ITERATOR}]" }
+          },
+          'addedFundsDateOverflow' => {
+            question_num: 9,
+            question_suffix: '(e)',
+            question_text: 'WHEN DID YOU ADD FUNDS?'
+          },
+          # 9f
+          'addedFundsAmount' => {
+            'millions' => { key: "F[0].#subform[8].HowMuchTransferred1_9f[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].HowMuchTransferred2_9f[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].HowMuchTransferred3_9f[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
+          },
+          'addedFundsAmountOverflow' => {
+            question_num: 9,
+            question_suffix: '(f)',
+            question_text: 'HOW MUCH DID YOU ADD?'
+          },
+          # 9g
+          'revocable' => { key: "F[0].#subform[8].Annuity9g[#{ITERATOR}]" },
+          'revocableOverflow' => {
+            question_num: 9,
+            question_suffix: '(g)',
+            question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?'
+          },
+          # 9h
+          'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
+          'receivingIncomeFromAnnuityOverflow' => {
+            question_num: 9,
+            question_suffix: '(h)',
+            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUNITY?'
+          },
+          # 9i
+          'annualReceivedIncome' => {
+            'millions' => { key: "F[0].#subform[8].AnnualAmountReceived1_9i[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].AnnualAmountReceived2_9i[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].AnnualAmountReceived3_9i[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
+          },
+          'annualReceivedIncomeOverflow' => {
+            question_num: 9,
+            question_suffix: '(i)',
+            question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED'
+          },
+          # 9j
+          'canBeLiquidated' => { key: "F[0].#subform[8].AnnuityLiquidated9j[#{ITERATOR}]" },
+          'canBeLiquidatedOverflow' => {
+            question_num: 9,
+            question_suffix: '(j)',
+            question_text: 'CAN THE ANNUITY BE LIQUIDATED?'
+          },
+          # 9k
+          'surrenderValue' => {
+            'millions' => { key: "F[0].#subform[8].SurrenderValue1_9k[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].SurrenderValue2_9k[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].SurrenderValue3_9k[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
+          },
+          'surrenderValueOverflow' => {
+            question_num: 9,
+            question_suffix: '(k)',
+            question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
+          }
+        },
         # Section 11
         # 11a
         'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
@@ -665,6 +769,7 @@ module IncomeAndAssets::PdfFill
         expand_owned_assets
         expand_asset_transfers
         expand_trusts
+        expand_annuities
         expand_discontinued_incomes
 
         form_data
@@ -967,6 +1072,45 @@ module IncomeAndAssets::PdfFill
         }
 
         expanded.merge(overrides)
+      end
+
+      ##
+      # Expands annuities by processing each annuity entry and setting an indicator
+      # based on the presence of annuities.
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_annuities
+        annuities = form_data['annuities']
+        form_data['annuity'] = annuities&.length ? 0 : 1
+        form_data['annuities'] = annuities&.map { |annuity| expand_annuity(annuity) }
+      end
+
+      ##
+      # Expands a annuity's data by processing its attributes and transforming them into structured output
+      #
+      # @param annuity [Hash]
+      # @return [Hash]
+      #
+      def expand_annuity(annuity)
+        market_value = split_currency_amount_lg(annuity['marketValueAtEstablishment'], { 'millions' => 1 })
+        expanded = {
+          'addedFundsDate' => split_date(annuity['addedFundsDate']),
+          'addedFundsAmount' => split_currency_amount_lg(annuity['addedFundsAmount'], { 'millions' => 1 }),
+          'addedFundsAfterEstablishment' => annuity['addedFundsAfterEstablishment'] ? 0 : 1,
+          'canBeLiquidated' => annuity['canBeLiquidated'] ? 0 : 1,
+          'surrenderValue' => split_currency_amount_lg(annuity['surrenderValue'], { 'millions' => 1 }),
+          'receivingIncomeFromAnnuity' => annuity['receivingIncomeFromAnnuity'] ? 0 : 1,
+          'annualReceivedIncome' => split_currency_amount_lg(annuity['annualReceivedIncome'], { 'millions' => 1 }),
+          'revocable' => annuity['revocable'] ? 0 : 1,
+          'establishedDate' => split_date(annuity['establishedDate']),
+          'marketValueAtEstablishment' => market_value
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = annuity[fieldname]
+        end
+        expanded.merge(overflow)
       end
     end
   end
