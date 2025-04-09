@@ -1,33 +1,52 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/rx_client_helpers'
 require 'statsd_middleware'
 
 # TODO: possibly refactor this spec to be generic, not dependent on PrescriptionsController
 RSpec.describe StatsdMiddleware, type: :request do
-  include Rx::ClientHelpers
-
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
   let(:history_rxs) { File.read('spec/fixtures/json/get_history_rxs.json') }
-  let(:session) do
-    Rx::ClientSession.new(
-      user_id: '123',
-      expires_at: 3.weeks.from_now,
-      token: Rx::ClientHelpers::TOKEN
-    )
-  end
   let(:user) { build(:user, :mhv) }
   let(:now) { Time.current }
+  let(:mock_client) { double('mock_client') }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
-    allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
+    
+    # Replace the dependency on Rx with a test double
+    controller_class = V0::PrescriptionsController
+    allow_any_instance_of(controller_class).to receive(:client) do
+      mock_client
+    end
+    
+    allow(mock_client).to receive(:get_history_rxs).and_return([])
     Timecop.freeze(now)
   end
 
   after { Timecop.return }
+
+  # Helper method to stub MHV API requests
+  def stub_varx_request(method, path, response_body, opts = {})
+    status_code = opts[:status_code] || 200
+    
+    # Setup default headers
+    response_headers = {
+      'Content-Type' => 'application/json',
+      'Date' => Time.now.utc.strftime('%a, %d %b %Y %H:%M:%S GMT'),
+      'X-RateLimit-Limit' => '60',
+      'X-RateLimit-Remaining' => '59',
+      'X-RateLimit-Reset' => '3600'
+    }
+
+    # Setup the stubs to either succeed or fail
+    if status_code == 200
+      allow(mock_client).to receive(:get_history_rxs).and_return(JSON.parse(response_body))
+    else
+      allow(mock_client).to receive(:get_history_rxs).and_raise(Common::Exceptions::BackendServiceException)
+    end
+  end
 
   it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)

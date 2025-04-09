@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/sm_client_helpers'
 
 RSpec.describe 'V0::User', type: :request do
   include SchemaMatchers
-  include SM::ClientHelpers
 
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
     let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
+    let(:authenticated_client) do
+      double('authenticated_client', session: double('session', user_id: mhv_user.mhv_correlation_id))
+    end
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)

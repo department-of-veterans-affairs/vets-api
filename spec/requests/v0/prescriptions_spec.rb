@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/rx_client_helpers'
-require 'support/shared_examples_for_mhv'
 
 # rubocop:disable Layout/LineLength
 RSpec.describe 'V0::Prescriptions', type: :request do
-  include Rx::ClientHelpers
   include SchemaMatchers
 
   let(:va_patient) { true }
@@ -17,10 +14,33 @@ RSpec.describe 'V0::Prescriptions', type: :request do
                        sign_in: { service_name: SignIn::Constants::Auth::IDME })
   end
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+  let(:authenticated_client) do
+    double('authenticated_client', session: double('session', user_id: current_user.mhv_correlation_id))
+  end
 
   before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
+  end
+
+  shared_examples 'for user account level' do |options|
+    let(:access_denied_message) { options[:message] }
+
+    it 'raises access denied', :aggregate_failures do
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq(access_denied_message)
+    end
+  end
+
+  shared_examples 'for non va patient user' do |options|
+    let(:access_denied_message) { options[:message] }
+
+    it 'raises access denied', :aggregate_failures do
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq(access_denied_message)
+    end
   end
 
   context 'Basic User' do
