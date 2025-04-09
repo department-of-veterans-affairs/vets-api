@@ -21,7 +21,7 @@ module AccreditedRepresentativePortal
     private
 
     def first_name
-      @notification.claimant_hash['name']['first']
+      @notification.claimant_hash.dig('name', 'first')
     end
 
     class Requested < self
@@ -46,7 +46,7 @@ module AccreditedRepresentativePortal
       end
 
       def last_name
-        @notification.claimant_hash['name']['last']
+        @notification.claimant_hash.dig('name', 'last')
       end
 
       def representative_name
