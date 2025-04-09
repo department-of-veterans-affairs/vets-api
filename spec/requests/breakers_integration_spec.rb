@@ -2,60 +2,19 @@
 
 require 'rails_helper'
 
-# We will create a mock client specifically for this test
-# because we don't want to rely on Rx::Client directly
-module TestBreakers
-  class Configuration < Common::Client::Configuration::REST
-    def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.request :breakers, breakers_service
-        conn.request :json
-
-        conn.response :betamocks if Settings.mhv.rx.use_mock
-        conn.response :raise_error, error_prefix: 'TestBreakers'
-        conn.response :json, content_type: /\bjson/i
-        conn.adapter :test
-      end
-    end
-
-    def breakers_service
-      return @service if defined?(@service)
-
-      path = URI.parse(base_path).path
-      host = URI.parse(base_path).host
-      matcher = proc { |request_env| request_env.url.host == host && request_env.url.path.start_with?(path) }
-
-      @service = Breakers::Service.new(
-        name: 'TestBreakers',
-        request_matcher: matcher
-      )
-    end
-  end
-
-  class Client < Common::Client::Base
-    configuration Configuration
-  end
-end
-
 # TODO: possibly refactor this spec to be generic, not dependent on PrescriptionsController
 RSpec.describe 'Breakers Integration', type: :request do
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
   let(:history_rxs) { File.read('spec/fixtures/json/get_history_rxs.json') }
   let(:user) { build(:user, :mhv) }
-  let(:mock_client) { double('mock_client') }
 
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     
-    # Replace the dependency on Rx with a test double
-    controller_class = V0::PrescriptionsController
-    original_get_client = controller_class.instance_method(:client)
-    allow_any_instance_of(controller_class).to receive(:client) do
-      mock_client
-    end
-    
-    allow(mock_client).to receive(:get_history_rxs).and_return([])
+    # Use the actual Rx client, but stub the API responses
+    allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(double('session', user_id: user.mhv_correlation_id))
+    allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(false)
   end
 
   # Helper method to stub MHV API requests
@@ -71,11 +30,13 @@ RSpec.describe 'Breakers Integration', type: :request do
       'X-RateLimit-Reset' => '3600'
     }
 
-    # Setup the stubs to either succeed or fail
+    # Setup the stubs using the actual client methods
     if status_code == 200
-      allow(mock_client).to receive(:get_history_rxs).and_return(JSON.parse(response_body))
+      allow_any_instance_of(Rx::Client).to receive(:get_history_rxs).and_return(JSON.parse(response_body))
+      allow_any_instance_of(Rx::Client).to receive(:get_active_rxs).and_return(JSON.parse(active_rxs))
     else
-      allow(mock_client).to receive(:get_history_rxs).and_raise(Common::Exceptions::BackendServiceException)
+      allow_any_instance_of(Rx::Client).to receive(:get_history_rxs).and_raise(Common::Exceptions::BackendServiceException)
+      allow_any_instance_of(Rx::Client).to receive(:get_active_rxs).and_raise(Common::Exceptions::BackendServiceException)
     end
   end
 
@@ -95,28 +56,28 @@ RSpec.describe 'Breakers Integration', type: :request do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
       20.times do
-        response = get '/v0/prescriptions'
+        response = get '/my_health/v1/prescriptions'
         expect(response).to eq(200)
       end
 
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', '{"message":"ack"}', status_code: 500)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', '{"message":"ack"}', status_code: 500)
       80.times do
-        response = get '/v0/prescriptions'
+        response = get '/my_health/v1/prescriptions'
         expect(response).to eq(400)
       end
 
       expect do
-        get '/v0/prescriptions'
+        get '/my_health/v1/prescriptions'
       end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
 
-      response = get '/v0/prescriptions'
+      response = get '/my_health/v1/prescriptions'
       expect(response).to eq(503)
 
       Timecop.freeze(now)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
-      response = get '/v0/prescriptions'
+      response = get '/my_health/v1/prescriptions'
       expect(response).to eq(200)
       Timecop.return
     end
@@ -126,7 +87,7 @@ RSpec.describe 'Breakers Integration', type: :request do
     it 'increments successes' do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
       expect do
-        get '/v0/prescriptions', headers: { 'Source-App-Name' => 'profile' }
+        get '/my_health/v1/prescriptions', headers: { 'Source-App-Name' => 'profile' }
       end.to trigger_statsd_increment('api.external_http_request.Rx.success',
                                       times: 1,
                                       value: 1,
@@ -137,14 +98,14 @@ RSpec.describe 'Breakers Integration', type: :request do
     it 'increments errors' do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 500)
       expect do
-        get '/v0/prescriptions'
+        get '/my_health/v1/prescriptions'
       end.to trigger_statsd_increment('api.external_http_request.Rx.failed', times: 1, value: 1)
     end
 
     it 'measures request times' do
       path = 'mhv-api/patient/v1/prescription/gethistoryrx'
       stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ["endpoint:/#{path}"])
-      expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
+      expect { get '/my_health/v1/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
     end
   end
 
