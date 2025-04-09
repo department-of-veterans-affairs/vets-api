@@ -7,11 +7,9 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-      before_action do
-        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
-      end
 
       def submit
+        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
@@ -19,6 +17,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_scanned_form
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
