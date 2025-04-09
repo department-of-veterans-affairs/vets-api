@@ -13,7 +13,7 @@ module IncomeAndAssets
     initializer 'income_and_assets.pdf_fill.register_form' do |app|
       app.config.to_prepare do
         require 'pdf_fill/filler'
-        require 'income_and_assets/pdf_fill/forms/va21p0969'
+        require 'income_and_assets/pdf_fill/va21p0969'
 
         # Register our Income and Assets Pdf Fill form
         ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Va21p0969)

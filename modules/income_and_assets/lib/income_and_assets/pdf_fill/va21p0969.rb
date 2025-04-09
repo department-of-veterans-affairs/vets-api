@@ -22,7 +22,7 @@ module IncomeAndAssets
       FORM_ID = '21P-0969'
 
       # The path to the PDF template for the form
-      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
       # Hash keys
       KEY = {
