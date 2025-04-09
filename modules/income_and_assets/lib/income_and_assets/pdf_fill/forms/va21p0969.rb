@@ -566,7 +566,7 @@ module IncomeAndAssets::PdfFill
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
         },
-         # Section 11
+        # Section 11
         # 11a
         'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
         # 11b-11c (only space for 2 on form)
