@@ -13,25 +13,47 @@ module VAOS
           referral_status_param
         )
 
+        # Add encrypted UUIDs to the referrals for URL usage
+        add_referral_uuids(response)
+
         render json: Ccra::ReferralListSerializer.new(response).serializable_hash
       end
 
-      # GET /v2/referrals/:id
-      # Fetches a specific referral by ID
+      # GET /v2/referrals/:uuid
+      # Fetches a specific referral by its encrypted UUID
       def show
+        # Decrypt the referral UUID from the request parameters
+        decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_uuid)
+
         response = referral_service.get_referral(
-          referral_id,
+          decrypted_id,
           referral_mode_param
         )
+
+        # Add uuid to the detailed response
+        response.uuid = referral_uuid
 
         render json: Ccra::ReferralDetailSerializer.new(response).serializable_hash
       end
 
       private
 
-      # The referral ID from request parameters
-      # @return [String] the referral ID
-      def referral_id
+      # Adds encrypted UUIDs to referrals for use in URLs to prevent PII in logs
+      #
+      # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
+      # @return [Array<Ccra::ReferralListEntry>] The modified collection
+      def add_referral_uuids(referrals)
+        return referrals unless referrals.respond_to?(:each)
+
+        referrals.each do |referral|
+          # Add encrypted UUID from the referral id
+          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_id)
+        end
+      end
+
+      # The encrypted referral UUID from request parameters
+      # @return [String] the referral UUID
+      def referral_uuid
         params.require(:id)
       end
 

@@ -6,13 +6,14 @@ RSpec.describe Ccra::ReferralDetailSerializer do
   describe 'serialization' do
     context 'with a valid referral detail' do
       let(:referral_number) { 'VA0000005681' }
+      let(:referral_uuid) { 'encrypted123456' }
       let(:type_of_care) { 'CARDIOLOGY' }
       let(:provider_name) { 'Dr. Smith' }
       let(:location) { 'VA Medical Center' }
       let(:expiration_date) { '2024-05-27' }
 
       let(:referral) do
-        build(
+        result = build(
           :ccra_referral_detail,
           referral_number:,
           type_of_care:,
@@ -20,6 +21,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           location:,
           expiration_date:
         )
+        result.uuid = referral_uuid
+        result
       end
 
       let(:serializer) { described_class.new(referral) }
@@ -31,11 +34,12 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       it 'serializes the referral detail correctly' do
         expect(serialized_data[:data][:id]).to eq(referral_number)
-        expect(serialized_data[:data][:type]).to eq(:referral)
+        expect(serialized_data[:data][:type]).to eq(:referrals)
         expect(serialized_data[:data][:attributes][:type_of_care]).to eq(type_of_care)
         expect(serialized_data[:data][:attributes][:provider_name]).to eq(provider_name)
         expect(serialized_data[:data][:attributes][:location]).to eq(location)
         expect(serialized_data[:data][:attributes][:expiration_date]).to eq(expiration_date)
+        expect(serialized_data[:data][:attributes][:uuid]).to eq(referral_uuid)
       end
     end
 
@@ -62,11 +66,12 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       it 'includes nil attributes in JSON:API format' do
         expect(serialized_data[:data][:id]).to eq(referral_number)
-        expect(serialized_data[:data][:type]).to eq(:referral)
+        expect(serialized_data[:data][:type]).to eq(:referrals)
         expect(serialized_data[:data][:attributes][:type_of_care]).to eq(type_of_care)
         expect(serialized_data[:data][:attributes][:provider_name]).to be_nil
         expect(serialized_data[:data][:attributes][:location]).to be_nil
         expect(serialized_data[:data][:attributes][:expiration_date]).to be_nil
+        expect(serialized_data[:data][:attributes][:uuid]).to be_nil
       end
     end
 
