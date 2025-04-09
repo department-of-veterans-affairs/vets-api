@@ -864,10 +864,10 @@ module PdfFill
 
         child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
         if child_stopped_attending_school.present?
-          child_stopped_attending_school.each do |child_stopped_attending_school|
-            child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-            child_stopped_attending_school['date_child_left_school'] =
-              split_date(child_stopped_attending_school['date_child_left_school'])
+          child_stopped_attending_school.each do |child|
+            child['birth_date'] = split_date(child['birth_date'])
+            child['date_child_left_school'] =
+              split_date(child['date_child_left_school'])
           end
         end
 

@@ -27,6 +27,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal intent to file
     enable_in_development: true
+  accredited_representative_portal_search:
+    actor_type: user
+    description: Enables the people search of the accredited representative portal 
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -974,6 +978,10 @@ features:
     actor_type: user
     description: Control fetching OH allergies data
     enable_in_development: false
+  mhv_accelerated_delivery_labs_and_tests_enabled:
+    actor_type: user
+    description: Control fetching lab and test data from UHD (SCDF) service (web)
+    enable_in_development: false
   mhv_accelerated_delivery_vital_signs_enabled:
     actor_type: user
     description: Control fetching OH vitals data
@@ -1806,9 +1814,6 @@ features:
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
-  disability_compensation_lighthouse_intent_to_file_provider:
-    actor_type: user
-    description: If enabled uses the lighthouse intent to file endpoint
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job

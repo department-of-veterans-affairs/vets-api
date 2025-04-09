@@ -415,7 +415,6 @@ evss:
   mock_common_service: true
   mock_disabilities_form: true
   mock_gi_bill_status: false
-  mock_itf: true
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
@@ -1643,7 +1642,6 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false

@@ -23,8 +23,6 @@ describe IncomeAndAssets::PdfFill::Forms::Va21p0969 do
       form_data.delete('annuities')
       # Section 10
       form_data.delete('unreportedAssets')
-      # Section 11
-      form_data.delete('discontinuedIncomes')
 
       expect(described_class.new(form_data).merge_fields.to_json).to eq(
         get_fixture_absolute('modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/merge_fields').to_json
