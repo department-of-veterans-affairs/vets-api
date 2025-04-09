@@ -919,7 +919,7 @@ mcp:
     url: <%= ENV['mcp__vbs_v2__url'] %>
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
-  breakers: <= ENV['mdot__breakers'] %>
+  breakers: false
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
