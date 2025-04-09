@@ -16,7 +16,7 @@ module IncomeAndAssets
         require 'income_and_assets/pdf_fill/forms/va21p0969'
 
         # Register our Income and Assets Pdf Fill form
-        ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Forms::Va21p0969)
+        ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Va21p0969)
       end
     end
   end

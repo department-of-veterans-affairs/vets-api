@@ -6,10 +6,10 @@ require 'income_and_assets/pdf_fill/forms/va21p0969'
 require 'lib/pdf_fill/fill_form_examples'
 
 def basic_class
-  IncomeAndAssets::PdfFill::Forms::Va21p0969.new({})
+  IncomeAndAssets::PdfFill::Va21p0969.new({})
 end
 
-describe IncomeAndAssets::PdfFill::Forms::Va21p0969 do
+describe IncomeAndAssets::PdfFill::Va21p0969 do
   include SchemaMatchers
 
   test_data_types ||= %w[simple kitchen_sink overflow]
