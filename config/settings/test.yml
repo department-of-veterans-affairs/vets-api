@@ -921,6 +921,7 @@ mcp:
     url: https://fwdproxy-staging.vfs.va.gov:4491
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
