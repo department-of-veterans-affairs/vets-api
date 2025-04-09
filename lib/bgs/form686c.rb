@@ -15,7 +15,7 @@ module BGS
   class Form686c
     include SentryLogging
 
-    attr_reader :user, :saved_claim
+    attr_reader :user, :saved_claim, :proc_id
 
     REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
                               report_stepchild_not_in_household
@@ -30,15 +30,16 @@ module BGS
       @end_product_code = '130DPNEBNADJ'
       @proc_state = 'Ready'
       @note_text = nil
+      @proc_id = nil
     end
 
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
-      proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
+      @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ').create
 
-      process_relationships(proc_id, veteran, payload)
+      process_relationships(@proc_id, veteran, payload)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
@@ -46,7 +47,7 @@ module BGS
       set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
 
       # temporary logging to troubleshoot
-      log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
+      log_message_to_sentry("#{@proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
       benefit_claim_record = BenefitClaim.new(
         args: {
@@ -62,11 +63,16 @@ module BGS
       begin
         benefit_claim_id = benefit_claim_record[:benefit_claim_id]
         # temporary logging to troubleshoot
-        log_message_to_sentry("#{proc_id} - #{benefit_claim_id}", :warn, '', { team: 'vfs-ebenefits' })
+        log_message_to_sentry("#{@proc_id} - #{benefit_claim_id}", :warn, '', { team: 'vfs-ebenefits' })
 
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-        prep_manual_claim(benefit_claim_id) if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
-        bgs_service.update_proc(proc_id, proc_state: @proc_state)
+        if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
+          prep_manual_claim(benefit_claim_id) 
+        else
+          Rails.logger.debug("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}", saved_claim_id: @saved_claim.id, proc_id: @proc_id, automatic: true)
+          StatsD.increment("#{stats_key}.automatic")
+        end
+        bgs_service.update_proc(@proc_id, proc_state: @proc_state)
       rescue => e
         Rails.logger.warning('BGS::Form686c.submit failed after creating benefit claim in BGS',
                              {
@@ -193,7 +199,13 @@ module BGS
 
     def prep_manual_claim(benefit_claim_id)
       @proc_state = 'MANUAL_VAGOV'
-
+      if @saved_claim.submittable_674?
+        Rails.logger.debug(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true, combination_claim: true)
+        StatsD.increment("#{stats_key}.manual.combo")
+      else
+        Rails.logger.debug(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true)
+        StatsD.increment("#{stats_key}.manual")
+      end
       bgs_service.create_note(benefit_claim_id, @note_text)
     end
 
@@ -216,6 +228,10 @@ module BGS
       end
 
       'MANUAL_VAGOV'
+    end
+
+    def stats_key
+      "bgs.form686"
     end
   end
 end
