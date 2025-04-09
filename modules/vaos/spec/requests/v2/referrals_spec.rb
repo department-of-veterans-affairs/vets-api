@@ -116,7 +116,10 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       allow(service_double).to receive(:get_referral).and_return(referral)
       allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_number).and_return(encrypted_uuid)
       allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_number)
-      allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with('invalid').and_raise(Common::Exceptions::ParameterMissing.new('id'))
+      allow(VAOS::ReferralEncryptionService)
+        .to receive(:decrypt)
+        .with('invalid')
+        .and_raise(Common::Exceptions::ParameterMissing.new('id'))
     end
 
     context 'when user is not authenticated' do
