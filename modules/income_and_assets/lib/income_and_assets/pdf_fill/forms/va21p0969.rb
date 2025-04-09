@@ -15,7 +15,6 @@ module IncomeAndAssets::PdfFill
     class Va21p0969 < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
       include IncomeAndAssets::Helpers
-      include ActiveSupport::NumberHelper
 
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
