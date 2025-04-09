@@ -751,6 +751,97 @@ module IncomeAndAssets::PdfFill
             question_suffix: '(7)',
             question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
           }
+        },
+        # Section 12
+        # 12a
+        'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
+        # 12b-12c (only space for 2 on form)
+        'incomeReceiptWaivers' => {
+          limit: 2,
+          first_key: 'otherRecipientRelationshipType',
+          # Q1
+          'recipientRelationship' => {
+            key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 12,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship12[#{ITERATOR}]",
+            question_num: 12,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          # Q2
+          'recipientName' => {
+            key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
+            question_num: 12,
+            question_suffix: '(2)',
+            question_text:
+                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          # Q3
+          'payer' => {
+            key: "F[0].IncomePayer12[#{ITERATOR}]",
+            question_num: 12,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+          },
+          # Q4
+          'expectedIncome' => {
+            'thousands' => {
+              key: "F[0].AmountExpected1[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].AmountExpected2[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].AmountExpected3[#{ITERATOR}]"
+            }
+          },
+          'expectedIncomeOverflow' => {
+            question_num: 12,
+            question_suffix: '(4)',
+            question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
+          },
+          # Q5
+          'paymentResumeDate' => {
+            'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
+          },
+          'paymentResumeDateOverflow' => {
+            question_num: 12,
+            question_suffix: '(5)',
+            question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
+          },
+          'paymentWillNotResume' => {
+            key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
+          },
+          'paymentWillNotResumeOverflow' => {
+            question_num: 12,
+            question_suffix: '(5)',
+            question_text: 'This income will not resume'
+          },
+          # Q6
+          'waivedGrossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
+            }
+          },
+          'waivedGrossMonthlyIncomeOverflow' => {
+            question_num: 12,
+            question_suffix: '(6)',
+            question_text: 'WAIVED GROSS MONTHLY INCOME'
+          }
         }
       }.freeze
 
@@ -771,6 +862,7 @@ module IncomeAndAssets::PdfFill
         expand_trusts
         expand_annuities
         expand_discontinued_incomes
+        expand_income_receipt_waivers
 
         form_data
       end
@@ -1026,8 +1118,47 @@ module IncomeAndAssets::PdfFill
         expanded.merge(overflow)
       end
 
-      # Section 11
+      # Section 9
+      ##
+      # Expands annuities by processing each annuity entry and setting an indicator
+      # based on the presence of annuities.
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_annuities
+        annuities = form_data['annuities']
+        form_data['annuity'] = annuities&.length ? 0 : 1
+        form_data['annuities'] = annuities&.map { |annuity| expand_annuity(annuity) }
+      end
 
+      ##
+      # Expands a annuity's data by processing its attributes and transforming them into structured output
+      #
+      # @param annuity [Hash]
+      # @return [Hash]
+      #
+      def expand_annuity(annuity)
+        market_value = split_currency_amount_lg(annuity['marketValueAtEstablishment'], { 'millions' => 1 })
+        expanded = {
+          'addedFundsDate' => split_date(annuity['addedFundsDate']),
+          'addedFundsAmount' => split_currency_amount_lg(annuity['addedFundsAmount'], { 'millions' => 1 }),
+          'addedFundsAfterEstablishment' => annuity['addedFundsAfterEstablishment'] ? 0 : 1,
+          'canBeLiquidated' => annuity['canBeLiquidated'] ? 0 : 1,
+          'surrenderValue' => split_currency_amount_lg(annuity['surrenderValue'], { 'millions' => 1 }),
+          'receivingIncomeFromAnnuity' => annuity['receivingIncomeFromAnnuity'] ? 0 : 1,
+          'annualReceivedIncome' => split_currency_amount_lg(annuity['annualReceivedIncome'], { 'millions' => 1 }),
+          'revocable' => annuity['revocable'] ? 0 : 1,
+          'establishedDate' => split_date(annuity['establishedDate']),
+          'marketValueAtEstablishment' => market_value
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = annuity[fieldname]
+        end
+        expanded.merge(overflow)
+      end
+
+      # Section 11
       ##
       # Expands discontinued incomes by processing each discontinued income entry and setting an indicator
       # based on the presence of discontinued incomes.
@@ -1074,43 +1205,49 @@ module IncomeAndAssets::PdfFill
         expanded.merge(overrides)
       end
 
+      # Section 12
       ##
-      # Expands annuities by processing each annuity entry and setting an indicator
-      # based on the presence of annuities.
+      # Expands income receipt waivers by processing each income receipt waiver entry and setting an indicator
+      # based on the presence of income receipt waivers.
       #
       # @note Modifies `form_data`
       #
-      def expand_annuities
-        annuities = form_data['annuities']
-        form_data['annuity'] = annuities&.length ? 0 : 1
-        form_data['annuities'] = annuities&.map { |annuity| expand_annuity(annuity) }
+      def expand_income_receipt_waivers
+        waivers = form_data['incomeReceiptWaivers']
+
+        form_data['incomeReceiptWaiver'] = waivers&.length ? 0 : 1
+        form_data['incomeReceiptWaivers'] = waivers&.map { |waiver| expand_income_receipt_waiver(waiver) }
       end
 
       ##
-      # Expands a annuity's data by processing its attributes and transforming them into structured output
+      # Expands a income receipt waivers's data by processing its attributes and transforming them into
+      # structured output
       #
-      # @param annuity [Hash]
+      # @param waiver [Hash]
       # @return [Hash]
       #
-      def expand_annuity(annuity)
-        market_value = split_currency_amount_lg(annuity['marketValueAtEstablishment'], { 'millions' => 1 })
-        expanded = {
-          'addedFundsDate' => split_date(annuity['addedFundsDate']),
-          'addedFundsAmount' => split_currency_amount_lg(annuity['addedFundsAmount'], { 'millions' => 1 }),
-          'addedFundsAfterEstablishment' => annuity['addedFundsAfterEstablishment'] ? 0 : 1,
-          'canBeLiquidated' => annuity['canBeLiquidated'] ? 0 : 1,
-          'surrenderValue' => split_currency_amount_lg(annuity['surrenderValue'], { 'millions' => 1 }),
-          'receivingIncomeFromAnnuity' => annuity['receivingIncomeFromAnnuity'] ? 0 : 1,
-          'annualReceivedIncome' => split_currency_amount_lg(annuity['annualReceivedIncome'], { 'millions' => 1 }),
-          'revocable' => annuity['revocable'] ? 0 : 1,
-          'establishedDate' => split_date(annuity['establishedDate']),
-          'marketValueAtEstablishment' => market_value
-        }
-        overflow = {}
-        expanded.each_key do |fieldname|
-          overflow["#{fieldname}Overflow"] = annuity[fieldname]
+      def expand_income_receipt_waiver(waiver)
+        recipient_relationship = waiver['recipientRelationship']
+        payment_resume_date = waiver['paymentResumeDate']
+
+        overflow_fields = %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome]
+
+        expanded = waiver.clone
+        overflow_fields.each do |field|
+          expanded["#{field}Overflow"] = waiver[field]
         end
-        expanded.merge(overflow)
+
+        overrides = {
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'expectedIncome' => split_currency_amount_sm(waiver['expectedIncome']),
+          'paymentResumeDate' => split_date(payment_resume_date),
+          'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
+          'paymentWillNotResume' => payment_resume_date ? 0 : 1,
+          'paymentWillNotResumeOverflow' => payment_resume_date ? 'NO' : 'YES',
+          'waivedGrossMonthlyIncome' => split_currency_amount_sm(waiver['waivedGrossMonthlyIncome'])
+        }
+
+        expanded.merge(overrides)
       end
     end
   end
