@@ -29,7 +29,7 @@ features:
     enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
-    description: Enables the people search of the accredited representative portal 
+    description: Enables the people search of the accredited representative portal
     enable_in_development: true
   aedp_vadx:
     actor_type: user
@@ -2109,3 +2109,6 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
+  only_use_direct_deposit_email_template:
+    description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates
+
