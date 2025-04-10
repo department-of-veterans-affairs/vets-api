@@ -8,9 +8,8 @@ require 'income_and_assets/helpers'
 
 # rubocop:disable Metrics/ClassLength
 
-module IncomeAndAssets::PdfFill
-  # Forms
-  module Forms
+module IncomeAndAssets
+  module PdfFill
     # The Va21p0969 Form
     class Va21p0969 < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
@@ -23,7 +22,7 @@ module IncomeAndAssets::PdfFill
       FORM_ID = '21P-0969'
 
       # The path to the PDF template for the form
-      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
       # Hash keys
       KEY = {
@@ -538,7 +537,8 @@ module IncomeAndAssets::PdfFill
           'trustUsedForMedicalExpensesOverflow' => {
             question_num: 8,
             question_suffix: '(j)',
-            question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+            question_text:
+              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -1252,5 +1252,4 @@ module IncomeAndAssets::PdfFill
     end
   end
 end
-
 # rubocop:enable Metrics/ClassLength
