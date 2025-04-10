@@ -22,7 +22,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.disable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { create(:user, :loa3) }
+    let(:user_account) { create(:user_account) }
+    let(:user) { create(:user, :loa3, icn: user_account.icn) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
@@ -35,6 +36,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json:,
@@ -120,6 +122,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: missing_postalcode_form_json,
@@ -201,7 +204,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.enable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { create(:user, :loa3) }
+    let(:user_account) { create(:user_account) }
+    let(:user) { create(:user, :loa3, icn: user_account.icn) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
@@ -214,6 +218,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json:,
@@ -349,6 +354,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: missing_postalcode_form_json,

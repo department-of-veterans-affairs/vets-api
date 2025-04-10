@@ -16,8 +16,8 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', user_account_uuid: SecureRandom.uuid) }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user_account) { create(:user_account) }
+  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', icn: user_account.icn) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end

@@ -691,14 +691,14 @@ namespace :form526 do
       edipi = submission.auth_headers['va_eauth_dodedipnid']
       raise Error, 'no edipi' unless edipi
 
-      ids = { edipi:, icn: submission.user_account&.icn || fetch_mpi_icn(edipi:) }
+      ids = { edipi:, icn: submission.user_account&.icn }
 
       pp mpi_profile(user_identity(**ids)).as_json
     end
 
     def mpi_profile(user_identity)
-      if user_identity.mhv_icn
-        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: user_identity.mhv_icn,
+      if user_identity.icn
+        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: user_identity.icn,
                                                                             identifier_type: MPI::Constants::ICN)
       else
         find_profile_response = MPI::Service.new.find_profile_by_edipi(edipi: user_identity.edipi)
@@ -710,11 +710,6 @@ namespace :form526 do
 
     def user_identity(icn:, edipi:)
       OpenStruct.new mhv_icn: icn, edipi:
-    end
-
-    def fetch_mpi_icn(edipi:)
-      mpi_response = MPI::Service.new.find_profile_by_edipi(edipi:)
-      mpi_response.profile.icn if mpi_response.ok? && mpi_response.profile.icn.present?
     end
 
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }

@@ -18,7 +18,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                               anything).and_return(false)
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
+  let(:user) { create(:user, :loa3, icn: user_account.icn) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -50,6 +51,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     context 'when a submission has both 0781 and 0781a' do
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781,
@@ -99,6 +101,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     context 'when a submission has 0781v2' do
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781v2,
@@ -307,6 +310,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781, # contains 0781 and 0781a
@@ -701,6 +705,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781v2,

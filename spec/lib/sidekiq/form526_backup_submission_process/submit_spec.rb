@@ -16,9 +16,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       .and_return('access_token')
   end
 
-  let(:user) { create(:user, :loa3) }
-  let(:icn) { user.icn }
-  let(:user_account) { create(:user_account, icn:, id: user.user_account_uuid) }
+  let(:user_account) { create(:user_account) }
+  let(:user) { create(:user, :loa3, icn: user_account.icn) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end

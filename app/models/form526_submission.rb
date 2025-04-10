@@ -23,9 +23,7 @@ class Form526Submission < ApplicationRecord
                     :submit_flashes,
                     :poll_form526_pdf,
                     :cleanup,
-                    additional_class_logs: {
-                      action: 'Begin as anciliary 526 submission'
-                    },
+                    additional_class_logs: { action: 'Begin as anciliary 526 submission' },
                     additional_instance_logs: {
                       saved_claim_id: %i[saved_claim id],
                       user_uuid: %i[user_uuid]
@@ -54,9 +52,7 @@ class Form526Submission < ApplicationRecord
   has_kms_key
   has_encrypted :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
 
-  belongs_to :saved_claim,
-             class_name: 'SavedClaim::DisabilityCompensation',
-             inverse_of: false
+  belongs_to :saved_claim, class_name: 'SavedClaim::DisabilityCompensation', inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
   has_many :form526_submission_remediations, dependent: :destroy
@@ -466,7 +462,7 @@ class Form526Submission < ApplicationRecord
   def account
     return user_account if user_account&.icn.present?
 
-    Rails.logger.info("Form526Submission::account - no UserAccount ICN found for user #{user_uuid}")
+    Rails.logger.info('Form526Submission::account - no UserAccount ICN found', log_payload)
     # query MPI by EDIPI first & attributes second for user ICN, return in OpenStruct
     get_icn_from_mpi
   end
@@ -617,12 +613,12 @@ class Form526Submission < ApplicationRecord
     if edipi_response_profile&.icn.present?
       OpenStruct.new(icn: edipi_response_profile.icn)
     else
-      Rails.logger.info("Form526Submission::account - unable to look up MPI profile with EDIPI for user #{user_uuid}")
+      Rails.logger.info('Form526Submission::account - unable to look up MPI profile with EDIPI', log_payload)
       attributes_response_profile = attributes_mpi_profile_query(auth_headers)
       if attributes_response_profile&.icn.present?
         OpenStruct.new(icn: attributes_response_profile.icn)
       else
-        Rails.logger.info("Form526Submission::account - no ICN present for user #{user_uuid}")
+        Rails.logger.info('Form526Submission::account - no ICN present', log_payload)
         OpenStruct.new(icn: nil)
       end
     end
@@ -646,6 +642,10 @@ class Form526Submission < ApplicationRecord
       ssn: auth_headers['va_eauth_pnid']
     )
     attributes_response.profile if attributes_response.ok? && attributes_response.profile.icn.present?
+  end
+
+  def log_payload
+    @log_payload ||= { user_uuid:, submission_id: }
   end
 
   def mpi_service
