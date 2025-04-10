@@ -104,11 +104,29 @@ module AccreditedRepresentativePortal
     scope :resolved, -> { joins(:resolution) }
 
     scope :decisioned, lambda {
-      where(
-        resolution: {
-          resolving_type: PowerOfAttorneyRequestDecision.to_s
-        }
-      )
+      joins(:resolution)
+        .where(
+          resolution: {
+            resolving_type: PowerOfAttorneyRequestDecision.to_s
+          }
+        )
+    }
+
+    scope :sorted_by, lambda { |sort_column, direction = :asc|
+      case sort_column
+      when 'created_at'
+        order(created_at: direction)
+      when 'resolved_at'
+        order_sql = if direction.to_sym == :asc
+                      Arel.sql('ar_power_of_attorney_request_resolutions.created_at ASC NULLS LAST')
+                    else
+                      Arel.sql('ar_power_of_attorney_request_resolutions.created_at DESC NULLS LAST')
+                    end
+
+        includes(:resolution).references(:resolution).order(order_sql)
+      else
+        raise ArgumentError, "Invalid sort column: #{sort_column}"
+      end
     }
 
     concerning :ProcessedScopes do

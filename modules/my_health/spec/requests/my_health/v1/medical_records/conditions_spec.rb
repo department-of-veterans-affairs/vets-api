@@ -15,6 +15,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)

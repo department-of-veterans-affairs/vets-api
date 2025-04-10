@@ -31,8 +31,8 @@ Rails.application.configure do
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
-  # store files in aws
-  config.active_storage.service = :amazon
+  # Store files in AWS unless running locally
+  config.active_storage.service = ENV['RAILS_LOCAL_STORAGE'] == 'true' ? :local : :amazon
 
   # Compress CSS using a preprocessor.
   # config.assets.css_compressor = :sass

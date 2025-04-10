@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
+  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso' unless Settings.vsp_environment == 'production'
   get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
@@ -150,9 +151,6 @@ Rails.application.routes.draw do
     end
 
     resources :dependents_verifications, only: %i[create index]
-
-    post 'form0969', to: 'income_and_assets_claims#create'
-    get 'form0969', to: 'income_and_assets_claims#show'
 
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
@@ -436,6 +434,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'

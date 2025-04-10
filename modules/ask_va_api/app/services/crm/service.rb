@@ -45,16 +45,40 @@ module Crm
       parse_response(response.body)
     rescue => e
       log_error(endpoint, service_name)
-      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
+
+      Faraday::Response.new(
+        response_body: extract_body_from(e),
+        status: extract_status_from(e)
+      )
     end
 
     private
 
     def conn(url:)
       Faraday.new(url:) do |f|
-        f.use :breakers
+        f.use(:breakers, service_name:)
         f.response :raise_custom_error, error_prefix: service_name
         f.adapter Faraday.default_adapter
+      end
+    end
+
+    def extract_body_from(error)
+      return error.original_body if error.respond_to?(:original_body)
+
+      if error.respond_to?(:response) && error.response.is_a?(Hash)
+        error.response[:body] || error.message
+      else
+        { error: error.message }
+      end
+    end
+
+    def extract_status_from(error)
+      return error.original_status if error.respond_to?(:original_status)
+
+      if error.respond_to?(:response) && error.response.is_a?(Hash)
+        error.response[:status] || 500
+      else
+        500
       end
     end
 

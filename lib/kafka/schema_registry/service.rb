@@ -7,34 +7,39 @@ module Kafka
     class Service < Common::Client::Base
       configuration SchemaRegistry::Configuration
 
+      SCHEMA_REGISTRY_PATH_PREFIX = '/ves-event-bus-infra/schema-registry'
+
       def fetch(id)
-        data = request("/schemas/ids/#{id}", idempotent: true)
+        data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/schemas/ids/#{id}", idempotent: true)
         data.fetch(:schema)
       end
 
       # List all subjects
       def subjects
-        request('/subjects', idempotent: true)
+        request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects", idempotent: true)
       end
 
       # List all versions for a subject
       def subject_versions(topic)
-        request("/subjects/#{topic}-value/versions", idempotent: true)
+        validate_topic(topic)
+        request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects/#{topic}-value/versions", idempotent: true)
       end
 
       # Get a specific version for a subject
       def subject_version(topic, version = 'latest')
-        request("/subjects/#{topic}-value/versions/#{version}", idempotent: true)
+        validate_topic(topic)
+        request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects/#{topic}-value/versions/#{version}", idempotent: true)
       end
 
       # Get the subject and version for a schema id
       def schema_subject_versions(schema_id)
-        request("/schemas/ids/#{schema_id}/versions", idempotent: true)
+        request("#{SCHEMA_REGISTRY_PATH_PREFIX}/schemas/ids/#{schema_id}/versions", idempotent: true)
       end
 
       # Check if a schema exists. Returns nil if not found.
       def check(topic, schema)
-        data = request("/subjects/#{topic}-value",
+        validate_topic(topic)
+        data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/subjects/#{topic}-value",
                        method: :post,
                        expects: [200, 404],
                        body: { schema: schema.to_s }.to_json,
@@ -49,7 +54,8 @@ module Kafka
       # - false if incompatible
       # http://docs.confluent.io/3.1.2/schema-registry/docs/api.html#compatibility
       def compatible?(topic, schema, version = 'latest')
-        data = request("/compatibility/subjects/#{topic}-value/versions/#{version}",
+        validate_topic(topic)
+        data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/compatibility/subjects/#{topic}-value/versions/#{version}",
                        method: :post,
                        expects: [200, 404],
                        body: { schema: schema.to_s }.to_json,
@@ -63,7 +69,8 @@ module Kafka
       # - a list of compatibility issues
       # https://docs.confluent.io/platform/current/schema-registry/develop/api.html#sr-api-compatibility
       def compatibility_issues(topic, schema, version = 'latest')
-        data = request("/compatibility/subjects/#{topic}-value/versions/#{version}",
+        validate_topic(topic)
+        data = request("#{SCHEMA_REGISTRY_PATH_PREFIX}/compatibility/subjects/#{topic}-value/versions/#{version}",
                        method: :post,
                        expects: [200, 404],
                        body: { schema: schema.to_s }.to_json, query: { verbose: true }, idempotent: true)
@@ -72,12 +79,13 @@ module Kafka
 
       # Get global config
       def global_config
-        request('/config', idempotent: true)
+        request("#{SCHEMA_REGISTRY_PATH_PREFIX}/config", idempotent: true)
       end
 
       # Get config for subject
       def subject_config(topic)
-        request("/config/#{topic}-value", idempotent: true)
+        validate_topic(topic)
+        request("#{SCHEMA_REGISTRY_PATH_PREFIX}/config/#{topic}-value", idempotent: true)
       end
 
       private
@@ -89,6 +97,10 @@ module Kafka
         end
 
         JSON.parse(response.body)
+      end
+
+      def validate_topic(topic)
+        raise WaterDrop::Errors::MessageInvalidError.new(topic: 'no topic provided') if topic.blank?
       end
     end
   end
