@@ -192,6 +192,24 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
         end
+
+        it 'retries VES submission if it fails' do
+          with_settings(Settings, vsp_environment: 'staging') do
+            if data['form_number'] == '10-10D'
+              controller = IvcChampva::V1::UploadsController.new
+
+              allow(ves_client).to receive(:submit_1010d)
+                .with(anything, anything, anything)
+                .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+
+              allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
+
+              controller.send(:submit_ves_request, ves_request, {})
+
+              expect(ves_client).to have_received(:submit_1010d).twice
+            end
+          end
+        end
       end
     end
   end

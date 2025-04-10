@@ -93,11 +93,17 @@ module IvcChampva
       def submit_ves_request(ves_request, metadata)
         unless ves_request.nil?
           ves_client = IvcChampva::VesApi::Client.new
+          on_failure = lambda { |e, attempt|
+            Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
+          }
+
           response = nil
-          begin
+
+          # TODO: what are the error condition we'd expect from VES?
+          # leaving 'nil' to always retry for now
+          IvcChampva::Retry.do(1, retry_on: nil, on_failure:) do
+            ves_request.transaction_uuid = SecureRandom.uuid
             response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
-          rescue => e
-            Rails.logger.error "Ignoring error when submitting to VES: #{e.message}"
           end
 
           begin
