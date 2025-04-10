@@ -64,11 +64,21 @@ module VAOS
         params.fetch(:mode, 'C')
       end
 
+      # CCRA Referral Status Codes:
+      # S  - Suspend: Referral temporarily paused/on hold
+      # BP - EOC Complete: Episode of Care is completed
+      # AP - Approved: Referral approved/authorized for care
+      # A  - First Appointment Made: Initial appointment scheduled
+      #
+      # TODO:
+      # I  - Unknown - Possibly means Initial: Referral initiated/in progress
+      # AC - Unknown - Possibly means Appointment Canceled
+      #
       # The referral status parameter for filtering referrals
       # @return [String] the referral status
       def referral_status_param
-        # TODO: Need to verify what statuses we can allow. API spec is not clear.
-        params.fetch(:status, "'S','BP','AP','AC','A','I'")
+        # Default to only show referrals that a veteran can make appointments for
+        params.fetch(:status, "'AP','AC','I'")
       end
 
       # Memoized referral service instance
