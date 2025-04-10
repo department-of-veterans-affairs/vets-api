@@ -106,11 +106,11 @@ module DebtManagementCenter
       with_monitoring_and_error_handling do
         options = { timeout: 30 }
         payload = { fileNumber: @file_number }
-        payload[:countOnly] = count_only ? true : false
+        payload[:countOnly] = true if count_only
 
         response = perform(:post, Settings.dmc.debts_endpoint, payload, nil, options).body
-
-        return response if count_only
+        
+        return extract_debts_count(response) if count_only
         
         DebtManagementCenter::DebtsResponse.new(response).debts
       rescue => e
@@ -120,6 +120,26 @@ module DebtManagementCenter
         ])
         raise e
       end
+    end
+
+    def extract_debts_count(response)
+      # If response is the desired format, return it.  
+      # If it is an array, return just the count.
+      # Sometimes we get back the default mocked file, then we count and return that.
+
+      if response.is_a?(Hash) && response.key?('debtsCount')
+        return response
+      end
+
+      if response.is_a?(Array) && response.first.is_a?(Hash) && response.first.key?('debtsCount')
+        return response.first
+      end
+
+      if response.is_a?(Array) && response.any? { |debt| debt['fileNumber'].present? }
+        return { "debtsCount" => response.length }
+      end
+
+      response
     end
 
     def add_debts_to_redis
