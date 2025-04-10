@@ -86,6 +86,7 @@ module PdfFill
           %w[
             street
             street2
+            street3
             city
             state
             postalCode
@@ -115,13 +116,10 @@ module PdfFill
       def combine_hash(hash, keys, separator = ' ')
         return if hash.blank?
 
-        combined = []
-
-        keys.each do |key|
-          combined << hash[key]
-        end
-
-        combined.compact.join(separator)
+        keys
+          .map { |key| hash[key] }
+          .compact_blank # removes both nil and empty strings
+          .join(separator)
       end
 
       def expand_date_range(hash, key)
