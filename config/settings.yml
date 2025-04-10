@@ -1841,11 +1841,6 @@ virtual_agent:
   webchat_secret_msft: <%= ENV['virtual_agent__webchat_secret_msft'] %>
   webchat_secret_nlu: <%= ENV['virtual_agent__webchat_secret_nlu'] %>
 virtual_hosts: <%= ENV['virtual_hosts'] %>
-virtual_regional_office:
-  api_key: <%= ENV['virtual_regional_office__api_key'] %>
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: <%= ENV['virtual_regional_office__url'] %>
 vre_counseling:
   prefill: true
 vre_readiness:
