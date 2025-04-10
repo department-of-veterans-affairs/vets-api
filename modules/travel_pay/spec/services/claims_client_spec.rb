@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative 'shared_claims_context'
 
 describe TravelPay::ClaimsClient do
-  let(:user) { build(:user) }
+  include_context 'claims'
 
   expected_log_prefix = 'travel_pay.claims.response_time'
 
