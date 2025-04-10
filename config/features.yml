@@ -142,9 +142,6 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
-  cg1010_oauth_2_enabled:
-    actor_type: user
-    description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
