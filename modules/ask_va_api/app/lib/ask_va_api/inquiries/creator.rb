@@ -93,10 +93,6 @@ module AskVAApi
       def handle_response(response)
         response.is_a?(Hash) ? response[:Data] : raise(InquiriesCreatorError, response.body)
       end
-
-      def handle_error(error)
-        ErrorHandler.handle_service_error(error)
-      end
     end
   end
 end
