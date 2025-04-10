@@ -48,6 +48,47 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         expect(first_referral['attributes']).to have_key('type_of_care')
       end
     end
+
+    context 'when a configuration error occurs' do
+      # Note we only test this once as the code is the same for both endpoints
+      let(:jwt_error) { Common::JwtWrapper::ConfigurationError.new('Configuration error occurred') }
+      let(:config_error) { VAOS::Exceptions::ConfigurationError.new(jwt_error, 'CCRA') }
+
+      before do
+        sign_in_as(user)
+        allow(service_double).to receive(:get_vaos_referral_list).and_raise(config_error)
+      end
+
+      it 'returns 503 Service Unavailable with properly formatted error response' do
+        get '/vaos/v2/referrals'
+
+        expect(response).to have_http_status(:service_unavailable)
+
+        response_data = JSON.parse(response.body)
+
+        expect(response_data).to have_key('errors')
+        expect(response_data['errors']).to be_an(Array)
+        expect(response_data['errors'].first).to include(
+          'title' => 'Service Configuration Error',
+          'detail' => 'The CCRA service is unavailable due to a configuration issue',
+          'code' => 'VAOS_CONFIG_ERROR',
+          'status' => '503'
+        )
+      end
+
+      it 'does not expose internal error details' do
+        get '/vaos/v2/referrals'
+
+        response_data = JSON.parse(response.body)
+
+        # Original error message is not leaked
+        expect(response_data['errors'].first['detail']).not_to include('Configuration error occurred')
+
+        # No stack trace is included
+        expect(response_data['errors'].first).not_to have_key('meta')
+        expect(response_data['errors'].first).not_to have_key('backtrace')
+      end
+    end
   end
 
   describe 'GET /vaos/v2/referrals/:id' do

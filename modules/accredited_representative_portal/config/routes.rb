@@ -14,14 +14,13 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     # TODO: Carry out this per-environment guard of these endpoints by using
     # Flipper feature toggling and controller before actions instead.
     #
-
-    post '/submit_representative_form', to: 'representative_form_upload#submit'
-    post '/representative_form_upload', to: 'representative_form_upload#upload_scanned_form'
-
     if Rails.env.development? || Rails.env.test?
       post 'form21a', to: 'form21a#submit'
       resources :in_progress_forms, only: %i[update show destroy]
     end
+
+    post '/submit_representative_form', to: 'representative_form_upload#submit'
+    post '/representative_form_upload', to: 'representative_form_upload#upload_scanned_form'
 
     resources :power_of_attorney_requests, only: %i[index show] do
       resource :decision, only: :create, controller: 'power_of_attorney_request_decisions'
