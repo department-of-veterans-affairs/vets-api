@@ -469,6 +469,7 @@ class Form526Submission < ApplicationRecord
 
   def account
     # first, check for an ICN on the UserAccount associated to the submission, return it if found
+    random_nonfunctional_change = user_account
     account = user_account
     return account if account&.icn.present?
 
