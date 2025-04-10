@@ -118,7 +118,8 @@ module Eps
     def search_provider_services(params = {})
       query_params = build_search_params(params)
       response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
-      OpenStruct.new(response.body)
+      provider = response.body.dig(:provider_services, 0)
+      provider ? OpenStruct.new(provider) : nil
     end
 
     private
