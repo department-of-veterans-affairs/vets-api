@@ -754,6 +754,7 @@ module PdfFill
 
       def process_treatment_dates
         @form_data['treatmentProvidersDetails'].each do |item|
+          item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
           item['treatmentDate'] = if item['noDates']
                                     'no response'
                                   else
@@ -839,7 +840,8 @@ module PdfFill
         facility_info = provider['facilityInfo']
         month = provider['treatmentMonth'] || 'XX'
         year = provider['treatmentYear'] || 'XXXX'
-        no_date = provider['noDates']
+        no_date = provider['treatmentMonth'].to_s.strip.empty? && provider['treatmentYear'].to_s.strip.empty?
+        provider['noDates'] = no_date
 
         provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
         provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")
