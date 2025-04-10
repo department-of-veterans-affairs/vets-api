@@ -25,7 +25,6 @@ module BGS
       @proc_state = 'Ready' if user.auto674.present?
     end
 
-    # rubocop:disable Metrics/MethodLength
     def submit(payload)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
@@ -54,7 +53,6 @@ module BGS
         log_submit_failure(error)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -72,13 +70,15 @@ module BGS
     def log_claim_status(benefit_claim_record, proc_id)
       if @proc_state == 'MANUAL_VAGOV'
         if @saved_claim.submittable_686?
-          Rails.logger.info('21-674 Combination 686C-674 claim set to manual by VA.gov: This application needs manual review because a 674 was submitted alongside a 686c.',
-            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true, combination_claim: true })
-            StatsD.increment("#{stats_key}.manual.combo")
+          Rails.logger.info('21-674 Combination 686C-674 claim set to manual by VA.gov: This
+                            application needs manual review because a 674 was submitted alongside a 686c.',
+                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true,
+                              combination_claim: true })
+          StatsD.increment("#{stats_key}.manual.combo")
         else
           Rails.logger.info('21-674 Claim set to manual by VA.gov: This application needs manual review.',
-            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true })
-            StatsD.increment("#{stats_key}.manual")
+                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true })
+          StatsD.increment("#{stats_key}.manual")
         end
         # keep bgs note the same
         note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
@@ -186,7 +186,7 @@ module BGS
     end
 
     def stats_key
-      "bgs.form674"
+      'bgs.form674'
     end
   end
 end

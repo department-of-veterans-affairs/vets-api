@@ -67,9 +67,12 @@ module BGS
 
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
         if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
-          prep_manual_claim(benefit_claim_id) 
+          prep_manual_claim(benefit_claim_id)
         else
-          Rails.logger.debug("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}", saved_claim_id: @saved_claim.id, proc_id: @proc_id, automatic: true)
+          Rails.logger.debug("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
+                             saved_claim_id: @saved_claim.id,
+                             proc_id: @proc_id,
+                             automatic: true)
           StatsD.increment("#{stats_key}.automatic")
         end
         bgs_service.update_proc(@proc_id, proc_state: @proc_state)
@@ -200,10 +203,14 @@ module BGS
     def prep_manual_claim(benefit_claim_id)
       @proc_state = 'MANUAL_VAGOV'
       if @saved_claim.submittable_674?
-        Rails.logger.debug(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true, combination_claim: true)
+        Rails.logger.info(@note_text,
+                          saved_claim_id: @saved_claim.id,
+                          proc_id: @proc_id,
+                          manual: true,
+                          combination_claim: true)
         StatsD.increment("#{stats_key}.manual.combo")
       else
-        Rails.logger.debug(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true)
+        Rails.logger.info(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true)
         StatsD.increment("#{stats_key}.manual")
       end
       bgs_service.create_note(benefit_claim_id, @note_text)
@@ -231,7 +238,7 @@ module BGS
     end
 
     def stats_key
-      "bgs.form686"
+      'bgs.form686c'
     end
   end
 end
