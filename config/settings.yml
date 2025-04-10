@@ -1639,6 +1639,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
+    key: <%= ENV['vaos__eps__key'] %>
     key_path: "/fake/client/key/path"
     kid: fake_kid
     mock: <%= ENV['vaos__eps__mock'] %>

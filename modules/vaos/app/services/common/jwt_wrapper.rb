@@ -19,22 +19,10 @@ module Common
     end
 
     def sign_assertion
-      JWT.encode(claims, rsa_key, SIGNING_ALGORITHM, jwt_headers)
+      JWT.encode(claims, Settings.vaos.eps.key, SIGNING_ALGORITHM, jwt_headers)
     rescue ConfigurationError => e
       Rails.logger.error("Service Configuration Error: #{e.message}")
       raise VAOS::Exceptions::ConfigurationError.new(e, @config.service_name)
-    end
-
-    def rsa_key
-      raise ConfigurationError, 'RSA key path is not configured' if key_path.blank?
-
-      raise ConfigurationError, "RSA key file not found at: #{key_path}" unless File.exist?(key_path)
-
-      @rsa_key ||= begin
-        OpenSSL::PKey::RSA.new(File.read(key_path))
-      rescue => e
-        raise ConfigurationError, "Failed to load RSA key: #{e.message}"
-      end
     end
 
     private
