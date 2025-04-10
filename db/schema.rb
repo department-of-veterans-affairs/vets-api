@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_09_194908) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_10_150230) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -436,7 +436,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_194908) do
   create_table "bpds_submission_attempts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "bpds_submission_id", null: false
+    t.bigint "bpds_submission_id"
     t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the bpds submission"
