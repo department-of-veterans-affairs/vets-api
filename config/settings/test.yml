@@ -1658,6 +1658,10 @@ vaos:
     mock: false
     redis_token_expiry: 3500
     scopes: care-nav
+  referral:
+    encryption:
+      hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      hex_iv: "0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
   documentation:
