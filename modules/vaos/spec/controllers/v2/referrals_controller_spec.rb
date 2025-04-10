@@ -66,7 +66,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         first_referral = response_data['data'].first
         expect(first_referral['id']).to eq('encrypted-5682')
         expect(first_referral['type']).to eq('referrals')
-        expect(first_referral['attributes']['typeOfCare']).to eq('CARDIOLOGY')
+        expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(first_referral['attributes']['referralNumber']).to eq('5682')
         expect(first_referral['attributes']['expirationDate']).to eq('2024-05-27')
       end
@@ -132,7 +132,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data).to have_key('data')
         expect(response_data['data']['id']).to eq(encrypted_uuid)
         expect(response_data['data']['type']).to eq('referrals')
-        expect(response_data['data']['attributes']['typeOfCare']).to eq('CARDIOLOGY')
+        expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(response_data['data']['attributes']['providerName']).to eq('Dr. Smith')
         expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
         expect(response_data['data']['attributes']['expirationDate']).to eq('2024-05-27')
