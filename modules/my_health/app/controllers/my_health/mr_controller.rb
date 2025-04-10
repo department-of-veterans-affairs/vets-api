@@ -17,7 +17,7 @@ module MyHealth
 
     def render_resource(resource)
       if resource == :patient_not_found
-        head :accepted
+        render plain: '', status: :accepted
       else
         render json: resource.to_json
       end
