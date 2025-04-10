@@ -1237,7 +1237,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when drive time coords are invalid' do
         let(:draft_params) do
           {
-            referral_id: 'ref-123',
+            referral_id: 'ref-123'
           }
         end
 
