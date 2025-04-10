@@ -69,7 +69,7 @@ module BGS
         if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
           prep_manual_claim(benefit_claim_id)
         else
-          Rails.logger.debug("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
+          Rails.logger.info("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
                              saved_claim_id: @saved_claim.id,
                              proc_id: @proc_id,
                              automatic: true)
