@@ -56,7 +56,7 @@ module TravelPay
         end
       end
     rescue ArgumentError => e
-      Rails.logger.info(message: "#{e} Invalid appointment time provided (given: #{date_string}).")
+      Rails.logger.error(message: "#{e} Invalid appointment time provided (given: #{date_string}).")
       raise ArgumentError, "#{e} Invalid appointment time provided (given: #{date_string})."
     end
 
