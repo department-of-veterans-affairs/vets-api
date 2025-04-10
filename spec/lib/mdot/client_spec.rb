@@ -18,6 +18,10 @@ describe MDOT::Client, type: :mdot_helpers do
 
   let(:user) { build(:user, :loa3, user_details) }
 
+  around do |ex|
+    with_settings(Settings.mdot, { breakers: true }) { ex.run }
+  end
+
   describe '#get_supplies' do
     context 'with a valid supplies response' do
       it 'returns an array of supplies' do
