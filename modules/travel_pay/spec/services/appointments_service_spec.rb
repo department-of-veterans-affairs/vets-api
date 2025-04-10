@@ -112,4 +112,73 @@ describe TravelPay::AppointmentsService do
       end
     end
   end
+
+  context 'find or create appointment' do
+    let(:user) { build(:user) }
+
+    let(:appointment_response) do
+      Faraday::Response.new(
+        body: {
+          'data' => {
+            'id' => '45678'
+          }
+        }
+      )
+    end
+
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      allow_any_instance_of(TravelPay::AppointmentsClient)
+        .to receive(:find_or_create)
+        .with(tokens[:veis_token], tokens[:btsss_token],
+              { 'appointment_datetime' => '2024-01-01 12:45:34 UTC',
+                'station_number' => '123',
+                'appointment_data' => {
+                  'localStartTime' => '2024-01-01T12:45:34.465Z',
+                  'facilityId' => '123'
+                } })
+        .and_return(appointment_response)
+
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::AppointmentsService.new(auth_manager)
+    end
+
+    it 'returns the BTSSS appointment that matches appt date' do
+      date_string = '2024-01-01T12:45:34.465Z'
+
+      params = { 'appointment_datetime' => date_string,
+                 'station_number' => '123',
+                 'appointment_data' => {
+                   'localStartTime' => date_string,
+                   'facilityId' => '123'
+                 } }
+
+      appt = @service.find_or_create_appointment(params)
+
+      expect(appt[:data]['id']).to eq('45678')
+    end
+
+    it 'throws an Argument Error if appt date is invalid' do
+      expect do
+        @service.find_or_create_appointment({ 'appointment_datetime' => 'banana',
+                                              'station_number' => '123',
+                                              'appointment_data' => {
+                                                'localStartTime' => 'banana',
+                                                'facilityId' => '123'
+                                              } })
+      end
+        .to raise_error(ArgumentError, /Invalid appointment time/i)
+
+      expect do
+        @service.find_or_create_appointment({ 'appointment_datetime' => nil,
+                                              'station_number' => '123',
+                                              'appointment_data' => {
+                                                'localStartTime' => nil,
+                                                'facilityId' => '123'
+                                              } })
+      end
+        .to raise_error(ArgumentError, /Invalid appointment time/i)
+    end
+  end
 end

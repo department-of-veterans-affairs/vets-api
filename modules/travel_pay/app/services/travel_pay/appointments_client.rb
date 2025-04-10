@@ -36,5 +36,35 @@ module TravelPay
         end
       end
     end
+
+    ##
+    # HTTP POST call to the BTSSS 'appointments/find-or-create' endpoint
+    # API responds with BTSSS appointment ID
+    #
+    # @params: (for Travel Pay API)
+    #   appointmentDateTime: string
+    #   stationNumber: string (facility ID)
+    #   appointmentData: {
+    #     ...all appointment data
+    #    }
+    #
+    #  TODO: Confirm if they just send the appt ID or the whole BTSSS appt object
+    # @return [TravelPay::Appointment]
+    #
+    def find_or_create(veis_token, btsss_token, params)
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+
+      log_to_statsd('appointments', 'find_or_create') do
+        connection(server_url: btsss_url).post('api/v2/appointments/find-or-create') do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.body = params.to_json
+          req.headers.merge!(claim_headers)
+        end
+      end
+    end
   end
 end

@@ -38,6 +38,47 @@ module TravelPay
       }
     end
 
+    ##
+    # gets an appointment for the provided datetime if it exists,
+    # TP API will create it if not
+    # @params:
+    #  {
+    #   appointmentDateTime: datetime string ('2024-01-01T12:45:34.465Z'),
+    #   stationNumber: string (i.e. facilityId),
+    #   appointmentData: {
+    #    ...VAOS appt data from VA.gov
+    #    }
+    #  }
+    #
+    #
+    # @return {
+    #   'id' => 'string', BTSSS appointment ID
+    # }
+    #
+    #
+    def find_or_create_appointment(params = {})
+      if params['appointment_datetime'].nil?
+        Rails.logger.error(message: 'Invalid appointment time provided (appointment time cannot be nil).')
+        raise ArgumentError, message: 'Invalid appointment time provided (appointment time cannot be nil).'
+      elsif params['appointment_datetime'].present?
+        parsed_date_time = DateUtils.strip_timezone(params['appointment_datetime'])
+
+        params['appointment_datetime'] = parsed_date_time.to_s
+
+        @auth_manager.authorize => { veis_token:, btsss_token: }
+        faraday_response = client.find_or_create(veis_token, btsss_token, params)
+        # TODO: confirm if they only return the appt ID or the whole BTSSS appt object
+        appointment_id = faraday_response.body['data']
+
+        {
+          data: appointment_id
+        }
+      end
+    rescue ArgumentError => e
+      Rails.logger.error(message: "#{e} Invalid appointment time provided (given: #{params['appointment_datetime']}).")
+      raise ArgumentError, "#{e} Invalid appointment time provided (given: #{params['appointment_datetime']})."
+    end
+
     private
 
     def find_by_date_time(date_string, appointments)
