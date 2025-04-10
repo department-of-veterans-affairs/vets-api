@@ -337,7 +337,8 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.1.4)
+    coverband (6.1.5)
+      base64
       redis (>= 3.0)
     crack (1.0.0)
       bigdecimal
@@ -458,7 +459,7 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
-    faraday-retry (2.2.1)
+    faraday-retry (2.3.1)
       faraday (~> 2.0)
     faraday-typhoeus (1.1.0)
       faraday (~> 2.0)
@@ -640,8 +641,9 @@ GEM
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
-    kms_encrypted (1.6.0)
-      activesupport (>= 6.1)
+    kms_encrypted (1.7.0)
+      activesupport (>= 7.1)
+      base64
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
