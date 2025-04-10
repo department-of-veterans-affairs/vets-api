@@ -848,7 +848,7 @@ module IncomeAndAssets
         # 13a
         'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
         # 13b
-        'statementOfTruthDate' => {
+        'statementOfTruthSignatureDate' => {
           'month' => { key: 'F[0].DateSigned13bMonth[0]' },
           'day' => { key: 'F[0].DateSigned13bDay[0]' },
           'year' => { key: 'F[0].DateSigned13bYear[0]' }
@@ -1270,7 +1270,7 @@ module IncomeAndAssets
       def expand_statement_of_truth
         # We want today's date in the form 'YYYY-MM-DD' as that's the format it comes
         # back from vets-website in
-        form_data['statementOfTruthDate'] = split_date(Date.current.iso8601)
+        form_data['statementOfTruthSignatureDate'] = split_date(Date.current.iso8601)
       end
     end
   end
