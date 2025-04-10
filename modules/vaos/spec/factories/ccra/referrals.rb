@@ -32,6 +32,7 @@ FactoryBot.define do
     referring_facility_city { 'DAYTON' }
     referring_facility_state { 'OH' }
     referring_facility_zip { '45428' }
+    has_appointments { 'Y' }
 
     initialize_with do
       attributes = {
@@ -42,6 +43,7 @@ FactoryBot.define do
           'ReferralNumber' => referral_number,
           'ReferralExpirationDate' => expiration_date,
           'ProviderPhone' => phone_number,
+          'APPTYesNo1' => has_appointments,
           'ReferringFacilityInfo' => {
             'FacilityName' => referring_facility_name,
             'Phone' => referring_facility_phone,

@@ -14,6 +14,7 @@ module Ccra
     attribute :expiration_date
     attribute :referral_number
     attribute :uuid
+    attribute :has_appointments
 
     # Nested provider information
     attribute :provider do |referral|

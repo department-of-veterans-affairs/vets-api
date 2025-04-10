@@ -18,6 +18,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:referring_facility_city) { 'DAYTON' }
       let(:referring_facility_state) { 'OH' }
       let(:referring_facility_zip) { '45428' }
+      let(:has_appointments) { 'Y' }
 
       let(:referral) do
         result = build(
@@ -33,7 +34,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           referring_facility_address1:,
           referring_facility_city:,
           referring_facility_state:,
-          referring_facility_zip:
+          referring_facility_zip:,
+          has_appointments:
         )
         result.uuid = encrypted_uuid
         result
@@ -84,6 +86,54 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:attributes][:expirationDate]).to eq(expiration_date)
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
         expect(serialized_data[:data][:attributes][:uuid]).to eq(encrypted_uuid)
+        expect(serialized_data[:data][:attributes][:hasAppointments]).to be(true)
+      end
+    end
+
+    context 'with different appointment indicator values' do
+      let(:referral_with_y) do
+        build(:ccra_referral_detail, has_appointments: 'Y')
+      end
+
+      let(:referral_with_n) do
+        build(:ccra_referral_detail, has_appointments: 'N')
+      end
+
+      let(:referral_with_y_lowercase) do
+        build(:ccra_referral_detail, has_appointments: 'y')
+      end
+
+      let(:referral_with_n_lowercase) do
+        build(:ccra_referral_detail, has_appointments: 'n')
+      end
+
+      let(:referral_with_nil) do
+        build(:ccra_referral_detail, has_appointments: nil)
+      end
+
+      it 'handles uppercase Y correctly' do
+        serialized = described_class.new(referral_with_y).serializable_hash
+        expect(serialized[:data][:attributes][:hasAppointments]).to be(true)
+      end
+
+      it 'handles uppercase N correctly' do
+        serialized = described_class.new(referral_with_n).serializable_hash
+        expect(serialized[:data][:attributes][:hasAppointments]).to be(false)
+      end
+
+      it 'handles lowercase y correctly' do
+        serialized = described_class.new(referral_with_y_lowercase).serializable_hash
+        expect(serialized[:data][:attributes][:hasAppointments]).to be(true)
+      end
+
+      it 'handles lowercase n correctly' do
+        serialized = described_class.new(referral_with_n_lowercase).serializable_hash
+        expect(serialized[:data][:attributes][:hasAppointments]).to be(false)
+      end
+
+      it 'handles nil values correctly' do
+        serialized = described_class.new(referral_with_nil).serializable_hash
+        expect(serialized[:data][:attributes][:hasAppointments]).to be_nil
       end
     end
 
@@ -100,6 +150,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:referring_facility_city) { 'DAYTON' }
       let(:referring_facility_state) { 'OH' }
       let(:referring_facility_zip) { '45428' }
+      let(:has_appointments) { 'Y' }
 
       let(:referral) do
         build(
@@ -115,7 +166,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           referring_facility_address1:,
           referring_facility_city:,
           referring_facility_state:,
-          referring_facility_zip:
+          referring_facility_zip:,
+          has_appointments:
         )
       end
 
@@ -131,6 +183,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:attributes][:provider][:location]).to be_nil
         expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
+        expect(serialized_data[:data][:attributes][:hasAppointments]).to be(true)
 
         # Test referring facility info
         expect(serialized_data[:data][:attributes][:referringFacilityInfo]).to be_a(Hash)
@@ -165,6 +218,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:referring_facility_name) { 'Dayton VA Medical Center' }
       let(:referring_facility_phone) { '(937) 262-3800' }
       let(:referring_facility_code) { '552' }
+      let(:has_appointments) { 'N' }
       # No address information
 
       let(:referral) do
@@ -175,6 +229,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           referring_facility_name:,
           referring_facility_phone:,
           referring_facility_code:,
+          has_appointments:,
           # Explicitly set address fields to nil
           referring_facility_address1: nil,
           referring_facility_city: nil,
@@ -196,6 +251,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           serialized_data[:data][:attributes][:referringFacilityInfo][:facilityCode]
         ).to eq(referring_facility_code)
         expect(serialized_data[:data][:attributes][:referringFacilityInfo][:address]).to be_nil
+        expect(serialized_data[:data][:attributes][:hasAppointments]).to be(false)
       end
     end
 
@@ -217,6 +273,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
         expect(serialized_data[:data][:attributes][:referralNumber]).to be_nil
         expect(serialized_data[:data][:attributes][:uuid]).to be_nil
+        expect(serialized_data[:data][:attributes][:hasAppointments]).to be_nil
 
         # Check provider is a hash with nil values
         provider = serialized_data[:data][:attributes][:provider]
