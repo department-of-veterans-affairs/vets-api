@@ -1866,11 +1866,6 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
-virtual_regional_office:
-  api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: http://localhost:8120
 vre_counseling:
   prefill: true
 vre_readiness:
