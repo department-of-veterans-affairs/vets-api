@@ -33,6 +33,7 @@ module DebtManagementCenter
 
       has_dependent_debts = veteran_has_dependent_debts?
       debts = debts_with_sorted_histories
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.success")
       {
         has_dependent_debts:,
         debts:
