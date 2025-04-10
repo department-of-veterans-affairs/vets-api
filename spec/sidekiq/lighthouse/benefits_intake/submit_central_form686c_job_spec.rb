@@ -53,10 +53,10 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
     {
+      'queue' => 'default',
       'args' => [],
       'class' => 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob',
-      'error_message' => 'An error occured',
-      'queue' => nil
+      'error_message' => 'An error occurred'
     }
   end
 
@@ -260,6 +260,8 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
   context 'with va_dependents_v2 enabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 

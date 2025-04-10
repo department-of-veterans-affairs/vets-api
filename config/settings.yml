@@ -417,7 +417,6 @@ evss:
   mock_common_service: <%= ENV['evss__mock_common_service'] %>
   mock_disabilities_form: <%= ENV['evss__mock_disabilities_form'] %>
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
-  mock_itf: <%= ENV['evss__mock_itf'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
@@ -919,6 +918,7 @@ mcp:
     url: <%= ENV['mcp__vbs_v2__url'] %>
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
@@ -1338,9 +1338,6 @@ ssoe_eauth_cookie:
   domain: <%= ENV['ssoe_eauth_cookie__domain'] %>
   name: <%= ENV['ssoe_eauth_cookie__name'] %>
   secure: <%= ENV['ssoe_eauth_cookie__secure'] %>
-statsd:
-  host: <%= ENV['statsd__host'] %>
-  port: 8125
 terms_of_use:
   current_version: v1
   enabled_clients: <%= ENV['terms_of_use__enabled_clients'] %>
@@ -1631,7 +1628,6 @@ vanotify:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
   ccra:
-    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: <%= ENV['vaos__ccra__mock'] %>
@@ -1845,11 +1841,6 @@ virtual_agent:
   webchat_secret_msft: <%= ENV['virtual_agent__webchat_secret_msft'] %>
   webchat_secret_nlu: <%= ENV['virtual_agent__webchat_secret_nlu'] %>
 virtual_hosts: <%= ENV['virtual_hosts'] %>
-virtual_regional_office:
-  api_key: <%= ENV['virtual_regional_office__api_key'] %>
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: <%= ENV['virtual_regional_office__url'] %>
 vre_counseling:
   prefill: true
 vre_readiness:

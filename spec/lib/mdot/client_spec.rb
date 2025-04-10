@@ -18,6 +18,10 @@ describe MDOT::Client, type: :mdot_helpers do
 
   let(:user) { build(:user, :loa3, user_details) }
 
+  around do |ex|
+    with_settings(Settings.mdot, { breakers: true }) { ex.run }
+  end
+
   describe '#get_supplies' do
     context 'with a valid supplies response' do
       it 'returns an array of supplies' do
@@ -66,6 +70,30 @@ describe MDOT::Client, type: :mdot_helpers do
             MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_502/)
+          end
+        end
+      end
+    end
+
+    context 'with an unknown error sans result' do
+      it 'raises a Default Exception' do
+        VCR.use_cassette('mdot/get_supplies_502_no_result') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:502'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::Exceptions::ServiceException
+          ) do |e|
+            expect(e.message).to match(/default_exception/)
+            expect(e.status_code).to eq(400)
           end
         end
       end
