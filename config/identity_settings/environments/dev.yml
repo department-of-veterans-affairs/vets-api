@@ -24,6 +24,7 @@ mhv:
 mvi:
   client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
   client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  mock: false
   url: https://fwdproxy-dev.vfs.va.gov:4434/psim_webservice/dev/IdMWebService
 
 saml_ssoe:
@@ -51,6 +52,7 @@ sign_in:
   sts_client:
     base_url: https://dev-api.va.gov
     key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://dev.va.gov/sign-in
 
 ssoe_eauth_cookie:
   domain: .va.gov

@@ -272,6 +272,16 @@ describe IvcChampva::VesDataFormatter do
     end
   end
 
+  describe 'sponsor date of marriage' do
+    it 'when formatted as MM-DD-YYYY, it reformats to YYYY-MM-DD' do
+      @parsed_form_data_copy['veteran']['date_of_marriage'] = '01-01-2020'
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+
+      expect(res.sponsor.date_of_marriage).to eq('2020-01-01')
+    end
+  end
+
   describe 'social security number is malformed' do
     describe 'too long' do
       it 'raises an exception' do

@@ -413,27 +413,57 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ]
       }
     end
-    let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
 
-    before do
-      allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
-      allow(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+    context ':caregiver_use_facilities_API_V2 enabled' do
+      let(:lighthouse_service) { double('FacilitiesApi::V2::Lighthouse::Client') }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(true)
+        allow(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
+        allow(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+      end
+
+      it 'returns the response as JSON' do
+        subject
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to eq(mock_facility_response.to_json)
+      end
+
+      it 'calls the Lighthouse facilities service with the permitted params' do
+        subject
+
+        expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
+
+        expect(lighthouse_service).to have_received(:get_paginated_facilities)
+          .with(expected_params)
+      end
     end
 
-    it 'returns the response as JSON' do
-      subject
+    context ':caregiver_use_facilities_API_V2 disabled' do
+      let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
 
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to eq(mock_facility_response.to_json)
-    end
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(false)
+        allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+        allow(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
+      end
 
-    it 'calls the Lighthouse facilities service with the permitted params' do
-      subject
+      it 'returns the response as JSON' do
+        subject
 
-      expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to eq(mock_facility_response.to_json)
+      end
 
-      expect(lighthouse_service).to have_received(:get_paginated_facilities)
-        .with(expected_params)
+      it 'calls the Lighthouse facilities service with the permitted params' do
+        subject
+
+        expected_params = unmodified_params.merge(facilityIds: 'vha_123,vha_456')
+
+        expect(lighthouse_service).to have_received(:get_paginated_facilities)
+          .with(expected_params)
+      end
     end
   end
 end
