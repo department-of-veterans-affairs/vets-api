@@ -662,6 +662,8 @@ kafka_producer:
   sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
+  test_topic_name: submission_trace_mock_test
+  topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -1866,11 +1868,6 @@ virtual_hosts:
   - localhost
   - 127.0.0.1
   - example.org
-virtual_regional_office:
-  api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: http://localhost:8120
 vre_counseling:
   prefill: true
 vre_readiness:
