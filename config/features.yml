@@ -786,6 +786,9 @@ features:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_4138_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4138 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1900,12 +1903,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_document_upload_update:
-    actor_type: user
-    description: Show updated document upload page
-  burial_location_of_death_update:
-    actor_type: user
-    description: Show updated location of death pattern
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1932,9 +1929,6 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
