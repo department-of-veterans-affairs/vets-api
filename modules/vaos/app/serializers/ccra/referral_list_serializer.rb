@@ -10,9 +10,7 @@ module Ccra
     set_id :uuid
     set_type :referrals
 
-    attribute :category_of_care do |object|
-      object.type_of_care
-    end
+    attribute :category_of_care, &:type_of_care
     attribute :referral_number
     attribute :uuid
 
