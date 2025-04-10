@@ -28,8 +28,6 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       # These are temporary changes and will be resolved as the mappings for the other sections get merged in
-      # Section 6
-      form_data.delete('royaltiesAndOtherProperties')
       # Section 10
       form_data.delete('unreportedAssets')
 
