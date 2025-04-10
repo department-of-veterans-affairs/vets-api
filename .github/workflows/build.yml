@@ -21,12 +21,10 @@ jobs:
           echo "github.event.workflow_run.head_commit.id: ${{ github.event.workflow_run.head_commit.id }}"
           echo "github.ref: ${{ github.ref }}"
           echo "github.ref_name: ${{ github.ref_name }}"
-          echo "github.event.workflow_run.head_branch: ${{ github.event.workflow_run.head_branch }}"
           echo "github.event.workflow_run.name: ${{ github.event.workflow_run.name }}"
           echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
           echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
           echo "github.event_name: ${{ github.event_name }}"
-          echo "Deploy condition: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}"
 
   build_and_push:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
