@@ -190,8 +190,8 @@ RSpec.describe VAOS::V2::ReferralsController do
           expect(response_data['data']['id']).to eq(encrypted_uuid)
           expect(response_data['data']['type']).to eq('referrals')
           expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
-          expect(response_data['data']['attributes']['providerName']).to eq('Dr. Smith')
-          expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
+          expect(response_data['data']['attributes']['provider']['name']).to eq('Dr. Smith')
+          expect(response_data['data']['attributes']['provider']['location']).to eq('VA Medical Center')
 
           # Verify expiration date is present and in the future
           expect(response_data['data']['attributes']).to have_key('expirationDate')

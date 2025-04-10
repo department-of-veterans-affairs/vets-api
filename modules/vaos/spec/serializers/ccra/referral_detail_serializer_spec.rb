@@ -36,8 +36,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:id]).to eq(encrypted_uuid)
         expect(serialized_data[:data][:type]).to eq(:referrals)
         expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(type_of_care)
-        expect(serialized_data[:data][:attributes][:providerName]).to eq(provider_name)
-        expect(serialized_data[:data][:attributes][:location]).to eq(location)
+        expect(serialized_data[:data][:attributes][:provider]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:provider][:name]).to eq(provider_name)
+        expect(serialized_data[:data][:attributes][:provider][:location]).to eq(location)
         expect(serialized_data[:data][:attributes][:expirationDate]).to eq(expiration_date)
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
         expect(serialized_data[:data][:attributes][:uuid]).to eq(encrypted_uuid)
@@ -69,8 +70,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:id]).to be_nil
         expect(serialized_data[:data][:type]).to eq(:referrals)
         expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(type_of_care)
-        expect(serialized_data[:data][:attributes][:providerName]).to be_nil
-        expect(serialized_data[:data][:attributes][:location]).to be_nil
+        expect(serialized_data[:data][:attributes][:provider]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:provider][:name]).to be_nil
+        expect(serialized_data[:data][:attributes][:provider][:location]).to be_nil
         expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
       end
@@ -88,10 +90,18 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       it 'returns a hash with data containing null attributes' do
         expect(serialized_data).to have_key(:data)
         expect(serialized_data[:data][:attributes]).to be_a(Hash)
-        # All attributes should be nil
-        serialized_data[:data][:attributes].each_value do |value|
-          expect(value).to be_nil
-        end
+
+        # Check non-nested attributes are nil
+        expect(serialized_data[:data][:attributes][:categoryOfCare]).to be_nil
+        expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
+        expect(serialized_data[:data][:attributes][:referralNumber]).to be_nil
+        expect(serialized_data[:data][:attributes][:uuid]).to be_nil
+
+        # Check provider is a hash with nil values
+        provider = serialized_data[:data][:attributes][:provider]
+        expect(provider).to be_a(Hash)
+        expect(provider[:name]).to be_nil
+        expect(provider[:location]).to be_nil
       end
     end
   end

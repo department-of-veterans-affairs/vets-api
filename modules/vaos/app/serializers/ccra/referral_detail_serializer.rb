@@ -11,10 +11,16 @@ module Ccra
     set_type :referrals
 
     attribute :category_of_care, &:type_of_care
-    attribute :provider_name
-    attribute :location
     attribute :expiration_date
     attribute :referral_number
     attribute :uuid
+
+    # Nested provider information
+    attribute :provider do |referral|
+      {
+        name: referral.provider_name,
+        location: referral.location
+      }
+    end
   end
 end

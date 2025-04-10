@@ -148,8 +148,10 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']).to have_key('attributes')
         expect(response_data['data']['attributes']).to have_key('categoryOfCare')
-        expect(response_data['data']['attributes']).to have_key('providerName')
-        expect(response_data['data']['attributes']).to have_key('location')
+        expect(response_data['data']['attributes']).to have_key('provider')
+        expect(response_data['data']['attributes']['provider']).to be_a(Hash)
+        expect(response_data['data']['attributes']['provider']).to have_key('name')
+        expect(response_data['data']['attributes']['provider']).to have_key('location')
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
     end
