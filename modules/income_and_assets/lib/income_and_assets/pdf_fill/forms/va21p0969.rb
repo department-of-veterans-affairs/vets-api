@@ -20,7 +20,7 @@ module IncomeAndAssets::PdfFill
       FORM_ID = IncomeAndAssets::FORM_ID
 
       # The PDF Template
-      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freez
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
 
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
