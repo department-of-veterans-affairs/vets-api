@@ -55,6 +55,7 @@ module IncomeAndAssets
       'RENTAL_PROPERTY' => 2
     }.freeze
 
+    # Methods of income generation associated with royalties and other properties
     INCOME_GENERATION_TYPES = {
       'INTELLECTUAL_PROPERTY' => 0,
       'MINERALS_LUMBER' => 1,
