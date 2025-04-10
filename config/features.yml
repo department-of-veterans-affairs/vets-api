@@ -1140,6 +1140,10 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
+  mhv_medications_client_test:
+    actor_type: user
+    description: Toggles testing memoization medications client
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
@@ -2110,4 +2114,3 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
-
