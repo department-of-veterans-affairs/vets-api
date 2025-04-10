@@ -1654,7 +1654,34 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key: <%= ENV['vaos__eps__key'] %>
+    key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEowIBAAKCAQEAjzqcvnQbjmchHZ7PYuDG53I8imb3Z1FXD2P3RMFvxOOMcv4k
+      l+JhYvSBI6aeHOlcgBW/sxJVl1tWJZY0hPm3+kescv8lRaUyxrOpiNyIni1onwZj
+      bNyAiePi7QsU4ys1OdkdeNfC+UfDNwF28WNqabhRxKsIKjW7E07rcf9PYgoaqy4d
+      fsEozi7UtlcaOdMWUbwOs2YnMXWQHOuFXqVRs3fNo0MXsdJEGP1i/l55+pVXD0xb
+      kzFF59umRyMH2haHp2RqpMTwmrLkas86vA6bn0aDsiR2E/JkimxCcSmNcFfrb5Em
+      maB34Pqt6d8BFAR1JlEoGU4uvkb2v6MzMqw80wIDAQABAoIBABB5ov8LVwId3cLM
+      +jj69xY3XzxiVLIHOrbz/kTj5UnmDMlLb4UjDqW1z0b9CvHza+b12XutL7g90t52
+      9SqYmO+KoA0ISU7GDl2p2+X4zCQ5v++O6g/jG0wBMSCoJiptVW2GimvUkcJf3VYt
+      7nMcxuhLQeiX7dQBIzg42z9dKVHzAIj525QtjAYs54yYq+394A6vD1dqzjwC3Fp8
+      1yF7uatcmhWICk2QcaKdnCgn7d9TKYy8SZP4ETTiuvBQ0ig0AudKJVpJ+22rjP9r
+      jixacj2cpDQU0KnGoBE57NE8SThTRdgdRNZTT8fxfJyGKfgtwA63Dgdq9EHsQVbr
+      k4UxQBkCgYEAwe1pwVDDk7QVlStTzgeP1+Qty8/0enxirlppRdVoZ/xkCOcHDLKO
+      tyU14L1UrEgqOUiNJuF5qbjovaE+b80x0Dho8Umz81NJOUtFFKsWfa9UnevYD8No
+      rPXf4wcI8AWFfuxhtkvbvVktUZp0SEeFlQ4/oEaOK1zcLuXS0UCAuNkCgYEAvRLs
+      QpLG0RDl7bOngWvqKu74MhACn59R3Qtt3mb+w0VFeCc32snsQI8352RV9KOpfH3T
+      UN8ZOCRJsm5PabZk5CW2zdkTroXY3I0xBSVokarpBgcxh6ATv7OWTeLh04KcSZbl
+      CUCAnsb9pgA7aszg8ONPMRweezEtiy1Wy1zTd4sCgYBlWDYBQbzDjsQMrZThQdBp
+      SaSpM2cXL7O+XB9R0GH8nciFYn6roxC0I20RosACPMBcKU8it4iGKszudLqVYM2c
+      fC5TkmnJSogkufJDB9n8GsmEsgC61Cr64I99LGr+TFRkbRHvW5tdS6JEWAxWzZHA
+      wK59iwG3JZMnqxFOK4BZmQKBgQCV2jeSlA4riP8TJD5wXv1bRcdEtle992HEldhg
+      WrU0QuTKVBr6tuseR+SA6o8Ns+ESoA8pm4i7bFdUqgUavcq83/9AqvnkaoT0WJsv
+      fvSf7xt9AZqJ6Z99YnKQDG/7WRtRX9zrNko6jXBfbvOos/TcNux++dBWxyVXl3mg
+      +FNJ/QKBgGC3Hc7Z+8cmOj8zAuGPEj1LF8+GbNNhfOfx3k18Xof6nfTTnxeBD3q7
+      i7YDqebd0BK4jnXFyIMju85Xa/B3l9JaUr8qFwPmydfZAY4iWgaCF6giXgbat99g
+      ovKXM3Ov0yy7FqVtRcKfDhtnJGYzuPun5kdVhauqMgMMud88iz8f
+      -----END RSA PRIVATE KEY-----
     key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
