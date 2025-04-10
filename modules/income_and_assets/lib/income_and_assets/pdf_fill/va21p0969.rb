@@ -8,16 +8,21 @@ require 'income_and_assets/helpers'
 
 # rubocop:disable Metrics/ClassLength
 
-module PdfFill
-  # Forms
-  module Forms
+module IncomeAndAssets
+  module PdfFill
     # The Va21p0969 Form
-    class Va21p0969 < FormBase
-      include FormHelper
+    class Va21p0969 < ::PdfFill::Forms::FormBase
+      include ::PdfFill::Forms::FormHelper
       include IncomeAndAssets::Helpers
 
       # Hash iterator
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      # The ID of the form being processed
+      FORM_ID = '21P-0969'
+
+      # The path to the PDF template for the form
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
       # Hash keys
       KEY = {
@@ -309,6 +314,102 @@ module PdfFill
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           }
         },
+        # 6a
+        'royaltiesAndOtherProperty' => {
+          key: 'F[0].Page_9[0].DependentsReceiving6a[0]'
+        },
+        # 6b-c
+        'royaltiesAndOtherProperties' => {
+          limit: 2,
+          first_key: 'otherRecipientRelationshipType',
+          'recipientRelationship' => {
+            key: "F[0].IncomeRecipients6[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 6,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship6[#{ITERATOR}]",
+            question_num: 6,
+            question_suffix: '(1)',
+            question_text: 'RELATIONSHIP TYPE OTHER'
+          },
+          'recipientName' => {
+            key: "F[0].NameofIncomeRecipient6[#{ITERATOR}]",
+            limit: 37,
+            question_num: 6,
+            question_suffix: '(2)',
+            question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          'incomeGenerationMethod' => {
+            key: "F[0].HowIncomeIsGenerated6[#{ITERATOR}]"
+          },
+          'incomeGenerationMethodOverflow' => {
+            question_num: 6,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY HOW INCOME IS GENERATED'
+          },
+          'otherIncomeType' => {
+            limit: 73,
+            question_num: 6,
+            question_suffix: '(3)',
+            question_text: 'INCOME TYPE OTHER',
+            key: "F[0].OtherIncomeGenerationMethod6[#{ITERATOR}]"
+          },
+          'grossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].GrossMonthlyIncome1_6[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].GrossMonthlyIncome2_6[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].GrossMonthlyIncome3_6[#{ITERATOR}]"
+            }
+          },
+          'grossMonthlyIncomeOverflow' => {
+            question_num: 6,
+            question_suffix: '(4)',
+            question_text: 'GROSS MONTHLY INCOME'
+          },
+          'fairMarketValue' => {
+            'millions' => {
+              key: "F[0].FairMarketValue1_6[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].FairMarketValue2_6[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].FairMarketValue3_6[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].FairMarketValue4_6[#{ITERATOR}]"
+            }
+          },
+          'fairMarketValueOverflow' => {
+            question_num: 6,
+            question_suffix: '(5)',
+            question_text: 'SPECIFY FAIR MARKET VALUE OF THIS ASSET'
+          },
+          'canBeSold' => {
+            key: "F[0].CanAssetBeSold6[#{ITERATOR}]"
+          },
+          'canBeSoldOverflow' => {
+            question_num: 6,
+            question_suffix: '(6)',
+            question_text: 'CAN THIS ASSET BE SOLD?'
+          },
+          'mitigatingCircumstances' => {
+            limit: 172,
+            question_num: 6,
+            question_suffix: '(7)',
+            question_text: 'EXPLAIN ANY MITIGATING CIRCUMSTANCES THAT PREVENT THE SALE OF THIS ASSET',
+            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]"
+          }
+        },
         # 7a
         'assetTransfer' => {
           key: 'F[0].Page_9[0].DependentsSellAssets7a[0]'
@@ -532,7 +633,8 @@ module PdfFill
           'trustUsedForMedicalExpensesOverflow' => {
             question_num: 8,
             question_suffix: '(j)',
-            question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+            question_text:
+              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -559,6 +661,293 @@ module PdfFill
             question_suffix: '(m)',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
+        },
+        # 9a
+        'annuity' => { key: 'F[0].#subform[8].DependentsEstablishedAnnuity9a[0]' },
+        'annuities' => {
+          limit: 1,
+          first_key: 'establishedDate',
+          # 9b
+          'establishedDate' => {
+            'month' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedYear[#{ITERATOR}]" }
+          },
+          'establishedDateOverflow' => {
+            question_num: 9,
+            question_suffix: '(b)',
+            question_text: 'SPECIFY DATE ANNUITY WAS ESTABLISHED'
+          },
+          # 9c
+          'marketValueAtEstablishment' => {
+            'millions' => { key: "F[0].#subform[8].MarketAnnuity1_9c[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].MarketAnnuity2_9c[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].MarketAnnuity3_9c[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
+          },
+          'marketValueAtEstablishmentOverflow' => {
+            question_num: 9,
+            question_suffix: '(c)',
+            question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE'
+          },
+          # 9d
+          'addedFundsAfterEstablishment' => { key: 'F[0].#subform[8].AddedFundsToAnnuity9d[0]' },
+          'addedFundsAfterEstablishmentOverflow' => {
+            question_num: 9,
+            question_suffix: '(d)',
+            question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?'
+          },
+          # 9e
+          'addedFundsDate' => {
+            'month' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredYear[#{ITERATOR}]" }
+          },
+          'addedFundsDateOverflow' => {
+            question_num: 9,
+            question_suffix: '(e)',
+            question_text: 'WHEN DID YOU ADD FUNDS?'
+          },
+          # 9f
+          'addedFundsAmount' => {
+            'millions' => { key: "F[0].#subform[8].HowMuchTransferred1_9f[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].HowMuchTransferred2_9f[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].HowMuchTransferred3_9f[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
+          },
+          'addedFundsAmountOverflow' => {
+            question_num: 9,
+            question_suffix: '(f)',
+            question_text: 'HOW MUCH DID YOU ADD?'
+          },
+          # 9g
+          'revocable' => { key: "F[0].#subform[8].Annuity9g[#{ITERATOR}]" },
+          'revocableOverflow' => {
+            question_num: 9,
+            question_suffix: '(g)',
+            question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?'
+          },
+          # 9h
+          'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
+          'receivingIncomeFromAnnuityOverflow' => {
+            question_num: 9,
+            question_suffix: '(h)',
+            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUNITY?'
+          },
+          # 9i
+          'annualReceivedIncome' => {
+            'millions' => { key: "F[0].#subform[8].AnnualAmountReceived1_9i[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].AnnualAmountReceived2_9i[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].AnnualAmountReceived3_9i[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
+          },
+          'annualReceivedIncomeOverflow' => {
+            question_num: 9,
+            question_suffix: '(i)',
+            question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED'
+          },
+          # 9j
+          'canBeLiquidated' => { key: "F[0].#subform[8].AnnuityLiquidated9j[#{ITERATOR}]" },
+          'canBeLiquidatedOverflow' => {
+            question_num: 9,
+            question_suffix: '(j)',
+            question_text: 'CAN THE ANNUITY BE LIQUIDATED?'
+          },
+          # 9k
+          'surrenderValue' => {
+            'millions' => { key: "F[0].#subform[8].SurrenderValue1_9k[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].#subform[8].SurrenderValue2_9k[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].#subform[8].SurrenderValue3_9k[#{ITERATOR}]" },
+            'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
+          },
+          'surrenderValueOverflow' => {
+            question_num: 9,
+            question_suffix: '(k)',
+            question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
+          }
+        },
+        # Section 11
+        # 11a
+        'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
+        # 11b-11c (only space for 2 on form)
+        'discontinuedIncomes' => {
+          limit: 2,
+          first_key: 'otherRecipientRelationshipType',
+          # Q1
+          'recipientRelationship' => {
+            key: "F[0].RelationshipToVeteran11[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 11,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship11[#{ITERATOR}]",
+            question_num: 11,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          # Q2
+          'recipientName' => {
+            key: "F[0].IncomeRecipientName11[#{ITERATOR}]",
+            question_num: 11,
+            question_suffix: '(2)',
+            question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          # Q3
+          'payer' => {
+            key: "F[0].IncomePayer11[#{ITERATOR}]",
+            question_num: 11,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+          },
+          # Q4
+          'incomeType' => {
+            key: "F[0].TypeOfIncomeReceived11[#{ITERATOR}]",
+            question_num: 11,
+            question_suffix: '(4)',
+            question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)'
+          },
+          # Q5
+          'incomeFrequency' => {
+            key: "F[0].FrequencyOfIncomeReceived[#{ITERATOR}]"
+          },
+          'incomeFrequencyOverflow' => {
+            question_num: 11,
+            question_suffix: '(5)',
+            question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED'
+          },
+          # Q6
+          'incomeLastReceivedDate' => {
+            'month' => { key: "F[0].DateIncomeLastPaidMonth11[#{ITERATOR}]" },
+            'day' => { key: "F[0].DateIncomeLastPaidDay11[#{ITERATOR}]" },
+            'year' => { key: "F[0].DateIncomeLastPaidYear11[#{ITERATOR}]" }
+          },
+          'incomeLastReceivedDateOverflow' => {
+            question_num: 11,
+            question_suffix: '(6)',
+            question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)'
+          },
+          # Q7
+          'grossAnnualAmount' => {
+            'thousands' => {
+              key: "F[0].GrossAnnualAmount1_11[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].GrossAnnualAmount2_11[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].GrossAnnualAmount3_11[#{ITERATOR}]"
+            }
+          },
+          'grossAnnualAmountOverflow' => {
+            question_num: 11,
+            question_suffix: '(7)',
+            question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
+          }
+        },
+        # Section 12
+        # 12a
+        'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
+        # 12b-12c (only space for 2 on form)
+        'incomeReceiptWaivers' => {
+          limit: 2,
+          first_key: 'otherRecipientRelationshipType',
+          # Q1
+          'recipientRelationship' => {
+            key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 12,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship12[#{ITERATOR}]",
+            question_num: 12,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          # Q2
+          'recipientName' => {
+            key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
+            question_num: 12,
+            question_suffix: '(2)',
+            question_text:
+                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          # Q3
+          'payer' => {
+            key: "F[0].IncomePayer12[#{ITERATOR}]",
+            question_num: 12,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+          },
+          # Q4
+          'expectedIncome' => {
+            'thousands' => {
+              key: "F[0].AmountExpected1[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].AmountExpected2[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].AmountExpected3[#{ITERATOR}]"
+            }
+          },
+          'expectedIncomeOverflow' => {
+            question_num: 12,
+            question_suffix: '(4)',
+            question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
+          },
+          # Q5
+          'paymentResumeDate' => {
+            'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
+          },
+          'paymentResumeDateOverflow' => {
+            question_num: 12,
+            question_suffix: '(5)',
+            question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
+          },
+          'paymentWillNotResume' => {
+            key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
+          },
+          'paymentWillNotResumeOverflow' => {
+            question_num: 12,
+            question_suffix: '(5)',
+            question_text: 'This income will not resume'
+          },
+          # Q6
+          'waivedGrossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
+            }
+          },
+          'waivedGrossMonthlyIncomeOverflow' => {
+            question_num: 12,
+            question_suffix: '(6)',
+            question_text: 'WAIVED GROSS MONTHLY INCOME'
+          }
+        },
+        # Section 13
+        # NOTE: No overflow for this section
+        # 13a
+        'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
+        # 13b
+        'statementOfTruthSignatureDate' => {
+          'month' => { key: 'F[0].DateSigned13bMonth[0]' },
+          'day' => { key: 'F[0].DateSigned13bDay[0]' },
+          'year' => { key: 'F[0].DateSigned13bYear[0]' }
         }
       }.freeze
 
@@ -575,8 +964,13 @@ module PdfFill
         expand_unassociated_incomes
         expand_associated_incomes
         expand_owned_assets
+        expand_royalties_and_other_properties
         expand_asset_transfers
         expand_trusts
+        expand_annuities
+        expand_discontinued_incomes
+        expand_income_receipt_waivers
+        expand_statement_of_truth
 
         form_data
       end
@@ -742,6 +1136,49 @@ module PdfFill
       end
 
       ##
+      # Expands the royalties and other properties data in the form.
+      #
+      # This method processes the `royaltiesAndOtherProperties` field from the `form_data` hash.
+      # It sets the `royaltiesAndOtherProperty` field to `0` if `royaltiesAndOtherProperties` has any elements,
+      # otherwise it sets it to `1`. Then, it iterates over each property in `royaltiesAndOtherProperties`,
+      # merging it with the result of the `expand_royalties_and_other_property` method.
+      #
+      # @return [void]
+      #
+      def expand_royalties_and_other_properties
+        royalties_and_other_properties = form_data['royaltiesAndOtherProperties']
+        form_data['royaltiesAndOtherProperty'] = royalties_and_other_properties&.length ? 0 : 1
+        form_data['royaltiesAndOtherProperties'] = royalties_and_other_properties&.map do |property|
+          property.merge(expand_royalties_and_other_property(property))
+        end
+      end
+
+      ##
+      # Expands the details of a property related to royalties and other income-generating assets.
+      #
+      # @param property [Hash]
+      # @return [Hash]
+      #
+      def expand_royalties_and_other_property(property)
+        recipient_relationship = property['recipientRelationship']
+        income_type = property['incomeGenerationMethod']
+        gross_monthly_income = property['grossMonthlyIncome']
+        fair_market_value = property['fairMarketValue']
+        {
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'recipientRelationshipOverflow' => recipient_relationship,
+          'incomeGenerationMethod' => IncomeAndAssets::Constants::INCOME_GENERATION_TYPES[income_type],
+          'incomeGenerationMethodOverflow' => income_type,
+          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'fairMarketValue' => split_currency_amount_lg(fair_market_value),
+          'fairMarketValueOverflow' => number_to_currency(fair_market_value),
+          'canBeSold' => property['canBeSold'] ? 0 : 1,
+          'canBeSoldOverflow' => property['canBeSold']
+        }
+      end
+
+      ##
       # Expands asset transfers by processing each transfer entry and setting an indicator
       # based on the presence of asset transfers.
       #
@@ -831,8 +1268,151 @@ module PdfFill
         end
         expanded.merge(overflow)
       end
+
+      # Section 9
+      ##
+      # Expands annuities by processing each annuity entry and setting an indicator
+      # based on the presence of annuities.
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_annuities
+        annuities = form_data['annuities']
+        form_data['annuity'] = annuities&.length ? 0 : 1
+        form_data['annuities'] = annuities&.map { |annuity| expand_annuity(annuity) }
+      end
+
+      ##
+      # Expands a annuity's data by processing its attributes and transforming them into structured output
+      #
+      # @param annuity [Hash]
+      # @return [Hash]
+      #
+      def expand_annuity(annuity)
+        market_value = split_currency_amount_lg(annuity['marketValueAtEstablishment'], { 'millions' => 1 })
+        expanded = {
+          'addedFundsDate' => split_date(annuity['addedFundsDate']),
+          'addedFundsAmount' => split_currency_amount_lg(annuity['addedFundsAmount'], { 'millions' => 1 }),
+          'addedFundsAfterEstablishment' => annuity['addedFundsAfterEstablishment'] ? 0 : 1,
+          'canBeLiquidated' => annuity['canBeLiquidated'] ? 0 : 1,
+          'surrenderValue' => split_currency_amount_lg(annuity['surrenderValue'], { 'millions' => 1 }),
+          'receivingIncomeFromAnnuity' => annuity['receivingIncomeFromAnnuity'] ? 0 : 1,
+          'annualReceivedIncome' => split_currency_amount_lg(annuity['annualReceivedIncome'], { 'millions' => 1 }),
+          'revocable' => annuity['revocable'] ? 0 : 1,
+          'establishedDate' => split_date(annuity['establishedDate']),
+          'marketValueAtEstablishment' => market_value
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = annuity[fieldname]
+        end
+        expanded.merge(overflow)
+      end
+
+      # Section 11
+      ##
+      # Expands discontinued incomes by processing each discontinued income entry and setting an indicator
+      # based on the presence of discontinued incomes.
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_discontinued_incomes
+        incomes = form_data['discontinuedIncomes']
+
+        form_data['discontinuedIncome'] = incomes&.length ? 0 : 1
+        form_data['discontinuedIncomes'] = incomes&.map { |income| expand_discontinued_income(income) }
+      end
+
+      ##
+      # Expands a discontinued incomes's data by processing its attributes and transforming them into
+      # structured output
+      #
+      # @param income [Hash]
+      # @return [Hash]
+      #
+      def expand_discontinued_income(income)
+        recipient_relationship = income['recipientRelationship']
+        income_frequency = income['incomeFrequency']
+        income_last_received_date = income['incomeLastReceivedDate']
+
+        # NOTE: recipientName, payer, and incomeType are already part of the income hash
+        # and do not need to be overflowed / overriden as they are free text fields
+        overflow_fields = %w[recipientRelationship incomeFrequency
+                             grossAnnualAmount]
+
+        expanded = income.clone
+        overflow_fields.each do |field|
+          expanded["#{field}Overflow"] = income[field]
+        end
+
+        overrides = {
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'incomeFrequency' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
+          'incomeLastReceivedDate' => split_date(income_last_received_date),
+          'incomeLastReceivedDateOverflow' => format_date_to_mm_dd_yyyy(income_last_received_date),
+          'grossAnnualAmount' => split_currency_amount_sm(income['grossAnnualAmount'])
+        }
+
+        expanded.merge(overrides)
+      end
+
+      # Section 12
+      ##
+      # Expands income receipt waivers by processing each income receipt waiver entry and setting an indicator
+      # based on the presence of income receipt waivers.
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_income_receipt_waivers
+        waivers = form_data['incomeReceiptWaivers']
+
+        form_data['incomeReceiptWaiver'] = waivers&.length ? 0 : 1
+        form_data['incomeReceiptWaivers'] = waivers&.map { |waiver| expand_income_receipt_waiver(waiver) }
+      end
+
+      ##
+      # Expands a income receipt waivers's data by processing its attributes and transforming them into
+      # structured output
+      #
+      # @param waiver [Hash]
+      # @return [Hash]
+      #
+      def expand_income_receipt_waiver(waiver)
+        recipient_relationship = waiver['recipientRelationship']
+        payment_resume_date = waiver['paymentResumeDate']
+
+        overflow_fields = %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome]
+
+        expanded = waiver.clone
+        overflow_fields.each do |field|
+          expanded["#{field}Overflow"] = waiver[field]
+        end
+
+        overrides = {
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'expectedIncome' => split_currency_amount_sm(waiver['expectedIncome']),
+          'paymentResumeDate' => split_date(payment_resume_date),
+          'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
+          'paymentWillNotResume' => payment_resume_date ? 0 : 1,
+          'paymentWillNotResumeOverflow' => payment_resume_date ? 'NO' : 'YES',
+          'waivedGrossMonthlyIncome' => split_currency_amount_sm(waiver['waivedGrossMonthlyIncome'])
+        }
+
+        expanded.merge(overrides)
+      end
+
+      # Section 13
+      ##
+      # Expands statement of truth section
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_statement_of_truth
+        # We want today's date in the form 'YYYY-MM-DD' as that's the format it comes
+        # back from vets-website in
+        form_data['statementOfTruthSignatureDate'] = split_date(Date.current.iso8601)
+      end
     end
   end
 end
-
 # rubocop:enable Metrics/ClassLength
