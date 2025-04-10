@@ -70,9 +70,9 @@ module BGS
           prep_manual_claim(benefit_claim_id)
         else
           Rails.logger.info("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
-                             saved_claim_id: @saved_claim.id,
-                             proc_id: @proc_id,
-                             automatic: true)
+                            saved_claim_id: @saved_claim.id,
+                            proc_id: @proc_id,
+                            automatic: true)
           StatsD.increment("#{stats_key}.automatic")
         end
         bgs_service.update_proc(@proc_id, proc_state: @proc_state)
