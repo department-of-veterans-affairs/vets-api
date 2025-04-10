@@ -54,6 +54,7 @@ module EVSS
 
       def create_form_v2
         prepare_veteran_info.merge({
+                                     'eventTypes' => @form_content['eventTypes'],
                                      'events' => @form_content['events'],
                                      'behaviors' => aggregate_behaviors,
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],

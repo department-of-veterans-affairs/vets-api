@@ -12,6 +12,12 @@
     "veteranPhone": "2024561111",
     "veteranSecondaryPhone": "",
     "veteranServiceNumber": "",
+    "eventTypes": [
+      { "combat": true },
+      { "mst": true },
+      { "nonMst": true },
+      { "other": true }
+    ],
     "events": [
       {
         "details": "Lorem ipsum dolor sit amet.",

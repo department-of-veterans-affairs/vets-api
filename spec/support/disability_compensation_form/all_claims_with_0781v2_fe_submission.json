@@ -137,6 +137,12 @@
     "hasTrainingPay": true,
     "syncModern0781Flow": true,
     "form0781": {
+      "eventTypes": [
+        { "combat": true },
+        { "mst": true },
+        { "nonMst": true },
+        { "other": true }
+      ],  
       "events": [
         {
           "details": "Lorem ipsum dolor sit amet.",
