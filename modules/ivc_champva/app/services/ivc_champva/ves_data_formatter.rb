@@ -206,6 +206,10 @@ module IvcChampva
       end
       validate_address(sponsor[:address], 'sponsor')
       sponsor[:date_of_birth] = validate_date(sponsor[:date_of_birth], 'date of birth')
+      if sponsor[:date_of_marriage].presence
+        sponsor[:date_of_marriage] =
+          validate_date(sponsor[:date_of_marriage], 'date of marriage')
+      end
       validate_uuid(sponsor[:person_uuid], 'person uuid')
       validate_ssn(sponsor[:ssn], 'ssn')
       validate_phone(sponsor, 'sponsor phone') if sponsor[:phone_number]

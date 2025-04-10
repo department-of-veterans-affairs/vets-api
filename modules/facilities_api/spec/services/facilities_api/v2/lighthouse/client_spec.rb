@@ -224,4 +224,22 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
       expect(r[0]).to be_a(FacilitiesApi::V2::Lighthouse::Facility)
     end
   end
+
+  describe '#get_paginated_facilities' do
+    it 'returns full facilities response object for request' do
+      meta = {
+        'pagination' => {
+          'currentPage' => 1,
+          'perPage' => 10,
+          'totalPages' => 1,
+          'totalEntries' => 9
+        }
+      }
+
+      r = facilities_client.get_paginated_facilities(params)
+      expect(r).to be_a(FacilitiesApi::V2::Lighthouse::Response)
+      expect(r.facilities).to be_an(Array)
+      expect(r.meta).to eq meta
+    end
+  end
 end
