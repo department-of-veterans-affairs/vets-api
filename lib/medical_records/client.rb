@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
-require 'medical_records/patient_not_found'
 
 module MedicalRecords
   ##

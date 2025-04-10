@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/mhv_jwt_session_client'
-require 'medical_records/patient_not_found'
 
 module Common
   module Client
