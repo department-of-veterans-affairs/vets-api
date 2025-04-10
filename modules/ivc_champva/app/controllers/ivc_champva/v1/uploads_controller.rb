@@ -38,7 +38,6 @@ module IvcChampva
           render json: response[:json], status: response[:status]
         end
       rescue => e
-        byebug
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
@@ -139,7 +138,6 @@ module IvcChampva
         if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
           upload_form_with_refactored_retry(form_id, file_paths, metadata)
         else
-          #byebug # the following method is not defined
           upload_form(form_id, file_paths, metadata)
         end
       end
@@ -243,7 +241,7 @@ module IvcChampva
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def handle_file_uploads_ves_refactor(form_id, file_paths, metadata)
+      def upload_form(form_id, file_paths, metadata)
         attempt = 0
         max_attempts = 1
 
