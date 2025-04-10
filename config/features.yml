@@ -786,6 +786,9 @@ features:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_4138_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4138 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
