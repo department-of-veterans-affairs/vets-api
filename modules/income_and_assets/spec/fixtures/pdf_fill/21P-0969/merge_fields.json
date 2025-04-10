@@ -449,6 +449,21 @@
       "marketValueAtEstablishmentOverflow": 1234568.89
     }
   ],
+  "unreportedAssets": [
+    {
+      "assetOwnerRelationship": {
+        "veteran": 0
+      },
+      "assetType": "Cash",
+      "ownedPortionValue": {
+        "cents": "44",
+        "dollars": "333",
+        "thousands": "222",
+        "millions": "011"
+      },
+      "assetLocation": "Financial institution"
+    }
+  ],
   "discontinuedIncomes": [
     {
       "grossAnnualAmount": {
@@ -546,6 +561,7 @@
   "assetTransfer": 0,
   "trust": 0,
   "annuity": 0,
+  "unreportedAsset": "YES",
   "discontinuedIncome": 0,
   "incomeReceiptWaiver": 0
 }
