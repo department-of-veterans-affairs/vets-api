@@ -106,10 +106,10 @@ module DebtManagementCenter
       with_monitoring_and_error_handling do
         options = { timeout: 30 }
         payload = { fileNumber: @file_number }
-        payload[:countOnly] = true if count_only
+        payload[:countOnly] = count_only ? true : false
 
         response = perform(:post, Settings.dmc.debts_endpoint, payload, nil, options).body
-        
+
         return response if count_only
         
         DebtManagementCenter::DebtsResponse.new(response).debts
