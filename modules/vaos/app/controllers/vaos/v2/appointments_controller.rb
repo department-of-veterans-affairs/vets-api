@@ -70,27 +70,18 @@ module VAOS
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
         validation = check_referral_data_validation(cached_referral_data)
-        render(json: validation[:json], status: validation[:status]) and return unless validation[:success]
+        return render(json: validation[:json], status: validation[:status]) unless validation[:success]
 
         usage = check_referral_usage(referral_id)
-        render(json: usage[:json], status: usage[:status]) and return unless usage[:success]
+        return render(json: usage[:json], status: usage[:status]) unless usage[:success]
 
-        provider = find_provider(cached_referral_data)
-        unless provider
-          render json: { errors: [{ title: 'Provider not found', detail: 'Unable to find provider with given details' }] },
-                 status: :not_found and return
-        end
-
-        slots = fetch_provider_slots(cached_referral_data, provider.id)
-        if slots&.slots&.empty?
-          render json: { errors: [{ title: 'No available slots', detail: 'No appointment slots available for the provider' }] },
-                 status: :not_found and return
-        end
+        result = process_provider_and_slots(cached_referral_data)
+        return render(json: result[:json], status: result[:status]) unless result[:success]
 
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
-        drive_time = fetch_drive_times(provider)
+        drive_time = fetch_drive_times(result[:provider])
 
-        response_data = build_draft_response(draft, provider, slots, drive_time)
+        response_data = build_draft_response(draft, result[:provider], result[:slots], drive_time)
         render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
 
@@ -466,7 +457,8 @@ module VAOS
       end
 
       ##
-      # Constructs a response object for a draft appointment with associated provider, slots, and drive time information.
+      # Constructs a response object for a draft appointment with associated provider,
+      # slots, and drive time information.
       #
       # @param draft_appointment [Object] The draft appointment object containing the appointment ID
       # @param provider [Object] The provider object associated with the appointment
@@ -607,6 +599,63 @@ module VAOS
             status: :unprocessable_entity
           }
         end
+      end
+
+      ##
+      # Processes provider lookup and slot availability checks.
+      #
+      # @param referral_data [Hash] The referral data containing provider information
+      # @return [Hash] Result hash containing:
+      #   - :success [Boolean] Whether processing was successful
+      #   - :provider [Object, nil] The provider object if found
+      #   - :slots [Object, nil] Available slots if found
+      #   - :json [Hash, nil] Error message for rendering if not successful
+      #   - :status [Symbol, nil] HTTP status code if not successful
+      #
+      def process_provider_and_slots(referral_data)
+        provider = find_provider(referral_data)
+        return provider_not_found_response unless provider
+
+        slots = fetch_provider_slots(referral_data, provider.id)
+        return no_slots_available_response if slots&.slots&.empty?
+
+        { success: true, provider:, slots: }
+      end
+
+      ##
+      # Creates a response object for when a provider is not found.
+      #
+      # @return [Hash] Error response with appropriate status code
+      #
+      def provider_not_found_response
+        {
+          success: false,
+          json: {
+            errors: [{
+              title: 'Provider not found',
+              detail: 'Unable to find provider with given details'
+            }]
+          },
+          status: :not_found
+        }
+      end
+
+      ##
+      # Creates a response object for when no appointment slots are available.
+      #
+      # @return [Hash] Error response with appropriate status code
+      #
+      def no_slots_available_response
+        {
+          success: false,
+          json: {
+            errors: [{
+              title: 'No available slots',
+              detail: 'No appointment slots available for the provider'
+            }]
+          },
+          status: :not_found
+        }
       end
     end
   end
