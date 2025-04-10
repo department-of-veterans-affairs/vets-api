@@ -1,4 +1,2 @@
-veteran_full_name: [identity_information, full_name]
-veteran_date_of_birth: [identity_information, date_of_birth]
+veteranFullName: [identity_information, full_name]
 veteran_social_security_number: [identity_information, ssn]
-veteranAddress: [contact_information, address]

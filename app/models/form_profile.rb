@@ -116,7 +116,7 @@ class FormProfile
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
     mdot: ['MDOT'],
-    pension_burial: %w[21P-530EZ 21P-527EZ],
+    pension_burial: %w[21P-0969 21P-530EZ 21P-527EZ],
     vre_counseling: ['28-8832'],
     vre_readiness: ['28-1900']
   }.freeze
@@ -143,6 +143,7 @@ class FormProfile
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
@@ -184,6 +185,7 @@ class FormProfile
 
   def self.prefill_enabled_forms
     forms = %w[21-686C 40-10007 0873]
+    ALL_FORMS.each { |type, form_list| p "TYPE: #{type}, PREFILL?: #{Settings[type].prefill}" }
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end
