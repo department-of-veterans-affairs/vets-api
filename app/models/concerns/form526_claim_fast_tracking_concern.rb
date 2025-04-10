@@ -2,7 +2,6 @@
 
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
-require 'virtual_regional_office/client'
 require 'contention_classification/client'
 
 # rubocop:disable Metrics/ModuleLength
@@ -147,7 +146,7 @@ module Form526ClaimFastTrackingConcern
     response.body
   end
 
-  def format_contention_for_vro(disability)
+  def format_contention_for_request(disability)
     contention = {
       contention_text: disability['name'],
       contention_type: disability['disabilityActionType']
@@ -166,12 +165,12 @@ module Form526ClaimFastTrackingConcern
     false
   end
 
-  # Submits contention information to the VRO contention classification service
+  # Submits contention information to the Contention Classification API service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
     return log_and_halt_if_no_disabilities if disabilities.blank?
 
-    contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
+    contentions_array = disabilities.map { |disability| format_contention_for_request(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
     log_claim_level_metrics(classifier_response)
