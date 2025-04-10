@@ -1,0 +1,10 @@
+[
+  {
+    "triage_team_id": 4399547,
+    "name": "589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON",
+    "station_number": "979",
+    "blocked_status": false,
+    "preferred_team": true,
+    "relation_type": "PATIENT"
+  }
+]
