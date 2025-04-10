@@ -789,6 +789,9 @@ features:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_4138_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4138 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1143,6 +1146,10 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
+  mhv_medications_client_test:
+    actor_type: user
+    description: Toggles testing memoization medications client
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
@@ -1332,6 +1339,10 @@ features:
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
+    enable_in_development: true
+  saved_claim_pdf_overflow_tracking:
+    actor_type: user
+    description: When enabled, record metrics for claims which have overflow in the generated pdf
     enable_in_development: true
   schema_contract_appointments_index:
     actor_type: user
@@ -1895,12 +1906,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_document_upload_update:
-    actor_type: user
-    description: Show updated document upload page
-  burial_location_of_death_update:
-    actor_type: user
-    description: Show updated location of death pattern
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1927,9 +1932,6 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
@@ -2109,4 +2111,3 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
-
