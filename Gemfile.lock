@@ -640,8 +640,9 @@ GEM
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
-    kms_encrypted (1.6.0)
-      activesupport (>= 6.1)
+    kms_encrypted (1.7.0)
+      activesupport (>= 7.1)
+      base64
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
