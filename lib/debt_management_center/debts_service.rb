@@ -20,8 +20,10 @@ module DebtManagementCenter
     end
 
     def get_debts(count_only: false)
+      # @param count_only [Boolean] 
+      # When true, returns only { "debtsCount" => Integer }
+      # When false, returns full debt details with histories
       if count_only
-        # Get only the count directly from the API
         with_monitoring_and_error_handling do
           response = fetch_debts_from_dmc(count_only: true)
           StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts_count.success")
