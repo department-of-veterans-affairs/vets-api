@@ -16,6 +16,9 @@ module VAOS
         # Add encrypted UUIDs to the referrals for URL usage
         add_referral_uuids(response)
 
+        # Filter out expired referrals
+        response = filter_expired_referrals(response)
+
         render json: Ccra::ReferralListSerializer.new(response)
       end
 
@@ -79,6 +82,17 @@ module VAOS
       def referral_status_param
         # Default to only show referrals that a veteran can make appointments for
         params.fetch(:status, "'AP','AC','I'")
+      end
+
+      # Filters out referrals that have expired (expiration date before today)
+      #
+      # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
+      # @return [Array<Ccra::ReferralListEntry>] Filtered collection without expired referrals
+      def filter_expired_referrals(referrals)
+        return [] unless referrals.respond_to?(:reject)
+
+        today = Date.current
+        referrals.reject { |referral| referral.expiration_date.present? && referral.expiration_date < today }
       end
 
       # Memoized referral service instance

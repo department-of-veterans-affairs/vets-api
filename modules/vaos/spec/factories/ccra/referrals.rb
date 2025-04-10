@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :ccra_referral_list_entry, class: 'Ccra::ReferralListEntry' do
     type_of_care { 'CARDIOLOGY' }
     referral_number { '5682' }
-    start_date { '2024-03-28' }
+    start_date { Date.current.to_s }
     seoc_days { '60' }
 
     initialize_with do
@@ -23,7 +23,7 @@ FactoryBot.define do
     provider_name { 'Dr. Smith' }
     location { 'VA Medical Center' }
     referral_number { 'VA0000005681' }
-    expiration_date { '2024-05-27' }
+    expiration_date { (Date.current + 30.days).to_s }
     phone_number { '555-123-4567' }
 
     initialize_with do
