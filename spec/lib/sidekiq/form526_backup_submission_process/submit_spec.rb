@@ -16,7 +16,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       .and_return('access_token')
   end
 
-  let(:user_account) { create(:user_account) }
+  let(:user_account) { create(:user_account, icn: '123498767V234859') }
   let(:user) { create(:user, :loa3, icn: user_account.icn) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -112,7 +112,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
       end
 
-      let!(:submission) { create(:form526_submission, :with_everything) }
+      let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
@@ -223,7 +223,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive_messages(submission_method: 'single', enabled: true)
     end
 
-    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads) }
+    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads, user_account:) }
     let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
     context 'converts non-pdf files to pdf' do

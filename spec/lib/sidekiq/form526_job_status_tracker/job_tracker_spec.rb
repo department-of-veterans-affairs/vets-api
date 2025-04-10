@@ -18,6 +18,7 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
   end
 
   context 'with an exhausted callback message' do
+    let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let!(:form526_submission) { create(:form526_submission) }
     let!(:form526_job_status) do
       create(:form526_job_status, job_id: msg['jid'], form526_submission:)

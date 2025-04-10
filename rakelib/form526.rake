@@ -693,23 +693,19 @@ namespace :form526 do
 
       ids = { edipi:, icn: submission.user_account&.icn }
 
-      pp mpi_profile(user_identity(**ids)).as_json
+      pp mpi_profile(ids).as_json
     end
 
-    def mpi_profile(user_identity)
-      if user_identity.icn
-        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: user_identity.icn,
+    def mpi_profile(ids)
+      if ids[:icn]
+        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: ids[:icn],
                                                                             identifier_type: MPI::Constants::ICN)
       else
-        find_profile_response = MPI::Service.new.find_profile_by_edipi(edipi: user_identity.edipi)
+        find_profile_response = MPI::Service.new.find_profile_by_edipi(edipi: ids[:edipi])
       end
       raise find_profile_response.error if find_profile_response.error
 
       find_profile_response.profile
-    end
-
-    def user_identity(icn:, edipi:)
-      OpenStruct.new mhv_icn: icn, edipi:
     end
 
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }

@@ -645,7 +645,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def log_payload
-    @log_payload ||= { user_uuid:, submission_id: }
+    @log_payload ||= { user_uuid:, submission_id: id }
   end
 
   def mpi_service
