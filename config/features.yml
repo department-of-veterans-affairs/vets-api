@@ -142,9 +142,6 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
-  cg1010_oauth_2_enabled:
-    actor_type: user
-    description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -786,6 +783,9 @@ features:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_4138_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4138 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -1139,6 +1139,10 @@ features:
   mhv_medications_display_grouping:
     actor_type: user
     description: Enables/disables grouping medications related work
+    enable_in_development: true
+  mhv_medications_client_test:
+    actor_type: user
+    description: Toggles testing memoization medications client
     enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
@@ -1896,12 +1900,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_document_upload_update:
-    actor_type: user
-    description: Show updated document upload page
-  burial_location_of_death_update:
-    actor_type: user
-    description: Show updated location of death pattern
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1928,9 +1926,6 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
@@ -2110,4 +2105,3 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
-
