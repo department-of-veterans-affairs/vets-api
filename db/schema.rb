@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_10_150230) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_10_151321) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -467,7 +467,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_10_150230) do
   create_table "bpds_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
+    t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
     t.enum "latest_status", default: "pending", enum_type: "bpds_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.string "va_claim_id", comment: "claim ID in VA (non-vets-api) systems"
