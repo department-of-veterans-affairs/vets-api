@@ -42,8 +42,7 @@ class VANotifyDdEmailJob
   end
 
   def template_type(dd_type)
-    return 'direct_deposit_edu' if dd_type&.to_sym == :ch33
-    return 'direct_deposit_comp_pen' if %i[comp_pen comp_and_pen].include? dd_type&.to_sym
+    return 'direct_deposit_comp_pen' if use_comp_pen_email_template?(dd_type)
 
     'direct_deposit'
   end
@@ -53,5 +52,13 @@ class VANotifyDdEmailJob
     StatsD.increment(STATSD_ERROR_NAME)
 
     raise ex if ex.status_code.between?(500, 599)
+  end
+
+  def use_direct_deposit_email_template?
+    Flipper.enabled?(:only_use_direct_deposit_email_template)
+  end
+
+  def use_comp_pen_email_template?(dd_type)
+    %i[comp_pen comp_and_pen].include?(dd_type&.to_sym) && !use_direct_deposit_email_template?
   end
 end
