@@ -15,6 +15,19 @@ module AccreditedRepresentativePortal
         end
       end
 
+      module Sort
+        ALLOWED_FIELDS = %w[created_at].freeze
+        ALLOWED_ORDERS = %w[asc desc].freeze
+        DEFAULT_ORDER = 'desc'
+      end
+
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          PROCESSED = 'processed'
+        ].freeze
+      end
+
       Schema = Dry::Schema.Params do
         optional(:page).hash do
           optional(:number).value(:integer, gteq?: 1)
@@ -24,7 +37,13 @@ module AccreditedRepresentativePortal
             lteq?: Page::Size::MAX
           )
         end
-        # Future PR: Add filter and sort schemas
+
+        optional(:sort).hash do
+          optional(:by).value(:string, included_in?: Sort::ALLOWED_FIELDS)
+          optional(:order).value(:string, included_in?: Sort::ALLOWED_ORDERS)
+        end
+
+        optional(:status).value(:string, included_in?: Statuses::ALL)
       end
 
       class << self
@@ -46,6 +65,10 @@ module AccreditedRepresentativePortal
           validated_params[:page] ||= {}
           validated_params[:page][:number] ||= 1
           validated_params[:page][:size] ||= Page::Size::DEFAULT
+
+          if validated_params[:sort].present? && validated_params[:sort][:by].present?
+            validated_params[:sort][:order] ||= Sort::DEFAULT_ORDER
+          end
         end
       end
     end

@@ -9,5 +9,15 @@ module IncomeAndAssets
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
+
+    initializer 'income_and_assets.pdf_fill.register_form' do |app|
+      app.config.to_prepare do
+        require 'pdf_fill/filler'
+        require 'income_and_assets/pdf_fill/forms/va21p0969'
+
+        # Register our Burial Pdf Fill form
+        ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Forms::Va21p0969)
+      end
+    end
   end
 end
