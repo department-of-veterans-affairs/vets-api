@@ -938,6 +938,16 @@ module IncomeAndAssets
             question_suffix: '(6)',
             question_text: 'WAIVED GROSS MONTHLY INCOME'
           }
+        },
+        # Section 13
+        # NOTE: No overflow for this section
+        # 13a
+        'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
+        # 13b
+        'statementOfTruthSignatureDate' => {
+          'month' => { key: 'F[0].DateSigned13bMonth[0]' },
+          'day' => { key: 'F[0].DateSigned13bDay[0]' },
+          'year' => { key: 'F[0].DateSigned13bYear[0]' }
         }
       }.freeze
 
@@ -960,6 +970,7 @@ module IncomeAndAssets
         expand_annuities
         expand_discontinued_incomes
         expand_income_receipt_waivers
+        expand_statement_of_truth
 
         form_data
       end
@@ -1388,6 +1399,18 @@ module IncomeAndAssets
         }
 
         expanded.merge(overrides)
+      end
+
+      # Section 13
+      ##
+      # Expands statement of truth section
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_statement_of_truth
+        # We want today's date in the form 'YYYY-MM-DD' as that's the format it comes
+        # back from vets-website in
+        form_data['statementOfTruthSignatureDate'] = split_date(Date.current.iso8601)
       end
     end
   end
