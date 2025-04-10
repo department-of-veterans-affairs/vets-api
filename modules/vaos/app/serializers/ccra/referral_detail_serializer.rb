@@ -22,5 +22,32 @@ module Ccra
         location: referral.location
       }
     end
+
+    # Nested referring facility information
+    # Use camelCase keys directly since nested attributes don't get transformed
+    attribute :referring_facility_info do |referral|
+      if referral.referring_facility_name.present?
+        facility_info = {
+          facilityName: referral.referring_facility_name,
+          phone: referral.referring_facility_phone,
+          facilityCode: referral.referring_facility_code
+        }
+
+        # Only add address if it exists and has actual data
+        address = referral.referring_facility_address
+        if address.present? && address.values.any?(&:present?)
+          # Create a new hash instead of modifying the address hash directly
+          # This ensures all fields are properly included
+          facility_info[:address] = {
+            street1: address[:street1],
+            city: address[:city],
+            state: address[:state],
+            zip: address[:zip]
+          }
+        end
+
+        facility_info
+      end
+    end
   end
 end

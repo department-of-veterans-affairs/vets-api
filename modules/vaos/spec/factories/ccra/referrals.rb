@@ -25,6 +25,13 @@ FactoryBot.define do
     referral_number { 'VA0000005681' }
     expiration_date { (Date.current + 30.days).to_s }
     phone_number { '555-123-4567' }
+    referring_facility_name { 'Dayton VA Medical Center' }
+    referring_facility_phone { '(937) 262-3800' }
+    referring_facility_code { '552' }
+    referring_facility_address1 { '4100 West Third Street' }
+    referring_facility_city { 'DAYTON' }
+    referring_facility_state { 'OH' }
+    referring_facility_zip { '45428' }
 
     initialize_with do
       attributes = {
@@ -34,7 +41,18 @@ FactoryBot.define do
           'TreatingFacility' => location,
           'ReferralNumber' => referral_number,
           'ReferralExpirationDate' => expiration_date,
-          'ProviderPhone' => phone_number
+          'ProviderPhone' => phone_number,
+          'ReferringFacilityInfo' => {
+            'FacilityName' => referring_facility_name,
+            'Phone' => referring_facility_phone,
+            'FacilityCode' => referring_facility_code,
+            'Address' => {
+              'Address1' => referring_facility_address1,
+              'City' => referring_facility_city,
+              'State' => referring_facility_state,
+              'ZipCode' => referring_facility_zip
+            }
+          }
         }
       }
       Ccra::ReferralDetail.new(attributes)
