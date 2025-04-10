@@ -94,7 +94,7 @@ module MedicalRecords
 
       # MHV will return a 202 if and only if the patient does not exist. It will not return 202 for
       # multiple patients found.
-      raise MedicalRecords::PatientNotFound if result.response[:code] == 202
+      return :patient_not_found if result.response[:code] == 202
 
       resource = result.resource
       handle_api_errors(result) if resource.nil?
