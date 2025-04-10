@@ -16,6 +16,12 @@ describe IncomeAndAssets::PdfFill::Forms::Va21p0969 do
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+      # These are temporary changes and will be resolved as the mappings for the other sections get merged in
+      # Section 6
+      form_data.delete('royaltiesAndOtherProperties')
+      # Section 10
+      form_data.delete('unreportedAssets')
+
       expect(described_class.new(form_data).merge_fields.to_json).to eq(
         get_fixture_absolute('modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/merge_fields').to_json
       )

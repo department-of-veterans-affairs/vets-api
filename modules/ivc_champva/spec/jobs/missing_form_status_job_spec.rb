@@ -135,6 +135,20 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     expect(forms[0].reload.email_sent).to be false
   end
 
+  it 'ignores forms created within the last 1 minute' do
+    # We created 3 test forms above
+    forms[0].update(created_at: Time.zone.now) # Created within the last minute
+    # Created more than 1 minute ago
+    forms[1].update(created_at: 2.minutes.ago)
+    forms[2].update(created_at: 3.minutes.ago)
+
+    # Perform the job that checks form statuses
+    job.perform
+
+    # Check that forms created in the last minute are ignored
+    expect(StatsD).to have_received(:gauge).with('ivc_champva.forms_missing_status.count', forms.count - 1)
+  end
+
   it 'processes nil forms in batches that belong to the same submission' do
     allow(Flipper).to receive(:enabled?).with(:champva_enable_pega_report_check, @current_user).and_return(false)
     # Set shared `form_uuid` so these two now belong to the same batch:

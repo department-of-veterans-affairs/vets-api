@@ -69,7 +69,7 @@ module IncomeAndAssets
     # @return [Hash]
     #
     def split_currency_amount_sm(amount, field_lengths = {})
-      return {} if !amount || amount.negative? || amount >= 100_000
+      return {} if !amount || amount.negative? || amount >= 1_000_000
 
       lengths = CURRENCY_LENGTHS_SM.merge(field_lengths)
       arr = ActiveSupport::NumberHelper.number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)

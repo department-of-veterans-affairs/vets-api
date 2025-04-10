@@ -15,7 +15,7 @@ module IncomeAndAssets
         require 'pdf_fill/filler'
         require 'income_and_assets/pdf_fill/forms/va21p0969'
 
-        # Register our Pension Pdf Fill form
+        # Register our Income and Asset Pdf Fill form
         ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Forms::Va21p0969)
       end
     end
