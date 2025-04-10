@@ -415,7 +415,6 @@ evss:
   mock_common_service: true
   mock_disabilities_form: true
   mock_gi_bill_status: false
-  mock_itf: true
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
@@ -663,6 +662,8 @@ kafka_producer:
   sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
+  test_topic_name: submission_trace_mock_test
+  topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
 lgy:
   api_key: fake_api_key
@@ -921,6 +922,7 @@ mcp:
     url: https://fwdproxy-staging.vfs.va.gov:4491
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
@@ -1643,7 +1645,6 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: false
@@ -1863,11 +1864,6 @@ virtual_hosts:
   - localhost
   - 127.0.0.1
   - example.org
-virtual_regional_office:
-  api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: http://localhost:8120
 vre_counseling:
   prefill: true
 vre_readiness:

@@ -23,7 +23,10 @@ module AccreditedRepresentativePortal
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         attachment.save
-        render json: RepresentativeAttachmentFormSerializer.new(attachment)
+        serialized = PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
+          key.camelize(:lower)
+        end
+        render json: serialized
       end
 
       private

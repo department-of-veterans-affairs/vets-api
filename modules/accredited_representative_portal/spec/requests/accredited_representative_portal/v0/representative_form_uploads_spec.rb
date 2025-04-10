@@ -106,10 +106,22 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
       end.to change(PersistentAttachment, :count).by(1)
+      attachment = PersistentAttachment.last
 
       expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
-      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmationCode name size warnings])
+      expect(resp).to eq({
+                           'data' => {
+                             'id' => attachment.id.to_s,
+                             'type' => 'persistent_attachment_va_form',
+                             'attributes' => {
+                               'confirmationCode' => attachment.guid,
+                               'name' => 'doctors-note.gif',
+                               'size' => 83_403,
+                               'warnings' => ['wrong_form']
+                             }
+                           }
+                         })
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
     end
   end
