@@ -20,7 +20,6 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
 
       rescue_from Redis::BaseError, with: :handle_redis_error
 
@@ -68,30 +67,31 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
-
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
-        referral_validation = check_referral_data_validation(cached_referral_data)
-        unless referral_validation[:success]
-          render json: referral_validation[:json], status: referral_validation[:status] and return
+        validation = check_referral_data_validation(cached_referral_data)
+        render(json: validation[:json], status: validation[:status]) and return unless validation[:success]
+
+        usage = check_referral_usage(referral_id)
+        render(json: usage[:json], status: usage[:status]) and return unless usage[:success]
+
+        provider = find_provider(cached_referral_data)
+        unless provider
+          render json: { errors: [{ title: 'Provider not found', detail: 'Unable to find provider with given details' }] },
+                 status: :not_found and return
         end
 
-        referral_usage = check_referral_usage(referral_id)
-        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
+        slots = fetch_provider_slots(cached_referral_data, provider.id)
+        if slots&.slots&.empty?
+          render json: { errors: [{ title: 'No available slots', detail: 'No appointment slots available for the provider' }] },
+                 status: :not_found and return
+        end
 
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        drive_time = fetch_drive_times(provider)
 
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
+        response_data = build_draft_response(draft, provider, slots, drive_time)
+        render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
 
       def update
@@ -452,6 +452,41 @@ module VAOS
         }
       end
 
+      ##
+      # Searches for a provider using the NPI from the referral data.
+      #
+      # @param referral_data [Hash] The referral data containing provider information
+      # @option referral_data [String] :provider_npi The National Provider Identifier (NPI) to search for
+      # @return [Object, nil] The provider service object if found, nil otherwise
+      #
+      def find_provider(referral_data)
+        search_params = { npi: referral_data[:provider_npi] }
+
+        eps_provider_service.search_provider_services(search_params)
+      end
+
+      ##
+      # Constructs a response object for a draft appointment with associated provider, slots, and drive time information.
+      #
+      # @param draft_appointment [Object] The draft appointment object containing the appointment ID
+      # @param provider [Object] The provider object associated with the appointment
+      # @param slots [Object] The available appointment slots for the provider
+      # @param drive_time [Object, nil] The calculated drive time to the provider's location, if available
+      # @return [OpenStruct] A structured response containing:
+      #   - id [String] The draft appointment ID
+      #   - provider [Object] The provider details
+      #   - slots [Object] Available appointment slots
+      #   - drive_time [Object, nil] Drive time information
+      #
+      def build_draft_response(draft_appointment, provider, slots, drive_time)
+        OpenStruct.new(
+          id: draft_appointment.id,
+          provider:,
+          slots:,
+          drive_time:
+        )
+      end
+
       # Fetches available provider slots using referral data.
       #
       # @param referral_data [Hash] Includes:
@@ -462,9 +497,9 @@ module VAOS
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral_data)
+      def fetch_provider_slots(referral_data, provider_id)
         eps_provider_service.get_provider_slots(
-          referral_data[:provider_id],
+          provider_id,
           {
             appointmentTypeId: referral_data[:appointment_type_id],
             startOnOrAfter: referral_data[:start_date],
@@ -539,7 +574,7 @@ module VAOS
       def validate_referral_data(referral_data)
         return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
 
-        required_attributes = %i[provider_id appointment_type_id start_date end_date]
+        required_attributes = %i[provider_npi appointment_type_id start_date end_date]
         missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
 
         {
@@ -571,31 +606,6 @@ module VAOS
             },
             status: :unprocessable_entity
           }
-        end
-      end
-
-      ##
-      # Fetches provider slots and builds a formatted response object
-      #
-      # @param referral_data [Hash] The referral data containing appointment details
-      # @return [Hash] Result hash:
-      #   - If slots are retrieved: { success: true, slots: [...] }
-      #   - If slots cannot be retrieved: { success: false, json: { errors: [...] }, status: :bad_gateway }
-      def build_provider_slots_response(referral_data)
-        slots = fetch_provider_slots(referral_data)
-        if slots.nil?
-          {
-            success: false,
-            json: {
-              errors: [{
-                title: PROVIDER_SLOTS_ERROR_MSG,
-                detail: 'Unable to retrieve available appointment slots'
-              }]
-            },
-            status: :bad_gateway
-          }
-        else
-          { success: true, slots: }
         end
       end
     end
