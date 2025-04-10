@@ -218,7 +218,10 @@ class FormProfile
   def self.for(form_id:, user:)
     form_id = form_id.upcase
     form_class = FORM_ID_TO_CLASS.fetch(form_id, self)
-    prepend_module(form_class, form_id).new(form_id:, user:)
+    p "FORM_CLASS: #{form_class}"
+    x = prepend_module(form_class, form_id).new(form_id:, user:)
+    puts "X: #{x}"
+    x
   end
 
   def initialize(form_id:, user:)

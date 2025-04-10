@@ -12,7 +12,7 @@ module IncomeAndAssets
       {
         version: 0,
         prefill: true,
-        returnUrl: '/veteran/information'
+        returnUrl: '/claimant-information'
       }
     end
 
