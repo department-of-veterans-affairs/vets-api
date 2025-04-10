@@ -10,7 +10,7 @@ module Common
 
     attr_reader :expiration, :settings
 
-    delegate :key_path, :client_id, :kid, :audience_claim_url, to: :settings
+    delegate :key_path, :key, :client_id, :kid, :audience_claim_url, to: :settings
 
     def initialize(service_settings, service_config)
       @settings = service_settings
@@ -19,7 +19,8 @@ module Common
     end
 
     def sign_assertion
-      JWT.encode(claims, Settings.vaos.eps.key, SIGNING_ALGORITHM, jwt_headers)
+      @rsa_key ||= OpenSSL::PKey::RSA.new(key)
+      JWT.encode(claims, @rsa_key, SIGNING_ALGORITHM, jwt_headers)
     rescue ConfigurationError => e
       Rails.logger.error("Service Configuration Error: #{e.message}")
       raise VAOS::Exceptions::ConfigurationError.new(e, @config.service_name)
