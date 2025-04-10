@@ -337,7 +337,8 @@ GEM
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
-    coverband (6.1.4)
+    coverband (6.1.5)
+      base64
       redis (>= 3.0)
     crack (1.0.0)
       bigdecimal
