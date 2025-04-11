@@ -113,6 +113,7 @@
       "facilityInfo": "Walter Reed, Bethesda, MD",
       "treatmentMonth": "02",
       "treatmentYear": "2014",
+      "noDates": false,
       "providerOverflow": {
         "value": "",
         "extras_value": "Treatment Information Number: 1\n\nTreatment Facility Name and Location: \n\nWalter Reed, Bethesda, MD\n\nTreatment Date: 02-2014"
@@ -121,6 +122,7 @@
     {
       "facilityInfo": "Cedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN",
       "treatmentYear": "2024",
+      "noDates": false,
       "providerOverflow": {
         "value": "",
         "extras_value": "Treatment Information Number: 2\n\nTreatment Facility Name and Location: \n\nCedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN\n\nTreatment Date: XX-2024"
