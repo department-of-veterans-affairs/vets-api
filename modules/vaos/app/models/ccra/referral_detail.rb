@@ -24,8 +24,8 @@ module Ccra
       @type_of_care = referral['CategoryOfCare']
       @treating_facility = referral['TreatingFacility']
       @referral_number = referral['ReferralNumber']
-      @referral_date = referral['referralDate']
-      @station_id = referral['stationId']
+      @referral_date = referral['ReferralDate']
+      @station_id = referral['StationID']
       @uuid = nil # Will be set by controller
       @has_appointments = parse_boolean(referral['APPTYesNo1'])
 
