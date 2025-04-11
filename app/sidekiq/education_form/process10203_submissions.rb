@@ -42,8 +42,8 @@ module EducationForm
     private
 
     def evss_is_healthy?
-      # will be true for now, but false when the evss setting is set to false later
-      Settings.evss.mock_claims
+      # will be true for now, but false when the evss service is removed
+      EVSS::Service.service_is_up?
     end
 
     # Group the submissions by user_uuid
