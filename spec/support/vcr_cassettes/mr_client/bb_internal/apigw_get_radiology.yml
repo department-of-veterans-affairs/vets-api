@@ -1,0 +1,104 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/v1/bluebutton/radiology/phrList/11382904"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Mar 2025 14:22:51 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '6866'
+      X-Amzn-Requestid:
+      - 9ab93464-9872-4a62-8a3f-786574ad5afa
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - H_JZWG_cPHMFTFQ=
+      X-Amzn-Remapped-Date:
+      - Tue, 25 Mar 2025 14:22:51 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"id":14811007,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN","clinicalHistory":"\r\nEVALUATE
+        HEALING 1ST RAY.\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nPost-surgical
+        changes are noted.\r\n\r\nPrimary Diagnostic Code:\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"FOOT
+        3 OR MORE VIEWS","status":"Verified","requestingProvider":"TESTUSER,JANE","reportText":"\r\nLEFTT
+        FOOT:  6-23-97:\r\n\r\nThree views of the left foot are seen.  Post-surgical
+        changes are\r\nnoted involving the first metatarsal.  J-Wires and metal screws\r\nare
+        present.  Large bony defect is still quite visible near the\r\nproximal end
+        of the bone and no evidence is seen on this study of\r\nsubperiosteal new
+        bone formation.\r\n\r\n","performingLocationStNum":"989","eventDate":"1997-06-23T18:51:00Z","examDate":null,"performingLocation":"DAYT29"},{"id":14811008,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN","clinicalHistory":"\r\nS/P
+        ARTHROPLASTY OF 2ND DIGIT OF LT FOOT\r\n\r\n!!!!!!!!!!!!!  PT IN PACU  WILL
+        CALL 737 WHEN PT ARRIVES.\r\n!!!!!!!!!!!!\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nSatisfactory
+        appearance of post-surgical residuals of hallux\r\nvalgus, as described.\r\n\r\nPrimary
+        Diagnostic Code: MAJOR ABNORMALITY, NO ATTN. NEEDED\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"FOOT
+        3 OR MORE VIEWS","status":"Verified","requestingProvider":"TESTUSER,JANE","reportText":"\r\nLEFT
+        FOOT THROUGH PLASTER CAST:  5-12-97:\r\n\r\nComparison is made with X-Rays
+        of 4-21-97.\r\n\r\nPostoperative changes are noted in the first digit consisting
+        of\r\nan osteotomy in the proximal portion of the first metatarsal\r\nwhich
+        has been stabilized by two bone screws and one wire.  Also,\r\nthere is an
+        additional longitudinal wire extending through the\r\nremaining length of
+        the first metatarsal plus a single small\r\nscrew in the neck of the first
+        metatarsal.  There is improvement\r\nin hallux valgus, however, one does note
+        the presence of some\r\ndegree of hammer toe deformity involving the second,
+        third, and\r\nfourth, and perhaps also the fifth toes.\r\n\r\n","performingLocationStNum":"989","eventDate":"1997-05-12T14:08:00Z","examDate":null,"performingLocation":"DAYT29"},{"id":14811009,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN","clinicalHistory":"\r\nPRE-OP
+        FOR SURGERY (HALLUX VALGUS)\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nChanges
+        of chronic obstructive pulmonary disease are found and\r\nthere are evidences
+        of old granulomatous disease superimposed.\r\n\r\nPrimary Diagnostic Code:\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"CHEST
+        2 VIEWS PA&LAT","status":"Verified","requestingProvider":"TESTUSER,JANE","reportText":"\r\nCHEST:\r\n\r\nPA
+        and lateral of the chest show changes of congestive\r\nobstructive pulmonary
+        disease and evidence of old granulomatous\r\ndisease.  Interstitial fibrosis
+        and pleural thickening at the\r\napices can be seen.  Hyperaerated lungs with
+        flattended\r\ndiaphragms are present.\r\n\r\n","performingLocationStNum":"989","eventDate":"1997-05-07T19:14:00Z","examDate":null,"performingLocation":"DAYT29"},{"id":14811010,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN","clinicalHistory":"\r\nPRE-OP
+        BUNION EVALUATION\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nSevere
+        hallux valgus, involving both feet.\r\n\r\nPrimary Diagnostic Code:\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"FOOT
+        3 OR MORE VIEWS","status":"Verified","requestingProvider":"TESTUSER,JANE","reportText":"\r\nBOTH
+        FEET:\r\n\r\nSevere changes of hallux valgus are seen bilaterally, somewhat\r\ngreater
+        on the left than on the right.  The metatarsophalangeal\r\njoints show degenerative
+        changes as well.\r\n\r\n","performingLocationStNum":"989","eventDate":"1997-04-21T17:36:00Z","examDate":null,"performingLocation":"DAYT29"},{"id":14811011,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN
+        C","clinicalHistory":"\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nNormal
+        sized heart.\r\n\r\nOld healed granulomatous disease.\r\n\r\nApparently calcified
+        granulomas projecting over the hilar regions\r\nand within the upper lobes
+        of both lungs.\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"CHEST
+        2 VIEWS PA&LAT","status":"Verified","requestingProvider":"TESTUSER,JANE","reportText":"\r\n\r\n","performingLocationStNum":"989","eventDate":"1994-07-01T19:37:00Z","examDate":null,"performingLocation":"DAYT29"},{"id":14811012,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN
+        H","clinicalHistory":"\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\n1.  Splaying
+        of infundibula diffusely bilaterally-suggest renal\r\npelvic lipomotosis as
+        most common etiology-no evidence of\r\nobstruction.\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"UROGRAM
+        IV W NEPHROTOMOGRAMS","status":"Verified","requestingProvider":"TESTUSER,JANE
+        NATH","reportText":"\r\n\r\n","performingLocationStNum":"989","eventDate":"1992-10-15T14:56:00Z","examDate":null,"performingLocation":"DAYT29"},{"id":14811014,"reasonForStudy":null,"radiologist":"TESTUSER,JOHN
+        R","clinicalHistory":"\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nPLEASE
+        REFER TO CASE #3056 FOR COMPLETE REPORT.\r\n\r\nPrimary Diagnostic Code: INACTIVE
+        DIAGNOSIS\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"VENOUS
+        EXT BILAT (DUPLEX)","status":"Verified","requestingProvider":"TESTUSER,JANE
+        B","reportText":"\r\n\r\n","performingLocationStNum":"979","eventDate":"1992-04-23T18:39:00Z","examDate":null,"performingLocation":"SLC10
+        TEST LAB"},{"id":14811015,"reasonForStudy":null,"radiologist":null,"clinicalHistory":"\r\n\r\n","comments":null,"createdDate":"2018-01-05T17:34:14Z","impressionText":"\r\nSLIGHT
+        INCREASE IN CARDIAC SIZE WITH NO CHANGE IN LUNG VOLUMES\r\nWITH BIBASILAR
+        MINIMAL ATELECTASIS IDENTIFIED.\r\n\r\nPrimary Diagnostic Code: INACTIVE DIAGNOSIS\r\n\r\nPrimary
+        Interpreting Resident:\r\nUYBYXPY, Resident Physician\r\nVerified by transcriptionist
+        for UYBYXPY\r\n/\r\n\r\n\r\n","inPatientOutPatient":null,"oplock":0,"stationNumber":"660","patientId":11382904,"procedureName":"CHEST  PA&LAT","status":"Verified","requestingProvider":"TESTUSER,JOHN
+        B","reportText":"\r\n\r\n","performingLocationStNum":"979","eventDate":"1991-05-23T15:15:00Z","examDate":null,"performingLocation":"SLC10
+        TEST LAB"}]'
+  recorded_at: Tue, 25 Mar 2025 14:22:51 GMT
+recorded_with: VCR 6.3.1
