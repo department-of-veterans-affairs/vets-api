@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
-require 'medical_records/patient_not_found'
 
 module MedicalRecords
   ##
@@ -76,8 +75,6 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def fhir_client
-      raise MedicalRecords::PatientNotFound if patient_fhir_id.nil?
-
       @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
@@ -94,7 +91,7 @@ module MedicalRecords
 
       # MHV will return a 202 if and only if the patient does not exist. It will not return 202 for
       # multiple patients found.
-      raise MedicalRecords::PatientNotFound if result.response[:code] == 202
+      return :patient_not_found if result.response[:code] == 202
 
       resource = result.resource
       handle_api_errors(result) if resource.nil?
@@ -102,6 +99,8 @@ module MedicalRecords
     end
 
     def list_allergies
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::AllergyIntolerance,
                            search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
                                                    'verification-status:not': 'entered-in-error' } })
@@ -113,6 +112,8 @@ module MedicalRecords
     end
 
     def list_vaccines
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::Immunization,
                            search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
@@ -124,6 +125,8 @@ module MedicalRecords
 
     # Function args are accepted and ignored for compatibility with MedicalRecords::LighthouseClient
     def list_vitals(*)
+      return :patient_not_found unless patient_found?
+
       # loinc_codes =
       #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,
@@ -133,6 +136,8 @@ module MedicalRecords
     end
 
     def list_conditions
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::Condition,
                            search: { parameters: { patient: patient_fhir_id,
                                                    'verification-status:not': 'entered-in-error' } })
@@ -140,10 +145,14 @@ module MedicalRecords
     end
 
     def get_condition(condition_id)
+      return :patient_not_found unless patient_found?
+
       fhir_read(FHIR::Condition, condition_id)
     end
 
     def list_clinical_notes
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::DocumentReference,
                            search: { parameters: {
                              patient: patient_fhir_id,
@@ -169,16 +178,22 @@ module MedicalRecords
     end
 
     def get_clinical_note(note_id)
+      return :patient_not_found unless patient_found?
+
       fhir_read(FHIR::DocumentReference, note_id)
     end
 
     def list_labs_and_tests
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::DiagnosticReport,
                            search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def get_diagnostic_report(record_id)
+      return :patient_not_found unless patient_found?
+
       fhir_read(FHIR::DiagnosticReport, record_id)
     end
 
@@ -191,6 +206,8 @@ module MedicalRecords
     # @return [FHIR::Bundle]
     #
     def list_labs_document_reference
+      return :patient_not_found unless patient_found?
+
       loinc_codes = "#{EKG},#{RADIOLOGY}"
       fhir_search(FHIR::DocumentReference,
                   search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
@@ -254,12 +271,6 @@ module MedicalRecords
         body = JSON.parse(result.body)
         diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
         diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
-
-        # Special-case exception handling
-        if result.code == 500 && diagnostics.include?('HAPI-1363')
-          # "HAPI-1363: Either No patient or multiple patient found"
-          raise MedicalRecords::PatientNotFound
-        end
 
         # Default exception handling
         raise Common::Exceptions::BackendServiceException.new(
@@ -381,6 +392,12 @@ module MedicalRecords
           0
         end
       end
+    end
+
+    private
+
+    def patient_found?
+      !patient_fhir_id.nil?
     end
   end
 end

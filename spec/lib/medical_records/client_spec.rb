@@ -427,14 +427,6 @@ describe MedicalRecords::Client do
         end
       end
 
-      context 'when response is a HAPI-1363 error' do
-        let(:result) { OpenStruct.new(code: 500, body: { issue: [{ diagnostics: 'HAPI-1363' }] }.to_json) }
-
-        it 'raises a PatientNotFound exception' do
-          expect { client.handle_api_errors(result) }.to raise_error(MedicalRecords::PatientNotFound)
-        end
-      end
-
       context 'when diagnostics are missing in the response' do
         let(:result) { OpenStruct.new(code: 400, body: {}.to_json) }
 
@@ -446,46 +438,22 @@ describe MedicalRecords::Client do
   end
 
   context 'when the patient is not found', :vcr do
-    # Here we test using list_allergies instead of get_patient_by_identifier directly because the PatientNotFound
-    # exception is eaten while creating the session and later re-thrown if no patient ID exists while trying to
-    # access FHIR resources.
-
-    it 'does not find a patient by identifer (HAPI-1363)', :vcr do
-      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
-                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
-        VCR.use_cassette 'mr_client/session' do
-          VCR.use_cassette 'mr_client/get_a_patient_by_identifier_hapi_1363' do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-            partial_client ||= begin
-              partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
-                                                                     icn: '1013868614V792025' })
-              partial_client.authenticate
-              VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-                expect do
-                  partial_client.list_allergies
-                end.to raise_error(MedicalRecords::PatientNotFound)
-              end
-            end
-          end
-        end
-      end
-    end
-
-    it 'does not find a patient by identifer (202)', :vcr do
+    it 'returns :patient_not_found for 202 response', :vcr do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
           VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
             allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-            partial_client ||= begin
-              partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
-                                                                     icn: '1013868614V792025' })
-              partial_client.authenticate
-              VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
-                expect do
-                  partial_client.list_allergies
-                end.to raise_error(MedicalRecords::PatientNotFound)
-              end
+
+            partial_client = MedicalRecords::Client.new(session: {
+                                                          user_id: '22406991',
+                                                          icn: '1013868614V792025'
+                                                        })
+            partial_client.authenticate
+
+            VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+              result = partial_client.list_allergies
+              expect(result).to eq(:patient_not_found)
             end
           end
         end
