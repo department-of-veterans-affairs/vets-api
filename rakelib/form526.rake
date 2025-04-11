@@ -518,11 +518,15 @@ namespace :form526 do
         end
 
         vname = "#{fs.auth_headers['va_eauth_firstName']} #{fs.auth_headers['va_eauth_lastName']}"
-        icn = Account.lookup_by_user_uuid(fs.user_uuid).first&.icn
+        icn = fs.user_account&.icn
         if icn.blank?
-          # TODO: make this work for blank icn's
-          puts "icn blank #{fs.id}"
-          next
+          mpi_response = MPI::Service.new.find_profile_by_edipi(edipi: fs['va_eauth_dodedipnid'])
+          if mpi_response.ok? && mpi_response.profile.icn.present?
+            icn = mpi_response.profile.icn
+          else
+            puts "icn blank #{fs.id}"
+            next
+          end
         end
         user = OpenStruct.new(participant_id: fs.auth_headers['va_eauth_pid'], icn:, common_name: vname,
                               ssn:)
@@ -684,40 +688,24 @@ namespace :form526 do
   desc 'pretty print MPI profile for submission'
   task mpi: :environment do |_, args|
     def puts_mpi_profile(submission)
-      ids = {}
-      ids[:edipi] = edipi submission.auth_headers
-      ids[:icn] = icn ids[:edipi]
+      edipi = submission.auth_headers['va_eauth_dodedipnid']
+      raise Error, 'no edipi' unless edipi
 
-      pp mpi_profile(user_identity(**ids)).as_json
+      ids = { edipi:, icn: submission.user_account&.icn }
+
+      pp mpi_profile(ids).as_json
     end
 
-    def mpi_profile(user_identity)
-      if user_identity.mhv_icn
-        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: user_identity.mhv_icn,
+    def mpi_profile(ids)
+      if ids[:icn]
+        find_profile_response = MPI::Service.new.find_profile_by_identifier(identifier: ids[:icn],
                                                                             identifier_type: MPI::Constants::ICN)
       else
-        find_profile_response = MPI::Service.new.find_profile_by_edipi(edipi: user_identity.edipi)
+        find_profile_response = MPI::Service.new.find_profile_by_edipi(edipi: ids[:edipi])
       end
       raise find_profile_response.error if find_profile_response.error
 
       find_profile_response.profile
-    end
-
-    def user_identity(icn:, edipi:)
-      OpenStruct.new mhv_icn: icn, edipi:
-    end
-
-    def edipi(auth_headers)
-      auth_headers['va_eauth_dodedipnid']
-    end
-
-    def icn(edipi)
-      raise Error, 'no edipi' unless edipi
-
-      icns = Account.where(edipi:).pluck :icn
-      raise Error, 'multiple icns' if icns.uniq.length > 1
-
-      icns.first
     end
 
     Form526Submission.where(id: args.extras).find_each { |sub| puts_mpi_profile sub }

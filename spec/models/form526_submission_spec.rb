@@ -7,6 +7,7 @@ RSpec.describe Form526Submission do
   subject do
     Form526Submission.create(
       user_uuid: user.uuid,
+      user_account:,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
       form_json:,
@@ -15,8 +16,13 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user_account) { create(:user_account) }
+  let(:user) do
+    create(:user, :loa3, first_name: 'Beyonce',
+                         last_name: 'Knowles',
+                         icn: user_account.icn,
+                         idme_uuid: SecureRandom.uuid)
+  end
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -657,6 +663,7 @@ RSpec.describe Form526Submission do
       headers = JSON.parse auth_headers.to_json
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -741,6 +748,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -767,6 +775,7 @@ RSpec.describe Form526Submission do
       subject do
         Form526Submission.new(
           user_uuid: user.uuid,
+          user_account:,
           saved_claim_id: saved_claim.id,
           form_json:,
           birls_ids_tried: birls_ids_tried.to_json
@@ -793,6 +802,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -835,6 +845,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -1341,10 +1352,11 @@ RSpec.describe Form526Submission do
 
     before { create(:idme_user_verification, idme_uuid: user.idme_uuid, user_account:) }
 
+    let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let(:form_526_submission) do
       Form526Submission.create(
         user_uuid: user.uuid,
-        user_account: user.user_account,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: File.read("spec/support/disability_compensation_form/submissions/#{form_json_filename}")
@@ -1563,72 +1575,97 @@ RSpec.describe Form526Submission do
   end
 
   describe 'ICN retrieval' do
-    context 'various ICN retrieval scenarios' do
-      let(:user) { create(:user, :loa3) }
-      let(:auth_headers) do
-        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-      end
-      let(:submission) do
-        create(:form526_submission,
-               user_uuid: user.uuid,
-               auth_headers_json: auth_headers.to_json,
-               saved_claim_id: saved_claim.id)
-      end
-      let!(:form526_submission) { create(:form526_submission) }
+    let(:user) { create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    end
+    let(:submission) do
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id)
+    end
+    let!(:form526_submission) { create(:form526_submission) }
+    let(:expected_log_payload) { { user_uuid: user.uuid, submission_id: submission.id } }
 
-      it 'submissions user account has an ICN, as expected' do
+    context 'when the submission includes a UserAccount with an ICN, as expected' do
+      it 'uses the submission\'s user account ICN' do
         submission.user_account = UserAccount.new(icn: '123498767V222222')
         account = submission.account
         expect(account.icn).to eq('123498767V222222')
       end
+    end
 
-      it 'submissions user account has no ICN, default to Account lookup' do
-        submission.user_account = UserAccount.new(icn: nil)
-        account = submission.account
-        expect(account.icn).to eq('123498767V234859')
+    context 'when the submission does not have a UserAccount with an ICN' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:edipi_profile_response) { mpi_profile_response }
+      let(:no_user_account_icn_message) { 'Form526Submission::account - no UserAccount ICN found' }
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(edipi_profile_response)
       end
 
-      it 'submission has NO user account, default to Account lookup' do
-        account = submission.account
-        expect(account.icn).to eq('123498767V234859')
-      end
-
-      it 'submissions user account has no ICN, lookup from past submissions' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V111111')
-        create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
+      it 'uses the auth_headers EDIPI to look up account information from MPI' do
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
+        expect(Rails.logger).to receive(:info).with(no_user_account_icn_message, expected_log_payload)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
         account = submission.account
-        expect(account.icn).to eq('123498767V111111')
+        expect(account.icn).to eq(mpi_profile.icn)
       end
 
-      it 'lookup ICN from user verifications, idme_uuid defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V333333')
-        UserVerification.create!(idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V333333')
-      end
+      context 'when the MPI lookup by EDIPI fails' do
+        let(:edipi_profile_response) { create(:find_profile_not_found_response) }
+        let(:attributes_profile_response) { mpi_profile_response }
+        let(:no_mpi_by_edipi_message) { 'Form526Submission::account - unable to look up MPI profile with EDIPI' }
 
-      it 'lookup ICN from user verifications, backing_idme_uuid defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V444444')
-        UserVerification.create!(dslogon_uuid: Faker::Internet.uuid, backing_idme_uuid: submission.user_uuid,
-                                 user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V444444')
-      end
+        before do
+          allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                     expected_log_payload).and_call_original
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+                                             .and_return(attributes_profile_response)
+        end
 
-      it 'lookup ICN from user verifications, alternate provider id defined' do
-        user_account_with_icn = UserAccount.create!(icn: '123498767V555555')
-        UserVerification.create!(dslogon_uuid: submission.user_uuid, backing_idme_uuid: Faker::Internet.uuid,
-                                 user_account_id: user_account_with_icn.id)
-        submission.user_account = UserAccount.create!(icn: nil)
-        submission.save!
-        account = submission.account
-        expect(account.icn).to eq('123498767V555555')
+        it 'uses the auth_headers user attributes to look up account information from MPI' do
+          submission.user_account = UserAccount.create!(icn: nil)
+          submission.save!
+          expect(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+            first_name: user.first_name,
+            last_name: user.last_name,
+            ssn: user.ssn,
+            birth_date: user.birth_date
+          )
+          account = submission.account
+          expect(account.icn).to eq(mpi_profile.icn)
+        end
+
+        context 'when the MPI lookup by attributes fails' do
+          let(:attributes_profile_response) { create(:find_profile_not_found_response) }
+          let(:no_icn_found_message) { 'Form526Submission::account - no ICN present' }
+
+          before do
+            allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                       expected_log_payload).and_call_original
+            allow(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload).and_call_original
+          end
+
+          it 'does not return a UserAccount with an ICN' do
+            submission.user_account = UserAccount.create!(icn: nil)
+            submission.save!
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+              first_name: user.first_name,
+              last_name: user.last_name,
+              ssn: user.ssn,
+              birth_date: user.birth_date
+            )
+            expect(Rails.logger).to receive(:info).with(no_icn_found_message, expected_log_payload)
+            account = submission.account
+            expect(account.icn).to be_nil
+          end
+        end
       end
     end
   end
