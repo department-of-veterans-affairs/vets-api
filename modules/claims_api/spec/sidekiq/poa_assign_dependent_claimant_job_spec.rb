@@ -189,7 +189,6 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
   context 'Sending the VA Notify email' do
     before do
       create_mock_lighthouse_service
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return true
     end
 
     let(:poa) do
@@ -210,21 +209,6 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
           .and_return(nil)
         allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
         expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
-
-        described_class.new.perform(poa.id, '12345678')
-      end
-    end
-
-    context 'when the flipper is off' do
-      it 'does not send the vanotify job' do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
-        poa.auth_headers.merge!({
-                                  header_key => 'this_value'
-                                })
-        poa.save!
-        allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(:assign_poa_to_dependent!)
-          .and_return(nil)
-        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
 
         described_class.new.perform(poa.id, '12345678')
       end
