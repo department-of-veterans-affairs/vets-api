@@ -369,12 +369,12 @@ describe Eps::ProviderService do
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/provider-services", { npi: npi }, headers)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
             .and_return(response)
         end
 
         it 'returns nil' do
-          result = service.search_provider_services(npi: npi)
+          result = service.search_provider_services(npi:)
           expect(result).to be_nil
         end
       end
@@ -391,12 +391,12 @@ describe Eps::ProviderService do
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/provider-services", { npi: npi }, headers)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
             .and_return(response)
         end
 
         it 'returns nil' do
-          result = service.search_provider_services(npi: npi)
+          result = service.search_provider_services(npi:)
           expect(result).to be_nil
         end
       end
@@ -413,7 +413,7 @@ describe Eps::ProviderService do
       end
 
       it 'raises an error' do
-        expect { service.search_provider_services(npi: npi) }
+        expect { service.search_provider_services(npi:) }
           .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
