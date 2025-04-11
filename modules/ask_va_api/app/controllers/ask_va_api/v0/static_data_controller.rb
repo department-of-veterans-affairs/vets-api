@@ -6,12 +6,7 @@ module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
-      around_action :handle_exceptions, except: %i[test_endpoint]
-
-      def test_endpoint
-        data = Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
-        render json: data.to_json, status: :ok
-      end
+      around_action :handle_exceptions
 
       def announcements
         get_resource('announcements', user_mock_data: params[:user_mock_data])
@@ -30,16 +25,6 @@ module AskVAApi
                      parent_id: params[:parent_id])
 
         render_result(@contents)
-      end
-
-      def states
-        get_resource('states', service: mock_service)
-        render_result(@states)
-      end
-
-      def zipcodes
-        get_resource('zipcodes', zip: params[:zipcode], service: mock_service)
-        render_result(@zipcodes)
       end
 
       private
