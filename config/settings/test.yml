@@ -1682,7 +1682,6 @@ vaos:
       i7YDqebd0BK4jnXFyIMju85Xa/B3l9JaUr8qFwPmydfZAY4iWgaCF6giXgbat99g
       ovKXM3Ov0yy7FqVtRcKfDhtnJGYzuPun5kdVhauqMgMMud88iz8f
       -----END RSA PRIVATE KEY-----
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500
