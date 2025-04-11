@@ -51,7 +51,7 @@ describe Common::JwtWrapper do
       it 'includes the correct headers' do
         token = subject.sign_assertion
         headers = JWT.decode(token, nil, false)[1]
-        
+
         expect(headers['kid']).to eq('test-key-id')
         expect(headers['typ']).to eq('JWT')
         expect(headers['alg']).to eq('RS512')
@@ -60,7 +60,7 @@ describe Common::JwtWrapper do
       it 'includes the correct claims' do
         token = subject.sign_assertion
         payload = JWT.decode(token, nil, false)[0]
-        
+
         expect(payload['iss']).to eq('test-client-id')
         expect(payload['sub']).to eq('test-client-id')
         expect(payload['aud']).to eq('https://test-audience.example.com')
@@ -70,11 +70,11 @@ describe Common::JwtWrapper do
 
       it 'signs the token using RS512 algorithm' do
         token = subject.sign_assertion
-        
+
         # This will raise an error if the signature is invalid
-        expect {
+        expect do
           JWT.decode(token, rsa_private.public_key, true, { algorithm: 'RS512' })
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
 
@@ -98,4 +98,4 @@ describe Common::JwtWrapper do
       end
     end
   end
-end 
+end
