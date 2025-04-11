@@ -305,4 +305,96 @@ describe Eps::ProviderService do
       end
     end
   end
+
+  describe '#search_provider_services' do
+    let(:search_params) do
+      {
+        search_text: 'Acme Medical',
+        appointment_id: 'e2487f73-62e7-476b-a8b7-503333572d2a',
+        npi: '1245319599',
+        network_id: '69cd9203-5e92-47a3-aa03-94b03752872a'
+      }
+    end
+
+    let(:expected_params) do
+      {
+        searchText: 'Acme Medical',
+        appointmentId: 'e2487f73-62e7-476b-a8b7-503333572d2a',
+        npi: '1245319599',
+        networkId: '69cd9203-5e92-47a3-aa03-94b03752872a'
+      }
+    end
+
+    let(:valid_response) do
+      double('Response', status: 200, body: {
+               count: 1,
+               providerServices: [
+                 {
+                   id: '69cd9203-5e92-47a3-aa03-94b03752872a',
+                   name: 'Acme Medical Group',
+                   npi: '1245319599'
+                 }
+               ]
+             })
+    end
+
+    context 'when the request is successful' do
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+          .with(:get, "/#{config.base_path}/provider-services", expected_params, headers)
+          .and_return(valid_response)
+      end
+
+      it 'returns an OpenStruct with the response body' do
+        result = service.search_provider_services(search_params)
+        expect(result).to eq(OpenStruct.new(valid_response.body))
+      end
+
+      it 'handles optional parameters' do
+        optional_params = search_params.merge(
+          max_miles_from_near: 25,
+          near_location: '90.0,180.0',
+          organization_names: ['Alpha Cardiology'],
+          specialty_ids: ['207XX0004X'],
+          visit_modes: ['in-person'],
+          include_inactive: false,
+          digital_or_not: 'digital',
+          is_self_schedulable: true
+        )
+
+        expected_optional_params = expected_params.merge(
+          maxMilesFromNear: 25,
+          nearLocation: '90.0,180.0',
+          organizationNames: ['Alpha Cardiology'],
+          specialtyIds: ['207XX0004X'],
+          visitModes: ['in-person'],
+          includeInactive: false,
+          digitalOrNot: 'digital',
+          isSelfSchedulable: true
+        )
+
+        expect_any_instance_of(VAOS::SessionService).to receive(:perform)
+          .with(:get, "/#{config.base_path}/provider-services", expected_optional_params, headers)
+          .and_return(valid_response)
+
+        service.search_provider_services(optional_params)
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect { service.search_provider_services(search_params) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+  end
 end

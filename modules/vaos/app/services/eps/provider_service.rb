@@ -94,5 +94,51 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, headers)
       OpenStruct.new(response.body)
     end
+
+    ##
+    # Search for provider services using various parameters
+    #
+    # @param params [Hash] Search parameters including:
+    #   - search_text [String] Text to search for in provider names
+    #   - appointment_id [String] ID of the appointment to search for
+    #   - npi [String] NPI number to search for
+    #   - network_id [String] Network ID to filter by
+    #   - max_miles_from_near [Integer] Maximum miles from location
+    #   - near_location [String] Location coordinates in format "lat,long"
+    #   - organization_names [Array<String>] Organization names to filter by
+    #   - specialty_ids [Array<String>] Specialty IDs to filter by
+    #   - visit_modes [Array<String>] Visit modes to filter by
+    #   - include_inactive [Boolean] Whether to include inactive providers
+    #   - digital_or_not [String] Filter for digital or non-digital providers
+    #   - is_self_schedulable [Boolean] Whether provider allows self-scheduling
+    #   - next_token [String] Token for pagination
+    #
+    # @return OpenStruct response from EPS provider-services search endpoint
+    #
+    def search_provider_services(params = {})
+      query_params = build_search_params(params)
+      response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
+      OpenStruct.new(response.body)
+    end
+
+    private
+
+    def build_search_params(params)
+      {
+        searchText: params[:search_text],
+        appointmentId: params[:appointment_id],
+        npi: params[:npi],
+        networkId: params[:network_id],
+        maxMilesFromNear: params[:max_miles_from_near],
+        nearLocation: params[:near_location],
+        organizationNames: params[:organization_names],
+        specialtyIds: params[:specialty_ids],
+        visitModes: params[:visit_modes],
+        includeInactive: params[:include_inactive],
+        digitalOrNot: params[:digital_or_not],
+        isSelfSchedulable: params[:is_self_schedulable],
+        nextToken: params[:next_token]
+      }.compact
+    end
   end
 end
