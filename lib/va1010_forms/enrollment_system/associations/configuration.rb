@@ -8,7 +8,7 @@ module VA1010Forms
     module Associations
       class Configuration < Common::Client::Configuration::REST
         def base_path
-          "#{Settings.va1010_forms.enrollment_system.associations.host}/person/"
+          "#{Settings.va1010_forms.enrollment_system.associations.host}/"
         end
 
         def service_name
