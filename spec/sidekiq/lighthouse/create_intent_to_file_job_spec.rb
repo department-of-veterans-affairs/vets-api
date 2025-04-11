@@ -37,7 +37,7 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
 
       allow(BenefitsClaims::Service).to receive(:new).and_return(service)
 
-      job.instance_variable_set(:@itf_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive :track_create_itf_begun
       allow(monitor).to receive :track_create_itf_failure
       allow(monitor).to receive :track_create_itf_success
@@ -50,6 +50,7 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
 
     it 'returns an established ITF' do
       expect(service).to receive(:get_intent_to_file).with(itf_type).and_return(response)
+      expect(monitor).to receive(:track_create_itf_active_found)
       expect(monitor).not_to receive(:track_create_itf_begun)
       expect(service).not_to receive(:create_intent_to_file).with(itf_type, '')
 
