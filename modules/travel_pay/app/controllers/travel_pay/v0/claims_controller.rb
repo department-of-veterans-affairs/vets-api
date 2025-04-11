@@ -50,7 +50,7 @@ module TravelPay
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
-          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_datetime'] })
+          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
 
           Rails.logger.info(message: "SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
@@ -100,8 +100,8 @@ module TravelPay
       end
 
       def get_appt_or_raise(params = {})
-        appt_not_found_msg = "No appointment found for #{params['appt_datetime']}"
-        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appt_datetime']}")
+        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
         appt = appts_service.find_or_create_appointment(params)
 
         if appt[:data].nil?
@@ -109,8 +109,7 @@ module TravelPay
           raise Common::Exceptions::ResourceNotFound, detail: appt_not_found_msg
         end
 
-        # TODO: confirm if they send only the ID or the whole appt object in the response
-        appt[:data]
+        appt[:data]['id']
       end
 
       def get_claim_id(appt_id)

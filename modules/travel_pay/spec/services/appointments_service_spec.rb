@@ -116,12 +116,26 @@ describe TravelPay::AppointmentsService do
   context 'find or create appointment' do
     let(:user) { build(:user) }
 
-    let(:appointment_response) do
+    let(:add_appointment_response) do
       Faraday::Response.new(
         body: {
-          'data' => {
-            'id' => '45678'
-          }
+          'data' => [
+            {
+              'id' => 'uuid1',
+              'appointmentSource' => 'API',
+              'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+              'appointmentName' => 'string',
+              'appointmentType' => 'EnvironmentalHealth',
+              'facilityName' => 'Cheyenne VA Medical Center',
+              'serviceConnectedDisability' => 30,
+              'currentStatus' => 'string',
+              'appointmentStatus' => 'Completed',
+              'externalAppointmentId' => '12345678-0000-0000-0000-000000000001',
+              'associatedClaimId' => nil,
+              'associatedClaimNumber' => nil,
+              'isCompleted' => true
+            }
+          ]
         }
       )
     end
@@ -132,13 +146,12 @@ describe TravelPay::AppointmentsService do
       allow_any_instance_of(TravelPay::AppointmentsClient)
         .to receive(:find_or_create)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'appointment_datetime' => '2024-01-01 12:45:34 UTC',
-                'station_number' => '123',
-                'appointment_data' => {
-                  'localStartTime' => '2024-01-01T12:45:34.465Z',
-                  'facilityId' => '123'
-                } })
-        .and_return(appointment_response)
+              { 'appointment_date_time' => '2024-01-01 12:45:34 UTC',
+                'facility_station_number' => '123',
+                'appointment_name' => '',
+                'appointment_type' => 'Other',
+                'is_complete' => false })
+        .and_return(add_appointment_response)
 
       auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
       @service = TravelPay::AppointmentsService.new(auth_manager)
@@ -147,36 +160,33 @@ describe TravelPay::AppointmentsService do
     it 'returns the BTSSS appointment that matches appt date' do
       date_string = '2024-01-01T12:45:34.465Z'
 
-      params = { 'appointment_datetime' => date_string,
-                 'station_number' => '123',
-                 'appointment_data' => {
-                   'localStartTime' => date_string,
-                   'facilityId' => '123'
-                 } }
+      params = { 'appointment_date_time' => date_string,
+                 'facility_station_number' => '123',
+                 'appointment_name' => '',
+                 'appointment_type' => 'Other',
+                 'is_complete' => false }
 
       appt = @service.find_or_create_appointment(params)
 
-      expect(appt[:data]['id']).to eq('45678')
+      expect(appt[:data]['id']).to eq('uuid1')
     end
 
     it 'throws an Argument Error if appt date is invalid' do
       expect do
-        @service.find_or_create_appointment({ 'appointment_datetime' => 'banana',
-                                              'station_number' => '123',
-                                              'appointment_data' => {
-                                                'localStartTime' => 'banana',
-                                                'facilityId' => '123'
-                                              } })
+        @service.find_or_create_appointment({ 'appointment_date_time' => 'banana',
+                                              'facility_station_number' => '123',
+                                              'appointment_name' => '',
+                                              'appointment_type' => 'Other',
+                                              'is_complete' => false })
       end
         .to raise_error(ArgumentError, /Invalid appointment time/i)
 
       expect do
-        @service.find_or_create_appointment({ 'appointment_datetime' => nil,
-                                              'station_number' => '123',
-                                              'appointment_data' => {
-                                                'localStartTime' => nil,
-                                                'facilityId' => '123'
-                                              } })
+        @service.find_or_create_appointment({ 'appointment_date_time' => nil,
+                                              'facility_station_number' => '123',
+                                              'appointment_name' => '',
+                                              'appointment_type' => 'Other',
+                                              'is_complete' => false })
       end
         .to raise_error(ArgumentError, /Invalid appointment time/i)
     end
