@@ -3,14 +3,14 @@
 FactoryBot.define do
   factory :ccra_referral_list_entry, class: 'Ccra::ReferralListEntry' do
     type_of_care { 'CARDIOLOGY' }
-    referral_number { '5682' }
+    referral_id { '5682' }
     start_date { '2024-03-28' }
     seoc_days { '60' }
 
     initialize_with do
       attributes = {
         'CategoryOfCare' => type_of_care,
-        'ID' => referral_number,
+        'ID' => referral_id,
         'StartDate' => start_date,
         'SEOCNumberOfDays' => seoc_days
       }

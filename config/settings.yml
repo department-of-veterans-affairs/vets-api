@@ -1646,10 +1646,6 @@ vaos:
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
     scopes: care-nav
-  referral:
-    encryption:
-      hex_iv: <%= ENV['vaos__referral__encryption__hex_iv'] %>
-      hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   documentation:
