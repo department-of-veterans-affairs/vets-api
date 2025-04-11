@@ -1,0 +1,37 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/debt-letter/get
+    body:
+      encoding: UTF-8
+      string: '{"fileNumber":"796043735","countOnly":true}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Client-Id:
+      - 0be3d60e3983438199f192b6e723a6f0
+      Client-Secret:
+      - "<DMC_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Fri, 13 Nov 2020 17:14:44 GMT
+    body:
+      encoding: UTF-8
+      string: '{"debtsCount": 5}'
+  recorded_at: Fri, 13 Nov 2020 17:14:45 GMT
+recorded_with: VCR 6.0.0 

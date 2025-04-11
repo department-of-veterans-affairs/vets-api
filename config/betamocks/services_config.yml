@@ -89,6 +89,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+      :optional_code_locator: '"countOnly":(true|false)'
   - :method: :post
     :path: "/api/v1/digital-services/financial-status-report/formtopdf"
     :file_path: "debt_management_center/financial_status_reports/create"
