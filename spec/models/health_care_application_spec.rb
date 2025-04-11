@@ -300,7 +300,12 @@ RSpec.describe HealthCareApplication, type: :model do
       end
 
       it 'calls Kafka.submit event with the right arguments' do
-        expect(Kafka).to receive(:submit_event).with(icn: user.icn, current_id: health_care_application.id, submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true)
+        expect(Kafka).to receive(:submit_event).with(
+          icn: user.icn,
+          current_id: health_care_application.id,
+          submission_name: 'F1010EZ', state: 'received',
+          next_id: nil, use_test_topic: true
+        )
 
         health_care_application.send_event_bus_event('received')
       end
@@ -312,8 +317,12 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'falls back on looking up the user icn' do
           allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
-          
-          expect(Kafka).to receive(:submit_event).with(icn: '123', current_id: health_care_application.id, submission_name: 'F1010EZ', state: 'sent', next_id: '456', use_test_topic: true)
+
+          expect(Kafka).to receive(:submit_event).with(
+            icn: '123', current_id: health_care_application.id,
+            submission_name: 'F1010EZ', state: 'sent',
+            next_id: '456', use_test_topic: true
+          )
 
           health_care_application.send_event_bus_event('sent', '456')
         end
@@ -323,15 +332,23 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'without a user' do
       it 'returns the right payload' do
         allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
-        expect(Kafka).to receive(:submit_event).with(icn: '123', current_id: health_care_application.id, submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true)
+        expect(Kafka).to receive(:submit_event).with(
+          icn: '123', current_id: health_care_application.id,
+          submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true
+        )
 
         health_care_application.send_event_bus_event('received')
       end
 
       it 'returns the right payload with a next id' do
-        allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
-          
-        expect(Kafka).to receive(:submit_event).with(icn: '123', current_id: health_care_application.id, submission_name: 'F1010EZ', state: 'sent', next_id: '456', use_test_topic: true)
+        allow(described_class).to receive(:user_icn)
+          .with(user_attributes).and_return('123')
+
+        expect(Kafka).to receive(:submit_event).with(
+          icn: '123', current_id: health_care_application.id,
+          submission_name: 'F1010EZ', state: 'sent',
+          next_id: '456', use_test_topic: true
+        )
 
         health_care_application.send_event_bus_event('sent', '456')
       end
@@ -347,7 +364,10 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'returns a payload with no ICN' do
-          expect(Kafka).to receive(:submit_event).with(icn: '', current_id: health_care_application.id, submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true)
+          expect(Kafka).to receive(:submit_event).with(
+            icn: '', current_id: health_care_application.id,
+            submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true
+          )
 
           health_care_application.send_event_bus_event('received')
         end
@@ -579,7 +599,9 @@ RSpec.describe HealthCareApplication, type: :model do
       expect_job_submission(HCA::SubmissionJob)
 
       it 'sends the "received" event' do
-        expect(Kafka).to receive(:submit_event).with(hash_including(state: 'received'))        
+        expect(Kafka).to receive(:submit_event).with(
+          hash_including(state: 'received')
+        )
         health_care_application.process!
       end
     end

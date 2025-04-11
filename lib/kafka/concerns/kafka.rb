@@ -75,7 +75,7 @@ module Kafka
     }
 
     payload.merge!('nextId' => next_id.to_s) if next_id
-    payload = {'data' => payload } if use_test_topic
+    payload = { 'data' => payload } if use_test_topic
     Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
   end
   # rubocop:enable Metrics/ParameterLists

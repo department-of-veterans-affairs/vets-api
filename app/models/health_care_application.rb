@@ -236,9 +236,9 @@ class HealthCareApplication < ApplicationRecord
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
   end
 
-
   def send_event_bus_event(status, next_id = nil)
     return unless Flipper.enabled?(:hca_kafka_submission_enabled)
+
     Rails.logger.info '~~~~~~~~~~~~~~~ send_event_bus_event', status, next_id
 
     begin
@@ -250,7 +250,14 @@ class HealthCareApplication < ApplicationRecord
       user_icn = ''
     end
 
-    Kafka.submit_event(icn: user_icn, current_id: self.id, submission_name: 'F1010EZ', state: status, next_id: next_id, use_test_topic: true)
+    Kafka.submit_event(
+      icn: user_icn,
+      current_id: id,
+      submission_name: 'F1010EZ',
+      state: status,
+      next_id:,
+      use_test_topic: true
+    )
   end
 
   private
@@ -358,5 +365,4 @@ class HealthCareApplication < ApplicationRecord
       end
     end
   end
-
 end
