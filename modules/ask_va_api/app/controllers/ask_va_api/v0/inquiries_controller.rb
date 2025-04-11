@@ -13,7 +13,7 @@ module AskVAApi
       end
 
       def show
-        inq = retriever(icn: nil).fetch_by_id(id: params[:id])
+        inq = retriever.fetch_by_id(id: params[:id])
         render json: Inquiries::Serializer.new(inq).serializable_hash, status: :ok
       end
 
