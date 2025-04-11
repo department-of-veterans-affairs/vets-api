@@ -603,6 +603,7 @@ module VAOS
         else
           { success: true, slots: }
         end
-      end    end
+      end
+    end
   end
 end
