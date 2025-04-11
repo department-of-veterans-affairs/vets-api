@@ -523,11 +523,13 @@ module PdfFill
         return unless @form_data[address_type]
 
         address = @form_data[address_type]
-        @form_data[address_type]['street'] = combine_full_address({
-                                                                    'street' => address['street'],
-                                                                    'street2' => address['street2'],
-                                                                    'street3' => address['street3']
-                                                                  })
+        @form_data[address_type]['street'] = combine_full_address(
+          {
+            'street' => address['street'],
+            'street2' => address['street2'],
+            'street3' => address['street3']
+          }
+        )
       end
 
       def merge_sex(type)
