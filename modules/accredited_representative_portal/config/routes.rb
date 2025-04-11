@@ -26,6 +26,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
       resource :decision, only: :create, controller: 'power_of_attorney_request_decisions'
     end
 
+    post 'claimant', to: 'claimant#show'
     namespace :claimant do
       post 'power_of_attorney_requests', to: 'power_of_attorney_requests#index'
     end
