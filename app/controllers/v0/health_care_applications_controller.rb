@@ -39,7 +39,7 @@ module V0
     end
 
     def create
-      health_care_application.async_compatible = params[:async_all]
+      Rails.logger.info '~~~~~~~~~~~~~~~ HCA controller: create', params
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 

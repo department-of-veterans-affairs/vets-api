@@ -828,6 +828,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
+        before do
+          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+        end
+
         it 'supports submitting a health care application', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             expect(subject).to validate(
@@ -867,6 +871,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
         before do
           Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
+          allow(HealthCareApplication).to receive(:user_icn).and_return('123')
         end
 
         it 'supports submitting a health care application', run_at: '2017-01-31' do
@@ -4007,6 +4012,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
   end
 
   context 'and' do
+    before do
+      allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+    end
+
     it 'tests all documented routes' do
       # exclude these route as they return binaries
       subject.untested_mappings.delete('/v0/letters/{id}')
