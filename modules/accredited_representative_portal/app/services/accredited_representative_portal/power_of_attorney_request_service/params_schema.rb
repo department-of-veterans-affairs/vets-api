@@ -16,7 +16,7 @@ module AccreditedRepresentativePortal
       end
 
       module Sort
-        ALLOWED_FIELDS = %w[created_at].freeze
+        ALLOWED_FIELDS = %w[created_at resolved_at].freeze
         ALLOWED_ORDERS = %w[asc desc].freeze
         DEFAULT_ORDER = 'desc'
       end
