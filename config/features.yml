@@ -1936,10 +1936,6 @@ features:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
     enable_in_development: true
-  intent_to_file_lighthouse_enabled:
-    actor_type: user
-    description: Enable new Lighthouse ITF logic
-    enable_in_development: true
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
