@@ -41,14 +41,10 @@ module V0
     end
 
     def download_pdf
-      source_file_path = if Flipper.enabled?(:caregiver_retry_pdf_fill)
-                           file_name = SecureRandom.uuid
-                           with_retries('Generate 10-10CG PDF') do
-                             @claim.to_pdf(file_name, sign: false)
-                           end
-                         else
-                           @claim.to_pdf(SecureRandom.uuid, sign: false)
-                         end
+      file_name = SecureRandom.uuid
+      source_file_path = with_retries('Generate 10-10CG PDF') do
+        @claim.to_pdf(file_name, sign: false)
+      end
 
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
