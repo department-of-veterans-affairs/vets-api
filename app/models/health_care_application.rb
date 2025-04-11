@@ -236,7 +236,11 @@ class HealthCareApplication < ApplicationRecord
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
   end
 
-  def build_event_payload(state, next_id = nil)
+
+  def send_event_bus_event(status, next_id = nil)
+    return unless Flipper.enabled?(:hca_kafka_submission_enabled)
+    Rails.logger.info '~~~~~~~~~~~~~~~ send_event_bus_event', status, next_id
+
     begin
       user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
       # local testing
@@ -246,18 +250,7 @@ class HealthCareApplication < ApplicationRecord
       user_icn = ''
     end
 
-    # replace with final schema when defined
-    payload = {
-      'data' => {
-        'ICN' => user_icn,
-        'currentID' => id.to_s,
-        'submissionName' => '1010EZ',
-        'state' => state
-      }
-    }
-
-    payload['data'].merge!('nextID' => next_id.to_s) if next_id.present?
-    payload
+    Kafka.submit_event(icn: user_icn, current_id: self.id, submission_name: 'F1010EZ', state: status, next_id: next_id, use_test_topic: true)
   end
 
   private
@@ -366,12 +359,4 @@ class HealthCareApplication < ApplicationRecord
     end
   end
 
-  def send_event_bus_event(status, next_id = nil)
-    return unless Flipper.enabled?(:hca_kafka_submission_enabled)
-
-    payload = build_event_payload(status, next_id)
-    Kafka::EventBusSubmissionJob.perform_async(
-      'submission_trace_mock_stage', payload
-    )
-  end
 end
