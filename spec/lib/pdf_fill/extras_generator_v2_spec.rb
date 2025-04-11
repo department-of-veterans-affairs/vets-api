@@ -10,7 +10,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
   describe PdfFill::ExtrasGeneratorV2::Question do
     subject do
-      question = described_class.new('First name', add_text_calls.first[1])
+      question = described_class.new('First name', add_text_calls.first[1], table_width: 91)
       add_text_calls.each { |call| question.add_text(*call) }
       question
     end
@@ -47,7 +47,9 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     it 'populates section indices correctly' do
-      questions = [1, 9, 42, 7].index_with { |question_num| described_class::Question.new(nil, question_num:) }
+      questions = [1, 9, 42, 7].index_with do |question_num|
+        described_class::Question.new(nil, { question_num: }, table_width: 91)
+      end
       subject.instance_variable_set(:@questions, questions)
       subject.populate_section_indices!
       indices = subject.instance_variable_get(:@questions).values.map(&:section_index)
@@ -327,4 +329,32 @@ describe PdfFill::ExtrasGeneratorV2 do
       expect(pdf).to have_received(:start_new_page).once
     end
   end
+  describe '#sorted_subquestions_markup' do
+  let(:metadata) do
+    {
+      question_suffix: 'A',
+      question_label: 'Additional information',
+      question_text: 'Request for a change in duty assignment',
+      question_num: 10
+    }
+  end
+
+  let(:question) do
+    PdfFill::ExtrasGeneratorV2::Question.new(
+      'Behavioral Change',
+      metadata,
+      table_width: 91,
+      custom_description_row: true
+    )
+  end
+
+  it 'adds a description row when label is Additional information' do
+    question.add_text('no response', metadata)
+    rows = question.sorted_subquestions_markup
+
+    expect(rows.first).to include('<b>Description:</b>')
+    expect(rows.first).to include(metadata[:question_text])
+    expect(rows.last).to include('no response')
+  end
+end
 end
