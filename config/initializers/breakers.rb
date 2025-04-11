@@ -35,6 +35,7 @@ require 'search/configuration'
 require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
+require 'va1010_forms/enrollment_system/associations/configuration'
 require 'va_profile/address_validation/configuration'
 require 'va_profile/v3/address_validation/configuration'
 require 'va_profile/contact_information/configuration'
@@ -72,6 +73,7 @@ Rails.application.reloader.to_prepare do
     Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
+    VA1010Forms::EnrollmentSystem::Associations::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,

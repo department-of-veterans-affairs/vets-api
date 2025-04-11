@@ -565,10 +565,6 @@ hca:
     pass: <%= ENV['hca__ee__pass'] %>
     user: HCASvcUsr
   endpoint: <%= ENV['hca__endpoint'] %>
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: <%= ENV['hca__future_discharge_testing'] %>
   prefill: true
   s3:
@@ -1368,6 +1364,16 @@ travel_pay:
     client_secret: <%= ENV['travel_pay__veis__client_secret'] %>
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
+va1010_forms:
+  enrollment_system:
+    associations:
+      api_key: ~
+      host: ~
+    ee_summary:
+      api_key: ~
+      host: ~
+  open_timeout: 10
+  timeout: 30
 va_forms:
   drupal_password: <%= ENV['va_forms__drupal_password'] %>
   drupal_url: <%= ENV['va_forms__drupal_url'] %>
