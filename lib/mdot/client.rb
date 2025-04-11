@@ -91,7 +91,7 @@ module MDOT
       Sentry.set_extras(
         url: config.base_path,
         message: error.message,
-        body: error.body
+        body: defined?(error.body) ? error.body : nil
       )
     end
 
