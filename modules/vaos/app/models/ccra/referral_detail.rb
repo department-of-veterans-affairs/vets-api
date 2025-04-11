@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Ccra
-  # ReferralDetail represents the detailed information for a single referral from CCRA.
   class ReferralDetail
     attr_reader :expiration_date, :type_of_care, :provider_name, :location,
                 :referral_number, :phone_number, :referring_facility_name,
