@@ -10,12 +10,14 @@ module PdfFill
     class Question
       attr_accessor :section_index, :overflow
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, table_width:, custom_description_row: false)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
+        @table_width = table_width
+        @custom_description_row = custom_description_row
       end
 
       def add_text(value, metadata)
@@ -30,13 +32,27 @@ module PdfFill
       end
 
       def sorted_subquestions_markup
-        sorted_subquestions.map do |subq|
+        subq_rows = []
+
+        sorted_subquestions.each do |subq|
           metadata = subq[:metadata]
           label = metadata[:question_label].presence || metadata[:question_text]
           value = subq[:value].to_s.gsub("\n", '<br/>')
           value = "<i>#{value}</i>" if value == 'no response'
-          "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
+
+          if @custom_description_row && label == 'Additional information'
+            subq_rows << (
+              '<tr>' \
+                "<td style='width:#{@table_width}'><b>Description:</b></td>" \
+                "<td><b>#{metadata[:question_text]}</b></td>" \
+                '</tr>'
+            )
+          end
+
+          subq_rows << "<tr><td style='width:#{@table_width}'>#{label}:</td><td>#{value}</td></tr>"
         end
+
+        subq_rows
       end
 
       def render(pdf, list_format: false)
@@ -59,18 +75,19 @@ module PdfFill
     end
 
     class ListQuestion < Question
-      attr_reader :items, :item_label
-
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, table_width:, custom_description_row: false)
         super
         @item_label = metadata[:item_label]
+        @table_width = table_width
+        @custom_description_row = custom_description_row
         @items = []
       end
 
       def add_text(value, metadata)
         @overflow ||= metadata.fetch(:overflow, true)
         i = metadata[:i]
-        @items[i] ||= Question.new(nil, metadata)
+        @items[i] ||= Question.new(nil, metadata, table_width: @table_width,
+                                                  custom_description_row: @custom_description_row)
         @items[i].add_text(value, metadata)
       end
 
@@ -133,14 +150,16 @@ module PdfFill
       end
     end
 
-    def initialize(form_name: nil, submit_date: nil, question_key: nil, start_page: 1, sections: nil)
+    def initialize(options = {})
+      @form_name              = options[:form_name]
+      @submit_date            = options[:submit_date]
+      @question_key           = options[:question_key]
+      @start_page             = options[:start_page] || 1
+      @sections               = options[:sections]
+      @table_width            = options[:table_width] || 91
+      @custom_description_row = options[:custom_description_row] || false
+      @questions              = {}
       super()
-      @form_name = form_name
-      @submit_date = submit_date
-      @question_key = question_key
-      @start_page = start_page
-      @sections = sections
-      @questions = {}
     end
 
     def set_font(pdf)
@@ -153,7 +172,21 @@ module PdfFill
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
         question_text = @question_key[question_num]
-        @questions[question_num] = (metadata[:i].blank? ? Question : ListQuestion).new(question_text, metadata)
+
+        @questions[question_num] =
+          if metadata[:i].blank?
+            Question.new(
+              question_text, metadata,
+              table_width: @table_width,
+              custom_description_row: @custom_description_row
+            )
+          else
+            ListQuestion.new(
+              question_text, metadata,
+              table_width: @table_width,
+              custom_description_row: @custom_description_row
+            )
+          end
       end
       @questions[question_num].add_text(value, metadata)
     end
@@ -361,7 +394,6 @@ module PdfFill
       end
     end
 
-    # Formats the timestamp for the PDF footer
     def format_timestamp(datetime)
       return nil if datetime.blank?
 

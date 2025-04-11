@@ -74,14 +74,8 @@
     "unlisted": true
   },
   "behaviorsDetails": {
-    "reassignment": "requested duty assignment",
-    "performance": "poor evaluations",
-    "episodes": "severe depression",
-    "selfMedication": "stopped treating headaches",
-    "appetite": "skipping meals",
-    "screenings": "positive tests",
-    "relationships": "separation",
-    "unlisted": "Lorem ipsum dolor sit amet."
+    "reassignment": "Following the incident, I sought medical and psychological treatment, which included therapy sessions with a licensed psychologist and regular consultations with my healthcare provider. These professionals have indicated that due to trauma, I am no longer able to perform at my previous work capacity. In particular, I struggle with brain fog, concentration, and fatigue, which were not issues prior to the event.",
+    "appetite": ""
   },
   "evidence": {
     "crisis": true,
