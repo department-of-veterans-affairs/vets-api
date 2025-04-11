@@ -425,7 +425,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             timestamp: instance_of(Time),
             form526_submission_id: submission.id
           },
-          nil,
+          user_account.id,
           call_location: instance_of(Logging::CallLocation)
         )
 
