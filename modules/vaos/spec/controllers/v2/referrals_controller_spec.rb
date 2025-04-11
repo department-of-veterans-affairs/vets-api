@@ -201,17 +201,10 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['id']).to eq(encrypted_uuid)
         expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
-
-        # Check nested provider attributes
         expect(response_data['data']['attributes']['provider']['name']).to eq('Dr. Smith')
-
-        # Check nested referring facility attributes
         expect(response_data['data']['attributes']).to have_key('referringFacility')
         expect(response_data['data']['attributes']['referringFacility']['facilityName']).to be_present
-
-        # Check referring facility address if present
-        expect(referring_facility['address']).to have_key('street1') if referring_facility.key?('address')
-
+        expect(response_data['data']['attributes']['referringFacility']['address']).to have_key('street1')
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
       end
