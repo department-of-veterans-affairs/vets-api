@@ -264,7 +264,7 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
           'reassignment' => "\nReassigned\r\nto\ndifferent\n\ndepartment\nfor\nconduct"
         }
       end
-    
+
       it 'sanitizes all string values in a hash' do
         expect(subject_v2.send(:sanitize_hash_values, input_hash)).to eq(
           {
