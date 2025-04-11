@@ -22,7 +22,7 @@ module HCA
       facilities_from_lighthouse = get_facilities_from_lighthouse
       health_facilities = facilities_with_postal_names(facilities_from_lighthouse)
 
-      HealthFacility.insert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
+      HealthFacility.upsert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
 
       Rails.logger.info("Job ended with #{HealthFacility.count} health facilities.")
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.health_facilities_import_job_complete")
