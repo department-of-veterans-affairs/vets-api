@@ -31,6 +31,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
     allow(ves_request).to receive(:transaction_uuid).and_return('78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    allow(ves_request).to receive(:transaction_uuid=)
+    allow(ves_request).to receive(:application_uuid).and_return('test-uuid')
+    allow(ves_request).to receive(:to_json).and_return('{}')
   end
 
   after do
@@ -196,6 +199,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         it 'retries VES submission if it fails' do
           with_settings(Settings, vsp_environment: 'staging') do
             if data['form_number'] == '10-10D'
+              allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
+
               controller = IvcChampva::V1::UploadsController.new
 
               allow(ves_client).to receive(:submit_1010d)

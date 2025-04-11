@@ -99,27 +99,37 @@ module IvcChampva
 
           response = nil
 
-          # TODO: what are the error condition we'd expect from VES?
-          # leaving 'nil' to always retry for now
-          IvcChampva::Retry.do(1, retry_on: nil, on_failure:) do
-            ves_request.transaction_uuid = SecureRandom.uuid
-            response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
-          end
-
           begin
-            unless response.nil?
-              update_ves_records(metadata['uuid'], ves_request.application_uuid, response.status, response.body)
+            # omitting retry_on to always retry for now
+            IvcChampva::Retry.do(1, on_failure:) do
+              ves_request.transaction_uuid = SecureRandom.uuid
+              response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
+            end
+
+            begin
+              unless response.nil?
+                update_ves_records(metadata['uuid'], ves_request.application_uuid, response, ves_request.to_json)
+              end
+            rescue => e
+              Rails.logger.error "Ignoring error updating VES records: #{e.message}"
             end
           rescue => e
-            Rails.logger.error "Ignoring error updating VES records: #{e.message}"
+            # Log but don't propagate the error so the form submission can still succeed
+            Rails.logger.error "Error in VES submission: #{e.message}"
           end
 
           response
         end
       end
 
-      def update_ves_records(form_uuid, application_uuid, ves_status, ves_request_data)
+      def update_ves_records(form_uuid, application_uuid, ves_response, ves_request_data)
+        # this should be unique
         persisted_forms = IvcChampvaForm.where(form_uuid:)
+
+        # ves_response in the db is freeform text and hard to parse
+        # so only put the response body in the db if the response is not 200
+        ves_status = ves_response.status == 200 ? 'ok' : ves_response.body
+
         persisted_forms.each do |form|
           form.update(
             application_uuid:,
