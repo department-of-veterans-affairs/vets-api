@@ -11,175 +11,160 @@ describe Ccra::ReferralDetail do
         'Referral' => {
           'ReferralExpirationDate' => '2024-05-27',
           'CategoryOfCare' => 'CARDIOLOGY',
-          'TreatingProvider' => 'Dr. Smith',
           'TreatingFacility' => 'VA Medical Center',
           'ReferralNumber' => 'VA0000005681',
-          'network' => 'Veteran Affairs Payment',
-          'networkCode' => 'VA',
-          'referralConsultId' => '984_646907',
           'referralDate' => '2024-07-24',
-          'referralLastUpdateDateTime' => '2024-07-25T10:30:00',
-          'referringFacility' => 'Bath VA Medical Center',
-          'referringProvider' => 'ERMIAS YIRGA',
-          'seocId' => 'MSC_CARDIOLOGY_1.4.17_REV_PRCT',
-          'seocKey' => '23',
-          'serviceRequested' => 'Cardiology_REV_PRCT SEOC 1.4.17',
-          'sourceOfReferral' => 'Interfaced from VA',
-          'sta6' => '534',
           'stationId' => '528A6',
-          'status' => 'Sent',
-          'treatingFacilityFax' => 'na',
-          'treatingFacilityPhone' => '505-248-4062',
-          'appointments' => [
-            {
-              'appointmentCreateDateTime' => '2024-05-01 17:08:17',
-              'appointmentDate' => '2025-05-07',
-              'appointmentFor' => 'Anesthesia consultation',
-              'appointmentStatus' => 'X',
-              'appointmentTime' => '13:00:00'
+          'APPTYesNo1' => 'Y',
+          'ReferringFacilityInfo' => {
+            'FacilityName' => 'Bath VA Medical Center',
+            'Phone' => '555-123-4567',
+            'FacilityCode' => '528A6',
+            'Address' => {
+              'Address1' => '801 VASSAR DR NE',
+              'City' => 'ALBUQUERQUE',
+              'State' => 'NM',
+              'ZipCode' => '87106'
             }
-          ],
-          'referringFacilityInfo' => {
-            'description' => 'Bath VA Medical Center',
-            'facilityCode' => '528A6'
           },
-          'referringProviderInfo' => {
-            'providerName' => 'ERMIAS YIRGA',
-            'providerNpi' => '534_520824797'
+          'TreatingProviderInfo' => {
+            'ProviderName' => 'Dr. Smith',
+            'ProviderNPI' => '1659458917',
+            'Telephone' => '505-248-4062'
           },
-          'treatingProviderInfo' => {
-            'providerName' => 'Albuquerque Indian Health Center',
-            'providerNpi' => '1659458917'
-          },
-          'treatingFacilityInfo' => {
-            'facilityName' => 'Albuquerque Indian Health Center (IHS)'
-          },
-          'treatingFacilityAddress' => {
-            'address1' => '801 VASSAR DR NE',
-            'city' => 'ALBUQUERQUE'
+          'TreatingFacilityInfo' => {
+            'Phone' => '505-555-1234'
           }
         }
       }
     end
 
     it 'sets all attributes correctly' do
-      # Original attributes
       expect(subject.expiration_date).to eq('2024-05-27')
-      expect(subject.category_of_care).to eq('CARDIOLOGY')
-      expect(subject.provider_name).to eq('Dr. Smith')
-      expect(subject.location).to eq('VA Medical Center')
-      expect(subject.referral_number).to eq('VA0000005681')
-
-      # New simple attributes
-      expect(subject.network).to eq('Veteran Affairs Payment')
-      expect(subject.network_code).to eq('VA')
-      expect(subject.referral_consult_id).to eq('984_646907')
-      expect(subject.referral_date).to eq('2024-07-24')
-      expect(subject.referral_last_update_datetime).to eq('2024-07-25T10:30:00')
-      expect(subject.referring_facility).to eq('Bath VA Medical Center')
-      expect(subject.referring_provider).to eq('ERMIAS YIRGA')
-      expect(subject.seoc_id).to eq('MSC_CARDIOLOGY_1.4.17_REV_PRCT')
-      expect(subject.seoc_key).to eq('23')
-      expect(subject.service_requested).to eq('Cardiology_REV_PRCT SEOC 1.4.17')
-      expect(subject.source_of_referral).to eq('Interfaced from VA')
-      expect(subject.sta6).to eq('534')
-      expect(subject.station_id).to eq('528A6')
-      expect(subject.status).to eq('Sent')
+      expect(subject.referral_expiration_date).to eq('2024-05-27')
+      expect(subject.type_of_care).to eq('CARDIOLOGY')
       expect(subject.treating_facility).to eq('VA Medical Center')
-      expect(subject.treating_facility_fax).to eq('na')
-      expect(subject.treating_facility_phone).to eq('505-248-4062')
+      expect(subject.referral_number).to eq('VA0000005681')
+      expect(subject.referral_date).to eq('2024-07-24')
+      expect(subject.station_id).to eq('528A6')
+      expect(subject.uuid).to be_nil
+      expect(subject.has_appointments).to be(true)
 
-      # Complex nested objects
-      expect(subject.appointments).to be_an(Array)
-      expect(subject.appointments.first).to include('appointmentDate' => '2025-05-07')
-      expect(subject.referring_facility_info).to include('facilityCode' => '528A6')
-      expect(subject.referring_provider_info).to include('providerNpi' => '534_520824797')
-      expect(subject.treating_provider_info).to include('providerNpi' => '1659458917')
-      expect(subject.treating_facility_info).to include('facilityName' => 'Albuquerque Indian Health Center (IHS)')
-      expect(subject.treating_facility_address).to include('city' => 'ALBUQUERQUE')
+      # Phone number should come from treating facility
+      expect(subject.phone_number).to eq('505-555-1234')
+
+      # Provider info
+      expect(subject.provider_name).to eq('Dr. Smith')
+      expect(subject.provider_npi).to eq('1659458917')
+      expect(subject.provider_telephone).to eq('505-248-4062')
+
+      # Referring facility info
+      expect(subject.referring_facility_name).to eq('Bath VA Medical Center')
+      expect(subject.referring_facility_phone).to eq('555-123-4567')
+      expect(subject.referring_facility_code).to eq('528A6')
+      expect(subject.referring_facility_address).to be_a(Hash)
+      expect(subject.referring_facility_address[:street1]).to eq('801 VASSAR DR NE')
+      expect(subject.referring_facility_address[:city]).to eq('ALBUQUERQUE')
+      expect(subject.referring_facility_address[:state]).to eq('NM')
+      expect(subject.referring_facility_address[:zip]).to eq('87106')
     end
 
     context 'with missing Referral key' do
-      subject { described_class.new(attributes_without_referral) }
-
-      let(:attributes_without_referral) do
-        {}
-      end
+      subject { described_class.new({}) }
 
       it 'sets all attributes to nil' do
-        # Original attributes
         expect(subject.expiration_date).to be_nil
-        expect(subject.category_of_care).to be_nil
-        expect(subject.provider_name).to be_nil
-        expect(subject.location).to be_nil
+        expect(subject.referral_expiration_date).to be_nil
+        expect(subject.type_of_care).to be_nil
+        expect(subject.treating_facility).to be_nil
         expect(subject.referral_number).to be_nil
-
-        # New simple attributes
-        expect(subject.network).to be_nil
-        expect(subject.network_code).to be_nil
-        expect(subject.referral_consult_id).to be_nil
         expect(subject.referral_date).to be_nil
-        expect(subject.referring_facility).to be_nil
-        expect(subject.status).to be_nil
-
-        # Complex nested objects - just checking a few as examples
-        expect(subject.appointments).to be_nil
-        expect(subject.referring_facility_info).to be_nil
-        expect(subject.treating_facility_address).to be_nil
+        expect(subject.station_id).to be_nil
+        expect(subject.uuid).to be_nil
+        expect(subject.has_appointments).to be_nil
+        expect(subject.phone_number).to be_nil
+        expect(subject.provider_name).to be_nil
+        expect(subject.provider_npi).to be_nil
+        expect(subject.provider_telephone).to be_nil
+        expect(subject.referring_facility_name).to be_nil
+        expect(subject.referring_facility_phone).to be_nil
+        expect(subject.referring_facility_code).to be_nil
+        expect(subject.referring_facility_address).to be_nil
       end
     end
 
     context 'with nil Referral value' do
-      subject { described_class.new(attributes_with_nil_referral) }
-
-      let(:attributes_with_nil_referral) do
-        { 'Referral' => nil }
-      end
+      subject { described_class.new({ 'Referral' => nil }) }
 
       it 'sets all attributes to nil' do
-        # Original attributes
         expect(subject.expiration_date).to be_nil
-        expect(subject.category_of_care).to be_nil
-        expect(subject.provider_name).to be_nil
-        expect(subject.location).to be_nil
+        expect(subject.referral_expiration_date).to be_nil
+        expect(subject.type_of_care).to be_nil
+        expect(subject.treating_facility).to be_nil
         expect(subject.referral_number).to be_nil
-
-        # New simple attributes
-        expect(subject.network).to be_nil
-        expect(subject.network_code).to be_nil
-        expect(subject.referral_consult_id).to be_nil
         expect(subject.referral_date).to be_nil
-        expect(subject.referring_facility).to be_nil
-        expect(subject.status).to be_nil
-
-        # Complex nested objects - just checking a few as examples
-        expect(subject.appointments).to be_nil
-        expect(subject.referring_facility_info).to be_nil
-        expect(subject.treating_facility_address).to be_nil
+        expect(subject.station_id).to be_nil
+        expect(subject.uuid).to be_nil
+        expect(subject.has_appointments).to be_nil
+        expect(subject.phone_number).to be_nil
+        expect(subject.provider_name).to be_nil
+        expect(subject.provider_npi).to be_nil
+        expect(subject.provider_telephone).to be_nil
+        expect(subject.referring_facility_name).to be_nil
+        expect(subject.referring_facility_phone).to be_nil
+        expect(subject.referring_facility_code).to be_nil
+        expect(subject.referring_facility_address).to be_nil
       end
     end
 
-    context 'with camelCase keys' do
-      subject { described_class.new(camel_case_attributes) }
+    context 'when phone number comes from provider info' do
+      subject { described_class.new(provider_phone_attributes) }
 
-      let(:camel_case_attributes) do
+      let(:provider_phone_attributes) do
         {
           'Referral' => {
-            'referralExpirationDate' => '2024-05-27',
-            'categoryOfCare' => 'CARDIOLOGY',
-            'treatingProvider' => 'Dr. Smith',
-            'treatingFacility' => 'VA Medical Center',
-            'referralNumber' => 'VA0000005681'
+            'TreatingFacilityInfo' => {},
+            'TreatingProviderInfo' => {
+              'Telephone' => '123-456-7890'
+            }
           }
         }
       end
 
-      it 'sets attributes correctly from camelCase keys' do
-        expect(subject.expiration_date).to eq('2024-05-27')
-        expect(subject.category_of_care).to eq('CARDIOLOGY')
-        expect(subject.provider_name).to eq('Dr. Smith')
-        expect(subject.location).to eq('VA Medical Center')
-        expect(subject.referral_number).to eq('VA0000005681')
+      it 'uses provider telephone as phone_number' do
+        expect(subject.phone_number).to eq('123-456-7890')
+      end
+    end
+
+    context 'with APPTYesNo1 values' do
+      it 'parses Y as true' do
+        attributes = { 'Referral' => { 'APPTYesNo1' => 'Y' } }
+        detail = described_class.new(attributes)
+        expect(detail.has_appointments).to be(true)
+      end
+
+      it 'parses N as false' do
+        attributes = { 'Referral' => { 'APPTYesNo1' => 'N' } }
+        detail = described_class.new(attributes)
+        expect(detail.has_appointments).to be(false)
+      end
+
+      it 'handles nil value' do
+        attributes = { 'Referral' => { 'APPTYesNo1' => nil } }
+        detail = described_class.new(attributes)
+        expect(detail.has_appointments).to be_nil
+      end
+
+      it 'handles blank value' do
+        attributes = { 'Referral' => { 'APPTYesNo1' => '' } }
+        detail = described_class.new(attributes)
+        expect(detail.has_appointments).to be_nil
+      end
+
+      it 'handles invalid value' do
+        attributes = { 'Referral' => { 'APPTYesNo1' => 'X' } }
+        detail = described_class.new(attributes)
+        expect(detail.has_appointments).to be_nil
       end
     end
   end

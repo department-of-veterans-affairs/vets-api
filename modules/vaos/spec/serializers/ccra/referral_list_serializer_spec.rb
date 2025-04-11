@@ -10,7 +10,7 @@ RSpec.describe Ccra::ReferralListSerializer do
         ref = build(
           :ccra_referral_list_entry,
           referral_number: '5682',
-          category_of_care: 'CARDIOLOGY',
+          type_of_care: 'CARDIOLOGY',
           start_date: '2024-03-28',
           seoc_days: '60'
         )
@@ -21,7 +21,7 @@ RSpec.describe Ccra::ReferralListSerializer do
         ref = build(
           :ccra_referral_list_entry,
           referral_number: '5683',
-          category_of_care: 'PODIATRY',
+          type_of_care: 'PODIATRY',
           start_date: '2024-03-28',
           seoc_days: '60'
         )
@@ -32,7 +32,7 @@ RSpec.describe Ccra::ReferralListSerializer do
         ref = build(
           :ccra_referral_list_entry,
           referral_number: '5684',
-          category_of_care: 'OPTOMETRY',
+          type_of_care: 'OPTOMETRY',
           start_date: '2024-03-28',
           seoc_days: '60'
         )
