@@ -564,10 +564,6 @@ hca:
     pass: password
     user: HCASvcUsr
   endpoint: https://test-foo.vets.gov
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: ~
   prefill: true
   s3:
@@ -1389,6 +1385,16 @@ travel_pay:
     client_secret: ~
     resource: ~
     tenant_id: ~
+va1010_forms:
+  enrollment_system:
+    ee_summary:
+      api_key: ~
+      host: ~
+    associations:
+      api_key: ~
+      host: ~
+  open_timeout: 10
+  timeout: 30
 va_forms:
   drupal_password: ~
   drupal_url: ~
