@@ -136,8 +136,8 @@ module ClaimsApi
 
       body.dig(*keys).to_h.tap do |value|
         if transform
-          value.deep_transform_keys! do |key|
-            key.underscore.to_sym
+          value.deep_transform_keys! do |k|
+            k.underscore.to_sym
           end
         end
       end

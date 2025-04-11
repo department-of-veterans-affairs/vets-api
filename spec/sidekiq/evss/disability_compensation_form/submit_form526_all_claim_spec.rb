@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
-require 'virtual_regional_office/client'
 require 'contention_classification/client'
 
 # pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
