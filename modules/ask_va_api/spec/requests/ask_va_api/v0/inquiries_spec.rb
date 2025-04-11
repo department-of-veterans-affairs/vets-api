@@ -96,6 +96,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             get inquiry_path
           end
 
+          it 'log uuid' do
+            expect(span).to have_received(:set_tag).with('safe_field.idme_uuid', authorized_user.idme_uuid)
+            expect(span).to have_received(:set_tag).with('safe_field.logingov_uuid', authorized_user.logingov_uuid)
+          end
+
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                           'AskVAApi::Inquiries::InquiriesRetrieverError:' \
                           ' {"Data":null,"Message":"Data Validation: Multiple Contacts found by ICN"' \
@@ -271,9 +276,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           get "#{inquiry_path}/#{invalid_id}"
         end
 
-        it { expect(response).to have_http_status(:unprocessable_entity) }
+        it { expect(response).to have_http_status(:not_found) }
 
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+        it_behaves_like 'common error handling', :not_found, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
                         '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
                         ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
@@ -409,10 +414,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       it 'raise StatusRetrieverError' do
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:not_found)
       end
 
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+      it_behaves_like 'common error handling', :not_found, 'service_error',
                       'AskVAApi::Inquiries::Status::StatusRetrieverError: ' \
                       '{"Data":null,"Message":"Data Validation: No Inquiries found",' \
                       '"ExceptionOccurred":true,' \
@@ -430,6 +435,20 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     let(:cached_data) do
       data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
       JSON.parse(data, symbolize_names: true)
+    end
+    let(:safe_fields) do
+      %i[category_id
+         contact_preference
+         family_members_location_of_residence
+         is_question_about_veteran_or_someone_else
+         more_about_your_relationship_to_veteran
+         relationship_to_veteran
+         select_category
+         select_topic
+         subtopic_id
+         topic_id
+         veterans_postal_code
+         who_is_your_question_about]
     end
 
     before do
@@ -478,12 +497,18 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
           end
 
-          it 'raise InquiriesCreatorError' do
+          it 'raise InquiriesCreatorError and set span safe_fields' do
             expect(response).to have_http_status(:unprocessable_entity)
+            safe_fields.each do |field|
+              expect(span).to have_received(:set_tag).with(
+                "safe_field.#{field}",
+                inquiry_params[:inquiry][field]
+              )
+            end
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'AskVAApi::Inquiries::InquiriesCreatorError: {"Data":null,"Message":' \
+                          'InquiriesCreatorError: {"Data":null,"Message":' \
                           '"Data Validation: missing InquiryCategory"' \
                           ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
                           'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
@@ -529,10 +554,16 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
           it 'raise InquiriesCreatorError' do
             expect(response).to have_http_status(:unprocessable_entity)
+            safe_fields.each do |field|
+              expect(span).to have_received(:set_tag).with(
+                "safe_field.#{field}",
+                inquiry_params[:inquiry][field]
+              )
+            end
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'AskVAApi::Inquiries::InquiriesCreatorError: ' \
+                          'InquiriesCreatorError: ' \
                           '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
                           ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
                           'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'

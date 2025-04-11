@@ -93,26 +93,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
 
       expect(response).to have_http_status(:ok)
     end
-
-    it 'checks if the prefill data has been changed' do
-      prefill_data = double
-      prefill_data_service = double
-      in_progress_form = double(form_data: prefill_data)
-
-      allow(SimpleFormsApi::PrefillDataService).to receive(:new).with(
-        prefill_data:,
-        form_data: hash_including(:email),
-        form_id: form_number
-      ).and_return(prefill_data_service)
-      allow(InProgressForm).to receive(:form_for_user).with(form_number,
-                                                            anything).and_return(in_progress_form)
-
-      expect(prefill_data_service).to receive(:check_for_changes)
-
-      post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
-
-      expect(response).to have_http_status(:ok)
-    end
   end
 
   describe '#upload_scanned_form' do
@@ -126,10 +106,22 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       expect do
         post '/accredited_representative_portal/v0/representative_form_upload', params:
       end.to change(PersistentAttachment, :count).by(1)
+      attachment = PersistentAttachment.last
 
       expect(response).to have_http_status(:ok)
       resp = JSON.parse(response.body)
-      expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmationCode name size warnings])
+      expect(resp).to eq({
+                           'data' => {
+                             'id' => attachment.id.to_s,
+                             'type' => 'persistent_attachment_va_form',
+                             'attributes' => {
+                               'confirmationCode' => attachment.guid,
+                               'name' => 'doctors-note.gif',
+                               'size' => 83_403,
+                               'warnings' => ['wrong_form']
+                             }
+                           }
+                         })
       expect(PersistentAttachment.last).to be_a(PersistentAttachments::VAForm)
     end
   end

@@ -85,42 +85,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     end
   end
 
-  describe '#personalisation' do
-    let(:notification) { create(:power_of_attorney_request_notification, type:) }
-
-    context 'when type is declined' do
-      let(:type) { 'declined' }
-
-      it 'returns a hash with the first name' do
-        expect(notification.personalisation).to eq('first_name' => notification.first_name)
-      end
-    end
-
-    context 'when type is expiring' do
-      let(:type) { 'expiring' }
-
-      it 'returns a hash with the first name' do
-        expect(notification.personalisation).to eq('first_name' => notification.first_name)
-      end
-    end
-
-    context 'when type is expired' do
-      let(:type) { 'expired' }
-
-      it 'returns a hash with the first name' do
-        expect(notification.personalisation).to eq('first_name' => notification.first_name)
-      end
-    end
-
-    context 'when type is requested' do
-      let(:type) { 'requested' }
-
-      it 'returns nil' do
-        expect(notification.personalisation).to be_nil
-      end
-    end
-  end
-
   describe '#template_id' do
     let(:notification) { create(:power_of_attorney_request_notification, type:) }
 

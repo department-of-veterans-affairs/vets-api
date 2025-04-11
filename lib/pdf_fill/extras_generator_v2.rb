@@ -7,6 +7,67 @@ module PdfFill
     FOOTER_FONT_SIZE = 9
     HEADER_FOOTER_BOUNDS_HEIGHT = 20
 
+    class Question
+      attr_accessor :section_index, :overflow
+
+      def initialize(metadata)
+        @section_index = nil
+        @number = metadata[:question_num]
+        @subquestions = []
+        @overflow = false
+      end
+
+      def add_text(value, metadata)
+        @subquestions << { value:, metadata: }
+        @overflow ||= metadata.fetch(:overflow, true)
+      end
+
+      def sorted_subquestions
+        @subquestions.sort_by do |subq|
+          [subq[:metadata][:question_suffix] || '', subq[:metadata][:question_text] || '']
+        end
+      end
+
+      def render(pdf, list_format: false)
+        sorted_subquestions.each do |subq|
+          value = subq[:value].to_s.gsub('\n', '<br/>')
+          metadata = subq[:metadata]
+          prefix = "#{metadata[:question_num]}#{metadata[:question_suffix]}. #{metadata[:question_text].humanize}"
+          i = metadata[:i]
+          prefix += " Line #{i + 1}" if i.present?
+
+          if list_format
+            pdf.markup("<p>#{prefix}: <b>#{value}</b></p>")
+          else
+            pdf.markup("<p>#{prefix}:</p>")
+            pdf.markup("<b>#{value}</b>")
+          end
+        end
+      end
+    end
+
+    class ListQuestion < Question
+      def initialize(metadata)
+        super
+        @items = []
+        @array_question_text = metadata[:array_question_text]
+      end
+
+      def add_text(value, metadata)
+        @overflow ||= metadata.fetch(:overflow, true)
+        i = metadata[:i]
+        @items[i] ||= Question.new(metadata)
+        @items[i].add_text(value, metadata)
+      end
+
+      def render(pdf)
+        pdf.markup("<h4>#{@number}. #{@array_question_text}</h4>")
+        @items.each do |question|
+          question.render(pdf, list_format: true)
+        end
+      end
+    end
+
     def initialize(form_name: nil, submit_date: nil, start_page: 1, sections: nil)
       super()
       @form_name = form_name
@@ -14,27 +75,6 @@ module PdfFill
       @start_page = start_page
       @sections = sections
       @questions = {}
-    end
-
-    def render_question(pdf, question)
-      sorted_subquestions = question[:subquestions].sort_by do |subq|
-        metadata = subq[:metadata]
-        [metadata[:i] || 99_999, metadata[:question_suffix] || '', metadata[:question_text] || '']
-      end
-      sorted_subquestions.each do |subq|
-        value = subq[:value]
-        metadata = subq[:metadata]
-        pdf.move_down(10)
-        prefix = metadata[:question_num].to_s
-        prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
-        prefix = "#{prefix}. #{metadata[:question_text].humanize}"
-        i = metadata[:i]
-        prefix += " Line #{i + 1}" if i.present?
-
-        pdf.markup("<h4>#{prefix}:</h4>")
-        formatted_value = value.gsub("\n", '<br/>')
-        pdf.markup("<b>#{formatted_value}</b>")
-      end
     end
 
     def set_font(pdf)
@@ -45,22 +85,27 @@ module PdfFill
 
     def add_text(value, metadata)
       question_num = metadata[:question_num]
-      question = (@questions[question_num] ||= { subquestions: [], overflow: false })
-      question[:subquestions] << { value:, metadata: }
-      question[:overflow] ||= metadata.fetch(:overflow, true)
+      if @questions[question_num].blank?
+        @questions[question_num] = (metadata[:i].blank? ? Question : ListQuestion).new(metadata)
+      end
+      @questions[question_num].add_text(value, metadata)
     end
 
     def populate_section_indices!
       return if @sections.blank?
 
       @questions.each do |num, question|
-        question[:section_index] = @sections.index { |sec| sec[:question_nums].include?(num) }
+        question.section_index = @sections.index { |sec| sec[:question_nums].include?(num) }
       end
+    end
+
+    def text?
+      @questions.values.compact.any?(&:overflow)
     end
 
     def sort_generate_blocks
       populate_section_indices!
-      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter { |question| question[:overflow] }
+      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter(&:overflow)
     end
 
     def render_pdf_content(pdf, generate_blocks)
@@ -74,12 +119,12 @@ module PdfFill
         height: pdf.bounds.height - box_height
       ) do
         generate_blocks.each do |block|
-          section_index = block[:section_index]
+          section_index = block.section_index
           if section_index.present? && section_index != current_section_index
             render_new_section(pdf, section_index)
             current_section_index = section_index
           end
-          render_question(pdf, block)
+          block.render(pdf)
         end
       end
       add_footer(pdf)
@@ -155,8 +200,8 @@ module PdfFill
 
     def set_markup_options(pdf)
       pdf.markup_options = {
-        heading2: { style: :normal, size: 13 },
-        heading3: { style: :bold, size: 10.5 },
+        heading2: { style: :normal, size: 13, margin_top: 12 },
+        heading3: { style: :bold, size: 10.5, margin_top: 10 },
         heading4: { style: :normal, size: 10.5 },
         table: {
           cell: {
