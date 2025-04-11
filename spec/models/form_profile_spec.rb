@@ -1087,6 +1087,36 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v10_7959f_2_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'bankAccountNumber' => '******7890',
+      'bankAccountType' => 'Checking',
+      'bankName' => 'WELLS FARGO BANK',
+      'bankRoutingNumber' => '*****0503',
+    }
+  end
+
   let(:initialize_va_profile_prefill_military_information_expected) do
     expected_service_episodes_by_date = [
       {
@@ -1798,6 +1828,7 @@ RSpec.describe FormProfile, type: :model do
           26-4555
           21-22
           21-22A
+          10-7959f-2
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do

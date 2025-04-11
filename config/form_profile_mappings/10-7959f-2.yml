@@ -1,0 +1,12 @@
+personalInformation:
+  fullName: [identity_information, full_name]
+  dateOfBirth: [identity_information, date_of_birth]
+  ssn: [identity_information, ssn]
+contactInformation:
+  email: [contact_information, email]
+  address: [contact_information, address]
+  primaryPhone: [contact_information, us_phone]
+bankAccountType: [payment_information, account_type]
+bankAccountNumber: [payment_information, account_number]
+bankRoutingNumber: [payment_information, routing_number]
+bankName: [payment_information, bank_name]
