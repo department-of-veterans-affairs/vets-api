@@ -9,7 +9,7 @@ module Ccra
     set_id :referral_id
     set_type :referrals
 
-    attribute :type_of_care
+    attribute :category_of_care
 
     attribute :expiration_date do |referral|
       referral.expiration_date&.strftime('%Y-%m-%d')

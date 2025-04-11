@@ -63,7 +63,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         first_referral = response_data['data'].first
         expect(first_referral['id']).to eq('5682')
         expect(first_referral['type']).to eq('referrals')
-        expect(first_referral['attributes']['type_of_care']).to eq('CARDIOLOGY')
+        expect(first_referral['attributes']['category_of_care']).to eq('CARDIOLOGY')
 
         # Skip the expiration date test as it may change based on the factory response
         # expect(first_referral['attributes']['expiration_date']).to eq('2024-05-27')
@@ -199,7 +199,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data).to have_key('data')
         expect(response_data['data']['id']).to eq(referral_id)
         expect(response_data['data']['type']).to eq('referral')
-        expect(response_data['data']['attributes']['type_of_care']).to eq('CARDIOLOGY')
+        expect(response_data['data']['attributes']['category_of_care']).to eq('CARDIOLOGY')
         expect(response_data['data']['attributes']['provider_name']).to eq('Dr. Smith')
         expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
         expect(response_data['data']['attributes']['expiration_date']).to eq('2024-05-27')

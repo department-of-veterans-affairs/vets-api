@@ -9,7 +9,7 @@ module Ccra
     set_id :referral_number
     set_type :referral
 
-    attribute :type_of_care
+    attribute :category_of_care
     attribute :provider_name
     attribute :location
     attribute :expiration_date
