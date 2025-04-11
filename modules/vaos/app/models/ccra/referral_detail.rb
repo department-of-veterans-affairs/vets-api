@@ -11,6 +11,13 @@ module Ccra
                 :referring_facility_info, :referring_provider_info, :treating_provider_info,
                 :treating_facility_info, :treating_facility_address
 
+    attr_accessor :uuid
+
+    ##
+    # Initializes a new instance of ReferralDetail.
+    #
+    # @param attributes [Hash] A hash containing the referral details from the CCRA response.
+    # @option attributes [Hash] "Referral" The main referral data container.
     def initialize(attributes)
       referral = attributes['Referral']
       return if referral.blank?
