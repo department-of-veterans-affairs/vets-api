@@ -216,6 +216,54 @@
       "ownedPortionValueOverflow": 12345.67
     }
   ],
+  "royaltiesAndOtherProperties": [
+    {
+      "incomeGenerationMethod": 3,
+      "otherIncomeType": "Rental",
+      "grossMonthlyIncome": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "fairMarketValue": {
+        "cents": "91",
+        "dollars": "678",
+        "thousands": "345",
+        "millions": "12"
+      },
+      "canBeSold": 1,
+      "mitigatingCircumstances":"Contractual obligations",
+      "recipientRelationship": 1,
+      "recipientRelationshipOverflow": "SPOUSE",
+      "incomeGenerationMethodOverflow": "OTHER",
+      "grossMonthlyIncomeOverflow": "$12,345.67",
+      "fairMarketValueOverflow": "$12,345,678.91",
+      "canBeSoldOverflow": false
+    },
+    {
+      "incomeGenerationMethod": 2,
+      "grossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "123",
+        "thousands": "00"
+      },
+      "fairMarketValue": {
+        "cents": "00",
+        "dollars": "234",
+        "thousands": "001",
+        "millions": "00"
+      },
+      "canBeSold": 0,
+      "recipientName": "John Smith",
+      "recipientRelationship": 5,
+      "otherRecipientRelationshipType": "Sibling",
+      "recipientRelationshipOverflow": "OTHER",
+      "incomeGenerationMethodOverflow": "USE_OF_LAND",
+      "grossMonthlyIncomeOverflow": "$123.00",
+      "fairMarketValueOverflow": "$1,234.00",
+      "canBeSoldOverflow": true
+    }
+  ],
   "assetTransfers": [
     {
       "originalOwnerRelationship": 5,
@@ -543,9 +591,15 @@
   "unassociatedIncome": "YES",
   "associatedIncome": 0,
   "ownedAsset": 0,
+  "royaltiesAndOtherProperty": 0,
   "assetTransfer": 0,
   "trust": 0,
   "annuity": 0,
   "discontinuedIncome": 0,
-  "incomeReceiptWaiver": 0
+  "incomeReceiptWaiver": 0,
+  "statementOfTruthSignatureDate": {
+    "month": "12",
+    "day": "31",
+    "year": "2016"
+  }
 }
