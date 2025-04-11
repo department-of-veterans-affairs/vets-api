@@ -1381,10 +1381,10 @@ travel_pay:
     tenant_id: tenant_id
 va1010_forms:
   enrollment_system:
-    ee_summary:
+    associations:
       api_key: ~
       host: ~
-    associations:
+    ee_summary:
       api_key: ~
       host: ~
   open_timeout: 10
