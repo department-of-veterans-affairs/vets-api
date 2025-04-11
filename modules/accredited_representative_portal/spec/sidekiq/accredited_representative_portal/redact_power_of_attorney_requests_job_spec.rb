@@ -297,6 +297,54 @@ module AccreditedRepresentativePortal
           expect(request.reload.redacted_at).to be_present
         end
       end
+
+      it 'retains skeleton PowerOfAttorneyRequest fields after redaction' do
+        # Capture original non-PII values before redaction
+        original_claimant_id = request.claimant_id
+        original_claimant_type = request.claimant_type
+        original_poa_code = request.power_of_attorney_holder_poa_code
+        original_poa_type = request.power_of_attorney_holder_type
+        original_created_at = request.created_at # Should not change
+
+        # Perform the redaction
+        job.send(:redact_request, request)
+        request.reload
+
+        # Verify skeleton fields remain unchanged
+        expect(request.claimant_id).to eq(original_claimant_id)
+        expect(request.claimant_type).to eq(original_claimant_type)
+        expect(request.power_of_attorney_holder_poa_code).to eq(original_poa_code)
+        expect(request.power_of_attorney_holder_type).to eq(original_poa_type)
+        expect(request.created_at).to eq(original_created_at)
+
+        # Verify redacted_at is set (already covered, but good for context)
+        expect(request.redacted_at).to be_present
+      end
+
+      it 'retains skeleton Resolution fields (excluding reason) after redaction' do
+        # Ensure resolution exists from let! block
+        expect(resolution).to be_present
+
+        # Capture original non-PII values before redaction (reason nullification tested elsewhere)
+        # Adjust these field names based on your actual Resolution model schema
+        original_resolving_type = resolution.resolving_type
+        original_resolving_id = resolution.resolving_id
+        original_poa_request_id = resolution.power_of_attorney_request_id
+        original_created_at = resolution.created_at # Should not change
+
+        # Perform the redaction
+        job.send(:redact_request, request)
+        resolution.reload
+
+        # Verify skeleton fields remain unchanged
+        expect(resolution.resolving_type).to eq(original_resolving_type)
+        expect(resolution.resolving_id).to eq(original_resolving_id)
+        expect(resolution.power_of_attorney_request_id).to eq(original_poa_request_id)
+        expect(resolution.created_at).to eq(original_created_at)
+
+        # Verify reason is nil (already covered, but good for context)
+        expect(resolution.reason).to be_nil
+      end
     end
 
     describe 'logging methods' do
