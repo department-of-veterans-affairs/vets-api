@@ -11,18 +11,19 @@ RSpec.describe 'Breakers Integration', type: :request do
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
-    
+
     # Use the actual Rx client, but stub the API responses
-    allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(double('session', user_id: user.mhv_correlation_id))
+    allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(double('session',
+                                                                                 user_id: user.mhv_correlation_id))
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(false)
   end
 
   # Helper method to stub MHV API requests
-  def stub_varx_request(method, path, response_body, opts = {})
+  def stub_varx_request(_method, _path, response_body, opts = {})
     status_code = opts[:status_code] || 200
-    
+
     # Setup default headers
-    response_headers = {
+    {
       'Content-Type' => 'application/json',
       'Date' => Time.now.utc.strftime('%a, %d %b %Y %H:%M:%S GMT'),
       'X-RateLimit-Limit' => '60',
@@ -105,7 +106,9 @@ RSpec.describe 'Breakers Integration', type: :request do
     it 'measures request times' do
       path = 'mhv-api/patient/v1/prescription/gethistoryrx'
       stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ["endpoint:/#{path}"])
-      expect { get '/my_health/v1/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
+      expect do
+        get '/my_health/v1/prescriptions'
+      end.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
     end
   end
 
