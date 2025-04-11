@@ -63,7 +63,7 @@ module EVSS
                                      'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
-                                     'additionalInformation' => sanitize_text(@form_content['additionalInformation']),
+                                     'additionalInformation' => sanitize_text(@form_content['additionalInformation'])
                                    })
       end
 
@@ -127,7 +127,7 @@ module EVSS
           end
         end
       end
-      
+
       def split_incidents(incidents)
         return nil if incidents.blank?
 
