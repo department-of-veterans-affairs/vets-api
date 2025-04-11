@@ -11,8 +11,8 @@ module Lighthouse
         status = response.status
         control_info = parse_control_info(response.body['control_information'])
         payment_account = parse_payment_account(response.body['payment_account'])
-
-        Lighthouse::DirectDeposit::Response.new(status, control_info, payment_account)
+        veteran_status = response.body['veteran_status']
+        Lighthouse::DirectDeposit::Response.new(status, control_info, payment_account, veteran_status)
       end
 
       def self.parse_control_info(control_information)
