@@ -36,7 +36,7 @@ RSpec.describe DynamicsMockService do
 
     context 'when the file contains valid JSON content' do
       let(:expected_result) do
-        { Data: { Icn: I18n.t('ask_va_api.test_users.test_user_119_icn'),
+        { Data: { SubmitterICN: I18n.t('ask_va_api.test_users.test_user_119_icn'),
                   Id: '1',
                   CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
                   CreatedOn: '8/5/2024 4:51:52 PM',

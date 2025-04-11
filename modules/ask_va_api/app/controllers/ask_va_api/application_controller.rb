@@ -15,6 +15,7 @@ module AskVAApi
 
       status = :unprocessable_entity
       status = :not_found if e.message.include?('No Inquiries found')
+      status = :unauthorized if e.message.include?('Unauthorized')
 
       log_and_render_error('service_error', e, status)
     rescue => e

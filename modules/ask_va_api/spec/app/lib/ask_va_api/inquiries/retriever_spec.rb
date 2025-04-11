@@ -59,6 +59,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
           ]
         }
       end
+      let(:icn) { '1008709396V637156' }
 
       before do
         allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
@@ -69,7 +70,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       context 'with user_mock_data' do
         context 'when an ID is given' do
           let(:user_mock_data) { true }
-          let(:id) { 'A-1' }
+          let(:id) { 'A-4' }
 
           it 'returns an array object with correct data' do
             expect(retriever.fetch_by_id(id:)).to be_a(AskVAApi::Inquiries::Entity)
@@ -78,7 +79,6 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
         context 'when an ICN is given' do
           let(:user_mock_data) { true }
-          let(:icn) { '1008709396V637156' }
 
           it 'returns an array object with correct data' do
             expect(retriever.call.first).to be_a(AskVAApi::Inquiries::Entity)
@@ -89,11 +89,13 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       context 'with Crm::Service' do
         context 'when an ID is given' do
           let(:id) { '123' }
+          let(:icn) { '1008709396V637156' }
           let(:inquiry_data) do
             {
               InquiryHasBeenSplit: true,
               CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
               CreatedOn: '8/5/2024 4:51:52 PM',
+              SubmitterICN: '1008709396V637156',
               Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
               InquiryLevelOfAuthentication: 'Personal',
               InquiryNumber: 'A-123456',
@@ -173,6 +175,16 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
               inquiry = retriever.fetch_by_id(id:)
 
               expect(inquiry.correspondences).to eq([])
+            end
+          end
+
+          context 'when the user ICN is not the same as the SubmitterICN' do
+            let(:icn) { '1234' }
+
+            it 'raise InquiriesRetrieverError not authorized' do
+              expect { retriever.fetch_by_id(id:) }.to raise_error(
+                ErrorHandler::ServiceError, 'AskVAApi::Inquiries::InquiriesRetrieverError: Unauthorized'
+              )
             end
           end
         end

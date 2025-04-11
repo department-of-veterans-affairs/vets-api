@@ -17,11 +17,15 @@ module AskVAApi
         inquiry_data = fetch_data(id)
         raise InquiriesRetrieverError, 'Inquiry data not found' if inquiry_data.empty?
 
+        inq = inquiry_data.first
+
+        raise InquiriesRetrieverError, 'Unauthorized' if icn != inq[:SubmitterICN]
+
         # Fetch correspondences for the inquiry
         correspondences = fetch_correspondences(inquiry_id: id)
 
         # Instantiate entity with inquiry and correspondence data
-        entity_class.new(inquiry_data.first, correspondences)
+        entity_class.new(inq, correspondences)
       rescue => e
         ::ErrorHandler.handle_service_error(e)
       end
@@ -58,7 +62,7 @@ module AskVAApi
 
       # Filter inquiry data based on ID or ICN
       def filter_data(data, id = nil)
-        data.select { |inquiry| id ? inquiry[:InquiryNumber] == id : inquiry[:Icn] == icn }
+        data.select { |inquiry| id ? inquiry[:InquiryNumber] == id : inquiry[:SubmitterICN] == icn }
       end
 
       # Fetch inquiry data from CRM

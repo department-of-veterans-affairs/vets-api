@@ -134,36 +134,25 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   describe 'GET #show' do
     let(:expected_response) do
       { 'data' =>
-        { 'id' => '1',
+        { 'id' => '4',
           'type' => 'inquiry',
           'attributes' =>
-          { 'inquiry_number' => 'A-1',
+          { 'inquiry_number' => 'A-4',
             'allow_attachments' => nil,
             'allow_replies' => nil,
             'has_attachments' => true,
-            'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
-            'category_name' => 'Debt for benefit overpayments and health care copay bills',
+            'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
+            'category_name' => 'Benefits issues outside the U.S.',
             'created_on' => '8/5/2024 4:51:52 PM',
-            'correspondences' =>
-            { 'data' =>
-              [{ 'id' => '1',
-                 'type' => 'correspondence',
-                 'attributes' =>
-                 { 'message_type' => '722310001: Response from VA',
-                   'created_on' => '1/2/23 4:45:45 PM',
-                   'modified_on' => '1/2/23 5:45:45 PM',
-                   'status_reason' => 'Completed/Sent',
-                   'description' => 'Your claim is still In Progress',
-                   'enable_reply' => true,
-                   'attachments' => [{ 'Id' => '12', 'Name' => 'correspondence_1_attachment.pdf' }] } }] },
+            'correspondences' => [],
             'has_been_split' => true,
-            'inquiry_topic' => 'Status of a pending claim',
+            'inquiry_topic' => 'All other Questions',
             'level_of_authentication' => 'Personal',
             'last_update' => '8/5/2024 4:51:52 PM',
             'queue_id' => '987654',
-            'queue_name' => 'Debt Management Center',
-            'status' => 'Replied',
-            'submitter_question' => 'What is my status?',
+            'queue_name' => 'Compensation',
+            'status' => 'In Progress',
+            'submitter_question' => 'What is compensation?',
             'school_facility_code' => '0123',
             'veteran_relationship' => 'self' } } }
     end
@@ -176,24 +165,29 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
     context 'when user is signed in' do
       context 'when mock is given' do
+        let(:valid_id) { 'A-4' }
+
         before do
           sign_in(authorized_user)
           get "#{inquiry_path}/#{valid_id}", params: { user_mock_data: true }
         end
 
         it { expect(response).to have_http_status(:ok) }
+
         it { expect(JSON.parse(response.body)).to eq(expected_response) }
       end
 
       context 'when mock is not given' do
+        let(:valid_id) { 'A-123456' }
         let(:crm_response) do
           { Data: [{
             InquiryHasBeenSplit: true,
             CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
             CreatedOn: '8/5/2024 4:51:52 PM',
+            SubmitterICN: '1008709396V637156',
             Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
             InquiryLevelOfAuthentication: 'Personal',
-            InquiryNumber: 'A-123456',
+            InquiryNumber: valid_id,
             InquiryStatus: 'In Progress',
             InquiryTopic: 'Cemetery Debt',
             LastUpdate: '8/5/2024 4:51:52 PM',
@@ -257,6 +251,15 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)).to eq(expected_response) }
+
+        context 'when user icn is not the same as SubmitterICN' do
+          let(:icn) { '123' }
+
+          it { expect(response).to have_http_status(:unauthorized) }
+
+          it_behaves_like 'common error handling', :unauthorized, 'service_error',
+                          'AskVAApi::Inquiries::InquiriesRetrieverError: Unauthorized'
+        end
       end
 
       context 'when the id is invalid' do
