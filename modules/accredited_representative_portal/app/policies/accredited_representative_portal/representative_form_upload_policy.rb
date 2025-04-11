@@ -3,15 +3,15 @@
 require 'lighthouse/benefits_claims/service'
 
 module AccreditedRepresentativePortal
-  class IntentToFilePolicy < ApplicationPolicy
+  class RepresentativeFormUploadPolicy < ApplicationPolicy
     include ValidatePowerOfAttorney
 
-    def show?
+    def submit?
       authorize_poa
     end
 
-    def create?
-      authorize_poa
+    def upload_scanned_form?
+      @user.user_account.active_power_of_attorney_holders.size.positive?
     end
   end
 end
