@@ -8,8 +8,7 @@ require 'disability_compensation/factories/api_provider_factory'
 RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   include SchemaMatchers
 
-  let(:user_account) { create(:user_account) }
-  let(:user) { build(:disabilities_compensation_user) }
+  let(:user) { build(:disabilities_compensation_user, :with_terms_of_use_agreement) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
