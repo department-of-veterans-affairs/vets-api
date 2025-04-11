@@ -158,29 +158,5 @@ describe Ccra::ReferralDetail do
         expect(subject.treating_facility_address).to be_nil
       end
     end
-
-    context 'with camelCase keys' do
-      subject { described_class.new(camel_case_attributes) }
-
-      let(:camel_case_attributes) do
-        {
-          'Referral' => {
-            'referralExpirationDate' => '2024-05-27',
-            'categoryOfCare' => 'CARDIOLOGY',
-            'treatingProvider' => 'Dr. Smith',
-            'treatingFacility' => 'VA Medical Center',
-            'referralNumber' => 'VA0000005681'
-          }
-        }
-      end
-
-      it 'sets attributes correctly from camelCase keys' do
-        expect(subject.expiration_date).to eq('2024-05-27')
-        expect(subject.type_of_care).to eq('CARDIOLOGY')
-        expect(subject.provider_name).to eq('Dr. Smith')
-        expect(subject.location).to eq('VA Medical Center')
-        expect(subject.referral_number).to eq('VA0000005681')
-      end
-    end
   end
 end

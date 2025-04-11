@@ -33,6 +33,7 @@ FactoryBot.define do
     referring_facility_state { 'OH' }
     referring_facility_zip { '45428' }
     has_appointments { 'Y' }
+    treating_facility_phone { '555-123-4567' }
 
     initialize_with do
       attributes = {
@@ -54,7 +55,8 @@ FactoryBot.define do
               'State' => referring_facility_state,
               'ZipCode' => referring_facility_zip
             }
-          }
+          },
+          'treatingFacilityPhone' => treating_facility_phone
         }
       }
       Ccra::ReferralDetail.new(attributes)
