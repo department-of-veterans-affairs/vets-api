@@ -9,6 +9,7 @@ module DebtsApi
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
 
+    # This filters out the file path from the UploadedFile object during upload/POST to the API.
     initializer 'debts_api.filter_uploaded_file_inspect' do
       ActionDispatch::Http::UploadedFile.prepend(Module.new do
         def inspect
