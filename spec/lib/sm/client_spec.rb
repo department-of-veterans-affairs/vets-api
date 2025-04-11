@@ -19,7 +19,10 @@ describe SM::Client do
   describe 'Test new API gateway methods' do
     before do
       allow(Settings.mhv.sm).to receive(:use_new_api).and_return(true)
-      allow(Settings.mhv_mobile).to receive(:x_api_key).and_return('test-api-key')
+      allow(Settings.mhv.sm).to receive_messages(use_new_api: true, app_token: 'test-app-token')
+      allow(Settings.mhv.sm).to receive_messages(x_api_key: 'test-api-key')
+      allow(Settings.mhv_mobile.sm).to receive(:app_token).and_return('mobile-test-app-token')
+      allow(Settings.mhv_mobile).to receive_messages(x_api_key: 'mobile-test-api-key')
       allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
                                                                   app_token: 'test-app-token'))
     end
@@ -37,10 +40,11 @@ describe SM::Client do
     end
 
     describe '#get_headers' do
-      let(:headers) { { 'custom-header' => 'value' } }
+      let(:headers) { { 'custom-header' => 'value', 'appToken' => app_token } }
 
       context 'when use_new_api is true' do
         let(:use_new_api) { true }
+        let(:app_token) { 'test-app-token' }
 
         it 'adds x-api-key to headers' do
           result = client.send(:get_headers, headers)
@@ -50,15 +54,17 @@ describe SM::Client do
 
       context 'when use_new_api is false' do
         let(:use_new_api) { false }
+        let(:app_token) { 'test-app-token' }
 
         before do
           allow(Settings.mhv.sm).to receive(:use_new_api).and_return(use_new_api)
-          allow(Settings.mhv_mobile).to receive(:x_api_key).and_return(nil)
+          allow(Settings.mhv.sm).to receive_messages(x_api_key: nil)
         end
 
         it 'returns headers without x-api-key' do
           result = client.send(:get_headers, headers)
           expect(result).to eq(headers)
+          expect(result).not_to include('x-api-key')
         end
       end
     end

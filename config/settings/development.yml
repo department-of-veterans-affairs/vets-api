@@ -990,7 +990,7 @@ mhv:
     host: https://mhv-api.example.com
     mock: true
     use_new_api: false
-    x_api_key: ~
+    x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
     app_token: faketoken

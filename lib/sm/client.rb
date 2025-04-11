@@ -533,10 +533,25 @@ module SM
 
     private
 
+    def auth_headers
+      base_headers = config.base_request_headers.merge(
+        'appToken' => config.app_token,
+        'mhvCorrelationId' => session.user_id.to_s
+      )
+      get_headers(base_headers) # Ensure get_headers is called to add x-api-key
+    end
+
     def get_headers(headers)
       headers = headers.dup
-      if Settings.mhv.sm.use_new_api.present? && Settings.mhv.sm.use_new_api
-        headers.merge('x-api-key' => Settings.mhv_mobile.x_api_key)
+      if Settings.mhv.sm.use_new_api
+        case headers['appToken']
+        when Settings.mhv.sm.app_token
+          headers.merge('x-api-key' => Settings.mhv.sm.x_api_key)
+        when Settings.mhv_mobile.sm.app_token
+          headers.merge('x-api-key' => Settings.mhv_mobile.x_api_key)
+        else
+          headers
+        end
       else
         headers
       end
