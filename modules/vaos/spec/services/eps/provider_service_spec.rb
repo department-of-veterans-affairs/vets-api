@@ -307,77 +307,98 @@ describe Eps::ProviderService do
   end
 
   describe '#search_provider_services' do
-    let(:search_params) do
-      {
-        search_text: 'Acme Medical',
-        appointment_id: 'e2487f73-62e7-476b-a8b7-503333572d2a',
-        npi: '1245319599',
-        network_id: '69cd9203-5e92-47a3-aa03-94b03752872a'
-      }
-    end
-
-    let(:expected_params) do
-      {
-        searchText: 'Acme Medical',
-        appointmentId: 'e2487f73-62e7-476b-a8b7-503333572d2a',
-        npi: '1245319599',
-        networkId: '69cd9203-5e92-47a3-aa03-94b03752872a'
-      }
-    end
-
-    let(:valid_response) do
-      double('Response', status: 200, body: {
-               count: 1,
-               providerServices: [
-                 {
-                   id: '69cd9203-5e92-47a3-aa03-94b03752872a',
-                   name: 'Acme Medical Group',
-                   npi: '1245319599'
-                 }
-               ]
-             })
-    end
+    let(:npi) { '7894563210' }
 
     context 'when the request is successful' do
-      before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:get, "/#{config.base_path}/provider-services", expected_params, headers)
-          .and_return(valid_response)
+      context 'when a provider with matching NPI exists' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
+                is_active: true,
+                individual_providers: [
+                  {
+                    name: 'Dr. Monty Graciano',
+                    npi: '7894563210'
+                  }
+                ]
+              }
+            ]
+          }
+        end
+
+        let(:response) { double('Response', status: 200, body: response_body) }
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
+            .and_return(response)
+        end
+
+        it 'returns an OpenStruct with the matching provider' do
+          result = service.search_provider_services(npi:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
       end
 
-      it 'returns an OpenStruct with the response body' do
-        result = service.search_provider_services(search_params)
-        expect(result).to eq(OpenStruct.new(valid_response.body))
+      context 'when no provider with matching NPI exists' do
+        let(:response_body) do
+          {
+            count: 1,
+            providerServices: [
+              {
+                id: '53mL4LAZ',
+                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
+                isActive: true,
+                individualProviders: [
+                  {
+                    name: 'Dr. Monty Graciano',
+                    npi: '1234567890' # Different NPI
+                  }
+                ]
+              }
+            ]
+          }
+        end
+
+        let(:response) { double('Response', status: 200, body: response_body) }
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: npi }, headers)
+            .and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi: npi)
+          expect(result).to be_nil
+        end
       end
 
-      it 'handles optional parameters' do
-        optional_params = search_params.merge(
-          max_miles_from_near: 25,
-          near_location: '90.0,180.0',
-          organization_names: ['Alpha Cardiology'],
-          specialty_ids: ['207XX0004X'],
-          visit_modes: ['in-person'],
-          include_inactive: false,
-          digital_or_not: 'digital',
-          is_self_schedulable: true
-        )
+      context 'when the response contains no providers' do
+        let(:response_body) do
+          {
+            count: 0,
+            providerServices: []
+          }
+        end
 
-        expected_optional_params = expected_params.merge(
-          maxMilesFromNear: 25,
-          nearLocation: '90.0,180.0',
-          organizationNames: ['Alpha Cardiology'],
-          specialtyIds: ['207XX0004X'],
-          visitModes: ['in-person'],
-          includeInactive: false,
-          digitalOrNot: 'digital',
-          isSelfSchedulable: true
-        )
+        let(:response) { double('Response', status: 200, body: response_body) }
 
-        expect_any_instance_of(VAOS::SessionService).to receive(:perform)
-          .with(:get, "/#{config.base_path}/provider-services", expected_optional_params, headers)
-          .and_return(valid_response)
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: npi }, headers)
+            .and_return(response)
+        end
 
-        service.search_provider_services(optional_params)
+        it 'returns nil' do
+          result = service.search_provider_services(npi: npi)
+          expect(result).to be_nil
+        end
       end
     end
 
@@ -392,7 +413,7 @@ describe Eps::ProviderService do
       end
 
       it 'raises an error' do
-        expect { service.search_provider_services(search_params) }
+        expect { service.search_provider_services(npi: npi) }
           .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end

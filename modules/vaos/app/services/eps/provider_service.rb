@@ -96,30 +96,21 @@ module Eps
     end
 
     ##
-    # Search for provider services using various parameters
+    # Search for a provider service that contains an individual provider with the specified NPI
     #
-    # @param params [Hash] Search parameters including:
-    #   - search_text [String] Text to search for in provider names
-    #   - appointment_id [String] ID of the appointment to search for
-    #   - npi [String] NPI number to search for
-    #   - network_id [String] Network ID to filter by
-    #   - max_miles_from_near [Integer] Maximum miles from location
-    #   - near_location [String] Location coordinates in format "lat,long"
-    #   - organization_names [Array<String>] Organization names to filter by
-    #   - specialty_ids [Array<String>] Specialty IDs to filter by
-    #   - visit_modes [Array<String>] Visit modes to filter by
-    #   - include_inactive [Boolean] Whether to include inactive providers
-    #   - digital_or_not [String] Filter for digital or non-digital providers
-    #   - is_self_schedulable [Boolean] Whether provider allows self-scheduling
-    #   - next_token [String] Token for pagination
+    # @param npi [String] NPI number to search for within individual providers
     #
-    # @return OpenStruct response from EPS provider-services search endpoint
+    # @return [OpenStruct, nil] The matching provider service as an OpenStruct if found, nil otherwise
     #
-    def search_provider_services(params = {})
-      query_params = build_search_params(params)
+    def search_provider_services(npi:)
+      query_params = { npi: }
       response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
-      provider = response.body.dig(:provider_services, 0)
-      provider ? OpenStruct.new(provider) : nil
+
+      matching_provider = response.body["providerServices"]&.find do |provider|
+        provider["individualProviders"]&.any? { |individual| individual["npi"] == npi }
+      end
+
+      matching_provider ? OpenStruct.new(matching_provider) : nil
     end
 
     private

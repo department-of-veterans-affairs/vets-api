@@ -1068,7 +1068,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
-    let(:provider_npi) { '7894563210' }
+    let(:npi) { '7894563210' }
     let(:appointment_type_id) { 'ov' }
     let(:start_date) { '2025-01-01T00:00:00Z' }
     let(:end_date) { '2025-01-03T00:00:00Z' }
@@ -1077,7 +1077,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         data: {
           id: draft_params[:referral_id],
           type: :referral_identifier,
-          attributes: { provider_npi:, appointment_type_id:, start_date:, end_date: }
+          attributes: { npi:, appointment_type_id:, start_date:, end_date: }
         }
       }.to_json
     end
@@ -1272,7 +1272,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             data: {
               id: draft_params[:referral_id],
               type: :referral_identifier,
-              attributes: { provider_npi: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
+              attributes: { npi: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
             }
           }.to_json
 
@@ -1330,7 +1330,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data: {
                 id: 'ref-124',
                 type: :referral_identifier,
-                attributes: { provider_npi:, appointment_type_id:, start_date:, end_date: }
+                attributes: { npi:, appointment_type_id:, start_date:, end_date: }
               }
             }.to_json
 
@@ -1385,7 +1385,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             data: {
               id: 'ref-126',
               type: :referral_identifier,
-              attributes: { provider_npi:, appointment_type_id:, start_date:, end_date: }
+              attributes: { npi:, appointment_type_id:, start_date:, end_date: }
             }
           }.to_json
 

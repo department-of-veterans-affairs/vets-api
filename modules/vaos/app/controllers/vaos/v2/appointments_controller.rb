@@ -447,13 +447,11 @@ module VAOS
       # Searches for a provider using the NPI from the referral data.
       #
       # @param referral_data [Hash] The referral data containing provider information
-      # @option referral_data [String] :provider_npi The National Provider Identifier (NPI) to search for
+      # @option referral_data [String] :npi The National Provider Identifier (NPI) to search for
       # @return [Object, nil] The provider service object if found, nil otherwise
       #
-      def find_provider(referral_data)
-        search_params = { npi: referral_data[:provider_npi] }
-
-        eps_provider_service.search_provider_services(search_params)
+      def find_provider(npi:)
+        eps_provider_service.search_provider_services(npi:)
       end
 
       ##
@@ -566,7 +564,7 @@ module VAOS
       def validate_referral_data(referral_data)
         return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
 
-        required_attributes = %i[provider_npi appointment_type_id start_date end_date]
+        required_attributes = %i[npi appointment_type_id start_date end_date]
         missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
 
         {
@@ -613,7 +611,7 @@ module VAOS
       #   - :status [Symbol, nil] HTTP status code if not successful
       #
       def process_provider_and_slots(referral_data)
-        provider = find_provider(referral_data)
+        provider = find_provider(npi: referral_data[:npi])
         return provider_not_found_response unless provider
 
         slots = fetch_provider_slots(referral_data, provider.id)
