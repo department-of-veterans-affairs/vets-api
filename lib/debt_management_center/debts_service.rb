@@ -145,13 +145,6 @@ module DebtManagementCenter
       response
     end
 
-    def add_debts_to_redis
-      debts = @debts.map { |d| d['id'] = SecureRandom.uuid }
-      debt_params = { REDIS_CONFIG[:debt][:namespace] => user.uuid }
-      debt_store = DebtManagementCenter::DebtStore.new(debt_params)
-      debt_store.update(uuid: user.uuid, debts:)
-    end
-
     def sort_by_date(debt_history)
       debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
     end
