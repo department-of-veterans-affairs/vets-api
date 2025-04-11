@@ -96,18 +96,20 @@ module Eps
     end
 
     ##
-    # Search for a provider service that contains an individual provider with the specified NPI
+    # Search for provider services using NPI
     #
-    # @param npi [String] NPI number to search for within individual providers
+    # @param npi [String] NPI number to search for
     #
-    # @return [OpenStruct, nil] The matching provider service as an OpenStruct if found, nil otherwise
+    # @return OpenStruct response containing the provider service where an individual provider has
+    # matching NPI, or nil if not found
     #
     def search_provider_services(npi:)
       query_params = { npi: }
       response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
 
-      matching_provider = response.body["providerServices"]&.find do |provider|
-        provider["individualProviders"]&.any? { |individual| individual["npi"] == npi }
+      # NOTE: faraday converts keys to symbols
+      matching_provider = response.body[:provider_services]&.find do |provider|
+        provider[:individual_providers]&.any? { |individual| individual[:npi] == npi }
       end
 
       matching_provider ? OpenStruct.new(matching_provider) : nil
