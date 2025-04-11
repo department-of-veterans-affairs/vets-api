@@ -11,7 +11,7 @@ describe PdfFill::HashConverter do
 
   def verify_extras_text(text, metadata)
     metadata[:overflow] = true unless metadata.key?(:overflow)
-    metadata[:array_question_text] = nil unless metadata.key?(:array_question_text)
+    metadata[:item_label] = nil unless metadata.key?(:item_label)
     expect(extras_generator).to receive(:add_text).with(text, metadata).once
   end
 
@@ -286,6 +286,7 @@ describe PdfFill::HashConverter do
           },
           treatmentProviders: {
             limit: 1,
+            item_label: 'Treatment facility',
             question_text: 'Provider',
             question_num: 13,
             key: "F[0].#subform[5].Name_And_Location_Of_Treatment_Facility[#{PdfFill::HashConverter::ITERATOR}]"
@@ -300,9 +301,9 @@ describe PdfFill::HashConverter do
         verify_extras_text('Wolfeschlegelsteinhausenbergerdorff',
                            i: nil, question_num: 2, question_text: 'Last Name')
         verify_extras_text('Walter Reed, Bethesda MD',
-                           i: 0, question_num: 13, question_text: 'Provider', array_question_text: 'Provider')
+                           i: 0, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         verify_extras_text('Silver Oak Recovery Center, Clearwater FL',
-                           i: 1, question_num: 13, question_text: 'Provider', array_question_text: 'Provider')
+                           i: 1, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         subject.transform_data(form_data:, pdftk_keys:)
       end
     end
