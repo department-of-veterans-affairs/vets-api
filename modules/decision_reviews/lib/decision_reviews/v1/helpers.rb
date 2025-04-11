@@ -36,14 +36,23 @@ module DecisionReviews
             last: user.last_name.to_s.presence
           },
           veteranDateOfBirth: user.birth_date.to_s.strip.presence,
-          veteranAddress: vet['address'].merge(
-            'country' => vet['address']['countryCodeISO2'],
-            'postalCode' => vet['address']['zipCode5']
-          ),
+          veteranAddress: transform_address_fields(vet['address']),
           email: vet['email'],
           veteranPhone: "#{vet['phone']['areaCode']}#{vet['phone']['phoneNumber']}"
         }
         x.merge(form4142).deep_stringify_keys
+      end
+
+      def transform_address_fields(address)
+        address.merge(
+          {
+            'street' => address['addressLine1'],
+            'street2' => address['addressLine2'],
+            'state' => address['stateCode'],
+            'country' => IsoCountryCodes.find(address['countryCodeISO2'])&.alpha3,
+            'postalCode' => address['zipCode5']
+          }
+        )
       end
 
       def create_supplemental_claims_headers(user)
