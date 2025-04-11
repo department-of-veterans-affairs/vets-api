@@ -22,7 +22,8 @@ module Swagger
           response 200 do
             key :description, 'Successful debts lookup'
             schema do
-              property :debtsCount, type: :integer, description: 'Total number of debts (only returned when count_only=true)'
+              property :debtsCount, type: :integer,
+                                    description: 'Total number of debts (only returned when count_only=true)'
               property :has_dependent_debts, type: :boolean
               property :debts, type: :array do
                 items do

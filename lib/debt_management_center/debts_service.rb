@@ -20,7 +20,7 @@ module DebtManagementCenter
     end
 
     def get_debts(count_only: false)
-      # @param count_only [Boolean] 
+      # @param count_only [Boolean]
       # When true, returns only { "debtsCount" => Integer }
       # When false, returns full debt details with histories
       if count_only
@@ -112,34 +112,30 @@ module DebtManagementCenter
         payload[:countOnly] = true if count_only
 
         response = perform(:post, Settings.dmc.debts_endpoint, payload, nil, options).body
-        
+
         return extract_debts_count(response) if count_only
-        
+
         DebtManagementCenter::DebtsResponse.new(response).debts
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.fetch_debts_from_dmc.fail", tags: [
-          "error:#{e.class.name}",
-          "status:#{e.respond_to?(:status) ? e.status : 'unknown'}"
-        ])
+                           "error:#{e.class.name}",
+                           "status:#{e.respond_to?(:status) ? e.status : 'unknown'}"
+                         ])
         raise e
       end
     end
 
     def extract_debts_count(response)
-      # If response is the desired format, return it.  
+      # If response is the desired format, return it.
       # If it is an array, return just the count.
       # Sometimes we get back the default mocked file, then we count and return that.
 
-      if response.is_a?(Hash) && response.key?('debtsCount')
-        return response
-      end
+      return response if response.is_a?(Hash) && response.key?('debtsCount')
 
-      if response.is_a?(Array) && response.first.is_a?(Hash) && response.first.key?('debtsCount')
-        return response.first
-      end
+      return response.first if response.is_a?(Array) && response.first.is_a?(Hash) && response.first.key?('debtsCount')
 
       if response.is_a?(Array) && response.any? { |debt| debt['fileNumber'].present? }
-        return { "debtsCount" => response.length }
+        return { 'debtsCount' => response.length }
       end
 
       response

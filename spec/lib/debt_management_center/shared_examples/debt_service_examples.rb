@@ -4,7 +4,7 @@ RSpec.shared_examples 'debt service behavior' do
   before do
     allow(StatsD).to receive(:increment)
   end
-  
+
   describe '#get_debts' do
     context 'with a valid file number' do
       it 'fetches the veterans debt data' do
@@ -73,32 +73,27 @@ RSpec.shared_examples 'debt service behavior' do
           VCR.use_cassette('debts/get_letters_count_only', VCR::MATCH_EVERYTHING) do
             # When requesting just the count
             response = described_class.new(user).get_debts(count_only: true)
-            
-            # Response should be a hash with debtsCount
+
             expect(response).to be_a(Hash)
             expect(response).to have_key('debtsCount')
-            expect(response['debtsCount']).to be > 0  # We know this test has debts
-            
-            # Verify metrics
+            expect(response['debtsCount']).to be > 0
+
             expect(StatsD).to have_received(:increment).with('api.dmc.fetch_debts_from_dmc.total')
             expect(StatsD).to have_received(:increment).with('api.dmc.get_debts_count.success')
           end
         end
       end
-    
+
       it 'returns full debt data when count_only is false' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
-            # When requesting full debt data
             response = described_class.new(user).get_debts(count_only: false)
-            
-            # 1. Response should include both has_dependent_debts and debts array
+
             expect(response).to have_key(:has_dependent_debts)
             expect(response).to have_key(:debts)
             expect(response[:debts]).to be_an(Array)
             expect(response[:debts]).not_to be_empty
-            
-            # 2. Verify metrics
+
             expect(StatsD).to have_received(:increment).with('api.dmc.fetch_debts_from_dmc.total')
             expect(StatsD).to have_received(:increment).with('api.dmc.get_debts.success')
           end
