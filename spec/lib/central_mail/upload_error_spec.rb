@@ -75,7 +75,7 @@ RSpec.describe CentralMail::UploadError do
       it 'has a custom message based on the code and settings' do
         expect(error).to have_attributes(code:,
                                          detail:,
-                                         message: 'Maximum document size exceeded. Limit is 987.654 MB per document.')
+                                         message: 'Maximum document size exceeded. Limit is 941.901 MB per document.')
       end
     end
 
