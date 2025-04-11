@@ -150,7 +150,7 @@ module PdfFill
             question_num: 9,
             question_suffix: 'A',
             question_text: 'Description',
-            limit: 150
+            limit: 105
           },
           'location' => {
             key: "F[0].#subform[2].Location_Of_The_Traumatic_Events[#{ITERATOR}]",
