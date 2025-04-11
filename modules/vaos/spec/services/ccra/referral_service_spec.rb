@@ -5,17 +5,15 @@ require 'rails_helper'
 describe Ccra::ReferralService do
   subject { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234', flipper_id: '1234') }
-  let(:access_token) { 'fake-access-token' }
+  let(:user) { double('User', account_uuid: '1234', flipper_id: '1234', icn: '1012845331V153043') }
+  let(:session_token) { 'fake-session-token' }
+  let(:request_id) { 'request-id' }
 
   before do
-    allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
+    allow(RequestStore.store).to receive(:[]).with('request_id').and_return(request_id)
 
-    # Allow any cache fetch call to return the access token if it matches our key, otherwise nil
-    # This makes it so we don't need to make a real call to the token endpoint
-    allow(Rails.cache).to receive(:fetch) do |key|
-      access_token if key == Ccra::BaseService::REDIS_TOKEN_KEY
-    end
+    # Mock the session token from UserService
+    allow_any_instance_of(VAOS::UserService).to receive(:session).with(user).and_return(session_token)
 
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
@@ -36,7 +34,7 @@ describe Ccra::ReferralService do
           expect(result).to be_an(Array)
           expect(result.size).to eq(3)
           expect(result.first).to be_a(Ccra::ReferralListEntry)
-          expect(result.first.referral_id).to eq('5682')
+          expect(result.first.referral_number).to eq('5682')
           expect(result.first.type_of_care).to eq('CARDIOLOGY')
         end
       end

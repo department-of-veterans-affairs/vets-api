@@ -12,7 +12,8 @@ RSpec.describe 'VANotify Callbacks', type: :request do
       id: notification_id,
       status: 'delivered',
       notification_type: 'email',
-      to: 'user@example.com'
+      to: 'user@example.com',
+      status_reason: ''
     }
   end
   let(:callback_route) { '/va_notify/callbacks' }
@@ -43,7 +44,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
           expect(Rails.logger).to have_received(:info).with(
             "va_notify callbacks - Updating notification: #{notification.id}",
             { source_location: 'some_location', template_id:, callback_metadata: 'some_callback_metadata',
-              status: 'delivered' }
+              status_reason: '', status: 'delivered' }
           )
           expect(response.body).to include('success')
           notification.reload

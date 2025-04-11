@@ -71,7 +71,7 @@ module CheckIn
         {
           phone_number: phone_last_four(opts),
           template_id: opts&.dig(:template_id),
-          claim_number: opts&.dig(:claim_number)
+          claim_number: opts&.dig(:claim_number).presence&.last(4)
         },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
