@@ -208,6 +208,24 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(provider['name']).to eq('Dr. Smith')
         expect(provider['location']).to eq('VA Medical Center')
 
+        # Check nested referring facility attributes
+        expect(response_data['data']['attributes']).to have_key('referringFacility')
+        referring_facility = response_data['data']['attributes']['referringFacility']
+        expect(referring_facility).to be_a(Hash)
+        expect(referring_facility['facilityName']).to be_present
+        expect(referring_facility['phone']).to be_present
+        expect(referring_facility['facilityCode']).to be_present
+
+        # Check referring facility address if present
+        if referring_facility.key?('address')
+          address = referring_facility['address']
+          expect(address).to be_a(Hash)
+          expect(address).to have_key('street1')
+          expect(address).to have_key('city')
+          expect(address).to have_key('state')
+          expect(address).to have_key('zip')
+        end
+
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
       end
