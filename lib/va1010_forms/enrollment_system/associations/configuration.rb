@@ -13,6 +13,11 @@ module VA1010Forms::EnrollmentSystem::Associations
       'VA1010Forms'
     end
 
+    # @return [Hash] The basic headers required for any VES Associations API call.
+    def self.base_request_headers
+      super.merge('apiKey' => Settings.va1010_forms.enrollment_system.associations.api_key)
+    end
+
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use(:breakers, service_name:)
@@ -22,13 +27,6 @@ module VA1010Forms::EnrollmentSystem::Associations
         conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
-    end
-
-    private
-
-    # @return [Hash] The basic headers required for any VES Associations API call.
-    def self.base_request_headers
-      super.merge('apiKey' => Settings.va1010_forms.enrollment_system.associations.api_key)
     end
   end
 end
