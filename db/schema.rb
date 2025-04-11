@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_07_161056) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1077,7 +1077,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_07_161056) do
     t.boolean "email_sent", default: false, null: false
     t.uuid "application_uuid"
     t.string "ves_status"
-    t.jsonb "ves_data"
     t.text "encrypted_kms_key"
     t.text "ves_request_data_ciphertext"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
