@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
+require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_claims/service_exception'
 require 'lighthouse/service_exception'
 
@@ -13,33 +14,6 @@ module BenefitsClaims
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
     SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
-
-    FRIENDLY_DISPLAY_MAPPING = {
-      '21-4142/21-4142a' => 'Authorization to Disclose Information',
-      'Proof of Service (DD214, etc.)' => 'Proof of Service',
-      'Employment info needed' => 'Employment information',
-      'EFT - Treasury Mandate Notification' => 'Direct deposit information',
-      'PTSD - Need stressor details/med evid of stressful incdnt' => 'Details about cause of PTSD'
-    }.freeze
-
-    FRIENDLY_DESCRIPTION_MAPPING = {
-      '21-4142/21-4142a' => 'We need your permission to request your personal information from a non-VA source,' \
-                            ' like a private doctor or hospital.',
-      'Proof of Service (DD214, etc.)' => 'We need copies of your separation papers for all periods of service.',
-      'Employment info needed' => 'We need employment information from your most recent employer.',
-      'EFT - Treasury Mandate Notification' => 'We need your direct deposit information in order to pay benefits,' \
-                                               ' if awarded.',
-      'PTSD - Need stressor details/med evid of stressful incdnt' => 'We need information about the cause of' \
-                                                                     ' your posttraumatic stress disorder (PTSD).'
-    }.freeze
-
-    SUPPORT_ALIASES_MAPPING = {
-      '21-4142/21-4142a' => ['VA Form 21-4142'],
-      'Proof of Service (DD214, etc.)' => ['Form DD214'],
-      'Employment info needed' => ['VA Form 21-4192'],
-      'EFT - Treasury Mandate Notification' => ['EFT - Treasure Mandate Notification'],
-      'PTSD - Need stressor details/med evid of stressful incdnt' => ['VA Form 21-0781', 'PTSD - Need stressor details']
-    }.freeze
 
     def initialize(icn)
       @icn = icn
@@ -66,7 +40,12 @@ module BenefitsClaims
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
       override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
-      apply_friendlier_language(claim['data']) if Flipper.enabled?(:cst_friendly_evidence_requests)
+      if Flipper.enabled?(:cst_friendly_evidence_requests_first_party)
+        apply_friendlier_language_first_party(claim['data'])
+      end
+      if Flipper.enabled?(:cst_friendly_evidence_requests_third_party)
+        apply_friendlier_language_third_party(claim['data'])
+      end
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -320,16 +299,34 @@ module BenefitsClaims
       tracked_items
     end
 
-    def apply_friendlier_language(claim)
+    def apply_friendlier_language_first_party(claim)
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.each do |i|
+      tracked_items.select { |i| i['status'] == 'NEEDED_FROM_YOU' }.each do |i|
         display_name = i['displayName']
-        i['canUploadFile'] = true # default to showing uploader at all times. this is in flux.
-        i['friendlyName'] = FRIENDLY_DISPLAY_MAPPING[display_name]
-        i['friendlyDescription'] = FRIENDLY_DESCRIPTION_MAPPING[display_name]
-        i['supportAliases'] = SUPPORT_ALIASES_MAPPING[display_name] || []
+        i['canUploadFile'] =
+          BenefitsClaims::Constants::UPLOADER_MAPPING_FIRST_PARTY[display_name].nil? ||
+          BenefitsClaims::Constants::UPLOADER_MAPPING_FIRST_PARTY[display_name]
+        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING_FIRST_PARTY[display_name]
+        i['friendlyDescription'] = BenefitsClaims::Constants::FRIENDLY_DESCRIPTION_MAPPING_FIRST_PARTY[display_name]
+        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING_FIRST_PARTY[display_name] || []
+      end
+      tracked_items
+    end
+
+    def apply_friendlier_language_third_party(claim)
+      tracked_items = claim['attributes']['trackedItems']
+      return unless tracked_items
+
+      tracked_items.select { |i| i['status'] == 'NEEDED_FROM_OTHERS' }.each do |i|
+        display_name = i['displayName']
+        i['canUploadFile'] =
+          BenefitsClaims::Constants::UPLOADER_MAPPING_THIRD_PARTY[display_name].nil? ||
+          BenefitsClaims::Constants::UPLOADER_MAPPING_THIRD_PARTY[display_name]
+        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING_THIRD_PARTY[display_name]
+        i['friendlyDescription'] = BenefitsClaims::Constants::FRIENDLY_DESCRIPTION_MAPPING_THIRD_PARTY[display_name]
+        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING_THIRD_PARTY[display_name] || []
       end
       tracked_items
     end

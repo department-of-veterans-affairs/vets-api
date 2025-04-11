@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq'
+require 'sidekiq/job_retry'
 
 RSpec.describe HCA::EzrSubmissionJob, type: :job do
   let(:user) { create(:evss_user, :loa3, icn: '1013032368V065534') }
@@ -71,7 +73,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             allow(VANotify::EmailJob).to receive(:perform_async)
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-            expect(described_class).to receive(:log_message_to_sentry).with(
+            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
               '1010EZR total failure',
               :error,
               {
@@ -111,7 +113,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
 
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
-            expect(described_class).to receive(:log_message_to_sentry).with(
+            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
               '1010EZR total failure',
               :error,
               {
@@ -141,6 +143,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     before do
       allow(User).to receive(:find).with(user.uuid).and_return(user)
       allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
+      allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
     end
 
     context 'when submission has an error' do
@@ -151,14 +154,13 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
            'logs exception to sentry, and sends a failure email' do
           allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
           allow(StatsD).to receive(:increment)
-          # Because we're calling the 'log_submission_failure' method from a new instance
-          # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
-          allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
 
           expect(StatsD).to receive(:increment).with('api.1010ezr.enrollment_system_validation_error')
           expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
-          expect(ezr_service).to receive(:log_submission_failure).with(
-            form
+          expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
+            form,
+            '1010EZR failure',
+            'failure'
           )
           expect_submission_failure_email_and_statsd_increments
 
@@ -167,6 +169,56 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           personal_information_log = PersonalInformationLog.last
           expect(personal_information_log.error_class).to eq('Form1010Ezr EnrollmentSystemValidationFailure')
           expect(personal_information_log.data).to eq(form)
+        end
+      end
+
+      context 'with an Ox::ParseError' do
+        let(:error_msg) { 'invalid format, elements overlap at line 1, column 212 [parse.c:626]' }
+        let(:full_log_msg) { "Form1010Ezr FailedDidNotRetry: #{error_msg}" }
+
+        before do
+          allow(User).to receive(:find).with(user.uuid).and_return(user)
+          allow(StatsD).to receive(:increment)
+          allow(Rails.logger).to receive(:info)
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
+          allow(Form1010Ezr::Service).to receive(:new).with(user).once.and_return(ezr_service)
+          allow(ezr_service).to receive(:submit_sync).and_raise(Ox::ParseError.new(error_msg))
+        end
+
+        context 'when the send failure email flipper is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_va_notify_on_submission_failure).and_return(true)
+          end
+
+          it 'increments StatsD, logs the error, sends a failure email, and does not retry' do
+            expect(StatsD).to receive(:increment).with('api.1010ezr.failed_did_not_retry')
+            expect(Rails.logger).to receive(:info).with(full_log_msg)
+            expect_submission_failure_email_and_statsd_increments
+            expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
+              form, '1010EZR failure did not retry', 'failure_did_not_retry'
+            )
+            # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
+            expect { subject }.to raise_error(Sidekiq::JobRetry::Skip)
+          end
+        end
+
+        context 'when the send failure email flipper is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:ezr_use_va_notify_on_submission_failure).and_return(false)
+            allow(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry)
+          end
+
+          it 'increments StatsD, logs the error, and does not retry' do
+            expect(Rails.logger).to receive(:info).with(full_log_msg)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.failed_did_not_retry')
+            expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+            expect(Form1010Ezr::Service).to receive(:log_submission_failure_to_sentry).with(
+              form, '1010EZR failure did not retry', 'failure_did_not_retry'
+            )
+            # The Sidekiq::JobRetry::Skip error will fail the job and not retry it
+            expect { subject }.to raise_error(Sidekiq::JobRetry::Skip)
+          end
         end
       end
 

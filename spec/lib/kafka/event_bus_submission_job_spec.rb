@@ -5,7 +5,7 @@ require 'kafka/sidekiq/event_bus_submission_job'
 require 'kafka/avro_producer'
 
 RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
-  let(:topic) { 'form_submission_service' }
+  let(:topic) { 'submission_trace_form_status_change_test' }
   let(:payload) { { 'data' => { 'ICN' => 'id' } } }
   let(:monitor) { instance_double(Kafka::Monitor) }
   let(:producer) { instance_double(Kafka::AvroProducer) }
@@ -20,7 +20,7 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
 
   describe '#perform' do
     it 'produces a message to the Kafka topic and tracks success' do
-      described_class.new.perform(topic, payload)
+      described_class.new.perform(payload)
       expect(producer).to have_received(:produce).with(topic, payload)
       expect(monitor).to have_received(:track_submission_success).with(topic, payload)
     end
@@ -34,7 +34,7 @@ RSpec.describe Kafka::EventBusSubmissionJob, type: :job do
 
       it 'tracks the failure and raises the error' do
         expect do
-          described_class.new.perform(topic, payload)
+          described_class.new.perform(payload)
         end.to raise_error(StandardError, 'Error')
         expect(monitor).to have_received(:track_submission_failure).with(topic, payload, error)
       end

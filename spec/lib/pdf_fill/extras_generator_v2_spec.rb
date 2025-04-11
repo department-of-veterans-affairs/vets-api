@@ -10,7 +10,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
   describe PdfFill::ExtrasGeneratorV2::Question do
     subject do
-      question = described_class.new(add_text_calls.first[1])
+      question = described_class.new('First name', add_text_calls.first[1])
       add_text_calls.each { |call| question.add_text(*call) }
       question
     end
@@ -47,7 +47,7 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     it 'populates section indices correctly' do
-      questions = [1, 9, 42, 7].index_with { |question_num| described_class::Question.new(question_num:) }
+      questions = [1, 9, 42, 7].index_with { |question_num| described_class::Question.new(nil, question_num:) }
       subject.instance_variable_set(:@questions, questions)
       subject.populate_section_indices!
       indices = subject.instance_variable_get(:@questions).values.map(&:section_index)

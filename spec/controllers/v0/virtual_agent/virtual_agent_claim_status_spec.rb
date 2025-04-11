@@ -214,7 +214,7 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
             get('/v0/virtual_agent/claims/600383363')
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(8)
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(13)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
                                  'displayName')).to eq('Private Medical Record')
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,
@@ -233,7 +233,7 @@ RSpec.describe 'VirtualAgentClaimStatusController', type: :request do
             get('/v0/virtual_agent/claims/600383363')
           end
           parsed_body = JSON.parse(response.body)
-          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(9)
+          expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(14)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 0,
                                  'displayName')).to eq('Private Medical Record')
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 1,

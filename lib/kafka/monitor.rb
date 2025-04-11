@@ -20,8 +20,6 @@ module Kafka
     # @param topic [String] The Kafka topic to which the message will be sent
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     def track_submission_success(topic, payload)
-      payload.dig('data', 'ICN') && (payload['data']['ICN'] = '[REDACTED]')
-
       additional_context = { topic:, payload: }
       track_request(
         'info',
@@ -39,8 +37,6 @@ module Kafka
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     # @param e [Error] the error which occurred
     def track_submission_failure(topic, payload, e)
-      payload.dig('data', 'ICN') && (payload['data']['ICN'] = '[REDACTED]')
-
       additional_context = {
         topic:,
         payload:,
@@ -64,8 +60,6 @@ module Kafka
     # @param payload [Hash] The message payload to be sent to the Kafka topic
     #
     def track_submission_exhaustion(msg, topic, payload)
-      payload.dig('data', 'ICN') && (payload['data']['ICN'] = '[REDACTED]')
-
       additional_context = {
         topic:,
         payload:,
