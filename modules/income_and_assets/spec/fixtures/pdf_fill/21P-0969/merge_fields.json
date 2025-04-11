@@ -596,5 +596,10 @@
   "trust": 0,
   "annuity": 0,
   "discontinuedIncome": 0,
-  "incomeReceiptWaiver": 0
+  "incomeReceiptWaiver": 0,
+  "statementOfTruthSignatureDate": {
+    "month": "12",
+    "day": "31",
+    "year": "2016"
+  }
 }
