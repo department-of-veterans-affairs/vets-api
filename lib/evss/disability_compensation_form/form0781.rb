@@ -55,15 +55,15 @@ module EVSS
       def create_form_v2
         prepare_veteran_info.merge({
                                      'eventTypes' => @form_content['eventTypes'],
-                                     'events' => @form_content['events'],
+                                     'events' => sanitize_details(@form_content['events']),
                                      'behaviors' => aggregate_behaviors,
-                                     'behaviorsDetails' => @form_content['behaviorsDetails'],
+                                     'behaviorsDetails' => sanitize_hash_values(@form_content['behaviorsDetails']),
                                      'evidence' => aggregate_supporting_evidence,
                                      'treatmentNoneCheckbox' => @form_content['treatmentNoneCheckbox'],
                                      'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
-                                     'additionalInformation' => @form_content['additionalInformation']
+                                     'additionalInformation' => sanitize_text(@form_content['additionalInformation']),
                                    })
       end
 
@@ -110,6 +110,24 @@ module EVSS
           .select { |_key, value| value }
       end
 
+      def sanitize_text(string)
+        string.gsub(/\n|\r/, ' ') # Replace each line break with a space
+      end
+
+      def sanitize_hash_values(hash)
+        hash.transform_values { |value| sanitize_text(value) }
+      end
+
+      def sanitize_details(events)
+        events.map do |event|
+          if event.key?('details') && !event['details'].nil?
+            event.merge('details' => sanitize_text(event['details']))
+          else
+            event
+          end
+        end
+      end
+      
       def split_incidents(incidents)
         return nil if incidents.blank?
 
