@@ -52,6 +52,23 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with a gateway timeout' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::GatewayTimeout)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::GatewayTimeout
+          ) do |e|
+            expect(e.message).to match('Gateway timeout')
+          end
+        end
+      end
+    end
+
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do
