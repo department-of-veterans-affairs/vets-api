@@ -7,7 +7,7 @@ class AppealSubmission < ApplicationRecord
 
   APPEAL_TYPES = %w[HLR NOD SC].freeze
   validates :user_uuid, :submitted_appeal_uuid, presence: true
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil
   validates :type_of_appeal, inclusion: APPEAL_TYPES
 
   has_kms_key
@@ -90,9 +90,8 @@ class AppealSubmission < ApplicationRecord
 
   def get_mpi_profile
     @mpi_profile ||= begin
-      service = ::MPI::Service.new
-      response = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
-      response ||= service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
+      response = MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn,
+                                                             identifier_type: MPI::Constants::ICN)&.profile
       raise 'Failed to fetch MPI profile' if response.nil?
 
       response
