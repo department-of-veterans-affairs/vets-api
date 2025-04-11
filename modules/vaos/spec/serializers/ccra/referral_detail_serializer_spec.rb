@@ -9,7 +9,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:encrypted_uuid) { 'encrypted123456' }
       let(:type_of_care) { 'CARDIOLOGY' }
       let(:provider_name) { 'Dr. Smith' }
-      let(:location) { 'VA Medical Center' }
+      let(:provider_npi) { '1234567890' }
+      let(:provider_telephone) { '555-987-6543' }
+      let(:treating_facility) { 'VA Medical Center' }
       let(:expiration_date) { '2024-05-27' }
       let(:referring_facility_name) { 'Dayton VA Medical Center' }
       let(:referring_facility_phone) { '(937) 262-3800' }
@@ -26,7 +28,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           referral_number:,
           type_of_care:,
           provider_name:,
-          location:,
+          provider_npi:,
+          provider_telephone:,
+          treating_facility:,
           expiration_date:,
           referring_facility_name:,
           referring_facility_phone:,
@@ -56,34 +60,37 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         # Test nested provider structure
         expect(serialized_data[:data][:attributes][:provider]).to be_a(Hash)
         expect(serialized_data[:data][:attributes][:provider][:name]).to eq(provider_name)
-        expect(serialized_data[:data][:attributes][:provider][:location]).to eq(location)
+        expect(serialized_data[:data][:attributes][:provider][:npi]).to eq(provider_npi)
+        expect(serialized_data[:data][:attributes][:provider][:telephone]).to eq(provider_telephone)
+        expect(serialized_data[:data][:attributes][:provider][:location]).to eq(treating_facility)
 
         # Test referring facility info
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:referringFacility]).to be_a(Hash)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:facilityName]
+          serialized_data[:data][:attributes][:referringFacility][:facilityName]
         ).to eq(referring_facility_name)
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo][:phone]).to eq(referring_facility_phone)
+        expect(serialized_data[:data][:attributes][:referringFacility][:phone]).to eq(referring_facility_phone)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:facilityCode]
+          serialized_data[:data][:attributes][:referringFacility][:facilityCode]
         ).to eq(referring_facility_code)
 
         # Test referring facility address
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo][:address]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:referringFacility][:address]).to be_a(Hash)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:street1]
+          serialized_data[:data][:attributes][:referringFacility][:address][:street1]
         ).to eq(referring_facility_address1)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:city]
+          serialized_data[:data][:attributes][:referringFacility][:address][:city]
         ).to eq(referring_facility_city)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:state]
+          serialized_data[:data][:attributes][:referringFacility][:address][:state]
         ).to eq(referring_facility_state)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:zip]
+          serialized_data[:data][:attributes][:referringFacility][:address][:zip]
         ).to eq(referring_facility_zip)
 
         expect(serialized_data[:data][:attributes][:expirationDate]).to eq(expiration_date)
+        expect(serialized_data[:data][:attributes][:referralExpirationDate]).to eq(expiration_date)
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
         expect(serialized_data[:data][:attributes][:uuid]).to eq(encrypted_uuid)
         expect(serialized_data[:data][:attributes][:hasAppointments]).to be(true)
@@ -141,7 +148,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:referral_number) { 'VA0000005681' }
       let(:type_of_care) { 'CARDIOLOGY' }
       let(:provider_name) { nil }
-      let(:location) { nil }
+      let(:provider_npi) { nil }
+      let(:provider_telephone) { nil }
+      let(:treating_facility) { nil }
       let(:expiration_date) { nil }
       let(:referring_facility_name) { 'Dayton VA Medical Center' }
       let(:referring_facility_phone) { '(937) 262-3800' }
@@ -158,7 +167,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           referral_number:,
           type_of_care:,
           provider_name:,
-          location:,
+          provider_npi:,
+          provider_telephone:,
+          treating_facility:,
           expiration_date:,
           referring_facility_name:,
           referring_facility_phone:,
@@ -178,36 +189,42 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(serialized_data[:data][:id]).to be_nil
         expect(serialized_data[:data][:type]).to eq(:referrals)
         expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(type_of_care)
+
+        # Test nested provider structure
         expect(serialized_data[:data][:attributes][:provider]).to be_a(Hash)
         expect(serialized_data[:data][:attributes][:provider][:name]).to be_nil
+        expect(serialized_data[:data][:attributes][:provider][:npi]).to be_nil
+        expect(serialized_data[:data][:attributes][:provider][:telephone]).to be_nil
         expect(serialized_data[:data][:attributes][:provider][:location]).to be_nil
+
         expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
+        expect(serialized_data[:data][:attributes][:referralExpirationDate]).to be_nil
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
         expect(serialized_data[:data][:attributes][:hasAppointments]).to be(true)
 
         # Test referring facility info
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:referringFacility]).to be_a(Hash)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:facilityName]
+          serialized_data[:data][:attributes][:referringFacility][:facilityName]
         ).to eq(referring_facility_name)
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo][:phone]).to eq(referring_facility_phone)
+        expect(serialized_data[:data][:attributes][:referringFacility][:phone]).to eq(referring_facility_phone)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:facilityCode]
+          serialized_data[:data][:attributes][:referringFacility][:facilityCode]
         ).to eq(referring_facility_code)
 
         # Test referring facility address
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo][:address]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:referringFacility][:address]).to be_a(Hash)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:street1]
+          serialized_data[:data][:attributes][:referringFacility][:address][:street1]
         ).to eq(referring_facility_address1)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:city]
+          serialized_data[:data][:attributes][:referringFacility][:address][:city]
         ).to eq(referring_facility_city)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:state]
+          serialized_data[:data][:attributes][:referringFacility][:address][:state]
         ).to eq(referring_facility_state)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:address][:zip]
+          serialized_data[:data][:attributes][:referringFacility][:address][:zip]
         ).to eq(referring_facility_zip)
       end
     end
@@ -215,6 +232,10 @@ RSpec.describe Ccra::ReferralDetailSerializer do
     context 'with a referral missing address information' do
       let(:referral_number) { 'VA0000005681' }
       let(:type_of_care) { 'CARDIOLOGY' }
+      let(:provider_name) { 'Dr. Smith' }
+      let(:provider_npi) { '1234567890' }
+      let(:provider_telephone) { '555-987-6543' }
+      let(:treating_facility) { 'VA Medical Center' }
       let(:referring_facility_name) { 'Dayton VA Medical Center' }
       let(:referring_facility_phone) { '(937) 262-3800' }
       let(:referring_facility_code) { '552' }
@@ -226,6 +247,10 @@ RSpec.describe Ccra::ReferralDetailSerializer do
           :ccra_referral_detail,
           referral_number:,
           type_of_care:,
+          provider_name:,
+          provider_npi:,
+          provider_telephone:,
+          treating_facility:,
           referring_facility_name:,
           referring_facility_phone:,
           referring_facility_code:,
@@ -242,15 +267,15 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:serialized_data) { serializer.serializable_hash }
 
       it 'includes referring facility info without address' do
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo]).to be_a(Hash)
+        expect(serialized_data[:data][:attributes][:referringFacility]).to be_a(Hash)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:facilityName]
+          serialized_data[:data][:attributes][:referringFacility][:facilityName]
         ).to eq(referring_facility_name)
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo][:phone]).to eq(referring_facility_phone)
+        expect(serialized_data[:data][:attributes][:referringFacility][:phone]).to eq(referring_facility_phone)
         expect(
-          serialized_data[:data][:attributes][:referringFacilityInfo][:facilityCode]
+          serialized_data[:data][:attributes][:referringFacility][:facilityCode]
         ).to eq(referring_facility_code)
-        expect(serialized_data[:data][:attributes][:referringFacilityInfo][:address]).to be_nil
+        expect(serialized_data[:data][:attributes][:referringFacility][:address]).to be_nil
         expect(serialized_data[:data][:attributes][:hasAppointments]).to be(false)
       end
     end
@@ -271,6 +296,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         # Check non-nested attributes are nil
         expect(serialized_data[:data][:attributes][:categoryOfCare]).to be_nil
         expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
+        expect(serialized_data[:data][:attributes][:referralExpirationDate]).to be_nil
         expect(serialized_data[:data][:attributes][:referralNumber]).to be_nil
         expect(serialized_data[:data][:attributes][:uuid]).to be_nil
         expect(serialized_data[:data][:attributes][:hasAppointments]).to be_nil
@@ -279,6 +305,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         provider = serialized_data[:data][:attributes][:provider]
         expect(provider).to be_a(Hash)
         expect(provider[:name]).to be_nil
+        expect(provider[:npi]).to be_nil
+        expect(provider[:telephone]).to be_nil
         expect(provider[:location]).to be_nil
       end
     end

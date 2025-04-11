@@ -2,17 +2,12 @@
 
 module Ccra
   class ReferralDetail
-    attr_reader :expiration_date, :type_of_care, :provider_name, :location,
-                :referral_number, :phone_number, :referring_facility_name,
+    attr_reader :expiration_date, :type_of_care, :provider_name, :provider_npi,
+                :provider_telephone, :treating_facility, :referral_number,
+                :phone_number, :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
                 :referring_facility_address, :has_appointments,
-                :network, :network_code, :referral_consult_id,
-                :referral_date, :referral_last_update_datetime, :referring_facility,
-                :referring_provider, :seoc_id, :seoc_key, :service_requested,
-                :source_of_referral, :sta6, :station_id, :status, :treating_facility,
-                :treating_facility_fax, :treating_facility_phone, :appointments,
-                :referring_facility_info, :referring_provider_info, :treating_provider_info,
-                :treating_facility_info, :treating_facility_address
+                :referral_date, :station_id, :referral_expiration_date
     attr_accessor :uuid
 
     ##
@@ -25,20 +20,24 @@ module Ccra
       return if referral.blank?
 
       @expiration_date = referral['ReferralExpirationDate']
+      @referral_expiration_date = referral['ReferralExpirationDate']
       @type_of_care = referral['CategoryOfCare']
-      @provider_name = referral['TreatingProvider']
-      @location = referral['TreatingFacility']
+      @treating_facility = referral['TreatingFacility']
       @referral_number = referral['ReferralNumber']
-      @phone_number = referral['ProviderPhone'] || referral['FacilityPhone']
+      @referral_date = referral['referralDate']
+      @station_id = referral['stationId']
       @uuid = nil # Will be set by controller
       @has_appointments = parse_boolean(referral['APPTYesNo1'])
 
-      # Parse referring facility info
-      parse_referring_facility_info(referral['ReferringFacilityInfo']) if referral['ReferringFacilityInfo'].present?
+      # Get phone number from treating facility or provider info
+      treating_facility_info = referral['TreatingFacilityInfo']
+      treating_provider_info = referral['TreatingProviderInfo']
 
-      assign_network_attributes(referral)
-      assign_facility_and_provider_attributes(referral)
-      assign_complex_nested_objects(referral)
+      @phone_number = treating_facility_info&.dig('Phone').presence || treating_provider_info&.dig('Telephone').presence
+
+      # Parse provider and facility info
+      parse_referring_facility_info(referral['ReferringFacilityInfo']) if referral['ReferringFacilityInfo'].present?
+      parse_treating_provider_info(treating_provider_info) if treating_provider_info.present?
     end
 
     private
@@ -64,6 +63,17 @@ module Ccra
       end
     end
 
+    # Parse treating provider info from the CCRA response
+    #
+    # @param provider_info [Hash] The treating provider info from the CCRA response
+    def parse_treating_provider_info(provider_info)
+      return if provider_info.blank?
+
+      @provider_name = provider_info['ProviderName']
+      @provider_npi = provider_info['ProviderNPI']
+      @provider_telephone = provider_info['Telephone']
+    end
+
     # Converts Y/N/yes/no to boolean value
     # @param value [String] The Y or N value
     # @return [Boolean, nil] true for Y/y, false for N/n, nil otherwise
@@ -75,38 +85,6 @@ module Ccra
       return false if value == 'n'
 
       nil
-    end
-
-    def assign_network_attributes(referral)
-      @network = referral['network']
-      @network_code = referral['networkCode']
-      @referral_consult_id = referral['referralConsultId']
-      @referral_date = referral['referralDate']
-      @referral_last_update_datetime = referral['referralLastUpdateDateTime']
-    end
-
-    def assign_facility_and_provider_attributes(referral)
-      @referring_facility = referral['referringFacility']
-      @referring_provider = referral['referringProvider']
-      @seoc_id = referral['seocId']
-      @seoc_key = referral['seocKey']
-      @service_requested = referral['serviceRequested']
-      @source_of_referral = referral['sourceOfReferral']
-      @sta6 = referral['sta6']
-      @station_id = referral['stationId']
-      @status = referral['status']
-      @treating_facility = @location
-      @treating_facility_fax = referral['treatingFacilityFax']
-      @treating_facility_phone = referral['treatingFacilityPhone']
-    end
-
-    def assign_complex_nested_objects(referral)
-      @appointments = referral['appointments']
-      @referring_facility_info = referral['referringFacilityInfo']
-      @referring_provider_info = referral['referringProviderInfo']
-      @treating_provider_info = referral['treatingProviderInfo']
-      @treating_facility_info = referral['treatingFacilityInfo']
-      @treating_facility_address = referral['treatingFacilityAddress']
     end
   end
 end

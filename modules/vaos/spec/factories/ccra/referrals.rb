@@ -21,7 +21,9 @@ FactoryBot.define do
   factory :ccra_referral_detail, class: 'Ccra::ReferralDetail' do
     type_of_care { 'CARDIOLOGY' }
     provider_name { 'Dr. Smith' }
-    location { 'VA Medical Center' }
+    provider_npi { '1234567890' }
+    provider_telephone { '555-987-6543' }
+    treating_facility { 'VA Medical Center' }
     referral_number { 'VA0000005681' }
     expiration_date { (Date.current + 30.days).to_s }
     phone_number { '555-123-4567' }
@@ -33,17 +35,14 @@ FactoryBot.define do
     referring_facility_state { 'OH' }
     referring_facility_zip { '45428' }
     has_appointments { 'Y' }
-    treating_facility_phone { '555-123-4567' }
 
     initialize_with do
       attributes = {
         'Referral' => {
           'CategoryOfCare' => type_of_care,
-          'TreatingProvider' => provider_name,
-          'TreatingFacility' => location,
+          'TreatingFacility' => treating_facility,
           'ReferralNumber' => referral_number,
           'ReferralExpirationDate' => expiration_date,
-          'ProviderPhone' => phone_number,
           'APPTYesNo1' => has_appointments,
           'ReferringFacilityInfo' => {
             'FacilityName' => referring_facility_name,
@@ -56,7 +55,14 @@ FactoryBot.define do
               'ZipCode' => referring_facility_zip
             }
           },
-          'treatingFacilityPhone' => treating_facility_phone
+          'TreatingFacilityInfo' => {
+            'Phone' => phone_number
+          },
+          'TreatingProviderInfo' => {
+            'ProviderName' => provider_name,
+            'ProviderNPI' => provider_npi,
+            'Telephone' => provider_telephone
+          }
         }
       }
       Ccra::ReferralDetail.new(attributes)

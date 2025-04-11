@@ -154,18 +154,18 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         expect(response_data['data']['attributes']['provider']).to have_key('location')
 
         # Test referring facility info
-        expect(response_data['data']['attributes']).to have_key('referringFacilityInfo')
-        expect(response_data['data']['attributes']['referringFacilityInfo']).to be_a(Hash)
-        expect(response_data['data']['attributes']['referringFacilityInfo']).to have_key('facilityName')
-        expect(response_data['data']['attributes']['referringFacilityInfo']).to have_key('phone')
-        expect(response_data['data']['attributes']['referringFacilityInfo']).to have_key('facilityCode')
+        expect(response_data['data']['attributes']).to have_key('referringFacility')
+        expect(response_data['data']['attributes']['referringFacility']).to be_a(Hash)
+        expect(response_data['data']['attributes']['referringFacility']).to have_key('facilityName')
+        expect(response_data['data']['attributes']['referringFacility']).to have_key('phone')
+        expect(response_data['data']['attributes']['referringFacility']).to have_key('facilityCode')
 
         # Test address is properly nested
-        expect(response_data['data']['attributes']['referringFacilityInfo']).to have_key('address')
-        expect(response_data['data']['attributes']['referringFacilityInfo']['address']).to be_a(Hash)
-        expect(response_data['data']['attributes']['referringFacilityInfo']['address']).to have_key('street1')
-        expect(response_data['data']['attributes']['referringFacilityInfo']['address']).to have_key('city')
-        expect(response_data['data']['attributes']['referringFacilityInfo']['address']).to have_key('zip')
+        expect(response_data['data']['attributes']['referringFacility']).to have_key('address')
+        expect(response_data['data']['attributes']['referringFacility']['address']).to be_a(Hash)
+        expect(response_data['data']['attributes']['referringFacility']['address']).to have_key('street1')
+        expect(response_data['data']['attributes']['referringFacility']['address']).to have_key('city')
+        expect(response_data['data']['attributes']['referringFacility']['address']).to have_key('zip')
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
