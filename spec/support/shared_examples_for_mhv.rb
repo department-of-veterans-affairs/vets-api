@@ -16,4 +16,4 @@ shared_examples 'for non va patient user' do |options|
     expect(response).to have_http_status(:forbidden)
     expect(JSON.parse(response.body)['errors'].first['detail']).to eq(options[:message])
   end
-end 
+end
