@@ -10,7 +10,7 @@ module Ccra
     set_id :uuid
     set_type :referrals
 
-    attribute :category_of_care, &:type_of_care
+    attribute :category_of_care
     attribute :expiration_date
     attribute :referral_number
     attribute :uuid

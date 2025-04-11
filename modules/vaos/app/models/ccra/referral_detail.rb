@@ -2,7 +2,7 @@
 
 module Ccra
   class ReferralDetail
-    attr_reader :expiration_date, :type_of_care, :provider_name, :provider_npi,
+    attr_reader :expiration_date, :category_of_care, :provider_name, :provider_npi,
                 :provider_telephone, :treating_facility, :referral_number,
                 :phone_number, :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
@@ -21,7 +21,7 @@ module Ccra
 
       @expiration_date = referral['ReferralExpirationDate']
       @referral_expiration_date = referral['ReferralExpirationDate']
-      @type_of_care = referral['CategoryOfCare']
+      @category_of_care = referral['CategoryOfCare']
       @treating_facility = referral['TreatingFacility']
       @referral_number = referral['ReferralNumber']
       @referral_date = referral['ReferralDate']

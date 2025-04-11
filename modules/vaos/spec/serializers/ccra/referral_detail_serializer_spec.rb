@@ -7,7 +7,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
     context 'with a valid referral detail' do
       let(:referral_number) { 'VA0000005681' }
       let(:encrypted_uuid) { 'encrypted123456' }
-      let(:type_of_care) { 'CARDIOLOGY' }
+      let(:category_of_care) { 'CARDIOLOGY' }
       let(:provider_name) { 'Dr. Smith' }
       let(:provider_npi) { '1234567890' }
       let(:provider_telephone) { '555-987-6543' }
@@ -18,7 +18,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         attributes = {
           'Referral' => {
             'ReferralNumber' => referral_number,
-            'CategoryOfCare' => type_of_care,
+            'CategoryOfCare' => category_of_care,
             'ReferralExpirationDate' => expiration_date,
             'TreatingFacility' => treating_facility,
             'TreatingProviderInfo' => {
@@ -43,7 +43,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       it 'serializes the referral detail correctly' do
         expect(serialized_data[:data][:id]).to eq(encrypted_uuid)
         expect(serialized_data[:data][:type]).to eq(:referrals)
-        expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(type_of_care)
+        expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(category_of_care)
         expect(serialized_data[:data][:attributes][:expirationDate]).to eq(expiration_date)
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
         expect(serialized_data[:data][:attributes][:uuid]).to eq(encrypted_uuid)
@@ -60,13 +60,13 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
     context 'with a referral missing some attributes' do
       let(:referral_number) { 'VA0000005681' }
-      let(:type_of_care) { 'CARDIOLOGY' }
+      let(:category_of_care) { 'CARDIOLOGY' }
 
       let(:referral) do
         attributes = {
           'Referral' => {
             'ReferralNumber' => referral_number,
-            'CategoryOfCare' => type_of_care,
+            'CategoryOfCare' => category_of_care,
             'ReferralExpirationDate' => nil,
             'TreatingFacility' => nil,
             'TreatingProviderInfo' => {}
@@ -81,7 +81,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       it 'includes nil attributes in JSON:API format' do
         expect(serialized_data[:data][:id]).to be_nil
         expect(serialized_data[:data][:type]).to eq(:referrals)
-        expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(type_of_care)
+        expect(serialized_data[:data][:attributes][:categoryOfCare]).to eq(category_of_care)
         expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
         expect(serialized_data[:data][:attributes][:referralNumber]).to eq(referral_number)
 

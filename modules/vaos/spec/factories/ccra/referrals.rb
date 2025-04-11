@@ -2,14 +2,14 @@
 
 FactoryBot.define do
   factory :ccra_referral_list_entry, class: 'Ccra::ReferralListEntry' do
-    type_of_care { 'CARDIOLOGY' }
+    category_of_care { 'CARDIOLOGY' }
     referral_number { '5682' }
     start_date { Date.current.to_s }
     seoc_days { '60' }
 
     initialize_with do
       attributes = {
-        'CategoryOfCare' => type_of_care,
+        'CategoryOfCare' => category_of_care,
         'ID' => referral_number,
         'StartDate' => start_date,
         'SEOCNumberOfDays' => seoc_days
@@ -19,7 +19,7 @@ FactoryBot.define do
   end
 
   factory :ccra_referral_detail, class: 'Ccra::ReferralDetail' do
-    type_of_care { 'CARDIOLOGY' }
+    category_of_care { 'CARDIOLOGY' }
     provider_name { 'Dr. Smith' }
     provider_npi { '1234567890' }
     provider_telephone { '555-987-6543' }
@@ -39,7 +39,7 @@ FactoryBot.define do
     initialize_with do
       attributes = {
         'Referral' => {
-          'CategoryOfCare' => type_of_care,
+          'CategoryOfCare' => category_of_care,
           'TreatingFacility' => treating_facility,
           'ReferralNumber' => referral_number,
           'ReferralExpirationDate' => expiration_date,
