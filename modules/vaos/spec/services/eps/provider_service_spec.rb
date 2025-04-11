@@ -305,4 +305,117 @@ describe Eps::ProviderService do
       end
     end
   end
+
+  describe '#search_provider_services' do
+    let(:npi) { '7894563210' }
+
+    context 'when the request is successful' do
+      context 'when a provider with matching NPI exists' do
+        let(:response_body) do
+          {
+            count: 1,
+            provider_services: [
+              {
+                id: '53mL4LAZ',
+                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
+                is_active: true,
+                individual_providers: [
+                  {
+                    name: 'Dr. Monty Graciano',
+                    npi: '7894563210'
+                  }
+                ]
+              }
+            ]
+          }
+        end
+
+        let(:response) { double('Response', status: 200, body: response_body) }
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
+            .and_return(response)
+        end
+
+        it 'returns an OpenStruct with the matching provider' do
+          result = service.search_provider_services(npi:)
+          expect(result).to be_a(OpenStruct)
+          expect(result.id).to eq('53mL4LAZ')
+        end
+      end
+
+      context 'when no provider with matching NPI exists' do
+        let(:response_body) do
+          {
+            count: 1,
+            providerServices: [
+              {
+                id: '53mL4LAZ',
+                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
+                isActive: true,
+                individualProviders: [
+                  {
+                    name: 'Dr. Monty Graciano',
+                    npi: '1234567890' # Different NPI
+                  }
+                ]
+              }
+            ]
+          }
+        end
+
+        let(:response) { double('Response', status: 200, body: response_body) }
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
+            .and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:)
+          expect(result).to be_nil
+        end
+      end
+
+      context 'when the response contains no providers' do
+        let(:response_body) do
+          {
+            count: 0,
+            providerServices: []
+          }
+        end
+
+        let(:response) { double('Response', status: 200, body: response_body) }
+
+        before do
+          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
+            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
+            .and_return(response)
+        end
+
+        it 'returns nil' do
+          result = service.search_provider_services(npi:)
+          expect(result).to be_nil
+        end
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect { service.search_provider_services(npi:) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+  end
 end
