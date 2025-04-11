@@ -7,6 +7,12 @@ require 'lighthouse/benefits_claims/service'
 module V0
   module VirtualAgent
     class VirtualAgentClaimStatusController < ApplicationController
+      attr_accessor :icn
+
+      def initializer(icn)
+        @icn = icn
+      end
+
       include IgnoreNotFound
       service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
@@ -86,11 +92,11 @@ module V0
       end
 
       def lighthouse_service
-        BenefitsClaims::Service.new(current_user.icn)
+        BenefitsClaims::Service.new(icn)
       end
 
       def report_or_error(cxdw_reporting_service, conversation_id)
-        cxdw_reporting_service.report_to_cxdw(current_user.icn, conversation_id)
+        cxdw_reporting_service.report_to_cxdw(icn, conversation_id)
       rescue => e
         report_exception_handler(e)
       end
