@@ -28,9 +28,9 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
   end
 
   describe '#choose_provider' do
-    let(:user) { create(:user, :loa3) }
-    let(:icn) { user.icn }
-    let(:user_account) { create(:user_account, icn:, id: user.user_account_uuid) }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+    let(:user_account) { user.user_account }
+    let(:icn) { user_account.icn }
     let(:submission) { create(:form526_submission, user_account:, submit_endpoint: 'claims_api') }
 
     it 'delegates to the ApiProviderFactory with the correct data' do

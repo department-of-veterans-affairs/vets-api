@@ -18,7 +18,9 @@ RSpec.describe Form526Submission do
 
   let(:user_account) { create(:user_account) }
   let(:user) do
-    create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles', icn: user_account.icn,
+    create(:user, :loa3, first_name: 'Beyonce',
+                         last_name: 'Knowles',
+                         icn: user_account.icn,
                          idme_uuid: SecureRandom.uuid)
   end
   let(:auth_headers) do
