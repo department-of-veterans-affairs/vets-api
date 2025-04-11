@@ -7,7 +7,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:referral_number) { '5682' }
   let(:encrypted_uuid) { 'encrypted-5682' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
-  let(:referral_statuses) { "'S','BP','AP','AC','A','I'" }
+  let(:referral_statuses) { "'AP','AC','I'" }
   let(:referral_mode) { 'C' }
 
   before do
@@ -68,7 +68,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(first_referral['type']).to eq('referrals')
         expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(first_referral['attributes']['referralNumber']).to eq('5682')
-        expect(first_referral['attributes']['expirationDate']).to eq('2024-05-27')
+        expect(first_referral['attributes']['expirationDate']).to eq('2025-06-10')
       end
 
       context 'with a custom status parameter' do
@@ -84,6 +84,74 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           get '/vaos/v2/referrals', params: { status: custom_statuses }
 
           expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when filtering expired referrals' do
+        let(:today) { Time.zone.today }
+        let(:expired_referral) do
+          # Create a referral that expired yesterday by setting start date to 60 days ago
+          # and SEOC days to 59 days (so it expired yesterday)
+          build(:ccra_referral_list_entry,
+                start_date: (today - 60.days).to_s,
+                seoc_days: '59')
+        end
+        let(:active_referral) do
+          # Create a referral that expires 30 days from now by setting start date to today
+          # and SEOC days to 30
+          build(:ccra_referral_list_entry,
+                start_date: today.to_s,
+                seoc_days: '30')
+        end
+        let(:mixed_referrals) { [expired_referral, active_referral] }
+
+        before do
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_vaos_referral_list)
+            .with(icn, referral_statuses)
+            .and_return(mixed_referrals)
+        end
+
+        it 'filters out expired referrals automatically' do
+          get '/vaos/v2/referrals'
+
+          expect(response).to have_http_status(:ok)
+
+          response_data = JSON.parse(response.body)
+          expect(response_data['data'].size).to eq(1)
+          # The active referral should have an expiration date 30 days from today
+          expect(Date.parse(response_data['data'].first['attributes']['expirationDate'])).to eq(today + 30.days)
+        end
+      end
+
+      context 'when all referrals are expired' do
+        let(:today) { Time.zone.today }
+        let(:all_expired_referrals) do
+          [
+            # Expired 1 day ago (start date 10 days ago, valid for 9 days)
+            build(:ccra_referral_list_entry,
+                  start_date: (today - 10.days).to_s,
+                  seoc_days: '9'),
+            # Expired 5 days ago (start date 15 days ago, valid for 10 days)
+            build(:ccra_referral_list_entry,
+                  start_date: (today - 15.days).to_s,
+                  seoc_days: '10')
+          ]
+        end
+
+        before do
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_vaos_referral_list)
+            .with(icn, referral_statuses)
+            .and_return(all_expired_referrals)
+        end
+
+        it 'returns an empty data array' do
+          get '/vaos/v2/referrals'
+
+          expect(response).to have_http_status(:ok)
+
+          response_data = JSON.parse(response.body)
+          expect(response_data['data']).to be_an(Array)
+          expect(response_data['data']).to be_empty
         end
       end
     end

@@ -15,8 +15,8 @@ describe Ccra::ReferralListEntry do
       }
     end
 
-    it 'sets type_of_care from CategoryOfCare' do
-      expect(subject.type_of_care).to eq('CARDIOLOGY')
+    it 'sets category_of_care from CategoryOfCare' do
+      expect(subject.category_of_care).to eq('CARDIOLOGY')
     end
 
     it 'sets referral_number from ID' do
@@ -108,10 +108,10 @@ describe Ccra::ReferralListEntry do
 
     it 'sets correct attributes for each entry' do
       result = described_class.build_collection(referral_data)
-      expect(result[0].type_of_care).to eq('CARDIOLOGY')
+      expect(result[0].category_of_care).to eq('CARDIOLOGY')
       expect(result[0].referral_number).to eq('5682')
       expect(result[0].uuid).to be_nil
-      expect(result[1].type_of_care).to eq('PODIATRY')
+      expect(result[1].category_of_care).to eq('PODIATRY')
       expect(result[1].referral_number).to eq('5683')
       expect(result[1].uuid).to be_nil
     end

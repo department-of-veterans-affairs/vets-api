@@ -2,7 +2,7 @@
 
 module Ccra
   class ReferralDetail
-    attr_reader :expiration_date, :type_of_care, :provider_name, :location,
+    attr_reader :expiration_date, :category_of_care, :provider_name, :location,
                 :referral_number, :network, :network_code, :referral_consult_id,
                 :referral_date, :referral_last_update_datetime, :referring_facility,
                 :referring_provider, :seoc_id, :seoc_key, :service_requested,
@@ -32,7 +32,7 @@ module Ccra
 
     def assign_basic_attributes(referral)
       @expiration_date = referral['ReferralExpirationDate'] || referral['referralExpirationDate']
-      @type_of_care = referral['CategoryOfCare'] || referral['categoryOfCare']
+      @category_of_care = referral['CategoryOfCare'] || referral['categoryOfCare']
       @provider_name = referral['TreatingProvider'] || referral['treatingProvider']
       @location = referral['TreatingFacility'] || referral['treatingFacility']
       @referral_number = referral['ReferralNumber'] || referral['referralNumber']
