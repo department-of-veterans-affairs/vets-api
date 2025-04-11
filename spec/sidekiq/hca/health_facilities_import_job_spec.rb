@@ -137,5 +137,28 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         end
       end
     end
+
+    context 'std_states table is empty' do
+      before do
+        StdState.destroy_all
+      end
+
+      it 'enqueues IncomeLimits::StdStateImport and raises error' do
+        expect(Rails.logger).to receive(:info).with(
+          'Job started with 1 existing health facilities.'
+        )
+        expect(Rails.logger).to receive(:error).with(
+          "Error occurred in #{described_class.name}: StdStates missing – triggered import and retrying job"
+        )
+
+        import_job = instance_double(IncomeLimits::StdStateImport)
+        expect(IncomeLimits::StdStateImport).to receive(:new).and_return(import_job)
+        expect(import_job).to receive(:perform)
+
+        expect do
+          described_class.new.perform
+        end.to raise_error(RuntimeError, "Failed to import health facilities in #{described_class.name}")
+      end
+    end
   end
 end
