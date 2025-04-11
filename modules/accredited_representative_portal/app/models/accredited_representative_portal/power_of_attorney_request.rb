@@ -100,6 +100,9 @@ module AccreditedRepresentativePortal
       )
     end
 
+    scope :unredacted, -> { where(redacted_at: nil) }
+    scope :redacted, -> { where.not(redacted_at: nil) }
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
 
