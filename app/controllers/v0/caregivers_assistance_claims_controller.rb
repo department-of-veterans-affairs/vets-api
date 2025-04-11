@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/v1/client'
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
@@ -68,12 +67,7 @@ module V0
     private
 
     def lighthouse_facilities_service
-      @lighthouse_facilities_service ||=
-        if Flipper.enabled?(:caregiver_use_facilities_API_V2)
-          FacilitiesApi::V2::Lighthouse::Client.new
-        else
-          Lighthouse::Facilities::V1::Client.new
-        end
+      @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
     end
 
     def lighthouse_facilities_params
