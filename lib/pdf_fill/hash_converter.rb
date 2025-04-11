@@ -64,16 +64,16 @@ module PdfFill
 
     def add_to_extras(key_data, v, i, overflow: true, array_key_data: nil)
       return if v.blank? || key_data.nil?
-      return if key_data[:question_num].blank? || key_data[:question_text].blank?
+      return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
 
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
-      array_question_text = array_key_data.try(:[], :question_text)
+      item_label = array_key_data.try(:[], :item_label)
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i:, overflow:, array_question_text:
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+          i:, overflow:, item_label:
         )
       )
     end

@@ -19,8 +19,12 @@ describe Ccra::ReferralListEntry do
       expect(subject.category_of_care).to eq('CARDIOLOGY')
     end
 
-    it 'sets referral_id from ID' do
-      expect(subject.referral_id).to eq('5682')
+    it 'sets referral_number from ID' do
+      expect(subject.referral_number).to eq('5682')
+    end
+
+    it 'initially sets uuid to nil' do
+      expect(subject.uuid).to be_nil
     end
 
     it 'calculates expiration_date from StartDate and SEOCNumberOfDays' do
@@ -105,7 +109,11 @@ describe Ccra::ReferralListEntry do
     it 'sets correct attributes for each entry' do
       result = described_class.build_collection(referral_data)
       expect(result[0].category_of_care).to eq('CARDIOLOGY')
+      expect(result[0].referral_number).to eq('5682')
+      expect(result[0].uuid).to be_nil
       expect(result[1].category_of_care).to eq('PODIATRY')
+      expect(result[1].referral_number).to eq('5683')
+      expect(result[1].uuid).to be_nil
     end
 
     context 'with nil input' do
