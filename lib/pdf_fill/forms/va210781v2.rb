@@ -13,6 +13,7 @@ module PdfFill
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
       START_PAGE = 8
+      TABLE_WIDTH = 91
 
       # rubocop:disable Layout/LineLength
       KEY = {
@@ -222,200 +223,220 @@ module PdfFill
           }
         },
         'behaviorsDetails' => { # question_num: 10B
+          limit: 14,
+          first_key: 'appetite',
+          item_label: 'Behavioral Change',
+          question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
+          question_num: 10,
           'reassignment' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[1]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[2]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Request for a change in occupational series or duty assignment.'
+            question_label: 'Additional information',
+            question_text: 'Request for a change in occupational series or duty assignment.'
           },
           'reassignmentOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[2]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Request for a change in occupational series or duty assignment.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Request for a change in occupational series or duty assignment.'
           },
           'absences' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[2]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[3]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/decreased use of leave.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/decreased use of leave.'
           },
           'absencesOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[3]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/decreased use of leave.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/decreased use of leave.'
           },
           'performance' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[3]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[4]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Changes in performance or performance evaluations.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Changes in performance or performance evaluations.'
           },
           'performanceOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[4]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Changes in performance or performance evaluations.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Changes in performance or performance evaluations.'
           },
           'consultations' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[0]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[1]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/decreased visits to a healthcare professional, counselor, or treatment Facility'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/decreased visits to a healthcare professional, counselor, or treatment Facility'
           },
           'consultationsOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[1]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/decreased visits to a healthcare professional, counselor, or treatment Facility'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/decreased visits to a healthcare professional, counselor, or treatment Facility'
           },
           'episodes' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[4]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[5]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Episodes of depression, panic attacks, or anxiety.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Episodes of depression, panic attacks, or anxiety.'
           },
           'episodesOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[5]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Episodes of depression, panic attacks, or anxiety.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Episodes of depression, panic attacks, or anxiety.'
           },
           'medications' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[5]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[6]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/Decreased use of prescription medications.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of prescription medications.'
           },
           'medicationsOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[6]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/Decreased use of prescription medications.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of prescription medications.'
           },
           'selfMedication' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[6]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[7]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/Decreased use of over-the-counter medications.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of over-the-counter medications.'
           },
           'selfMedicationOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[7]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/Decreased use of over-the-counter medications.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of over-the-counter medications.'
           },
           'substances' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[7]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[8]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/Decreased use of alcohol or drugs.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of alcohol or drugs.'
           },
           'substancesOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[8]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Increased/Decreased use of alcohol or drugs.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of alcohol or drugs.'
           },
           'appetite' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[9]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[10]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Changes in eating habits, such as overeating or under eating, or significant changes in weight.'
+            question_label: 'Additional information',
+            question_text: 'Changes in eating habits, such as overeating or under eating, or significant changes in weight.'
           },
           'appetiteOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[10]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Changes in eating habits, such as overeating or under eating, or significant changes in weight.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Changes in eating habits, such as overeating or under eating, or significant changes in weight.'
           },
           'pregnancy' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[10]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[11]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Pregnancy tests around the time of the traumatic event(s).'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Pregnancy tests around the time of the traumatic event(s).'
           },
           'pregnancyOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[11]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Pregnancy tests around the time of the traumatic event(s).'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Pregnancy tests around the time of the traumatic event(s).'
           },
           'screenings' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[11]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[12]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Tests for sexually transmitted infections.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Tests for sexually transmitted infections.'
           },
           'screeningsOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[12]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Tests for sexually transmitted infections.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Tests for sexually transmitted infections.'
           },
           'socialEconomic' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[12]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[13]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Economic or social behavioral changes.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Economic or social behavioral changes.'
           },
           'socialEconomicOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[13]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Economic or social behavioral changes.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Economic or social behavioral changes.'
           },
           'relationships' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[13]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[14]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Changes in or breakup of a significant relationship.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Changes in or breakup of a significant relationship.'
           },
           'relationshipsOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[14]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Changes in or breakup of a significant relationship.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Changes in or breakup of a significant relationship.'
           },
           'misconduct' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[8]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[9]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
           },
           'misconductOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'B[9]',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
           },
           'unlisted' => {
             key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
             limit: 784,
             question_num: 10,
             question_suffix: 'C',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Additional behavioral changes.'
+            question_label: 'Additional information',
+            question_text: 'ADDITIONAL INFORMATION ABOUT Additional behavioral changes.'
           },
           'unlistedOverflow' => {
             key: '',
             question_num: 10,
             question_suffix: 'C',
-            question_text: 'ADDTIONAL INFORMATION ABOUT Additional behavioral changes.'
+            question_text: 'ADDITIONAL INFORMATION ABOUT Additional behavioral changes.'
           }
         },
         'reportFiled' => { # question_num: 11
@@ -694,11 +715,7 @@ module PdfFill
           expand_collection('events', :format_event, 'eventOverflow') unless options[:extras_redesign]
         end
 
-        if options[:extras_redesign]
-          process_treatment_dates
-        else
-          expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
-        end
+        handle_overflow_processing(options)
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
@@ -707,6 +724,15 @@ module PdfFill
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data
+      end
+
+      def handle_overflow_processing(options)
+        if options[:extras_redesign]
+          process_treatment_dates
+          process_behaviors_details
+        else
+          expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
+        end
       end
 
       private
@@ -778,6 +804,25 @@ module PdfFill
         end
       end
 
+      def process_behaviors_details
+        behaviors_details = @form_data['behaviorsDetails']
+        return if behaviors_details.blank?
+
+        normalized = if behaviors_details.is_a?(Array)
+                       behaviors_details
+                     else
+                       behaviors_details.map { |k, v| { k => v } }
+                     end
+
+        normalized.each do |behavior|
+          behavior.each do |key, value|
+            behavior[key] = value.presence || 'no response'
+          end
+        end
+
+        @form_data['behaviorsDetails'] = normalized
+      end
+
       def merge_reports(event)
         (event['militaryReports'] || {})
           .merge(event['otherReports'] || {})
@@ -824,7 +869,7 @@ module PdfFill
       # original fields should be removed so as not to duplicate the concatenated overflow field.
       def format_item_overflow(item, index, format_method, overflow_key, overflow_only: false)
         item_overflow = send(format_method, item, index, overflow_only:)
-
+        # byebug
         return if item_overflow.blank?
 
         item[overflow_key] = PdfFill::FormValue.new('', item_overflow.compact.join("\n\n"))
