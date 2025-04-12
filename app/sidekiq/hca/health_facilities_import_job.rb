@@ -17,22 +17,10 @@ module HCA
 
     def perform
       Rails.logger.info("Job started with #{HealthFacility.count} existing health facilities.")
-      facilities_from_lighthouse = get_facilities_from_lighthouse
+      ensure_std_states_populated
 
-      # Filter on only health facilities and return hash with
-      # name, station_number (also known as facility_id),
-      # and postal_name (also known as state_code ex OH,MI)
-      health_facilities = StdInstitutionFacility
-                          .includes(:street_state)
-                          .where(station_number: facilities_from_lighthouse.keys)
-                          .pluck(:station_number, 'std_states.postal_name')
-                          .map do |station_number, postal_name|
-        {
-          name: facilities_from_lighthouse[station_number][:name],
-          station_number:,
-          postal_name:
-        }
-      end
+      facilities_from_lighthouse = get_facilities_from_lighthouse
+      health_facilities = facilities_with_postal_names(facilities_from_lighthouse)
 
       HealthFacility.insert_all(health_facilities, unique_by: :station_number) # rubocop:disable Rails/SkipsModelValidations
 
@@ -65,6 +53,33 @@ module HCA
       end
 
       all_facilities.index_by { |facility| facility[:id] }
+    end
+
+    # Ensure the std_states table is populated. The table is populated in a
+    # daily job, but this ensures the table is populated in any environment
+    # that the table may be empty in (review instances, new environment, locally)
+    def ensure_std_states_populated
+      return if StdState.exists?
+
+      ::IncomeLimits::StdStateImport.new.perform
+      raise 'StdStates missing – triggered import and retrying job'
+    end
+
+    # Filter on only health facilities and return hash with
+    # name, station_number (also known as facility_id),
+    # and postal_name (also known as state_code ex OH,MI)
+    def facilities_with_postal_names(facilities_from_lighthouse)
+      StdInstitutionFacility
+        .includes(:street_state)
+        .where(station_number: facilities_from_lighthouse.keys)
+        .pluck(:station_number, 'std_states.postal_name')
+        .map do |station_number, postal_name|
+        {
+          name: facilities_from_lighthouse[station_number][:name],
+          station_number:,
+          postal_name:
+        }
+      end
     end
   end
 end
