@@ -911,7 +911,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(body).to include('data')
               expect(body['data']).to include('id', 'type', 'attributes')
               expect(body['data']['attributes']).to include(
-                'id', 'state', 'patientId', 'referral', 'providerServiceId', 'networkId', 'slotIds', 'appointmentDetails'
+                'id', 'state', 'patientId', 'referral',
+                'providerServiceId', 'networkId', 'slotIds',
+                'appointmentDetails'
               )
             end
           end
