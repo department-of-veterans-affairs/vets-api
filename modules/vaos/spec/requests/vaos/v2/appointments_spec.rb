@@ -906,6 +906,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
 
               expect(response).to have_http_status(:success)
+              body = JSON.parse(response.body)
+
+              expect(body).to include('data')
+              expect(body['data']).to include('id', 'type', 'attributes')
+              expect(body['data']['attributes']).to include(
+                'id', 'state', 'patientId', 'referral', 'providerServiceId', 'networkId', 'slotIds', 'appointmentDetails'
+              )
             end
           end
         end
