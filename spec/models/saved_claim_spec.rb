@@ -22,9 +22,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   let(:schema) { { some_key: 'some_value' }.to_json }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
-    allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
 
   describe 'associations' do
