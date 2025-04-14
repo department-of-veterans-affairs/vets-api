@@ -90,7 +90,7 @@ module IvcChampva
       #
       # @param [IvcChampva::VesRequest, nil] ves_request the formatted request data
       # @param [Hash] metadata the metadata for the form
-      def submit_ves_request(ves_request, metadata)
+      def submit_ves_request(ves_request, metadata) # rubocop:disable Metrics/MethodLength
         unless ves_request.nil?
           ves_client = IvcChampva::VesApi::Client.new
           on_failure = lambda { |e, attempt|
