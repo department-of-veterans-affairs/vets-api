@@ -111,7 +111,6 @@ RSpec.describe HCA::SubmissionJob, type: :job do
       before do
         expect(hca_service).to receive(:submit_form).with(form).once.and_return(result)
         expect(Rails.logger).to receive(:info).with("SubmissionID=#{result[:formSubmissionId]}")
-        expect(Rails.logger).to receive(:info).with('~~~~~~~~~~~~~~~ sent')
       end
 
       it 'calls the service and save the results' do

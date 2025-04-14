@@ -365,7 +365,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'returns a payload with no ICN' do
           expect(Kafka).to receive(:submit_event).with(
-            icn: '', current_id: health_care_application.id,
+            icn: nil, current_id: health_care_application.id,
             submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true
           )
 
