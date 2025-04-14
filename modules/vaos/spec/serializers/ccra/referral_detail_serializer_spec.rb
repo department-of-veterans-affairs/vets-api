@@ -13,6 +13,9 @@ RSpec.describe Ccra::ReferralDetailSerializer do
       let(:provider_telephone) { '555-987-6543' }
       let(:treating_facility) { 'VA Medical Center' }
       let(:expiration_date) { '2024-05-27' }
+      let(:referring_facility_name) { 'Bath VA Medical Center' }
+      let(:referring_facility_phone) { '555-123-4567' }
+      let(:referring_facility_code) { '528A6' }
 
       let(:referral) do
         attributes = {
@@ -25,6 +28,17 @@ RSpec.describe Ccra::ReferralDetailSerializer do
               'ProviderName' => provider_name,
               'ProviderNPI' => provider_npi,
               'Telephone' => provider_telephone
+            },
+            'ReferringFacilityInfo' => {
+              'FacilityName' => referring_facility_name,
+              'Phone' => referring_facility_phone,
+              'FacilityCode' => referring_facility_code,
+              'Address' => {
+                'Address1' => '801 VASSAR DR NE',
+                'City' => 'ALBUQUERQUE',
+                'State' => 'NM',
+                'ZipCode' => '87106'
+              }
             }
           }
         }
@@ -55,6 +69,21 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         expect(provider[:npi]).to eq(provider_npi)
         expect(provider[:telephone]).to eq(provider_telephone)
         expect(provider[:location]).to eq(treating_facility)
+
+        # Check nested referring facility information
+        referring_facility = serialized_data[:data][:attributes][:referringFacility]
+        expect(referring_facility).to be_a(Hash)
+        expect(referring_facility[:name]).to eq(referring_facility_name)
+        expect(referring_facility[:phone]).to eq(referring_facility_phone)
+        expect(referring_facility[:code]).to eq(referring_facility_code)
+
+        # Check referring facility address
+        address = referring_facility[:address]
+        expect(address).to be_a(Hash)
+        expect(address[:street1]).to eq('801 VASSAR DR NE')
+        expect(address[:city]).to eq('ALBUQUERQUE')
+        expect(address[:state]).to eq('NM')
+        expect(address[:zip]).to eq('87106')
       end
     end
 

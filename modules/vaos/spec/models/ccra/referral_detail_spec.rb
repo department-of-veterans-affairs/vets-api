@@ -41,7 +41,6 @@ describe Ccra::ReferralDetail do
 
     it 'sets all attributes correctly' do
       expect(subject.expiration_date).to eq('2024-05-27')
-      expect(subject.referral_expiration_date).to eq('2024-05-27')
       expect(subject.category_of_care).to eq('CARDIOLOGY')
       expect(subject.treating_facility).to eq('VA Medical Center')
       expect(subject.referral_number).to eq('VA0000005681')
@@ -74,7 +73,6 @@ describe Ccra::ReferralDetail do
 
       it 'sets all attributes to nil' do
         expect(subject.expiration_date).to be_nil
-        expect(subject.referral_expiration_date).to be_nil
         expect(subject.category_of_care).to be_nil
         expect(subject.treating_facility).to be_nil
         expect(subject.referral_number).to be_nil
@@ -98,7 +96,6 @@ describe Ccra::ReferralDetail do
 
       it 'sets all attributes to nil' do
         expect(subject.expiration_date).to be_nil
-        expect(subject.referral_expiration_date).to be_nil
         expect(subject.category_of_care).to be_nil
         expect(subject.treating_facility).to be_nil
         expect(subject.referral_number).to be_nil

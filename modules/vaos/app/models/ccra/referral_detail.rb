@@ -7,7 +7,7 @@ module Ccra
                 :phone_number, :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
                 :referring_facility_address, :has_appointments,
-                :referral_date, :station_id, :referral_expiration_date
+                :referral_date, :station_id
     attr_accessor :uuid
 
     ##
@@ -20,7 +20,6 @@ module Ccra
       return if referral.blank?
 
       @expiration_date = referral['ReferralExpirationDate']
-      @referral_expiration_date = referral['ReferralExpirationDate']
       @category_of_care = referral['CategoryOfCare']
       @treating_facility = referral['TreatingFacility']
       @referral_number = referral['ReferralNumber']

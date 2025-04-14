@@ -17,7 +17,6 @@ module Ccra
     attribute :has_appointments
     attribute :referral_date
     attribute :station_id
-    attribute :referral_expiration_date
 
     # Nested provider information
     attribute :provider do |referral|
@@ -34,9 +33,9 @@ module Ccra
     attribute :referring_facility do |referral|
       if referral.referring_facility_name.present?
         facility_info = {
-          facilityName: referral.referring_facility_name,
+          name: referral.referring_facility_name,
           phone: referral.referring_facility_phone,
-          facilityCode: referral.referring_facility_code
+          code: referral.referring_facility_code
         }
 
         # Only add address if it exists and has actual data
