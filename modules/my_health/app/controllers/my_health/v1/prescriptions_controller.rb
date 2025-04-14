@@ -25,6 +25,7 @@ module MyHealth
                      end
         end
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
+        resource.data = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
@@ -217,6 +218,18 @@ module MyHealth
       def remove_pf_pd(data)
         sources_to_remove_from_data = %w[PF PD]
         data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
+      end
+
+      def sort_prescriptions_with_pd_at_top(prescriptions)
+        prescriptions.sort do |a, b|
+          if a.prescription_source == "PD" && b.prescription_source != "PD"
+            -1
+          elsif a.prescription_source != "PD" && b.prescription_source == "PD"
+            1
+          else
+            0
+          end
+        end
       end
     end
   end
