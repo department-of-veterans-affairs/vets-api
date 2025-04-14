@@ -286,13 +286,13 @@ describe EVSS::DisabilityCompensationForm::Form0781 do
           }
         ]
       end
-    
+
       it 'sanitizes the details key in each event' do
         sanitized = subject_v2.send(:sanitize_details, events)
-    
+
         expect(sanitized[0]['details']).to eq('Witnessed an incident at the barracks.   Filed a report.')
         expect(sanitized[0]['location']).to eq('Fort Bragg')
-    
+
         expect(sanitized[1]['location']).to eq('No specific details provided')
         expect(sanitized[1]).not_to have_key('details')
       end
