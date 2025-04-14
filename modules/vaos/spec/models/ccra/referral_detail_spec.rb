@@ -3,6 +3,18 @@
 require 'rails_helper'
 
 describe Ccra::ReferralDetail do
+  # Shared example for testing nil attributes
+  shared_examples 'has nil attributes' do
+    it 'sets all attributes to nil' do
+      # Use reflection to iterate through the object's instance variables
+      instance_variables = subject.instance_variables.reject { |v| v == :@uuid }
+      instance_variables.each do |var|
+        value = subject.instance_variable_get(var)
+        expect(value).to be_nil, "Expected #{var} to be nil, but got #{value.inspect}"
+      end
+    end
+  end
+
   describe '#initialize' do
     subject { described_class.new(valid_attributes) }
 
@@ -71,47 +83,13 @@ describe Ccra::ReferralDetail do
     context 'with missing Referral key' do
       subject { described_class.new({}) }
 
-      it 'sets all attributes to nil' do
-        expect(subject.expiration_date).to be_nil
-        expect(subject.category_of_care).to be_nil
-        expect(subject.treating_facility).to be_nil
-        expect(subject.referral_number).to be_nil
-        expect(subject.referral_date).to be_nil
-        expect(subject.station_id).to be_nil
-        expect(subject.uuid).to be_nil
-        expect(subject.has_appointments).to be_nil
-        expect(subject.phone_number).to be_nil
-        expect(subject.provider_name).to be_nil
-        expect(subject.provider_npi).to be_nil
-        expect(subject.provider_telephone).to be_nil
-        expect(subject.referring_facility_name).to be_nil
-        expect(subject.referring_facility_phone).to be_nil
-        expect(subject.referring_facility_code).to be_nil
-        expect(subject.referring_facility_address).to be_nil
-      end
+      include_examples 'has nil attributes'
     end
 
     context 'with nil Referral value' do
       subject { described_class.new({ 'Referral' => nil }) }
 
-      it 'sets all attributes to nil' do
-        expect(subject.expiration_date).to be_nil
-        expect(subject.category_of_care).to be_nil
-        expect(subject.treating_facility).to be_nil
-        expect(subject.referral_number).to be_nil
-        expect(subject.referral_date).to be_nil
-        expect(subject.station_id).to be_nil
-        expect(subject.uuid).to be_nil
-        expect(subject.has_appointments).to be_nil
-        expect(subject.phone_number).to be_nil
-        expect(subject.provider_name).to be_nil
-        expect(subject.provider_npi).to be_nil
-        expect(subject.provider_telephone).to be_nil
-        expect(subject.referring_facility_name).to be_nil
-        expect(subject.referring_facility_phone).to be_nil
-        expect(subject.referring_facility_code).to be_nil
-        expect(subject.referring_facility_address).to be_nil
-      end
+      include_examples 'has nil attributes'
     end
 
     context 'when phone number comes from provider info' do

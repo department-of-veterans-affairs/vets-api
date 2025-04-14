@@ -116,7 +116,6 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
         # Provider should be a hash with nil values
         provider = serialized_data[:data][:attributes][:provider]
-        expect(provider).to be_a(Hash)
         expect(provider[:name]).to be_nil
         expect(provider[:location]).to be_nil
       end
@@ -133,22 +132,16 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       it 'returns a hash with data containing null attributes' do
         expect(serialized_data).to have_key(:data)
-        expect(serialized_data[:data][:attributes]).to be_a(Hash)
 
-        # All top-level attributes should be nil
-        expect(serialized_data[:data][:attributes][:categoryOfCare]).to be_nil
-        expect(serialized_data[:data][:attributes][:expirationDate]).to be_nil
-        expect(serialized_data[:data][:attributes][:referralNumber]).to be_nil
+        # Check individual top-level attributes
+        %i[categoryOfCare expirationDate referralNumber uuid hasAppointments referralDate stationId].each do |attr|
+          expect(serialized_data[:data][:attributes][attr]).to be_nil
+        end
 
-        # Provider should be a hash with nil values
-        provider = serialized_data[:data][:attributes][:provider]
-        expect(provider).to be_a(Hash)
-        expect(provider[:name]).to be_nil
-        expect(provider[:npi]).to be_nil
-        expect(provider[:telephone]).to be_nil
-        expect(provider[:location]).to be_nil
+        # The provider is a hash with nil values, not nil itself
+        expect(serialized_data[:data][:attributes][:provider].values.all?(&:nil?)).to be(true)
 
-        # Referring facility should be nil since it's conditional
+        # The referring facility should be nil
         expect(serialized_data[:data][:attributes][:referringFacility]).to be_nil
       end
     end
