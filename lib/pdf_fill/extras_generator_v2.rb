@@ -10,9 +10,10 @@ module PdfFill
     class Question
       attr_accessor :section_index, :overflow
 
-      def initialize(metadata)
+      def initialize(question_text, metadata)
         @section_index = nil
         @number = metadata[:question_num]
+        @text = question_text
         @subquestions = []
         @overflow = false
       end
@@ -28,50 +29,60 @@ module PdfFill
         end
       end
 
-      def render(pdf, list_format: false)
-        sorted_subquestions.each do |subq|
-          value = subq[:value].to_s.gsub('\n', '<br/>')
+      def sorted_subquestions_markup
+        sorted_subquestions.map do |subq|
           metadata = subq[:metadata]
-          prefix = "#{metadata[:question_num]}#{metadata[:question_suffix]}. #{metadata[:question_text].humanize}"
-          i = metadata[:i]
-          prefix += " Line #{i + 1}" if i.present?
-
-          if list_format
-            pdf.markup("<p>#{prefix}: <b>#{value}</b></p>")
-          else
-            pdf.markup("<p>#{prefix}:</p>")
-            pdf.markup("<b>#{value}</b>")
-          end
+          label = metadata[:question_label].presence || metadata[:question_text]
+          value = subq[:value].to_s.gsub("\n", '<br/>')
+          value = "<i>#{value}</i>" if value == 'no response'
+          "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
         end
+      end
+
+      def render(pdf, list_format: false)
+        pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
+        pdf.markup(['<table>', sorted_subquestions_markup, '</table>'].flatten.join, text: { margin_bottom: 10 })
       end
     end
 
     class ListQuestion < Question
-      def initialize(metadata)
+      def initialize(question_text, metadata)
         super
+        @item_label = metadata[:item_label]
         @items = []
-        @array_question_text = metadata[:array_question_text]
       end
 
       def add_text(value, metadata)
         @overflow ||= metadata.fetch(:overflow, true)
         i = metadata[:i]
-        @items[i] ||= Question.new(metadata)
+        @items[i] ||= Question.new(nil, metadata)
         @items[i].add_text(value, metadata)
       end
 
       def render(pdf)
-        pdf.markup("<h4>#{@number}. #{@array_question_text}</h4>")
-        @items.each do |question|
+        pdf.markup("<h3>#{@number}. #{@text}</h3>")
+        @items.each.with_index(1) do |question, index|
+          pdf.markup(
+            "<table><tr><th><i>#{@item_label} #{index}</i></th></tr></table>",
+            table: {
+              cell: {
+                borders: [:bottom],
+                border_width: 1,
+                padding: [5, 0, 3.5, 0]
+              }
+            },
+            text: { margin_bottom: -2 }
+          )
           question.render(pdf, list_format: true)
         end
       end
     end
 
-    def initialize(form_name: nil, submit_date: nil, start_page: 1, sections: nil)
+    def initialize(form_name: nil, submit_date: nil, question_key: nil, start_page: 1, sections: nil)
       super()
       @form_name = form_name
       @submit_date = submit_date
+      @question_key = question_key
       @start_page = start_page
       @sections = sections
       @questions = {}
@@ -86,7 +97,8 @@ module PdfFill
     def add_text(value, metadata)
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
-        @questions[question_num] = (metadata[:i].blank? ? Question : ListQuestion).new(metadata)
+        question_text = @question_key[question_num]
+        @questions[question_num] = (metadata[:i].blank? ? Question : ListQuestion).new(question_text, metadata)
       end
       @questions[question_num].add_text(value, metadata)
     end
@@ -200,14 +212,17 @@ module PdfFill
 
     def set_markup_options(pdf)
       pdf.markup_options = {
-        heading2: { style: :normal, size: 13, margin_top: 12 },
-        heading3: { style: :bold, size: 10.5, margin_top: 10 },
-        heading4: { style: :normal, size: 10.5 },
+        heading2: { style: :normal, size: 13, margin_top: 12, margin_bottom: -4 },
+        heading3: { style: :bold, size: 10.5, margin_top: 10, margin_bottom: -2 },
         table: {
           cell: {
             border_width: 0,
-            padding: [2, 0, 2, 0]
+            padding: [1, 0, 1, 0]
           }
+        },
+        text: {
+          leading: 0.5,
+          size: 10.5
         },
         list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 }
       }
