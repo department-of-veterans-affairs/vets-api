@@ -20,13 +20,6 @@ module VA1010Forms
         formSubmissionId: form_submission_id,
         timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
-
-      # For local testing, you can return a hash like this:
-      # {
-      #   success: true,
-      #   formSubmissionId: 123,
-      #   timestamp: Time.now.getlocal.to_s
-      # }
     end
 
     def soap

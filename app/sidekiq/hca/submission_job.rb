@@ -21,9 +21,7 @@ module HCA
       super
     rescue
       @health_care_application.update!(state: 'error')
-      Rails.logger.info '~~~~~~~~~~~~~~~ error'
 
-      # message out failed submission when retries exhausted {state: "error"}
       raise
     end
   end
