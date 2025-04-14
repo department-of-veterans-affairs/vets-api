@@ -12,19 +12,19 @@ describe Eps::EnrichedProvider do
     end
 
     context 'when referral_detail has a phone number' do
-      let(:phone_number) { '555-123-4567' }
-      let(:referral_detail) { build(:ccra_referral_detail, phone_number:) }
+      let(:treating_facility_phone) { '555-123-4567' }
+      let(:referral_detail) { build(:ccra_referral_detail, treating_facility_phone:) }
 
       it 'adds the phone number to the provider' do
         result = described_class.from_referral(provider, referral_detail)
         expect(result.id).to eq(provider.id)
         expect(result.name).to eq(provider.name)
-        expect(result.phone_number).to eq(phone_number)
+        expect(result.phone_number).to eq(treating_facility_phone)
       end
     end
 
     context 'when referral_detail has no phone number' do
-      let(:referral_detail) { build(:ccra_referral_detail, phone_number: nil) }
+      let(:referral_detail) { build(:ccra_referral_detail, treating_facility_phone: nil) }
 
       it 'returns the original provider' do
         result = described_class.from_referral(provider, referral_detail)
@@ -43,7 +43,10 @@ describe Eps::EnrichedProvider do
 
     context 'when provider is nil' do
       it 'returns nil' do
-        result = described_class.from_referral(nil, build(:ccra_referral_detail, phone_number: '555-555-5555'))
+        result = described_class.from_referral(
+          nil,
+          build(:ccra_referral_detail, treating_facility_phone: '555-555-5555')
+        )
         expect(result).to be_nil
       end
     end
