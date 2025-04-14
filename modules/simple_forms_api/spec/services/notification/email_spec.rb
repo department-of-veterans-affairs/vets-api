@@ -132,11 +132,16 @@ describe SimpleFormsApi::Notification::Email do
           before do
             stub_const(
               'SimpleFormsApi::Notification::Email::TEMPLATE_IDS',
-              { 'vba_21_10210' => {
-                'confirmation' => template_id_suffix,
-                'error' => template_id_suffix,
-                'received' => template_id_suffix
-              } }
+              {
+                'vba_21_10210' => {
+                  'confirmation' => template_id_suffix,
+                  'error' => template_id_suffix,
+                  'received' => template_id_suffix
+                },
+                'vba_20_10207' => {
+                  'point_of_contact_error' => template_id_suffix
+                }
+              }
             )
             allow(Settings).to receive(:vanotify).and_return(vanotify_settings)
             allow(vanotify_settings).to receive(:services).and_return(vanotify_services)
@@ -151,6 +156,39 @@ describe SimpleFormsApi::Notification::Email do
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(anything, template_id, anything)
+          end
+
+          describe 'form 20-10207 point of contact', if: notification_type == :error do
+            before { config[:form_number] = 'vba_20_10207' }
+
+            context 'data includes point of contact email' do
+              let(:point_of_contact_email) { 'a@b.com' }
+              let(:data) do
+                fixture_path = Rails.root.join(
+                  'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10207.json'
+                )
+                data = JSON.parse(fixture_path.read)
+                data.merge!(
+                  {
+                    'point_of_contact_email' => point_of_contact_email,
+                    'living_situation' => { 'NONE' => true }
+                  }
+                )
+              end
+
+              it 'sends the email to the point of contact email' do
+                allow(VANotify::EmailJob).to receive(:perform_async)
+                subject = described_class.new(config, notification_type:)
+
+                subject.send
+
+                expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                  point_of_contact_email,
+                  template_id,
+                  anything
+                )
+              end
+            end
           end
         end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/intent_to_file/intent_to_file'
+require 'disability_compensation/responses/intent_to_files_response'
 
 module Swagger
   module Schemas
@@ -22,7 +22,8 @@ module Swagger
         property :expiration_date, type: :string, example: '2018-02-21T19:53:45.810+00:00'
         property :participant_id, type: :integer, example: 1
         property :source, type: :string, example: 'EBN'
-        property :status, type: :string, enum: EVSS::IntentToFile::IntentToFile::STATUS_TYPES, example: 'active'
+        property :status, type: :string, enum: DisabilityCompensation::ApiProvider::IntentToFile::STATUS_TYPES,
+                          example: 'active'
         property :type, type: :string, enum: %w[
           compensation
           pension
@@ -42,7 +43,7 @@ module Swagger
             end
           end
           property :id, type: :string, example: nil
-          property :type, type: :string, example: 'evss_intent_to_file_intent_to_files_responses'
+          property :type, type: :string, example: 'intent_to_file'
         end
       end
 
@@ -55,7 +56,7 @@ module Swagger
             end
           end
           property :id, type: :string, example: nil
-          property :type, type: :string, example: 'evss_intent_to_file_intent_to_files_responses'
+          property :type, type: :string, example: 'intent_to_file'
         end
       end
     end

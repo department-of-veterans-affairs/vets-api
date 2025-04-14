@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'kafka/kafka'
+require 'kafka/concerns/kafka'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 

@@ -157,33 +157,20 @@ RSpec.describe Form1010Ezr::Service do
     end
   end
 
-  describe '#log_submission_failure' do
-    context "when 'parsed_form' is not present" do
-      it 'only increments StatsD' do
-        allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+  describe '#log_submission_failure_to_sentry' do
+    it 'logs a failure message to sentry' do
+      expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+        '1010EZR failure',
+        :error,
+        {
+          first_initial: 'F',
+          middle_initial: 'M',
+          last_initial: 'Z'
+        },
+        ezr: :failure
+      )
 
-        described_class.new(nil).log_submission_failure(nil)
-      end
-    end
-
-    context "when 'parsed_form' is present" do
-      it 'increments StatsD and logs a failure message to sentry' do
-        allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
-        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
-          '1010EZR failure',
-          :error,
-          {
-            first_initial: 'F',
-            middle_initial: 'M',
-            last_initial: 'Z'
-          },
-          ezr: :failure
-        )
-
-        described_class.new(nil).log_submission_failure(form)
-      end
+      described_class.log_submission_failure_to_sentry(form, '1010EZR failure', 'failure')
     end
   end
 
@@ -380,8 +367,9 @@ RSpec.describe Form1010Ezr::Service do
                   last_initial: 'Z'
                 }
               )
-              expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
-                                                                'Body size of 362 KB with 2 attachment(s)')
+              expect(Rails.logger).to have_received(:info).with(
+                'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
+              )
               expect(Rails.logger).to have_received(:info).with(
                 'Attachment sizes in descending order: 348 KB, 1.8 KB'
               )

@@ -23,4 +23,10 @@ RSpec.describe SimpleFormsApi::BaseForm do
       expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
     end
   end
+
+  describe '#should_send_to_point_of_contact?' do
+    it 'returns false' do
+      expect(described_class.new({}).should_send_to_point_of_contact?).to be false
+    end
+  end
 end

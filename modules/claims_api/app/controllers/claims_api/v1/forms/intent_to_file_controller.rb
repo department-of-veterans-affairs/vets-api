@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/intent_to_file/service'
 require 'bgs_service/intent_to_file_web_service'
 
 module ClaimsApi

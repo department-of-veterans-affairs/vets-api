@@ -176,6 +176,7 @@ module PdfFill
           ExtrasGeneratorV2.new(
             form_name: form_id.sub(/V2\z/, ''),
             submit_date:,
+            question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
             sections: form_class::SECTIONS
           )

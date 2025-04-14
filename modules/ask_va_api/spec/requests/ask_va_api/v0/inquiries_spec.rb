@@ -96,6 +96,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             get inquiry_path
           end
 
+          it 'log uuid' do
+            expect(span).to have_received(:set_tag).with('safe_field.idme_uuid', authorized_user.idme_uuid)
+            expect(span).to have_received(:set_tag).with('safe_field.logingov_uuid', authorized_user.logingov_uuid)
+          end
+
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                           'AskVAApi::Inquiries::InquiriesRetrieverError:' \
                           ' {"Data":null,"Message":"Data Validation: Multiple Contacts found by ICN"' \
@@ -271,9 +276,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           get "#{inquiry_path}/#{invalid_id}"
         end
 
-        it { expect(response).to have_http_status(:unprocessable_entity) }
+        it { expect(response).to have_http_status(:not_found) }
 
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+        it_behaves_like 'common error handling', :not_found, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
                         '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
                         ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
@@ -409,10 +414,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       it 'raise StatusRetrieverError' do
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:not_found)
       end
 
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+      it_behaves_like 'common error handling', :not_found, 'service_error',
                       'AskVAApi::Inquiries::Status::StatusRetrieverError: ' \
                       '{"Data":null,"Message":"Data Validation: No Inquiries found",' \
                       '"ExceptionOccurred":true,' \

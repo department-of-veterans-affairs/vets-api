@@ -34,6 +34,13 @@ module IncomeAndAssets
       'OTHER' => 5
     }.freeze
 
+    # Frequency of income
+    INCOME_FREQUENCIES = {
+      'RECURRING' => 0,
+      'IRREGULAR' => 1,
+      'ONE_TIME' => 2
+    }.freeze
+
     # Types of account income
     ACCOUNT_INCOME_TYPES = {
       'INTEREST' => 0,
@@ -46,6 +53,14 @@ module IncomeAndAssets
       'FARM' => 0,
       'BUSINESS' => 1,
       'RENTAL_PROPERTY' => 2
+    }.freeze
+
+    # Methods of income generation associated with royalties and other properties
+    INCOME_GENERATION_TYPES = {
+      'INTELLECTUAL_PROPERTY' => 0,
+      'MINERALS_LUMBER' => 1,
+      'USE_OF_LAND' => 2,
+      'OTHER' => 3
     }.freeze
 
     # Types of transfer methods

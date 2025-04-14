@@ -6,6 +6,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   before do
     login_as(test_user)
     travel_to(time)
+    allow(Flipper).to receive(:enabled?).with(
+      :accredited_representative_portal_search,
+      instance_of(AccreditedRepresentativePortal::RepresentativeUser)
+    ).and_return(feature_flag_state)
   end
 
   let!(:poa_code) { 'x23' }
@@ -41,8 +45,18 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
   let(:time) { '2024-12-21T04:45:37.000Z' }
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
+  let(:feature_flag_state) { true }
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
+    context 'when feature flag is off' do
+      let(:feature_flag_state) { false }
+
+      it 'returns 403 error' do
+        post('/accredited_representative_portal/v0/claimant/power_of_attorney_requests')
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'when providing incomplete search params' do
       it 'returns a 400 error' do
         post('/accredited_representative_portal/v0/claimant/power_of_attorney_requests', params: {

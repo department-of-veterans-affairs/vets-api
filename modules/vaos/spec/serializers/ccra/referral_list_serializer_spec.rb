@@ -7,16 +7,37 @@ RSpec.describe Ccra::ReferralListSerializer do
     context 'with a list of referrals' do
       # These values should calculate to May 27, 2024
       let(:cardiology_referral) do
-        build(:ccra_referral_list_entry, referral_id: '5682', type_of_care: 'CARDIOLOGY', start_date: '2024-03-28',
-                                         seoc_days: '60')
+        ref = build(
+          :ccra_referral_list_entry,
+          referral_number: '5682',
+          category_of_care: 'CARDIOLOGY',
+          start_date: '2024-03-28',
+          seoc_days: '60'
+        )
+        ref.uuid = 'encrypted-5682'
+        ref
       end
       let(:podiatry_referral) do
-        build(:ccra_referral_list_entry, referral_id: '5683', type_of_care: 'PODIATRY', start_date: '2024-03-28',
-                                         seoc_days: '60')
+        ref = build(
+          :ccra_referral_list_entry,
+          referral_number: '5683',
+          category_of_care: 'PODIATRY',
+          start_date: '2024-03-28',
+          seoc_days: '60'
+        )
+        ref.uuid = 'encrypted-5683'
+        ref
       end
       let(:optometry_referral) do
-        build(:ccra_referral_list_entry, referral_id: '5684', type_of_care: 'OPTOMETRY', start_date: '2024-03-28',
-                                         seoc_days: '60')
+        ref = build(
+          :ccra_referral_list_entry,
+          referral_number: '5684',
+          category_of_care: 'OPTOMETRY',
+          start_date: '2024-03-28',
+          seoc_days: '60'
+        )
+        ref.uuid = 'encrypted-5684'
+        ref
       end
       let(:referrals) { [cardiology_referral, podiatry_referral, optometry_referral] }
       let(:serializer) { described_class.new(referrals) }
@@ -29,20 +50,26 @@ RSpec.describe Ccra::ReferralListSerializer do
       end
 
       it 'serializes each referral correctly' do
-        expect(serialized_data[:data][0][:id]).to eq('5682')
+        expect(serialized_data[:data][0][:id]).to eq('encrypted-5682')
         expect(serialized_data[:data][0][:type]).to eq(:referrals)
-        expect(serialized_data[:data][0][:attributes][:type_of_care]).to eq('CARDIOLOGY')
-        expect(serialized_data[:data][0][:attributes][:expiration_date]).to eq('2024-05-27')
+        expect(serialized_data[:data][0][:attributes][:categoryOfCare]).to eq('CARDIOLOGY')
+        expect(serialized_data[:data][0][:attributes][:referralNumber]).to eq('5682')
+        expect(serialized_data[:data][0][:attributes][:expirationDate]).to eq('2024-05-27')
+        expect(serialized_data[:data][0][:attributes][:uuid]).to eq('encrypted-5682')
 
-        expect(serialized_data[:data][1][:id]).to eq('5683')
+        expect(serialized_data[:data][1][:id]).to eq('encrypted-5683')
         expect(serialized_data[:data][1][:type]).to eq(:referrals)
-        expect(serialized_data[:data][1][:attributes][:type_of_care]).to eq('PODIATRY')
-        expect(serialized_data[:data][1][:attributes][:expiration_date]).to eq('2024-05-27')
+        expect(serialized_data[:data][1][:attributes][:categoryOfCare]).to eq('PODIATRY')
+        expect(serialized_data[:data][1][:attributes][:referralNumber]).to eq('5683')
+        expect(serialized_data[:data][1][:attributes][:expirationDate]).to eq('2024-05-27')
+        expect(serialized_data[:data][1][:attributes][:uuid]).to eq('encrypted-5683')
 
-        expect(serialized_data[:data][2][:id]).to eq('5684')
+        expect(serialized_data[:data][2][:id]).to eq('encrypted-5684')
         expect(serialized_data[:data][2][:type]).to eq(:referrals)
-        expect(serialized_data[:data][2][:attributes][:type_of_care]).to eq('OPTOMETRY')
-        expect(serialized_data[:data][2][:attributes][:expiration_date]).to eq('2024-05-27')
+        expect(serialized_data[:data][2][:attributes][:categoryOfCare]).to eq('OPTOMETRY')
+        expect(serialized_data[:data][2][:attributes][:referralNumber]).to eq('5684')
+        expect(serialized_data[:data][2][:attributes][:expirationDate]).to eq('2024-05-27')
+        expect(serialized_data[:data][2][:attributes][:uuid]).to eq('encrypted-5684')
       end
     end
 

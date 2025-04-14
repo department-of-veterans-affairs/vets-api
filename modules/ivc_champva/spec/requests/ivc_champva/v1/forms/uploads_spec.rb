@@ -95,6 +95,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           with_settings(Settings, vsp_environment: 'staging') do
             controller = IvcChampva::V1::UploadsController.new
             allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
+                                                  call_upload_form: [[200], nil],
+                                                  get_file_paths_and_metadata: [[['path'], {}], {}],
                                                   params: ActionController::Parameters.new(data))
             allow(controller).to receive(:render)
 
@@ -156,7 +158,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           with_settings(Settings, vsp_environment: 'staging') do
             if data['form_number'] == '10-10D'
               controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive_messages(call_handle_file_uploads: [[400], 'oh no'],
+              allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
+                                                    get_file_paths_and_metadata: [[['path'], {}], {}],
                                                     params: ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
@@ -213,6 +216,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         post '/ivc_champva/v1/forms', params: data
         expect(ves_client).not_to have_received(:submit_1010d)
       end
+    end
+  end
+
+  describe 'stored ves data is encrypted' do
+    it 'ves_request_data is encrypted' do
+      # This is the only part of the test we actually need
+      expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
     end
   end
 

@@ -22,6 +22,10 @@ module V0
         claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
       end
 
+      # Populate the form_start_date from the IPF if available
+      in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
+      claim.form_start_date = in_progress_form.created_at if in_progress_form
+
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name

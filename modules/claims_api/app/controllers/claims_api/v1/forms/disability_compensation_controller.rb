@@ -67,7 +67,8 @@ module ClaimsApi
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
           unless auto_claim.id
-            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim
+                                  .find_by('header_hash = ? OR md5 = ?', auto_claim.header_hash, auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
 

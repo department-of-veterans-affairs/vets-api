@@ -166,7 +166,7 @@ module AppealsApi
           text = form_data.send(attr)
           return if text.blank?
 
-          text = long_text_override if max_length && (long_text_override.present? && text.length > max_length)
+          text = long_text_override if max_length && long_text_override.present? && text.length > max_length
           text_opts = form_fields.boxes[attr].merge(DEFAULT_TEXT_OPTIONS).merge(height: 13)
           whiteout(pdf, **form_fields.boxes[attr])
           pdf.text_box text, text_opts

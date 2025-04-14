@@ -647,12 +647,12 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       ).to be(false)
     end
 
-    it 'ensures the tmp file is deleted when fill_form fails' do
+    it 'ensures the tmp file is deleted when fill_form fails after retries' do
       expect(HealthCareApplication).to receive(:new)
         .with(hash_including('form' => form_data))
         .and_return(health_care_application)
 
-      allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
+      expect(PdfFill::Filler).to receive(:fill_form).exactly(3).times.and_raise(StandardError, 'error filling form')
 
       expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')

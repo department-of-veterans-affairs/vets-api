@@ -73,6 +73,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
   before do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
+
+    allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
   end
 
   describe 'perform' do

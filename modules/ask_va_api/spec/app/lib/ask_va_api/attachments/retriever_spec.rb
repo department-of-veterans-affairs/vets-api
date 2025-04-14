@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Attachments::Retriever do
-  subject(:retriever) { described_class.new(id: '1', entity_class: entity, user_mock_data: false) }
+  subject(:retriever) { described_class.new(icn: '123', id: '1', entity_class: entity, user_mock_data: false) }
 
   describe '#call' do
     let(:entity) { AskVAApi::Attachments::Entity }
@@ -11,7 +11,7 @@ RSpec.describe AskVAApi::Attachments::Retriever do
 
     context 'when successful' do
       before do
-        allow(Crm::Service).to receive(:new).and_return(service)
+        allow(Crm::Service).to receive(:new).with(icn: '123').and_return(service)
         allow(service).to receive(:call)
           .with(endpoint: 'attachment', payload: { id: '1' })
           .and_return({ Data: {
@@ -34,9 +34,8 @@ RSpec.describe AskVAApi::Attachments::Retriever do
       let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
       before do
-        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
+        allow(Crm::Service).to receive(:new).with(icn: '123').and_return(service)
+        allow(service).to receive(:call).with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
       end
 
       it 'raise the error' do

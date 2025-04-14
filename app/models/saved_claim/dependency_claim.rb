@@ -106,9 +106,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_674?
-    return false if parsed_form['view:selectable686_options']['report674'].blank?
-
-    true
+    # check if report674 is present and then check if it's true to avoid hash break.
+    parsed_form['view:selectable686_options']&.include?('report674') &&
+      parsed_form['view:selectable686_options']['report674']
   end
 
   def address_exists

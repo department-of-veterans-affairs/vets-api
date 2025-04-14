@@ -166,7 +166,7 @@ module VSPDanger
     end
 
     def file_git_diff(file_name)
-      `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{file_name}`
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -w --ignore-blank-lines -- #{file_name}`
     end
   end
 
