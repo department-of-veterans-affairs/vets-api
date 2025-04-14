@@ -2,7 +2,7 @@
 
 module Post911SOB
   module DGIB
-    class AuthenticationTokenService
+    class AuthenticationTokenService 
       ALGORITHM_TYPE = 'RS256'
       TYP = 'JWT'
       KID = 'sob'

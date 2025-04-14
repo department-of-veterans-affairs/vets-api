@@ -39,7 +39,7 @@ describe Common::JwtWrapper do
       before do
         time = Time.utc(2021, 9, 13, 19, 30, 11)
         Timecop.freeze(time)
-        
+
         # Mock File.read to return the test key
         allow(File).to receive(:read).with(test_key_path).and_return(test_key.to_s)
       end
@@ -48,10 +48,10 @@ describe Common::JwtWrapper do
 
       it 'returns a valid JWT token and verifies its contents' do
         token = subject.sign_assertion
-        
+
         # Check that it's a valid JWT
         expect(token).to match(jwt_regex)
-        
+
         # Decode and verify the token
         decoded_token = JWT.decode(
           token,
@@ -59,15 +59,15 @@ describe Common::JwtWrapper do
           true,
           { algorithm: 'RS512' }
         )
-        
+
         # Verify payload
         payload = decoded_token[0]
         expect(payload['iss']).to eq('test-client-id')
-        expect(payload['sub']).to eq('test-client-id') 
+        expect(payload['sub']).to eq('test-client-id')
         expect(payload['aud']).to eq('https://test-audience.example.com')
         expect(payload['iat']).to eq(Time.zone.now.to_i)
         expect(payload['exp']).to eq(5.minutes.from_now.to_i)
-        
+
         # Verify headers
         headers = decoded_token[1]
         expect(headers['kid']).to eq('test-key-id')
@@ -84,7 +84,7 @@ describe Common::JwtWrapper do
       it 'raises a configuration error' do
         expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
       end
-      
+
       it 'logs the error' do
         expect(Rails.logger).to receive(:error).with(/Key file not found/)
         expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
@@ -101,7 +101,7 @@ describe Common::JwtWrapper do
       it 'raises a configuration error' do
         expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
       end
-      
+
       it 'logs the error' do
         expect(Rails.logger).to receive(:error).with(/Service Configuration Error/)
         expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
