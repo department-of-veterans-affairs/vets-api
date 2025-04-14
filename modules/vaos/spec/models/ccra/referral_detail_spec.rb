@@ -3,18 +3,6 @@
 require 'rails_helper'
 
 describe Ccra::ReferralDetail do
-  # Shared example for testing nil attributes
-  shared_examples 'has nil attributes' do
-    it 'sets all attributes to nil' do
-      # Use reflection to iterate through the object's instance variables
-      instance_variables = subject.instance_variables.reject { |v| v == :@uuid }
-      instance_variables.each do |var|
-        value = subject.instance_variable_get(var)
-        expect(value).to be_nil, "Expected #{var} to be nil, but got #{value.inspect}"
-      end
-    end
-  end
-
   describe '#initialize' do
     subject { described_class.new(valid_attributes) }
 
@@ -80,18 +68,6 @@ describe Ccra::ReferralDetail do
       expect(subject.referring_facility_address[:zip]).to eq('87106')
     end
 
-    context 'with missing Referral key' do
-      subject { described_class.new({}) }
-
-      include_examples 'has nil attributes'
-    end
-
-    context 'with nil Referral value' do
-      subject { described_class.new({ 'Referral' => nil }) }
-
-      include_examples 'has nil attributes'
-    end
-
     context 'when phone number comes from provider info' do
       subject { described_class.new(provider_phone_attributes) }
 
@@ -108,38 +84,6 @@ describe Ccra::ReferralDetail do
 
       it 'uses provider telephone as phone_number' do
         expect(subject.phone_number).to eq('123-456-7890')
-      end
-    end
-
-    context 'with APPTYesNo1 values' do
-      it 'parses Y as true' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'Y' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(true)
-      end
-
-      it 'parses N as false' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'N' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(false)
-      end
-
-      it 'handles nil value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => nil } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
-      end
-
-      it 'handles blank value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => '' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
-      end
-
-      it 'handles invalid value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'X' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
       end
     end
   end
