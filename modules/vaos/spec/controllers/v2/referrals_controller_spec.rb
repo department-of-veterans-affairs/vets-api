@@ -68,7 +68,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(first_referral['type']).to eq('referrals')
         expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(first_referral['attributes']['referralNumber']).to eq('5682')
-        expect(first_referral['attributes']['expirationDate']).to eq('2025-06-13')
+        expect(first_referral['attributes']['expirationDate']).to eq((Date.current + 60.days).strftime('%Y-%m-%d'))
       end
 
       context 'with a custom status parameter' do
