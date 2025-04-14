@@ -11,6 +11,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
   let(:ves_client) { double('IvcChampva::VesApi::Client') }
   let(:ves_response) { double('IvcChampva::VesApi::Response', status: 200, body: { result: 'success' }) }
   let(:mock_form) { double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid') }
+  let(:mock_s3) { instance_double(IvcChampva::S3) }
 
   before do
     @original_aws_config = Aws.config.dup
@@ -28,9 +29,8 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
     # Mock file uploads
     allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
       .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
-    allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-      double('response', context: double('context', http_response: double('http_response', status_code: 200)))
-    )
+    allow(IvcChampva::S3).to receive(:new).and_return(mock_s3)
+    allow(mock_s3).to receive(:put_object).and_return({ success: true })
   end
 
   after do
@@ -124,9 +124,10 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
             end
 
             it 'handles file upload failures' do
-              allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
-                double('response', context: double('context', http_response: double('http_response', status_code: 500)))
-              )
+              allow(mock_s3).to receive(:put_object).and_return({
+                                                                  success: false,
+                                                                  error_message: 'Upload failed'
+                                                                })
 
               post '/ivc_champva/v1/forms', params: form_data
 
