@@ -380,7 +380,11 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_friendly_evidence_requests:
+  cst_friendly_evidence_requests_first_party:
+    actor_type: user
+    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
+    enable_in_development: true
+  cst_friendly_evidence_requests_third_party:
     actor_type: user
     description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
     enable_in_development: true
@@ -1166,6 +1170,10 @@ features:
     actor_type: user
     description: Enables/disables ipe content
     enable_in_development: true
+  mhv_medications_dont_increment_ipe_count:
+    actor_type: user
+    description: when this flag is on the count will not be incremented for ipe
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
@@ -1938,10 +1946,6 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
-    enable_in_development: true
-  intent_to_file_lighthouse_enabled:
-    actor_type: user
-    description: Enable new Lighthouse ITF logic
     enable_in_development: true
   intent_to_file_synchronous_enabled:
     actor_type: user
