@@ -13,6 +13,9 @@ module VAOS
           referral_status_param
         )
 
+        # Filter out expired referrals
+        response = filter_expired_referrals(response)
+
         # Add encrypted UUIDs to the referrals for URL usage
         add_referral_uuids(response)
 
@@ -64,11 +67,32 @@ module VAOS
         params.fetch(:mode, 'C')
       end
 
+      # CCRA Referral Status Codes:
+      # S  - Suspend: Referral temporarily paused/on hold
+      # BP - EOC Complete: Episode of Care is completed
+      # AP - Approved: Referral approved/authorized for care
+      # A  - First Appointment Made: Initial appointment scheduled
+      #
+      # TODO:
+      # I  - Unknown - Possibly means Initial: Referral initiated/in progress
+      # AC - Unknown - Possibly means Appointment Canceled
+      #
       # The referral status parameter for filtering referrals
       # @return [String] the referral status
       def referral_status_param
-        # TODO: Need to verify what statuses we can allow. API spec is not clear.
-        params.fetch(:status, "'S','BP','AP','AC','A','I'")
+        # Default to only show referrals that a veteran can make appointments for.
+        params.fetch(:status, "'AP','AC','I'")
+      end
+
+      # Filters out referrals that have expired (expiration date before today)
+      #
+      # @param referrals [Array<Ccra::ReferralListEntry>] The collection of referrals
+      # @return [Array<Ccra::ReferralListEntry>] Filtered collection without expired referrals
+      def filter_expired_referrals(referrals)
+        raise ArgumentError, 'referrals must be an enumerable collection' unless referrals.respond_to?(:each)
+
+        today = Date.current
+        referrals.reject { |referral| referral.expiration_date.present? && referral.expiration_date < today }
       end
 
       # Memoized referral service instance
