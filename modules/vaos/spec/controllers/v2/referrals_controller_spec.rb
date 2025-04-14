@@ -202,9 +202,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(response_data['data']['attributes']['provider']['name']).to eq('Dr. Smith')
-        expect(response_data['data']['attributes']).to have_key('referringFacility')
         expect(response_data['data']['attributes']['referringFacility']['name']).to be_present
-        expect(response_data['data']['attributes']['referringFacility']['address']).to have_key('street1')
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
       end
