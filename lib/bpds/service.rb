@@ -4,14 +4,14 @@ require 'common/client/base'
 require 'bpds/configuration'
 require 'bpds/jwt_encoder'
 
-module BPDS
+module Bpds
   ##
   # Proxy Service for the Benefits Processing Data Service (BPDS) API.
   # We are using it here to submit claims that cannot be auto-established,
   # via paper submission (electronic PDF submission to CMP)
   #
   class Service < Common::Client::Base
-    configuration BPDS::Configuration
+    configuration Bpds::Configuration
 
     def initialize
       unless Flipper.enabled?(:bpds_service_enabled)
