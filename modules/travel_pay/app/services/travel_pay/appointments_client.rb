@@ -45,7 +45,6 @@ module TravelPay
     #  {
     #   appointmentDateTime: datetime string ('2024-01-01T12:45:34.465Z'),
     #   facilityStationNumber: string (i.e. facilityId),
-    #   appointmentName: string, **Optional
     #   appointmentType: string, 'CompensationAndPensionExamination' || 'Other'
     #   isComplete: boolean,
     #  }
@@ -63,8 +62,8 @@ module TravelPay
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
-          req.body = url_params.to_json
           req.headers.merge!(claim_headers)
+          req.body = url_params.to_json
         end
       end
     end

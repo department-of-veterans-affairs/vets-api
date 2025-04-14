@@ -108,18 +108,6 @@ module Swagger
           end
 
           parameter do
-            key :name, :appointmentName
-            key :in, :body
-            key :description, 'Name of appointment'
-            key :required, false
-            schema do
-              property :appointmentName do
-                key :type, :string
-              end
-            end
-          end
-
-          parameter do
             key :name, :isComplete
             key :in, :body
             key :description, 'Whether or not appointment is complete'

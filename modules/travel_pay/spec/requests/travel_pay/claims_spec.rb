@@ -128,7 +128,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
                    'facility_station_number' => '123',
-                   'appointment_name' => '',
                    'appointment_type' => 'Other',
                    'is_complete' => false }
 
@@ -145,7 +144,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_date_time' => 'My birthday, 4 years ago',
                    'facility_station_number' => '123',
-                   'appointment_name' => '',
                    'appointment_type' => 'Other',
                    'is_complete' => false }
 
@@ -166,7 +164,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
                    'facility_station_number' => '123',
-                   'appointment_name' => '',
                    'appointment_type' => 'Other',
                    'is_complete' => false }
 

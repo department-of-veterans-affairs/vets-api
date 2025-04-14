@@ -148,7 +148,6 @@ describe TravelPay::AppointmentsService do
         .with(tokens[:veis_token], tokens[:btsss_token],
               { 'appointment_date_time' => '2024-01-01 12:45:34 UTC',
                 'facility_station_number' => '123',
-                'appointment_name' => '',
                 'appointment_type' => 'Other',
                 'is_complete' => false })
         .and_return(add_appointment_response)
@@ -162,7 +161,6 @@ describe TravelPay::AppointmentsService do
 
       params = { 'appointment_date_time' => date_string,
                  'facility_station_number' => '123',
-                 'appointment_name' => '',
                  'appointment_type' => 'Other',
                  'is_complete' => false }
 
@@ -175,7 +173,6 @@ describe TravelPay::AppointmentsService do
       expect do
         @service.find_or_create_appointment({ 'appointment_date_time' => 'banana',
                                               'facility_station_number' => '123',
-                                              'appointment_name' => '',
                                               'appointment_type' => 'Other',
                                               'is_complete' => false })
       end
@@ -184,7 +181,6 @@ describe TravelPay::AppointmentsService do
       expect do
         @service.find_or_create_appointment({ 'appointment_date_time' => nil,
                                               'facility_station_number' => '123',
-                                              'appointment_name' => '',
                                               'appointment_type' => 'Other',
                                               'is_complete' => false })
       end
