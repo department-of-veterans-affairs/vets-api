@@ -73,11 +73,6 @@ describe Common::JwtWrapper do
         expect(payload['exp']).to eq(5.minutes.from_now.to_i)
       end
 
-      it 'uses the delegated key from settings' do
-        expect(Rails.logger).to receive(:debug).with("Using key: #{service_settings.key}")
-        subject.sign_assertion
-      end
-
       it 'signs the token using RS512 algorithm with the correct key' do
         token = subject.sign_assertion
         public_key = OpenSSL::PKey::RSA.new(service_settings.key).public_key
