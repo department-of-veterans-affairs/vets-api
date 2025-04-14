@@ -172,7 +172,7 @@ module PdfFill
           {
             'street' => {
               key: 'F[0].P4[0].HomeAddress_Street[0]',
-              limit: 28,
+              limit: 27,
               question_num: 1.11,
               question_suffix: 'A',
               question_text: 'HOME ADDRESS (Street)'
@@ -493,6 +493,8 @@ module PdfFill
         merge_ethnicity_choices
         merge_marital_status
         merge_value('isSpanishHispanicLatino', :map_radio_box_value)
+        merge_address_street('veteranAddress')
+        merge_address_street('veteranHomeAddress')
       end
 
       def merge_spouse_info
@@ -515,6 +517,19 @@ module PdfFill
 
       def merge_full_name(type)
         @form_data[type] = format_full_name(@form_data[type])
+      end
+
+      def merge_address_street(address_type)
+        return unless @form_data[address_type]
+
+        address = @form_data[address_type]
+        @form_data[address_type]['street'] = combine_full_address(
+          {
+            'street' => address['street'],
+            'street2' => address['street2'],
+            'street3' => address['street3']
+          }
+        )
       end
 
       def merge_sex(type)
