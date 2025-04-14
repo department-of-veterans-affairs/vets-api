@@ -78,16 +78,10 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
-    Rails.logger.info '~~~~~~~~~~~~~~~ sync'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
-      # {
-      #   success: true,
-      #   formSubmissionId: 123,
-      #   timestamp: Time.now.getlocal.to_s
-      # }
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
@@ -95,12 +89,9 @@ class HealthCareApplication < ApplicationRecord
         nil, detail: e.message
       )
     end
-    # message out valid submission {state: "received"}
-    Rails.logger.info '~~~~~~~~~~~~~~~ received anon sync'
 
     set_result_on_success!(result)
 
-    Rails.logger.info "~~~~~~~~~~~~~~~ SubmissionID=#{result[:formSubmissionId]}"
     result
   rescue
     log_sync_submission_failure
@@ -124,10 +115,7 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
-    # message out valid submission {state: "received"}
-    Rails.logger.info '~~~~~~~~~~~~~~~ received, id:', id
     save!
-    Rails.logger.info '~~~~~~~~~~~~~~~ received saved, id:', id
 
     send_event_bus_event('received')
 
@@ -224,8 +212,6 @@ class HealthCareApplication < ApplicationRecord
     )
 
     send_event_bus_event('sent', result[:formSubmissionId].to_s)
-
-    Rails.logger.info '~~~~~~~~~~~~~~~ sent'
   end
 
   def form_submission_id
@@ -239,15 +225,11 @@ class HealthCareApplication < ApplicationRecord
   def send_event_bus_event(status, next_id = nil)
     return unless Flipper.enabled?(:hca_kafka_submission_enabled)
 
-    Rails.logger.info '~~~~~~~~~~~~~~~ send_event_bus_event', status, next_id
-
     begin
       user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
-      # local testing
-      # user_icn = user&.icn || '12345678'
     rescue Common::Exceptions::ValidationErrors
       # if certain user attributes are missing, we can't get an ICN
-      user_icn = ''
+      user_icn = nil
     end
 
     Kafka.submit_event(
@@ -287,10 +269,8 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    Rails.logger.info '~~~~~~~~~~~~~~~ async', email.present?
-
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
-    # if testing locally, use MockSubmissionJob
+
     HCA::SubmissionJob.perform_async(
       self.class.get_user_identifier(user),
       HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
