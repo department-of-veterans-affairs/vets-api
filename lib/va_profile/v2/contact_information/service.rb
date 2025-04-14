@@ -225,7 +225,9 @@ module VAProfile
         end
 
         def log_transaction_id?
-          true if Settings.vsp_environment == 'staging'
+          return true if Settings.vsp_environment == 'staging'
+
+          false
         end
 
         def update_model(model, attr, method_name)
