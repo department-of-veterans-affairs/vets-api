@@ -9,7 +9,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
 
   let(:v_fresh) { '3' }
   let(:v_stale) { '2' }
-  let(:enriched_id) { "1@#{v_client}" }
+  let(:enriched_id) { "1v#{v_client}" }
 
   describe 'GET v1/gi/lcpe/lacs' do
     let(:lcpe_type) { 'lacs' }
@@ -22,7 +22,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
           get v1_gi_lcpe_lacs_url, params: { state: 'MT' }
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('gi/lcpe/lacs')
-          expect(response.headers['Etag']).not_to match(%r{W/'\d+'})
+          expect(response.headers['Etag']).not_to match(%r{W/"\d+"})
         end
       end
     end
@@ -34,7 +34,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
             get v1_gi_lcpe_lacs_url
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('gi/lcpe/lacs_with_version')
-            expect(response.headers['Etag']).to eq("W/'#{v_fresh}'")
+            expect(response.headers['Etag']).to eq("W/\"#{v_fresh}\"")
           end
         end
       end
@@ -53,10 +53,10 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
 
         it 'returns 200 response with fresh version' do
           VCR.use_cassette('gi/lcpe/get_lacs_cache_stale') do
-            get v1_gi_lcpe_lacs_url, headers: { 'If-None-Match' => "W/'#{v_client}'" }
+            get v1_gi_lcpe_lacs_url, headers: { 'If-None-Match' => "W/\"#{v_client}\"" }
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('gi/lcpe/lacs_with_version')
-            expect(response.headers['Etag']).to eq("W/'#{v_fresh}'")
+            expect(response.headers['Etag']).to eq("W/\"#{v_fresh}\"")
           end
         end
       end
@@ -76,7 +76,7 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
             get v1_gi_lcpe_lacs_url, headers: { 'If-None-Match' => "W/'#{v_client}'" }
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('gi/lcpe/lacs_with_version')
-            expect(response.headers['Etag']).to eq("W/'#{v_fresh}'")
+            expect(response.headers['Etag']).to eq("W/\"#{v_fresh}\"")
           end
         end
       end
@@ -93,9 +93,9 @@ RSpec.describe 'V1::GI::LCPE::Lacs', type: :request do
 
         it 'returns 304 response with fresh version' do
           VCR.use_cassette('gi/lcpe/get_lacs_cache_fresh') do
-            get v1_gi_lcpe_lacs_url, headers: { 'If-None-Match' => "W/'#{v_client}'" }
+            get v1_gi_lcpe_lacs_url, headers: { 'If-None-Match' => "W/\"#{v_client}\"" }
             expect(response).to have_http_status(:not_modified)
-            expect(response.headers['Etag']).to eq("W/'#{v_client}'")
+            expect(response.headers['Etag']).to eq("W/\"#{v_client}\"")
           end
         end
       end

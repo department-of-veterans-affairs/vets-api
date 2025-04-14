@@ -7,6 +7,7 @@ require 'saml/responses/login'
 require 'saml/responses/logout'
 require 'saml/ssoe_settings_service'
 require 'login/after_login_actions'
+require 'user_audit_logger'
 
 module V1
   class SessionsController < ApplicationController
@@ -56,9 +57,9 @@ module V1
         url = URI.parse(url_service.ssoe_slo_url)
 
         app_key = if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
-                    Settings.saml_ssoe.tou_decline_logout_app_key
+                    IdentitySettings.saml_ssoe.tou_decline_logout_app_key
                   else
-                    Settings.saml_ssoe.logout_app_key
+                    IdentitySettings.saml_ssoe.logout_app_key
                   end
 
         query_strings = { appKey: CGI.escape(app_key), clientId: params[:client_id] }.compact
@@ -165,6 +166,7 @@ module V1
       else
         redirect_to url_service.login_redirect_url
       end
+      create_user_audit_log(user_verification:)
       login_stats(:success)
     end
 
@@ -201,12 +203,12 @@ module V1
     end
 
     def set_sso_saml_cookie!
-      cookies[Settings.ssoe_eauth_cookie.name] = {
+      cookies[IdentitySettings.ssoe_eauth_cookie.name] = {
         value: saml_cookie_content.to_json,
         expires: nil,
-        secure: Settings.ssoe_eauth_cookie.secure,
+        secure: IdentitySettings.ssoe_eauth_cookie.secure,
         httponly: true,
-        domain: Settings.ssoe_eauth_cookie.domain
+        domain: IdentitySettings.ssoe_eauth_cookie.domain
       }
     end
 
@@ -411,6 +413,14 @@ module V1
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
       set_api_cookie!
+    end
+
+    def create_user_audit_log(user_verification:)
+      UserAuditLogger.new(user_action_event_identifier: 'sign_in',
+                          subject_user_verification: user_verification,
+                          status: :success,
+                          acting_ip_address: request.remote_ip,
+                          acting_user_agent: request.user_agent).perform
     end
 
     def after_login_actions

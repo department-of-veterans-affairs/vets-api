@@ -169,7 +169,7 @@ class BenefitsIntakeStatusJob
         claim.send_failure_email(email)
         PCPG::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
       else
-        PCPG::Monitor.new.log_silent_failure(ocntext, call_location:)
+        PCPG::Monitor.new.log_silent_failure(context, call_location:)
       end
     end
 

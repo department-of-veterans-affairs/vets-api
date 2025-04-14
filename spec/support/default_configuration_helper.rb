@@ -9,7 +9,7 @@ module Specs
         def connection
           @conn ||= Faraday.new(base_path) do |faraday|
             unless adapter_only
-              faraday.use     :breakers
+              faraday.use(:breakers, service_name:)
               faraday.use     Faraday::Response::RaiseError
               faraday.use     :remove_cookies
             end

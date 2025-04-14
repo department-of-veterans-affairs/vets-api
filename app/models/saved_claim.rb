@@ -150,6 +150,10 @@ class SavedClaim < ApplicationRecord
     )
   end
 
+  def regional_office
+    []
+  end
+
   private
 
   def validate_schema(schema)
@@ -189,9 +193,24 @@ class SavedClaim < ApplicationRecord
       claim_duration = created_at - form_start_date
       StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
     end
+
+    pdf_overflow_tracking if Flipper.enabled?(:saved_claim_pdf_overflow_tracking)
   end
 
   def after_destroy_metrics
     StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
+  end
+
+  def pdf_overflow_tracking
+    tags = ["form_id:#{form_id}"]
+    filename = to_pdf
+
+    # @see PdfFill::Filler
+    # https://github.com/department-of-veterans-affairs/vets-api/blob/96510bd1d17b9e5c95fb6c09d74e53f66b0a25be/lib/pdf_fill/filler.rb#L88
+    StatsD.increment('saved_claim.pdf.overflow', tags:) if filename.end_with?('_final.pdf')
+  rescue => e
+    Rails.logger.error("#{self.class} Error tracking PDF overflow", form_id:, saved_claim_id: id, error: e)
+  ensure
+    Common::FileHelpers.delete_file_if_exists(filename)
   end
 end

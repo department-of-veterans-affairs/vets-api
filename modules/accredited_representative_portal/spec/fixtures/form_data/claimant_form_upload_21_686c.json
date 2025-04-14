@@ -1,0 +1,25 @@
+{
+
+  "representative_form_upload": {
+    "formName": "Declaration of Status of Dependents",
+    "formData": {
+      "veteranSsn": "796126859",
+      "postalCode": "12345",
+      "veteranFullName": {
+        "first": "Hector",
+        "last": "Allen"
+      },
+      "email": "john@veteran.com",
+      "veteranDateOfBirth": "1932-02-05",
+      "claimantDateOfBirth": "1932-02-05",
+      "claimantFullName": {
+        "first": "Hector",
+        "last": "Allen"
+      },
+      "claimantSsn": "796126859",
+      "formNumber": "21-686c"
+    }
+  },
+  "confirmationCode": "123456",
+  "formNumber": "21-686c"
+}

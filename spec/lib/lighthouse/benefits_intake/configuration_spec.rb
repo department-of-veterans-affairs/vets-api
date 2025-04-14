@@ -83,7 +83,7 @@ RSpec.describe BenefitsIntake::Configuration do
     it 'creates the connection' do
       expect(Faraday).to receive(:new).with('service_path', headers: 'base_request_headers', request: 'request_options')
 
-      expect(faraday).to receive(:use).once.with(:breakers)
+      expect(faraday).to receive(:use).once.with(:breakers, { service_name: config.service_name })
       expect(faraday).to receive(:use).once.with(Faraday::Response::RaiseError)
 
       expect(faraday).to receive(:request).once.with(:multipart)

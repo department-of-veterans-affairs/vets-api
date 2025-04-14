@@ -14,5 +14,6 @@ on_worker_boot do
 end
 
 on_worker_shutdown do
+  require 'kafka/producer_manager'
   Kafka::ProducerManager.instance.producer&.close
 end

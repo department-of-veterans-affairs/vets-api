@@ -4,6 +4,8 @@ require 'sign_in/logger'
 
 module V0
   class SignInController < SignIn::ApplicationController
+    include SignIn::SSOAuthorizable
+
     skip_before_action :authenticate,
                        only: %i[authorize callback token refresh revoke revoke_all_sessions logout
                                 logingov_logout_proxy]
@@ -90,8 +92,10 @@ module V0
 
     def token
       SignIn::TokenParamsValidator.new(params: token_params).perform
-      response_body = SignIn::TokenResponseGenerator.new(params: token_params, cookies: token_cookies).perform
-
+      request_attributes = { remote_ip: request.remote_ip, user_agent: request.user_agent }
+      response_body = SignIn::TokenResponseGenerator.new(params: token_params,
+                                                         cookies: token_cookies,
+                                                         request_attributes:).perform
       sign_in_logger.info('token')
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
 
@@ -178,7 +182,7 @@ module V0
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
 
-      unless access_token_authenticate(skip_error_handling: true)
+      unless access_token_authenticate(skip_render_error: true)
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to authorize access token'
       end
 
@@ -340,7 +344,7 @@ module V0
       cookies.delete(SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME, domain: :all)
       cookies.delete(SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME)
       cookies.delete(SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME)
-      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)
+      cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: IdentitySettings.sign_in.info_cookie_domain)
     end
 
     def auth_service(type, client_id = nil)

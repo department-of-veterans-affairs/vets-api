@@ -238,188 +238,41 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'GET facilities' do
-    context 'with the v2 feature flag enabled' do
-      before { allow(Flipper).to receive(:enabled?).with(:hca_ez_use_facilities_v2).and_return(true) }
+    it 'triggers HCA::StdInstitutionImportJob when the HealthFacility table is empty' do
+      HealthFacility.delete_all
 
-      it 'responds with facilities data for supported facilities' do
-        StdInstitutionFacility.create(station_number: '042')
+      import_job = instance_double(HCA::StdInstitutionImportJob)
+      expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
+      expect(import_job).to receive(:perform)
 
-        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-          get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-        end
-        expect(response).to have_http_status(:ok)
-        expect(response.parsed_body[0]).to eq(
-          {
-            'access' => nil,
-            'address' => {
-              'mailing' => {
-                'zip' => '66713',
-                'city' => 'Leavenworth',
-                'state' => 'KS',
-                'address1' => '150 Muncie Rd'
-              },
-              'physical' => {
-                'zip' => '66713',
-                'city' => 'Baxter Springs',
-                'state' => 'KS',
-                'address1' => 'Baxter Springs City Cemetery'
-              }
-            },
-            'classification' => 'Soldiers Lot',
-            'distance' => nil,
-            'facility_type' => 'va_cemetery',
-            'facility_type_prefix' => 'nca',
-            'feedback' => nil,
-            'hours' => {
-              'monday' => 'Sunrise - Sundown',
-              'tuesday' => 'Sunrise - Sundown',
-              'wednesday' => 'Sunrise - Sundown',
-              'thursday' => 'Sunrise - Sundown',
-              'friday' => 'Sunrise - Sundown',
-              'saturday' => 'Sunrise - Sundown',
-              'sunday' => 'Sunrise - Sundown'
-            },
-            'id' => 'nca_042',
-            'lat' => 37.0320575,
-            'long' => -94.7706605,
-            'mobile' => nil,
-            'name' => "Baxter Springs City Soldiers' Lot",
-            'operating_status' => { 'code' => 'NORMAL' },
-            'operational_hours_special_instructions' => nil,
-            'parent' => nil,
-            'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
-            'services' => nil,
-            'time_zone' => 'America/Chicago',
-            'type' => 'va_facilities',
-            'unique_id' => '042',
-            'visn' => nil,
-            'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp',
-            'tmp_covid_online_scheduling' => nil
-          }
-        )
-      end
-
-      context 'with hca_retrieve_facilities_without_repopulating disabled' do
-        it 'populates VES facilities cache if it returns no results' do
-          allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(false)
-          expect(StdInstitutionFacility.count).to eq(0)
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-            get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-          end
-          expect(StdInstitutionFacility.all.any?).to be(true)
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body[0]).to be_nil
-        end
-      end
-
-      context 'with hca_retrieve_facilities_without_repopulating enabled' do
-        it 'returns no results when the cache is empty without populating it' do
-          allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
-          expect(StdInstitutionFacility.count).to eq(0)
-          VCR.use_cassette(
-            'lighthouse/facilities/v1/200_facilities_facility_ids',
-            match_requests_on: %i[method uri]
-          ) do
-            get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-          end
-
-          expect(StdInstitutionFacility.count).to eq(0)
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body[0]).to be_nil
-        end
-      end
+      get(facilities_v0_health_care_applications_path(state: 'OH'))
     end
 
-    context 'with the v2 feature flag disabled' do
-      before { allow(Flipper).to receive(:enabled?).with(:hca_ez_use_facilities_v2).and_return(false) }
+    it 'does not trigger HCA::StdInstitutionImportJob when HealthFacility table is populated' do
+      create(:health_facility, name: 'Test Facility', station_number: '123', postal_name: 'OH')
+      expect(HCA::StdInstitutionImportJob).not_to receive(:new)
 
-      it 'responds with facilities data for supported facilities' do
-        StdInstitutionFacility.create(station_number: '042')
+      get(facilities_v0_health_care_applications_path(state: 'OH'))
+    end
 
-        VCR.use_cassette(
-          'lighthouse/facilities/v1/200_facilities_facility_ids',
-          match_requests_on: %i[method uri]
-        ) do
-          get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-        end
+    it 'responds with serialized facilities data for supported facilities' do
+      mock_facilities = [
+        { name: 'My VA Facility', station_number: '123', postal_name: 'OH' },
+        { name: 'A VA Facility', station_number: '222', postal_name: 'OH' },
+        { name: 'My Other VA Facility', station_number: '231', postal_name: 'NH' }
+      ]
+      mock_facilities.each { |attrs| create(:health_facility, attrs) }
 
-        expect(response).to have_http_status(:ok)
-        expect(response.parsed_body[0]).to eq(
-          {
-            'access' => nil,
-            'active_status' => nil,
-            'address' => {
-              'mailing' => {
-                'zip' => '66713',
-                'city' => 'Leavenworth',
-                'state' => 'KS',
-                'address1' => '150 Muncie Rd'
-              },
-              'physical' => {
-                'zip' => '66713',
-                'city' => 'Baxter Springs',
-                'state' => 'KS',
-                'address1' => 'Baxter Springs City Cemetery'
-              }
-            },
-            'classification' => 'Soldiers Lot',
-            'detailed_services' => nil,
-            'distance' => nil,
-            'facility_type' => 'va_cemetery',
-            'facility_type_prefix' => 'nca',
-            'feedback' => nil,
-            'hours' => {
-              'monday' => 'Sunrise - Sundown',
-              'tuesday' => 'Sunrise - Sundown',
-              'wednesday' => 'Sunrise - Sundown',
-              'thursday' => 'Sunrise - Sundown',
-              'friday' => 'Sunrise - Sundown',
-              'saturday' => 'Sunrise - Sundown',
-              'sunday' => 'Sunrise - Sundown'
-            },
-            'id' => 'nca_042',
-            'lat' => 37.0320575,
-            'long' => -94.7706605,
-            'mobile' => nil,
-            'name' => "Baxter Springs City Soldiers' Lot",
-            'operating_status' => { 'code' => 'NORMAL' },
-            'operational_hours_special_instructions' => nil,
-            'parent' => nil,
-            'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
-            'services' => nil,
-            'type' => 'va_facilities',
-            'unique_id' => '042',
-            'visn' => nil,
-            'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp'
-          }
-        )
-      end
+      get(facilities_v0_health_care_applications_path(state: 'OH'))
 
-      context 'with hca_retrieve_facilities_without_repopulating disabled' do
-        it 'populates VES facilities cache if it returns no results' do
-          allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(false)
-          expect(StdInstitutionFacility.count).to eq(0)
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-            get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-          end
-          expect(StdInstitutionFacility.all.any?).to be(true)
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body[0]).to be_nil
-        end
-      end
-
-      context 'with hca_retrieve_facilities_without_repopulating enabled' do
-        it 'returns no results when the cache is empty without populating it' do
-          allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
-          expect(StdInstitutionFacility.count).to eq(0)
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-            get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-          end
-          expect(StdInstitutionFacility.count).to eq(0)
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body[0]).to be_nil
-        end
-      end
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to contain_exactly({
+                                                        'id' => mock_facilities[0][:station_number],
+                                                        'name' => mock_facilities[0][:name]
+                                                      }, {
+                                                        'id' => mock_facilities[1][:station_number],
+                                                        'name' => mock_facilities[1][:name]
+                                                      })
     end
   end
 
@@ -794,12 +647,12 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       ).to be(false)
     end
 
-    it 'ensures the tmp file is deleted when fill_form fails' do
+    it 'ensures the tmp file is deleted when fill_form fails after retries' do
       expect(HealthCareApplication).to receive(:new)
         .with(hash_including('form' => form_data))
         .and_return(health_care_application)
 
-      allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
+      expect(PdfFill::Filler).to receive(:fill_form).exactly(3).times.and_raise(StandardError, 'error filling form')
 
       expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')

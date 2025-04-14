@@ -6,12 +6,6 @@ require_relative '../../lib/ivc_champva/monitor'
 RSpec.describe IvcChampva::Monitor do
   let(:monitor) { described_class.new }
 
-  before do
-    allow(Flipper).to receive(:enabled?)
-      .with(:champva_enhanced_monitor_logging, @current_user)
-      .and_return(true)
-  end
-
   context 'with params supplied' do
     describe '#track_update_status' do
       it 'logs sidekiq success' do
@@ -170,6 +164,54 @@ RSpec.describe IvcChampva::Monitor do
 
         monitor.track_pdf_stamper_error(form_uuid, err_message)
       end
+    end
+
+    describe '#track_ves_response' do
+      # rubocop:disable Layout/LineLength
+      it 'on success, calls track_request with the correct parameters' do
+        form_uuid = '12345678-1234-5678-1234-567812345678',
+                    status = 200,
+                    messages = '{"messages": [{"code": "abc123", "key": "someKey", "text": "someText", "severity": "INFO", "potentiallySelfCorrectingOnRetry": true}]}'
+
+        additional_context = {
+          form_uuid:,
+          status:,
+          messages:
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'info',
+          "IVC ChampVa Forms - Successful submission to VES for form #{form_uuid}",
+          "#{IvcChampva::Monitor::STATS_KEY}.ves_response.success",
+          call_location: anything,
+          **additional_context
+        )
+
+        monitor.track_ves_response(form_uuid, status, messages)
+      end
+
+      it 'on failure, calls track_request with the correct parameters' do
+        form_uuid = '12345678-1234-5678-1234-567812345678',
+                    status = 500,
+                    messages = '{"messages": [{"code": "abc123", "key": "someKey", "text": "someText", "severity": "INFO", "potentiallySelfCorrectingOnRetry": true}]}'
+
+        additional_context = {
+          form_uuid:,
+          status:,
+          messages:
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          "IVC ChampVa Forms - Error on submission to VES for form #{form_uuid}",
+          "#{IvcChampva::Monitor::STATS_KEY}.ves_response.failure",
+          call_location: anything,
+          **additional_context
+        )
+
+        monitor.track_ves_response(form_uuid, status, messages)
+      end
+      # rubocop:enable Layout/LineLength
     end
   end
 end

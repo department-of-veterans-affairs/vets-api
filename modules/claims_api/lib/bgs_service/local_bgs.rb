@@ -54,7 +54,7 @@ module ClaimsApi
       path = URI.parse(url).path
       host = URI.parse(url).host
       port = URI.parse(url).port
-      matcher = proc do |request_env|
+      matcher = proc do |_breakers_service, request_env, _request_service_name|
         request_env.url.host == host &&
           request_env.url.port == port &&
           request_env.url.path =~ /^#{path}/
@@ -136,8 +136,8 @@ module ClaimsApi
 
       body.dig(*keys).to_h.tap do |value|
         if transform
-          value.deep_transform_keys! do |key|
-            key.underscore.to_sym
+          value.deep_transform_keys! do |k|
+            k.underscore.to_sym
           end
         end
       end

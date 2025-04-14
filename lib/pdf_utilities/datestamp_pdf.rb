@@ -150,9 +150,12 @@ module PDFUtilities
     end
 
     def log_and_raise_error(message, e)
+      combined_message = "#{message}: #{e.message}"
       monitor = Logging::Monitor.new('pdf_utilities')
-      monitor.track_request(:error, message, 'api.datestamp_pdf.error', exception: e.message, backtrace: e.backtrace)
-      raise e
+      monitor.track_request(:error, combined_message, 'api.datestamp_pdf.error', exception: e.message,
+                                                                                 backtrace: e.backtrace)
+
+      raise e.class, combined_message, e.backtrace
     end
 
     # DatestampPdf class

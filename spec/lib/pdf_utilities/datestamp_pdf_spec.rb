@@ -10,15 +10,12 @@ RSpec.describe PDFUtilities::DatestampPdf do
       Prawn::Document.generate(@file_path, margin: [0, 0]) do |pdf|
         5.times { pdf.start_new_page }
       end
+      allow(Logging::Monitor).to receive(:new).and_return(logging_monitor_double)
     end
 
-    let(:opt) do
-      { append_to_stamp: 'Confirmation=VETS-XX-1234' }
-    end
-
-    let(:instance) do
-      described_class.new(@file_path, **opt)
-    end
+    let(:opt) { { append_to_stamp: 'Confirmation=VETS-XX-1234' } }
+    let(:instance) { described_class.new(@file_path, **opt) }
+    let(:logging_monitor_double) { instance_double(Logging::Monitor, track_request: true) }
 
     after do
       Common::FileHelpers.delete_file_if_exists(@file_path)
@@ -98,12 +95,14 @@ RSpec.describe PDFUtilities::DatestampPdf do
         end
 
         it 'logs and reraise the error and not call stamp' do
-          expect(Rails.logger).to receive(:error).at_least(:once).with(
+          expect(logging_monitor_double).to receive(:track_request).at_least(:once).with(
+            :error,
             /Failed to generate/,
-            hash_including(context: hash_including(exception: error_message))
+            'api.datestamp_pdf.error',
+            hash_including(exception: /bad news bears/)
           )
           expect(instance).not_to receive(:stamp_pdf)
-          expect { run }.to raise_error(StandardError, error_message)
+          expect { run }.to raise_error(RuntimeError, /bad news bears/)
         end
       end
 
@@ -114,7 +113,7 @@ RSpec.describe PDFUtilities::DatestampPdf do
 
         it 'logs and reraise the error and clean up after itself' do
           expect(File).to receive(:delete).twice.and_call_original
-          expect { run }.to raise_error(RuntimeError, error_message)
+          expect { run }.to raise_error(RuntimeError, /bad news bears/)
         end
       end
 
