@@ -1730,13 +1730,13 @@ vet360:
     mock: <%= ENV['vet360__veteran_status__mock'] %>
     timeout: 30
 veteran_enrollment_system:
-  host: https://ves.va.gov
   associations:
     api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
-    base_path: ~
+    path: ~
   ee_summary:
     api_key: ~
-    host: ~
+    path: ~
+  host: https://ves.va.gov
   open_timeout: 10
   timeout: 30
 veteran_onboarding:

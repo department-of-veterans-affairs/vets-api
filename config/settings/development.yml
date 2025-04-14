@@ -1753,13 +1753,13 @@ vet360:
     mock: false
     timeout: 30
 veteran_enrollment_system:
-  host: https://ves.va.gov
   associations:
     api_key: fake_api_key
-    base_path: ~
+    path: ~
   ee_summary:
     api_key: fake_api_key
-    host: ~
+    path: ~
+  host: https://ves.va.gov
   open_timeout: 10
   timeout: 30
 veteran_onboarding:
