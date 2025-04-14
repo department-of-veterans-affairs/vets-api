@@ -32,7 +32,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_X_API_KEY>') { Settings.mhv.medical_records.mhv_x_api_key }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
-  c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
+  c.filter_sensitive_data('<MPI_URL>') { IdentitySettings.mvi.url }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }
@@ -41,6 +41,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
   c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
   c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.hostname }
+  c.filter_sensitive_data('<X_API_KEY>') { Settings.mhv.rx.x_api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH>') do
     Settings.lighthouse.benefits_education.rsa_key
   end
@@ -48,8 +49,6 @@ VCR.configure do |c|
     Settings.lighthouse.benefits_education.client_id
   end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
-  c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
-  c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
   c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
@@ -61,7 +60,8 @@ VCR.configure do |c|
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
   c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
-  c.filter_sensitive_data('<VAOS_CCRA_TOKEN_URL>') { Settings.vaos.ccra.access_token_url }
+  c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
+  c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

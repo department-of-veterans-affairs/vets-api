@@ -5,7 +5,7 @@ require 'saml/ssoe_settings_service'
 
 RSpec.describe SAML::SSOeSettingsService do
   before do
-    allow(Settings.saml_ssoe)
+    allow(IdentitySettings.saml_ssoe)
       .to receive(:idp_metadata_file).and_return(Rails.root.join('spec', 'support', 'saml', 'test_idp_metadata.xml'))
   end
 
@@ -21,9 +21,9 @@ RSpec.describe SAML::SSOeSettingsService do
 
     context 'with no signing or encryption configured' do
       it 'omits certificate from settings' do
-        with_settings(Settings.saml_ssoe, certificate: 'foobar',
-                                          request_signing: false, response_signing: false,
-                                          response_encryption: false) do
+        with_settings(IdentitySettings.saml_ssoe, certificate: 'foobar',
+                                                  request_signing: false, response_signing: false,
+                                                  response_encryption: false) do
           expect(SAML::SSOeSettingsService.saml_settings.certificate).to be_nil
         end
       end
@@ -31,9 +31,9 @@ RSpec.describe SAML::SSOeSettingsService do
 
     context 'with signing configured' do
       it 'includes certificate in settings' do
-        with_settings(Settings.saml_ssoe, certificate: 'foobar',
-                                          request_signing: true, response_signing: false,
-                                          response_encryption: false) do
+        with_settings(IdentitySettings.saml_ssoe, certificate: 'foobar',
+                                                  request_signing: true, response_signing: false,
+                                                  response_encryption: false) do
           expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
         end
       end
@@ -41,9 +41,9 @@ RSpec.describe SAML::SSOeSettingsService do
 
     context 'with encryption configured' do
       it 'includes certificate in settings' do
-        with_settings(Settings.saml_ssoe, certificate: 'foobar',
-                                          request_signing: false, response_signing: false,
-                                          response_encryption: true) do
+        with_settings(IdentitySettings.saml_ssoe, certificate: 'foobar',
+                                                  request_signing: false, response_signing: false,
+                                                  response_encryption: true) do
           expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
         end
       end

@@ -9,7 +9,7 @@ describe MPI::Messages::RequestBuilder do
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(random_number)
-      allow(Settings.mvi).to receive(:processing_code).and_return(processing_code)
+      allow(IdentitySettings.mvi).to receive(:processing_code).and_return(processing_code)
       Timecop.freeze
     end
 

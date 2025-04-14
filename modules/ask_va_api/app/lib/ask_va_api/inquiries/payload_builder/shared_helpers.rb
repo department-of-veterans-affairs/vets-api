@@ -5,14 +5,14 @@ module AskVAApi
     module PayloadBuilder
       module SharedHelpers
         def fetch_country(country_code)
-          return if country_code.nil?
+          return if country_code.blank?
 
           country_code = 'US' if country_code == 'USA'
           I18n.t("ask_va_api.countries.#{country_code}", default: country_code)
         end
 
         def fetch_state(state_code)
-          return if state_code.nil?
+          return if state_code.blank?
 
           I18n.t("ask_va_api.states.#{state_code}", default: state_code)
         end
@@ -24,7 +24,7 @@ module AskVAApi
         end
 
         def fetch_state_code(state)
-          return if state.nil?
+          return if state.blank?
 
           I18n.t('ask_va_api.states').invert[state]&.to_s
         end

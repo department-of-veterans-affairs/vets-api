@@ -417,7 +417,6 @@ evss:
   mock_common_service: <%= ENV['evss__mock_common_service'] %>
   mock_disabilities_form: <%= ENV['evss__mock_disabilities_form'] %>
   mock_gi_bill_status: <%= ENV['evss__mock_gi_bill_status'] %>
-  mock_itf: <%= ENV['evss__mock_itf'] %>
   mock_letters: <%= ENV['evss__mock_letters'] %>
   mock_pciu: <%= ENV['evss__mock_pciu'] %>
   mock_pciu_address: <%= ENV['evss__mock_pciu_address'] %>
@@ -510,6 +509,17 @@ forms_api_benefits_intake:
   url: <%= ENV['forms_api_benefits_intake__url'] %>
 fsr:
   prefill: true
+gclaws:
+  accreditation:
+    agents:
+      url: <%= ENV['gclaws__accreditation__agents__url'] %>
+    api_key: <%= ENV['gclaws__accreditation__api_key'] %>
+    attorneys:
+      url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    representatives:
+      url: <%= ENV['gclaws__accreditation__representatives__url'] %>
+    veteran_service_organizations:
+      url: <%= ENV['gclaws__accreditation__veteran_service_organizations__url'] %>
 genisis:
   base_url: <%= ENV['genisis__base_url'] %>
   form_submission_path: "/formdata"
@@ -659,6 +669,8 @@ kafka_producer:
   sasl_mechanisms: 'OAUTHBEARER'
   schema_registry_url: <%= ENV['kafka_producer__schema_registry_url'] %>
   security_protocol: 'sasl_ssl'
+  test_topic_name: <%= ENV['kafka_producer__test_topic_name'] %>
+  topic_name: <%= ENV['kafka_producer__topic_name'] %>
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
@@ -908,6 +920,7 @@ mcp:
     url: <%= ENV['mcp__vbs_v2__url'] %>
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: <%= ENV['mdot__mock'] %>
   prefill: true
   url: <%= ENV['mdot__url'] %>
@@ -951,9 +964,13 @@ mhv:
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     app_token_va_gov: <%= ENV['mhv__rx__app_token_va_gov'] %>
+    base_path: <%= ENV['mhv__rx__base_path'] %>
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
+    gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
+    use_new_api: <%= ENV['mhv__rx__use_new_api'] %>
+    x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
     host: <%= ENV['mhv__sm__host'] %>
@@ -970,6 +987,7 @@ mhv:
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
+  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
   rsa_key: <%= ENV['mobile_lighthouse__rsa_key'] %>
@@ -1322,9 +1340,6 @@ ssoe_eauth_cookie:
   domain: <%= ENV['ssoe_eauth_cookie__domain'] %>
   name: <%= ENV['ssoe_eauth_cookie__name'] %>
   secure: <%= ENV['ssoe_eauth_cookie__secure'] %>
-statsd:
-  host: <%= ENV['statsd__host'] %>
-  port: 8125
 terms_of_use:
   current_version: v1
   enabled_clients: <%= ENV['terms_of_use__enabled_clients'] %>
@@ -1409,6 +1424,7 @@ vanotify:
   mock: <%= ENV['vanotify__mock'] %>
   service_callback_tokens:
     1010_health_apps: <%= ENV['vanotify__service_callback_tokens__1010_health_apps'] %>
+    benefits_decision_review: <%= ENV['vanotify__service_callback_tokens__benefits_decision_review'] %>
     benefits_disability: <%= ENV['vanotify__service_callback_tokens__benefits_disability'] %>
     benefits_management_tools: <%= ENV['vanotify__service_callback_tokens__benefits_management_tools'] %>
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
@@ -1506,7 +1522,7 @@ vanotify:
         form_10_7959f_2_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_email'] %>
         form_10_7959f_2_failure_email: <%= ENV['vanotify__services__ivc_champva__template_id__form_10_7959f_2_failure_email'] %>
         pega_team_missing_status_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_missing_status_email'] %>
-        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %> 
+        pega_team_zsf_email: <%= ENV['vanotify__services__ivc_champva__template_id__pega_team_zsf_email'] %>
     lighthouse:
       api_key: <%= ENV['vanotify__services__lighthouse__api_key'] %>
       template_id:
@@ -1575,6 +1591,9 @@ vanotify:
         form21_10210_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_confirmation_email'] %>
         form21_10210_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_error_email'] %>
         form21_10210_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_10210_received_email'] %>
+        form21_4138_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_confirmation_email'] %>
+        form21_4138_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_error_email'] %>
+        form21_4138_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4138_received_email'] %>
         form21_4142_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_confirmation_email'] %>
         form21_4142_error_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_error_email'] %>
         form21_4142_received_email: <%= ENV['vanotify__services__va_gov__template_id__form21_4142_received_email'] %>
@@ -1611,7 +1630,6 @@ vanotify:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
   ccra:
-    access_token_url: https://test.example.com/token
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
     mock: <%= ENV['vaos__ccra__mock'] %>
@@ -1628,6 +1646,10 @@ vaos:
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
     scopes: care-nav
+  referral:
+    encryption:
+      hex_iv: <%= ENV['vaos__referral__encryption__hex_iv'] %>
+      hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   documentation:
@@ -1825,11 +1847,6 @@ virtual_agent:
   webchat_secret_msft: <%= ENV['virtual_agent__webchat_secret_msft'] %>
   webchat_secret_nlu: <%= ENV['virtual_agent__webchat_secret_nlu'] %>
 virtual_hosts: <%= ENV['virtual_hosts'] %>
-virtual_regional_office:
-  api_key: <%= ENV['virtual_regional_office__api_key'] %>
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: <%= ENV['virtual_regional_office__url'] %>
 vre_counseling:
   prefill: true
 vre_readiness:

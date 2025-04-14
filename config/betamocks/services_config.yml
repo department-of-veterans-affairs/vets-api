@@ -146,7 +146,7 @@
       :uid_locator: 'vaapikey'
 
 - :name: 'MHV UserAccount Creation'
-  :base_uri: <%= "#{URI(Settings.mhv.account_creation.host).host}:#{URI(Settings.mhv.account_creation.host).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.mhv.account_creation.host).host}:#{URI(IdentitySettings.mhv.account_creation.host).port}" %>
   :endpoints:
   - :method: :post
     :path: '/v1/usermgmt/account-service/account'
@@ -473,87 +473,87 @@
 
 # MVI
 - :name: 'MVI'
-  :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.mvi.url).host}:#{URI(IdentitySettings.mvi.url).port}" %>
   :endpoints:
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id extension="([V0-9]*)"(?: root="2.16.840.1.113883.4.349")'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )extension="([V0-9]*)"'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_edipi"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(\d{10})"(?: root="2.16.840.1.113883.3.42.10001.100001.12")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_idme_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VIDM\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_logingov_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/add_person_proxy_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )extension="([V0-9]*\^NI\^200M\^USVHA\^P)"'
       :optional_code_locator: 'PROXY_ADD'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/add_person_implicit_logingov_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201301UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/add_person_implicit_idme_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VIDM\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201301UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/update_profile_idme_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VIDM\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/update_profile_logingov_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/update_profile_edipi"
     :cache_multiple_responses:
       :uid_location: body
@@ -933,7 +933,7 @@
 
 # Security Token Service API
 - :name: "MAP STS"
-  :base_uri: <%= "#{URI(Settings.map_services.oauth_url).host}:#{URI(Settings.map_services.oauth_url).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.map_services.oauth_url).host}:#{URI(IdentitySettings.map_services.oauth_url).port}" %>
   :endpoints:
     - :method: :post
       :path: "/sts/oauth/v1/token"
@@ -944,7 +944,7 @@
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
-  :base_uri: <%= "#{URI(Settings.map_services.sign_up_service_url).host}:#{URI(Settings.map_services.sign_up_service_url).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.map_services.sign_up_service_url).host}:#{URI(IdentitySettings.map_services.sign_up_service_url).port}" %>
   :endpoints:
     - :method: :get
       :path: "/signup/v1/patients/*/status/summary"

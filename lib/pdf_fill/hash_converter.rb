@@ -62,35 +62,36 @@ module PdfFill
       limit.present? && value.size > limit
     end
 
-    def add_to_extras(key_data, v, i, top_level_key)
-      return if v.blank?
-      return if key_data.try(:[], :question_text).blank?
+    def add_to_extras(key_data, v, i, overflow: true, array_key_data: nil)
+      return if v.blank? || key_data.nil?
+      return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
 
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
+      item_label = array_key_data.try(:[], :item_label)
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i:, top_level_key:
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+          i:, overflow:, item_label:
         )
       )
     end
 
-    def add_array_to_extras(arr, pdftk_keys, top_level_key)
+    def add_array_to_extras(arr, pdftk_keys)
       arr.each_with_index do |v, i|
         i = nil if pdftk_keys[:always_overflow]
         if v.is_a?(Hash)
           v.each do |key, val|
-            add_to_extras(pdftk_keys[key], convert_value(val, pdftk_keys[key], true), i, top_level_key)
+            add_to_extras(pdftk_keys[key], convert_value(val, pdftk_keys[key], true), i, array_key_data: pdftk_keys)
           end
         else
-          add_to_extras(pdftk_keys, convert_value(v, pdftk_keys, true), i, top_level_key)
+          add_to_extras(pdftk_keys, convert_value(v, pdftk_keys, true), i, array_key_data: pdftk_keys)
         end
       end
     end
 
-    def set_value(v, key_data, i, from_array_overflow = false, top_level_key = nil)
+    def set_value(v, key_data, i, from_array_overflow = false)
       k = key_data[:key]
       return if k.blank?
 
@@ -99,9 +100,11 @@ module PdfFill
       new_value = convert_value(v, key_data)
 
       if overflow?(key_data, new_value, from_array_overflow)
-        add_to_extras(key_data, new_value, i, top_level_key)
+        add_to_extras(key_data, new_value, i)
 
         new_value = EXTRAS_TEXT
+      elsif !from_array_overflow
+        add_to_extras(key_data, new_value, i, overflow: false)
       end
 
       @pdftk_form[k] = new_value
@@ -122,7 +125,7 @@ module PdfFill
       false
     end
 
-    def transform_array(form_data, pdftk_keys, top_level_key)
+    def transform_array(form_data, pdftk_keys)
       has_overflow = check_for_overflow(form_data, pdftk_keys)
 
       if has_overflow
@@ -132,36 +135,34 @@ module PdfFill
           form_data: { first_key => EXTRAS_TEXT },
           pdftk_keys:,
           i: 0,
-          from_array_overflow: true,
-          top_level_key:
+          from_array_overflow: true
         )
 
-        add_array_to_extras(form_data, pdftk_keys, top_level_key)
+        add_array_to_extras(form_data, pdftk_keys)
       else
         form_data.each_with_index do |v, idx|
-          transform_data(form_data: v, pdftk_keys:, i: idx, top_level_key:)
+          transform_data(form_data: v, pdftk_keys:, i: idx)
         end
       end
     end
 
-    def transform_data(form_data:, pdftk_keys:, i: nil, from_array_overflow: false, top_level_key: nil)
+    def transform_data(form_data:, pdftk_keys:, i: nil, from_array_overflow: false)
       return if form_data.nil? || pdftk_keys.nil?
 
       case form_data
       when Array
-        transform_array(form_data, pdftk_keys, top_level_key)
+        transform_array(form_data, pdftk_keys)
       when Hash
         form_data.each do |k, v|
           transform_data(
             form_data: v,
             pdftk_keys: pdftk_keys[k],
             i:,
-            from_array_overflow:,
-            top_level_key: top_level_key || k
+            from_array_overflow:
           )
         end
       else
-        set_value(form_data, pdftk_keys, i, from_array_overflow, top_level_key)
+        set_value(form_data, pdftk_keys, i, from_array_overflow)
       end
 
       @pdftk_form
