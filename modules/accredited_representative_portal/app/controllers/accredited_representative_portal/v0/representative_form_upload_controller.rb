@@ -7,9 +7,9 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-      skip_after_action :verify_pundit_authorization
 
       def submit
+        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
@@ -17,6 +17,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_scanned_form
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
@@ -113,6 +114,16 @@ module AccreditedRepresentativePortal
 
         notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
+      end
+
+      def get_icn
+        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+
+        if mpi.profile&.icn
+          mpi.profile.icn
+        else
+          raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
+        end
       end
     end
   end
