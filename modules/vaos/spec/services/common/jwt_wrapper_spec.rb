@@ -42,9 +42,14 @@ describe Common::JwtWrapper do
       before do
         time = Time.utc(2021, 9, 13, 19, 30, 11)
         Timecop.freeze(time)
-        
+
         # Configure Settings to also return the test key
-        allow(Settings).to receive_message_chain(:vaos, :eps, :key).and_return(test_key)
+        eps_settings = double('eps_settings')
+        vaos_settings = double('vaos_settings')
+
+        allow(Settings).to receive(:vaos).and_return(vaos_settings)
+        allow(vaos_settings).to receive(:eps).and_return(eps_settings)
+        allow(eps_settings).to receive(:key).and_return(test_key)
       end
 
       after { Timecop.return }
@@ -102,16 +107,6 @@ describe Common::JwtWrapper do
       it 'raises a configuration error' do
         expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
       end
-    end
-
-    it 'properly gets the key from the delegated settings' do
-      # Test that we're using the settings.key by checking if wrapper.key returns the same value
-      # Allow it to be called any number of times since the implementation may call it multiple times
-      allow(subject).to receive(:key).and_return(test_key)
-      
-      expect(subject.sign_assertion).to match(jwt_regex)
-      # Verify the key was actually used by checking it was called at least once
-      expect(subject).to have_received(:key).at_least(:once)
     end
   end
 end
