@@ -116,6 +116,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_address_transaction_status(transaction_id)
           route = "addresses/status/#{transaction_id}"
+          Rails.logger.info("Contact Information V2 Address #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -158,6 +159,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_email_transaction_status(transaction_id)
           route = "emails/status/#{transaction_id}"
+          Rails.logger.info("Contact Information V2 Email #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, EmailTransactionResponse)
 
           send_email_change_notification(transaction_status)
@@ -185,6 +187,7 @@ module VAProfile
         #   a transaction object
         def get_telephone_transaction_status(transaction_id)
           route = "telephones/status/#{transaction_id}"
+          Rails.logger.info("Contact Information V2 Telephone #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -201,6 +204,7 @@ module VAProfile
         #
         def get_person_transaction_status(transaction_id)
           with_monitoring do
+            Rails.logger.info("Contact Information V2 Person #{transaction_id}") if log_transaction_id?
             raw_response = perform(:get, "status/#{transaction_id}")
             VAProfile::Stats.increment_transaction_results(raw_response, 'init_va_profile')
 
@@ -218,6 +222,10 @@ module VAProfile
 
         def vet360_id
           @user.vet360_id
+        end
+
+        def log_transaction_id?
+          true if Settings.vsp_environment == 'staging'
         end
 
         def update_model(model, attr, method_name)
