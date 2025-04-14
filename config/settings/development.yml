@@ -1385,16 +1385,6 @@ travel_pay:
     client_secret: ~
     resource: ~
     tenant_id: ~
-va1010_forms:
-  enrollment_system:
-    associations:
-      api_key: ~
-      host: ~
-    ee_summary:
-      api_key: ~
-      host: ~
-  open_timeout: 10
-  timeout: 30
 va_forms:
   drupal_password: ~
   drupal_url: ~
@@ -1762,6 +1752,16 @@ vet360:
     enabled: true
     mock: false
     timeout: 30
+veteran_enrollment_system:
+  host: https://ves.va.gov
+  associations:
+    api_key: fake_api_key
+    base_path: ~
+  ee_summary:
+    api_key: fake_api_key
+    host: ~
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:

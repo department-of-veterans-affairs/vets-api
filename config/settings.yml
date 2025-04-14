@@ -1364,16 +1364,6 @@ travel_pay:
     client_secret: <%= ENV['travel_pay__veis__client_secret'] %>
     resource: <%= ENV['travel_pay__veis__resource'] %>
     tenant_id: <%= ENV['travel_pay__veis__tenant_id'] %>
-va1010_forms:
-  enrollment_system:
-    associations:
-      api_key: ~
-      host: ~
-    ee_summary:
-      api_key: ~
-      host: ~
-  open_timeout: 10
-  timeout: 30
 va_forms:
   drupal_password: <%= ENV['va_forms__drupal_password'] %>
   drupal_url: <%= ENV['va_forms__drupal_url'] %>
@@ -1739,6 +1729,16 @@ vet360:
     enabled: true
     mock: <%= ENV['vet360__veteran_status__mock'] %>
     timeout: 30
+veteran_enrollment_system:
+  host: https://ves.va.gov
+  associations:
+    api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
+    base_path: ~
+  ee_summary:
+    api_key: ~
+    host: ~
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
