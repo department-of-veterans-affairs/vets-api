@@ -10,7 +10,7 @@ module Common
 
     attr_reader :expiration, :settings
 
-    delegate :key, :client_id, :kid, :audience_claim_url, to: :settings
+    delegate :key_path, :client_id, :kid, :audience_claim_url, to: :settings
 
     def initialize(service_settings, service_config)
       @settings = service_settings
@@ -19,10 +19,13 @@ module Common
     end
 
     def sign_assertion
-      @rsa_key ||= OpenSSL::PKey::RSA.new(key)
+      @rsa_key ||= OpenSSL::PKey::RSA.new(File.read(key_path))
       JWT.encode(claims, @rsa_key, SIGNING_ALGORITHM, jwt_headers)
     rescue ConfigurationError => e
       Rails.logger.error("Service Configuration Error: #{e.message}")
+      raise VAOS::Exceptions::ConfigurationError.new(e, @config.service_name)
+    rescue Errno::ENOENT => e
+      Rails.logger.error("Key file not found: #{e.message}")
       raise VAOS::Exceptions::ConfigurationError.new(e, @config.service_name)
     end
 
