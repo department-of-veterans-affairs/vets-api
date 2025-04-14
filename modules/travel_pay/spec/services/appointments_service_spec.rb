@@ -146,7 +146,7 @@ describe TravelPay::AppointmentsService do
       allow_any_instance_of(TravelPay::AppointmentsClient)
         .to receive(:find_or_create)
         .with(tokens[:veis_token], tokens[:btsss_token],
-              { 'appointment_date_time' => '2024-01-01 12:45:34 UTC',
+              { 'appointment_date_time' => '2024-01-01T12:45:00',
                 'facility_station_number' => '123',
                 'appointment_type' => 'Other',
                 'is_complete' => false })
@@ -157,7 +157,7 @@ describe TravelPay::AppointmentsService do
     end
 
     it 'returns the BTSSS appointment that matches appt date' do
-      date_string = '2024-01-01T12:45:34.465Z'
+      date_string = '2024-01-01T12:45:00'
 
       params = { 'appointment_date_time' => date_string,
                  'facility_station_number' => '123',

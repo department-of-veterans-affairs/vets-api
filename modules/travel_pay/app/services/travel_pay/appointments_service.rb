@@ -58,6 +58,8 @@ module TravelPay
         Rails.logger.error(message: 'Invalid appointment time provided (appointment time cannot be nil).')
         raise ArgumentError, message: 'Invalid appointment time provided (appointment time cannot be nil).'
       elsif params['appointment_date_time'].present?
+        # Ensure the date is valid
+        DateUtils.try_parse_date(params['appointment_date_time'])
 
         @auth_manager.authorize => { veis_token:, btsss_token: }
         faraday_response = client.find_or_create(veis_token, btsss_token, params)
