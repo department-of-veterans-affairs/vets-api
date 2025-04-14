@@ -10,7 +10,7 @@ module Common
 
     attr_reader :expiration, :settings
 
-    delegate :key_path, :key, :client_id, :kid, :audience_claim_url, to: :settings
+    delegate :key, :client_id, :kid, :audience_claim_url, to: :settings
 
     def initialize(service_settings, service_config)
       @settings = service_settings

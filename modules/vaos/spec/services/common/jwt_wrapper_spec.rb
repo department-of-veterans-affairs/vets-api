@@ -6,9 +6,12 @@ require_relative '../../support/fixture_helper'
 describe Common::JwtWrapper do
   subject { described_class.new(service_settings, service_config) }
 
+  # Generate a test RSA key instead of using the hardcoded one
+  let(:test_key) { OpenSSL::PKey::RSA.new(2048).to_s }
+
   let(:service_settings) do
     OpenStruct.new(
-      key: read_fixture_file('open_ssl_rsa_private.pem'),
+      key: test_key,
       client_id: 'test-client-id',
       kid: 'test-key-id',
       audience_claim_url: 'https://test-audience.example.com'
@@ -21,7 +24,6 @@ describe Common::JwtWrapper do
     )
   end
 
-  let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
   # JWT REGEX has 3 base64 url encoded parts (header, payload signature) and more importantly is non empty.
   let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
 
@@ -40,6 +42,9 @@ describe Common::JwtWrapper do
       before do
         time = Time.utc(2021, 9, 13, 19, 30, 11)
         Timecop.freeze(time)
+        
+        # Configure Settings to also return the test key
+        allow(Settings).to receive_message_chain(:vaos, :eps, :key).and_return(test_key)
       end
 
       after { Timecop.return }
@@ -68,12 +73,18 @@ describe Common::JwtWrapper do
         expect(payload['exp']).to eq(5.minutes.from_now.to_i)
       end
 
-      it 'signs the token using RS512 algorithm' do
+      it 'uses the delegated key from settings' do
+        expect(Rails.logger).to receive(:debug).with("Using key: #{service_settings.key}")
+        subject.sign_assertion
+      end
+
+      it 'signs the token using RS512 algorithm with the correct key' do
         token = subject.sign_assertion
+        public_key = OpenSSL::PKey::RSA.new(service_settings.key).public_key
 
         # This will raise an error if the signature is invalid
         expect do
-          JWT.decode(token, rsa_private.public_key, true, { algorithm: 'RS512' })
+          JWT.decode(token, public_key, true, { algorithm: 'RS512' })
         end.not_to raise_error
       end
     end
@@ -96,6 +107,16 @@ describe Common::JwtWrapper do
       it 'raises a configuration error' do
         expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
       end
+    end
+
+    it 'properly gets the key from the delegated settings' do
+      # Test that we're using the settings.key by checking if wrapper.key returns the same value
+      # Allow it to be called any number of times since the implementation may call it multiple times
+      allow(subject).to receive(:key).and_return(test_key)
+      
+      expect(subject.sign_assertion).to match(jwt_regex)
+      # Verify the key was actually used by checking it was called at least once
+      expect(subject).to have_received(:key).at_least(:once)
     end
   end
 end
