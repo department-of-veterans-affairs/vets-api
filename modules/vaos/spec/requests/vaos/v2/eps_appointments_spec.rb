@@ -17,8 +17,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
     # Setup a memory store for caching instead of using Rails.cache
     allow(Rails).to receive(:cache).and_return(memory_store)
-    # Cache the token for CCRA service
-    Rails.cache.write(Ccra::BaseService::REDIS_TOKEN_KEY, access_token)
+    # Cache the token for EPS service
     Rails.cache.write(Eps::BaseService::REDIS_TOKEN_KEY, access_token)
 
     Settings.vaos ||= OpenStruct.new
@@ -110,6 +109,30 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                 expect(response).to have_http_status(:success)
                 expect(JSON.parse(response.body)).to eq(expected_response)
               end
+            end
+          end
+        end
+      end
+
+      context 'when a booked appointment corresponding to the referral is not found' do
+        it 'returns a 404 error' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path query]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+              expect(response).to have_http_status(:not_found)
+            end
+          end
+        end
+      end
+
+      context 'when the upstream service returns a 500 error' do
+        it 'returns a 502 error' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path query]) do
+              get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+              expect(response).to have_http_status(:bad_gateway)
             end
           end
         end

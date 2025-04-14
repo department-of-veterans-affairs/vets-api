@@ -20,7 +20,7 @@ require 'rails_helper'
 #
 # it_behaves_like 'a form filler', {
 #   form_id: described_class::FORM_ID,
-#   factory: :pensions_module_pension_claim,
+#   factory: :pensions_saved_claim,
 #   use_vets_json_schema: true,
 #   input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
 #   output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
@@ -53,6 +53,11 @@ RSpec.shared_examples 'a form filler' do |options|
             else
               create(factory, form: form_data.to_json)
             end
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
           end
 
           it 'fills the form correctly' do

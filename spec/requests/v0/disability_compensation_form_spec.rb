@@ -118,7 +118,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       VCR.insert_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.insert_cassette('lighthouse/direct_deposit/show/200_valid')
       VCR.insert_cassette('lighthouse/direct_deposit/update/200_valid')
-      VCR.insert_cassette('evss/intent_to_file/active_compensation')
     end
 
     after do
@@ -126,7 +125,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       VCR.eject_cassette('va_profile/military_personnel/post_read_service_history_200')
       VCR.eject_cassette('lighthouse/direct_deposit/show/200_valid')
       VCR.eject_cassette('lighthouse/direct_deposit/update/200_valid')
-      VCR.eject_cassette('evss/intent_to_file/active_compensation')
     end
 
     context 'with a valid 200 evss response' do
@@ -144,6 +142,112 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
+        end
+
+        describe 'temp_toxic_exposure_optional_dates_fix' do
+          # Helper that handles POST + response check + returning the submission form
+          def post_and_get_submission(payload)
+            post('/v0/disability_compensation_form/submit_all_claim',
+                 params: JSON.generate(payload),
+                 headers:)
+            expect(response).to have_http_status(:ok)
+            Form526Submission.last.form
+          end
+
+          # Helper to build the "optional_xx_dates" mapping
+          def build_optional_xx_dates
+            Form526Submission::TOXIC_EXPOSURE_DETAILS_MAPPING.transform_values do |exposures|
+              if exposures.empty?
+                {
+                  'description' => 'some description or fallback field',
+                  'startDate' => 'XXXX-03-XX',
+                  'endDate' => 'XXXX-01-XX'
+                }
+              else
+                exposures.index_with do
+                  {
+                    'startDate' => 'XXXX-03-XX',
+                    'endDate' => 'XXXX-01-XX'
+                  }
+                end
+              end
+            end
+          end
+
+          context 'when flipper feature disability_compensation_temp_toxic_exposure_optional_dates_fix is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_compensation_temp_toxic_exposure_optional_dates_fix, anything)
+                .and_return(true)
+              # make sure the submission job is triggered even if there are bad dates in the toxic exposure section
+              expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
+            end
+
+            it 'maximal' do
+              parsed_payload = JSON.parse(all_claims_form)
+              # Replace the toxicExposure section with all "XXXX-XX-XX" data
+              parsed_payload['form526']['toxicExposure'] = build_optional_xx_dates
+
+              submission = post_and_get_submission(parsed_payload)
+              toxic_exposure = submission.dig('form526', 'form526', 'toxicExposure')
+
+              toxic_exposure.each do |tek, tev|
+                tev.each_value do |value|
+                  # Expect all optional date attributes to be removed, leaving an empty hash
+                  # except for otherHerbicideLocations / specifyOtherExposures which keep description
+                  expect(value).to eq({}) unless %w[otherHerbicideLocations specifyOtherExposures].include?(tek)
+                end
+
+                if %w[otherHerbicideLocations specifyOtherExposures].include?(tek)
+                  expect(tev).to eq({ 'description' => 'some description or fallback field' })
+                end
+              end
+            end
+
+            it 'minimal' do
+              parsed_payload = JSON.parse(all_claims_form)
+
+              # Only one date is "XXXX-03-XX", the rest are valid
+              parsed_payload['form526']['toxicExposure']['gulfWar1990Details']['iraq'] = {
+                'startDate' => 'XXXX-03-XX',
+                'endDate' => '1991-01-01'
+              }
+
+              submission = post_and_get_submission(parsed_payload)
+              toxic_exposure = submission.dig('form526', 'form526', 'toxicExposure')
+              gulf_war_details_iraq = toxic_exposure['gulfWar1990Details']['iraq']
+
+              # It should have only removed the malformed startDate
+              expect(gulf_war_details_iraq).to eq({ 'endDate' => '1991-01-01' })
+
+              # The rest remain untouched
+              gulf_war_details_qatar = toxic_exposure['gulfWar1990Details']['qatar']
+              expect(gulf_war_details_qatar).to eq({
+                                                     'startDate' => '1991-02-12',
+                                                     'endDate' => '1991-06-01'
+                                                   })
+            end
+          end
+
+          context 'when flipper feature disability_compensation_temp_toxic_exposure_optional_dates_fix is disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_compensation_temp_toxic_exposure_optional_dates_fix, anything)
+                .and_return(false)
+            end
+
+            it 'fails validation' do
+              parsed_payload = JSON.parse(all_claims_form)
+              # Replace the toxicExposure section with all "XXXX-XX-XX" data
+              parsed_payload['form526']['toxicExposure'] = build_optional_xx_dates
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: JSON.generate(parsed_payload),
+                   headers:)
+
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
         end
 
         context 'where the startedFormVersion indicator is true' do

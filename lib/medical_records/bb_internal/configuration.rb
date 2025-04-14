@@ -16,6 +16,20 @@ module BBInternal
   #
   class Configuration < Common::Client::Configuration::REST
     ##
+    # Setter for thread-local variable custom_base_path
+    #
+    def self.custom_base_path=(value)
+      Thread.current[:custom_base_path] = value
+    end
+
+    ##
+    # Getter for thread-local variable custom_base_path
+    #
+    def self.custom_base_path
+      Thread.current[:custom_base_path]
+    end
+
+    ##
     # BB Internal uses the same app token as Rx.
     # @return [String] Client token set in `settings.yml` via credstash
     #
@@ -23,12 +37,20 @@ module BBInternal
       Settings.mhv.rx.app_token
     end
 
+    def x_api_key
+      Settings.mhv.medical_records.x_api_key
+    end
+
     ##
     # BB Internal uses the same domain as Medical Records FHIR.
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        self.class.custom_base_path || "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/"
+      else
+        "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
+      end
     end
 
     ##
