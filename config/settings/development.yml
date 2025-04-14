@@ -1755,10 +1755,8 @@ vet360:
 veteran_enrollment_system:
   associations:
     api_key: fake_api_key
-    path: ~
   ee_summary:
     api_key: fake_api_key
-    path: ~
   host: https://ves.va.gov
   open_timeout: 10
   timeout: 30
