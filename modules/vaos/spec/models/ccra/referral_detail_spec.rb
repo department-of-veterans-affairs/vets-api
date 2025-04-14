@@ -65,7 +65,7 @@ describe Ccra::ReferralDetail do
     it 'sets all attributes correctly' do
       # Original attributes
       expect(subject.expiration_date).to eq('2024-05-27')
-      expect(subject.type_of_care).to eq('CARDIOLOGY')
+      expect(subject.category_of_care).to eq('CARDIOLOGY')
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.location).to eq('VA Medical Center')
       expect(subject.referral_number).to eq('VA0000005681')
@@ -109,7 +109,7 @@ describe Ccra::ReferralDetail do
       it 'sets all attributes to nil' do
         # Original attributes
         expect(subject.expiration_date).to be_nil
-        expect(subject.type_of_care).to be_nil
+        expect(subject.category_of_care).to be_nil
         expect(subject.provider_name).to be_nil
         expect(subject.location).to be_nil
         expect(subject.referral_number).to be_nil
@@ -139,7 +139,7 @@ describe Ccra::ReferralDetail do
       it 'sets all attributes to nil' do
         # Original attributes
         expect(subject.expiration_date).to be_nil
-        expect(subject.type_of_care).to be_nil
+        expect(subject.category_of_care).to be_nil
         expect(subject.provider_name).to be_nil
         expect(subject.location).to be_nil
         expect(subject.referral_number).to be_nil
@@ -176,7 +176,7 @@ describe Ccra::ReferralDetail do
 
       it 'sets attributes correctly from camelCase keys' do
         expect(subject.expiration_date).to eq('2024-05-27')
-        expect(subject.type_of_care).to eq('CARDIOLOGY')
+        expect(subject.category_of_care).to eq('CARDIOLOGY')
         expect(subject.provider_name).to eq('Dr. Smith')
         expect(subject.location).to eq('VA Medical Center')
         expect(subject.referral_number).to eq('VA0000005681')
