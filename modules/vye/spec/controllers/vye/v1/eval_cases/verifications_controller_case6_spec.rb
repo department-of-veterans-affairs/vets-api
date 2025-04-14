@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require 'rails_helper'
 require 'support/controller_spec_helper'
 require_relative '../../../../support/shared_award_helpers'
@@ -7,84 +6,81 @@ require_relative '../../../../support/shared_award_helpers'
 RSpec.describe Vye::V1::VerificationsController, type: :controller do
   include_context 'shared_award_helpers'
 
-  # happy path conditions
-  # 1 date last certified is before last day of previous month or date last certified is blank
-  # 2 award indicator is future
-  # 3 award end date contains a value (date)
-  # 4 award end date <= last day of prior month
-  # 5 the date last certified is blank (nil)
-  # Note: condition 1 can be removed because of condition 5
+  #################################
+  # glossary
+  #################################
+  # award begin date (abd)
+  # date last certified (dlc)
+  # award end date (aed)
+  # last day of prior month (ldpm)
+  # run date (rd)
+  ########################################################
+  # happy path                     [act_begin, act_end]
+  # dlc < abd <= ldpm < aed <= rd  [abd,       aed - 1day]
+  ########################################################
+  # rubocop:disable RSpec/NoExpectationExample
   describe 'eval_case6' do
     subject { described_class.new }
 
-    let(:payment_date) { Date.new(2025, 2, 14) }
-    let(:award_begin_date) { Date.new(2025, 1, 1) }
-    let(:award_end_date) { Date.new(2025, 1, 31) }
-    let(:last_day_of_prior_month) { Date.new(2025, 1, 31) }
+    let(:run_date) { Date.new(2025, 4, 2) }
+    let(:last_day_of_prior_month) { Date.new(2025, 3, 31) }
+    let(:payment_date) { Date.new(2025, 3, 1) }
+    let(:date_last_certified) { Date.new(2025, 3, 1) }
 
     describe 'happy path(s)' do
-      context 'all conditions are met' do
-        let(:date_last_certified) { nil }
+      context 'dlc < abd <= ldpm < aed <= rd' do
+        let(:award_begin_date) { Date.new(2025, 3, 31) }
+        let(:award_end_date) { Date.new(2025, 4, 2) }
+        let(:aed_minus1) { Date.new(2025, 4, 1) }
 
-        before { setup_future_award(award_begin_date:, award_end_date:, payment_date:) }
+        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
-        it 'creates a pending verification for case6' do
-          Timecop.freeze(Date.new(2025, 2, 15)) { subject.create }
-
-          pending_verification = Vye::Verification.where(trace: 'case6').last
-          expect(pending_verification).not_to be_nil
-          expect(pending_verification.act_begin).to eq(award_begin_date)
-          expect(pending_verification.act_end).to eq(last_day_of_prior_month)
-          expect(pending_verification.payment_date).to eq(payment_date)
-          expect(pending_verification.transact_date).to eq(last_day_of_prior_month)
-          expect(pending_verification.trace).to eq('case6')
+        it 'creates a case6 pending verification' do
+          Timecop.freeze(run_date) { subject.create }
+          pv = Vye::Verification.last
+          check_expectations_for(pv, award_begin_date, aed_minus1, aed_minus1, 'case6')
         end
       end
     end
 
     # no case6 pending verifications will be created in any of these scenarios
-    # Skipping first contra case because guard condition 5 takes it's place
-    describe 'unhappy paths' do
-      context 'when award indicator is not future' do
-        let(:date_last_certified) { nil }
+    describe 'contra paths' do
+      context 'when abd <= dlc' do
+        let(:award_begin_date) { Date.new(2025, 3, 1) }
+        let(:award_end_date) { Date.new(2025, 4, 2) }
 
-        # create past award, current awards can meet earlier cases which doesn't prove the guard condition failed
-        before { setup_past_award(award_begin_date:, award_end_date:, payment_date:) }
+        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
-        it 'returns from the 2nd check' do
-          expect_contra(Date.new(2025, 2, 15), 'case6')
-        end
+        it 'does not create a case6 pending verification' do expect_contra(run_date, 'case6') end
       end
 
-      # when award end date is blank (nil)
-      # This unappy path shouldn't happen because it's flagged as an open cert first
-      # the open cert rules are:
-      # 1 date last certified < last day of prior month or date last certified is blank
-      # 2 the award indicator is current
-      # 3 the award_end_date is blank
-      # These are also the first 3 checks for case6.
+      context 'when ldpm < abd' do
+        let(:award_begin_date) { Date.new(2025, 4, 1) }
+        let(:award_end_date) { Date.new(2025, 4, 2) }
 
-      context 'when the last day of the prior month < award begin date' do
-        let(:date_last_certified) { nil }
-        let(:award_begin_date) { Date.new(2025, 2, 16) }
-        let(:award_end_date) { Date.new(2025, 2, 28) }
+        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
-        before { setup_future_award(award_begin_date:, award_end_date:, payment_date:) }
-
-        it 'returns from the 4th check' do
-          expect_contra(Date.new(2025, 2, 15), 'case6')
-        end
+        it 'does not create a case6 pending verification' do expect_contra(run_date, 'case6') end
       end
 
-      context 'when date last certified is present' do
-        let(:date_last_certified) { Date.new(2025, 1, 1) }
+      context 'when aed < ldpm' do
+        let(:award_begin_date) { Date.new(2025, 3, 2) }
+        let(:award_end_date) { Date.new(2025, 3, 30) }
 
-        before { setup_future_award(award_begin_date:, award_end_date:, payment_date:) }
+        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
-        it 'returns from the 5th check' do
-          expect_contra(Date.new(2025, 2, 15), 'case6')
-        end
+        it 'does not create a case6 pending verification' do expect_contra(run_date, 'case6') end
+      end
+
+      context 'when rd < aed' do
+        let(:award_begin_date) { Date.new(2025, 3, 2) }
+        let(:award_end_date) { Date.new(2025, 4, 6) }
+
+        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
+
+        it 'does not create a case6 pending verification' do expect_contra(run_date, 'case6') end
       end
     end
   end
+  # rubocop:enable RSpec/NoExpectationExample
 end

@@ -2,7 +2,9 @@
 
 module Vye
   class Vye::UserInfo < ApplicationRecord
-    include NeedsEnrollmentVerification
+    #include NeedsEnrollmentVerification
+    include NeedsEnrollmentVerificationV2
+
     belongs_to :user_profile
     belongs_to :bdn_clone
 
