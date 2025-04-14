@@ -671,6 +671,8 @@ kafka_producer:
   sasl_mechanisms: 'OAUTHBEARER'
   schema_registry_url: <%= ENV['kafka_producer__schema_registry_url'] %>
   security_protocol: 'sasl_ssl'
+  test_topic_name: <%= ENV['kafka_producer__test_topic_name'] %>
+  topic_name: <%= ENV['kafka_producer__topic_name'] %>
 kms_key_id: <%= ENV['kms_key_id'] %>
 lgy:
   api_key: <%= ENV['lgy__api_key'] %>
@@ -1646,6 +1648,10 @@ vaos:
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
     scopes: care-nav
+  referral:
+    encryption:
+      hex_iv: <%= ENV['vaos__referral__encryption__hex_iv'] %>
+      hex_secret: <%= ENV['vaos__referral__encryption__hex_secret'] %>
 vba_documents:
   custom_metadata_allow_list: <%= ENV['vba_documents__custom_metadata_allow_list'] %>
   documentation:
@@ -1843,11 +1849,6 @@ virtual_agent:
   webchat_secret_msft: <%= ENV['virtual_agent__webchat_secret_msft'] %>
   webchat_secret_nlu: <%= ENV['virtual_agent__webchat_secret_nlu'] %>
 virtual_hosts: <%= ENV['virtual_hosts'] %>
-virtual_regional_office:
-  api_key: <%= ENV['virtual_regional_office__api_key'] %>
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: <%= ENV['virtual_regional_office__url'] %>
 vre_counseling:
   prefill: true
 vre_readiness:

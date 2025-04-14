@@ -670,6 +670,8 @@ kafka_producer:
   sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
+  test_topic_name: submission_trace_mock_test
+  topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
 lgy:
   api_key: ~
@@ -1653,7 +1655,7 @@ vaos:
   ccra:
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
-    mock: false
+    mock: true
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1667,6 +1669,10 @@ vaos:
     mock: false
     redis_token_expiry: 3500
     scopes: care-nav
+  referral:
+    encryption:
+      hex_iv: "0123456789abcdef0123456789abcdef"
+      hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
   documentation:
@@ -1868,11 +1874,6 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
-virtual_regional_office:
-  api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: http://localhost:8120
 vre_counseling:
   prefill: true
 vre_readiness:
