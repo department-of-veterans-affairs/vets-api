@@ -51,8 +51,6 @@ module Kafka
     end
 
     def validate_payload!(schema, payload)
-      Rails.logger.info '~~~~~~~~~~~~~~~ validate_payload schema, payload:', schema, payload
-
       Avro::SchemaValidator.validate!(schema, payload)
     end
 
