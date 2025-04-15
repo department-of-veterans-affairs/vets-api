@@ -25,7 +25,7 @@ end
 
 class MpiCheck < BaseCheck
   def check
-    Settings.mvi.mock || MPI::Service.service_is_up? ? process_success : process_failure
+    IdentitySettings.mvi.mock || MPI::Service.service_is_up? ? process_success : process_failure
   rescue
     process_failure
   end

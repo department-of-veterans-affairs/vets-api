@@ -101,7 +101,7 @@ module DecisionReviews
                                message: 'Supplemental Claim Form4142 Persistence Errored',
                                appeal_submission_id:,
                                lighthouse_submission: {
-                                 id: uuid
+                                 id: guid
                                }
                              })
         raise e

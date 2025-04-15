@@ -17,6 +17,10 @@ module AccreditedRepresentativePortal
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
+    has_many :notifications,
+             class_name: 'PowerOfAttorneyRequestNotification',
+             inverse_of: :power_of_attorney_request
+
     belongs_to :accredited_organization, class_name: 'Veteran::Service::Organization',
                                          foreign_key: :power_of_attorney_holder_poa_code,
                                          primary_key: :poa,
@@ -99,12 +103,30 @@ module AccreditedRepresentativePortal
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
 
-    scope :not_expired, lambda {
-      where.not(
-        resolution: {
-          resolving_type: PowerOfAttorneyRequestExpiration.to_s
-        }
-      )
+    scope :decisioned, lambda {
+      joins(:resolution)
+        .where(
+          resolution: {
+            resolving_type: PowerOfAttorneyRequestDecision.to_s
+          }
+        )
+    }
+
+    scope :sorted_by, lambda { |sort_column, direction = :asc|
+      case sort_column
+      when 'created_at'
+        order(created_at: direction)
+      when 'resolved_at'
+        order_sql = if direction.to_sym == :asc
+                      Arel.sql('ar_power_of_attorney_request_resolutions.created_at ASC NULLS LAST')
+                    else
+                      Arel.sql('ar_power_of_attorney_request_resolutions.created_at DESC NULLS LAST')
+                    end
+
+        includes(:resolution).references(:resolution).order(order_sql)
+      else
+        raise ArgumentError, "Invalid sort column: #{sort_column}"
+      end
     }
 
     concerning :ProcessedScopes do

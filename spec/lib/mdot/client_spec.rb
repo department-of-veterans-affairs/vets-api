@@ -18,6 +18,10 @@ describe MDOT::Client, type: :mdot_helpers do
 
   let(:user) { build(:user, :loa3, user_details) }
 
+  around do |ex|
+    with_settings(Settings.mdot, { breakers: true }) { ex.run }
+  end
+
   describe '#get_supplies' do
     context 'with a valid supplies response' do
       it 'returns an array of supplies' do
@@ -33,9 +37,44 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with a supplies response that includes assistive devices' do
+      it 'returns an array of supplies' do
+        VCR.use_cassette(
+          'mdot/get_supplies_assistive_devices_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          response = subject.get_supplies
+          expect(response).to be_ok
+          expect(response).to be_an MDOT::Response
+          expect(response.eligibility.attributes[:assistive_devices]).to be(true)
+        end
+      end
+    end
+
+    context 'with a gateway timeout' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::GatewayTimeout)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::GatewayTimeout
+          ) do |e|
+            expect(e.message).to match('Gateway timeout')
+          end
+        end
+      end
+    end
+
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:502'
@@ -53,9 +92,36 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with an unknown error sans result' do
+      it 'raises a Default Exception' do
+        VCR.use_cassette('mdot/get_supplies_502_no_result') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:502'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(
+            MDOT::Exceptions::ServiceException
+          ) do |e|
+            expect(e.message).to match(/default_exception/)
+            expect(e.status_code).to eq(400)
+          end
+        end
+      end
+    end
+
     context 'when the DLC API is unavailable' do
       it 'raises a 503' do
         VCR.use_cassette('mdot/get_supplies_503') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:get'] }
+          )
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:503'
@@ -255,6 +321,9 @@ describe MDOT::Client, type: :mdot_helpers do
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/submit_order_502') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.external_http_request.MDOT.failed', 1, { tags: ['endpoint:/supplies', 'method:post'] }
+          )
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:502'

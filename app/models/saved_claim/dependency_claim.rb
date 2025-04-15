@@ -6,6 +6,7 @@ require 'pdf_utilities/datestamp_pdf'
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
+    student_information
     student_name_and_ssn
     student_address_marriage_tuition
     last_term_school_information
@@ -49,16 +50,26 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
 
-    upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
-    uploaded_forms << form_id
-    save
+    processed_pdfs = []
+    if form_id == '21-674-V2'
+      parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+        processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
+      end
+    else
+      processed_pdfs << process_pdf(to_pdf(form_id:), created_at, form_id)
+    end
+    processed_pdfs.each do |processed_pdf|
+      upload_to_vbms(path: processed_pdf, doc_type:)
+      uploaded_forms << form_id
+      save
+    end
   rescue => e
     Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
                        { saved_claim_id: id, form_id:, error: e })
     raise e
   end
 
-  def process_pdf(pdf_path, timestamp = nil, form_id = nil)
+  def process_pdf(pdf_path, timestamp = nil, form_id = nil, iterator = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on site',
       x: form_id == '686C-674' ? 400 : 300,
@@ -69,7 +80,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
       multistamp: true
     )
-    renamed_path = "tmp/pdfs/#{form_id}_#{id}_final.pdf"
+    renamed_path = iterator.present? ? "tmp/pdfs/#{form_id}_#{id}_#{iterator}_final.pdf" : "tmp/pdfs/#{form_id}_#{id}_final.pdf" # rubocop:disable Layout/LineLength
     File.rename(processed_pdf, renamed_path) # rename for vbms upload
     renamed_path # return the renamed path
   end
@@ -95,9 +106,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   end
 
   def submittable_674?
-    return false if parsed_form['view:selectable686_options']['report674'].blank?
-
-    true
+    # check if report674 is present and then check if it's true to avoid hash break.
+    parsed_form['view:selectable686_options']&.include?('report674') &&
+      parsed_form['view:selectable686_options']['report674']
   end
 
   def address_exists
@@ -147,16 +158,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   #   end
   # end
 
-  def to_pdf(form_id: FORM)
+  def to_pdf(form_id: FORM, student: nil)
     self.form_id = form_id
-
-    PdfFill::Filler.fill_form(self, nil, { created_at: })
+    PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   end
-
-  # this failure email is not the ideal way to handle the Notification Emails as
-  # part of the ZSF work, but with the initial timeline it handles the email as intended.
-  # Future work will be integrating into the Va Notify common lib:
-  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.

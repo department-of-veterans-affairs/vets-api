@@ -9,7 +9,7 @@ module GI
       attr_accessor :etag
 
       def set_etag(version)
-        self.etag = "W/'#{version}'"
+        self.etag = "W/\"#{version}\""
       end
 
       private

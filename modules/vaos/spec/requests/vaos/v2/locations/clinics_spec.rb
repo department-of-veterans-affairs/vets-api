@@ -9,7 +9,6 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
     allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(false)

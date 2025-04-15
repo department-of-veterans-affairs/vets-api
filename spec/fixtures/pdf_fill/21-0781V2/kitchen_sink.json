@@ -44,25 +44,15 @@
       "unlistedReport": "incident report"
     }
   ],
-  "workBehaviors": {
+  "behaviors": {
     "reassignment": true,
-    "absences": false,
-    "performance": true
-  },
-  "healthBehaviors": {
+    "performance": true,
     "consultations": false,
     "episodes": true,
-    "medications": false,
     "selfMedication": true,
-    "substances": false,
     "appetite": true,
-    "pregnancy": false,
-    "screenings": true
-  },
-  "otherBehaviors": {
-    "socialEconomic": false,
+    "screenings": true,
     "relationships": true,
-    "misconduct": false,
     "unlisted": true
   },
   "behaviorsDetails": {
@@ -89,15 +79,13 @@
     "other": true,
     "otherDetails": "photographic evidence"
   },
-  "traumaTreatment": false,
-  "treatmentProviders": {
-    "privateCare": true,
-    "vetCenter": false,
-    "communityCare": false,
-    "vamc": true,
-    "cboc": false,
-    "mtf": true,
+  "treatmentNoneCheckbox": {
     "none": false
+  },
+  "treatmentProviders": {
+    "nonVa": true,
+    "medicalCenter": true,
+    "dod": true
   },
   "treatmentProvidersDetails": [
     {
@@ -110,8 +98,7 @@
       "treatmentYear": "2024"
     },
     {
-      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
-      "noDates": true
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL"
     }
   ],
   "optionIndicator": "notEnrolled",

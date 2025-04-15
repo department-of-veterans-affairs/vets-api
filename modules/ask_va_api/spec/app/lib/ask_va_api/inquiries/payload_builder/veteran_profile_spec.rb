@@ -38,7 +38,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
             },
             suffix: 'Sr.'
           },
-          veteran_postal_code: '54321',
+          veterans_postal_code: '54321',
           veterans_location_of_residence: 'Texas'
         }
       end
@@ -57,28 +57,17 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           LastName: params[:about_the_veteran][:last],
           PreferredName: params[:about_the_veteran][:preferred_name],
           Suffix: 722_310_001,
-          Pronouns: nil,
           Country: { Name: nil, CountryCode: nil },
           Street: nil,
           City: nil,
           State: { Name: 'Texas', StateCode: 'TX' },
-          ZipCode: params[:veteran_postal_code],
+          ZipCode: params[:veterans_postal_code],
           DateOfBirth: params[:about_the_veteran][:date_of_birth],
-          BusinessPhone: nil,
-          PersonalPhone: nil,
-          BusinessEmail: nil,
-          PersonalEmail: nil,
-          SchoolState: nil,
-          SchoolFacilityCode: nil,
-          SchoolId: nil,
           BranchOfService: params[:about_the_veteran][:branch_of_service],
           SSN: params[:about_the_veteran][:social_or_service_num][:ssn],
           EDIPI: nil,
           ICN: nil,
-          ServiceNumber: params[:about_the_veteran][:social_or_service_num][:service_number],
-          ClaimNumber: nil,
-          VeteranServiceStateDate: nil,
-          VeteranServiceEndDate: nil }
+          ServiceNumber: params[:about_the_veteran][:social_or_service_num][:service_number] }
       end
 
       context 'when PERSONAL inquiry_params is received' do
@@ -89,9 +78,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
     end
 
     context 'when the submitter IS the veteran' do
-      let(:pronouns) do
-        { he_him_his: 'true' }
-      end
       let(:params) do
         {
           about_yourself: {
@@ -115,14 +101,13 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
             street3: 'Building 5',
             unit_number: 'Unit 10'
           },
+          relationship_to_veteran: "I'm the Veteran",
           business_email: 'business@example.com',
           business_phone: '123-456-7890',
           country: 'USA',
           email_address: 'test@example.com',
           phone_number: '987-654-3210',
-          postal_code: '12345',
           preferred_name: 'Test User',
-          pronouns:,
           school_obj: {
             institution_name: 'University of California',
             school_facility_code: '123456',
@@ -147,7 +132,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           LastName: 'User',
           PreferredName: 'Test User',
           Suffix: 722_310_000,
-          Pronouns: 'he/him/his',
           Country: {
             Name: 'United States',
             CountryCode: 'USA'
@@ -158,7 +142,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
             Name: 'California',
             StateCode: 'CA'
           },
-          ZipCode: '12345',
+          ZipCode: '90001',
           DateOfBirth: '1980-05-15',
           BusinessPhone: nil,
           PersonalPhone: '987-654-3210',
@@ -171,10 +155,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           SSN: '123456799',
           EDIPI: '123',
           ICN: '234',
-          ServiceNumber: nil,
-          ClaimNumber: nil,
-          VeteranServiceStateDate: nil,
-          VeteranServiceEndDate: nil
+          ServiceNumber: nil
         }
       end
 
@@ -198,7 +179,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           email_address: 'test@test.com',
           on_base_outside_us: false,
           phone_number: '3039751100',
-          pronouns_not_listed_text: 'zem/zis/zat',
           question: 'test',
           select_category: 'Health care',
           select_topic: 'Audiology and hearing aids',
@@ -206,7 +186,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           topic_id: 'c0da1728-d91f-ed11-b83c-001dd8069009',
           who_is_your_question_about: "It's a general question",
           your_health_facility: 'vba_349b',
-          pronouns: { use_my_preferred_name: true, ze_zir_zirs: false },
           address: { military_address: {} },
           about_yourself: {
             first: 'Yourself',
@@ -227,7 +206,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
           LastName: nil,
           PreferredName: nil,
           Suffix: nil,
-          Pronouns: nil,
           Country: { Name: nil, CountryCode: nil },
           Street: nil,
           City: nil,

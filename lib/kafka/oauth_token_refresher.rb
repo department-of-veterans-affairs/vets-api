@@ -6,9 +6,9 @@ module Kafka
   class OauthTokenRefresher
     # Refresh OAuth tokens when required by the WaterDrop connection lifecycle
     def on_oauthbearer_token_refresh(event)
-      signer = AwsMskIamSaslSigner::MSKTokenProvider.new(region: Settings.kafka_producer.region)
+      signer = AwsMskIamSaslSigner::MSKTokenProvider.new(region: Settings.kafka_producer.aws_region)
       token = signer.generate_auth_token_from_role_arn(
-        role_arn: Settings.kafka_producer.role_arn
+        Settings.kafka_producer.aws_role_arn
       )
 
       if token

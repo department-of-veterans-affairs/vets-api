@@ -49,7 +49,7 @@ http_interactions:
       message: Internal Server Error
     headers:
       Date:
-      - Fri, 24 Jan 2025 20:59:53 GMT
+      - Wed, 12 Mar 2025 15:22:06 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -66,5 +66,5 @@ http_interactions:
         <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns0:Fault xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>
         Exception Description: The object [not-an-id], of class [class java.lang.String], from mapping [org.eclipse.persistence.oxm.mappings.XMLDirectMapping[vnpProcId-->vnpProcId/text()]] with descriptor [XMLDescriptor(gov.va.vba.vonapp.dto.VnpPtcpntAddrsDTO --> [])], could not be converted to [class java.lang.Long].
         Internal Exception: java.lang.NumberFormatException: For input string: "not-an-id"</faultstring></ns0:Fault></S:Body></S:Envelope>
-  recorded_at: Fri, 24 Jan 2025 20:59:53 GMT
+  recorded_at: Wed, 12 Mar 2025 15:22:06 GMT
 recorded_with: VCR 6.3.1

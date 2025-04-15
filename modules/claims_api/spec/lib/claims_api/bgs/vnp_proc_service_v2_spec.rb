@@ -10,7 +10,7 @@ describe ClaimsApi::VnpProcServiceV2 do
     it 'responds with a vnp_proc_id' do
       VCR.use_cassette('claims_api/bgs/vnp_proc_service_v2/vnp_proc_create') do
         result = subject.vnp_proc_create
-        expect(result[:vnp_proc_id]).to eq '29637'
+        expect(result[:vnp_proc_id]).to eq '3860232'
       end
     end
 

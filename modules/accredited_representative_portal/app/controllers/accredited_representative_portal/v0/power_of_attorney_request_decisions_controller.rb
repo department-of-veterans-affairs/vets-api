@@ -25,6 +25,7 @@ module AccreditedRepresentativePortal
           render json: {}, status: :ok
         when 'declination'
           @poa_request.mark_declined!(creator, reason)
+          send_declination_email(@poa_request)
 
           Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
           Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
@@ -46,6 +47,13 @@ module AccreditedRepresentativePortal
 
       def creator
         current_user.user_account
+      end
+
+      def send_declination_email(poa_request)
+        notification = poa_request.notifications.create!(type: 'declined')
+        PowerOfAttorneyRequestEmailJob.perform_async(
+          notification.id
+        )
       end
     end
   end

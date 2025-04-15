@@ -65,25 +65,15 @@
       }
     }
   ],
-  "workBehaviors": {
+  "behaviors": {
     "reassignment": true,
-    "absences": false,
-    "performance": true
-  },
-  "healthBehaviors": {
+    "performance": true,
     "consultations": false,
     "episodes": true,
-    "medications": false,
     "selfMedication": true,
-    "substances": false,
     "appetite": true,
-    "pregnancy": false,
-    "screenings": true
-  },
-  "otherBehaviors": {
-    "socialEconomic": false,
+    "screenings": true,
     "relationships": true,
-    "misconduct": false,
     "unlisted": true
   },
   "behaviorsDetails": {
@@ -110,21 +100,20 @@
     "other": true,
     "otherDetails": "photographic evidence"
   },
-  "traumaTreatment": false,
-  "treatmentProviders": {
-    "privateCare": true,
-    "vetCenter": false,
-    "communityCare": false,
-    "vamc": true,
-    "cboc": false,
-    "mtf": true,
+  "treatmentNoneCheckbox": {
     "none": false
+  },
+  "treatmentProviders": {
+    "nonVa": true,
+    "medicalCenter": true,
+    "dod": true
   },
   "treatmentProvidersDetails": [
     {
       "facilityInfo": "Walter Reed, Bethesda, MD",
       "treatmentMonth": "02",
       "treatmentYear": "2014",
+      "noDates": false,
       "providerOverflow": {
         "value": "",
         "extras_value": "Treatment Information Number: 1\n\nTreatment Facility Name and Location: \n\nWalter Reed, Bethesda, MD\n\nTreatment Date: 02-2014"
@@ -133,6 +122,7 @@
     {
       "facilityInfo": "Cedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN",
       "treatmentYear": "2024",
+      "noDates": false,
       "providerOverflow": {
         "value": "",
         "extras_value": "Treatment Information Number: 2\n\nTreatment Facility Name and Location: \n\nCedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN\n\nTreatment Date: XX-2024"
@@ -168,8 +158,8 @@
     "second": "45",
     "third": "6789"
   },
-  "treatment": 1,
-  "noTreatment": 1,
+  "treatment": 0,
+  "noTreatment": 0,
   "reportsDetails": {
     "police": "SVI, Dallas, TX, USA",
     "other": "incident report"

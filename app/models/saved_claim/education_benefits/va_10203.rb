@@ -54,7 +54,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
     return nil if Flipper.enabled?(:stem_automated_decision, @user)
 
-    @user.power_of_attorney.present? ? true : nil
+    @user.power_of_attorney.present? || nil
   rescue => e
     log_exception_to_sentry(Submit10203Error.new("Failed to retrieve VSOSearch data: #{e.message}"))
     nil

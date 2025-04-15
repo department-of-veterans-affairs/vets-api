@@ -100,7 +100,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       before do
         allow(Rails.logger).to receive(:info)
         allow(Rails.logger).to receive(:error)
-        allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send)
+        allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send)
 
         allow(BenefitsIntake::Service).to receive(:new).and_return(service)
         allow(service).to(
@@ -122,7 +122,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'updating the form submission status' do
-      before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+      before { allow_any_instance_of(SimpleFormsApi::Notification::Email).to receive(:send) }
 
       it 'updates the status with vbms from the bulk status report endpoint' do
         pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)

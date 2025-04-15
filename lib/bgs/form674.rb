@@ -42,20 +42,13 @@ module BGS
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
+      Rails.logger.info('21-674 Automatic Claim Prior to submission', { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
+      Rails.logger.info("21-674 Automatic Benefit Claim successfully created through BGS: #{benefit_claim_record[:benefit_claim_id]}", { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
 
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-
-        # we only want to add a note if the claim is being set to MANUAL_VAGOV
-        # but for now we are temporarily always setting to MANUAL_VAGOV for 674
-        # when that changes, we need to surround this block of code in an IF statement
-        if @proc_state == 'MANUAL_VAGOV'
-          note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
-          bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
-
-          bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
-        end
+        log_claim_status(benefit_claim_record, proc_id)
       rescue
         log_submit_failure(error)
       end
@@ -72,6 +65,31 @@ module BGS
         end_product_name: @end_product_name,
         end_product_code: @end_product_code
       }
+    end
+
+    def log_claim_status(benefit_claim_record, proc_id)
+      if @proc_state == 'MANUAL_VAGOV'
+        if @saved_claim.submittable_686?
+          Rails.logger.info('21-674 Combination 686C-674 claim set to manual by VA.gov: This
+                            application needs manual review because a 674 was submitted alongside a 686c.',
+                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true,
+                              combination_claim: true })
+          StatsD.increment("#{stats_key}.manual.combo")
+        else
+          Rails.logger.info('21-674 Claim set to manual by VA.gov: This application needs manual review.',
+                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true })
+          StatsD.increment("#{stats_key}.manual")
+        end
+        # keep bgs note the same
+        note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
+        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
+
+        bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
+      else
+        Rails.logger.info("21-674 Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
+                          { saved_claim_id: @saved_claim.id, proc_id: @proc_id, automatic: true })
+        StatsD.increment("#{stats_key}.automatic")
+      end
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -165,6 +183,10 @@ module BGS
 
     def bid_service
       BID::Awards::Service.new(@user)
+    end
+
+    def stats_key
+      'bgs.form674'
     end
   end
 end

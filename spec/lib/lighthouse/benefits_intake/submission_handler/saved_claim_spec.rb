@@ -24,8 +24,7 @@ Rspec.describe BenefitsIntake::SubmissionHandler::SavedClaim do
     end
 
     it 'logs silent failure' do
-      klass = BenefitsIntake::SubmissionHandler::SavedClaim.to_s
-      message = "#{klass}: on_failure silent failure not avoided"
+      message = "#{handler}: on_failure silent failure not avoided"
       expect(monitor).to receive(:log_silent_failure).with(hash_including(message:), call_location: nil)
 
       expect { handler.new('fake-claim-id').handle(:failure) }.to raise_error message

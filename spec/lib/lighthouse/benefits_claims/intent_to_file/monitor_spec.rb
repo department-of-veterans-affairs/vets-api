@@ -6,12 +6,53 @@ require 'lighthouse/benefits_claims/intent_to_file/monitor'
 RSpec.describe BenefitsClaims::IntentToFile::Monitor do
   let(:monitor) { described_class.new }
   let(:itf_stats_key) { described_class::STATSD_KEY_PREFIX }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form) }
 
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }
+
+    describe '#track_create_itf_initiated' do
+      it 'logs a create ITF initiated' do
+        log = "Lighthouse::CreateIntentToFileJob create pension ITF initiated for form ##{ipf.id}"
+        payload = {
+          itf_type: 'pension',
+          form_start_date: ipf.created_at,
+          user_account_uuid: current_user.user_account_uuid
+        }
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.initiated")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_create_itf_initiated('pension', ipf.created_at, current_user.user_account_uuid, ipf.id)
+      end
+    end
+
+    describe '#track_create_itf_active_found' do
+      it 'logs a create ITF active found' do
+        itf_found = { 'data' =>
+          { 'id' => '293372',
+            'type' => 'intent_to_file',
+            'attributes' =>
+            { 'creationDate' => '2025-01-29T08:10:11-06:00',
+              'expirationDate' => '2026-01-29T08:10:11-06:00',
+              'type' => 'pension',
+              'status' => 'active' } } }
+
+        log = 'Lighthouse::CreateIntentToFileJob create pension ITF active record found'
+        payload = {
+          itf_type: 'pension',
+          itf_created: itf_found&.dig('data', 'attributes', 'creationDate'),
+          itf_expires: itf_found&.dig('data', 'attributes', 'expirationDate'),
+          form_start_date: ipf.created_at,
+          user_account_uuid: current_user.user_account_uuid
+        }
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.active_found")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_create_itf_active_found('pension', ipf.created_at, current_user.user_account_uuid, itf_found)
+      end
+    end
 
     describe '#track_create_itf_begun' do
       it 'logs a create ITF begun' do

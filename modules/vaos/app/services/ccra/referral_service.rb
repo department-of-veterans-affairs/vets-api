@@ -13,11 +13,13 @@ module Ccra
     def get_vaos_referral_list(icn, referral_status)
       data = { ICN: icn, ReferralStatus: referral_status }
       with_monitoring do
+        # Skip token authentication for mock requests
+        req_headers = config.mock_enabled? ? {} : headers
         response = perform(
           :post,
           "/#{config.base_path}/VAOS/patients/ReferralList",
           data,
-          headers
+          req_headers
         )
         ReferralListEntry.build_collection(JSON.parse(response.body))
       end
@@ -32,11 +34,13 @@ module Ccra
     def get_referral(id, mode)
       data = { Id: id, Mode: mode }
       with_monitoring do
+        # Skip token authentication for mock requests
+        req_headers = config.mock_enabled? ? {} : headers
         response = perform(
           :post,
           "/#{config.base_path}/ReferralUtil/GetReferral",
           data,
-          headers
+          req_headers
         )
         ReferralDetail.new(JSON.parse(response.body))
       end

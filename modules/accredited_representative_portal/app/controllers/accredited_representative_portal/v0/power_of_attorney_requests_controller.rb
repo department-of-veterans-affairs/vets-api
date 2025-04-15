@@ -4,11 +4,9 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       include PowerOfAttorneyRequests
-
       before_action do
         authorize PowerOfAttorneyRequest
       end
-
       with_options only: :show do
         before_action do
           id = params[:id]
@@ -17,29 +15,11 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        relation = policy_scope(PowerOfAttorneyRequest)
-        status = params[:status].presence
-
-        relation =
-          case status
-          when Statuses::PENDING
-            pending(relation)
-          when Statuses::PROCESSED
-            processed(relation)
-          when NilClass
-            relation
-          else
-            raise ActionController::BadRequest, <<~MSG.squish
-              Invalid status parameter.
-              Must be one of (#{Statuses::ALL.join(', ')})
-            MSG
-          end
-
-        # `limit(100)` in case pagination isn't introduced quickly enough.
-        poa_requests = relation.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
-
-        render json: serializer.serializable_hash, status: :ok
+        render json: {
+          data: serializer.serializable_hash,
+          meta: pagination_meta(poa_requests)
+        }, status: :ok
       end
 
       def show
@@ -49,21 +29,59 @@ module AccreditedRepresentativePortal
 
       private
 
-      module Statuses
-        ALL = [
-          PENDING = 'pending',
-          PROCESSED = 'processed'
-        ].freeze
+      def params_schema
+        PowerOfAttorneyRequestService::ParamsSchema
+      end
+
+      def validated_params
+        @validated_params ||= params_schema.validate_and_normalize!(params.to_unsafe_h)
+      end
+
+      def poa_requests
+        @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
+                          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .includes(scope_includes)
+                          .paginate(page:, per_page:)
+      end
+
+      def filter_by_status(relation)
+        case status
+        when params_schema::Statuses::PENDING
+          pending(relation)
+        when params_schema::Statuses::PROCESSED
+          processed(relation)
+        when NilClass
+          relation
+        else
+          raise ActionController::BadRequest, <<~MSG.squish
+            Invalid status parameter.
+            Must be one of (#{Statuses::ALL.join(', ')})
+          MSG
+        end
+      end
+
+      def sort_params
+        validated_params.fetch(:sort, {})
+      end
+
+      def page
+        validated_params.dig(:page, :number)
+      end
+
+      def per_page
+        validated_params.dig(:page, :size)
+      end
+
+      def status
+        validated_params.fetch(:status, nil)
       end
 
       def pending(relation)
-        relation
-          .not_processed
-          .order(created_at: :asc)
+        relation.not_processed.order(created_at: :desc)
       end
 
       def processed(relation)
-        relation.processed.not_expired.order(
+        relation.processed.decisioned.order(
           resolution: { created_at: :desc }
         )
       end
@@ -76,6 +94,17 @@ module AccreditedRepresentativePortal
           :accredited_organization,
           { resolution: :resolving }
         ]
+      end
+
+      def pagination_meta(poa_requests)
+        {
+          page: {
+            number: poa_requests.current_page,
+            size: poa_requests.limit_value,
+            total: poa_requests.total_entries,
+            total_pages: poa_requests.total_pages
+          }
+        }
       end
     end
   end

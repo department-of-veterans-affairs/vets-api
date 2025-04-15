@@ -5,11 +5,17 @@ require 'rails_helper'
 RSpec.describe SavedClaim::DependencyClaim do
   subject { create(:dependency_claim) }
 
+  let(:subject_v2) { create(:dependency_claim_v2) }
+
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:adopted_child) { build(:adopted_child_lives_with_veteran) }
+  let(:adopted_child_v2) { build(:adopted_child_lives_with_veteran_v2) }
   let(:form_674_only) { build(:form_674_only) }
+  let(:form_674_only_v2) { build(:form_674_only_v2) }
   let(:doc_type) { '148' }
   let(:va_file_number) { subject.parsed_form['veteran_information']['va_file_number'] }
+  let(:va_file_number_v2) { subject_v2.parsed_form['veteran_information']['va_file_number'] }
   let(:va_file_number_with_payload) do
     {
       'veteran_information' => {
@@ -22,8 +28,21 @@ RSpec.describe SavedClaim::DependencyClaim do
       }
     }
   end
+  let(:va_file_number_with_payload_v2) do
+    {
+      'veteran_information' => {
+        'birth_date' => '1809-02-12',
+        'full_name' => {
+          'first' => 'WESLEY', 'last' => 'FORD', 'middle' => nil
+        },
+        'ssn' => va_file_number_v2,
+        'va_file_number' => va_file_number_v2
+      }
+    }
+  end
 
   let(:file_path) { "tmp/pdfs/686C-674_#{subject.id}_final.pdf" }
+  let(:file_path_v2) { "tmp/pdfs/686C-674-V2_#{subject_v2.id}_final.pdf" }
 
   describe '#upload_pdf' do
     context 'when :va_dependents_v2 is disabled' do
@@ -39,7 +58,6 @@ RSpec.describe SavedClaim::DependencyClaim do
           doc_type:
         ).and_return(uploader)
         expect(uploader).to receive(:upload!)
-
         subject.upload_pdf('686C-674')
       end
     end
@@ -52,13 +70,25 @@ RSpec.describe SavedClaim::DependencyClaim do
       it 'when :va_dependents_v2 is enabled' do
         uploader = double(ClaimsApi::VBMSUploader)
         expect(ClaimsApi::VBMSUploader).to receive(:new).with(
-          filepath: file_path,
-          file_number: va_file_number,
+          filepath: file_path_v2,
+          file_number: va_file_number_v2,
           doc_type:
         ).and_return(uploader)
         expect(uploader).to receive(:upload!)
 
-        subject.upload_pdf('686C-674')
+        subject_v2.upload_pdf('686C-674-V2')
+      end
+
+      it 'when :va_dependents_v2 is enabled upload 674' do
+        uploader = double(ClaimsApi::VBMSUploader)
+        expect(ClaimsApi::VBMSUploader).to receive(:new).with(
+          filepath: "tmp/pdfs/21-674-V2_#{subject_v2.id}_0_final.pdf",
+          file_number: va_file_number_v2,
+          doc_type:
+        ).and_return(uploader)
+        expect(uploader).to receive(:upload!)
+
+        subject_v2.upload_pdf('21-674-V2')
       end
     end
   end
@@ -100,7 +130,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: all_flows_payload.to_json) }
+      subject { described_class.new(form: all_flows_payload_v2.to_json) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -108,16 +138,16 @@ RSpec.describe SavedClaim::DependencyClaim do
 
       describe '#formatted_686_data' do
         it 'returns all data for 686 submissions' do
-          formatted_data = subject.formatted_686_data(va_file_number_with_payload)
+          formatted_data = subject.formatted_686_data(va_file_number_with_payload_v2)
           expect(formatted_data).to include(:veteran_information)
         end
       end
 
       describe '#formatted_674_data' do
         it 'returns all data for 674 submissions' do
-          formatted_data = subject.formatted_674_data(va_file_number_with_payload)
+          formatted_data = subject.formatted_674_data(va_file_number_with_payload_v2)
           expect(formatted_data).to include(:dependents_application)
-          expect(formatted_data[:dependents_application]).to include(:student_name_and_ssn)
+          expect(formatted_data[:dependents_application]).to include(:student_information)
         end
       end
 
@@ -151,7 +181,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: form_674_only.to_json) }
+      subject { described_class.new(form: form_674_only_v2.to_json) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -187,7 +217,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: adopted_child.to_json) }
+      subject { described_class.new(form: adopted_child_v2.to_json) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -208,7 +238,7 @@ RSpec.describe SavedClaim::DependencyClaim do
   end
 
   context 'v2 form' do
-    subject { described_class.new(form: all_flows_payload.to_json, use_v2: true) }
+    subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)

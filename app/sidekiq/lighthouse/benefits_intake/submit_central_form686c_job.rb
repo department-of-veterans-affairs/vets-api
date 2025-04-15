@@ -15,7 +15,9 @@ module Lighthouse
 
       FOREIGN_POSTALCODE = '00000'
       FORM_ID = '686C-674'
+      FORM_ID_V2 = '686C-674-V2'
       FORM_ID_674 = '21-674'
+      FORM_ID_674_V2 = '21-674-V2'
       STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
       ZSF_DD_TAG_FUNCTION = 'submit_686c_674_backup_submission'
       # retry for  2d 1h 47m 12s
@@ -81,9 +83,15 @@ module Lighthouse
       end
 
       def create_form_submission_attempt(intake_uuid)
+        v2 = Flipper.enabled?(:va_dependents_v2)
+        form_type = if v2
+                      claim.submittable_686? ? FORM_ID_V2 : FORM_ID_674_V2
+                    else
+                      claim.submittable_686? ? FORM_ID : FORM_ID_674
+                    end
         FormSubmissionAttempt.transaction do
           form_submission = FormSubmission.create(
-            form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+            form_type:,
             saved_claim: claim,
             user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
           )
@@ -93,12 +101,29 @@ module Lighthouse
 
       def get_files_from_claim
         # process the main pdf record and the attachments as we would for a vbms submission
-        form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674? # rubocop:disable Layout/LineLength
-        form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
-        @form_path = form_686c_path || form_674_path
+        v2 = Flipper.enabled?(:va_dependents_v2)
+        if claim.submittable_674?
+          form_674_paths = []
+          if v2
+            claim.parsed_form['dependents_application']['student_information'].each do |student|
+              form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674_V2, student:), claim.created_at, FORM_ID_674_V2) # rubocop:disable Layout/LineLength
+            end
+          else
+            form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674)
+          end
+        end
+        form_id = v2 ? FORM_ID_V2 : FORM_ID
+        form_686c_path = process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id) if claim.submittable_686?
+        # set main form_path to be first 674 in array if needed
+        @form_path = form_686c_path || form_674_paths.first
+
         @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
         # Treat 674 as first attachment
-        attachment_paths.insert(0, form_674_path) if form_686c_path.present? && form_674_path.present?
+        if form_686c_path.present? && form_674_paths.present?
+          attachment_paths.unshift(*form_674_paths)
+        elsif form_674_paths.present? && form_674_paths.size > 1
+          attachment_paths.unshift(*form_674_paths.drop(1))
+        end
       end
 
       def cleanup_file_paths
@@ -173,13 +198,15 @@ module Lighthouse
         form_pdf_metadata = get_hash_and_pages(form_path)
         address = form['veteran_contact_information']['veteran_address']
         is_usa = address['country_name'] == 'USA'
+        v2 = Flipper.enabled?(:va_dependents_v2)
+        zip_code = v2 ? address['postal_code'] : address['zip_code']
         metadata = {
           'veteranFirstName' => veteran_information['full_name']['first'],
           'veteranLastName' => veteran_information['full_name']['last'],
           'fileNumber' => veteran_information['file_number'] || veteran_information['ssn'],
           'receiveDt' => claim.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S'),
           'uuid' => claim.guid,
-          'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
+          'zipCode' => is_usa ? zip_code : FOREIGN_POSTALCODE,
           'source' => 'va.gov',
           'hashV' => form_pdf_metadata[:hash],
           'numberAttachments' => attachment_paths.size,
@@ -228,11 +255,12 @@ module Lighthouse
       def send_confirmation_email(user)
         return if user.va_profile_email.blank?
 
+        form_id = Flipper.enabled?(:va_dependents_v2) ? FORM_ID_V2 : FORM_ID
         VANotify::ConfirmationEmail.send(
           email_address: user.va_profile_email,
           template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
           first_name: user&.first_name&.upcase,
-          user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
+          user_uuid_and_form_id: "#{user.uuid}_#{form_id}"
         )
       end
 
@@ -252,11 +280,11 @@ module Lighthouse
       def stamped_pdf_with_form(form_id, path, timestamp)
         PDFUtilities::DatestampPdf.new(path).run(
           text: 'Application Submitted on va.gov',
-          x: form_id == '686C-674' ? 400 : 300,
-          y: form_id == '686C-674' ? 675 : 775,
+          x: %w[686C-674 686C-674-V2].include?(form_id) ? 400 : 300,
+          y: %w[686C-674 686C-674-V2].include?(form_id) ? 675 : 775,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
-          page_number: form_id == '686C-674' ? 6 : 0,
+          page_number: %w[686C-674 686C-674-V2].include?(form_id) ? 6 : 0,
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )

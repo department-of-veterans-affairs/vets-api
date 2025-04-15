@@ -20,6 +20,7 @@ module ClaimsApi
                   key: :kms_key, **lockbox_options
     validate :validate_service_dates, unless: :skip_validation
     before_validation :set_md5
+    before_validation :set_header_hash
     after_validation :remove_encrypted_fields, on: [:update]
     after_create :log_special_issues
     after_create :log_flashes
@@ -44,6 +45,7 @@ module ClaimsApi
     VALIDATION_METHOD = 'v2'
 
     validates :md5, uniqueness: true, on: :create, unless: :skip_validation
+    validates :header_hash, uniqueness: true, on: :create, unless: :skip_validation
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
       define_method attribute do
@@ -117,6 +119,14 @@ module ClaimsApi
                                     'va_eauth_issueinstant',
                                     'Authorization')
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
+    end
+
+    def set_header_hash
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
+      self.header_hash = Digest::SHA256.hexdigest form_data.merge(headers).to_json
     end
 
     def status_from_phase(*)
@@ -266,7 +276,7 @@ module ClaimsApi
 
       service_periods.each do |service_period|
         if service_period['activeDutyBeginDate'].present?
-          start_date = if DATE_REGEX.match?((service_period['activeDutyBeginDate']))
+          start_date = if DATE_REGEX.match?(service_period['activeDutyBeginDate'])
                          Date.strptime(service_period['activeDutyBeginDate'],
                                        '%m-%d-%Y')
                        else
@@ -274,7 +284,7 @@ module ClaimsApi
                        end
         end
         if service_period['activeDutyEndDate'].present?
-          end_date = if DATE_REGEX.match?((service_period['activeDutyEndDate']))
+          end_date = if DATE_REGEX.match?(service_period['activeDutyEndDate'])
                        Date.strptime(service_period['activeDutyEndDate'],
                                      '%m-%d-%Y')
                      else

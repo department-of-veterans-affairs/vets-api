@@ -2,6 +2,8 @@
   "isMedicaidEligible": true,
   "spouseAddress": {
     "street": "4444 Elm St",
+    "street2": "Apt 1",
+    "street3": "Floor 2",
     "city": "Houston",
     "postalCode": "77388",
     "country": "USA",
@@ -70,6 +72,8 @@
   "mobilePhone": "3462636184",
   "veteranAddress": {
     "street": "321 Elm St",
+    "street2": "Apt 1",
+    "street3": "Floor 2",
     "city": "Houston",
     "postalCode": "77388",
     "country": "USA",
@@ -110,6 +114,8 @@
   ],
   "veteranHomeAddress": {
     "street": "888 Elm St",
+    "street2": "Apt 2",
+    "street3": "Floor 3",
     "city": "Houston",
     "postalCode": "77388",
     "country": "USA",

@@ -25,20 +25,20 @@ module V1
         preload_from_enriched_id || preload_from_etag
       end
 
-      # '<record id>@<preload version>'
+      # '<record id>v<preload version>'
       def preload_from_enriched_id
-        params[:id]&.split('@')&.last
+        params[:id]&.split('v')&.last
       end
 
       def preload_from_etag
-        request.headers['If-None-Match']&.match(%r{W/'(\d+)'})&.captures&.first
+        request.headers['If-None-Match']&.match(%r{W/"(\d+)"})&.captures&.first
       end
 
       def set_headers(version)
-        response.set_header('Cache-Control', 'private, max-age=0')
+        response.headers.delete('Cache-Control')
         response.headers.delete('Pragma')
         response.set_header('Expires', 1.week.since.to_s)
-        response.set_header('ETag', "W/'#{version}'")
+        response.set_header('ETag', "W/\"#{version}\"")
       end
 
       # If additional filter params present, bypass versioning

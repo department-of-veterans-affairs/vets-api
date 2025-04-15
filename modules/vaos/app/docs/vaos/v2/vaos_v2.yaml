@@ -1986,6 +1986,9 @@ components:
         url:
           description: The meeting URL.
           type: string
+        displayLink:
+          description: If true, the URL should be displayed to the user.  If false, it should not be.
+          type: boolean
         group:
           type: string
         vvsKind:

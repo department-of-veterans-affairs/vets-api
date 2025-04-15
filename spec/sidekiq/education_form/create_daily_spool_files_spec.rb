@@ -304,36 +304,76 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       end
     end
 
-    it 'writes files out over sftp' do
-      # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
-      allow(Rails.env).to receive(:production?).and_return(true)
-      allow(Settings).to receive(:hostname).and_return('api.va.gov')
-      expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-      expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+    context 'in the production env' do
+      it 'writes files out over sftp' do
+        # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
+        allow(Rails.env).to receive(:production?).and_return(true)
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 
-      # any readable file will work for this spec
-      key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
-      with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
-        sftp_session_mock = instance_double(Net::SSH::Connection::Session)
-        sftp_mock = instance_double(Net::SFTP::Session, session: sftp_session_mock)
+        # any readable file will work for this spec
+        key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
+        with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
+          session_mock = instance_double(Net::SSH::Connection::Session)
 
-        expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
-        expect(sftp_mock).to receive(:open?).once.and_return(true)
-        expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
-        expect(sftp_mock).to receive(:upload!) do |contents, path|
-          expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
-          expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+          sftp_mock = instance_double(Net::SFTP::Session, session: session_mock)
+          expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
+          expect(sftp_mock).to receive(:open?).once.and_return(true)
+          expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
+          expect(sftp_mock).to receive(:upload!) do |contents, path|
+            expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
+            expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+          end
+          expect(sftp_mock).to receive(:stat!).with(anything).and_return(4619)
+          expect(session_mock).to receive(:close)
+
+          expect { subject.perform }.to trigger_statsd_gauge(
+            'worker.education_benefits_claim.transmissions.307.22-1990',
+            value: 1
+          ).and trigger_statsd_gauge(
+            'worker.education_benefits_claim.transmissions.307.22-1995',
+            value: 1
+          )
+
+          expect(EducationBenefitsClaim.unprocessed).to be_empty
         end
-        expect(sftp_session_mock).to receive(:close)
-        expect { subject.perform }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions.307.22-1990',
-          value: 1
-        ).and trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions.307.22-1995',
-          value: 1
-        )
+      end
 
-        expect(EducationBenefitsClaim.unprocessed).to be_empty
+      # rubocop:disable Rspec/NoExpectationExample
+      it 'notifies the slack channel with a warning if no files were written' do
+        stub_env_and_writer(
+          byte_count: 0,
+          expected_message: 'Warning: Uploaded 0 bytes to region: eastern'
+        )
+      end
+      # rubocop:enable Rspec/NoExpectationExample
+
+      def stub_env_and_writer(byte_count:, expected_message:)
+        allow(Rails.env).to receive(:production?).and_return(true)
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+
+        key_path = Rails.root.join('spec', 'fixtures', 'files', 'idme_cert.crt').to_s
+        with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
+          sftp_writer_mock = instance_double(SFTPWriter::Remote)
+
+          allow(SFTPWriter::Factory).to receive(:get_writer).with(Settings.edu.sftp).and_return(SFTPWriter::Remote)
+          allow(SFTPWriter::Remote)
+            .to receive(:new)
+            .with(Settings.edu.sftp, logger: anything)
+            .and_return(sftp_writer_mock)
+
+          allow(sftp_writer_mock).to receive(:write).once.and_return(byte_count)
+          allow(sftp_writer_mock).to receive(:close).once.and_return(true)
+
+          instance = described_class.new
+          # allow is needed because it's called multiple times and expect fails without it
+          allow(instance).to receive(:log_to_slack)
+          expect(instance).to receive(:log_to_slack).with(include(expected_message))
+
+          instance.perform
+        end
       end
     end
   end

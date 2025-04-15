@@ -60,14 +60,12 @@ module AccreditedRepresentativePortal
             factory: %i[representative],
             unique_by: %i[first_name last_name representative_id]
           ) do |representative|
-            representative
-              .delete(:poa_codes)
-              .each do |poa_code|
-                accreditations.push(
-                  accredited_individual_id: representative[:representative_id],
-                  accredited_organization_id: poa_code
-                )
-              end
+            representative[:poa_codes].each do |poa_code|
+              accreditations.push(
+                accredited_individual_id: representative[:representative_id],
+                accredited_organization_id: poa_code
+              )
+            end
           end
 
           insert_all(
@@ -79,6 +77,11 @@ module AccreditedRepresentativePortal
 
           insert_poa_requests(
             accreditations
+          )
+
+          insert_all(
+            Records::USER_ACCOUNT_ACCREDITED_INDIVIDUALS,
+            factory: %i[user_account_accredited_individual]
           )
         end
       end
@@ -112,13 +115,17 @@ module AccreditedRepresentativePortal
             poa_forms.push(claimant_poa_forms[claimant_id].dup)
             resolutions.push(created_at: created_at + 1.day)
             resolution_traits.push(resolution_trait)
+            accredited_representative = Veteran::Service::Representative.find_by(
+              representative_id: accreditation[:accredited_individual_id]
+            )
             poa_requests.push(
               id: Records::POA_REQUEST_IDS.next,
               claimant_type: 'veteran',
               claimant_id:,
-              power_of_attorney_holder_type: 'AccreditedOrganization',
-              power_of_attorney_holder_poa_code: accreditation[:accredited_organization_id],
+              power_of_attorney_holder_type: 'veteran_service_organization',
+              poa_code: accreditation[:accredited_organization_id],
               accredited_individual_registration_number: accreditation[:accredited_individual_id],
+              accredited_individual: accredited_representative,
               created_at:
             )
           end
@@ -131,11 +138,12 @@ module AccreditedRepresentativePortal
             created_at = UNRESOLVED_TIME_TRAVELER.next
 
             poa_forms.push(claimant_poa_forms[claimant_id].dup)
+            # NOTE: need to include an `accredited_individual` so poa code won't be overwritten
             poa_requests.push(
               id: Records::POA_REQUEST_IDS.next,
               claimant_type: 'veteran',
               claimant_id:,
-              power_of_attorney_holder_type: 'AccreditedOrganization',
+              power_of_attorney_holder_type: 'veteran_service_organization',
               power_of_attorney_holder_poa_code: accreditation[:accredited_organization_id],
               accredited_individual_registration_number: accreditation[:accredited_individual_id],
               created_at:
@@ -149,6 +157,9 @@ module AccreditedRepresentativePortal
               :power_of_attorney_request
             ]
           )
+
+        insert_all(Records::USER_ACCOUNT_ACCREDITED_INDIVIDUALS,
+                   factory: %i[user_account_accredited_individual])
 
         ##
         # Forms and resolutions can't happen in bulk because encryption happens
@@ -168,6 +179,13 @@ module AccreditedRepresentativePortal
             resolution_traits[i],
             power_of_attorney_request_id: poa_request['id'],
             **resolutions[i]
+          )
+          status = AccreditedRepresentativePortal::PowerOfAttorneyFormSubmission
+                   .statuses.keys.sample
+          FactoryBot.create(
+            :power_of_attorney_form_submission,
+            status:,
+            power_of_attorney_request_id: poa_request['id']
           )
         end
       end

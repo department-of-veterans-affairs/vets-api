@@ -816,6 +816,8 @@ module PdfFill
 
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
+        student = options[:student]
+        @form_data['dependents_application']['student_information'] = [student]
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
@@ -862,10 +864,10 @@ module PdfFill
 
         child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
         if child_stopped_attending_school.present?
-          child_stopped_attending_school.each do |child_stopped_attending_school|
-            child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-            child_stopped_attending_school['date_child_left_school'] =
-              split_date(child_stopped_attending_school['date_child_left_school'])
+          child_stopped_attending_school.each do |child|
+            child['birth_date'] = split_date(child['birth_date'])
+            child['date_child_left_school'] =
+              split_date(child['date_child_left_school'])
           end
         end
 

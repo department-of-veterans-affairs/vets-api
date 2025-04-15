@@ -33,7 +33,7 @@ module Lighthouse
 
       def notify_client
         VaNotify::Service.new(NOTIFY_SETTINGS.api_key,
-                              { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
+                              { callback_klass: 'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback' })
       end
 
       def send_failed_evidence_submissions
@@ -55,7 +55,7 @@ module Lighthouse
 
       def record_email_send_success(upload, response)
         # Update evidence_submissions table record with the va_notify_id and va_notify_date
-        upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
+        upload.update(va_notify_id: response.id, va_notify_date: DateTime.current)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)
         StatsD.increment('silent_failure_avoided_no_confirmation',

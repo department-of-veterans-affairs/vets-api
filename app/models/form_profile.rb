@@ -98,7 +98,19 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
-    form_upload: %w[21-0779-UPLOAD 21-509-UPLOAD 21P-0516-1-UPLOAD 21P-0518-1-UPLOAD],
+    form_upload: %w[
+      21-0779-UPLOAD
+      21-4192-UPLOAD
+      21-509-UPLOAD
+      21-8940-UPLOAD
+      21P-0516-1-UPLOAD
+      21P-0517-1-UPLOAD
+      21P-0518-1-UPLOAD
+      21P-0519C-1-UPLOAD
+      21P-0519S-1-UPLOAD
+      21P-530a-UPLOAD
+      21P-8049-UPLOAD
+    ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
@@ -121,13 +133,20 @@ class FormProfile
     '21-0966' => ::FormProfiles::VA210966,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
+    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '21-686C' => ::FormProfiles::VA21686c,
+    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
