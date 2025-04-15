@@ -96,7 +96,7 @@ RSpec.describe Kafka do
   end
 
   describe '#submit_event' do
-    let(:icn) { '' }
+    let(:icn) { '154786' }
     let(:current_id) { 'eded0764-7f5f-46c5-b40f-3c24335bf24f' }
     let(:submission_name) { '21P-527EZ' }
     let(:state) { 'sent' }
@@ -104,41 +104,49 @@ RSpec.describe Kafka do
     let(:prior_id) { '789012' }
     let(:additional_ids) { %w[123 456] }
     let(:expected_valid_output) do
-      { 'current_id' => current_id,
+      { 'currentId' => current_id,
         'icn' => icn,
-        'next_id' => next_id,
-        'prior_id' => prior_id,
+        'nextId' => next_id,
+        'priorId' => prior_id,
         'state' => 'sent',
-        'submission_name' => 'F527EZ',
-        'system_name' => 'VA_gov',
+        'submissionName' => 'F527EZ',
+        'systemName' => 'VA_gov',
         'timestamp' => Time.zone.now.iso8601,
-        'vasi_id' => '2103',
-        'additional_ids' => %w[123 456] }
+        'vasiId' => '2103',
+        'additionalIds' => %w[123 456] }
     end
+
+    after { Kafka::ProducerManager.instance.producer.client.reset }
 
     context 'when payload is valid' do
       context 'when using non-test topic' do
         it 'kicks off Event Bus Submission Job' do
-          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(expected_valid_output, false)
-
-          Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:,
-                             use_test_topic: false)
+          VCR.use_cassette('kafka/topics') do
+            expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(expected_valid_output, false)
+            expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
+            Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:,
+                               use_test_topic: false)
+            Kafka::AvroProducer.new.produce('submission_trace_form_status_change_test', expected_valid_output)
+          end
         end
       end
 
       context 'when using test topic' do
         it 'kicks off Event Bus Submission Job' do
-          test_topic_expected_output = expected_valid_output.merge('submission_name' => submission_name)
+          test_topic_expected_output = expected_valid_output.merge('submissionName' => submission_name)
           test_topic_expected_output = { 'data' => test_topic_expected_output }
-          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(test_topic_expected_output, true)
-
-          Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:,
-                             use_test_topic: true)
+          VCR.use_cassette('kafka/topics') do
+            expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(test_topic_expected_output, true)
+            expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
+            Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:,
+                               use_test_topic: true)
+            Kafka::AvroProducer.new.produce('submission_trace_form_status_change_test', expected_valid_output)
+          end
         end
       end
     end
 
-    context 'when payload is invalid' do
+    context 'when payload is invalid to non-test topic schema' do
       let(:state) { 'MALFORMED_STATE' }
 
       context 'when using non-test topic' do

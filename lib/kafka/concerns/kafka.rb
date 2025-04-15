@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'kafka/sidekiq/event_bus_submission_job'
+require 'kafka/models/form_trace'
 
 module Kafka
   VASI_ID = '2103'
@@ -78,6 +79,11 @@ module Kafka
       'additional_ids' => additional_ids
     }
 
+    payload = format_payload(payload, use_test_topic)
+    Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
+  end
+
+  def self.format_payload(payload, use_test_topic)
     if use_test_topic
       payload = { 'data' => payload }
     else
@@ -86,7 +92,8 @@ module Kafka
 
       payload = form_trace.attributes
     end
-    Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
+
+    payload.deep_transform_keys { |key| key.to_s.camelize(:lower) }
   end
   # rubocop:enable Metrics/ParameterLists
 end
