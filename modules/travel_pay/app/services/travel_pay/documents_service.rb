@@ -12,17 +12,12 @@ module TravelPay
       documents_response.body['data']
     end
 
-    def download_document(params = {})
-      params.symbolize_keys => { claim_id:, doc_id: }
-
+    def download_document(claim_id, doc_id)
       raise ArgumentError, message: "Missing claim ID or document ID, given: #{params}" unless claim_id && doc_id
 
+      params = { claim_id:, doc_id: }
       @auth_manager.authorize => { veis_token:, btsss_token: }
       client.get_document_binary(veis_token, btsss_token, params)
-
-      # {
-      #   data: raw_binary
-      # }
     end
 
     private
