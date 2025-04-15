@@ -9,6 +9,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
+  c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
   c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }

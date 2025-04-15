@@ -80,7 +80,7 @@ module DebtManagementCenter
     end
 
     def load_debts
-      @debts = init_cached_debts
+      @debts ||= init_cached_debts || []
     end
 
     def init_cached_debts
