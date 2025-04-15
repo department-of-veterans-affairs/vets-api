@@ -344,7 +344,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.3)
+    csv (3.3.4)
     danger (9.5.1)
       base64 (~> 0.2)
       claide (~> 1.0)
@@ -634,10 +634,10 @@ GEM
       base64
     jwt (2.10.1)
       base64
-    karafka-core (2.4.10)
+    karafka-core (2.4.11)
       karafka-rdkafka (>= 0.17.6, < 0.20.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.19.0)
+    karafka-rdkafka (0.19.1)
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -661,7 +661,7 @@ GEM
     libddwaf (1.21.0.0.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.8.3)
+    liquid (5.8.4)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -1010,9 +1010,10 @@ GEM
     rubocop-rspec (3.5.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
-    rubocop-rspec_rails (2.30.0)
-      rubocop (~> 1.61)
-      rubocop-rspec (~> 3, >= 3.0.1)
+    rubocop-rspec_rails (2.31.0)
+      lint_roller (~> 1.1)
+      rubocop (~> 1.72, >= 1.72.1)
+      rubocop-rspec (~> 3.5)
     rubocop-thread_safety (0.7.2)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -1140,9 +1141,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.2)
-      karafka-core (>= 2.4.3, < 3.0.0)
-      karafka-rdkafka (>= 0.17.5)
+    waterdrop (2.8.3)
+      karafka-core (>= 2.4.9, < 3.0.0)
+      karafka-rdkafka (>= 0.19.1)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
