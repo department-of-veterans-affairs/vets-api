@@ -60,19 +60,19 @@ describe 'metadata request api', type: :request do
       expect(messenger_instance).to receive(:notify!).once
       expect_any_instance_of(AppealsApi::MetadataController).to receive(:s3_is_healthy?).and_return(false)
       Timecop.freeze do
-        last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+        last_notify_timestamp = Rails.cache.read(described_class::REDIS_LAST_SLACK_NOTIFICATION_TS)
         expect(last_notify_timestamp).to equal(nil)
 
         get path
 
         # confirm that the above slack notification had it's send timestamp recorded in the cache
-        last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+        last_notify_timestamp = Rails.cache.read(described_class::REDIS_LAST_SLACK_NOTIFICATION_TS)
         expect(last_notify_timestamp).to equal(Time.zone.now.to_i)
       end
     end
 
     it 'does not send slack notification when s3 is unavailable but slack has already reported recently' do
-      Rails.cache.write(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+      Rails.cache.write(described_class::REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
 
       # stub failed s3 up call
       expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)

@@ -57,13 +57,13 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
         expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
 
         Timecop.freeze do
-          last_notify_timestamp = Rails.cache.read(AppealsApi::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+          last_notify_timestamp = Rails.cache.read(described_class::REDIS_LAST_SLACK_NOTIFICATION_TS)
           expect(last_notify_timestamp).to equal(nil)
 
           get '/services/vba_documents/v1/healthcheck'
 
           # confirm that the above slack notification had it's send timestamp recorded in the cache
-          last_notify_timestamp = Rails.cache.read(VBADocuments::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS)
+          last_notify_timestamp = Rails.cache.read(described_class::REDIS_LAST_SLACK_NOTIFICATION_TS)
           expect(last_notify_timestamp).to equal(Time.zone.now.to_i)
         end
       end
@@ -82,7 +82,7 @@ RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
       end
 
       it 'does not send slack notification when s3 is unavailable but slack has already reported recently' do
-        Rails.cache.write(VBADocuments::MetadataController::REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
+        Rails.cache.write(described_class::REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
         expect(VBADocuments::Slack::Messenger).not_to receive(:new)
         expect(s3_client).to receive(:head_bucket).with(anything).and_raise(StandardError)
 
