@@ -222,9 +222,9 @@ module MyHealth
 
       def sort_prescriptions_with_pd_at_top(prescriptions)
         prescriptions.sort do |a, b|
-          if a.prescription_source == "PD" && b.prescription_source != "PD"
+          if a.prescription_source == 'PD' && b.prescription_source != 'PD'
             -1
-          elsif a.prescription_source != "PD" && b.prescription_source == "PD"
+          elsif a.prescription_source != 'PD' && b.prescription_source == 'PD'
             1
           else
             0
