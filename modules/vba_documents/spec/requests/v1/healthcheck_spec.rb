@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vba_documents/health_checker'
 
-Rspec.describe VBADocuments::MetadataController, type: :request do
+RSpec.describe VBADocuments::MetadataController, type: :request do
   describe '#healthcheck' do
     context 'v1' do
       let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
