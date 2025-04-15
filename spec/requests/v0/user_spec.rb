@@ -10,12 +10,8 @@ RSpec.describe 'V0::User', type: :request do
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
     let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
-    let(:authenticated_client) do
-      double('authenticated_client', session: double('session', user_id: mhv_user.mhv_correlation_id))
-    end
 
     before do
-      allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
