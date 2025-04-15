@@ -1751,7 +1751,7 @@ veteran_enrollment_system:
     api_key: fake_api_key
   ee_summary:
     api_key: fake_api_key
-  host: https://ves.va.gov
+  host: https://sqa.ves.va.gov
   open_timeout: 10
   timeout: 30
 veteran_onboarding:
