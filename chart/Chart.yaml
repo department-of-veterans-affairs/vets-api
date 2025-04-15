@@ -120,7 +120,8 @@ type: application
 # 0.15.16  - Fix branch selector to mockData
 # 0.15.17  - Set appname for all deployments
 # 0.15.18  - traefik api version settable through values.yaml
-version: 0.15.18
+# 0.15.19  - Set web.Service for all deployments
+version: 0.15.19
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
