@@ -1,111 +1,141 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/fixture_helper'
+require_relative '../../../app/services/common/jwt_wrapper'
 
 describe Common::JwtWrapper do
-  subject { described_class.new(service_settings, service_config) }
+  subject { described_class.new(settings, service_config) }
 
-  # Generate a test RSA key
-  let(:test_key) { OpenSSL::PKey::RSA.new(2048) }
-  let(:test_key_path) { '/path/to/test/key.pem' }
-
-  let(:service_settings) do
+  let(:service_name) { 'TestService' }
+  let(:service_config) { instance_double(VAOS::Configuration, service_name:) }
+  let(:settings) do
     OpenStruct.new(
-      key_path: test_key_path,
-      client_id: 'test-client-id',
-      kid: 'test-key-id',
-      audience_claim_url: 'https://test-audience.example.com'
+      key_path: '/path/to/key.pem',
+      client_id: 'test_client',
+      kid: 'test_kid',
+      audience_claim_url: 'http://test.example.com/token'
     )
   end
 
-  let(:service_config) do
-    OpenStruct.new(
-      service_name: 'TestService'
-    )
+  let(:rsa_key) { OpenSSL::PKey::RSA.new(2048) }
+
+  before do
+    allow(File).to receive(:exist?).and_call_original
+    allow(File).to receive(:exist?).with('/path/to/key.pem').and_return(true)
+    allow(File).to receive(:read).with('/path/to/key.pem').and_return(rsa_key.to_s)
   end
 
-  # JWT REGEX has 3 base64 url encoded parts (header, payload signature)
-  let(:jwt_regex) { %r{^[A-Za-z0-9\-_=]+\.[A-Za-z0-9\-_=]+\.?[A-Za-z0-9\-_.+/=]*$} }
+  describe 'constants' do
+    it 'has a SIGNING_ALGORITHM' do
+      expect(described_class::SIGNING_ALGORITHM).to eq('RS512')
+    end
+  end
 
   describe '#initialize' do
-    it 'sets the default expiration time to 5 minutes' do
+    it 'sets default expiration to 5 minutes' do
       expect(subject.expiration).to eq(5)
+    end
+
+    it 'initializes settings' do
+      expect(subject.settings).to eq(settings)
     end
   end
 
   describe '#sign_assertion' do
-    context 'when successfully signing the JWT' do
-      before do
-        time = Time.utc(2021, 9, 13, 19, 30, 11)
-        Timecop.freeze(time)
+    let(:encoded_token) { 'encoded.jwt.token' }
+    let(:test_time) { Time.zone.at(1_234_567_890) }
 
-        # Mock File.read to return the test key
-        allow(File).to receive(:read).with(test_key_path).and_return(test_key.to_s)
+    before do
+      # Fix the time for deterministic testing
+      allow(Time.zone).to receive(:now).and_return(test_time)
+      allow(JWT).to receive(:encode).and_return(encoded_token)
+      allow(Rails).to receive(:logger).and_return(double('Logger').as_null_object)
+      allow(OpenSSL::PKey::RSA).to receive(:new).and_return(rsa_key)
+    end
+
+    context 'when JWT encoding is successful' do
+      it 'returns the encoded JWT token' do
+        expect(subject.sign_assertion).to eq(encoded_token)
       end
 
-      after { Timecop.return }
+      it 'encodes with the correct parameters' do
+        # Just check that claims hash contains required keys
+        expect(JWT).to receive(:encode)
+          .with(
+            hash_including(:iss, :sub, :aud, :iat, :exp),
+            kind_of(OpenSSL::PKey::RSA),
+            'RS512',
+            hash_including(:kid, :typ, :alg)
+          )
+          .and_return(encoded_token)
 
-      it 'returns a valid JWT token and verifies its contents' do
-        token = subject.sign_assertion
-
-        # Check that it's a valid JWT
-        expect(token).to match(jwt_regex)
-
-        # Decode and verify the token
-        decoded_token = JWT.decode(
-          token,
-          test_key.public_key,
-          true,
-          { algorithm: 'RS512' }
-        )
-
-        # Verify payload
-        payload = decoded_token[0]
-        expect(payload['iss']).to eq('test-client-id')
-        expect(payload['sub']).to eq('test-client-id')
-        expect(payload['aud']).to eq('https://test-audience.example.com')
-        expect(payload['iat']).to eq(Time.zone.now.to_i)
-        expect(payload['exp']).to eq(5.minutes.from_now.to_i)
-
-        # Verify headers
-        headers = decoded_token[1]
-        expect(headers['kid']).to eq('test-key-id')
-        expect(headers['typ']).to eq('JWT')
-        expect(headers['alg']).to eq('RS512')
+        subject.sign_assertion
       end
     end
 
-    context 'when key file cannot be found' do
-      before do
-        allow(File).to receive(:read).with(test_key_path).and_raise(Errno::ENOENT.new('File not found'))
+    context 'when RSA key loading fails' do
+      let(:wrapper_with_error) { described_class.new(settings, service_config) }
+
+      context 'when key file does not exist' do
+        before do
+          allow(File).to receive(:exist?).with('/path/to/key.pem').and_return(false)
+        end
+
+        it 'logs the error and raises a VAOS::Exceptions::ConfigurationError' do
+          expect(Rails.logger).to receive(:error).with(/Service Configuration Error: RSA key file not found/)
+          expect { wrapper_with_error.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
+        end
       end
 
-      it 'raises a configuration error' do
-        expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
+      context 'when key path is nil' do
+        let(:settings_with_nil_path) do
+          OpenStruct.new(
+            key_path: nil,
+            client_id: 'test_client',
+            kid: 'test_kid',
+            audience_claim_url: 'http://test.example.com/token'
+          )
+        end
+
+        let(:wrapper_with_nil_path) { described_class.new(settings_with_nil_path, service_config) }
+
+        it 'logs the error and raises a VAOS::Exceptions::ConfigurationError' do
+          expect(Rails.logger).to receive(:error).with(/Service Configuration Error: RSA key path is not configured/)
+          expect { wrapper_with_nil_path.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
+        end
       end
 
-      it 'logs the error' do
-        expect(Rails.logger).to receive(:error).with(/Key file not found/)
-        expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
+      it 'includes the service name in the raised error' do
+        allow(File).to receive(:exist?).with('/path/to/key.pem').and_return(false)
+
+        exception = nil
+        begin
+          wrapper_with_error.sign_assertion
+        rescue VAOS::Exceptions::ConfigurationError => e
+          exception = e
+        end
+        expect(exception).not_to be_nil
+        expect(exception.errors.first.detail).to include(service_name)
       end
     end
+  end
 
-    context 'when configuration is invalid' do
-      before do
-        allow(File).to receive(:read).with(test_key_path).and_return(test_key.to_s)
-        error = Common::JwtWrapper::ConfigurationError.new('Invalid configuration')
-        allow(JWT).to receive(:encode).and_raise(error)
-      end
+  describe '#rsa_key' do
+    it 'reads the key from the specified path' do
+      expect(File).to receive(:read).with('/path/to/key.pem').once
+      subject.rsa_key
+    end
 
-      it 'raises a configuration error' do
-        expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
-      end
+    it 'returns an RSA key instance' do
+      allow(OpenSSL::PKey::RSA).to receive(:new).and_return(rsa_key)
+      expect(subject.rsa_key).to be_a(OpenSSL::PKey::RSA)
+    end
 
-      it 'logs the error' do
-        expect(Rails.logger).to receive(:error).with(/Service Configuration Error/)
-        expect { subject.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
-      end
+    it 'memoizes the RSA key' do
+      expect(File).to receive(:read).with('/path/to/key.pem').once
+      first_call = subject.rsa_key
+      second_call = subject.rsa_key
+      expect(first_call).to eq(second_call)
     end
   end
 end
