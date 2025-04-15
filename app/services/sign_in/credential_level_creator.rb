@@ -100,7 +100,7 @@ module SignIn
     end
 
     def previously_verified?(identifier_type)
-      return false unless Settings.sign_in.auto_uplevel && requested_verified_account?
+      return false unless IdentitySettings.sign_in.auto_uplevel && requested_verified_account?
 
       user_verification = UserVerification.find_by(identifier_type => credential_uuid)
       user_verification&.verified?

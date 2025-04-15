@@ -19,9 +19,7 @@ module Mobile
         end
       end
 
-      def [](name)
-        @services[name]
-      end
+      delegate :[], to: :@services
 
       def affected_services(windows)
         downstream_windows = {}

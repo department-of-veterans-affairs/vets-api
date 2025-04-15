@@ -2,7 +2,7 @@
 
 module VRE
   module V0
-    class ClaimsController < ClaimsBaseController
+    class ClaimsController < ::ClaimsBaseController
       service_tag 'vre-application'
       before_action :authenticate
       skip_before_action :load_user
@@ -21,7 +21,7 @@ module VRE
           Rails.logger.error('VR&E claim was not saved', { error_messages: claim.errors,
                                                            user_logged_in: current_user.present?,
                                                            current_user_uuid: current_user&.uuid })
-          raise Common::Exceptions::ValidationErrors, claim
+          raise ::Common::Exceptions::ValidationErrors, claim
         end
       end
 

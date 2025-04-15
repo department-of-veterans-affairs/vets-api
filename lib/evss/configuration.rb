@@ -43,7 +43,7 @@ module EVSS
     end
 
     def set_evss_middlewares(faraday, snakecase: true)
-      faraday.use      :breakers
+      faraday.use(:breakers, service_name:)
       faraday.use      EVSS::ErrorMiddleware
       faraday.use      Faraday::Response::RaiseError
       faraday.response :betamocks if mock_enabled?

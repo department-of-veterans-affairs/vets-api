@@ -10,7 +10,8 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         {
           'data' => [
             { 'id' => 'vha_635HB', 'attributes' => { 'name' => 'My Fake VA Clinic' } },
-            { 'id' => 'vha_463GA', 'attributes' => { 'name' => 'Yet Another Clinic Name' } }
+            { 'id' => 'vha_463GA', 'attributes' => { 'name' => 'Yet Another Clinic Name' } },
+            { 'id' => 'vha_499', 'attributes' => { 'name' => 'My Great New VA Clinic Name' } }
           ],
           'meta' => { 'pagination' => { 'currentPage' => 1, 'perPage' => 1000, 'totalPages' => 2,
                                         'totalEntries' => 4 } }
@@ -33,6 +34,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
       [
         { name: 'MY FAKE VA CLINIC', station_number: '635HB', street_state_id: 'AK' },
         { name: 'YET ANOTHER CLINIC NAME', station_number: '463GA', street_state_id: 'OH' },
+        { name: 'MY OLD VA CLINIC NAME', station_number: '499', street_state_id: 'NY' },
         { name: 'MY OTHER FAKE VA CLINIC', station_number: '463GE', street_state_id: 'FL' }
       ]
     end
@@ -54,6 +56,11 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
                                station_number: mock_institution_data.first[:station_number],
                                postal_name: mock_institution_data.first[:street_state_id])
 
+      # Add existing health_facility record with stale name
+      create(:health_facility, name: 'My Old VA Clinic Name',
+                               station_number: mock_institution_data.third[:station_number],
+                               postal_name: mock_institution_data.third[:street_state_id])
+
       allow(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
       allow(lighthouse_service).to receive(:get_facilities)
         .and_return(mock_get_facilities_page_one, mock_get_facilities_page_two)
@@ -66,12 +73,12 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
     end
 
     context 'success' do
-      it 'populates HealthFacilities without duplicating existing records' do
+      it 'updates HealthFacilities table without duplicating existing records' do
         expect(Rails.logger).to receive(:info).with(
-          'Job started with 1 existing health facilities.'
+          'Job started with 2 existing health facilities.'
         )
         expect(Rails.logger).to receive(:info).with(
-          'Job ended with 2 health facilities.'
+          'Job ended with 3 health facilities.'
         )
 
         expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.health_facilities_import_job_complete")
@@ -83,7 +90,11 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
         station_numbers = mock_institution_data.map { |institution| institution[:station_number] }
         expect(HealthFacility
           .where(station_number: station_numbers)
-          .pluck(:name)).to eq ['My Fake VA Clinic', 'Yet Another Clinic Name']
+          .pluck(:name)).to contain_exactly(
+            'My Fake VA Clinic',
+            'Yet Another Clinic Name',
+            'My Great New VA Clinic Name' # Validates name is updated from Lighthouse api response
+          )
       end
 
       context 'pagination' do
@@ -104,6 +115,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
           expect(HealthFacility.pluck(:name)).to contain_exactly(
             'My Fake VA Clinic',
             'Yet Another Clinic Name',
+            'My Great New VA Clinic Name',
             'My Other Fake VA Clinic'
           )
         end
@@ -114,7 +126,7 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
       it 'logs errors when API call fails' do
         expect(lighthouse_service).to receive(:get_facilities).and_raise(StandardError, 'something broke')
         expect(Rails.logger).to receive(:info).with(
-          'Job started with 1 existing health facilities.'
+          'Job started with 2 existing health facilities.'
         )
         expect(Rails.logger).to receive(:error).with(
           "Error occurred in #{described_class.name}: something broke"
@@ -135,6 +147,29 @@ RSpec.describe HCA::HealthFacilitiesImportJob, type: :worker do
             )
           end
         end
+      end
+    end
+
+    context 'std_states table is empty' do
+      before do
+        StdState.destroy_all
+      end
+
+      it 'enqueues IncomeLimits::StdStateImport and raises error' do
+        expect(Rails.logger).to receive(:info).with(
+          'Job started with 2 existing health facilities.'
+        )
+        expect(Rails.logger).to receive(:error).with(
+          "Error occurred in #{described_class.name}: StdStates missing – triggered import and retrying job"
+        )
+
+        import_job = instance_double(IncomeLimits::StdStateImport)
+        expect(IncomeLimits::StdStateImport).to receive(:new).and_return(import_job)
+        expect(import_job).to receive(:perform)
+
+        expect do
+          described_class.new.perform
+        end.to raise_error(RuntimeError, "Failed to import health facilities in #{described_class.name}")
       end
     end
   end

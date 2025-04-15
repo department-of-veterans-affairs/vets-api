@@ -93,10 +93,17 @@ module PdfFill
       # (specified by a unique key). This ensures the data is placed in the correct field when generating the PDF.
       KEY = {
         'veteranFullName' => {
-          key: 'F[0].P4[0].LastFirstMiddle[0]'
+          key: 'F[0].P4[0].LastFirstMiddle[0]',
+          limit: 40,
+          question_num: 1.01,
+          question_suffix: 'A',
+          question_text: "VETERAN'S NAME (Last, First, Middle Name)"
         },
         'mothersMaidenName' => {
-          key: 'F[0].P4[0].MothersMaidenName[0]'
+          key: 'F[0].P4[0].MothersMaidenName[0]',
+          limit: 20,
+          question_num: 1.02,
+          question_text: "MOTHER'S MAIDEN NAME"
         },
         'gender' => {
           key: 'F[0].P4[0].BirthSex[0]'
@@ -123,15 +130,27 @@ module PdfFill
           key: 'F[0].P4[0].Race[5]'
         },
         'placeOfBirth' => {
-          key: 'F[0].P4[0].PlaceOfBirth[0]'
+          key: 'F[0].P4[0].PlaceOfBirth[0]',
+          limit: 28,
+          question_num: 1.07,
+          question_suffix: 'B',
+          question_text: 'PLACE OF BIRTH (City and State)'
         },
         'veteranAddress' =>
           {
             'street' => {
-              key: 'F[0].P4[0].MailingAddress_Street[0]'
+              key: 'F[0].P4[0].MailingAddress_Street[0]',
+              limit: 27,
+              question_num: 1.10,
+              question_suffix: 'A',
+              question_text: 'MAILING ADDRESS (Street)'
             },
             'city' => {
-              key: 'F[0].P4[0].MailingAddress_City[0]'
+              key: 'F[0].P4[0].MailingAddress_City[0]',
+              limit: 18,
+              question_num: 1.10,
+              question_suffix: 'B',
+              question_text: 'CITY'
             },
             'postalCode' => {
               key: 'F[0].P4[0].MailingAddress_ZipCode[0]'
@@ -152,10 +171,18 @@ module PdfFill
         'veteranHomeAddress' =>
           {
             'street' => {
-              key: 'F[0].P4[0].HomeAddress_Street[0]'
+              key: 'F[0].P4[0].HomeAddress_Street[0]',
+              limit: 27,
+              question_num: 1.11,
+              question_suffix: 'A',
+              question_text: 'HOME ADDRESS (Street)'
             },
             'city' => {
-              key: 'F[0].P4[0].HomeAddress_City[0]'
+              key: 'F[0].P4[0].HomeAddress_City[0]',
+              limit: 18,
+              question_num: 1.11,
+              question_suffix: 'B',
+              question_text: 'CITY'
             },
             'postalCode' => {
               key: 'F[0].P4[0].HomeAddress_ZipCode[0]'
@@ -291,6 +318,7 @@ module PdfFill
           first_key: 'fullName',
           'fullName' => {
             key: 'F[0].P5[0].ChildsName[0]',
+            limit: 42,
             question_num: 4.2,
             question_text: 'CHILD\'S NAME (Last, First, Middle Name)'
           },
@@ -354,10 +382,17 @@ module PdfFill
           }
         },
         'spouseFullName' => {
-          key: 'F[0].P5[0].SpousesName[0]'
+          key: 'F[0].P5[0].SpousesName[0]',
+          limit: 42,
+          question_num: 4.1,
+          question_text: "SPOUSE'S NAME (Last, First, Middle Name)"
         },
         'spouseAddress' => {
-          key: 'F[0].P5[0].SpouseAddressAndTelephoneNumber[0]'
+          key: 'F[0].P5[0].SpouseAddressAndTelephoneNumber[0]',
+          limit: 120,
+          question_num: 4.1,
+          question_suffix: 'E',
+          question_text: "SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State, ZIP if different from Veteran's)"
         },
         'cohabitedLastYear' => {
           key: 'F[0].P5[0].RadioButtonList[2]'
@@ -458,6 +493,8 @@ module PdfFill
         merge_ethnicity_choices
         merge_marital_status
         merge_value('isSpanishHispanicLatino', :map_radio_box_value)
+        merge_address_street('veteranAddress')
+        merge_address_street('veteranHomeAddress')
       end
 
       def merge_spouse_info
@@ -480,6 +517,19 @@ module PdfFill
 
       def merge_full_name(type)
         @form_data[type] = format_full_name(@form_data[type])
+      end
+
+      def merge_address_street(address_type)
+        return unless @form_data[address_type]
+
+        address = @form_data[address_type]
+        @form_data[address_type]['street'] = combine_full_address(
+          {
+            'street' => address['street'],
+            'street2' => address['street2'],
+            'street3' => address['street3']
+          }
+        )
       end
 
       def merge_sex(type)
@@ -641,7 +691,7 @@ module PdfFill
       # Formats a date string into the format MM/DD/YYYY.
       # If the date is in the "YYYY-MM-XX" format, it converts it to "MM/YYYY".
       def format_date(date_string)
-        return if date_string.nil?
+        return if date_string.blank?
 
         # Handle 1990-08-XX format where the day is not provided
         if date_string.match?(/^\d{4}-\d{2}-XX$/)

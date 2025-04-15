@@ -43,7 +43,11 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.medical_records.host}/fhir/"
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
+      else
+        "#{Settings.mhv.medical_records.host}/fhir/"
+      end
     end
 
     ##
@@ -78,9 +82,14 @@ module MedicalRecords
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
+      default_headers = { 'Cache-Control' => 'no-cache' }
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+      end
+
       result = fhir_client.search(FHIR::Patient, {
                                     search: { parameters: { identifier: } },
-                                    headers: { 'Cache-Control': 'no-cache' }
+                                    headers: default_headers
                                   })
 
       # MHV will return a 202 if and only if the patient does not exist. It will not return 202 for
@@ -135,10 +144,12 @@ module MedicalRecords
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
       bundle = fhir_search(FHIR::DocumentReference,
-                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
-                                                   'status:not': 'entered-in-error' } })
+                           search: { parameters: {
+                             patient: patient_fhir_id,
+                             category: 'http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note',
+                             'status:not': 'entered-in-error'
+                           } })
 
       # Sort the bundle of notes based on the date field appropriate to each note type.
       sort_bundle_with_criteria(bundle, :desc) do |resource|
@@ -213,7 +224,11 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      default_headers = { 'Cache-Control': 'no-cache' }
+      default_headers = { 'Cache-Control' => 'no-cache' }
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+      end
+
       params[:headers] = default_headers.merge(params.fetch(:headers, {}))
 
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
@@ -224,7 +239,12 @@ module MedicalRecords
     end
 
     def fhir_read(fhir_model, id)
-      result = fhir_client.read(fhir_model, id)
+      default_headers = {}
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
+      end
+
+      result = fhir_client.read(fhir_model, id, nil, nil, { headers: default_headers })
       handle_api_errors(result) if result.resource.nil?
       result.resource
     end
