@@ -22,8 +22,6 @@ module EducationForm
         }
       ).order('education_benefits_claims.created_at')
     )
-      return false unless evss_is_healthy?
-
       init_count = records.filter do |r|
         r.education_stem_automated_decision.automated_decision_state == EducationStemAutomatedDecision::INIT
       end.count
@@ -41,11 +39,6 @@ module EducationForm
 
     private
 
-    def evss_is_healthy?
-      # will be true for now, but false when the evss service is removed
-      EVSS::Service.service_is_up?
-    end
-
     # Group the submissions by user_uuid
     def group_user_uuid(records)
       records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid }
@@ -61,8 +54,7 @@ module EducationForm
         claim_ids = submissions.map(&:id).join(', ')
         log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
 
-        # only check EVSS if poa wasn't set on submit
-        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(auth_headers)
+        poa = submissions.last.education_stem_automated_decision.poa
 
         if submissions.count > 1
           check_previous_submissions(submissions, poa)
@@ -70,12 +62,6 @@ module EducationForm
           process_submission(submissions.first, poa)
         end
       end
-    end
-
-    # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(*)
-      # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-      nil
     end
 
     # Ignore already processed either by CreateDailySpoolFiles or this job
