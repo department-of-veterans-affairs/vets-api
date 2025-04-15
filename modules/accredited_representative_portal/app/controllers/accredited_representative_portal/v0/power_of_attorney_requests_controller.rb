@@ -29,27 +29,26 @@ module AccreditedRepresentativePortal
 
       private
 
-      module Statuses
-        ALL = [
-          PENDING = 'pending',
-          PROCESSED = 'processed'
-        ].freeze
+      def params_schema
+        PowerOfAttorneyRequestService::ParamsSchema
       end
 
       def validated_params
-        @validated_params ||= PowerOfAttorneyRequestService::ParamsSchema.validate_and_normalize!(params.to_unsafe_h)
+        @validated_params ||= params_schema.validate_and_normalize!(params.to_unsafe_h)
       end
 
       def poa_requests
         @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
-                          .includes(scope_includes).paginate(page:, per_page:)
+                          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .includes(scope_includes)
+                          .paginate(page:, per_page:)
       end
 
       def filter_by_status(relation)
         case status
-        when Statuses::PENDING
+        when params_schema::Statuses::PENDING
           pending(relation)
-        when Statuses::PROCESSED
+        when params_schema::Statuses::PROCESSED
           processed(relation)
         when NilClass
           relation
@@ -61,16 +60,20 @@ module AccreditedRepresentativePortal
         end
       end
 
+      def sort_params
+        validated_params.fetch(:sort, {})
+      end
+
       def page
-        validated_params[:page][:number]
+        validated_params.dig(:page, :number)
       end
 
       def per_page
-        validated_params[:page][:size]
+        validated_params.dig(:page, :size)
       end
 
       def status
-        params[:status].presence
+        validated_params.fetch(:status, nil)
       end
 
       def pending(relation)

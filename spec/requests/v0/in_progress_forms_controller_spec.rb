@@ -390,9 +390,18 @@ RSpec.describe V0::InProgressFormsController do
         end
 
         context 'when form type is pension' do
-          before { allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async) }
+          let(:itf_job) { Lighthouse::CreateIntentToFileJob.new }
 
-          it 'calls the CreateIntentToFileJob for newly created forms' do
+          before do
+            allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async)
+            allow(Lighthouse::CreateIntentToFileJob).to receive(:new).and_return(itf_job)
+            allow(itf_job).to receive(:perform)
+          end
+
+          it 'calls synchronous CreateIntentToFileJob for newly created forms' do
+            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
+                                                       instance_of(User)).and_return(true)
+
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
                   formData: new_form.form_data,
@@ -401,8 +410,8 @@ RSpec.describe V0::InProgressFormsController do
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
             latest_form = InProgressForm.last
-            expect(Lighthouse::CreateIntentToFileJob).to have_received(:perform_async).with(latest_form.id, user.icn,
-                                                                                            user.participant_id)
+            expect(itf_job).to have_received(:perform).with(latest_form.id, user.icn, user.participant_id)
+            expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
           end
         end
       end
