@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
-require 'pdf_fill/forms/field_mappings/va1010ez'
 require 'pdf_fill/forms/formatters/va1010ez'
 
 # rubocop:disable Metrics/ClassLength
