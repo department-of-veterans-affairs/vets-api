@@ -28,6 +28,32 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
       end
     end
 
+    describe '#track_create_itf_active_found' do
+      it 'logs a create ITF active found' do
+        itf_found = { 'data' =>
+          { 'id' => '293372',
+            'type' => 'intent_to_file',
+            'attributes' =>
+            { 'creationDate' => '2025-01-29T08:10:11-06:00',
+              'expirationDate' => '2026-01-29T08:10:11-06:00',
+              'type' => 'pension',
+              'status' => 'active' } } }
+
+        log = 'Lighthouse::CreateIntentToFileJob create pension ITF active record found'
+        payload = {
+          itf_type: 'pension',
+          itf_created: itf_found&.dig('data', 'attributes', 'creationDate'),
+          itf_expires: itf_found&.dig('data', 'attributes', 'expirationDate'),
+          form_start_date: ipf.created_at,
+          user_account_uuid: current_user.user_account_uuid
+        }
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.active_found")
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_create_itf_active_found('pension', ipf.created_at, current_user.user_account_uuid, itf_found)
+      end
+    end
+
     describe '#track_create_itf_begun' do
       it 'logs a create ITF begun' do
         log = 'Lighthouse::CreateIntentToFileJob create pension ITF begun'
