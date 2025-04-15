@@ -349,4 +349,3 @@ module PdfFill
     end
   end
 end
-# rubocop:enable Metrics/ClassLength

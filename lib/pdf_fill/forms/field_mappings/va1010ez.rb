@@ -305,7 +305,9 @@ module PdfFill
             limit: 120,
             question_num: 4.1,
             question_suffix: 'E',
-            question_text: "SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State, ZIP if different from Veteran's)"
+            question_text: "SPOUSE'S ADDRESS AND TELEPHONE NUMBER " \
+                           "(Street, City, State, ZIP if different from Veteran's)"
+
           },
           'cohabitedLastYear' => {
             key: 'F[0].P5[0].RadioButtonList[2]'
