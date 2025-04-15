@@ -21,7 +21,8 @@ module Vye
       # last day prior month = ldpm
       # run date = rd
       # aed is always >= dlc
-      # abd is always <= rd
+      # abd is always <  rd
+      # abd is always <  aed
       # dlc is always <  rd or blank
       #                                           act  act
       #                                           beg  end
@@ -121,10 +122,10 @@ module Vye
         # 04 abd  <= ldpm <  dlc  <  aed  <= rd   dlc, aed minus 1 day
         # --------------------------------------------------------------------------------
         # 05 dlc   < abd  < aed  <= ldpm <  rd		abd, aed minus 1 day or aed if abd = aed
-        # 06 dlc   < abd  <= ldpm <  aed  <= rd		abd, aed minus 1 day
+        # 06 dlc   < abd  <= ldpm < aed  <= rd		abd, aed minus 1 day
         # 08 dlc  <= ldpm <  abd  < aed  <= rd		abd, aed minus 1 day or aed if abd = aed
-        # 09 dlc  <= ldpm <  abd  <= rd    = aed	abd, aed minus 1 day or aed if abd = aed
-        # 10 ldpm  < dlc  <= abd <=  aed  <= rd  	abd, aed minus 1 day or aed if abd = aed
+        # 09 dlc  <= ldpm <  abd  <= rd   = aed	abd, aed minus 1 day or aed if abd = aed
+        # 10 ldpm  < dlc  <= abd  <  aed  <= rd  	abd, aed minus 1 day or aed if abd = aed
         # --------------------------------------------------------------------------------
         # 03 abd  <= dlc  <  ldpm <  rd   <  aed  dlc, ldpm
         # --------------------------------------------------------------------------------
@@ -295,7 +296,7 @@ module Vye
       act_end =
         case trace
         when 'case1', 'case2', 'case4', 'case5', 'case6', 'case8', 'case9', 'case10'
-          award_begin_date.eql?(award_end_date) ? award_end_date : aed_minus1
+          aed_minus1
         when 'case_eom'
           award_begin_date < award_end_date && award_end_date.eql?(today) ? aed_minus1 : today
         else last_day_of_previous_month

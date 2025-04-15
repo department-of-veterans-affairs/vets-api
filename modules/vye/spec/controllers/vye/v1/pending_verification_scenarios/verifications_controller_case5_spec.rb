@@ -41,20 +41,6 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
           check_expectations_for(pv, award_begin_date, aed_minus1, aed_minus1, 'case5')
         end
       end
-
-      context 'dlc < abd = aed < ldpm < rd' do
-        let(:award_begin_date) { Date.new(2025, 3, 2) }
-        let(:award_end_date) { Date.new(2025, 3, 2) }
-        let(:aed_minus1) { Date.new(2025, 3, 1) }
-
-        before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
-        it 'creates a case5 pending verification' do
-          Timecop.freeze(run_date) { subject.create }
-          pv = Vye::Verification.last
-          check_expectations_for(pv, award_begin_date, award_end_date, award_end_date, 'case5')
-        end
-      end
     end
 
     # no case5 pending verifications will be created in any of these scenarios

@@ -2,7 +2,6 @@
 
 # This is included from UserInfo
 
-# rubocop:disable Rails/Output
 module Vye
   module NeedsEnrollmentVerificationV2
     def enrollments
@@ -10,36 +9,6 @@ module Vye
       return @enrollments if defined?(@enrollments)
 
       setup
-
-      # notes on rules for pending verifications
-      # award beg date = abd
-      # award end date = aed
-      # date last cert = dlc
-      # last day prior month = ldpm
-      # run date = rd
-      # aed is always >= dlc
-      # abd is always <= rd
-      # dlc is always <  rd or blank
-      #                                          act  act
-      #                                          beg  end
-      # 1) abd <=  dlc  <  aed  <  ldpm <  rd   [dlc, aed - 1 day]
-      # 2) abd <=  dlc  <  ldpm <  aed  <  rd   [dlc, aed - 1 day] **
-      #    3/1     3/15    3/31    4/2     4/15
-      # 2) abd <=  dlc  <  ldpm <  aed <=  rd   [dlc, aed - 1 day] **
-      # 3) abd <=  dlc  <  ldpm <  rd  <   aed  [dlc, ldpm]
-      # 4) abd <=  ldpm <= dlc  <  aed <=  rd   [dlc, aed - 1 day] **
-      #    abd <=  ldpm <= dlc  <  rd  <   aed  no pending verification
-      # 5) dlc <   abd  <= aed  <  ldpm <  rd   [abd, aed - 1 day]
-      # 6) dlc <   abd  <= ldpm <  aed  <= rd   [abd, aed - 1 day]
-      # 7) dlc <   abd  <= ldpm <  rd   <  aed  [abd, ldpm]
-      # 8) dlc <   ldpm <  abd <=  aed <=  rd   [abd, aed - 1 day] or [abd, aed] if abd == aed ?
-      # 8) dlc <   ldpm <  abd ==  aed <=  rd   [abd, aed]
-      #    dlc <   ldpm <  abd     rd      aed  no pending verification **
-      #    3/1     3/31    4/2    4/15    6/15
-      # 9) ldpm <	abd	<=	dlc < 	aed	<=	rd   [dlc, aed - 1 day] or [abd, aed] if abd == aed ?
-      #    ldpm <	abd	<=	dlc	<	  rd	<		aed  no pending verification
-      #10) ldpm <= dlc	<		abd	<=	aed	<=	rd   [abd, aed - 1 day] or [abd, aed] if abd == aed ?
-      #    ldpm <=	dlc	<		abd	<=	rd	<		aed  no pending verification
 
       awards.each_with_index do |award, idx|
         @award = award
@@ -54,26 +23,6 @@ module Vye
 
         # no pending verfications for future awards
         next if eval_future_award
-
-        # TODO: Run a batch & determine which cases are the most frequent and refactor
-        #       the order of the methods accordingly
-        # --------------------------------------------------------------------------------
-        # Original cases and what the act_begin & act_end should be for each case
-        # --------------------------------------------------------------------------------
-        # 01 abd  <= dlc  <  aed  <= ldpm <  rd		dlc, aed minus 1 day
-        # 02 abd  <= dlc  <  ldpm <  aed  <= rd		dlc, aed minus 1 day
-        # 04 abd  <= ldpm <  dlc  <  aed  <= rd   dlc, aed minus 1 day
-        # --------------------------------------------------------------------------------
-        # 05 dlc   < abd  <= aed  <= ldpm <  rd		abd, aed minus 1 day or aed if abd = aed
-        # 06 dlc   < abd  <= ldpm <  aed  <= rd		abd, aed minus 1 day
-        # 08 dlc  <= ldpm <  abd  <= aed  <= rd		abd, aed minus 1 day or aed if abd = aed
-        # 09 dlc  <= ldpm <  abd  <= rd    = aed	abd, aed minus 1 day or aed if abd = aed
-        # 10 ldpm  < dlc  <= abd <=  aed  <= rd  	abd, aed minus 1 day or aed if abd = aed
-        # --------------------------------------------------------------------------------
-        # 03 abd  <= dlc  <  ldpm <  rd   <  aed  dlc, ldpm
-        # --------------------------------------------------------------------------------
-        # 07 dlc   < abd  <= ldpm <  rd   <  aed	abd, ldpm
-        # --------------------------------------------------------------------------------
 
         trace = eval_case_eom ||
                 act_beg_is_abd_and_act_end_is_aed ||
@@ -202,7 +151,6 @@ module Vye
     end
 
     def act_beg_is_abd_and_act_end_is_aed
-
       if previous_certification_date < award_begin_date && award_begin_date <= award_end_date &&
          award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
         return 'case5'
@@ -269,4 +217,3 @@ module Vye
     end
   end
 end
-# rubocop:enable Rails/Output

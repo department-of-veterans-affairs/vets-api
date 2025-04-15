@@ -14,10 +14,10 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
   # award end date (aed)
   # last day of prior month (ldpm)
   # run date (rd)
-  ######################################################
-  # happy path                      [act_begin, act_end]
-  # ldpm <= dlc	<	abd	<= aed <=	rd  [abd, aed - 1 day]
-  ######################################################
+  #####################################################
+  # happy path                     [act_begin, act_end]
+  # ldpm <= dlc	<	abd	< aed <= rd  [abd, aed - 1 day]
+  #####################################################
   # rubocop:disable RSpec/NoExpectationExample
   describe 'eval_case10' do
     subject { described_class.new }
@@ -28,7 +28,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:date_last_certified) { Date.new(2025, 3, 31) }
 
     describe 'happy path(s)' do
-      context 'ldpm = dlc < abd <= aed <= rd' do
+      context 'ldpm = dlc < abd < aed <= rd' do
         let(:award_begin_date) { Date.new(2025, 4, 2) }
         let(:award_end_date) { Date.new(2025, 4, 15) }
         let(:aed_minus1) { Date.new(2025, 4, 14) }
@@ -42,7 +42,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         end
       end
 
-      context 'ldpm < dlc < abd <= aed <= rd' do
+      context 'ldpm < dlc < abd < aed <= rd' do
         let(:date_last_certified) { Date.new(2025, 4, 1) }
         let(:award_begin_date) { Date.new(2025, 4, 2) }
         let(:award_end_date) { Date.new(2025, 4, 15) }
@@ -57,17 +57,17 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         end
       end
 
-      context 'ldpm <= dlc < abd = aed <= rd' do
+      context 'ldpm <= dlc < abd < aed < rd' do
         let(:award_begin_date) { Date.new(2025, 4, 2) }
-        let(:award_end_date) { Date.new(2025, 4, 2) }
-        let(:aed_minus1) { Date.new(2025, 4, 1) }
+        let(:award_end_date) { Date.new(2025, 4, 3) }
+        let(:aed_minus1) { Date.new(2025, 4, 2) }
 
         before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
         it 'creates a case10 pending verification' do
           Timecop.freeze(run_date) { subject.create }
           pv = Vye::Verification.last
-          check_expectations_for(pv, award_begin_date, award_end_date, award_end_date, 'case10')
+          check_expectations_for(pv, award_begin_date, aed_minus1, aed_minus1, 'case10')
         end
       end
     end

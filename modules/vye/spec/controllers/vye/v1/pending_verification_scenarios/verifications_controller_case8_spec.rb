@@ -14,10 +14,10 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
   # award end date (aed)
   # last day of prior month (ldpm)
   # run date (rd)
-  ####################################################
-  # happy path                    [act_begin, act_end]
-  # dlc < ldpm < abd <= aed <= rd [abd, aed - 1 day]
-  ####################################################
+  ###################################################
+  # happy path                   [act_begin, act_end]
+  # dlc < ldpm < abd < aed <= rd [abd, aed - 1 day]
+  ###################################################
   # rubocop:disable RSpec/NoExpectationExample
   describe 'eval_case8' do
     subject { described_class.new }
@@ -28,21 +28,21 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:date_last_certified) { Date.new(2025, 3, 1) }
 
     describe 'happy path(s)' do
-      context 'dlc < ldpm < abd <= aed < rd' do
+      context 'dlc < ldpm < abd < aed < rd' do
         let(:award_begin_date) { Date.new(2025, 4, 1) }
-        let(:award_end_date) { Date.new(2025, 4, 1) }
-        let(:aed_minus1) { Date.new(2025, 3, 31) }
+        let(:award_end_date) { Date.new(2025, 4, 2) }
+        let(:aed_minus1) { Date.new(2025, 4, 1) }
 
         before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
         it 'creates a case8 pending verification' do
           Timecop.freeze(run_date) { subject.create }
           pv = Vye::Verification.last
-          check_expectations_for(pv, award_begin_date, award_end_date, award_end_date, 'case8')
+          check_expectations_for(pv, award_begin_date, aed_minus1, aed_minus1, 'case8')
         end
       end
 
-      context 'dlc < ldpm < abd <= aed = rd' do
+      context 'dlc < ldpm < abd < aed = rd' do
         let(:award_begin_date) { Date.new(2025, 4, 1) }
         let(:award_end_date) { Date.new(2025, 4, 5) }
         let(:aed_minus1) { Date.new(2025, 4, 4) }
