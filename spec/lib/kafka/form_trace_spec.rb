@@ -19,6 +19,26 @@ RSpec.describe Kafka::FormTrace do
     }
   end
 
+  describe '#truncate_form_id' do
+    context 'when form_id contains a dash' do
+      it 'returns the truncated form ID with "F" prefix' do
+        expect(Kafka::FormTrace.new(valid_attributes).truncate_form_id('21P-527EZ')).to eq('F527EZ')
+      end
+    end
+
+    context 'when form_id does not contain a dash' do
+      it 'returns the form ID with "F" prefix' do
+        expect(Kafka::FormTrace.new(valid_attributes).truncate_form_id('1010EZ')).to eq('F1010EZ')
+      end
+    end
+
+    context 'when form_id is already the correct format' do
+      it 'returns the form ID with "F" prefix' do
+        expect(Kafka::FormTrace.new(valid_attributes).truncate_form_id('F1010EZ')).to eq('F1010EZ')
+      end
+    end
+  end
+
   describe 'validations' do
     subject { described_class.new(valid_attributes) }
 
@@ -89,7 +109,7 @@ RSpec.describe Kafka::FormTrace do
 
       it 'accepts valid state values' do
         described_class::STATES.each do |state|
-          trace = described_class.new(valid_attributes.merge(state: state))
+          trace = described_class.new(valid_attributes.merge(state:))
           expect(trace).to be_valid
         end
       end

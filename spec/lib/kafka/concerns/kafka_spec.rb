@@ -95,16 +95,66 @@ RSpec.describe Kafka do
     end
   end
 
-  describe '#truncate_form_id' do
-    context 'when form_id contains a dash' do
-      it 'returns the truncated form ID with "F" prefix' do
-        expect(Kafka.truncate_form_id('21P-527EZ')).to eq('F527EZ')
+  describe '#submit_event' do
+    let(:icn) { '' }
+    let(:current_id) { 'eded0764-7f5f-46c5-b40f-3c24335bf24f' }
+    let(:submission_name) { '21P-527EZ' }
+    let(:state) { 'sent' }
+    let(:next_id) { '123456' }
+    let(:prior_id) { '789012' }
+    let(:additional_ids) { %w[123 456] }
+    let(:expected_valid_output) do
+      { 'current_id' => current_id,
+        'icn' => icn,
+        'next_id' => next_id,
+        'prior_id' => prior_id,
+        'state' => 'sent',
+        'submission_name' => 'F527EZ',
+        'system_name' => 'VA_gov',
+        'timestamp' => Time.zone.now.iso8601,
+        'vasi_id' => '2103',
+        'additional_ids' => %w[123 456] }
+    end
+
+    context 'when payload is valid' do
+      context 'when using non-test topic' do
+        it 'kicks off Event Bus Submission Job' do
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(expected_valid_output, false)
+
+          Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:,
+                             use_test_topic: false)
+        end
+      end
+
+      context 'when using test topic' do
+        it 'kicks off Event Bus Submission Job' do
+          test_topic_expected_output = expected_valid_output.merge('submission_name' => submission_name)
+          test_topic_expected_output = { 'data' => test_topic_expected_output }
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(test_topic_expected_output, true)
+
+          Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:,
+                             use_test_topic: true)
+        end
       end
     end
 
-    context 'when form_id does not contain a dash' do
-      it 'returns the form ID with "F" prefix' do
-        expect(Kafka.truncate_form_id('1010EZ')).to eq('F1010EZ')
+    context 'when payload is invalid' do
+      let(:state) { 'MALFORMED_STATE' }
+
+      context 'when using non-test topic' do
+        it 'raises validation error' do
+          expect do
+            Kafka.submit_event(icn:, current_id:, next_id:, submission_name:, state:, use_test_topic: false)
+          end.to raise_error(Common::Exceptions::ValidationErrors)
+        end
+      end
+
+      context 'when using test topic' do
+        it 'kicks off Event Bus Submission Job' do
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
+
+          Kafka.submit_event(icn:, current_id:, next_id:, submission_name:, state:, use_test_topic: true)
+        end
       end
     end
   end

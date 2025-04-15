@@ -186,17 +186,6 @@ describe Kafka::AvroProducer do
         end.to raise_error(Avro::SchemaValidator::ValidationError)
       end
     end
-
-    it 'raises ValidationErrors when FormTrace validation fails' do
-      invalid_form_data = {
-        # Missing required fields: current_id, vasi_id, system_name, submission_name, state, timestamp
-        'prior_id' => 'prior-123'
-      }
-
-      expect do
-        avro_producer.produce('topic-1', invalid_form_data)
-      end.to raise_error(Common::Exceptions::ValidationErrors)
-    end
   end
 
   describe '#encode_payload' do

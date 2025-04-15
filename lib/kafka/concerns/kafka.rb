@@ -63,25 +63,30 @@ module Kafka
   #
   # @return [void]
   # rubocop:disable Metrics/ParameterLists
-  def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil, use_test_topic: false)
+  def self.submit_event(current_id:, submission_name:, state:, icn: nil, prior_id: nil, next_id: nil,
+                        additional_ids: nil, use_test_topic: false)
     payload = {
-      'ICN' => icn,
-      'currentId' => current_id,
-      'nextId' => next_id,
-      'submissionName' => submission_name,
+      'icn' => icn,
+      'prior_id' => prior_id.to_s,
+      'current_id' => current_id.to_s,
+      'next_id' => next_id.to_s,
+      'submission_name' => submission_name,
       'state' => state,
-      'vasiId' => VASI_ID,
-      'systemName' => SYSTEM_NAME,
-      'timestamp' => Time.current.iso8601
+      'vasi_id' => VASI_ID,
+      'system_name' => SYSTEM_NAME,
+      'timestamp' => Time.current.iso8601,
+      'additional_ids' => additional_ids
     }
+
+    if use_test_topic
+      payload = { 'data' => payload }
+    else
+      form_trace = Kafka::FormTrace.new(payload)
+      raise Common::Exceptions::ValidationErrors, form_trace.errors unless form_trace.valid?
+
+      payload = form_trace.attributes
+    end
     Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
   end
   # rubocop:enable Metrics/ParameterLists
-
-  def self.truncate_form_id(form_id)
-    dash_index = form_id.index('-')
-    return "F#{form_id}" if dash_index.nil?
-
-    "F#{form_id[(dash_index + 1)..]}"
-  end
 end
