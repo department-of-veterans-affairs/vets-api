@@ -37,7 +37,7 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
     context 'when the api_key_path is defined for a subclass' do
       it 'returns the API key from the env settings' do
         # The api_key is set to `~` in `config/settings/test.yml`, which is nil
-        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key(:associations)).to be(nil)
+        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key(:associations)).to be_nil
       end
     end
   end
