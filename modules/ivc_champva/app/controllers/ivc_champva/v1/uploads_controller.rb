@@ -107,9 +107,7 @@ module IvcChampva
             end
 
             begin
-              unless response.nil?
-                update_ves_records(metadata['uuid'], ves_request.application_uuid, response, ves_request.to_json)
-              end
+              update_ves_records(metadata['uuid'], ves_request.application_uuid, response, ves_request.to_json)
             rescue => e
               Rails.logger.error "Ignoring error updating VES records: #{e.message}"
             end
@@ -128,7 +126,8 @@ module IvcChampva
 
         # ves_response in the db is freeform text and hard to parse
         # so only put the response body in the db if the response is not 200
-        ves_status = ves_response.status == 200 ? 'ok' : ves_response.body
+        ves_status = ves_response.nil? ? 'internal_server_error' 
+          : ves_response.status == 200 ? 'ok' : ves_response.body
 
         persisted_forms.each do |form|
           form.update(
