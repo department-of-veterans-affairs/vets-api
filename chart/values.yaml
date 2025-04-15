@@ -105,10 +105,20 @@ web:
       pods:
       periodSeconds:
   service:
-    enabled: false
-    annotations: {}
+    enabled: true
+    annotations:
+      traefik.backend.loadbalancer.sticky: "true"
     ports:
-    type:
+      # port is what this service should serve on, and targetPort is the port in the container.
+      - port: 3004
+        name: vets-api
+        targetPort: web
+        protocol: TCP
+      - port: 9293
+        name: healthcheck
+        targetPort: stats
+        protocol: TCP
+    type: ClusterIP
   externalDns:
     dnsName:
     recordTTL:
