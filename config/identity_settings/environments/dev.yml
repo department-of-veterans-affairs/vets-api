@@ -51,6 +51,7 @@ sign_in:
   sts_client:
     base_url: https://dev-api.va.gov
     key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://dev.va.gov/sign-in
 
 ssoe_eauth_cookie:
   domain: .va.gov
