@@ -87,25 +87,34 @@ module AccreditedRepresentativePortal
         submission = request.power_of_attorney_form_submission
         resolution = request.resolution
 
-        form&.destroy! # Delete form
+        # 1. Destroy associated form
+        form&.destroy!
 
-        # Redact submission data
+        # 2. Redact submission data using update_columns direct to the db
+        # we're using #update_columns to skip validation because the redaction
+        # removes required fields and will leave the record invalid
+        # rubocop:disable Rails/SkipsModelValidations
         if submission.present?
-          submission.update!(
+          submission.update_columns(
+            # Use the actual ciphertext/key column names
             service_response_ciphertext: nil,
             error_message_ciphertext: nil,
             encrypted_kms_key: nil
           )
         end
 
-        # Nullify reason on the resolution if it exists and takes a reason
-        resolution&.update!(reason: nil) if resolution&.resolving&.accepts_reasons?
+        # 3. Redact resolution data using update_columns
+        if resolution.present?
+          resolution_updates = { reason_ciphertext: nil }
+          # Add the key to the hash only if the column exists on the resolution table
+          resolution_updates[:encrypted_kms_key] = nil if resolution.has_attribute?(:encrypted_kms_key)
+          resolution.update_columns(resolution_updates)
+        end
 
-        # Mark request as redacted
-        request.redacted_at = Time.current
-
-        # Skip validations to allow required fields to pass after redacting
-        request.save(validate: false)
+        # 4. Mark request as redacted
+        # update_column is fine here as it's just one field
+        request.update_column(:redacted_at, Time.current)
+        # rubocop:enable Rails/SkipsModelValidations
       end
     end
 
