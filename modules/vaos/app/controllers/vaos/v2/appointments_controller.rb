@@ -105,7 +105,12 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        render json: Eps::DraftAppointmentSerializer.new(appointment), status: :created
+        if appointment&.id
+          render json: { data: { id: appointment.id, type: 'appointment' } }, status: :created
+        else
+          render json: { errors: [{ title: 'Appointment creation failed', detail: 'Could not create appointment' }] },
+                 status: :unprocessable_entity
+        end
       end
 
       private
