@@ -7,12 +7,15 @@ module PdfFill
   module Forms
     module Formatters
       class Va1010ez < Base
+        DATE_FORMAT = '%m/%d/%Y'
         class << self
           # Formats a date string into the format MM/DD/YYYY.
           # If the date is in the "YYYY-MM-XX" format, it converts it to "MM/YYYY".
           # Returns date_string and logs error if unable to parse date_string
           def format_date(date_string)
             return if date_string.blank?
+
+            date_string = date_string.strip
 
             # Handle 1990-08-XX format where the day is not provided
             if date_string.match?(/^\d{4}-\d{2}-XX$/)
@@ -22,11 +25,11 @@ module PdfFill
 
             begin
               # Try ISO 8601 first (e.g., "1980-01-31")
-              Date.iso8601(date_string).strftime('%m/%d/%Y')
+              Date.iso8601(date_string).strftime(DATE_FORMAT)
             rescue Date::Error
               # Try MM/DD/YYYY fallback (e.g., "01/31/1980")
               begin
-                Date.strptime(date_string, '%m/%d/%Y').strftime('%m/%d/%Y')
+                Date.strptime(date_string, DATE_FORMAT).strftime(DATE_FORMAT)
               rescue Date::Error
                 Rails.logger.error("[#{self}] Unparseable date string", date_string:)
                 date_string

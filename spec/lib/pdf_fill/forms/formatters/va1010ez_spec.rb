@@ -60,6 +60,14 @@ describe PdfFill::Forms::Formatters::Va1010ez do
       expect(format_date).to eq('12/01/1980')
     end
 
+    context 'strips out white space' do
+      let(:date_string) { ' 1980-12-01 ' }
+
+      it 'formats date' do
+        expect(format_date).to eq '12/01/1980'
+      end
+    end
+
     context 'date is MM/DD/YYYY format' do
       let(:date_string) { '12/01/1980' }
 
@@ -70,6 +78,14 @@ describe PdfFill::Forms::Formatters::Va1010ez do
 
     context 'date is YYYY-MM-XX format' do
       let(:date_string) { '1977-12-XX' }
+
+      it 'formats date' do
+        expect(format_date).to eq '12/1977'
+      end
+    end
+
+    context 'date string has white space' do
+      let(:date_string) { ' 1977-12-XX ' }
 
       it 'formats date' do
         expect(format_date).to eq '12/1977'
