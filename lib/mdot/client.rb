@@ -75,7 +75,7 @@ module MDOT
 
     def submission_headers
       {
-        VAAPIKEY: MDOT::Token.find(@user.uuid).token
+        VAAPIKEY: handle_token
       }
     end
 
@@ -131,6 +131,14 @@ module MDOT
       else
         raise error
       end
+    end
+
+    def handle_token
+      existing_token = MDOT::Token.find(@user.uuid)
+      if !existing_token || existing_token.ttl < 5
+        get_supplies
+      end
+      MDOT::Token.find(@user.uuid).try(:token)
     end
   end
 end
