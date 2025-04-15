@@ -16,7 +16,7 @@ module MyHealth
       def index
         resource = collection_resource
         resource.data = resource_data_modifications(resource)
-        filter_count = set_filter_metadata(resource.data)
+        filter_count = set_filter_metadata(resource.data, collection_resource.data)
         if params[:filter].present?
           resource = if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
                        filter_renewals(resource)
@@ -184,10 +184,10 @@ module MyHealth
         resource.data = filter_non_va_meds(resource.data)
       end
 
-      def set_filter_metadata(list)
+      def set_filter_metadata(list, non_modified_collection)
         {
           filter_count: {
-            all_medications: list.length,
+            all_medications: group_prescriptions(non_modified_collection).length,
             active: count_active_medications(list),
             recently_requested: count_recently_requested_medications(list),
             renewal: list.select(&method(:renewable)).length,
