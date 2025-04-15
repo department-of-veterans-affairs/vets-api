@@ -224,20 +224,11 @@ module AccreditedRepresentativePortal
       end
 
       it 'nullifies submission data' do
-        # Ensure submission has data to be nullified first, bypassing validations for setup.
-        submission.update!(
-          service_response_ciphertext: 'encrypted_data',
-          error_message_ciphertext: 'encrypted_error', encrypted_kms_key: 'key'
-        )
-        submission.reload # Ensure setup is reflected before redaction
-
         job.send(:redact_request, request)
         submission.reload
 
         expect(submission.service_response_ciphertext).to be_nil
         expect(submission.error_message_ciphertext).to be_nil
-        # NOTE: If this expectation fails, check for callbacks or other logic in the
-        # PowerOfAttorneyFormSubmission model that might prevent encrypted_kms_key from being nullified.
         expect(submission.encrypted_kms_key).to be_nil
       end
 
@@ -246,6 +237,7 @@ module AccreditedRepresentativePortal
         resolution.update!(reason: 'Some reason')
         job.send(:redact_request, request)
         expect(resolution.reload.reason).to be_nil
+        expect(resolution.encrypted_kms_key).to be_nil
       end
 
       it 'marks the request as redacted by touching redacted_at' do

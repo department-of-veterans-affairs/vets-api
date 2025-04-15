@@ -57,6 +57,16 @@ FactoryBot.define do
       end
     end
 
+    trait :with_pending_form_submission do
+      after(:build) do |poa_request, _evaluator|
+        poa_request.power_of_attorney_form_submission = build(
+          :power_of_attorney_form_submission,
+          status: nil,
+          power_of_attorney_request: poa_request
+        )
+      end
+    end
+
     trait :with_failed_form_submission do
       after(:build) do |poa_request, _evaluator|
         poa_request.power_of_attorney_form_submission = build(
