@@ -23,7 +23,17 @@ matchExpressions:
   operator: In
 topologyKey: kubernetes.io/hostname
 annotations:
-  ad.datadoghq.com/vets-api-web.checks:
+  cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+  ad.datadoghq.com/vets-api-web.checks: |-
+    {
+      "puma": {
+        "instances": [
+          {
+            "control_url": "http://%%host%%:9293/stats"
+          }
+        ]
+      }
+    }
 serviceAccount:
   enabled: false
   role_arn:
@@ -104,10 +114,20 @@ web:
       pods:
       periodSeconds:
   service:
-    enabled: false
-    annotations: {}
+    enabled: true
+    annotations:
+      traefik.backend.loadbalancer.sticky: "true"
     ports:
-    type:
+      # port is what this service should serve on, and targetPort is the port in the container.
+      - port: 3004
+        name: vets-api
+        targetPort: web
+        protocol: TCP
+      - port: 9293
+        name: healthcheck
+        targetPort: stats
+        protocol: TCP
+    type: ClusterIP
   externalDns:
     dnsName:
     recordTTL:
