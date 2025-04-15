@@ -28,6 +28,7 @@ module Kafka
     def perform(payload, use_test_topic = false) # rubocop:disable Style/OptionalBooleanParameter
       @monitor = Kafka::Monitor.new
       topic = Kafka.get_topic(use_test_topic:)
+
       Kafka::AvroProducer.new.produce(topic, payload)
       redacted_payload = Kafka.redact_icn(payload)
       @monitor.track_submission_success(topic, redacted_payload)
