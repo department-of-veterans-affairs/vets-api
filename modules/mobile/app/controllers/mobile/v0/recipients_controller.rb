@@ -16,6 +16,9 @@ module Mobile
 
       def all_recipients
         resource = client.get_all_triage_teams(@current_user.uuid, use_cache? || true)
+        vamc_ehr_data = client.get_vamc_ehr_data
+
+        puts vamc_ehr_data # cached vamc_ehr_data returns different type/shape
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
         resource = resource.sort(params[:sort])
