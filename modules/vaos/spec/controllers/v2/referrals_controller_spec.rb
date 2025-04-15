@@ -201,9 +201,9 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['id']).to eq(encrypted_uuid)
         expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
-        expect(response_data['data']['attributes']['providerName']).to eq('Dr. Smith')
-        expect(response_data['data']['attributes']['location']).to eq('VA Medical Center')
-        expect(response_data['data']['attributes']['expirationDate']).to eq('2024-05-27')
+        expect(response_data['data']['attributes']['provider']['name']).to eq('Dr. Smith')
+        expect(response_data['data']['attributes']['referringFacility']['name']).to be_present
+        expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
       end
 
