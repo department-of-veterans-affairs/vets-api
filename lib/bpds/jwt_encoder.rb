@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module BPDS
+module Bpds
   # Encoder to be used with BPDS service
   class JwtEncoder
     # expiration period
