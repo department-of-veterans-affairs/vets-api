@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://api.wellhive.com/care-navigation/v1/provider-services/53mL4LAZ/slots?appointmentTypeId=ov&startBefore=2025-01-03T00:00:00Z&startOnOrAfter=2025-01-01T00:00:00Z
+    uri: https://api.wellhive.com/care-navigation/v1/provider-services?npi=9mN718pHa
     body:
       encoding: US-ASCII
       string: ''
@@ -27,8 +27,8 @@ http_interactions:
         - Sat, 11 Jan 2025 23:00:44 GMT
       Content-Type:
         - application/json
-      Transfer-Encoding:
-        - chunked
+      Content-Length:
+        - '856'
       Connection:
         - keep-alive
       Content-Security-Policy:
@@ -36,15 +36,15 @@ http_interactions:
       Strict-Transport-Security:
         - max-age=6307200; includeSubDomains; preload
       Traceparent:
-        - 00-94c8947f4410568bdca331053536b04f-f282e870e6d5fa60-01
+        - 00-c9182a0e90280e7cc9ea83a192c1b787-51faf4890f9e96d9-01
       X-Content-Type-Options:
         - nosniff
       X-Request-Id:
         - 2b7d2bc2-cb28-42f8-900c-4ba0fdfd93d7
       X-Wellhive-Trace-Id:
-        - 94c8947f4410568bdca331053536b04f
+        - c9182a0e90280e7cc9ea83a192c1b787
     body:
       encoding: UTF-8
-      string: '{"count":2,"slots":[{"id":"5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|2025-01-02T11:00:00Z|30m0s|1736636444704|ov","providerServiceId":"9mN718pH","appointmentTypeId":"ov","start":"2025-01-02T11:00:00Z","remaining":1},{"id":"5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|2025-01-02T15:30:00Z|30m0s|1736636444704|ov","providerServiceId":"9mN718pH","appointmentTypeId":"ov","start":"2025-01-02T15:30:00Z","remaining":1}]}'
+      string: '{"count":0,"providerServices":[]}'
   recorded_at: Sat, 11 Jan 2025 23:00:44 GMT
 recorded_with: VCR 6.3.1

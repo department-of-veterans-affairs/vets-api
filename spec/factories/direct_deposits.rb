@@ -2,12 +2,12 @@
 
 FactoryBot.define do
   factory :direct_deposit, class: Hash do
+    veteran_status { 'VETERAN' }
     control_information
 
     trait :with_payment_account do
       payment_account
     end
-
     initialize_with { attributes }
   end
 
