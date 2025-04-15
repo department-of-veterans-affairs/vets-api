@@ -1113,7 +1113,7 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountNumber' => '******7890',
       'bankAccountType' => 'Checking',
       'bankName' => 'WELLS FARGO BANK',
-      'bankRoutingNumber' => '*****0503',
+      'bankRoutingNumber' => '*****0503'
     }
   end
 

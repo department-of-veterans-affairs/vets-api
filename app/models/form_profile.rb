@@ -114,7 +114,7 @@ class FormProfile
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
-    ivc_champva: %w[10-7959C, 10-7959F-2],
+    ivc_champva: %w[10-7959C 10-7959F-2],
     mdot: ['MDOT'],
     pension_burial: %w[21P-530EZ 21P-527EZ],
     vre_counseling: ['28-8832'],
