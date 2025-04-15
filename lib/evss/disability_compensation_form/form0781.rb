@@ -54,19 +54,20 @@ module EVSS
 
       def create_form_v2
         events = @form_content['events'].nil? ? nil : sanitize_details(@form_content['events'])
-        behavior_details = @form_content['behaviorsDetails'].nil? ? nil : sanitize_hash_values(@form_content['behaviorsDetails'])
-        additional_info = @form_content['additionalInformation'].nil? ? nil : sanitize_text(@form_content['additionalInformation'])
+        bd = @form_content['behaviorsDetails'].nil? ? nil : sanitize_hash_values(@form_content['behaviorsDetails'])
+        ai = @form_content['additionalInformation'].nil? ? nil : sanitize_text(@form_content['additionalInformation'])
+
         prepare_veteran_info.merge({
                                      'eventTypes' => @form_content['eventTypes'],
                                      'events' => events,
                                      'behaviors' => aggregate_behaviors,
-                                     'behaviorsDetails' => behavior_details,
+                                     'behaviorsDetails' => bd,
                                      'evidence' => aggregate_supporting_evidence,
                                      'treatmentNoneCheckbox' => @form_content['treatmentNoneCheckbox'],
                                      'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
-                                     'additionalInformation' => additional_info
+                                     'additionalInformation' => ai
                                    })
       end
 
