@@ -9,7 +9,7 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
 
   describe '#base_path' do
     it 'returns the value from the env settings' do
-      expect(subject.base_path).to eq('https://ves.va.gov/')
+      expect(subject.base_path).to eq('https://sqa.ves.va.gov/')
     end
   end
 
@@ -36,7 +36,8 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
 
     context 'when the api_key_path is defined for a subclass' do
       it 'returns the API key from the env settings' do
-        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key(:associations)).to eq('fake_api_key')
+        # The api_key is set to `~` in `config/settings/test.yml`, which is nil
+        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key(:associations)).to eq(nil)
       end
     end
   end

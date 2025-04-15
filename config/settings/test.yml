@@ -1748,9 +1748,9 @@ vet360:
     timeout: 30
 veteran_enrollment_system:
   associations:
-    api_key: fake_api_key
+    api_key: ~
   ee_summary:
-    api_key: fake_api_key
+    api_key: ~
   host: https://sqa.ves.va.gov
   open_timeout: 10
   timeout: 30
