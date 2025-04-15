@@ -7,24 +7,27 @@ module AccreditedRepresentativePortal
   module V0
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
-      skip_after_action :verify_pundit_authorization
 
       def submit
+        authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
-        check_for_changes
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
         render json: { status:, confirmation_number: }
       end
 
       def upload_scanned_form
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
         attachment.file = params['file']
         raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
         attachment.save
-        render json: RepresentativeAttachmentFormSerializer.new(attachment)
+        serialized = PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
+          key.camelize(:lower)
+        end
+        render json: serialized
       end
 
       private
@@ -100,16 +103,6 @@ module AccreditedRepresentativePortal
         )
       end
 
-      def check_for_changes
-        in_progress_form = InProgressForm.form_for_user(form_data[:formNumber], @current_user)
-        if in_progress_form
-          prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
-                                                                        form_data:,
-                                                                        form_id: form_data[:formNumber])
-          prefill_data_service.check_for_changes
-        end
-      end
-
       def send_confirmation_email(_params, confirmation_number)
         new_form_data = create_new_form_data
         config = {
@@ -121,6 +114,16 @@ module AccreditedRepresentativePortal
 
         notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
         notification_email.send
+      end
+
+      def get_icn
+        mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
+
+        if mpi.profile&.icn
+          mpi.profile.icn
+        else
+          raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
+        end
       end
     end
   end

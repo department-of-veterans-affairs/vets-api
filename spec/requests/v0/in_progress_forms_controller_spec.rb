@@ -390,25 +390,15 @@ RSpec.describe V0::InProgressFormsController do
         end
 
         context 'when form type is pension' do
-          before { allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async) }
+          let(:itf_job) { Lighthouse::CreateIntentToFileJob.new }
 
-          it 'calls aync CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
-                                                       instance_of(User)).and_return(false)
-
-            put v0_in_progress_form_url('21P-527EZ'),
-                params: {
-                  formData: new_form.form_data,
-                  metadata: new_form.metadata
-                }.to_json,
-                headers: { 'CONTENT_TYPE' => 'application/json' }
-
-            latest_form = InProgressForm.last
-            expect(Lighthouse::CreateIntentToFileJob).to have_received(:perform_async).with(latest_form.id, user.icn,
-                                                                                            user.participant_id)
+          before do
+            allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async)
+            allow(Lighthouse::CreateIntentToFileJob).to receive(:new).and_return(itf_job)
+            allow(itf_job).to receive(:perform)
           end
 
-          it 'does not call aync CreateIntentToFileJob for newly created forms' do
+          it 'calls synchronous CreateIntentToFileJob for newly created forms' do
             expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
                                                        instance_of(User)).and_return(true)
 
@@ -419,7 +409,8 @@ RSpec.describe V0::InProgressFormsController do
                 }.to_json,
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
-            InProgressForm.last
+            latest_form = InProgressForm.last
+            expect(itf_job).to have_received(:perform).with(latest_form.id, user.icn, user.participant_id)
             expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
           end
         end
