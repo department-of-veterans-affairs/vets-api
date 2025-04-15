@@ -53,7 +53,6 @@ module EVSS
       end
 
       def create_form_v2
-        Rails.logger.info("Form0781v2: Form content: #{@form_content}")
         events = @form_content['events'].nil? ? nil : sanitize_details(@form_content['events'])
         behavior_details = @form_content['behaviorsDetails'].nil? ? nil : sanitize_hash_values(@form_content['behaviorsDetails'])
         additional_info = @form_content['additionalInformation'].nil? ? nil : sanitize_text(@form_content['additionalInformation'])
