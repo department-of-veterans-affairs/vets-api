@@ -90,7 +90,9 @@ RSpec.describe AccreditedRepresentativePortal::ExpirePowerOfAttorneyRequestsJob,
 
     it 'does nothing if there are no unresolved old requests' do
       # Delete the eligible request created in the main let block
+      request_old_unresolved.power_of_attorney_form&.destroy
       request_old_unresolved.destroy!
+      request_just_expired.power_of_attorney_form&.destroy
       request_just_expired.destroy!
 
       expect { job.perform }.not_to(change(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, :count))
