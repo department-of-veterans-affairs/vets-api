@@ -24,7 +24,7 @@ describe PDFUtilities::PDFValidator::Validator do
     context 'when some options are passed' do
       let(:options) do
         {
-          size_limit_in_bytes: 1_073_741_824, # 1 GB
+          size_limit_in_bytes: 1.gigabyte,
           width_limit_in_inches: 11,
           height_limit_in_inches: 11,
           check_encryption: false
@@ -32,7 +32,7 @@ describe PDFUtilities::PDFValidator::Validator do
       end
       let(:expected_result) do
         {
-          size_limit_in_bytes: 1_073_741_824, # 1 GB
+          size_limit_in_bytes: 1.gigabyte,
           check_page_dimensions: true,
           width_limit_in_inches: 11,
           height_limit_in_inches: 11,
@@ -69,7 +69,7 @@ describe PDFUtilities::PDFValidator::Validator do
     end
 
     context 'when the file exceeds the file size limit' do
-      let(:options) { { size_limit_in_bytes: 204_800 } } # 200 KB
+      let(:options) { { size_limit_in_bytes: 200.kilobytes } }
       let(:file_size_error) { "#{PDFUtilities::PDFValidator::FILE_SIZE_LIMIT_EXCEEDED_MSG} of 200 KB" }
 
       it 'returns the file size error' do
@@ -138,7 +138,7 @@ describe PDFUtilities::PDFValidator::Validator do
     end
 
     context 'when the file exceeds the file size limit and is owner password encrypted' do
-      let(:options) { { size_limit_in_bytes: 20_480 } } # 20 KB
+      let(:options) { { size_limit_in_bytes: 20.kilobytes } }
       let(:file_size_error) { "#{PDFUtilities::PDFValidator::FILE_SIZE_LIMIT_EXCEEDED_MSG} of 20 KB" }
       let(:owner_password_error) { PDFUtilities::PDFValidator::OWNER_PASSWORD_MSG }
       let(:file) { "#{fixture_path}/encrypted.pdf" }

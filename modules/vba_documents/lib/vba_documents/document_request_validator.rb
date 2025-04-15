@@ -7,13 +7,13 @@ module VBADocuments
     include PDFUtilities
 
     SUPPORTED_CONTENT_TYPES = %w[application/pdf].freeze
-    MAX_FILE_SIZE_IN_BYTES = 104_857_600 # 100 MB
+    MAX_FILE_SIZE_IN_BYTES = 100.megabytes
     MAX_PAGE_WIDTH = 78
     MAX_PAGE_HEIGHT = 101
     DOCUMENT_NOT_PROVIDED_MSG = 'Document was not provided'
     DOCUMENT_NOT_A_PDF_MSG = 'Document is not a PDF'
     FILE_SIZE_LIMIT_EXCEEDED_MSG = \
-      "Document exceeds the file size limit of #{MAX_FILE_SIZE_IN_BYTES / 1_048_576} MB".freeze
+      "Document exceeds the file size limit of #{MAX_FILE_SIZE_IN_BYTES / 1.megabyte} MB".freeze
     DOCUMENT_FAILED_VALIDATION_MSG = 'Document failed validation'
 
     attr_accessor :result

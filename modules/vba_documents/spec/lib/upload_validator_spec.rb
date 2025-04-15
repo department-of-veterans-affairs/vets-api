@@ -134,7 +134,7 @@ RSpec.describe VBADocuments::UploadValidations do
       end
 
       describe 'when the file size exceeds the limit' do
-        let(:pdf_validator_options) { { size_limit_in_bytes: 1_024 } }
+        let(:pdf_validator_options) { { size_limit_in_bytes: 1.kilobyte } }
 
         it 'raises the correct UploadError' do
           expect(error).to be_instance_of(VBADocuments::UploadError)

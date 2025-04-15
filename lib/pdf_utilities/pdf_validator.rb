@@ -4,9 +4,9 @@ require 'pdf_info'
 
 module PDFUtilities
   def self.formatted_file_size(file_size_in_bytes)
-    bytes_per_gb = 1_073_741_824
-    bytes_per_mb = 1_048_576
-    bytes_per_kb = 1_024
+    bytes_per_gb = 1.gigabyte
+    bytes_per_mb = 1.megabyte
+    bytes_per_kb = 1.kilobyte
 
     if file_size_in_bytes >= bytes_per_gb
       "#{format('%g', (file_size_in_bytes.to_f / bytes_per_gb))} GB"
@@ -44,7 +44,7 @@ module PDFUtilities
 
     class Validator
       DEFAULT_OPTIONS = {
-        size_limit_in_bytes: 104_857_600, # 100 MB
+        size_limit_in_bytes: 100.megabytes,
         check_page_dimensions: true,
         check_encryption: true,
         # Height/width limits are ignored if the check_page_dimensions option is false.
