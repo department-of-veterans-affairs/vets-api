@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'appeals_api/health_checker'
 
-describe 'metadata request api', type: :request do
+describe AppealsApi::MetadataController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:cache) { Rails.cache }
   let(:s3_client) { instance_double(Aws::S3::Client) }
