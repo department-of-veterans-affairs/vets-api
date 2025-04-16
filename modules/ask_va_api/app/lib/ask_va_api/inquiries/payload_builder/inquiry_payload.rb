@@ -9,6 +9,10 @@ module AskVAApi
         class InquiryPayloadError < StandardError; end
         attr_reader :inquiry_params, :inquiry_details, :submitter_profile, :user, :veteran_profile
 
+        # NOTE: These two constants share the same ID value ('722310000') intentionally.
+        # This is due to an API quirk where different fields (e.g., authentication status and inquiry source)
+        # are assigned overlapping ID ranges. Although the context differs, the ID is reused across fields
+        # by the external system.
         UNAUTHENTICATE_ID = '722310000'
         INQUIRY_SOURCE_AVA_ID = '722310000'
 
@@ -117,7 +121,7 @@ module AskVAApi
         end
 
         def counselor_info
-          inquiry_params[:their_vre_couselor] || inquiry_params[:your_vre_counselor]
+          inquiry_params[:their_vre_counselor] || inquiry_params[:your_vre_counselor]
         end
 
         def build_residency_state_data
