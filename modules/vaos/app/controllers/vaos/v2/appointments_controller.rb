@@ -610,11 +610,11 @@ module VAOS
         render(
           json: {
             errors: [{
-              title: title,
-              detail: detail
+              title:,
+              detail:
             }]
           },
-          status: status
+          status:
         )
       end
 
