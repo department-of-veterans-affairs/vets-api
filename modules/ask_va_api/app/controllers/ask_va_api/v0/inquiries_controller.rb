@@ -5,7 +5,6 @@ module AskVAApi
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
       skip_before_action :authenticate, only: %i[unauth_create status]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create]
 
       def index
         inquiries = retriever.call
