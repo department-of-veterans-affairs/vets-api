@@ -1640,7 +1640,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: "/fake/client/key/path"
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
