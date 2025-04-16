@@ -473,7 +473,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(is_sorted).to be_truthy
           expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
 
-          metadata = {'dispensedDate' => 'DESC', 'prescriptionName' => 'ASC'}
+          metadata = { 'dispensedDate' => 'DESC', 'prescriptionName' => 'ASC' }
           expect(JSON.parse(response.body)['meta']['sort']).to eq(metadata)
         end
 
