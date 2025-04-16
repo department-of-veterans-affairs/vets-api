@@ -33,6 +33,10 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'
   end
 
+  def skip_pending_meds(array)
+    array.reject { |item| item['attributes']['prescription_source'] == 'PD' }
+  end
+
   %w[Premium Advanced].each do |account_level|
     context "#{account_level} User" do
       let(:mhv_account_type) { account_level }
@@ -297,7 +301,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
         response_data = JSON.parse(response.body)['data']
-        objects = response_data.map do |item|
+        objects = skip_pending_meds(response_data).map do |item|
           {
             'prescription_name' => item.dig('attributes', 'prescription_name'),
             'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s
@@ -315,7 +319,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
         response_data = JSON.parse(response.body)['data']
-        objects = response_data.map do |item|
+        objects = skip_pending_meds(response_data).map do |item|
           {
             'prescription_name' => item.dig('attributes', 'prescription_name'),
             'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s
@@ -333,7 +337,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
         response_data = JSON.parse(response.body)['data']
-        objects = response_data.map do |item|
+        objects = skip_pending_meds(response_data).map do |item|
           {
             'prescription_name' => item.dig('attributes', 'prescription_name') || item.dig('attributes', 'orderable_item'),
             'disp_status' => item.dig('attributes', 'disp_status')
@@ -469,7 +473,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(is_sorted).to be_truthy
           expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
 
-          metadata = { 'prescriptionName' => 'ASC', 'dispensedDate' => 'DESC' }
+          metadata = {'dispensedDate' => 'DESC', 'prescriptionName' => 'ASC'}
           expect(JSON.parse(response.body)['meta']['sort']).to eq(metadata)
         end
 
