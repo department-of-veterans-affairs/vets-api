@@ -6,5 +6,4 @@ require 'my_health/prescriptions/configuration'
 require 'my_health/prescriptions/client'
 
 module MyHealth
-  # Your code goes here...
 end

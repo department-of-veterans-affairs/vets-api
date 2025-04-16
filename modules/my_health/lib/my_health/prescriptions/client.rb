@@ -5,9 +5,6 @@ require 'my_health/prescriptions/configuration'
 
 module MyHealth
   module Prescriptions
-    # Client for MyHealth prescriptions
-    # This inherits directly from Common::Client::Base
-    # but implements the same interface as Rx::MedicationsClient
     class Client < Common::Client::Base
       configuration MyHealth::Prescriptions::Configuration
 
@@ -22,24 +19,19 @@ module MyHealth
         super()
       end
 
-      # Define all the methods that were in Rx::MedicationsClient
 
-      # Gets a list of all prescriptions for a patient
       def get_all_rxs
         perform(:get, 'prescription/gethistoryrx', nil, token_headers)
       end
 
-      # Alias method for compatibility
       def get_history_rxs
         get_all_rxs
       end
 
-      # Gets a list of active prescriptions for a patient
       def get_active_rxs
         perform(:get, 'prescription/getactiverx', nil, token_headers)
       end
 
-      # Gets details for a specific prescription
       def get_rx_details(id)
         perform(:get, "prescription/rxrefill/#{id}", nil, token_headers)
       end
@@ -48,17 +40,14 @@ module MyHealth
         get_active_rxs
       end
 
-      # Posts a refill for a prescription
       def post_refill_rx(id)
         perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
       end
 
-      # Gets a session for a user
       def get_session
         @session
       end
 
-      # Gets user id from session
       def user_id
         @session[:user_id]
       end
