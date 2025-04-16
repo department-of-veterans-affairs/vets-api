@@ -8,9 +8,8 @@ require 'income_and_assets/helpers'
 
 # rubocop:disable Metrics/ClassLength
 
-module IncomeAndAssets::PdfFill
-  # Forms
-  module Forms
+module IncomeAndAssets
+  module PdfFill
     # The Va21p0969 Form
     class Va21p0969 < ::PdfFill::Forms::FormBase
       include ::PdfFill::Forms::FormHelper
@@ -19,11 +18,11 @@ module IncomeAndAssets::PdfFill
       # The Form ID
       FORM_ID = IncomeAndAssets::FORM_ID
 
-      # The PDF Template
-      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
-
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+      # The path to the PDF template for the form
+      TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
       # Hash keys
       KEY = {
@@ -315,6 +314,102 @@ module IncomeAndAssets::PdfFill
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           }
         },
+        # 6a
+        'royaltiesAndOtherProperty' => {
+          key: 'F[0].Page_9[0].DependentsReceiving6a[0]'
+        },
+        # 6b-c
+        'royaltiesAndOtherProperties' => {
+          limit: 2,
+          first_key: 'otherRecipientRelationshipType',
+          'recipientRelationship' => {
+            key: "F[0].IncomeRecipients6[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 6,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship6[#{ITERATOR}]",
+            question_num: 6,
+            question_suffix: '(1)',
+            question_text: 'RELATIONSHIP TYPE OTHER'
+          },
+          'recipientName' => {
+            key: "F[0].NameofIncomeRecipient6[#{ITERATOR}]",
+            limit: 37,
+            question_num: 6,
+            question_suffix: '(2)',
+            question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          'incomeGenerationMethod' => {
+            key: "F[0].HowIncomeIsGenerated6[#{ITERATOR}]"
+          },
+          'incomeGenerationMethodOverflow' => {
+            question_num: 6,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY HOW INCOME IS GENERATED'
+          },
+          'otherIncomeType' => {
+            limit: 73,
+            question_num: 6,
+            question_suffix: '(3)',
+            question_text: 'INCOME TYPE OTHER',
+            key: "F[0].OtherIncomeGenerationMethod6[#{ITERATOR}]"
+          },
+          'grossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].GrossMonthlyIncome1_6[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].GrossMonthlyIncome2_6[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].GrossMonthlyIncome3_6[#{ITERATOR}]"
+            }
+          },
+          'grossMonthlyIncomeOverflow' => {
+            question_num: 6,
+            question_suffix: '(4)',
+            question_text: 'GROSS MONTHLY INCOME'
+          },
+          'fairMarketValue' => {
+            'millions' => {
+              key: "F[0].FairMarketValue1_6[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].FairMarketValue2_6[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].FairMarketValue3_6[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].FairMarketValue4_6[#{ITERATOR}]"
+            }
+          },
+          'fairMarketValueOverflow' => {
+            question_num: 6,
+            question_suffix: '(5)',
+            question_text: 'SPECIFY FAIR MARKET VALUE OF THIS ASSET'
+          },
+          'canBeSold' => {
+            key: "F[0].CanAssetBeSold6[#{ITERATOR}]"
+          },
+          'canBeSoldOverflow' => {
+            question_num: 6,
+            question_suffix: '(6)',
+            question_text: 'CAN THIS ASSET BE SOLD?'
+          },
+          'mitigatingCircumstances' => {
+            limit: 172,
+            question_num: 6,
+            question_suffix: '(7)',
+            question_text: 'EXPLAIN ANY MITIGATING CIRCUMSTANCES THAT PREVENT THE SALE OF THIS ASSET',
+            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]"
+          }
+        },
         # 7a
         'assetTransfer' => {
           key: 'F[0].Page_9[0].DependentsSellAssets7a[0]'
@@ -538,7 +633,8 @@ module IncomeAndAssets::PdfFill
           'trustUsedForMedicalExpensesOverflow' => {
             question_num: 8,
             question_suffix: '(j)',
-            question_text: 'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+            question_text:
+              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -887,6 +983,16 @@ module IncomeAndAssets::PdfFill
             question_suffix: '(6)',
             question_text: 'WAIVED GROSS MONTHLY INCOME'
           }
+        },
+        # Section 13
+        # NOTE: No overflow for this section
+        # 13a
+        'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
+        # 13b
+        'statementOfTruthSignatureDate' => {
+          'month' => { key: 'F[0].DateSigned13bMonth[0]' },
+          'day' => { key: 'F[0].DateSigned13bDay[0]' },
+          'year' => { key: 'F[0].DateSigned13bYear[0]' }
         }
       }.freeze
 
@@ -903,12 +1009,14 @@ module IncomeAndAssets::PdfFill
         expand_unassociated_incomes
         expand_associated_incomes
         expand_owned_assets
+        expand_royalties_and_other_properties
         expand_asset_transfers
         expand_trusts
         expand_annuities
         expand_unreported_assets
         expand_discontinued_incomes
         expand_income_receipt_waivers
+        expand_statement_of_truth
 
         form_data
       end
@@ -1070,6 +1178,49 @@ module IncomeAndAssets::PdfFill
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'ownedPortionValue' => split_currency_amount_lg(portion_value),
           'ownedPortionValueOverflow' => portion_value
+        }
+      end
+
+      ##
+      # Expands the royalties and other properties data in the form.
+      #
+      # This method processes the `royaltiesAndOtherProperties` field from the `form_data` hash.
+      # It sets the `royaltiesAndOtherProperty` field to `0` if `royaltiesAndOtherProperties` has any elements,
+      # otherwise it sets it to `1`. Then, it iterates over each property in `royaltiesAndOtherProperties`,
+      # merging it with the result of the `expand_royalties_and_other_property` method.
+      #
+      # @return [void]
+      #
+      def expand_royalties_and_other_properties
+        royalties_and_other_properties = form_data['royaltiesAndOtherProperties']
+        form_data['royaltiesAndOtherProperty'] = royalties_and_other_properties&.length ? 0 : 1
+        form_data['royaltiesAndOtherProperties'] = royalties_and_other_properties&.map do |property|
+          property.merge(expand_royalties_and_other_property(property))
+        end
+      end
+
+      ##
+      # Expands the details of a property related to royalties and other income-generating assets.
+      #
+      # @param property [Hash]
+      # @return [Hash]
+      #
+      def expand_royalties_and_other_property(property)
+        recipient_relationship = property['recipientRelationship']
+        income_type = property['incomeGenerationMethod']
+        gross_monthly_income = property['grossMonthlyIncome']
+        fair_market_value = property['fairMarketValue']
+        {
+          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
+          'recipientRelationshipOverflow' => recipient_relationship,
+          'incomeGenerationMethod' => IncomeAndAssets::Constants::INCOME_GENERATION_TYPES[income_type],
+          'incomeGenerationMethodOverflow' => income_type,
+          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'fairMarketValue' => split_currency_amount_lg(fair_market_value),
+          'fairMarketValueOverflow' => number_to_currency(fair_market_value),
+          'canBeSold' => property['canBeSold'] ? 0 : 1,
+          'canBeSoldOverflow' => property['canBeSold']
         }
       end
 
@@ -1330,6 +1481,18 @@ module IncomeAndAssets::PdfFill
         }
 
         expanded.merge(overrides)
+      end
+
+      # Section 13
+      ##
+      # Expands statement of truth section
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_statement_of_truth
+        # We want today's date in the form 'YYYY-MM-DD' as that's the format it comes
+        # back from vets-website in
+        form_data['statementOfTruthSignatureDate'] = split_date(Date.current.iso8601)
       end
     end
   end

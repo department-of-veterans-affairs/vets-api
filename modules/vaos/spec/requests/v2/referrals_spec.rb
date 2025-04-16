@@ -16,6 +16,13 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
       allow(Ccra::ReferralService).to receive(:new).and_return(service_double)
       allow(service_double).to receive(:get_vaos_referral_list).and_return(referrals)
+
+      # Mock the encryption service for each referral in the list
+      referrals.each do |ref|
+        allow(VAOS::ReferralEncryptionService).to receive(:encrypt)
+          .with(ref.referral_number)
+          .and_return("encrypted-#{ref.referral_number}")
+      end
     end
 
     context 'when user is not authenticated' do
@@ -45,7 +52,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         expect(first_referral).to have_key('id')
         expect(first_referral).to have_key('type')
         expect(first_referral).to have_key('attributes')
-        expect(first_referral['attributes']).to have_key('type_of_care')
+        expect(first_referral['attributes']).to have_key('categoryOfCare')
+        expect(first_referral['attributes']).to have_key('referralNumber')
       end
     end
 
@@ -94,9 +102,10 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
   describe 'GET /vaos/v2/referrals/:id' do
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:icn) { '1012845331V153043' }
-    let(:referral_id) { '5682' }
+    let(:referral_number) { '5682' }
+    let(:encrypted_uuid) { 'encrypted-5682' }
     let(:user) { build(:user, :vaos, :loa3, icn:) }
-    let(:referral) { build(:ccra_referral_detail, referral_number: referral_id) }
+    let(:referral) { build(:ccra_referral_detail, referral_number:) }
     let(:service_double) { instance_double(Ccra::ReferralService) }
 
     before do
@@ -105,11 +114,17 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
       allow(Ccra::ReferralService).to receive(:new).and_return(service_double)
       allow(service_double).to receive(:get_referral).and_return(referral)
+      allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_number).and_return(encrypted_uuid)
+      allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_number)
+      allow(VAOS::ReferralEncryptionService)
+        .to receive(:decrypt)
+        .with('invalid')
+        .and_raise(Common::Exceptions::ParameterMissing.new('id'))
     end
 
     context 'when user is not authenticated' do
       it 'returns 401 unauthorized' do
-        get "/vaos/v2/referrals/#{referral_id}"
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
 
         expect(response).to have_http_status(:unauthorized)
       end
@@ -121,20 +136,36 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       end
 
       it 'returns referral detail in JSON:API format' do
-        get "/vaos/v2/referrals/#{referral_id}"
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
 
         expect(response).to have_http_status(:ok)
         response_data = JSON.parse(response.body)
 
         expect(response_data).to have_key('data')
         expect(response_data['data']).to have_key('id')
-        expect(response_data['data']['id']).to eq(referral_id)
+        expect(response_data['data']['id']).to eq(encrypted_uuid)
         expect(response_data['data']).to have_key('type')
-        expect(response_data['data']['type']).to eq('referral')
+        expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']).to have_key('attributes')
-        expect(response_data['data']['attributes']).to have_key('type_of_care')
-        expect(response_data['data']['attributes']).to have_key('provider_name')
-        expect(response_data['data']['attributes']).to have_key('location')
+        expect(response_data['data']['attributes']).to have_key('categoryOfCare')
+
+        # Check nested provider attributes
+        expect(response_data['data']['attributes']).to have_key('provider')
+        provider = response_data['data']['attributes']['provider']
+        expect(provider).to be_a(Hash)
+        expect(provider).to have_key('name')
+        expect(provider).to have_key('location')
+
+        # Check referring facility attributes
+        if response_data['data']['attributes'].key?('referringFacility')
+          facility = response_data['data']['attributes']['referringFacility']
+          expect(facility).to be_a(Hash)
+          expect(facility).to have_key('name')
+          expect(facility).to have_key('code')
+          expect(facility).to have_key('phone')
+        end
+
+        expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
     end
 
@@ -143,9 +174,6 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
       before do
         sign_in_as(user)
-        allow(service_double).to receive(:get_referral)
-          .with(invalid_id, anything)
-          .and_raise(Common::Exceptions::ParameterMissing.new('id'))
       end
 
       it 'returns appropriate error status' do
