@@ -229,7 +229,6 @@ module AccreditedRepresentativePortal
 
         expect(submission.service_response_ciphertext).to be_nil
         expect(submission.error_message_ciphertext).to be_nil
-        expect(submission.encrypted_kms_key).to be_nil
       end
 
       it 'nullifies the resolution reason' do
@@ -237,7 +236,6 @@ module AccreditedRepresentativePortal
         resolution.update!(reason: 'Some reason')
         job.send(:redact_request, request)
         expect(resolution.reload.reason).to be_nil
-        expect(resolution.encrypted_kms_key).to be_nil
       end
 
       it 'marks the request as redacted by touching redacted_at' do

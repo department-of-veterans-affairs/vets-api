@@ -30,19 +30,17 @@ module AccreditedRepresentativePortal
     end
 
     def expired_request_ids
-      resolution_table_name = PowerOfAttorneyRequestResolution.table_name
-
       PowerOfAttorneyRequest
         .joins(:resolution)
         .unredacted
-        .where(resolution_table_name => {
+        .where(resolution: {
                  resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration'
                }).ids
     end
 
     def stale_processed_request_ids
       threshold = Time.current - STALE_RESOLUTION_DURATION
-      resolution_table_alias = 'resolution' # The alias defined in processed_join_sql
+      resolution_table_alias = 'resolution' # The alias defined in processed_join_sql; need to match
 
       PowerOfAttorneyRequest
         .processed
@@ -87,8 +85,8 @@ module AccreditedRepresentativePortal
         submission = request.power_of_attorney_form_submission
         resolution = request.resolution
 
-        # 1. Destroy associated form
-        form&.destroy!
+        # 1. Delete associated form
+        form&.delete
 
         # 2. Redact submission data using update_columns direct to the db
         # we're using #update_columns to skip validation because the redaction
@@ -98,18 +96,12 @@ module AccreditedRepresentativePortal
           submission.update_columns(
             # Use the actual ciphertext/key column names
             service_response_ciphertext: nil,
-            error_message_ciphertext: nil,
-            encrypted_kms_key: nil
+            error_message_ciphertext: nil
           )
         end
 
         # 3. Redact resolution data using update_columns
-        if resolution.present?
-          resolution_updates = { reason_ciphertext: nil }
-          # Add the key to the hash only if the column exists on the resolution table
-          resolution_updates[:encrypted_kms_key] = nil if resolution.has_attribute?(:encrypted_kms_key)
-          resolution.update_columns(resolution_updates)
-        end
+        resolution.update_columns(reason_ciphertext: nil) if resolution.present?
 
         # 4. Mark request as redacted
         # update_column is fine here as it's just one field
