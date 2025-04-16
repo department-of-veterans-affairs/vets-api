@@ -76,7 +76,7 @@ module VAOS
         return render(json: usage[:json], status: usage[:status]) unless usage[:success]
 
         provider = find_provider(npi: cached_referral_data[:npi])
-        return render_provider_not_found_error unless provider
+        return render_provider_not_found_error unless provider&.id
 
         slots = fetch_provider_slots(cached_referral_data, provider.id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
