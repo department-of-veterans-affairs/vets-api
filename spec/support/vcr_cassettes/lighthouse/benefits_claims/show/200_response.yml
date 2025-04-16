@@ -329,6 +329,71 @@ http_interactions:
           "status": "NEEDED_FROM_YOU",
           "uploaded": true,
           "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "We have requested your non-VA medical records on your behalf. No action is needed.",
+          "displayName": "PMR Request",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "We have requested your non-VA medical records on your behalf. No action is needed.",
+          "displayName": "General Records Request (Medical)",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "We have requested a disability exam for your hearing.",
+          "displayName": "DBQ AUDIO Hearing Loss and Tinnitus",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "We have requested a mental health exam.",
+          "displayName": "DBQ PSYCH Mental Disorders",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
+          },
+          {
+          "closedDate": null,
+          "description": "VA DD214",
+          "displayName": "Proof of Service (DD214, etc.)",
+          "overdue": false,
+          "receivedDate": "2023-03-15",
+          "requestedDate": "2023-04-14",
+          "suspenseDate": null,
+          "id": 394443,
+          "status": "NEEDED_FROM_OTHERS",
+          "uploaded": true,
+          "uploadsAllowed": false
           }
           ]
           }
