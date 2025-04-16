@@ -147,6 +147,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
+  hca_ez_kafka_submission_enabled:
+    actor_type: cookie_id
+    description: Enables the 10-10EZ Kafka Event Bus submission 
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
