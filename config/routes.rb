@@ -476,6 +476,8 @@ Rails.application.routes.draw do
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
 
+  get '/apple-touch-icon-:size.png', to: redirect('/apple-touch-icon.png')
+
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
 end
