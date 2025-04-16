@@ -135,9 +135,7 @@ module MDOT
 
     def handle_token
       existing_token = MDOT::Token.find(@user.uuid)
-      if !existing_token || existing_token.ttl < 5
-        get_supplies
-      end
+      get_supplies if !existing_token || existing_token.ttl < 5
       MDOT::Token.find(@user.uuid).try(:token)
     end
   end
