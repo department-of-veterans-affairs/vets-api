@@ -13,7 +13,7 @@ module AccreditedRepresentativePortal
 
       def create_with_resolution!(**resolution_attrs)
         PowerOfAttorneyRequestResolution.create_with_resolving!(
-          resolving: self.new,
+          resolving: new,
           **resolution_attrs
         )
       end
