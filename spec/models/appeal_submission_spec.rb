@@ -11,7 +11,7 @@ RSpec.describe AppealSubmission, type: :model do
     let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn) }
     let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    let(:appeal_submission) { create(:appeal_submission, user_uuid: user.uuid, user_account:) }
+    let(:appeal_submission) { create(:appeal_submission, user_account:) }
     let(:identifier) { user_account.icn }
     let(:identifier_type) { MPI::Constants::ICN }
 
