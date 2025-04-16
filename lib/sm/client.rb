@@ -485,21 +485,6 @@ module SM
       end
     end
 
-    # @!endgroup
-
-    ##
-    #
-    def get_vamc_ehr_data
-      cache_key = "vamc_ehr-data"
-      get_cached_or_fetch_data(true, cache_key, VamcEhr) do
-        json = Faraday.get('https://www.va.gov/data/cms/vamc-ehr.json')
-        json = JSON.parse(json.body)
-        data = VamcEhr.new(json)
-        VamcEhr.set_cached(cache_key, data)
-        data
-      end
-    end
-
     ##
     # Update preferredTeam value for a patient's list of triage teams
     #

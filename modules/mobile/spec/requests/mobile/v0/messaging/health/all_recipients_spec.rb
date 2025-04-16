@@ -36,13 +36,11 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
 
     it 'responds to GET #all_recipients' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_all_triage_team_recipients') do
-        VCR.use_cassette('sm_client/triage_teams/vamc_ehr') do
-          get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
-        end
+        get '/mobile/v0/messaging/health/allrecipients', headers: sis_headers
       end
       expect(response).to be_successful
       expect(response.body).to be_a(String)
-      expect(response).to match_camelized_response_schema('mobile_all_triage_teams', { strict: false })
+      expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams')
     end
 
     context 'when there are cached triage teams' do
@@ -52,10 +50,6 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'all_triage_teams.json')
         data = Common::Collection.new(AllTriageTeams, data: JSON.parse(File.read(path)))
         AllTriageTeams.set_cached("#{user.uuid}-all-triage-teams", data)
-
-        path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'vamc_ehr.json')
-        data = VamcEhr.new(JSON.parse(File.read(path)))
-        VamcEhr.set_cached("vamc_ehr-data", data)
       end
 
       it 'retrieve cached triage teams rather than hitting the service' do
@@ -67,8 +61,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
           triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
           expect(triage_team.dig('attributes', 'name')).to eq('589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON')
           expect(triage_team['type']).to eq('all_triage_teams')
-          expect(response).to match_camelized_response_schema('mobile_all_triage_teams')
-        end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 2)
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams', { strict: false })
+        end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
       end
     end
   end

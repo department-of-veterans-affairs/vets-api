@@ -15,12 +15,7 @@ module RedisCaching
       return nil unless result
 
       data = JSON.parse(result)
-
-      if data.is_a?(Array)
-        data.map { |i| new(i.deep_symbolize_keys) }
-      else
-        new(data.symbolize_keys)
-      end
+      data.map { |i| new(i.deep_symbolize_keys) }
     end
 
     def set_cached(key, data)
