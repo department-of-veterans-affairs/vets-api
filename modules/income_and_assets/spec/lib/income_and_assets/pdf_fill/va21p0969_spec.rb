@@ -21,7 +21,7 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
     use_vets_json_schema: true,
     input_data_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
     output_pdf_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
-    test_data_types: %w[simple kitchen_sink] #overflow commecnted out currently due to CI issues
+    test_data_types: %w[simple kitchen_sink] # overflow commecnted out currently due to CI issues
   }
 
   describe '#merge_fields' do
