@@ -638,8 +638,19 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'sends the "received", and "sent" event' do
-          expect(Kafka).to receive(:submit_event).with(hash_including(state: 'received'))
-          expect(Kafka).to receive(:submit_event).with(hash_including(state: 'sent', next_id: '123'))
+          expect(Kafka).to receive(:submit_event).with(
+            hash_including(
+              state: 'received',
+              current_id: satisfy { |v| !v.nil? }
+            )
+          )
+          expect(Kafka).to receive(:submit_event).with(
+            hash_including(
+              state: 'sent',
+              next_id: '123',
+              current_id: satisfy { |v| !v.nil? }
+            )
+          )
           health_care_application.process!
         end
       end
