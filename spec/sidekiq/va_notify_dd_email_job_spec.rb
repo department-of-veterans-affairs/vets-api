@@ -14,10 +14,10 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
         ]
 
         emails.each do |email|
-          expect(described_class).to receive(:perform_async).with(email, 'ch33')
+          expect(described_class).to receive(:perform_async).with(email, 'direct_deposit')
         end
 
-        described_class.send_to_emails(emails, 'ch33')
+        described_class.send_to_emails(emails, 'direct_deposit')
       end
     end
 
@@ -30,7 +30,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
           feature: 'direct_deposit'
         )
 
-        described_class.send_to_emails([], 'ch33')
+        described_class.send_to_emails([], 'direct_deposit')
       end
     end
   end
@@ -38,42 +38,83 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
   describe '#perform' do
     let(:notification_client) { double('Notifications::Client') }
 
-    context 'with a dd type of ch33' do
-      it 'sends a confirmation email using the edu template' do
-        allow(VaNotify::Service).to receive(:new)
-          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
+    context 'with a dd_type of comp_pen' do
+      context 'with Flipper :only_use_direct_deposit_email_template' do
+        context 'enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:only_use_direct_deposit_email_template).and_return(true)
+          end
 
-        expect(notification_client).to receive(:send_email).with(
-          email_address: email, template_id: 'edu_template_id'
-        )
+          it 'sends a confirmation email using the direct_deposit template' do
+            allow(VaNotify::Service).to receive(:new)
+              .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
 
-        described_class.new.perform(email, 'ch33')
+            expect(notification_client).to receive(:send_email).with(
+              email_address: email, template_id: 'direct_deposit_template_id'
+            )
+
+            described_class.new.perform(email, 'comp_pen')
+          end
+        end
+
+        context 'disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:only_use_direct_deposit_email_template).and_return(false)
+          end
+
+          it 'sends a confirmation email using the comp and pen template' do
+            allow(VaNotify::Service).to receive(:new)
+              .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
+
+            expect(notification_client).to receive(:send_email).with(
+              email_address: email, template_id: 'comp_pen_template_id'
+            )
+
+            described_class.new.perform(email, 'comp_pen')
+          end
+        end
       end
     end
 
-    context 'with a dd type of comp_pen' do
-      it 'sends a confirmation email using the comp and pen template' do
-        allow(VaNotify::Service).to receive(:new)
-          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
+    context 'with a dd_type of comp_and_pen' do
+      context 'with Flipper :only_use_direct_deposit_email_template' do
+        context 'enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:only_use_direct_deposit_email_template).and_return(true)
+          end
 
-        expect(notification_client).to receive(:send_email).with(
-          email_address: email, template_id: 'comp_pen_template_id'
-        )
+          it 'sends a confirmation email using the direct_deposit template' do
+            allow(VaNotify::Service).to receive(:new)
+              .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
 
-        described_class.new.perform(email, 'comp_pen')
-      end
-    end
+            expect(notification_client).to receive(:send_email).with(
+              email_address: email, template_id: 'direct_deposit_template_id'
+            )
 
-    context 'with a dd type of comp_and_pen' do
-      it 'sends a confirmation email using the comp and pen template' do
-        allow(VaNotify::Service).to receive(:new)
-          .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
+            described_class.new.perform(email, 'comp_and_pen')
+          end
+        end
 
-        expect(notification_client).to receive(:send_email).with(
-          email_address: email, template_id: 'comp_pen_template_id'
-        )
+        context 'disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:only_use_direct_deposit_email_template).and_return(false)
+          end
 
-        described_class.new.perform(email, 'comp_and_pen')
+          it 'sends a confirmation email using the comp and pen template' do
+            allow(VaNotify::Service).to receive(:new)
+              .with(Settings.vanotify.services.va_gov.api_key).and_return(notification_client)
+
+            expect(notification_client).to receive(:send_email).with(
+              email_address: email, template_id: 'comp_pen_template_id'
+            )
+
+            described_class.new.perform(email, 'comp_and_pen')
+          end
+        end
       end
     end
 
@@ -126,36 +167,58 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
     end
   end
 
-  describe '#get_template' do
+  describe '#template_type' do
     let(:job) { VANotifyDdEmailJob.new }
 
-    context 'when dd_type is nil' do
-      it 'returns the direct_deposit template' do
-        expect(job.template_type(nil)).to eq('direct_deposit')
+    shared_examples 'template type with feature flag' do |dd_type, expected_template|
+      it "returns the #{expected_template} template when dd_type is #{dd_type}" do
+        expect(job.template_type(dd_type)).to eq(expected_template)
       end
     end
 
-    context 'when dd_type is unknown' do
-      it 'returns the direct_deposit template' do
-        expect(job.template_type('fake')).to eq('direct_deposit')
+    context 'with Flipper :only_use_direct_deposit_email_template enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:only_use_direct_deposit_email_template).and_return(true)
+      end
+
+      context 'when dd_type is nil' do
+        include_examples 'template type with feature flag', nil, 'direct_deposit'
+      end
+
+      context 'when dd_type is unknown' do
+        include_examples 'template type with feature flag', 'fake', 'direct_deposit'
+      end
+
+      context 'when dd_type is comp_pen' do
+        include_examples 'template type with feature flag', 'comp_pen', 'direct_deposit'
+      end
+
+      context 'when dd_type is comp_and_pen' do
+        include_examples 'template type with feature flag', 'comp_and_pen', 'direct_deposit'
       end
     end
 
-    context 'when dd_type is comp_pen' do
-      it 'returns the direct_deposit_comp_pen template' do
-        expect(job.template_type('comp_pen')).to eq('direct_deposit_comp_pen')
+    context 'with Flipper :only_use_direct_deposit_email_template disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:only_use_direct_deposit_email_template).and_return(false)
       end
-    end
 
-    context 'when dd_type is comp_and_pen' do
-      it 'returns the direct_deposit_comp_pen template' do
-        expect(job.template_type('comp_and_pen')).to eq('direct_deposit_comp_pen')
+      context 'when dd_type is nil' do
+        include_examples 'template type with feature flag', nil, 'direct_deposit'
       end
-    end
 
-    context 'when dd_type is edu' do
-      it 'returns the direct_deposit_edu template' do
-        expect(job.template_type('ch33')).to eq('direct_deposit_edu')
+      context 'when dd_type is unknown' do
+        include_examples 'template type with feature flag', 'fake', 'direct_deposit'
+      end
+
+      context 'when dd_type is comp_pen' do
+        include_examples 'template type with feature flag', 'comp_pen', 'direct_deposit_comp_pen'
+      end
+
+      context 'when dd_type is comp_and_pen' do
+        include_examples 'template type with feature flag', 'comp_and_pen', 'direct_deposit_comp_pen'
       end
     end
   end

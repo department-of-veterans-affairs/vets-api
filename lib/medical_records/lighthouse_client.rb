@@ -58,12 +58,6 @@ module MedicalRecords
         diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
         diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
 
-        # Special-case exception handling
-        if result.code == 500 && diagnostics.include?('HAPI-1363')
-          # "HAPI-1363: Either No patient or multiple patient found"
-          raise MedicalRecords::PatientNotFound
-        end
-
         # Default exception handling
         raise Common::Exceptions::BackendServiceException.new(
           "MEDICALRECORDS_#{result.code}",
