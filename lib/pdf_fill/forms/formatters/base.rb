@@ -6,8 +6,6 @@ module PdfFill
       class Base
         class << self
           # Format helpers - Each method takes an input value and returns a formatted version of it.
-          # These methods **do not modify** the @form_data object directly, but instead return the formatted output.
-          #
           # Because each pdf often has different formatting needs, common formatters can live here, but any custom ones
           # specific to a form can be added in a class that extends this base class
 
