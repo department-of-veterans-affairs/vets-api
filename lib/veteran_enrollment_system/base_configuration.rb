@@ -16,6 +16,7 @@ module VeteranEnrollmentSystem
     end
 
     # The base request headers required for any VES API call
+    # We'll only merge the api key if it's present (it's not required in the SQA environment)
     def self.base_request_headers
       if api_key.present?
         super.merge('apiKey' => api_key)
