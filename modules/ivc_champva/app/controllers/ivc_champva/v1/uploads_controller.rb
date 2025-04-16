@@ -126,8 +126,11 @@ module IvcChampva
 
         # ves_response in the db is freeform text and hard to parse
         # so only put the response body in the db if the response is not 200
-        ves_status = ves_response.nil? ? 'internal_server_error' 
-          : ves_response.status == 200 ? 'ok' : ves_response.body
+        ves_status = if ves_response.nil?
+                       'internal_server_error'
+                     else
+                       ves_response.status == 200 ? 'ok' : ves_response.body
+                     end
 
         persisted_forms.each do |form|
           form.update(
