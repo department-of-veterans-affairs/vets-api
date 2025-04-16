@@ -1556,7 +1556,6 @@ vanotify:
         covid_vaccine_registration: <%= ENV['vanotify__services__va_gov__template_id__covid_vaccine_registration'] %>
         direct_deposit: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit'] %>
         direct_deposit_comp_pen: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_comp_pen'] %>
-        direct_deposit_edu: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_edu'] %>
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
@@ -1641,7 +1640,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: "/fake/client/key/path"
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
