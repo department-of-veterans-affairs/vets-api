@@ -142,7 +142,7 @@ app/controllers/v0/trackings_controller.rb @department-of-veterans-affairs/va-ap
 app/controllers/v0/triage_teams_controller.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/upload_supporting_evidences_controller.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/user @department-of-veterans-affairs/octo-identity
-app/controllers/v0/user_action_events_controller.rb @department-of-veterans-affairs/octo-identity
+app/controllers/v0/user_actions_controller.rb @department-of-veterans-affairs/octo-identity
 app/controllers/v0/users_controller.rb @department-of-veterans-affairs/octo-identity
 app/controllers/v0/veteran_readiness_employment_claims_controller.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/virtual_agent @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1175,7 +1175,7 @@ spec/controllers/v0/sign_in_controller_spec.rb @department-of-veterans-affairs/o
 spec/controllers/v0/terms_of_use_agreements_controller_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/upload_supporting_evidences_controller_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/user @department-of-veterans-affairs/octo-identity
-spec/controllers/v0/user_action_events_controller_spec.rb @department-of-veterans-affairs/octo-identity
+spec/controllers/v0/user_actions_controller_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/users_controller_spec.rb @department-of-veterans-affairs/octo-identity
 spec/controllers/v0/veteran_readiness_employment_claims_controller_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/veteran_onboardings_controller_spec.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
