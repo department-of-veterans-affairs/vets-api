@@ -1823,6 +1823,9 @@ features:
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
+  mobile_veteran_status_stage_1:
+    actor_type: user
+    description: For mobile app, enables the stage 1 features of the veteran status card
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
