@@ -12,8 +12,6 @@ end
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
-  test_data_types ||= %w[simple kitchen_sink overflow]
-
   it_behaves_like 'a form filler', {
     form_id: IncomeAndAssets::FORM_ID,
     factory: :income_and_assets_claim,
