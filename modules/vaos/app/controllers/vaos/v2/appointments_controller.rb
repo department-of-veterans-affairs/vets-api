@@ -76,7 +76,7 @@ module VAOS
         return render(json: usage[:json], status: usage[:status]) unless usage[:success]
 
         provider = find_provider(npi: cached_referral_data[:npi])
-        return render_provider_not_found_error unless provider&.id
+        return render(json: provider_not_found_error, status: :not_found) unless provider&.id
 
         slots = fetch_provider_slots(cached_referral_data, provider.id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
@@ -605,30 +605,14 @@ module VAOS
         end
       end
 
-      # Helper method for rendering an error response with standard format
-      def render_api_error(title, detail, status)
-        render(
-          json: {
-            errors: [{
-              title:,
-              detail:
-            }]
-          },
-          status:
-        )
-      end
-
       # One-off method to render provider not found error
-      def render_provider_not_found_error
-        render(
-          json: {
-            errors: [{
-              title: 'Provider not found',
-              detail: 'Unable to find provider with given details'
-            }]
-          },
-          status: :not_found
-        )
+      def provider_not_found_error
+        {
+          errors: [{
+            title: 'Provider not found',
+            detail: 'Unable to find provider with given details'
+          }]
+        }
       end
     end
   end
