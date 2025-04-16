@@ -1661,7 +1661,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: "/fake/client/key/path"
+    key_path: modules/health_quest/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500

@@ -43,9 +43,24 @@ module PdfFill
         pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
         pdf.markup(['<table>', sorted_subquestions_markup, '</table>'].flatten.join, text: { margin_bottom: 10 })
       end
+
+      # Render content to a temporary PDF and measure the actual height
+      def measure_actual_height(temp_pdf)
+        # Save the current cursor position
+        start_cursor = temp_pdf.cursor
+
+        # Use the existing render method to render the content
+        # For regular questions, we don't need any special parameters
+        render(temp_pdf)
+
+        # Calculate the actual height by measuring cursor movement
+        start_cursor - temp_pdf.cursor
+      end
     end
 
     class ListQuestion < Question
+      attr_reader :items, :item_label
+
       def initialize(question_text, metadata)
         super
         @item_label = metadata[:item_label]
@@ -59,22 +74,62 @@ module PdfFill
         @items[i].add_text(value, metadata)
       end
 
-      def render(pdf)
+      # Render the title of the list question
+      def render_title(pdf)
         pdf.markup("<h3>#{@number}. #{@text}</h3>")
+      end
+
+      # Render a single item from the list
+      def render_item(pdf, item, index)
+        render_item_label(pdf, index)
+        item.render(pdf, list_format: true)
+      end
+
+      # Render the label for a list item
+      def render_item_label(pdf, index)
+        pdf.markup(
+          "<table><tr><th><i>#{@item_label} #{index}</i></th></tr></table>",
+          table: {
+            cell: {
+              borders: [:bottom],
+              border_width: 1,
+              padding: [5, 0, 3.5, 0]
+            }
+          },
+          text: { margin_bottom: -2 }
+        )
+      end
+
+      def render(pdf)
+        render_title(pdf)
         @items.each.with_index(1) do |question, index|
-          pdf.markup(
-            "<table><tr><th><i>#{@item_label} #{index}</i></th></tr></table>",
-            table: {
-              cell: {
-                borders: [:bottom],
-                border_width: 1,
-                padding: [5, 0, 3.5, 0]
-              }
-            },
-            text: { margin_bottom: -2 }
-          )
-          question.render(pdf, list_format: true)
+          render_item(pdf, question, index)
         end
+      end
+
+      def measure_title_height(temp_pdf)
+        start_cursor = temp_pdf.cursor
+        render_title(temp_pdf)
+        start_cursor - temp_pdf.cursor
+      end
+
+      def measure_item_height(temp_pdf, item, index)
+        start_cursor = temp_pdf.cursor
+        render_item(temp_pdf, item, index)
+        start_cursor - temp_pdf.cursor
+      end
+
+      # Measure heights of all components separately
+      def measure_component_heights(temp_pdf)
+        heights = { title: measure_title_height(temp_pdf) }
+        heights[:items] = []
+
+        @items.each.with_index(1) do |question, index|
+          temp_pdf.start_new_page
+          heights[:items] << measure_item_height(temp_pdf, question, index)
+        end
+
+        heights
       end
     end
 
@@ -120,8 +175,88 @@ module PdfFill
       @questions.keys.sort.map { |qnum| @questions[qnum] }.filter(&:overflow)
     end
 
+    def measure_section_header_height(temp_pdf, section_index)
+      return 0 if @sections.blank?
+
+      start_cursor = temp_pdf.cursor
+      temp_pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
+      start_cursor - temp_pdf.cursor
+    end
+
+    def will_fit_on_page?(pdf, content_height)
+      content_height <= pdf.cursor
+    end
+
+    def measure_content_heights(generate_blocks)
+      temp_pdf = Prawn::Document.new
+      set_font(temp_pdf)
+      heights = {}.compare_by_identity
+
+      measure_all_section_headers(temp_pdf, generate_blocks, heights)
+      measure_all_blocks(temp_pdf, generate_blocks, heights)
+      heights
+    end
+
+    def measure_all_section_headers(temp_pdf, generate_blocks, heights)
+      heights[:sections] = generate_blocks
+                           .map(&:section_index)
+                           .compact
+                           .uniq
+                           .index_with { |idx| measure_section_header_height(temp_pdf, idx) }
+    end
+
+    def measure_all_blocks(temp_pdf, generate_blocks, heights)
+      generate_blocks.each do |block|
+        temp_pdf.start_new_page
+        heights[block] = if block.is_a?(ListQuestion)
+                           block.measure_component_heights(temp_pdf)
+                         else
+                           block.measure_actual_height(temp_pdf)
+                         end
+      end
+    end
+
+    def render_section_header_if_needed(pdf, section_index, current_section_index)
+      if section_index.present? && section_index != current_section_index
+        render_new_section(pdf, section_index)
+        return section_index
+      end
+      current_section_index
+    end
+
+    def handle_regular_question_page_break(pdf, block, section_index, block_heights)
+      block_height = block_heights[block]
+      section_header_height = section_index.present? ? block_heights[:sections][section_index] : 0
+      total_height = section_header_height + block_height
+
+      unless will_fit_on_page?(pdf, total_height)
+        pdf.start_new_page
+        return true
+      end
+
+      false
+    end
+
+    def handle_list_title_page_break(pdf, block, section_index, block_heights)
+      component_heights = block_heights[block]
+      title_height = component_heights[:title]
+      first_item_height = component_heights[:items].first if component_heights[:items].any?
+      section_header_height = section_index.present? ? block_heights[:sections][section_index] : 0
+
+      total_height = section_header_height + title_height + (first_item_height || 0)
+
+      unless will_fit_on_page?(pdf, total_height)
+        pdf.start_new_page
+        return true
+      end
+
+      false
+    end
+
     def render_pdf_content(pdf, generate_blocks)
       set_header(pdf)
+
+      block_heights = measure_content_heights(generate_blocks)
 
       current_section_index = nil
       box_height = 25
@@ -132,15 +267,48 @@ module PdfFill
       ) do
         generate_blocks.each do |block|
           section_index = block.section_index
-          if section_index.present? && section_index != current_section_index
-            render_new_section(pdf, section_index)
-            current_section_index = section_index
-          end
-          block.render(pdf)
+
+          current_section_index = render_question_block(pdf, block, section_index, current_section_index, block_heights)
         end
       end
       add_footer(pdf)
       add_page_numbers(pdf)
+    end
+
+    def render_question_block(pdf, block, section_index, current_section_index, block_heights)
+      if block.is_a?(ListQuestion)
+        render_list_question(pdf, block, section_index, current_section_index, block_heights)
+      else
+        render_question(pdf, block, section_index, current_section_index, block_heights)
+      end
+    end
+
+    def render_question(pdf, block, section_index, current_section_index, block_heights)
+      page_break_inserted = handle_regular_question_page_break(pdf, block, section_index, block_heights)
+      current_section_index = nil if page_break_inserted
+      current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
+      block.render(pdf)
+
+      current_section_index
+    end
+
+    def render_list_question(pdf, block, section_index, current_section_index, block_heights)
+      page_break_inserted = handle_list_title_page_break(pdf, block, section_index, block_heights)
+      current_section_index = nil if page_break_inserted
+      current_section_index = render_section_header_if_needed(pdf, section_index, current_section_index)
+      block.render_title(pdf)
+      render_list_items(pdf, block, block_heights)
+
+      current_section_index
+    end
+
+    def render_list_items(pdf, block, block_heights)
+      block_heights = block_heights[block]
+      block.items.each.with_index(1) do |item, index|
+        item_height = block_heights[:items][index - 1]
+        pdf.start_new_page unless will_fit_on_page?(pdf, item_height)
+        block.render_item(pdf, item, index)
+      end
     end
 
     def render_new_section(pdf, section_index)
