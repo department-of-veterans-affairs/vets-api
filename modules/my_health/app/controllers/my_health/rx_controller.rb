@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'rx/client'
-require 'rx/medications_client'
+require 'my_health/prescriptions/client'
 
 module MyHealth
   class RxController < ApplicationController
@@ -12,7 +11,7 @@ module MyHealth
     protected
 
     def client
-      @client ||= Rx::MedicationsClient.new(
+      @client ||= MyHealth::Prescriptions::Client.new(
         session: { user_id: current_user.mhv_correlation_id },
         upstream_request: request
       )
