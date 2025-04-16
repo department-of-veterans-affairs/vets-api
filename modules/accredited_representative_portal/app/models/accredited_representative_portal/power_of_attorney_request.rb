@@ -100,8 +100,11 @@ module AccreditedRepresentativePortal
       )
     end
 
-    scope :unredacted, -> { where(redacted_at: nil) }
-    scope :redacted, -> { where.not(redacted_at: nil) }
+    scope :unredacted, lambda {
+      where(PowerOfAttorneyRequest.arel_table[:redacted_at].eq(nil))
+        .joins(:power_of_attorney_form)
+    }
+    scope :redacted, -> { where.not(id: unredacted) }
 
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
