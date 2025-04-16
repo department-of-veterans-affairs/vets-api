@@ -30,7 +30,9 @@ module Vye
       #     2/28    3/1     3/30    3/31    4/5   3/1  3/29
       #     3/1     3/1     3/30    3/31    4/5   3/1  3/29
       #
-      #  2) abd <=  dlc  <  ldpm <  aed <=  rd   [dlc, aed - 1 day] **
+      #  2) abd <=  dlc  <  ldpm <= aed <=  rd   [dlc, aed - 1 day] **
+      #     2/28    3/1     3/31    3/31    4/15  3/1  3/30
+      #     2/28    3/1     3/31    4/1     4/15  3/1  3/31
       #     2/28    3/1     3/31    4/3     4/15  3/1  4/2
       #     3/1     3/1     3/31    4/3     4/15  3/1  4/2
       #     3/1     3/15    3/31    4/3     4/15  3/15 4/2
@@ -53,7 +55,7 @@ module Vye
       #  5) dlc <   abd  <  aed  <  ldpm <  rd   [abd, aed - 1 day]
       #     3/1     3/2     3/30    3/31    4/15  3/2  3/29
       #
-      #  6) dlc <   abd  <= ldpm <  aed  <= rd   [abd, aed - 1 day]
+      #  6) dlc <   abd  <= ldpm <= aed  <= rd   [abd, aed - 1 day] (leave it with ldpm <= aed)
       #     3/1     3/2     3/31    4/1     4/15  3/2  3/31
       #     3/1     3/31    3/31    4/2     4/15  3/31 4/1
       #     3/1     3/31    3/31    4/15    4/15  3/31 4/14
@@ -323,8 +325,8 @@ module Vye
       end
 
       if previous_certification_date < award_begin_date && award_begin_date <= last_day_of_previous_month &&
-         last_day_of_previous_month < award_end_date && award_end_date <= today
-        puts '  dlc <   *abd  <= ldpm <  aed*  <= rd : case6'
+         last_day_of_previous_month <= award_end_date && award_end_date <= today
+        puts '  dlc <   *abd  <= ldpm <= aed*  <= rd : case6'
         return 'case6'
       end
 
