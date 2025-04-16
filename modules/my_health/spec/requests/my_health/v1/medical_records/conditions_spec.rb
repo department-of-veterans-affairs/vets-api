@@ -84,9 +84,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
     context 'when the patient is not found' do
       before do
         allow_any_instance_of(MedicalRecords::Client).to receive(:list_conditions)
-          .and_raise(MedicalRecords::PatientNotFound)
+          .and_return(:patient_not_found)
         allow_any_instance_of(MedicalRecords::Client).to receive(:get_condition)
-          .and_raise(MedicalRecords::PatientNotFound)
+          .and_return(:patient_not_found)
       end
 
       it 'returns a 202 Accepted response for GET #index' do
