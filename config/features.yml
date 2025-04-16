@@ -29,7 +29,7 @@ features:
     enable_in_development: true
   accredited_representative_portal_search:
     actor_type: user
-    description: Enables the people search of the accredited representative portal 
+    description: Enables the people search of the accredited representative portal
     enable_in_development: true
   aedp_vadx:
     actor_type: user
@@ -48,6 +48,11 @@ features:
       The Ask VA announcement banner displays message(s) to visitors
       from the CRM-managed, expirable notifications - as retrieved
       from the /ask_va_api/v0/announcements endpoint.
+    enable_in_development: true
+  ask_va_alert_link_to_old_portal:
+    actor_type: user
+    description: >
+      The Ask VA form alert banner with a link to the old portal. To use while form is down for maintenance.
     enable_in_development: true
   ask_va_canary_release:
     actor_type: cookie_id
@@ -1944,10 +1949,6 @@ features:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
     enable_in_development: true
-  intent_to_file_lighthouse_enabled:
-    actor_type: user
-    description: Enable new Lighthouse ITF logic
-    enable_in_development: true
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
@@ -2113,3 +2114,6 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
+  only_use_direct_deposit_email_template:
+    description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates
+
