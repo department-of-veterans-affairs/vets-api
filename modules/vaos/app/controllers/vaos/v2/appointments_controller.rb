@@ -107,7 +107,7 @@ module VAOS
         )
 
         if appointment&.id
-          render json: { data: { id: appointment.id, type: 'appointment' } }, status: :created
+          render json: { data: { id: appointment.id } }, status: :created
         else
           render json: { errors: [{ title: 'Appointment creation failed', detail: 'Could not create appointment' }] },
                  status: :unprocessable_entity
