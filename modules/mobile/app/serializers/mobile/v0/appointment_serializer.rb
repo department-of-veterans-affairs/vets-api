@@ -31,7 +31,7 @@ module Mobile
                  :best_time_to_call,
                  :friendly_location_name,
                  :service_category_name,
-                 :travel_pay_claim
+                 :travelPayClaim
     end
   end
 end

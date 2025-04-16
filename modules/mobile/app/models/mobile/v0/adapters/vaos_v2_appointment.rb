@@ -116,7 +116,7 @@ module Mobile
             best_time_to_call: appointment[:preferred_times_for_phone_call],
             friendly_location_name:,
             service_category_name: appointment.dig(:service_category, 0, :text),
-            travel_pay_claim: appointment[:travelPayClaim]
+            travelPayClaim: appointment[:travelPayClaim]
           }
 
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])

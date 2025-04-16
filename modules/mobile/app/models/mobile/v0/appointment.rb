@@ -46,25 +46,6 @@ module Mobile
         nil
       )
 
-      APPOINTMENT_TRAVEL_PAY_CLAIM_TYPE = Types::Object.shape(
-        {
-          'metadata' => {
-            'status' => Types::Integer,
-            'success' => Types::Bool,
-            'message' => Types::String
-          },
-          'claim' => {
-            'id' => Types::String,
-            'claimNumber' => Types::String,
-            'claimStatus' => Types::String,
-            'appointmentDateTime' => Types::DateTime,
-            'facilityName' => Types::String,
-            'createdOn' => Types::DateTime,
-            'modifiedOn' => Types::DateTime
-          }.optional
-        }
-      ).optional
-
       attribute :id, Types::String
       attribute :appointment_type, APPOINTMENT_TYPE
       attribute :appointment_ien, Types::String.optional
@@ -94,7 +75,22 @@ module Mobile
       attribute :best_time_to_call, Types::Array.optional
       attribute :friendly_location_name, Types::String.optional
       attribute :service_category_name, Types::String.optional
-      attribute :travel_pay_claim, APPOINTMENT_TRAVEL_PAY_CLAIM_TYPE
+      attribute? :travelPayClaim do
+        attribute :metadata do
+          attribute :status, Types::Integer
+          attribute :success, Types::Bool
+          attribute :message, Types::String
+        end
+        attribute? :claim do
+          attribute :id, Types::String,
+          attribute :claimNumber, Types::String
+          attribute :claimStatus, Types::String
+          attribute :appointmentDateTime, Types::DateTime
+          attribute :facilityName, Types::String
+          attribute :createdOn, Types::DateTime
+          attribute :modifiedOn, Types::DateTime
+        end
+      end
 
       # On staging, some upstream services use different facility ids for the same facility.
       # These methods convert between the two sets of ids.
