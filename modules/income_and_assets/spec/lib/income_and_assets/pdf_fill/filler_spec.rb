@@ -4,25 +4,26 @@ require 'rails_helper'
 require 'pdf_fill/filler'
 require 'income_and_assets/pdf_fill/va21p0969'
 require 'lib/pdf_fill/fill_form_examples'
+require 'support/pdf_fill_helper'
 
 def basic_class
   IncomeAndAssets::PdfFill::Va21p0969.new({})
 end
 
-describe IncomeAndAssets::PdfFill::Va21p0969 do
+describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
   test_data_types ||= %w[simple kitchen_sink overflow]
 
   it_behaves_like 'a form filler', {
-    form_id: described_class::FORM_ID,
+    form_id: '21P-0969',
     factory: :income_and_assets_claim,
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969',
     output_pdf_fixture_dir: 'modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969'
   }
 
-  xcontext 'Form filler', run_at: '2017-07-25 00:00:00 -0400' do # rubocop:disable RSpec/PendingWithoutReason
+  context 'Form filler', run_at: '2017-07-25 00:00:00 -0400' do
     skip 'Pending implementation of PDF form filling functionality for 21P-0969 form'
 
     let(:factory) { :income_and_assets_claim }
@@ -42,7 +43,7 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
           if type == 'overflow'
             the_extras_generator = nil
 
-            expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
+            expect(described_class).to receive(:combine_extras).twice do |old_file_path, extras_generator|
               the_extras_generator = extras_generator
               old_file_path
             end
