@@ -122,7 +122,8 @@ type: application
 # 0.15.18  - traefik api version settable through values.yaml
 # 0.15.19  - Set web.Service for all deployments
 # 0.15.20  - Set web.socatProxyEnabled
-version: 0.15.20
+# 0.15.21  - Removal of web.terminationGracePeriodSeconds
+version: 0.15.21
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
