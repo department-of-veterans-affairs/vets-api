@@ -11,8 +11,9 @@ module VAProfile
       include VAProfile::Concerns::Defaultable
       include VAProfile::Concerns::Expirable
 
-      VALID_AREA_CODE_REGEX = /[0-9]+/
-      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
+      VALID_COUNTRY_CODE_REGEX = /\A[1-9][0-9]*\z/
+      VALID_AREA_CODE_REGEX = /\A[0-9]+\z/
+      VALID_PHONE_NUMBER_REGEX = /\A[0-9]+\z/
 
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
@@ -28,7 +29,7 @@ module VAProfile
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
-      attribute :is_international, Boolean, default: false
+      attribute :is_international, Boolean, default: false  # Do we still want to default to false? Or handle this on frontend?
       attribute :is_textable, Boolean
       attribute :is_text_permitted, Boolean
       attribute :is_tty, Boolean
@@ -71,22 +72,25 @@ module VAProfile
 
       validates(
         :is_international,
-        inclusion: { in: [false] }
+        inclusion: { in: [true, false] }
       )
 
       validates(
         :country_code,
         presence: true,
-        inclusion: { in: ['1'] }
+        format: { with: VALID_COUNTRY_CODE_REGEX },
+        length: { maximum: 3, minimum: 1 }
       )
 
       def formatted_phone
         return if phone_number.blank?
-
-        # TODO: support international numbers
-
-        return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
-        return_val += " Ext. #{extension}" if extension.present?
+        
+        if is_international
+          return_val = "+#{country_code} #{phone_number}"
+        else
+          return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
+          return_val += " Ext. #{extension}" if extension.present?
+        end
 
         return_val
       end
