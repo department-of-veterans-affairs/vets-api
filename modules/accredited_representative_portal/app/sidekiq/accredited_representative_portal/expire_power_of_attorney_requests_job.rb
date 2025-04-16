@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
     def find_eligible_requests(threshold)
       PowerOfAttorneyRequest
         .unresolved
-        .where("#{PowerOfAttorneyRequest.table_name}.created_at < ?", threshold)
+        .where(created_at: ..threshold)
     end
 
     def process_requests(requests_to_process)
