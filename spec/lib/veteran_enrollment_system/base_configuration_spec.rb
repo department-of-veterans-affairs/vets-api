@@ -19,6 +19,22 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
     end
   end
 
+  describe '#self.base_request_headers' do
+    context 'when the api key is present' do
+      it 'merges the api key with the base headers' do
+        allow(VeteranEnrollmentSystem::BaseConfiguration).to receive(:api_key).and_return('test_key')
+        expect(subject.base_request_headers).to include('apiKey' => 'test_key')
+      end
+    end
+
+    context 'when the api key is not present' do
+      it 'does not merge the api key in the base headers' do
+        allow(VeteranEnrollmentSystem::BaseConfiguration).to receive(:api_key).and_return(nil)
+        expect(subject.base_request_headers).not_to include('apiKey')
+      end
+    end
+  end
+
   describe '#self.api_key' do
     context 'when the base configuration is used' do
       it 'returns nil' do

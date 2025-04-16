@@ -17,7 +17,11 @@ module VeteranEnrollmentSystem
 
     # The base request headers required for any VES API call
     def self.base_request_headers
-      super.merge('apiKey' => api_key)
+      if api_key.present?
+        super.merge('apiKey' => api_key)
+      else
+        super
+      end
     end
 
     # Sets the API key for the configuration. This can be overridden
