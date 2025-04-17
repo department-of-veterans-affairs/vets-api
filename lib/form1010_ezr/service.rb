@@ -93,6 +93,7 @@ module Form1010Ezr
       # REMOVE THE FOLLOWING TWO LINES OF CODE ONCE THE DOB ISSUE HAS BEEN DIAGNOSED - 3/27/24
       @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
+      VeteranEnrollmentSystem::Associations::Service.new(@user, parsed_form).update_associations(FORM_ID)
 
       submit_async(parsed_form)
     rescue => e
