@@ -29,7 +29,8 @@ RSpec.describe Eps::EpsAppointmentSerializer do
       visit_mode: 'in-person',
       features: {
         is_digital: true
-      }
+      },
+      phone_number: nil
     )
   end
 
@@ -160,6 +161,82 @@ RSpec.describe Eps::EpsAppointmentSerializer do
             'Dr. Williams'
           ]
         )
+      end
+
+      context 'when phone_number is present' do
+        let(:provider) do
+          double(
+            id: '1',
+            name: 'Dr. Smith',
+            is_active: true,
+            individual_providers: ['Dr. Jones', 'Dr. Williams'],
+            provider_organization: 'Medical Group',
+            location: { address: '123 Medical St' },
+            network_ids: ['sandbox-network-5vuTac8v'],
+            scheduling_notes: 'Available weekdays',
+            appointment_types: [
+              {
+                id: 'ov',
+                name: 'Office Visit',
+                is_self_schedulable: true
+              }
+            ],
+            specialties: [
+              {
+                id: '208800000X',
+                name: 'Urology'
+              }
+            ],
+            visit_mode: 'in-person',
+            features: {
+              is_digital: true
+            },
+            phone_number: '555-123-4567'
+          )
+        end
+
+        it 'includes phone_number in provider data' do
+          provider_data = serialized_json.dig(:data, :attributes, :provider)
+          expect(provider_data).to include(phone_number: '555-123-4567')
+        end
+      end
+
+      context 'when phone_number is nil' do
+        let(:provider) do
+          double(
+            id: '1',
+            name: 'Dr. Smith',
+            is_active: true,
+            individual_providers: ['Dr. Jones', 'Dr. Williams'],
+            provider_organization: 'Medical Group',
+            location: { address: '123 Medical St' },
+            network_ids: ['sandbox-network-5vuTac8v'],
+            scheduling_notes: 'Available weekdays',
+            appointment_types: [
+              {
+                id: 'ov',
+                name: 'Office Visit',
+                is_self_schedulable: true
+              }
+            ],
+            specialties: [
+              {
+                id: '208800000X',
+                name: 'Urology'
+              }
+            ],
+            visit_mode: 'in-person',
+            features: {
+              is_digital: true
+            },
+            phone_number: nil
+          )
+        end
+
+        it 'does not include phone_number in provider data due to compact' do
+          provider_data = serialized_json.dig(:data, :attributes, :provider)
+          expect(provider_data).not_to have_key(:phone_number)
+        end
       end
     end
   end

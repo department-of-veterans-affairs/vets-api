@@ -9,12 +9,8 @@ module PdfFill
       @extras_value = extras_value
     end
 
-    def to_s
-      @value.to_s
-    end
+    delegate :to_s, to: :@value
 
-    def size
-      @value.size
-    end
+    delegate :size, to: :@value
   end
 end

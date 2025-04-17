@@ -9,7 +9,7 @@ RSpec.shared_context 'shared data' do
         email_address: 'test@test.com',
         contact_preference: 'Email',
         preferred_name: 'Submitter',
-        your_health_facility: 'vba_349b',
+        your_health_facility: 'vha_554',
         pronouns: { he_him_his: 'true' },
         about_the_veteran: {
           first: 'Joseph',
@@ -55,14 +55,19 @@ RSpec.shared_context 'shared data' do
         get_location_error: 'false',
         selected_facility: nil,
         review_page_view: { open_chapters: [] },
-        files: [{ file_name: nil, file_content: nil }],
+        files: [
+          {
+            file_name: 'veteran_photo.JpEg',
+            file_content: '/9j/4AAQSkZJRgABAQAAAQABAAD'
+          }
+        ],
         school_obj: {}
       }
     }
   end
   let(:translated_payload) do
     { AreYouTheDependent: false,
-      AttachmentPresent: false,
+      AttachmentPresent: true,
       CaregiverZipCode: nil,
       ContactMethod: 722_310_000,
       DependentDOB: '2000-01-01',
@@ -79,7 +84,7 @@ RSpec.shared_context 'shared data' do
       InquiryTopic: 'c0da1728-d91f-ed11-b83c-001dd8069009',
       IsVeteranDeceased: 'false',
       LevelOfAuthentication: 722_310_001,
-      MedicalCenter: 'vba_349b',
+      MedicalCenter: '2da51029-6816-e611-9436-0050568d743d',
       SchoolObj: { City: nil,
                    InstitutionName: nil,
                    SchoolFacilityCode: nil,
@@ -95,7 +100,12 @@ RSpec.shared_context 'shared data' do
       VeteranDateOfDeath: nil,
       VeteranRelationship: 722_310_007,
       WhoWasTheirCounselor: nil,
-      ListOfAttachments: nil,
+      ListOfAttachments: [
+        {
+          FileName: 'veteran_photo.jpeg',
+          FileContent: '/9j/4AAQSkZJRgABAQAAAQABAAD'
+        }
+      ],
       SubmitterProfile: { FirstName: 'Your',
                           MiddleName: nil,
                           LastName: 'Self',
@@ -672,6 +682,197 @@ RSpec.shared_context 'shared data' do
           }
         ],
         school_obj: {}
+      }
+    }
+  end
+  let(:net_error) do
+    {
+      inquiry:
+     { subject: 'testing',
+       question: 'testing Education and CoE flow',
+       relationship_to_veteran: "I'm the Veteran",
+       about_yourself: {
+         first: 'Ray',
+         middle: 'Gerald',
+         last: 'Bell',
+         social_or_service_num: {
+           ssn: '111111111'
+         },
+         date_of_birth: '1989-11-11'
+       },
+       state_of_the_school: nil,
+       state_or_residency: {
+         school_state: '',
+         residency_state: 'CO'
+       },
+       phone_number: '4053232444',
+       email_address: 'jacob.uhteg@oddball.io',
+       business_phone: '13034476565',
+       business_email: 'jacob.uhteg@oddball.io',
+       address: {
+         'view:military_base_description': {},
+         country: 'USA',
+         street: '1200 The Strand',
+         city: 'Manhattan Beach',
+         state: 'CA',
+         postal_code: '90266',
+         military_address: {
+           military_post_office: nil,
+           military_state: nil
+         }
+       },
+       about_the_veteran: {
+         social_or_service_num: {}
+       },
+       about_the_family_member: {
+         social_or_service_num: {}
+       },
+       has_prefill_information: true,
+       initial_form_data: {
+         about_yourself: {
+           first: 'Ray',
+           middle: 'Gerald',
+           last: 'Bell',
+           social_or_service_num: {
+             ssn: '111111111'
+           },
+           date_of_birth: '1989-11-11'
+         },
+         state_or_residency: {},
+         phone_number: '4053232444',
+         email_address: 'jacob.uhteg@oddball.io',
+         business_phone: '13034476565',
+         business_email: 'jacob.uhteg@oddball.io',
+         address: {
+           'view:military_base_description': {},
+           country: 'USA',
+           street: '1200 The Strand',
+           city: 'Manhattan Beach',
+           state: 'CA',
+           postal_code: '90266'
+         },
+         about_the_veteran: {
+           social_or_service_num: {}
+         },
+         about_the_family_member: {
+           social_or_service_num: {}
+         }
+       },
+       category_id: '75524deb-d864-eb11-bb24-000d3a579c45',
+       select_category: 'Education benefits and work study',
+       allow_attachments: true,
+       contact_preferences: [
+         'Email'
+       ],
+       category_requires_sign_in: false,
+       select_topic: 'Certificate of Eligibility (COE) or Statement of Benefits',
+       topic_id: '5716ab8e-8276-ef11-a671-001dd8097cca',
+       topic_requires_sign_in: false,
+       country: 'USA',
+       files: [
+         {
+           FileName: nil,
+           FileContent: nil
+         }
+       ],
+       school_obj: {
+         state_abbreviation: ''
+       } }
+    }
+  end
+  let(:net_error_two) do
+    {
+      inquiry: {
+        subject: 'testing',
+        question: 'testing edu flow, selecting residency state, then deselect',
+        relationship_to_veteran: "I'm the Veteran",
+        about_yourself: {
+          first: 'Ray',
+          middle: 'Gerald',
+          last: 'Bell',
+          social_or_service_num: {
+            ssn: '111111111'
+          },
+          date_of_birth: '1989-11-11'
+        },
+        state_of_the_school: nil,
+        state_or_residency: {
+          school_state: 'CO',
+          residency_state: ''
+        },
+        phone_number: '4053232444',
+        email_address: 'jacob.uhteg@oddball.io',
+        business_phone: '13034476565',
+        business_email: 'jacob.uhteg@oddball.io',
+        address: {
+          'view:military_base_description': {},
+          country: 'USA',
+          street: '1200 The Strand',
+          city: 'Manhattan Beach',
+          state: 'CA',
+          postal_code: '90266',
+          military_address: {
+            military_post_office: nil,
+            military_state: nil
+          }
+        },
+        about_the_veteran: {
+          social_or_service_num: {}
+        },
+        about_the_family_member: {
+          social_or_service_num: {}
+        },
+        has_prefill_information: true,
+        initial_form_data: {
+          about_yourself: {
+            first: 'Ray',
+            middle: 'Gerald',
+            last: 'Bell',
+            social_or_service_num: {
+              ssn: '111111111'
+            },
+            date_of_birth: '1989-11-11'
+          },
+          state_or_residency: {},
+          phone_number: '4053232444',
+          email_address: 'jacob.uhteg@oddball.io',
+          business_phone: '13034476565',
+          business_email: 'jacob.uhteg@oddball.io',
+          address: {
+            'view:military_base_description': {},
+            country: 'USA',
+            street: '1200 The Strand',
+            city: 'Manhattan Beach',
+            state: 'CA',
+            postal_code: '90266'
+          },
+          about_the_veteran: {
+            social_or_service_num: {}
+          },
+          about_the_family_member: {
+            social_or_service_num: {}
+          }
+        },
+        category_id: '75524deb-d864-eb11-bb24-000d3a579c45',
+        select_category: 'Education benefits and work study',
+        allow_attachments: true,
+        contact_preferences: [
+          'Email'
+        ],
+        category_requires_sign_in: false,
+        select_topic: 'Certificate of Eligibility (COE) or Statement of Benefits',
+        topic_id: '5716ab8e-8276-ef11-a671-001dd8097cca',
+        topic_requires_sign_in: false,
+        country: 'USA',
+        files: [
+          {
+            FileName: nil,
+            FileContent: nil
+          }
+        ],
+        school_obj: {
+          state_abbreviation: 'CO'
+        }
       }
     }
   end

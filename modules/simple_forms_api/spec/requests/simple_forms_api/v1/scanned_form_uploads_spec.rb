@@ -14,7 +14,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
   describe '#submit' do
     let(:fixture_path) do
-      Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'form_upload_flow_21_0779.json')
+      Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', '21_0779_upload.json')
     end
     let(:params) { JSON.parse(fixture_path.read) }
     let(:form_name) { 'Request for Nursing Home Information in Connection with Claim for Aid and Attendance' }

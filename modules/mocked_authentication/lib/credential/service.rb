@@ -43,14 +43,14 @@ module MockedAuthentication
         {
           type:,
           acr_values: acr,
-          mock_redirect_uri: Settings.sign_in.mock_redirect_uri,
+          mock_redirect_uri: IdentitySettings.sign_in.mock_redirect_uri,
           state:,
           operation:
         }.compact
       end
 
       def redirect_uri
-        Settings.sign_in.mock_auth_url
+        IdentitySettings.sign_in.mock_auth_url
       end
 
       def logingov_acr(code)

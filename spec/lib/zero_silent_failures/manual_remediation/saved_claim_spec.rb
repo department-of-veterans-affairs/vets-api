@@ -9,7 +9,7 @@ RSpec.describe ZeroSilentFailures::ManualRemediation::SavedClaim do
   let(:attachment) { build(:persistent_attachment) }
 
   let(:fake_pdf_path) { 'fake_pdf_path' }
-  let(:stamper) { PDFUtilities::DatestampPdf.new(fake_pdf_path) }
+  let(:stamper) { instance_double(PDFUtilities::DatestampPdf) }
 
   let(:s3_resource) { double('Aws::S3::Resource') }
   let(:s3_bucket) { double('s3_resource.bucket') }

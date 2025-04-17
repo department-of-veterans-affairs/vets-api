@@ -4,14 +4,14 @@ require 'sm/client'
 
 MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def access?
-    return false unless user.mhv_correlation_id
+    return false unless user.mhv_correlation_id && user.va_patient?
 
     client = SM::Client.new(session: { user_id: user.mhv_correlation_id, user_uuid: user.uuid })
     validate_client(client)
   end
 
   def mobile_access?
-    return false unless user.mhv_correlation_id
+    return false unless user.mhv_correlation_id && user.va_patient?
 
     client = Mobile::V0::Messaging::Client.new(session: { user_id: user.mhv_correlation_id })
     validate_client(client)

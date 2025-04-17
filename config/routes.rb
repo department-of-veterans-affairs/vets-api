@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
+  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso' unless Settings.vsp_environment == 'production'
   get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
@@ -47,6 +48,7 @@ Rails.application.routes.draw do
     resources :debts, only: %i[index show]
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
+    resources :user_action_events, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
@@ -150,13 +152,12 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    post 'form0969', to: 'income_and_assets_claims#create'
-    get 'form0969', to: 'income_and_assets_claims#show'
-
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
     end
+
+    resources :evidence_submissions, only: %i[index]
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
@@ -433,6 +434,7 @@ Rails.application.routes.draw do
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
@@ -442,6 +444,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
+  mount VRE::Engine, at: '/vre'
   mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
@@ -472,6 +475,8 @@ Rails.application.routes.draw do
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
+
+  get '/apple-touch-icon-:size.png', to: redirect('/apple-touch-icon.png')
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]

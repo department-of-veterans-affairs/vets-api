@@ -7,6 +7,13 @@ require 'simple_forms_api_submission/metadata_validator'
 
 module DecisionReviewV1
   module Processor
+    class Form4142ValidationError < StandardError
+      def initialize(errors)
+        super
+        @errors = errors
+      end
+    end
+
     class Form4142Processor
       SIGNATURE_DATE_KEY = 'signatureDate'
       SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -20,18 +27,20 @@ module DecisionReviewV1
       def initialize(form_data:, submission_id: nil)
         @submission = Form526Submission.find_by(id: submission_id)
         @form = set_signature_date(form_data)
+        validate_form4142
         @pdf_path = generate_stamp_pdf
-        @uuid = SecureRandom.uuid
         @request_body = {
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
         }
       end
 
+      def uuid
+        @uuid ||= SecureRandom.uuid
+      end
+
       def generate_stamp_pdf
-        pdf = PdfFill::Filler.fill_ancillary_form(
-          @form, @uuid, FORM_ID
-        )
+        pdf = PdfFill::Filler.fill_ancillary_form(@form, uuid, FORM_ID)
         stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
                                                                timestamp: submission_date)
         PDFUtilities::DatestampPdf.new(stamped_path).run(
@@ -62,7 +71,7 @@ module DecisionReviewV1
           'receiveDt' => received_date,
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
-          'uuid' => @uuid,
+          'uuid' => uuid,
           'zipCode' => address['postalCode'],
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
@@ -90,6 +99,18 @@ module DecisionReviewV1
 
       def set_signature_date(incoming_data)
         incoming_data.merge({ SIGNATURE_DATE_KEY => received_date })
+      end
+
+      def validate_form4142
+        return unless Flipper.enabled?(:form4142_validate_schema)
+
+        schema = VetsJsonSchema::SCHEMAS[FORM_ID]
+        errors = JSON::Validator.fully_validate(schema, @form, errors_as_objects: true)
+
+        unless errors.empty?
+          Rails.logger.error('Form 4142 failed validation', { errors: })
+          raise Form4142ValidationError.new({ errors: })
+        end
       end
     end
   end

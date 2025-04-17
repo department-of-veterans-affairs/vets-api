@@ -13,6 +13,10 @@ module Identity
       config.before_configuration { setup }
 
       def setup
+        if current_env.blank?
+          raise StandardError, 'Identity::Config::Railtie current_env not set for IdentitySettings config'
+        end
+
         settings_files.each { |file| ::IdentitySettings.add_source!(file) }
         ::IdentitySettings.add_source!(secrets_source) if secrets_source.present?
 
@@ -22,7 +26,11 @@ module Identity
       private
 
       def current_env
-        ENV.fetch('VSP_ENVIRONMENT', ENV.fetch('vsp_environment', Settings.vsp_environment))
+        @current_env ||= if Rails.env.local? # rubocop:disable Rails/UnknownEnv
+                           Rails.env
+                         else
+                           ENV.fetch('APPLICATION_ENV', nil)
+                         end
       end
 
       def secrets_env_prefix

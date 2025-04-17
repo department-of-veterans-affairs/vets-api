@@ -11,13 +11,12 @@ FactoryBot.define do
       resolution_created_at { nil }
     end
 
-    accredited_organization {
-      create(:organization)
-    }
-
     power_of_attorney_holder_type { 'veteran_service_organization' }
 
     after(:build) do |poa_request, evaluator|
+      poa_request.accredited_organization = evaluator.accredited_organization ||
+                                            create(:organization)
+
       if evaluator.accredited_individual
         poa_request.accredited_individual = evaluator.accredited_individual
       else

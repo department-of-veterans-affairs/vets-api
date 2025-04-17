@@ -123,8 +123,8 @@ describe SignIn::Logingov::Service do
   end
 
   describe '#render_logout' do
-    let(:client_id) { Settings.logingov.client_id }
-    let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+    let(:client_id) { IdentitySettings.logingov.client_id }
+    let(:logout_redirect_uri) { IdentitySettings.logingov.logout_redirect_uri }
     let(:expected_url_params) do
       {
         client_id:,
@@ -140,7 +140,7 @@ describe SignIn::Logingov::Service do
       }
     end
     let(:seed) { 'some-seed' }
-    let(:expected_url_host) { Settings.logingov.oauth_url }
+    let(:expected_url_host) { IdentitySettings.logingov.oauth_url }
     let(:expected_url_path) { 'openid_connect/logout' }
     let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
     let(:client_logout_redirect_uri) { 'some-client-logout-redirect-uri' }

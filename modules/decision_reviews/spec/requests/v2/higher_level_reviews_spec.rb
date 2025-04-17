@@ -107,7 +107,9 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
             message: "Exception occurred while submitting Higher Level Review: #{extra_error_log_message}",
             backtrace: anything
           )
-          expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+          expect(Rails.logger).to receive(:error) do |message|
+            expect(message).to include(extra_error_log_message)
+          end
           allow(StatsD).to receive(:increment)
           expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
 

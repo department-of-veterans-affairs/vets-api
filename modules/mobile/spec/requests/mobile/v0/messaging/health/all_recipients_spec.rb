@@ -61,7 +61,8 @@ RSpec.describe 'Mobile::V0::Messaging::Health::AllRecipients', type: :request do
           triage_team = parsed_response_contents.select { |entry| entry['id'] == '4399547' }[0]
           expect(triage_team.dig('attributes', 'name')).to eq('589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON')
           expect(triage_team['type']).to eq('all_triage_teams')
-          expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams', { strict: false })
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/all_triage_teams',
+                                                              { strict: false })
         end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
       end
     end

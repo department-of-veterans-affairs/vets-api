@@ -14,9 +14,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                               instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:form526_send_0781_failure_notification).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_0781v2_extras_redesign,
+                                              anything).and_return(false)
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -48,6 +51,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     context 'when a submission has both 0781 and 0781a' do
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781,
@@ -97,6 +101,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     context 'when a submission has 0781v2' do
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781v2,
@@ -146,7 +151,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
   context 'catastrophic failure state' do
     describe 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, user_account:) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -178,11 +183,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
             {
               job_id: form526_job_status.job_id,
               error_class: nil,
-              error_message: 'An error occured',
+              error_message: 'An error occurred',
               timestamp: instance_of(Time),
               form526_submission_id: form526_submission.id
             },
-            nil,
+            user_account.id,
             call_location: instance_of(Logging::CallLocation)
           )
 
@@ -305,6 +310,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781, # contains 0781 and 0781a
@@ -699,6 +705,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781v2,
@@ -847,6 +854,39 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               subject.perform_async(submission.id)
               described_class.drain
             end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
+          end
+        end
+
+        context 'when validating stamping the pdf behavior' do
+          let(:pdf_filler) { instance_double(PdfFill::Filler) }
+          let(:datestamp_pdf_instance) { instance_double(PDFUtilities::DatestampPdf) }
+
+          before do
+            allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).and_call_original
+            allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(path_to_0781v2_fixture)
+            allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_instance)
+            allow(datestamp_pdf_instance).to receive(:run).and_return(path_to_0781v2_fixture)
+          end
+
+          context 'when the disability_compensation_0781v2_extras_redesign flipper is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:disability_compensation_0781v2_extras_redesign,
+                                                        anything).and_return(true)
+            end
+
+            it 'this class does not stamp the pdf' do
+              submission.update(form_json: form0781v2)
+              expect(PDFUtilities::DatestampPdf).not_to receive(:new)
+              perform_upload
+            end
+          end
+
+          context 'when the disability_compensation_0781v2_extras_redesign flipper is disabled' do
+            it 'this class stamps the pdf' do
+              submission.update(form_json: form0781v2)
+              expect(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_instance)
+              perform_upload
+            end
           end
         end
       end
