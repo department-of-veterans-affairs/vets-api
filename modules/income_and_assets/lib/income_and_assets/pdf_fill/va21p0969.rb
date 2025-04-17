@@ -913,7 +913,7 @@ module IncomeAndAssets
             key: "F[0].OtherRelationship12[#{ITERATOR}]",
             question_num: 12,
             question_suffix: '(1)',
-            question_text: 'SPECIFY INCOME RECIPIENT\'S RELATIONSHIP TO VETERAN'
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
           },
           # Q2
           'recipientName' => {
