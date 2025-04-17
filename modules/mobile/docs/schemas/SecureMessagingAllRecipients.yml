@@ -1,0 +1,101 @@
+type: object
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: 855912
+        type:
+          type: string
+          example: "all_triage_teams"
+        attributes:
+          type: object
+          required:
+            - triageTeamId
+            - name
+            - stationNumber
+            - blockedStatus
+            - preferredTeam
+            - relationType
+          properties:
+            triageTeamId:
+              type: integer
+              example: 855912
+            name:
+              type: string
+              example: RADIOLOGY_TRIAGE_GROUP_1
+            stationNumber:
+              type: string
+              example: 989
+            blockedStatus:
+              type: boolean
+              example: false
+            preferredTeam:
+              type: boolean
+              example: true
+            relationType:
+              type: string
+              enum: [PATIENT]
+              example: PATIENT
+            locationName:
+              type: string
+              example: "Main Hospital"
+            leadProviderName:
+              type: string
+              example: "Dr. Smith"
+            teamName:
+              type: string
+              example: "Radiology Team"
+            suggestedNameDisplay:
+              type: string
+              example: "Radiology Triage Group 1"
+            healthCareSystemName:
+              type: string
+              example: "VA Health Care System"
+            groupTypeEnumVal:
+              type: string
+              example: "Primary"
+            subGroupTypeEnumVal:
+              type: string
+              example: "Secondary"
+            groupTypePatientDisplay:
+              type: string
+              example: "Primary Care"
+            subGroupTypePatientDisplay:
+              type: string
+              example: "Specialty Care"
+  meta:
+    type: object
+    required:
+      - sort
+      - associatedTriageGroups
+      - associatedBlockedTriageGroups
+    properties:
+      sort:
+        type: object
+        required:
+          - name
+        properties:
+          name:
+            type: string
+            enum: [ASC, DESC]
+            example: ASC
+      associatedTriageGroups:
+        type: integer
+        example: 38
+      associatedBlockedTriageGroups:
+        type: integer
+        example: 1
+      friendlyTriageTeamPilotFacilities:
+        type: string
+        example: "979,989"
