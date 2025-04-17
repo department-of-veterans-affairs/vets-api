@@ -11,7 +11,7 @@ module AccreditedRepresentativePortal
         def index
           relation = search_filter(policy_scope(PowerOfAttorneyRequest))
 
-          poa_requests = relation.includes(scope_includes).limit(100)
+          poa_requests = relation.preload(scope_includes).limit(100)
           serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
 
           render json: serializer.serializable_hash, status: :ok

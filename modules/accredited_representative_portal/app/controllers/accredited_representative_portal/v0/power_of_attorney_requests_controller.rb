@@ -42,7 +42,9 @@ module AccreditedRepresentativePortal
 
       def poa_requests
         @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
-                          .includes(scope_includes).paginate(page:, per_page:)
+                          .unredacted
+                          .preload(scope_includes)
+                          .paginate(page:, per_page:)
       end
 
       def filter_by_status(relation)
