@@ -1570,6 +1570,8 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
