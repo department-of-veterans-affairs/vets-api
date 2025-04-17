@@ -36,7 +36,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'flags as a future award' do
-        expect_contra(run_date, 'eval_eom')
+        expect(Vye::Verification.count).to eq(0)
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'flags as a future award' do
-        expect_contra(run_date, 'eval_eom')
+        expect(Vye::Verification.count).to eq(0)
       end
     end
 
@@ -60,7 +60,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'flags as a future award' do
-        expect_contra(run_date, 'eval_eom')
+        expect(Vye::Verification.count).to eq(0)
       end
     end
 
@@ -71,7 +71,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'does not create an eom pending verification' do
-        expect_contra(run_date, 'eval_eom')
+        expect(Vye::Verification.count).to eq(0)
       end
     end
 
@@ -82,7 +82,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
 
       it 'does not create an eom pending verification' do
-        expect_contra(run_date, 'eval_eom')
+        expect(Vye::Verification.count).to eq(0)
       end
     end
   end

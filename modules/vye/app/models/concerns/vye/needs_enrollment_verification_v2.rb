@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-
 # *** refactor, abd will always be < aed
 
 # This is included from UserInfo
@@ -28,12 +27,14 @@ module Vye
       #                                           beg  end
       #  1) abd <=  dlc  <  aed  <  ldpm <  rd   [dlc, aed - 1 day]
       #     2/28    3/1     3/30    3/31    4/5   3/1  3/29
+      #     3/1     3/1     3/2     3/31    4/5   3/1  3/1
       #     3/1     3/1     3/30    3/31    4/5   3/1  3/29
       #
       #  2) abd <=  dlc  <  ldpm <= aed <=  rd   [dlc, aed - 1 day] **
       #     2/28    3/1     3/31    3/31    4/15  3/1  3/30
       #     2/28    3/1     3/31    4/1     4/15  3/1  3/31
       #     2/28    3/1     3/31    4/3     4/15  3/1  4/2
+      #     3/1     3/1     3/31    3/31    4/15  3/1  3/30
       #     3/1     3/1     3/31    4/3     4/15  3/1  4/2
       #     3/1     3/15    3/31    4/3     4/15  3/15 4/2
       #     3/1     3/30    3/31    4/15    4/15  3/30 4/14
@@ -48,6 +49,8 @@ module Vye
       #     3/31    3/31    3/31    4/1    4/15   3/31 3/31
       #     3/31    3/31    3/31    4/2    4/15   3/31 4/1
       #     3/31    3/31    3/31    4/15   4/15   3/31 4/14
+      #     3/31    3/31    4/1     4/2    4/15   4/1  4/1
+      #     3/31    3/31    4/1     4/15   4/15   4/1  4/14
       #
       #     abd <=  ldpm <= dlc  <  rd  <   aed  no pending verification
       #                     4/2     4/15    4/30
@@ -55,14 +58,19 @@ module Vye
       #  5) dlc <   abd  <  aed  <  ldpm <  rd   [abd, aed - 1 day]
       #     3/1     3/2     3/30    3/31    4/15  3/2  3/29
       #
-      #  6) dlc <   abd  <= ldpm <= aed  <= rd   [abd, aed - 1 day] (leave it with ldpm <= aed)
+      #  6) dlc <   abd  <  ldpm <= aed  <= rd   [abd, aed - 1 day] or
+      #     dlc <   abd  <= ldpm <  aed  <= rd   [abd, aed - 1 day]
+      #     3/1     3/30    3/31    3/31    4/15  3/30 3/31
       #     3/1     3/2     3/31    4/1     4/15  3/2  3/31
+      #     3/1     3/31    3/31    4/1     4/15  3/31 3/31
+      #     3/1     3/31    3/31    4/1     4/15  3/31 3/31
       #     3/1     3/31    3/31    4/2     4/15  3/31 4/1
       #     3/1     3/31    3/31    4/15    4/15  3/31 4/14
       #
       #  7) dlc <   abd  <= ldpm <  rd   <  aed  [abd, ldpm]
       #     3/1     3/2     3/31    4/2     4/3   3/2  3/31
       #     3/1     3/30    3/31    4/2     4/3   3/30 3/31
+      #     3/1     3/31    3/31    4/2     4/3   3/31 3/31
       #
       #  8) dlc <   ldpm <  abd <   aed <=  rd   [abd, aed - 1 day]
       #     3/30    3/31    4/1     4/2     4/15  4/1  4/1
@@ -73,13 +81,15 @@ module Vye
       #
       #  9) ldpm <	abd	<=	dlc < 	aed	<=	rd   [dlc, aed - 1 day]
       #     3/31    4/1     4/1     4/3     4/15  4/1  4/2
+      #     3/31    4/1     4/2     4/3     4/15  4/2  4/2
       #     3/31    4/1     4/2     4/15    4/15  4/2  4/14
       #
       #     ldpm <	abd	<=	dlc	<	  rd	<		aed  no pending verification
       #     3/31    4/1     4/1     4/14    4/15
       #
       # 10) ldpm <= dlc	<		abd	< 	aed	<=	rd   [abd, aed - 1 day]
-      #     3/31    4/1     4/2     4/15    4/15 4/2  4/14
+      #     3/31    3/31    4/2     4/3     4/15  4/2  4/2
+      #     3/31    4/1     4/2     4/15    4/15  4/2  4/14
       #
       #     ldpm <=	dlc	<		abd	<=	rd	<		aed  no pending verification
       #      3/31   4/1     4/1     4/15    6/15
@@ -269,7 +279,7 @@ module Vye
       return nil unless today.between?(award_begin_date, award_end_date)
 
       puts '  award is case_eom'
-      'case_eom'
+      :case_eom
     end
 
     def aed_minus1
@@ -288,18 +298,18 @@ module Vye
 
       act_begin =
         case trace
-        when 'case5', 'case6', 'case7', 'case8', 'case10'
+        when :case5, :case6, :case7, :case8, :case10
           award_begin_date
-        when 'case_eom'
+        when :case_eom
           [award_begin_date, previous_certification_date].max
         else previous_certification_date
         end
 
       act_end =
         case trace
-        when 'case1', 'case2', 'case4', 'case5', 'case6', 'case8', 'case9', 'case10'
+        when :case1, :case2, :case4, :case5, :case6, :case8, :case9, :case10
           aed_minus1
-        when 'case_eom'
+        when :case_eom
           award_begin_date < award_end_date && award_end_date.eql?(today) ? aed_minus1 : today
         else last_day_of_previous_month
         end
@@ -321,31 +331,33 @@ module Vye
       if previous_certification_date < award_begin_date && award_begin_date < award_end_date &&
          award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
         puts '  dlc <   *abd  < aed*  <= ldpm <  rd : case5'
-        return 'case5'
+        return :case5
       end
 
-      if previous_certification_date < award_begin_date && award_begin_date <= last_day_of_previous_month &&
-         last_day_of_previous_month <= award_end_date && award_end_date <= today
+      if previous_certification_date < award_begin_date &&
+         ((award_begin_date <= last_day_of_previous_month && last_day_of_previous_month <  award_end_date) ||
+          (award_begin_date <  last_day_of_previous_month && last_day_of_previous_month <= award_end_date)) &&
+         award_end_date <= today
         puts '  dlc <   *abd  <= ldpm <= aed*  <= rd : case6'
-        return 'case6'
+        return :case6
       end
 
       if previous_certification_date < last_day_of_previous_month && last_day_of_previous_month <= award_begin_date &&
          award_begin_date < award_end_date && award_end_date <= today
         puts '  dlc <   ldpm <=  *abd <  aed* <=  rd : case8'
-        return 'case8'
+        return :case8
       end
 
       if last_day_of_previous_month < award_begin_date && award_begin_date <= previous_certification_date &&
          previous_certification_date < award_end_date && award_end_date <= today
         puts '  ldpm <	abd	<=	*dlc < 	aed*	<=	rd : case9'
-        return 'case9'
+        return :case9
       end
 
       if last_day_of_previous_month <= previous_certification_date && previous_certification_date < award_begin_date &&
          award_begin_date < award_end_date && award_end_date <= today
         puts '  ldpm <= dlc	<		*abd	<	aed*	<=	rd : case10'
-        return 'case10'
+        return :case10
       end
 
       nil
@@ -356,19 +368,19 @@ module Vye
       if award_begin_date <= previous_certification_date && previous_certification_date < award_end_date &&
          award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
         puts '  abd <=  *dlc  <  aed*  <  ldpm <  rd : case1'
-        return 'case1'
+        return :case1
       end
 
       if award_begin_date <= previous_certification_date && previous_certification_date < last_day_of_previous_month &&
          last_day_of_previous_month <= award_end_date && award_end_date <= today
         puts '  abd <=  *dlc  <  ldpm <=  aed* <=  rd : case2'
-        return 'case2'
+        return :case2
       end
 
       if award_begin_date <= last_day_of_previous_month && last_day_of_previous_month <= previous_certification_date &&
          previous_certification_date < award_end_date && award_end_date <= today
         puts '  abd <=  *ldpm < dlc  <  aed* <=  rd : case4'
-        return 'case4'
+        return :case4
       end
 
       nil
@@ -380,7 +392,7 @@ module Vye
       if award_begin_date <= previous_certification_date && previous_certification_date < last_day_of_previous_month &&
          last_day_of_previous_month < today && today < award_end_date
         puts '  abd <=  *dlc  <  ldpm* <  rd  <   aed : case3'
-        return 'case3'
+        return :case3
       end
 
       nil
@@ -392,7 +404,7 @@ module Vye
       if previous_certification_date < award_begin_date && award_begin_date <= last_day_of_previous_month &&
          last_day_of_previous_month < today && today < award_end_date
         puts '  dlc <   *abd  <= ldpm* <  rd   <  aed : case7'
-        return 'case7'
+        return :case7
       end
 
       nil

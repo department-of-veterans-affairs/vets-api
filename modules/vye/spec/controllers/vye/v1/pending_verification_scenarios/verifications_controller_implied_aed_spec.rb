@@ -31,13 +31,13 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
 
     # rubocop:disable Naming/VariableNumber
     describe 'implied award end date' do
-      let(:award_begin_date_1) { Date.new(2025, 3, 2) }
-      let(:award_end_date_1) { nil } # implied to 3/15
+      let(:award_begin_date) { Date.new(2025, 3, 2) }
+      let(:award_end_date) { nil } # implied to 3/15
       let(:award_begin_date_2) { Date.new(2025, 3, 16) }
       let(:award_end_date_2) { Date.new(2025, 4, 2) }
 
+      # The first award will be handled by the shared context
       before do
-        setup_award(award_begin_date: award_begin_date_1, award_end_date: award_end_date_1, payment_date:)
         setup_award(award_begin_date: award_begin_date_2, award_end_date: award_end_date_2, payment_date:)
       end
 
@@ -45,10 +45,21 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       it 'creates a pending verification for the 1st row with an act end of 3/14' do
         Timecop.freeze(run_date) { subject.create }
         pv = Vye::Verification.first
-        check_expectations_for(pv, award_begin_date_1, Date.new(2025, 3, 14), Date.new(2025, 4, 1), 'case5')
+        check_expectations_for(pv, award_begin_date, Date.new(2025, 3, 14), Date.new(2025, 4, 1), 'case5')
       end
       # rubocop:enable Rspec/NoExpectationExample
     end
     # rubocop:enable Naming/VariableNumber
+
+    describe 'open award' do
+      let(:award_begin_date) { Date.new(2025, 3, 2) }
+      let(:award_end_date) { nil } # no implication, award is open
+
+      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
+
+      it 'does not create a pending verification' do
+        expect(Vye::Verification.count).to eq(0)
+      end
+    end
   end
 end

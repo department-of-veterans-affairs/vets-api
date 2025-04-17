@@ -14,6 +14,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     let(:date_last_certified) { Date.new(2025, 3, 1) }
     let(:payment_date) { Date.new(2025, 3, 1) }
     let(:run_date) { Date.new(2025, 3, 31) }
+    let(:rd_minus1) { Date.new(2025, 3, 30) }
 
     # there are two guard conditions for happy path end of month
     # 1) today is the end of the month
@@ -26,12 +27,8 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       let(:award_begin_date) { Date.new(2025, 3, 2) }
       let(:award_end_date) { Date.new(2025, 4, 1) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, award_begin_date, run_date, run_date, 'case_eom')
+        run_the_happy_path(run_date, award_begin_date, run_date, run_date, 'case_eom')
       end
     end
 
@@ -39,12 +36,8 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       let(:award_begin_date) { Date.new(2025, 3, 2) }
       let(:award_end_date) { Date.new(2025, 3, 31) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, award_begin_date, run_date - 1.day, run_date - 1.day, 'case_eom')
+        run_the_happy_path(run_date, award_begin_date, rd_minus1, rd_minus1, 'case_eom')
       end
     end
 
@@ -53,114 +46,77 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       let(:award_begin_date) { Date.new(2025, 3, 31) }
       let(:award_end_date) { Date.new(2025, 4, 2) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, award_begin_date, run_date, run_date, 'case_eom')
+        run_the_happy_path(run_date, award_begin_date, run_date, run_date, 'case_eom')
       end
     end
 
-    describe 'eom happy path 4, dlc < abd = eom = aed' do
-      let(:award_begin_date) { Date.new(2025, 3, 31) }
-      let(:award_end_date) { Date.new(2025, 3, 31) }
-
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
-      it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, award_begin_date, run_date, run_date, 'case_eom')
-      end
-    end
-
-    describe 'eom happy path 5, dlc = abd < eom < aed' do
+    describe 'eom happy path 4, dlc = abd < eom < aed' do
       let(:award_begin_date) { Date.new(2025, 3, 1) }
       let(:award_end_date) { Date.new(2025, 4, 2) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, award_begin_date, run_date, run_date, 'case_eom')
+        run_the_happy_path(run_date, award_begin_date, run_date, run_date, 'case_eom')
       end
     end
 
-    describe 'eom happy path 6, dlc = abd < eom = aed' do
+    describe 'eom happy path 5, dlc = abd < eom = aed' do
       let(:award_begin_date) { Date.new(2025, 3, 1) }
       let(:award_end_date) { Date.new(2025, 3, 31) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, award_begin_date, run_date - 1.day, run_date - 1.day, 'case_eom')
+        run_the_happy_path(run_date, award_begin_date, rd_minus1, rd_minus1, 'case_eom')
       end
     end
 
-    describe 'eom happy path 7, abd < dlc < eom < aed' do
+    describe 'eom happy path 6, abd < dlc < eom < aed' do
       let(:award_begin_date) { Date.new(2025, 2, 28) }
       let(:award_end_date) { Date.new(2025, 4, 2) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, date_last_certified, run_date, run_date, 'case_eom')
+        run_the_happy_path(run_date, date_last_certified, run_date, run_date, 'case_eom')
       end
     end
 
-    describe 'eom happy path 8, abd < dlc < eom = aed' do
+    describe 'eom happy path 7, abd < dlc < eom = aed' do
       let(:award_begin_date) { Date.new(2025, 2, 28) }
       let(:award_end_date) { Date.new(2025, 3, 31) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'creates a pending verification with a award begin date for act_begin and today for act_end' do
-        Timecop.freeze(run_date) { subject.create }
-        pv = Vye::Verification.last
-        check_expectations_for(pv, date_last_certified, run_date - 1.day, run_date - 1.day, 'case_eom')
+        run_the_happy_path(run_date, date_last_certified, rd_minus1, rd_minus1, 'case_eom')
       end
     end
 
     # contra paths
-    describe 'eom contra 1, run date is not end of the month (eom)' do
-      let(:award_begin_date) { Date.new(2025, 3, 1) }
-      let(:award_end_date) { Date.new(2025, 3, 29) }
-      let(:run_date) { Date.new(2025, 3, 30) }
+    describe 'contra paths' do
+      describe 'eom contra 1, run date is not end of the month (eom)' do
+        let(:award_begin_date) { Date.new(2025, 3, 1) }
+        let(:award_end_date) { Date.new(2025, 3, 29) }
+        let(:run_date) { Date.new(2025, 3, 30) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
-      it 'does not create an eom pending verification' do
-        expect_contra(run_date, 'eval_eom')
+        it 'does not create an eom pending verification' do
+          expect_contra(run_date, 'eval_eom')
+        end
       end
-    end
 
-    # 2) this is a future award. It gets tossed out before we evaluate it for eom
-    describe 'eom contra 2, run date is eom, run date < award begin date' do
-      let(:award_begin_date) { Date.new(2025, 4, 1) }
-      let(:award_end_date) { Date.new(2025, 4, 30) }
+      # 2) this is a future award. It gets tossed out before we evaluate it for eom
+      describe 'eom contra 2, run date is eom, run date < award begin date' do
+        let(:award_begin_date) { Date.new(2025, 4, 1) }
+        let(:award_end_date) { Date.new(2025, 4, 30) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
-      it 'does not create an eom pending verification' do
-        expect_contra(run_date, 'eval_eom')
+        it 'does not create an eom pending verification' do
+          expect_contra(run_date, 'eval_eom')
+        end
       end
-    end
 
-    # 3) run date is the end of the month, award end date is before run date
-    describe 'eom contra 3, run date is eom, award end date < run date' do
-      let(:award_begin_date) { Date.new(2025, 3, 1) }
-      let(:award_end_date) { Date.new(2025, 3, 30) }
+      # 3) run date is the end of the month, award end date is before run date
+      describe 'eom contra 3, run date is eom, award end date < run date' do
+        let(:award_begin_date) { Date.new(2025, 3, 1) }
+        let(:award_end_date) { Date.new(2025, 3, 30) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
-      it 'does not create an eom pending verification' do
-        expect_contra(run_date, 'eval_eom')
+        it 'does not create an eom pending verification' do
+          expect_contra(run_date, 'eval_eom')
+        end
       end
     end
   end

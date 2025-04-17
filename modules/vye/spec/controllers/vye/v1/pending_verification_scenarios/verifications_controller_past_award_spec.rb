@@ -30,8 +30,6 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
       let(:award_begin_date) { Date.new(2025, 3, 1) }
       let(:award_end_date) { Date.new(2025, 3, 30) }
 
-      before { setup_award(award_begin_date:, award_end_date:, payment_date:) }
-
       it 'is a past award and does not create a pending verification' do
         expect(Vye::Verification.count).to eq(0)
       end
