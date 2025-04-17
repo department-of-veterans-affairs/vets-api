@@ -112,8 +112,6 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
 
       it 'does not include records with nil ves_status' do
         query_relation = double('ActiveRecord::Relation')
-        nil_record = instance_double(IvcChampvaForm, form_uuid: 'form-nil', ves_status: nil)
-        all_records = [recent_record, old_record, nil_record]
         filtered_records = [recent_record, old_record]
 
         # Simulate the where.not filtering by returning only non-nil records
