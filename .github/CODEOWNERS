@@ -471,7 +471,8 @@ app/services/mhv_logging_service.rb @department-of-veterans-affairs/octo-identit
 app/services/rapid_ready_for_decision @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/services/sign_in @department-of-veterans-affairs/octo-identity
 app/services/terms_of_use @department-of-veterans-affairs/octo-identity
-app/services/user_audit_logger.rb @department-of-veterans-affairs/octo-identity
+app/services/user_audit/ @department-of-veterans-affairs/octo-identity
+app/services/user_audit.rb @department-of-veterans-affairs/octo-identity
 app/services/users @department-of-veterans-affairs/octo-identity
 app/swagger/readme.md @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/requests/appeals @department-of-veterans-affairs/backend-review-group
@@ -1913,7 +1914,8 @@ spec/services/mhv_logging_service_spec.rb @department-of-veterans-affairs/octo-i
 spec/services/rapid_ready_for_decision @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/services/sign_in @department-of-veterans-affairs/octo-identity
 spec/services/terms_of_use @department-of-veterans-affairs/octo-identity
-spec/services/user_audit_logger_spec.rb @department-of-veterans-affairs/octo-identity
+spec/services/user_audit/ @department-of-veterans-affairs/octo-identity
+spec/services/user_audit_spec.rb @department-of-veterans-affairs/octo-identity
 spec/services/users @department-of-veterans-affairs/octo-identity
 spec/simplecov_helper.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/spec_helper.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
