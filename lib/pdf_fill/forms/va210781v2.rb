@@ -22,6 +22,7 @@ module PdfFill
             limit: 12, # limit: 28 (with combs removed)
             question_num: 1,
             question_suffix: 'A',
+            question_label: 'First',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. First Name'
           },
           'middleInitial' => {
@@ -29,6 +30,7 @@ module PdfFill
             limit: 1,
             question_num: 1,
             question_suffix: 'B',
+            question_label: 'Middle Initial',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Middle Initial'
           },
           'last' => {
@@ -36,6 +38,7 @@ module PdfFill
             limit: 18, # limit: 45 (with combs removed)
             question_num: 1,
             question_suffix: 'C',
+            question_label: 'Last',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Last Name'
           }
         },
@@ -143,6 +146,7 @@ module PdfFill
         'events' => {
           limit: 6,
           first_key: 'details',
+          item_label: 'Event',
           question_text: 'Traumatic event(s) information',
           question_num: 9,
           'details' => {
@@ -150,7 +154,7 @@ module PdfFill
             question_num: 9,
             question_suffix: 'A',
             question_text: 'Description',
-            limit: 150
+            limit: 105
           },
           'location' => {
             key: "F[0].#subform[2].Location_Of_The_Traumatic_Events[#{ITERATOR}]",
@@ -538,6 +542,7 @@ module PdfFill
         'treatmentProvidersDetails' => {
           limit: 3,
           first_key: 'facilityInfo',
+          item_label: 'Treatment facility',
           question_text: 'TREATMENT INFORMATION',
           question_num: 13,
           'facilityInfo' => {
@@ -628,39 +633,48 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
+      QUESTION_KEY = {
+        1 => 'Veteran/Service member\'s name',
+        2 => 'Social security number',
+        3 => 'VA file number',
+        4 => 'Date of birth',
+        5 => 'Veteran\'s service number',
+        6 => 'Telephone number',
+        7 => 'Email address',
+        8 => 'Type of in-service traumatic event(s)',
+        9 => 'Traumatic event(s) information',
+        10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
+        11 => 'Was an official report filed?',
+        12 => 'Possible sources of evidence following the traumatic event(s)',
+        13 => 'Treatment information',
+        14 => 'Remarks',
+        16 => 'Veteran/service member\'s signature'
+      }.freeze
+
       SECTIONS = [
         {
           label: 'Section I: Veteran\'s Identification Information',
-          question_nums: (1..7).to_a,
-          top_level_keys: %w[
-            veteranFullName vaFileNumber veteranDateOfBirth veteranServiceNumber veteranPhone veteranIntPhone
-            email emailOverflow
-          ]
+          question_nums: (1..7).to_a
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
-          question_nums: [8, 9],
-          top_level_keys: ['events']
+          question_nums: [8, 9]
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: [10, 11, 12],
-          top_level_keys: %w[behaviors behaviorsDetails reportsDetails evidence]
+          question_nums: [10, 11, 12]
         },
         {
           label: 'Section IV: Treatment Information',
-          question_nums: [13],
-          top_level_keys: ['treatmentProvidersDetails']
+          question_nums: [13]
         },
         {
           label: 'Section V: Remarks',
-          question_nums: [14],
-          top_level_keys: %w[additionalInformation additionalInformationOverflow]
+          question_nums: [14]
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: [15],
-          top_level_keys: %w[signature signatureDate]
+          question_nums: [15]
         }
       ].freeze
 
@@ -754,6 +768,7 @@ module PdfFill
 
       def process_treatment_dates
         @form_data['treatmentProvidersDetails'].each do |item|
+          item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
           item['treatmentDate'] = if item['noDates']
                                     'no response'
                                   else
@@ -839,7 +854,8 @@ module PdfFill
         facility_info = provider['facilityInfo']
         month = provider['treatmentMonth'] || 'XX'
         year = provider['treatmentYear'] || 'XXXX'
-        no_date = provider['noDates']
+        no_date = provider['treatmentMonth'].to_s.strip.empty? && provider['treatmentYear'].to_s.strip.empty?
+        provider['noDates'] = no_date
 
         provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
         provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")

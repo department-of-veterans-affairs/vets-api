@@ -5,7 +5,6 @@ module AskVAApi
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
       skip_before_action :authenticate, only: %i[unauth_create status]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create]
 
       def index
         inquiries = retriever.call
@@ -13,7 +12,11 @@ module AskVAApi
       end
 
       def show
-        inq = retriever(icn: nil).fetch_by_id(id: params[:id])
+        if Settings.vsp_environment == 'production'
+          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
+        end
+
+        inq = retriever.fetch_by_id(id: params[:id])
         render json: Inquiries::Serializer.new(inq).serializable_hash, status: :ok
       end
 
@@ -26,8 +29,13 @@ module AskVAApi
       end
 
       def download_attachment
+        if Settings.vsp_environment == 'production'
+          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
+        end
+
         entity_class = Attachments::Entity
         att = Attachments::Retriever.new(
+          icn: current_user.icn,
           id: params[:id],
           service: mock_service,
           user_mock_data: nil,

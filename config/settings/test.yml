@@ -655,6 +655,8 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+    ves_retry_failures_job:
+      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
@@ -1571,7 +1573,6 @@ vanotify:
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
         direct_deposit_comp_pen: comp_pen_template_id
-        direct_deposit_edu: edu_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1661,6 +1662,10 @@ vaos:
     mock: false
     redis_token_expiry: 3500
     scopes: care-nav
+  referral:
+    encryption:
+      hex_iv: "0123456789abcdef0123456789abcdef"
+      hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
   documentation:

@@ -24,6 +24,17 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(response).to have_http_status(:ok)
       end
 
+      it 'returns a veteran status' do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+          get(:show)
+        end
+
+        json = JSON.parse(response.body)
+        veteran_status = json['data']['attributes']['veteran_status']
+
+        expect(veteran_status).to eq('VETERAN')
+      end
+
       it 'returns a payment account' do
         VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           get(:show)
@@ -84,6 +95,7 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(json['control_information']['can_update_direct_deposit']).to be(false)
         expect(json['control_information']['has_payment_address']).to be(false)
         expect(json['control_information']['is_edu_claim_available']).to be(false)
+        expect(json['veteran_status']).not_to eq('VETERAN')
       end
     end
 
@@ -176,6 +188,14 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
       end
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a veteran status of VETERAN' do
+      VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+        put(:update, params:)
+      end
+      body = JSON.parse(response.body)
+      expect(body['data']['attributes']['veteran_status']).to eq('VETERAN')
     end
 
     it 'capitalizes account type' do
@@ -322,6 +342,13 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(e['title']).to eq('Bad Request')
         expect(e['code']).to eq('direct.deposit.account.number.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns a fraud indicator error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/422_fraud_indicator') do
+          put(:update, params:)
+        end
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 

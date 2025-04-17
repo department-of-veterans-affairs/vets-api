@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/formatters/va1010ez'
+
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Va1010ez < FormBase
       FORM_ID = HealthCareApplication::FORM_ID
       OFF = 'Off'
+      FORMATTER = PdfFill::Forms::Formatters::Va1010ez
 
       # Constants used to map data from the vets-json-schema payload to the values expected
       # by the 10-10EZ PDF form. These mappings are necessary for converting form input
@@ -172,7 +175,7 @@ module PdfFill
           {
             'street' => {
               key: 'F[0].P4[0].HomeAddress_Street[0]',
-              limit: 28,
+              limit: 27,
               question_num: 1.11,
               question_suffix: 'A',
               question_text: 'HOME ADDRESS (Street)'
@@ -493,6 +496,8 @@ module PdfFill
         merge_ethnicity_choices
         merge_marital_status
         merge_value('isSpanishHispanicLatino', :map_radio_box_value)
+        merge_address_street('veteranAddress')
+        merge_address_street('veteranHomeAddress')
       end
 
       def merge_spouse_info
@@ -514,7 +519,20 @@ module PdfFill
       end
 
       def merge_full_name(type)
-        @form_data[type] = format_full_name(@form_data[type])
+        @form_data[type] = FORMATTER.format_full_name(@form_data[type])
+      end
+
+      def merge_address_street(address_type)
+        return unless @form_data[address_type]
+
+        address = @form_data[address_type]
+        @form_data[address_type]['street'] = combine_full_address(
+          {
+            'street' => address['street'],
+            'street2' => address['street2'],
+            'street3' => address['street3']
+          }
+        )
       end
 
       def merge_sex(type)
@@ -606,9 +624,9 @@ module PdfFill
       def merge_single_dependent
         dependent = @form_data['dependents'].first
 
-        dependent['fullName'] = format_full_name(dependent['fullName'])
-        dependent['dateOfBirth'] = format_date(dependent['dateOfBirth'])
-        dependent['becameDependent'] = format_date(dependent['becameDependent'])
+        dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
+        dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
+        dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
 
         dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
         dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
@@ -618,14 +636,14 @@ module PdfFill
 
       def merge_multiple_dependents
         @form_data['dependents'].each do |dependent|
-          dependent['fullName'] = format_full_name(dependent['fullName'])
-          dependent['dateOfBirth'] = format_date(dependent['dateOfBirth'])
-          dependent['becameDependent'] = format_date(dependent['becameDependent'])
+          dependent['fullName'] = FORMATTER.format_full_name(dependent['fullName'])
+          dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
+          dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
 
-          dependent['dependentEducationExpenses'] = format_currency(dependent['dependentEducationExpenses'])
-          dependent['grossIncome'] = format_currency(dependent['grossIncome'])
-          dependent['netIncome'] = format_currency(dependent['netIncome'])
-          dependent['otherIncome'] = format_currency(dependent['otherIncome'])
+          dependent['dependentEducationExpenses'] = FORMATTER.format_currency(dependent['dependentEducationExpenses'])
+          dependent['grossIncome'] = FORMATTER.format_currency(dependent['grossIncome'])
+          dependent['netIncome'] = FORMATTER.format_currency(dependent['netIncome'])
+          dependent['otherIncome'] = FORMATTER.format_currency(dependent['otherIncome'])
         end
       end
 
@@ -665,43 +683,8 @@ module PdfFill
         end
       end
 
-      # Format helpers - Each method takes an input value and returns a formatted version of it.
-      # These methods **do not modify** the @form_data object directly, but instead return the formatted output.
-
-      # Formats a numeric value into a currency string
-      def format_currency(value)
-        ActiveSupport::NumberHelper.number_to_currency(value)
-      end
-
-      # Formats a date string into the format MM/DD/YYYY.
-      # If the date is in the "YYYY-MM-XX" format, it converts it to "MM/YYYY".
-      def format_date(date_string)
-        return if date_string.blank?
-
-        # Handle 1990-08-XX format where the day is not provided
-        if date_string.match?(/^\d{4}-\d{2}-XX$/)
-          year, month = date_string.split('-')
-          return "#{month}/#{year}"
-        end
-
-        date = Date.parse(date_string)
-        date.strftime('%m/%d/%Y')
-      end
-
-      # Formats a full name using components like last, first, middle, and suffix.
-      # It returns the name in the format "Last, First, Middle Suffix".
-      def format_full_name(full_name)
-        return if full_name.blank?
-
-        last = full_name['last']
-        first = full_name['first']
-        middle = full_name['middle']
-        suffix = full_name['suffix']
-
-        name = [last, first].compact.join(', ')
-        name += ", #{middle}" if middle&.strip.present?
-        name += " #{suffix}" if suffix&.strip.present?
-        name
+      def format_date(value)
+        FORMATTER.format_date(value)
       end
     end
   end
