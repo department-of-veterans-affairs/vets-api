@@ -651,6 +651,8 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+    ves_retry_failures_job:
+      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
@@ -1558,6 +1560,8 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
@@ -1567,7 +1571,6 @@ vanotify:
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
         direct_deposit_comp_pen: comp_pen_template_id
-        direct_deposit_edu: edu_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1748,10 +1751,10 @@ vet360:
     timeout: 30
 veteran_enrollment_system:
   associations:
-    api_key: fake_api_key
+    api_key: ~
   ee_summary:
-    api_key: fake_api_key
-  host: https://ves.va.gov
+    api_key: ~
+  host: https://sqa.ves.va.gov
   open_timeout: 10
   timeout: 30
 veteran_onboarding:

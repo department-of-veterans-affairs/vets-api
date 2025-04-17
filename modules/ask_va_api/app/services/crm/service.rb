@@ -28,23 +28,17 @@ module Crm
       @logger = logger
     end
 
+    # Calls the CRM API with given method, endpoint, and optional payload
     def call(endpoint:, method: :get, payload: {})
       organization = CRM_ENV[vsp_environment]
-      # Construct endpoint with optional query parameters
-      uri = URI.parse("#{veis_api_path}/#{endpoint}")
-      uri.query = URI.encode_www_form(organizationName: organization) if method == :put
-      endpoint = uri.to_s
-
-      # Prepare request details
-      request_payload = prepare_payload(method, payload, { icn:, organizationName: organization })
-      headers = default_header.merge('Authorization' => "Bearer #{token}")
-      # Make the request
-      response = conn(url: base_url).public_send(method, endpoint, request_payload) do |req|
-        req.headers = headers
+      uri = build_uri(endpoint, method, organization)
+      response = conn(url: base_url).public_send(method, uri, request_body(method, payload, organization)) do |req|
+        req.headers = request_headers
       end
+
       parse_response(response.body)
     rescue => e
-      log_error(endpoint, service_name)
+      log_error(uri, service_name)
 
       Faraday::Response.new(
         response_body: extract_body_from(e),
@@ -60,6 +54,50 @@ module Crm
         f.response :raise_custom_error, error_prefix: service_name
         f.adapter Faraday.default_adapter
       end
+    end
+
+    def vsp_environment
+      Settings.vsp_environment
+    end
+
+    def build_uri(endpoint, method, organization)
+      uri = URI.parse("#{veis_api_path}/#{endpoint}")
+      uri.query = URI.encode_www_form(organizationName: organization) if method == :put
+      uri.to_s
+    end
+
+    def request_body(method, payload, organization)
+      case method
+      when :get
+        { organizationName: organization }.merge(payload)
+      when :post, :patch, :put
+        payload.to_json
+      end
+    end
+
+    def request_headers
+      base = {
+        'Content-Type' => 'application/json',
+        'Authorization' => "Bearer #{token}",
+        'X-VA-ICN' => icn
+      }
+
+      env_headers = if vsp_environment == 'production'
+                      {
+                        'OCP-APIM-Subscription-Key-E' => e_subscription_key,
+                        'OCP-APIM-Subscription-Key-S' => s_subscription_key
+                      }
+                    else
+                      {
+                        'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
+                      }
+                    end
+
+      base.merge(env_headers)
+    end
+
+    def parse_response(body)
+      JSON.parse(body, symbolize_names: true)
     end
 
     def extract_body_from(error)
@@ -82,46 +120,11 @@ module Crm
       end
     end
 
-    def prepare_payload(method, payload, params)
-      case method
-      when :get
-        params.merge(payload)
-      when :post, :patch, :put
-        payload.to_json
-      end
-    end
-
-    def parse_response(body)
-      JSON.parse(body, symbolize_names: true)
-    end
-
-    def build_tags(endpoint, error_or_status = nil)
-      tags = { endpoint:, icn: }
-      tags[:error] = error_or_status if error_or_status
-      tags
-    end
-
     def log_error(endpoint, error_type)
-      logger.call('api_call.error', tags: build_tags(endpoint, error_type))
-    end
-
-    def default_header
-      if Settings.vsp_environment == 'production'
-        {
-          'Content-Type' => 'application/json',
-          'OCP-APIM-Subscription-Key-E' => e_subscription_key,
-          'OCP-APIM-Subscription-Key-S' => s_subscription_key
-        }
-      else
-        {
-          'Content-Type' => 'application/json',
-          'OCP-APIM-Subscription-Key' => ocp_apim_subscription_key
-        }
-      end
-    end
-
-    def vsp_environment
-      Settings.vsp_environment
+      logger.call('api_call.error', tags: {
+                    endpoint:,
+                    error: error_type
+                  })
     end
   end
 end

@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ebaaea0a7f451660e007036c1b649f9d035c858c
+  revision: f550220a7c2cbe327f041156aa8befd0f6b5b77e
   branch: master
   specs:
-    vets_json_schema (24.12.2)
+    vets_json_schema (24.13.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -344,7 +344,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.3)
+    csv (3.3.4)
     danger (9.5.1)
       base64 (~> 0.2)
       claide (~> 1.0)
@@ -661,7 +661,7 @@ GEM
     libddwaf (1.21.0.0.1-x86_64-linux)
       ffi (~> 1.0)
     lint_roller (1.1.0)
-    liquid (5.8.4)
+    liquid (5.8.6)
       bigdecimal
       strscan (>= 3.1.1)
     listen (3.8.0)
@@ -770,7 +770,7 @@ GEM
     ostruct (0.6.1)
     ox (2.14.22)
       bigdecimal (>= 3.0)
-    parallel (1.26.3)
+    parallel (1.27.0)
     parallel_tests (5.1.0)
       parallel
     parser (3.3.7.4)
@@ -1094,8 +1094,8 @@ GEM
     stringio (3.1.2)
     strong_migrations (2.3.0)
       activerecord (>= 7)
-    strscan (3.1.2)
-    strscan (3.1.2-java)
+    strscan (3.1.3)
+    strscan (3.1.3-java)
     super_diff (0.15.0)
       attr_extras (>= 6.2.4)
       diff-lcs

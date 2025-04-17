@@ -658,6 +658,8 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+    ves_retry_failures_job:
+      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: <%= ENV['kafka_producer__aws_role_arn'] %>
@@ -1543,6 +1545,8 @@ vanotify:
       api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
       template_id:
         appoint_a_representative_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_confirmation_email'] %>
+        appoint_a_representative_digital_expiration_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_expiration_confirmation_email'] %>
+        appoint_a_representative_digital_expiration_warning_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_expiration_warning_email'] %>
         appoint_a_representative_digital_submit_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_confirmation_email'] %>
         appoint_a_representative_digital_submit_decline_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_decline_email'] %>
         career_counseling_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__career_counseling_confirmation_email'] %>
@@ -1552,7 +1556,6 @@ vanotify:
         covid_vaccine_registration: <%= ENV['vanotify__services__va_gov__template_id__covid_vaccine_registration'] %>
         direct_deposit: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit'] %>
         direct_deposit_comp_pen: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_comp_pen'] %>
-        direct_deposit_edu: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_edu'] %>
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
@@ -1637,7 +1640,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: "/fake/client/key/path"
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
