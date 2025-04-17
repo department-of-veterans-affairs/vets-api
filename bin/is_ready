@@ -15,8 +15,8 @@ POD_NAME=${POD_NAME:-"vets-api-web-5bf4f8d6c7-pn475"} # Example POD_NAME for tes
 puma_data=$(curl -s --max-time 2 127.0.0.1:9293/stats)
 
 if [ $? -ne 0 ] || [ -z "$puma_data" ]; then
-	echo "Failed to get a valid response from the server. Is Puma Stats app running?"
-	exit 1
+  echo "Unable to fetch Puma stats. Is the Puma metrics endpoint (127.0.0.1:9293/stats) running?"
+  exit 1
 fi
 
 pool_capacity=$(echo "$puma_data" | grep -oE '"pool_capacity":[0-9]+' | cut -f2 -d: | awk '{sum+=$1} END {print sum}')
@@ -40,13 +40,13 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
   )
 
   if [ $? -ne 0 ] || [ -z "$dd_data" ]; then
-    echo "Failed to get a valid response from Datadog."
+    echo "Failed to retrieve deployment data from Datadog."
     exit 0 # Accumulate a backlog if DD is inaccessible
   fi
 
   # Check for errors in the dd_data response
   if echo "$dd_data" | grep -q '"errors"'; then
-    echo "Datadog response contains errors:"
+    echo "Datadog API response includes errors:"
     echo "$dd_data" | grep '"errors"' | sed 's/.*"errors":\[\([^]]*\)\].*/\1/'
     exit 0 # Accumulate a backlog if there are errors in the response
   fi
@@ -56,7 +56,7 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
   LATEST_VALUE=$(echo "$dd_data" | tr -d '\n' | sed 's/},/\n/g' | grep "\"kube_deployment:$KUBE_DEPLOYMENT\"" | sed 's/.*pointlist":\[\[\([0-9\.]*,[0-9\.]*\)\].*/\1/' | awk -F, '{print $2}')
 
   if [ -z "$LATEST_VALUE" ]; then
-    echo "No results found for deployment $KUBE_DEPLOYMENT. From: $((CURRENT_TIME - 60)), To: ${CURRENT_TIME}, Cluster Env: ${cluster_env:-prod}"
+    echo "No deployment metrics found for $KUBE_DEPLOYMENT in Datadog (time range: $((CURRENT_TIME - 60)) to $CURRENT_TIME, env: ${cluster_env:-prod})."
     exit 0 # Accumulate a backlog if data not found in DD
   fi
 
@@ -65,10 +65,10 @@ if [ $unavailable_percentage -ge $ALLOWED_UNAVAILABLE_PERCENTAGE ]; then
 
   # Determine if we have enough ready pods in replicaSet
   if [ $LATEST_VALUE -le $MIN_READY_PODS ]; then
-    echo "Pod is unhealthy but only $LATEST_VALUE (need $MIN_READY_PODS) pods are ready for traffic. Accumulating a backlog."
+    echo "Pod marked unhealthy, but only $LATEST_VALUE out of $MIN_READY_PODS required pods are ready. Allowing backlog to accumulate."
     exit 0 # Ready pods is too low, accumulate a backlog
   else
-    echo "Pod not ready (too much traffic) and we have $LATEST_VALUE pods ready. We only need $MIN_READY_PODS."
+    echo "This pod is overloaded (traffic exceeds allowed threshold), even though $LATEST_VALUE pods are ready and only $MIN_READY_PODS are required."
     exit 1 # Enough pods are available but this one has too much traffic.
   fi
 else
