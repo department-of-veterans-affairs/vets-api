@@ -408,38 +408,17 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           }
         end
 
-        context ':caregiver_use_facilities_API_V2 disabled' do
-          before { allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(false) }
+        let(:lighthouse_service) { double('FacilitiesApi::V2::Lighthouse::Client') }
 
-          let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+        it 'successfully returns list of facilities' do
+          expect(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
+          expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
 
-          it 'successfully returns list of facilities' do
-            expect(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
-            expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
-
-            expect(subject).to validate(
-              :post,
-              '/v0/caregivers_assistance_claims/facilities',
-              200
-            )
-          end
-        end
-
-        context ':caregiver_use_facilities_API_V2 enabled' do
-          before { allow(Flipper).to receive(:enabled?).with(:caregiver_use_facilities_API_V2).and_return(true) }
-
-          let(:lighthouse_service) { double('FacilitiesApi::V2::Lighthouse::Client') }
-
-          it 'successfully returns list of facilities' do
-            expect(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
-            expect(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
-
-            expect(subject).to validate(
-              :post,
-              '/v0/caregivers_assistance_claims/facilities',
-              200
-            )
-          end
+          expect(subject).to validate(
+            :post,
+            '/v0/caregivers_assistance_claims/facilities',
+            200
+          )
         end
       end
     end
@@ -3919,7 +3898,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         params = {
           '_data' => {
-            'appointment_datetime' => '2024-01-01T16:45:34.465Z'
+            'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+            'facility_station_number' => '123',
+            'appointment_type' => 'Other',
+            'is_complete' => false
           }
         }
         VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[path method]) do
