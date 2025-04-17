@@ -13,7 +13,7 @@ module MedicalRecords
     include Common::Client::Concerns::MhvFhirSessionClient
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 9999
+    DEFAULT_COUNT = 200
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
