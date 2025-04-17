@@ -21,6 +21,7 @@ module HCA
       super
     rescue
       @health_care_application.update!(state: 'error')
+
       raise
     end
   end
