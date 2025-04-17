@@ -34,6 +34,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
+            required_id_present!
             raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
             PersonResponse.from(raw_response)
           end
@@ -41,7 +42,7 @@ module VAProfile
           if e.status == 404
             log_exception_to_sentry(
               e,
-              { vet360_id: },
+              { vaprofile_id: },
               { va_profile: :person_not_found },
               :warning
             )
@@ -56,8 +57,8 @@ module VAProfile
           handle_error(e)
         end
 
-        def self.get_person(vet360_id)
-          stub_user = OpenStruct.new(vet360_id:)
+        def self.get_person(vaprofile_id)
+          stub_user = OpenStruct.new(vaprofile_id:)
           new(stub_user).get_person
         end
 
@@ -216,12 +217,16 @@ module VAProfile
 
         private
 
-        def icn_with_aaid
-          "#{@user.icn}^NI^200M^USVHA"
+        def vaprofile_id
+          @user.vaprofile_id || @user.vet360_id
         end
 
-        def vet360_id
-          @user.vet360_id
+        def required_id_present!
+          raise 'User does not have an ICN and VAProfile_ID' if vaprofile_id.blank? && @user.icn.blank?
+        end
+
+        def icn_with_aaid
+          vaprofile_id.present? ? "#{vaprofile_id}^PI^200VETS^USDVA" : "#{@user.icn}^NI^200M^USVHA"
         end
 
         def log_transaction_id?
@@ -285,6 +290,7 @@ module VAProfile
 
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
+            required_id_present!
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
             # in_json method should replace in_json_v2 after Contact Information V1 has depreciated
             raw_response = perform(method, request_path, model.in_json_v2)
