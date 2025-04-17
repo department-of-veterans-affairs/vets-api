@@ -66,14 +66,16 @@ module Kafka
   def self.submit_event(icn:, current_id:, submission_name:, state:, next_id: nil, use_test_topic: false)
     payload = {
       'ICN' => icn,
-      'currentId' => current_id,
-      'nextId' => next_id,
+      'currentId' => current_id.to_s,
       'submissionName' => submission_name,
       'state' => state,
       'vasiId' => VASI_ID,
       'systemName' => SYSTEM_NAME,
       'timestamp' => Time.current.iso8601
     }
+
+    payload.merge!('nextId' => next_id.to_s) if next_id
+    payload = { 'data' => payload } if use_test_topic
     Kafka::EventBusSubmissionJob.perform_async(payload, use_test_topic)
   end
   # rubocop:enable Metrics/ParameterLists
