@@ -405,7 +405,8 @@ describe PdfFill::ExtrasGeneratorV2 do
 
     let(:question) do
       PdfFill::ExtrasGeneratorV2::Question.new(
-        'Behavioral Change', metadata,table_width: 91)
+        'Behavioral Change', metadata, table_width: 91
+      )
     end
 
     it 'adds a description row when label is Additional information' do
