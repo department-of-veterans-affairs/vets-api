@@ -46,6 +46,7 @@ module VAProfile
       validates(
         :area_code,
         presence: true,
+        unless: :is_international?,
         format: { with: VALID_AREA_CODE_REGEX },
         length: { maximum: 3, minimum: 3 }
       )
