@@ -39,8 +39,9 @@ To update a form with the latest PDF:
 4. Delete the new model file
 5. Compare the new mapping file with the existing one, updating mappings as appropriate.
 6. When the mapping file is complete, replace the original mapping file with the new one. 
-7. Verify stamping behavior by running ivc_champva unit tests locally and observing the generated PDFs in the `tmp` directory.
-8. Adjust the form OMB expiration unit test found in `modules/ivc_champva/spec/models/vha_{FORM NUMBER}_spec.rb`
+7. Replace the existing form PDF found in `modules/ivc_champva/templates/vha_{FORM NUMBER}.pdf` with the new one
+8. Verify stamping behavior by running ivc_champva unit tests locally and observing the generated PDFs in the `tmp` directory.
+9. Adjust the form OMB expiration unit test found in `modules/ivc_champva/spec/models/vha_{FORM NUMBER}_spec.rb`
 
 ### Installation
 Ensure the following line is in the root project's Gemfile:
