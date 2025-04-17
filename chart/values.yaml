@@ -67,7 +67,7 @@ web:
     successThreshold:
     requestPath:
   socatProxyEnabled: true
-  terminationGracePeriodSeconds:
+  terminationGracePeriodSeconds: 120
   envSecrets:
     - name: DD_APM_ENABLED
       value: false
