@@ -9,7 +9,12 @@ describe VAOS::V2::EpsAppointment do
   let(:params) do
     {
       id: 1,
-      appointment_details: { status: 'booked', last_retrieved: '2023-10-01T00:00:00Z', start: '2023-10-10T10:00:00Z' },
+      appointment_details: {
+        status: 'booked',
+        last_retrieved: '2023-10-01T00:00:00Z',
+        start: '2023-10-10T10:00:00Z',
+        is_latest: true
+      },
       referral: { referral_number: '12345' },
       patient_id: '1234567890V123456',
       network_id: 'network_1',
@@ -27,6 +32,8 @@ describe VAOS::V2::EpsAppointment do
       expect(subject.instance_variable_get(:@location_id)).to eq('network_1')
       expect(subject.instance_variable_get(:@clinic)).to eq('clinic_1')
       expect(subject.instance_variable_get(:@start)).to eq('2023-10-10T10:00:00Z')
+      expect(subject.instance_variable_get(:@last_retrieved)).to eq('2023-10-01T00:00:00Z')
+      expect(subject.instance_variable_get(:@is_latest)).to eq(true)
       expect(subject.instance_variable_get(:@contact)).to eq('contact_info')
       expect(subject.instance_variable_get(:@referral_id)).to eq('12345')
       expect(subject.instance_variable_get(:@referral)).to eq({ referral_number: '12345' })
@@ -43,6 +50,8 @@ describe VAOS::V2::EpsAppointment do
         location_id: 'network_1',
         clinic: 'clinic_1',
         start: '2023-10-10T10:00:00Z',
+        last_retrieved: '2023-10-01T00:00:00Z',
+        is_latest: true,
         contact: 'contact_info',
         referral_id: '12345',
         referral: { referral_number: '12345' },
