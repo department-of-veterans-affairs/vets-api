@@ -4,10 +4,35 @@ module Eps
   class EpsAppointmentSerializer
     include JSONAPI::Serializer
 
-    attribute :appointment do |object|
-      next if object.appointment.nil?
+    attribute :id do |object|
+      object.appointment[:id]
+    end
 
-      VAOS::V2::EpsAppointment.new(object.appointment).serializable_hash
+    attribute :status do |object|
+      object.appointment[:status]
+    end
+
+    attribute :start do |object|
+      object.appointment[:start]
+    end
+
+    attribute :type_of_care do |object|
+      object.referral_detail&.category_of_care
+    end
+
+    attribute :is_latest do |object|
+      object.appointment[:is_latest]
+    end
+
+    attribute :last_retrieved do |object|
+      object.appointment[:last_retrieved]
+    end
+
+    attribute :modality do |object|
+      # Note: this is intentionally hardcoded for now for prototype,
+      # will be updated once confirmed that the data will be available
+      # from the referral object
+      'OV'
     end
 
     attribute :provider do |object|
@@ -17,16 +42,10 @@ module Eps
         id: object.provider.id,
         name: object.provider.name,
         is_active: object.provider.is_active,
-        individual_providers: object.provider.individual_providers,
-        provider_organization: object.provider.provider_organization,
+        organization: object.provider.provider_organization,
         location: object.provider.location,
         network_ids: object.provider.network_ids,
-        scheduling_notes: object.provider.scheduling_notes,
-        appointment_types: object.provider.appointment_types,
-        specialties: object.provider.specialties,
-        visit_mode: object.provider.visit_mode,
-        features: object.provider.features,
-        phone_number: object.provider.phone_number
+        phone_number: object.referral_detail&.phone_number
       }.compact
     end
   end
