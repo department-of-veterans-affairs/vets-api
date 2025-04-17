@@ -33,7 +33,7 @@ describe VAOS::V2::EpsAppointment do
       expect(subject.instance_variable_get(:@clinic)).to eq('clinic_1')
       expect(subject.instance_variable_get(:@start)).to eq('2023-10-10T10:00:00Z')
       expect(subject.instance_variable_get(:@last_retrieved)).to eq('2023-10-01T00:00:00Z')
-      expect(subject.instance_variable_get(:@is_latest)).to eq(true)
+      expect(subject.instance_variable_get(:@is_latest)).to be(true)
       expect(subject.instance_variable_get(:@contact)).to eq('contact_info')
       expect(subject.instance_variable_get(:@referral_id)).to eq('12345')
       expect(subject.instance_variable_get(:@referral)).to eq({ referral_number: '12345' })

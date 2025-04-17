@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Eps::EpsAppointmentSerializer do
+  subject(:serialized) { described_class.new(eps_appointment).serializable_hash }
+
   let(:provider) do
     double(
       id: 'test-provider-id',
@@ -47,13 +49,11 @@ RSpec.describe Eps::EpsAppointmentSerializer do
   let(:eps_appointment) do
     double(
       id: 'qdm61cJ5',
-      appointment: appointment,
-      provider: provider,
-      referral_detail: referral_detail
+      appointment:,
+      provider:,
+      referral_detail:
     )
   end
-
-  subject(:serialized) { described_class.new(eps_appointment).serializable_hash }
 
   describe 'serialization' do
     it 'serializes the appointment with correct structure' do

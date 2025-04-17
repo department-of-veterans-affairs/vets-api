@@ -28,8 +28,8 @@ module Eps
       object.appointment[:last_retrieved]
     end
 
-    attribute :modality do |object|
-      # Note: this is intentionally hardcoded for now for prototype,
+    attribute :modality do |_object|
+      # NOTE: this is intentionally hardcoded for now for prototype,
       # will be updated once confirmed that the data will be available
       # from the referral object
       'OV'
