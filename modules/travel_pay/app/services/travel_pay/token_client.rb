@@ -37,7 +37,7 @@ module TravelPay
 
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
       log_to_statsd('token', 'btsss') do
         response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
