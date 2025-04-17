@@ -106,12 +106,8 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        if appointment&.id
-          render json: { data: { id: appointment.id } }, status: :created
-        else
-          render json: { errors: [{ title: 'Appointment creation failed', detail: 'Could not create appointment' }] },
-                 status: :unprocessable_entity
-        end
+        render json: appt_creation_failed_error, status: :unprocessable_entity unless appointment&.id
+        render json: { data: { id: appointment.id } }, status: :created
       end
 
       private
@@ -605,12 +601,30 @@ module VAOS
         end
       end
 
-      # One-off method to render provider not found error
+      ##
+      # Formats a standardized error response when a provider cannot be found
+      #
+      # @return [Hash] Error object with title and detail for JSON rendering
+      #
       def provider_not_found_error
         {
           errors: [{
             title: 'Provider not found',
             detail: 'Unable to find provider with given details'
+          }]
+        }
+      end
+
+      ##
+      # Formats a standardized error response when appointment creation fails
+      #
+      # @return [Hash] Error object with title and detail for JSON rendering
+      #
+      def appt_creation_failed_error
+        {
+          errors: [{
+            title: 'Appointment creation failed',
+            detail: 'Could not create appointment'
           }]
         }
       end
