@@ -86,7 +86,7 @@ describe VAProfile::Models::Telephone do
         end
       end
 
-      it 'is not valid when set to to a non-numeric value or includes non-numeric characters', :aggregate_failures do
+      it 'is not valid when includes non-numeric characters', :aggregate_failures do
         invalid_country_codes = %w[abc ## +123]
 
         invalid_country_codes.each do |invalid_country_code|
@@ -96,7 +96,7 @@ describe VAProfile::Models::Telephone do
         end
       end
 
-      it 'is not valid when starts with 0, or is longer than 3 digits', :aggregate_failures do
+      it 'is not valid when starts with 0 or is longer than 3 digits', :aggregate_failures do
         invalid_country_codes = %w[01 9641 55555]
 
         invalid_country_codes.each do |invalid_country_code|

@@ -23,13 +23,13 @@ module VAProfile
       PHONE_TYPES = [MOBILE, HOME, WORK, FAX, TEMPORARY].freeze
 
       attribute :area_code, String
-      attribute :country_code, String
+      attribute :country_code, String, default: '1'
       attribute :created_at, Common::ISO8601Time
       attribute :extension, String
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
-      attribute :is_international, Boolean, default: false  # Do we still want to default to false? Or handle this on frontend?
+      attribute :is_international, Boolean, default: false
       attribute :is_textable, Boolean
       attribute :is_text_permitted, Boolean
       attribute :is_tty, Boolean
@@ -84,7 +84,7 @@ module VAProfile
 
       def formatted_phone
         return if phone_number.blank?
-        
+
         if is_international
           return_val = "+#{country_code} #{phone_number}"
         else
