@@ -107,6 +107,9 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
+  caregiver_lookup_facility_name_db:
+    actor_type: user
+    description: Enables 1010CG pdf fill to lookup facility id in the database instead of vets-json-schema
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
