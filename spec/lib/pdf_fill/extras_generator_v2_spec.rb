@@ -329,32 +329,30 @@ describe PdfFill::ExtrasGeneratorV2 do
       expect(pdf).to have_received(:start_new_page).once
     end
   end
+
   describe '#sorted_subquestions_markup' do
-  let(:metadata) do
-    {
-      question_suffix: 'A',
-      question_label: 'Additional information',
-      question_text: 'Request for a change in duty assignment',
-      question_num: 10
-    }
-  end
+    let(:metadata) do
+      {
+        question_suffix: 'A',
+        question_label: 'Additional information',
+        question_text: 'Request for a change in duty assignment',
+        is_description: true,
+        question_num: 10
+      }
+    end
 
-  let(:question) do
-    PdfFill::ExtrasGeneratorV2::Question.new(
-      'Behavioral Change',
-      metadata,
-      table_width: 91,
-      custom_description_row: true
-    )
-  end
+    let(:question) do
+      PdfFill::ExtrasGeneratorV2::Question.new(
+        'Behavioral Change', metadata,table_width: 91)
+    end
 
-  it 'adds a description row when label is Additional information' do
-    question.add_text('no response', metadata)
-    rows = question.sorted_subquestions_markup
+    it 'adds a description row when label is Additional information' do
+      question.add_text('no response', metadata)
+      rows = question.sorted_subquestions_markup
 
-    expect(rows.first).to include('<b>Description:</b>')
-    expect(rows.first).to include(metadata[:question_text])
-    expect(rows.last).to include('no response')
+      expect(rows.first).to include('<b>Description:</b>')
+      expect(rows.first).to include(metadata[:question_text])
+      expect(rows.last).to include('no response')
+    end
   end
-end
 end

@@ -72,7 +72,7 @@ module PdfFill
       item_label = array_key_data.try(:[], :item_label)
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :is_description).merge(
           i:, overflow:, item_label:
         )
       )
@@ -125,19 +125,38 @@ module PdfFill
       false
     end
 
+    def handle_overflow_with_label_all(form_data, pdftk_keys)
+      form_data.each do |item|
+        item.each do |k, v|
+          text = if v == 'no response'
+                   ''
+                 else
+                   overflow?(pdftk_keys[k], v) ? EXTRAS_TEXT : v
+                 end
+          set_value(text, pdftk_keys[k], 0, true) if pdftk_keys[k].is_a?(Hash)
+        end
+      end
+    end
+
+    def handle_overflow_with_first_key(pdftk_keys)
+      first_key = pdftk_keys[:first_key]
+      transform_data(
+        form_data: { first_key => EXTRAS_TEXT },
+        pdftk_keys:,
+        i: 0,
+        from_array_overflow: true
+      )
+    end
+
     def transform_array(form_data, pdftk_keys)
       has_overflow = check_for_overflow(form_data, pdftk_keys)
 
       if has_overflow
-        first_key = pdftk_keys[:first_key]
-
-        transform_data(
-          form_data: { first_key => EXTRAS_TEXT },
-          pdftk_keys:,
-          i: 0,
-          from_array_overflow: true
-        )
-
+        if pdftk_keys[:label_all] && @extras_generator.is_a?(ExtrasGeneratorV2)
+          handle_overflow_with_label_all(form_data, pdftk_keys)
+        else
+          handle_overflow_with_first_key(pdftk_keys)
+        end
         add_array_to_extras(form_data, pdftk_keys)
       else
         form_data.each_with_index do |v, idx|

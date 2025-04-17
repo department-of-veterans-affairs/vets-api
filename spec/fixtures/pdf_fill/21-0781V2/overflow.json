@@ -65,13 +65,13 @@
   ],
   "behaviors": {
     "reassignment": true,
-    "performance": true,
-    "episodes": true,
-    "selfMedication": true,
+    "performance": false,
+    "episodes": false,
+    "selfMedication": false,
     "appetite": true,
-    "screenings": true,
-    "relationships": true,
-    "unlisted": true
+    "screenings": false,
+    "relationships": false,
+    "unlisted": false
   },
   "behaviorsDetails": {
     "reassignment": "Following the incident, I sought medical and psychological treatment, which included therapy sessions with a licensed psychologist and regular consultations with my healthcare provider. These professionals have indicated that due to trauma, I am no longer able to perform at my previous work capacity. In particular, I struggle with brain fog, concentration, and fatigue, which were not issues prior to the event.",

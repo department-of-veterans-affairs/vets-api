@@ -224,16 +224,18 @@ module PdfFill
         },
         'behaviorsDetails' => { # question_num: 10B
           limit: 14,
-          first_key: 'appetite',
+          first_key: 'reassignment',
           item_label: 'Behavioral Change',
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
           question_num: 10,
+          label_all: true,
           'reassignment' => {
             key: 'F[0].#subform[3].Additional_Information_About_Behavioral_Changes[1]',
             limit: 217,
             question_num: 10,
             question_suffix: 'B[2]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'Request for a change in occupational series or duty assignment.'
           },
           'reassignmentOverflow' => {
@@ -248,6 +250,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[3]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Increased/decreased use of leave.'
           },
           'absencesOverflow' => {
@@ -262,6 +265,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[4]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Changes in performance or performance evaluations.'
           },
           'performanceOverflow' => {
@@ -276,6 +280,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[1]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Increased/decreased visits to a healthcare professional, counselor, or treatment Facility'
           },
           'consultationsOverflow' => {
@@ -290,6 +295,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[5]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Episodes of depression, panic attacks, or anxiety.'
           },
           'episodesOverflow' => {
@@ -304,6 +310,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[6]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of prescription medications.'
           },
           'medicationsOverflow' => {
@@ -318,6 +325,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[7]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of over-the-counter medications.'
           },
           'selfMedicationOverflow' => {
@@ -332,6 +340,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[8]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Increased/Decreased use of alcohol or drugs.'
           },
           'substancesOverflow' => {
@@ -346,6 +355,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[10]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'Changes in eating habits, such as overeating or under eating, or significant changes in weight.'
           },
           'appetiteOverflow' => {
@@ -360,6 +370,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[11]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Pregnancy tests around the time of the traumatic event(s).'
           },
           'pregnancyOverflow' => {
@@ -374,6 +385,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[12]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Tests for sexually transmitted infections.'
           },
           'screeningsOverflow' => {
@@ -388,6 +400,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[13]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Economic or social behavioral changes.'
           },
           'socialEconomicOverflow' => {
@@ -402,6 +415,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[14]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Changes in or breakup of a significant relationship.'
           },
           'relationshipsOverflow' => {
@@ -416,6 +430,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B[9]',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Disciplinary or legal difficulties.'
           },
           'misconductOverflow' => {
@@ -430,6 +445,7 @@ module PdfFill
             question_num: 10,
             question_suffix: 'C',
             question_label: 'Additional information',
+            is_description: true,
             question_text: 'ADDITIONAL INFORMATION ABOUT Additional behavioral changes.'
           },
           'unlistedOverflow' => {
@@ -868,7 +884,6 @@ module PdfFill
       # original fields should be removed so as not to duplicate the concatenated overflow field.
       def format_item_overflow(item, index, format_method, overflow_key, overflow_only: false)
         item_overflow = send(format_method, item, index, overflow_only:)
-        # byebug
         return if item_overflow.blank?
 
         item[overflow_key] = PdfFill::FormValue.new('', item_overflow.compact.join("\n\n"))
