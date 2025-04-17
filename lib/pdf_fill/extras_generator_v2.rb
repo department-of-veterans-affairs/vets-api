@@ -11,14 +11,13 @@ module PdfFill
     class Question
       attr_accessor :section_index, :overflow
 
-      def initialize(question_text, metadata, table_width:, custom_description_row: false)
+      def initialize(question_text, metadata, table_width:)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
         @table_width = table_width
-        @custom_description_row = custom_description_row
       end
 
       def add_text(value, metadata)
@@ -80,19 +79,19 @@ module PdfFill
     end
 
     class ListQuestion < Question
-      def initialize(question_text, metadata, table_width:, custom_description_row: false)
+      attr_reader :items, :item_label
+
+      def initialize(question_text, metadata, table_width:)
         super
         @item_label = metadata[:item_label]
         @table_width = table_width
-        @custom_description_row = custom_description_row
         @items = []
       end
 
       def add_text(value, metadata)
         @overflow ||= metadata.fetch(:overflow, true)
         i = metadata[:i]
-        @items[i] ||= Question.new(nil, metadata, table_width: @table_width,
-                                                  custom_description_row: @custom_description_row)
+        @items[i] ||= Question.new(nil, metadata, table_width: @table_width)
         @items[i].add_text(value, metadata)
       end
 
@@ -162,7 +161,6 @@ module PdfFill
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
       @table_width            = options[:table_width] || 91
-      @custom_description_row = options[:custom_description_row] || false
       @questions              = {}
       super()
     end
