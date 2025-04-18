@@ -31,6 +31,7 @@ module BGS
       @proc_state = 'Ready'
       @note_text = nil
       @proc_id = nil
+      @v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -130,7 +131,8 @@ module BGS
 
       # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
       if selectable_options['add_spouse'] && MARRIAGE_TYPES.any? do |m|
-           m == dependents_app['current_marriage_information']['type']
+           current_marriage_info = dependents_app['current_marriage_information']
+           m == @v2 ? current_marriage_info['type_of_marriage'] : current_marriage_info['type']
          end
         return set_to_manual_vagov('add_spouse')
       end

@@ -58,7 +58,7 @@ FactoryBot.define do
         'dependents_application' => {
           'household_income' => true,
           'current_marriage_information' => {
-            'type' => 'OTHER',
+            'type_of_marriage' => 'OTHER',
             'type_other' => 'Some Other Thing',
             'location' => {
               'city' => 'Slawson',
