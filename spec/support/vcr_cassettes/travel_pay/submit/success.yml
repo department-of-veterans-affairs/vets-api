@@ -62,8 +62,8 @@ http_interactions:
       }'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
-    method: get
-    uri: https://btsss.gov/api/v1.2/appointments?excludeWithClaims=true
+    method: post
+    uri: https://btsss.gov/api/v2/appointments/find-or-add
     body:
       encoding: US-ASCII
       string: ''

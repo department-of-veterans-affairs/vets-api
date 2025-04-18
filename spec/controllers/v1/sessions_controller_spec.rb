@@ -61,6 +61,41 @@ RSpec.describe V1::SessionsController, type: :controller do
   # Helper variable
   let(:once) { { times: 1, value: 1 } }
 
+  shared_examples 'a successful UserAudit log' do
+    let(:user_verification) { user.user_verification }
+    let(:event) { :sign_in }
+    let!(:user_action_event) { create(:user_action_event, identifier: event) }
+    let(:icn) { user.icn }
+    let(:remote_ip) { Faker::Internet.ip_v4_address }
+    let(:user_agent) { Faker::Internet.user_agent }
+    let(:expected_log_payload) do
+      {
+        event: :sign_in,
+        user_verification_id: user_verification.id,
+        status: :success
+      }
+    end
+    let(:expected_log_tags) { { remote_ip:, user_agent: } }
+    let(:expected_audit_log_message) do
+      expected_log_payload.merge(acting_ip_address: remote_ip, acting_user_agent: user_agent).as_json
+    end
+
+    before do
+      allow(SemanticLogger).to receive(:named_tags).and_return(expected_log_tags)
+      allow(UserAudit.logger).to receive(:success).and_call_original
+    end
+
+    it 'creates a user audit log' do
+      expect { call_endpoint }.to change(Audit::Log, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event:, user_verification:)
+    end
+
+    it 'creates a user action' do
+      expect { call_endpoint }.to change(UserAction, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event: :sign_in, user_verification:)
+    end
+  end
+
   def verify_session_cookie
     token = session[:token]
     expect(token).not_to be_nil
@@ -78,6 +113,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   before do
     request.host = request_host
+    request.remote_ip = Faker::Internet.ip_v4_address
+    request.user_agent = Faker::Internet.user_agent
+
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
@@ -610,8 +648,6 @@ RSpec.describe V1::SessionsController, type: :controller do
       uri.query = expected_redirect_params
       uri.to_s
     end
-    let(:user_action_event_identifier) { 'sign_in' }
-    let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
 
     context 'when too much time passed to consume the SAML Assertion' do
       let(:error_code) { '005' }
@@ -680,32 +716,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'after redirecting the client' do
-        let(:user_action) { create(:user_action, user_action_event:) }
-        let(:expected_ip_address) { cookies.request.remote_ip }
-        let(:expected_user_agent) { cookies.request.user_agent }
-        let(:expected_audit_log) { 'User audit log created' }
-        let(:expected_audit_log_payload) do
-          { user_action_event: user_action_event.id,
-            user_action_event_details: user_action_event.details,
-            status: :success,
-            user_action: user_action.id }
-        end
-
-        before do
-          allow(UserAction).to receive(:create!).and_return(user_action)
-          allow(UserAuditLogger).to receive(:new).and_call_original
-          allow(Rails.logger).to receive(:info).and_call_original
-        end
-
-        it 'creates a user audit log' do
-          expect(UserAuditLogger).to receive(:new).with(user_action_event_identifier:,
-                                                        subject_user_verification: user.user_verification,
-                                                        status: :success,
-                                                        acting_ip_address: expected_ip_address,
-                                                        acting_user_agent: expected_user_agent)
-          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
-          call_endpoint
-        end
+        it_behaves_like 'a successful UserAudit log'
       end
     end
 
@@ -762,32 +773,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'after redirecting the client' do
-        let(:user_action) { create(:user_action, user_action_event:) }
-        let(:expected_ip_address) { cookies.request.remote_ip }
-        let(:expected_user_agent) { cookies.request.user_agent }
-        let(:expected_audit_log) { 'User audit log created' }
-        let(:expected_audit_log_payload) do
-          { user_action_event: user_action_event.id,
-            user_action_event_details: user_action_event.details,
-            status: :success,
-            user_action: user_action.id }
-        end
-
-        before do
-          allow(UserAction).to receive(:create!).and_return(user_action)
-          allow(UserAuditLogger).to receive(:new).and_call_original
-          allow(Rails.logger).to receive(:info).and_call_original
-        end
-
-        it 'creates a user audit log' do
-          expect(UserAuditLogger).to receive(:new).with(user_action_event_identifier:,
-                                                        subject_user_verification: user.user_verification,
-                                                        status: :success,
-                                                        acting_ip_address: expected_ip_address,
-                                                        acting_user_agent: expected_user_agent)
-          expect(Rails.logger).to receive(:info).with(expected_audit_log, expected_audit_log_payload)
-          call_endpoint
-        end
+        it_behaves_like 'a successful UserAudit log'
       end
     end
 
