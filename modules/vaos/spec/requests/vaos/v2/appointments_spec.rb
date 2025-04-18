@@ -899,6 +899,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             Timecop.unfreeze
           end
         end
+
+        it 'returns an eps appointment' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
+              get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
+
+              expect(response).to have_http_status(:success)
+              body = JSON.parse(response.body)
+
+              expect(body).to include('data')
+              expect(body['data']).to include('id', 'type', 'attributes')
+              expect(body['data']['attributes']).to include(
+                'id', 'state', 'patientId', 'referral',
+                'providerServiceId', 'networkId', 'slotIds',
+                'appointmentDetails'
+              )
+            end
+          end
+        end
       end
 
       context 'when the VAOS service errors on retrieving an appointment' do
@@ -913,9 +932,31 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                        'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d/appointments/00000'
             get '/vaos/v2/appointments/00000'
             body = JSON.parse(response.body)
+
             expect(response).to have_http_status(:bad_gateway)
             expect(body.dig('errors', 0, 'code')).to eq('VAOS_502')
             expect(body.dig('errors', 0, 'source', 'vamf_url')).to eq(vamf_url)
+          end
+        end
+      end
+
+      context 'when the EPS service errors on retrieving an appointment' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+        end
+
+        it 'returns a 502 status code' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path query]) do
+              vamf_url = 'https://api.wellhive.com/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true'
+              get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
+              expect(response).to have_http_status(:bad_gateway)
+              body = JSON.parse(response.body)
+
+              expect(body.dig('errors', 0, 'code')).to eq('VAOS_502')
+              expect(body.dig('errors', 0, 'source', 'vamfUrl')).to eq(vamf_url)
+            end
           end
         end
       end
