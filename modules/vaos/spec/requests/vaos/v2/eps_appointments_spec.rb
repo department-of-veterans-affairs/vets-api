@@ -45,7 +45,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               'id' => 'qdm61cJ5',
               'status' => 'booked',
               'start' => '2024-11-21T18:00:00Z',
-              'typeOfCare' => 'CARDIOLOGY',
+              'typeOfCare' => nil,
               'isLatest' => true,
               'lastRetrieved' => '2025-02-10T14:35:44Z',
               'modality' => 'OV',
@@ -72,13 +72,11 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         it 'successfully returns by id' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
-              VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-                VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
-                  get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
+                get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
-                  expect(response).to have_http_status(:success)
-                  expect(JSON.parse(response.body)).to eq(expected_response)
-                end
+                expect(response).to have_http_status(:success)
+                expect(JSON.parse(response.body)).to eq(expected_response)
               end
             end
           end
