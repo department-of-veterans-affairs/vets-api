@@ -461,6 +461,34 @@ describe MedicalRecords::Client do
     end
   end
 
+  describe '#rewrite_next_link' do
+    let(:client) { MedicalRecords::Client.new(session: { user_id: 'test', icn: 'test' }) }
+
+    it 'rewrites full URL to relative path for /v1/fhir' do
+      next_url = 'https://example.org/v1/fhir?_getpages=abc&_getpagesoffset=1&_count=2'
+      bundle = FHIR::Bundle.new(
+        link: [FHIR::Bundle::Link.new(relation: 'next', url: next_url)]
+      )
+      allow(client).to receive(:base_path).and_return('https://fwdproxy.va.gov/v1/fhir/')
+      client.send(:rewrite_next_link, bundle)
+
+      expect(bundle.link.find { |l| l.relation == 'next' }.url)
+        .to eq('https://fwdproxy.va.gov/v1/fhir?_getpages=abc&_getpagesoffset=1&_count=2')
+    end
+
+    it 'rewrites full URL to relative path for /fhir' do
+      next_url = 'https://example.org/fhir?_getpages=xyz&_count=1'
+      bundle = FHIR::Bundle.new(
+        link: [FHIR::Bundle::Link.new(relation: 'next', url: next_url)]
+      )
+      allow(client).to receive(:base_path).and_return('https://fwdproxy.va.gov/fhir/')
+      client.send(:rewrite_next_link, bundle)
+
+      expect(bundle.link.find { |l| l.relation == 'next' }.url)
+        .to eq('https://fwdproxy.va.gov/fhir?_getpages=xyz&_count=1')
+    end
+  end
+
   def extract_date(resource)
     case resource
     when FHIR::DiagnosticReport
