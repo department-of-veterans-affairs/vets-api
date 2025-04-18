@@ -44,5 +44,8 @@ if defined?(Rails::Console)
     ConsoleFilterStorage.const_set('ORIGINAL_MODEL_FILTERS', model_filters.freeze)
 
     TOPLEVEL_BINDING.eval('self').extend(ConsoleFilterToggles)
+
+    # Automatically reveal! in console
+    TOPLEVEL_BINDING.eval('self').reveal!
   end
 end
