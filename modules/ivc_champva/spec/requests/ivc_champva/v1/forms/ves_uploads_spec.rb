@@ -80,12 +80,11 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
               expect(IvcChampva::VesDataFormatter).to have_received(:format_for_request)
               expect(ves_client).to have_received(:submit_1010d)
                 .with(anything, 'fake-user', ves_request)
-              expect(mock_form).to have_received(:update).with(
-                hash_including(
-                  application_uuid: 'test-uuid',
-                  ves_status: 200
-                )
-              )
+              expect(mock_form).to have_received(:update)
+                .with(hash_including(
+                        application_uuid: 'test-uuid',
+                        ves_status: 'ok'
+                      ))
 
               expect(response).to have_http_status(:ok)
             end
