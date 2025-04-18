@@ -212,8 +212,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                 controller = IvcChampva::V1::UploadsController.new
 
                 allow(ves_client).to receive(:submit_1010d)
-                                       .with(anything, anything, anything)
-                                       .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+                  .with(anything, anything, anything)
+                  .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
 
                 allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
 
