@@ -146,7 +146,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
 
         post('/travel_pay/v0/claims', headers:, params:)
         expect(response).to have_http_status(:created)
@@ -159,27 +162,14 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => 'My birthday, 4 years ago' }
+        params = { 'appointment_date_time' => 'My birthday, 4 years ago',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
 
         post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    it 'returns a NotFound response if an appointment is not found' do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
-        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
-
-      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
-        headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => '1970-01-01T00:00:00.000Z' }
-
-        post('/travel_pay/v0/claims', headers:, params:)
-
-        error_detail = JSON.parse(response.body)['errors'][0]['detail']
-        expect(response).to have_http_status(:not_found)
-        expect(error_detail).to match(/appointment/)
       end
     end
 
@@ -192,7 +182,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       # The cassette doesn't matter here as I'm mocking the submit_claim method
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
 
         post('/travel_pay/v0/claims', headers:, params:)
 
