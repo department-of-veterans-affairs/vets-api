@@ -33,6 +33,23 @@ module VAOS
         @provider = provider
       end
 
+      def serializable_hash
+        {
+          id: @id,
+          status: determine_status(@status),
+          patient_icn: @patient_icn,
+          created: @created,
+          location_id: @location_id,
+          clinic: @clinic,
+          start: @start,
+          contact: @contact,
+          referral_id: @referral_id,
+          referral: @referral,
+          provider_service_id: @provider_service_id,
+          provider_name: @provider_name
+        }.compact
+      end
+
       # Provide proper encapsulation of provider data
       def provider_details
         return nil if provider.nil?
