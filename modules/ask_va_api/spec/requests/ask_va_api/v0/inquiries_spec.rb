@@ -55,7 +55,6 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
 
     it 'returns unauthorized for LOA1 users' do
-      binding.pry
       expect(response).to have_http_status(:unauthorized)
     end
   end
