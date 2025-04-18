@@ -128,7 +128,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     context 'when the flipper is off' do
       it 'does not send the vanotify job' do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
-        Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)
 
         poa.auth_headers.merge!({
                                   header_key => 'this_value'
