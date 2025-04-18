@@ -7,4 +7,10 @@ module MDOTHelpers
     jwt = ::MDOT::Token.find_or_build(user.uuid)
     jwt.update(token:, uuid: user.uuid)
   end
+
+  def set_expired_mdot_token_for(user, token = 'abcd1234abcd1234abcd1234')
+    jwt = ::MDOT::Token.find_or_build(user.uuid)
+    jwt.update(token:, uuid: user.uuid)
+    jwt.expire(5)
+  end
 end
