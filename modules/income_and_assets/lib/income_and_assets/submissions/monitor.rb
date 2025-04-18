@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'zero_silent_failures/monitor'
 
 module IncomeAndAssets
   ##
@@ -8,7 +9,7 @@ module IncomeAndAssets
     ##
     # Monitor functions for Rails logging and StatsD
     #
-    class Monitor
+    class Monitor < ::ZeroSilentFailures::Monitor
       # statsd key for sidekiq
       SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
 
