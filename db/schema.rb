@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_18_170149) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -330,6 +330,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.text "reason_ciphertext"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
+    t.integer "declination_reason"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
   end
@@ -612,6 +613,54 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
+  end
+
+  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "submission_uuid", null: false
+    t.string "vetext_sid"
+    t.boolean "sequestered", default: true, null: false
+    t.string "state"
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.string "batch_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "raw_form_data_ciphertext"
+    t.text "eligibility_info_ciphertext"
+    t.text "form_data_ciphertext"
+    t.text "encrypted_kms_key"
+    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
+    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
+    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
+    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
+  end
+
+  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "sid"
+    t.uuid "account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.text "form_data_ciphertext"
+    t.text "raw_form_data_ciphertext"
+    t.text "encrypted_kms_key"
+    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
+    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
+  create_table "credential_adoption_email_records", force: :cascade do |t|
+    t.string "icn", null: false
+    t.string "email_address", null: false
+    t.string "email_template_id", null: false
+    t.datetime "email_triggered_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_credential_adoption_email_records_on_email_address"
+    t.index ["email_template_id"], name: "index_credential_adoption_email_records_on_email_template_id"
+    t.index ["icn"], name: "index_credential_adoption_email_records_on_icn"
   end
 
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|
@@ -1045,6 +1094,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
+  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
+  end
+
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
     t.string "veteran_icn", null: false
     t.string "form_type"
@@ -1077,8 +1133,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.boolean "email_sent", default: false, null: false
     t.uuid "application_uuid"
     t.string "ves_status"
-    t.text "encrypted_kms_key"
     t.text "ves_request_data_ciphertext"
+    t.text "encrypted_kms_key"
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
   end
 
@@ -1553,6 +1609,33 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
   end
 
+  create_table "va_forms_forms", force: :cascade do |t|
+    t.string "form_name"
+    t.string "url"
+    t.string "title"
+    t.date "first_issued_on"
+    t.date "last_revision_on"
+    t.integer "pages"
+    t.string "sha256"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "valid_pdf", default: false
+    t.text "form_usage"
+    t.text "form_tool_intro"
+    t.string "form_tool_url"
+    t.string "form_type"
+    t.string "language"
+    t.datetime "deleted_at"
+    t.string "related_forms", array: true
+    t.jsonb "benefit_categories"
+    t.string "form_details_url"
+    t.jsonb "va_form_administration"
+    t.integer "row_id"
+    t.float "ranking"
+    t.string "tags"
+    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
+  end
+
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
     t.string "form_id", null: false
     t.uuid "user_account_id", null: false
@@ -1579,6 +1662,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
+  end
+
+  create_table "vba_documents_git_items", force: :cascade do |t|
+    t.string "url", null: false
+    t.jsonb "git_item"
+    t.boolean "notified", default: false
+    t.string "label"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
+    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
@@ -1608,6 +1702,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_09_183138) do
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   create_table "veteran_device_records", force: :cascade do |t|
