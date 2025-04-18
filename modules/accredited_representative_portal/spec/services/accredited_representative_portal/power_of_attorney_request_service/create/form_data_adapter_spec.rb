@@ -50,7 +50,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
       expected_result = {
         data: {
           'authorizations' => {
-            'recordDisclosure' => true,
             'recordDisclosureLimitations' => ['HIV'],
             'addressChange' => true
           },
