@@ -20,8 +20,8 @@ module VeteranEnrollmentSystem
       super.merge('apiKey' => api_key)
     end
 
-    # Sets the API key for the configuration. This can be overridden
-    # by the subclass so that each configuration can have its own API key
+    # Gets the API key for the configuration. Subclasses should define 'api_key_path'
+    # to specify where that subclass's API key is stored in the settings (settings.yml, development.yml, test.yml)
     # Example:
     #
     # class AssociationsConfiguration < VeteranEnrollmentSystem::BaseConfiguration
@@ -29,16 +29,19 @@ module VeteranEnrollmentSystem
     #     :associations
     #   end
     # end
-    # @param [Symbol, String] api_key_path The path to the API key in the config/settings.yml file
-    def self.api_key(api_key_path = nil)
+    def self.api_key
       return nil if self == VeteranEnrollmentSystem::BaseConfiguration
-      raise 'api_key_path must be defined in subclass' unless respond_to?(:api_key_path) && api_key_path.present?
+      raise 'api_key_path must be defined in subclass' unless respond_to?(:api_key_path)
 
       Settings.veteran_enrollment_system.send(api_key_path).api_key
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+      @conn ||=Faraday.new(
+        base_path,
+        headers: base_request_headers,
+        request: request_options
+      ) do |conn|
         conn.use(:breakers, service_name:)
         conn.request :json
         conn.options.open_timeout = Settings.veteran_enrollment_system.open_timeout
