@@ -313,8 +313,7 @@ describe PdfFill::Forms::Va210781v2 do
         {
           'facilityInfo' => 'Veterans Medical Center',
           'treatmentMonth' => '01',
-          'treatmentYear' => '2024',
-          'noDates' => false
+          'treatmentYear' => '2024'
         }
       end
       let(:index) { 1 }
@@ -336,8 +335,7 @@ describe PdfFill::Forms::Va210781v2 do
       let(:incomplete_treatment_data) do
         {
           'facilityInfo' => 'Veterans Medical Center',
-          'treatmentYear' => '2024',
-          'noDates' => false
+          'treatmentYear' => '2024'
         }
       end
       let(:index) { 2 }
@@ -369,8 +367,7 @@ describe PdfFill::Forms::Va210781v2 do
     context 'when treatment has no date' do
       let(:no_date_treatment_data) do
         {
-          'facilityInfo' => 'Veterans Medical Center',
-          'noDates' => true
+          'facilityInfo' => 'Veterans Medical Center'
         }
       end
       let(:index) { 4 }
@@ -434,8 +431,7 @@ describe PdfFill::Forms::Va210781v2 do
           {
             'facilityInfo' => 'Army Medical Center',
             'treatmentMonth' => '02',
-            'treatmentYear' => '2024',
-            'noDates' => false
+            'treatmentYear' => '2024'
           }
         ]
       end
