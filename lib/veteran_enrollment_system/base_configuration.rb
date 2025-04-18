@@ -17,7 +17,7 @@ module VeteranEnrollmentSystem
 
     # The base request headers required for any VES API call
     def self.base_request_headers
-      super.merge('apiKey' => api_key).compact_blank
+      super.merge('apiKey' => api_key)
     end
 
     # Gets the API key for the configuration. Subclasses should define 'api_key_path'
@@ -37,7 +37,7 @@ module VeteranEnrollmentSystem
     end
 
     def connection
-      Faraday.new(
+      @conn ||=Faraday.new(
         base_path,
         headers: base_request_headers,
         request: request_options

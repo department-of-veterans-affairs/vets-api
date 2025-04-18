@@ -33,8 +33,7 @@ module VeteranEnrollmentSystem
           perform(
             :put,
             "#{config.base_path}#{@current_user.icn}",
-            transformed_associations,
-            headers: config.base_request_headers
+            transformed_associations
           )
         end
       rescue => e
