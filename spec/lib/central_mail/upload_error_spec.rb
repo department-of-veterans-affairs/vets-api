@@ -70,12 +70,12 @@ RSpec.describe CentralMail::UploadError do
     end
 
     context 'with custom settings' do
-      let(:pdf_validator_options) { { size_limit_in_bytes: 987_654_321 } }
+      let(:pdf_validator_options) { { size_limit_in_bytes: 1.gigabyte } }
 
       it 'has a custom message based on the code and settings' do
         expect(error).to have_attributes(code:,
                                          detail:,
-                                         message: 'Maximum document size exceeded. Limit is 987.654 MB per document.')
+                                         message: 'Maximum document size exceeded. Limit is 1 GB per document.')
       end
     end
 
