@@ -119,7 +119,6 @@ module DecisionReviews
           @current_user, backup_zip
         )
         create_params = {
-          user_uuid: @current_user.uuid,
           user_account: @current_user.user_account,
           type_of_appeal: 'SC',
           submitted_appeal_uuid:,

@@ -10,6 +10,7 @@ RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_saved_claim_nod_status_updater_job_enabled)
                                             .and_return(true)
       end

@@ -22,11 +22,12 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
   end
 
   let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
+  let(:mpi_identifier) { user_uuid }
   let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
   let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
   let(:mpi_service) do
     service = instance_double(MPI::Service, find_profile_by_identifier: nil)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: mpi_identifier, identifier_type: anything)
                                                           .and_return(find_profile_response)
     service
   end
@@ -35,6 +36,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
 
+    allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
     allow(Flipper).to receive(:enabled?).with(:decision_review_service_common_exceptions_enabled).and_return(false)
   end
 
@@ -292,6 +294,7 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
             }
           }.to_json
         end
+        let(:mpi_identifier) { appeal_submission.user_account.icn }
 
         before do
           SavedClaim::SupplementalClaim.create(guid: appeal_submission.submitted_appeal_uuid, form:)

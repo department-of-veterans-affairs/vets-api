@@ -15,6 +15,7 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
   describe 'perform' do
     context 'when feature flag is enabled' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(true)
         allow(StatsD).to receive(:increment)
       end
@@ -91,6 +92,7 @@ RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
       let(:guid2) { SecureRandom.uuid }
 
       before do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:decision_review_delete_saved_claims_job_enabled).and_return(false)
         allow(StatsD).to receive(:increment)
 
