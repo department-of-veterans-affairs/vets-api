@@ -452,6 +452,10 @@ flipper:
   github_organization: ~
   github_team: ~
   mute_logs: false
+form0781_remediation:
+  aws:
+    bucket: ~
+    region: ~
 form1095_b:
   s3:
     aws_access_key_id: ~
