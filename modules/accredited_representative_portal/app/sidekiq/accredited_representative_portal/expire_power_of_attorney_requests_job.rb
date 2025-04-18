@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
     def find_eligible_requests(threshold)
       PowerOfAttorneyRequest
         .unresolved
-        .where("#{PowerOfAttorneyRequest.table_name}.created_at < ?", threshold)
+        .where(created_at: ..threshold)
     end
 
     def process_requests(requests_to_process)
@@ -61,9 +61,7 @@ module AccreditedRepresentativePortal
     def expire_request(request)
       log_request_expiration(request)
 
-      expiration = PowerOfAttorneyRequestExpiration.new
-      PowerOfAttorneyRequestResolution.create_with_resolving!(
-        resolving: expiration,
+      PowerOfAttorneyRequestExpiration.create_with_resolution!(
         power_of_attorney_request: request
       )
     end
