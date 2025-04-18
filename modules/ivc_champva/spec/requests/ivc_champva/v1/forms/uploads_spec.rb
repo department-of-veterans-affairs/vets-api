@@ -60,8 +60,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           it 'uploads a PDF file to S3' do
             mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
             allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
-              .and_return(double('Record1', created_at: 1.day.ago,
-                                            id: 'some_uuid', file: double(id: 'file0')))
+              .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
             allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
             allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
               double('response',
@@ -138,8 +137,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                   expect(controller).not_to have_received(:call_handle_file_uploads)
                   expect(ves_client).not_to have_received(:submit_1010d)
                   expect(controller).to have_received(:render)
-                    .with({ json: { error_message: 'Error: oh no' },
-                            status: :internal_server_error })
+                    .with({ json: { error_message: 'Error: oh no' }, status: :internal_server_error })
                 end
               end
             end
