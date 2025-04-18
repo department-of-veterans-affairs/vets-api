@@ -7,6 +7,8 @@ module IncomeAndAssets
 
     # Hash iterator
     ITERATOR = ::PdfFill::HashConverter::ITERATOR
+
+    KEY = {}.freeze
   end
 
   def expand

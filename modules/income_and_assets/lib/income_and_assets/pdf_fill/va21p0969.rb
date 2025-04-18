@@ -820,108 +820,110 @@ module IncomeAndAssets
 
       SECTIONS.each { |section| key = key.merge(section::KEY) }
 
-      # Sections 12 and 13
-      key.merge(
-        # Section 12
-        # 12a
-        'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
-        # 12b-12c (only space for 2 on form)
-        'incomeReceiptWaivers' => {
-          limit: 2,
-          first_key: 'otherRecipientRelationshipType',
-          # Q1
-          'recipientRelationship' => {
-            key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
-          },
-          'recipientRelationshipOverflow' => {
-            question_num: 12,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship12[#{ITERATOR}]",
-            question_num: 12,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          # Q2
-          'recipientName' => {
-            key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
-            question_num: 12,
-            question_suffix: '(2)',
-            question_text:
+      # Sections 12 and 13 (Temporary, will be handled in the next PR)
+      key = key.merge(
+        {
+          # Section 12
+          # 12a
+          'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
+          # 12b-12c (only space for 2 on form)
+          'incomeReceiptWaivers' => {
+            limit: 2,
+            first_key: 'otherRecipientRelationshipType',
+            # Q1
+            'recipientRelationship' => {
+              key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
+            },
+            'recipientRelationshipOverflow' => {
+              question_num: 12,
+              question_suffix: '(1)',
+              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            },
+            'otherRecipientRelationshipType' => {
+              key: "F[0].OtherRelationship12[#{ITERATOR}]",
+              question_num: 12,
+              question_suffix: '(1)',
+              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            },
+            # Q2
+            'recipientName' => {
+              key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
+              question_num: 12,
+              question_suffix: '(2)',
+              question_text:
                 'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
-          },
-          # Q3
-          'payer' => {
-            key: "F[0].IncomePayer12[#{ITERATOR}]",
-            question_num: 12,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
-          },
-          # Q4
-          'expectedIncome' => {
-            'thousands' => {
-              key: "F[0].AmountExpected1[#{ITERATOR}]"
             },
-            'dollars' => {
-              key: "F[0].AmountExpected2[#{ITERATOR}]"
+            # Q3
+            'payer' => {
+              key: "F[0].IncomePayer12[#{ITERATOR}]",
+              question_num: 12,
+              question_suffix: '(3)',
+              question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
             },
-            'cents' => {
-              key: "F[0].AmountExpected3[#{ITERATOR}]"
+            # Q4
+            'expectedIncome' => {
+              'thousands' => {
+                key: "F[0].AmountExpected1[#{ITERATOR}]"
+              },
+              'dollars' => {
+                key: "F[0].AmountExpected2[#{ITERATOR}]"
+              },
+              'cents' => {
+                key: "F[0].AmountExpected3[#{ITERATOR}]"
+              }
+            },
+            'expectedIncomeOverflow' => {
+              question_num: 12,
+              question_suffix: '(4)',
+              question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
+            },
+            # Q5
+            'paymentResumeDate' => {
+              'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
+              'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
+              'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
+            },
+            'paymentResumeDateOverflow' => {
+              question_num: 12,
+              question_suffix: '(5)',
+              question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
+            },
+            'paymentWillNotResume' => {
+              key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
+            },
+            'paymentWillNotResumeOverflow' => {
+              question_num: 12,
+              question_suffix: '(5)',
+              question_text: 'This income will not resume'
+            },
+            # Q6
+            'waivedGrossMonthlyIncome' => {
+              'thousands' => {
+                key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
+              },
+              'dollars' => {
+                key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
+              },
+              'cents' => {
+                key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
+              }
+            },
+            'waivedGrossMonthlyIncomeOverflow' => {
+              question_num: 12,
+              question_suffix: '(6)',
+              question_text: 'WAIVED GROSS MONTHLY INCOME'
             }
           },
-          'expectedIncomeOverflow' => {
-            question_num: 12,
-            question_suffix: '(4)',
-            question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
-          },
-          # Q5
-          'paymentResumeDate' => {
-            'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
-            'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
-            'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
-          },
-          'paymentResumeDateOverflow' => {
-            question_num: 12,
-            question_suffix: '(5)',
-            question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
-          },
-          'paymentWillNotResume' => {
-            key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
-          },
-          'paymentWillNotResumeOverflow' => {
-            question_num: 12,
-            question_suffix: '(5)',
-            question_text: 'This income will not resume'
-          },
-          # Q6
-          'waivedGrossMonthlyIncome' => {
-            'thousands' => {
-              key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
-            }
-          },
-          'waivedGrossMonthlyIncomeOverflow' => {
-            question_num: 12,
-            question_suffix: '(6)',
-            question_text: 'WAIVED GROSS MONTHLY INCOME'
+          # Section 13
+          # NOTE: No overflow for this section
+          # 13a
+          'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
+          # 13b
+          'statementOfTruthSignatureDate' => {
+            'month' => { key: 'F[0].DateSigned13bMonth[0]' },
+            'day' => { key: 'F[0].DateSigned13bDay[0]' },
+            'year' => { key: 'F[0].DateSigned13bYear[0]' }
           }
-        },
-        # Section 13
-        # NOTE: No overflow for this section
-        # 13a
-        'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
-        # 13b
-        'statementOfTruthSignatureDate' => {
-          'month' => { key: 'F[0].DateSigned13bMonth[0]' },
-          'day' => { key: 'F[0].DateSigned13bDay[0]' },
-          'year' => { key: 'F[0].DateSigned13bYear[0]' }
         }
       )
 
