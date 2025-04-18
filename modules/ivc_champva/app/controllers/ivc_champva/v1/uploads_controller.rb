@@ -259,7 +259,7 @@ module IvcChampva
       #
       # @return [Array<Integer, String>] An array with 1 or more http status codes
       #   and an array with 1 or more message strings.
-      def handle_file_uploads_ves_refactor(form_id, file_paths, metadata)
+      def upload_form(form_id, file_paths, metadata)
         attempt = 0
         max_attempts = 1
 
