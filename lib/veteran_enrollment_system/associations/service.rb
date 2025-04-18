@@ -26,11 +26,13 @@ module VeteranEnrollmentSystem
 
       def update_associations(form_id)
         with_monitoring do
-          transformed_associations = transform_associations(@parsed_form['veteranContacts'])
+          transformed_associations = { 'associations' => transform_associations(@parsed_form['veteranContacts']) }
+
+          debugger
 
           perform(
             :put,
-            "#{config.base_path}/#{@current_user.icn}",
+            "#{config.base_path}#{@current_user.icn}",
             transformed_associations,
             headers: config.base_request_headers
           )
@@ -68,6 +70,11 @@ module VeteranEnrollmentSystem
           # 'contactType' needs to be converted to the following format: 'PRIMARY_NEXT_OF_KIN'
           if schema_key == 'contactType'
             transformed_association[api_key] = association[schema_key].to_s.upcase.gsub(/\s+/, '_')
+          elsif schema_key == 'relationship'
+            transformed_association[api_key] = association[schema_key].to_s
+              .gsub(/-/, '')  # Remove hyphens
+              .gsub(/\s+/, '_')  # Replace spaces with underscores
+              .gsub(/\//, '_')  # Replace forward slashes with underscores
           elsif association[schema_key].present?
             transformed_association[api_key] = association[schema_key]
           end

@@ -16,13 +16,8 @@ module VeteranEnrollmentSystem
     end
 
     # The base request headers required for any VES API call
-    # We'll only merge the api key if it's present (it's not required in the SQA environment)
     def self.base_request_headers
-      if api_key.present?
-        super.merge('apiKey' => api_key)
-      else
-        super
-      end
+      super.merge('apiKey' => api_key).compact_blank
     end
 
     # Gets the API key for the configuration. Subclasses should define 'api_key_path'
@@ -42,7 +37,11 @@ module VeteranEnrollmentSystem
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+      Faraday.new(
+        base_path,
+        headers: base_request_headers,
+        request: request_options
+      ) do |conn|
         conn.use(:breakers, service_name:)
         conn.request :json
         conn.options.open_timeout = Settings.veteran_enrollment_system.open_timeout

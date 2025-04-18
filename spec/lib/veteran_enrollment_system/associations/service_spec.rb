@@ -23,9 +23,9 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
 
   describe '#update_associations' do
     it 'updates the associations' do
-      VCR.use_cassette('example1', :record => :once) do
-        hello = service.update_associations(form)
+      VCR.use_cassette('example4', :record => :once) do
         debugger
+        hello = service.update_associations(form)
         expect(hello).to be_a(Object)
       end
     end
