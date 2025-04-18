@@ -52,6 +52,78 @@
   "cohabitedLastYear": true,
   "spouseDateOfBirth": "1970-04-21",
   "spouseSocialSecurityNumber": "666112121",
+  "veteranContacts": [
+    {
+      "fullName": {
+        "first": "MARY",
+        "middle": "JESSICA",
+        "last": "BISHOP"
+      },
+      "primaryPhone": "2742943384",
+      "address": {
+        "street": "748 TEST ST",
+        "street2": "APT 394",
+        "street3": "UNIT 2",
+        "city": "ALBUQUERQUE",
+        "state": "NM",
+        "country": "USA",
+        "postalCode": "87109"
+      },
+      "relationship": "DAUGHTER",
+      "contactType": "Other Next of Kin"
+    },
+    {
+      "fullName": {
+        "first": "DEBORAH",
+        "last": "WILLIAMS"
+      },
+      "primaryPhone": "9277377486",
+      "address": {
+        "street": "2645 TEST WAY",
+        "street2": "UNIT 192",
+        "city": "CLEARWATER",
+        "country": "USA",
+        "state": "FL",
+        "postalCode": "33760"
+      },
+      "relationship": "UNRELATED FRIEND",
+      "contactType": "Other emergency contact"
+    },
+    {
+      "fullName": {
+        "first": "ETHAN",
+        "middle": "JEREMY",
+        "last": "BISHOP"
+      },
+      "primaryPhone": "4395738274",
+      "address": {
+        "street": "9758 TEST AVE",
+        "city": "ALBUQUERQUE",
+        "country": "USA",
+        "state": "NM",
+        "postalCode": "87109"
+      },
+      "relationship": "BROTHER",
+      "contactType": "Emergency Contact"
+    },
+    {
+      "fullName": {
+        "first": "JANE",
+        "last": "BISHOP"
+      },
+      "primaryPhone": "2023946688",
+      "address": {
+        "street": "823 SE 2ND ST",
+        "street2": "BLDG 2",
+        "street3": "UNIT 163",
+        "city": "GUADALAJARA",
+        "country": "MEX",
+        "postalCode": "44100"
+      },
+      "relationship": "MOTHER",
+      "contactType": "Primary Next of Kin"
+    }
+  ],
   "nonPrefill": {
     "previousFinancialInfo": {
       "veteranFinancialInfo": {
