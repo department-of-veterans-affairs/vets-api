@@ -223,7 +223,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def send_event_bus_event(status, next_id = nil)
-    return unless Flipper.enabled?(:hca_kafka_submission_enabled)
+    return unless Flipper.enabled?(:hca_ez_kafka_submission_enabled)
 
     begin
       user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
@@ -237,8 +237,7 @@ class HealthCareApplication < ApplicationRecord
       current_id: id,
       submission_name: 'F1010EZ',
       state: status,
-      next_id:,
-      use_test_topic: true
+      next_id:
     )
   end
 

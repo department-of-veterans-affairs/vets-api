@@ -17,7 +17,7 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:form_id) { described_class::FORM_ID }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:hca_kafka_submission_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
   end
 
   describe 'LOCKBOX' do
@@ -304,7 +304,7 @@ RSpec.describe HealthCareApplication, type: :model do
           icn: user.icn,
           current_id: health_care_application.id,
           submission_name: 'F1010EZ', state: 'received',
-          next_id: nil, use_test_topic: true
+          next_id: nil
         )
 
         health_care_application.send_event_bus_event('received')
@@ -321,7 +321,7 @@ RSpec.describe HealthCareApplication, type: :model do
           expect(Kafka).to receive(:submit_event).with(
             icn: '123', current_id: health_care_application.id,
             submission_name: 'F1010EZ', state: 'sent',
-            next_id: '456', use_test_topic: true
+            next_id: '456'
           )
 
           health_care_application.send_event_bus_event('sent', '456')
@@ -334,7 +334,7 @@ RSpec.describe HealthCareApplication, type: :model do
         allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
         expect(Kafka).to receive(:submit_event).with(
           icn: '123', current_id: health_care_application.id,
-          submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true
+          submission_name: 'F1010EZ', state: 'received', next_id: nil
         )
 
         health_care_application.send_event_bus_event('received')
@@ -347,7 +347,7 @@ RSpec.describe HealthCareApplication, type: :model do
         expect(Kafka).to receive(:submit_event).with(
           icn: '123', current_id: health_care_application.id,
           submission_name: 'F1010EZ', state: 'sent',
-          next_id: '456', use_test_topic: true
+          next_id: '456'
         )
 
         health_care_application.send_event_bus_event('sent', '456')
@@ -366,7 +366,7 @@ RSpec.describe HealthCareApplication, type: :model do
         it 'returns a payload with no ICN' do
           expect(Kafka).to receive(:submit_event).with(
             icn: nil, current_id: health_care_application.id,
-            submission_name: 'F1010EZ', state: 'received', next_id: nil, use_test_topic: true
+            submission_name: 'F1010EZ', state: 'received', next_id: nil
           )
 
           health_care_application.send_event_bus_event('received')
