@@ -217,6 +217,7 @@ module Rx
         )
       )
       headers['appToken'] = @app_token if Flipper.enabled?(:mhv_medications_client_test)
+      Rails.logger.info("Rx request is using appToken: #{headers['appToken'][0..2]}") unless headers['appToken'].nil?
       get_headers(headers)
     end
 
