@@ -8,7 +8,7 @@ module ClaimsApi
     LOG_TAG = 'poa_vbms_updater'
     sidekiq_options retry_for: 48.hours
 
-    def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
+    def perform(power_of_attorney_id, rep_id = nil) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       process = ClaimsApi::Process.find_or_create_by(processable: poa_form, step_type: 'POA_ACCESS_UPDATE')
       process.update!(step_status: 'IN_PROGRESS')
@@ -32,20 +32,26 @@ module ClaimsApi
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
         process.update!(step_status: 'SUCCESS', error_messages: [], completed_at: Time.zone.now)
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
-        ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
+        ClaimsApi::Logger.log(LOG_TAG, poa_id: power_of_attorney_id, detail: 'VBMS Success')
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = 'update_poa_access failed with code ' \
                                       "#{response[:return_code]}: #{response[:return_message]}"
         process.update!(step_status: 'FAILED', error_messages: [{ title: 'BGS Error',
                                                                   detail: poa_form.vbms_error_message }])
-        ClaimsApi::Logger.log('poa_vbms_updater',
+        ClaimsApi::Logger.log(LOG_TAG,
                               poa_id: power_of_attorney_id,
                               detail: 'VBMS Failed',
                               error: response[:return_message])
       end
 
-      poa_form.save
+      poa_form.save!
+      ClaimsApi::Logger.log(LOG_TAG, poa_id: poa_form.id, detail: 'POA Saved successfully')
+
+      if vanotify?(poa_form.auth_headers, rep_id)
+        ClaimsApi::Logger.log(LOG_TAG, poa_id: poa_form.id, detail: 'Sending Email')
+        ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep_id)
+      end
     rescue BGS::ShareError => e
       poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
       poa_form.vbms_error_message = e.respond_to?(:message) ? e.message : 'BGS::ShareError'
@@ -53,7 +59,7 @@ module ClaimsApi
       process.update!(step_status: 'FAILED',
                       error_messages: [{ title: 'BGS Error',
                                          detail: poa_form.vbms_error_message }])
-      ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
+      ClaimsApi::Logger.log(LOG_TAG, poa_id: poa_form.id, detail: 'BGS Error', error: e)
     end
 
     def update_poa_access(poa_form:, participant_id:, poa_code:)
