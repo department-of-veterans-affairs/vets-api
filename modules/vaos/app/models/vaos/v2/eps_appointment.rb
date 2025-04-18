@@ -27,7 +27,6 @@ module VAOS
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
 
-        # Extract only the specific data we need from referral_detail
         @type_of_care = referral_detail&.category_of_care
         @referral_phone_number = referral_detail&.phone_number
 
