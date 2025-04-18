@@ -18,12 +18,12 @@ module AskVAApi
         end
       end
 
-      def default_service
+      def service
         Crm::Service.new(icn: nil)
       end
 
       def fetch_service_data
-        response = default_service.call(endpoint: ENDPOINT)
+        response = service.call(endpoint: ENDPOINT)
         handle_response_data(response:, error_class: AnnouncementsRetrieverError)
       end
     end
