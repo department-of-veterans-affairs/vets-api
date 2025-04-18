@@ -142,6 +142,7 @@ module IvcChampva
       monitor.track_insert_form(@metadata['uuid'], @form_id)
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
+      raise
     end
 
     ##
