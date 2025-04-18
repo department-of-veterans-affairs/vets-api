@@ -19,9 +19,9 @@ module CheckIn
 
       claim_number, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
 
-      unless template_id.nil?
-        send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:, facility_type:)
-        StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
+      unless template_id.nil? || mobile_phone.nil? || appointment_date.nil?
+        TravelClaimNotificationJob.perform_async(mobile_phone:, appointment_date:, template_id:, claim_number:,
+                                                 facility_type:)
       end
     end
 
