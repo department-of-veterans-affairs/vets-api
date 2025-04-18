@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vba_documents/upload_error'
+require 'clamav/patch_client'
 
 module VBADocuments
   class MultipartParser
@@ -12,7 +13,18 @@ module VBADocuments
       if base64_encoded?(infile)
         create_file_from_base64(infile)
       else
+        validate_virus_free(infile)
         parse_file(infile)
+      end
+    end
+
+    def self.validate_virus_free(infile)
+      return unless Flipper.enabled?(:benefits_intake_api_enable_virus_scan)
+
+      # Common::VirusScan result will return true if safe, false if virus detected
+      pc = ClamAV::PatchClient.new
+      unless pc.safe?(infile) #Common::VirusScan.scan(infile)
+        raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected')
       end
     end
 

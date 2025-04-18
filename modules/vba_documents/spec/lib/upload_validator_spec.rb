@@ -13,6 +13,13 @@ RSpec.describe VBADocuments::UploadValidations do
   let(:upload_submission) { create(:upload_submission, :status_uploaded) }
   let(:timestamp) { DateTime.now }
   let(:parts) { VBADocuments::MultipartParser.parse(valid_doc) }
+  let(:clam_av_patch_client) { instance_double(ClamAV::PatchClient) }
+
+  before do
+    allow(clam_av_patch_client).to receive(:safe?).and_return(true)
+    allow(ClamAV::PatchClient).to receive(:new).and_return(clam_av_patch_client)
+  end
+
 
   describe '#perfect_metadata' do
     subject { perfect_metadata(upload_submission, parts, timestamp) }
