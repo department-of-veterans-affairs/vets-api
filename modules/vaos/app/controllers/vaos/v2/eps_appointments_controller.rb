@@ -4,14 +4,14 @@ module VAOS
   module V2
     class EpsAppointmentsController < VAOS::BaseController
       def show
-        appointment_data = appointment_service.get_appointment(
+        appointment = appointment_service.get_appointment(
           appointment_id: eps_appointment_id,
           retrieve_latest_details: true
         )
 
-        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment_data[:state] == 'draft'
+        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
 
-        response_object = assemble_appt_response_object(appointment_data)
+        response_object = assemble_appt_response_object(appointment)
         render json: response_object
       end
 
@@ -55,10 +55,10 @@ module VAOS
       ##
       # Fetches provider information for the given appointment.
       #
-      # @param appointment_data [Hash] The appointment data containing provider service ID
+      # @param appointment [Hash] The appointment data containing provider service ID
       # @return [Object, nil] Provider object or nil if no provider ID is found
-      def fetch_provider(appointment_data)
-        provider_id = appointment_data[:provider_service_id]
+      def fetch_provider(appointment)
+        provider_id = appointment[:provider_service_id]
         return nil if provider_id.nil?
 
         provider_service.get_provider_service(provider_id:)
