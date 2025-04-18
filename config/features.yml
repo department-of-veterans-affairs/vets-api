@@ -15,6 +15,10 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  accredited_representative_portal_custom_login:
+    actor_type: cookie_id
+    description: Controls whether the ARP application uses its custom login page or the platform login.
+    enable_in_development: true
   accredited_representative_portal_frontend:
     actor_type: user
     description: Enables the frontend of the accredited representative portal
