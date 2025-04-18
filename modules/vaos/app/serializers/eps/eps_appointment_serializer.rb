@@ -4,29 +4,17 @@ module Eps
   class EpsAppointmentSerializer
     include JSONAPI::Serializer
 
-    attribute :id do |object|
-      object.appointment[:id]
-    end
+    attribute :id, &:id
 
-    attribute :status do |object|
-      object.appointment[:status]
-    end
+    attribute :status, &:status
 
-    attribute :start do |object|
-      object.appointment[:start]
-    end
+    attribute :start, &:start
 
-    attribute :type_of_care do |object|
-      object.referral_detail&.category_of_care
-    end
+    attribute :type_of_care, &:type_of_care
 
-    attribute :is_latest do |object|
-      object.appointment[:is_latest]
-    end
+    attribute :is_latest, &:is_latest
 
-    attribute :last_retrieved do |object|
-      object.appointment[:last_retrieved]
-    end
+    attribute :last_retrieved, &:last_retrieved
 
     attribute :modality do |_object|
       # NOTE: this is intentionally hardcoded for now for prototype,
@@ -35,18 +23,6 @@ module Eps
       'OV'
     end
 
-    attribute :provider do |object|
-      next if object.provider.nil?
-
-      {
-        id: object.provider.id,
-        name: object.provider.name,
-        is_active: object.provider.is_active,
-        organization: object.provider.provider_organization,
-        location: object.provider.location,
-        network_ids: object.provider.network_ids,
-        phone_number: object.referral_detail&.phone_number
-      }.compact
-    end
+    attribute :provider, &:provider_details
   end
 end

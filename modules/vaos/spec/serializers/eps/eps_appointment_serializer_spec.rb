@@ -25,33 +25,34 @@ RSpec.describe Eps::EpsAppointmentSerializer do
     )
   end
 
-  let(:referral_detail) do
-    double(
-      category_of_care: 'CARDIOLOGY',
-      phone_number: '1234567890'
-    )
-  end
-
-  let(:appointment) do
-    {
+  let(:eps_appointment) do
+    instance_double(
+      VAOS::V2::EpsAppointment,
       id: 'qdm61cJ5',
       status: 'booked',
       start: '2024-11-21T18:00:00Z',
-      appointmentDetails: {
-        status: 'booked',
-        start: '2024-11-21T18:00:00Z',
-        isLatest: true,
-        lastRetrieved: '2023-10-01T12:00:00Z'
-      }
-    }
-  end
-
-  let(:eps_appointment) do
-    double(
-      id: 'qdm61cJ5',
-      appointment:,
+      is_latest: true,
+      last_retrieved: '2023-10-01T12:00:00Z',
+      type_of_care: 'CARDIOLOGY',
+      referral_phone_number: '1234567890',
       provider:,
-      referral_detail:
+      provider_details: {
+        id: 'test-provider-id',
+        name: 'Timothy Bob',
+        is_active: true,
+        organization: {
+          name: 'test-provider-org-name'
+        },
+        location: {
+          name: 'Test Medical Complex',
+          address: '207 Davishill Ln',
+          latitude: 33.058736,
+          longitude: -80.032819,
+          timezone: 'America/New_York'
+        },
+        network_ids: ['sandbox-network-test'],
+        phone_number: '1234567890'
+      }
     )
   end
 
@@ -90,116 +91,100 @@ RSpec.describe Eps::EpsAppointmentSerializer do
 
   describe 'edge cases' do
     context 'when provider is nil' do
-      let(:provider) { nil }
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
+          status: 'booked',
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          type_of_care: 'CARDIOLOGY',
+          referral_phone_number: '1234567890',
+          provider: nil,
+          provider_details: nil
+        )
+      end
 
       it 'returns nil for provider' do
         expect(serialized[:data][:attributes][:provider]).to be_nil
       end
     end
 
-    context 'when referral_detail is nil' do
-      let(:referral_detail) { nil }
+    context 'when type_of_care is nil' do
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
+          status: 'booked',
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          type_of_care: nil,
+          referral_phone_number: nil,
+          provider:,
+          provider_details: {
+            id: 'test-provider-id',
+            name: 'Timothy Bob',
+            is_active: true,
+            organization: {
+              name: 'test-provider-org-name'
+            },
+            location: {
+              name: 'Test Medical Complex',
+              address: '207 Davishill Ln',
+              latitude: 33.058736,
+              longitude: -80.032819,
+              timezone: 'America/New_York'
+            },
+            network_ids: ['sandbox-network-test']
+          }
+        )
+      end
 
       it 'has nil for type_of_care' do
         expect(serialized[:data][:attributes][:type_of_care]).to be_nil
       end
 
-      it 'does not include phone_number from referral in provider data' do
-        expect(serialized[:data][:attributes][:provider]).not_to have_key(:phone_number)
-      end
-    end
-
-    context 'when provider has phone_number but referral_detail is nil' do
-      let(:provider) do
-        double(
-          id: 'test-provider-id',
-          name: 'Timothy Bob',
-          is_active: true,
-          provider_organization: {
-            name: 'test-provider-org-name'
-          },
-          location: {
-            name: 'Test Medical Complex',
-            address: '207 Davishill Ln',
-            latitude: 33.058736,
-            longitude: -80.032819,
-            timezone: 'America/New_York'
-          },
-          network_ids: ['sandbox-network-test'],
-          phone_number: '555-123-4567'
-        )
-      end
-
-      let(:referral_detail) { nil }
-
       it 'does not include phone_number in provider data' do
         expect(serialized[:data][:attributes][:provider]).not_to have_key(:phone_number)
       end
     end
 
-    context 'when provider and referral_detail have phone numbers' do
-      let(:provider) do
-        double(
-          id: 'test-provider-id',
-          name: 'Timothy Bob',
-          is_active: true,
-          provider_organization: {
-            name: 'test-provider-org-name'
-          },
-          location: {
-            name: 'Test Medical Complex',
-            address: '207 Davishill Ln',
-            latitude: 33.058736,
-            longitude: -80.032819,
-            timezone: 'America/New_York'
-          },
-          network_ids: ['sandbox-network-test'],
-          phone_number: '555-123-4567'
+    context 'when referral_phone_number is nil but provider details include phone' do
+      let(:eps_appointment) do
+        instance_double(
+          VAOS::V2::EpsAppointment,
+          id: 'qdm61cJ5',
+          status: 'booked',
+          start: '2024-11-21T18:00:00Z',
+          is_latest: true,
+          last_retrieved: '2023-10-01T12:00:00Z',
+          type_of_care: 'CARDIOLOGY',
+          referral_phone_number: nil,
+          provider:,
+          provider_details: {
+            id: 'test-provider-id',
+            name: 'Timothy Bob',
+            is_active: true,
+            organization: {
+              name: 'test-provider-org-name'
+            },
+            location: {
+              name: 'Test Medical Complex',
+              address: '207 Davishill Ln',
+              latitude: 33.058736,
+              longitude: -80.032819,
+              timezone: 'America/New_York'
+            },
+            network_ids: ['sandbox-network-test'],
+            phone_number: '555-123-4567'
+          }
         )
       end
 
-      let(:referral_detail) do
-        double(
-          category_of_care: 'CARDIOLOGY',
-          phone_number: '1234567890'
-        )
-      end
-
-      it 'uses phone_number from referral_detail' do
-        expect(serialized[:data][:attributes][:provider][:phone_number]).to eq('1234567890')
-      end
-    end
-
-    context 'when no phone numbers are available' do
-      let(:provider) do
-        double(
-          id: 'test-provider-id',
-          name: 'Timothy Bob',
-          is_active: true,
-          provider_organization: {
-            name: 'test-provider-org-name'
-          },
-          location: {
-            name: 'Test Medical Complex',
-            address: '207 Davishill Ln',
-            latitude: 33.058736,
-            longitude: -80.032819,
-            timezone: 'America/New_York'
-          },
-          network_ids: ['sandbox-network-test'],
-          phone_number: nil
-        )
-      end
-
-      let(:referral_detail) do
-        double(
-          category_of_care: 'CARDIOLOGY',
-          phone_number: nil
-        )
-      end
-
-      it 'does not include phone_number in provider data' do
-        expect(serialized[:data][:attributes][:provider]).not_to have_key(:phone_number)
+      it 'includes provider_details phone_number in provider data' do
+        expect(serialized[:data][:attributes][:provider][:phone_number]).to eq('555-123-4567')
       end
     end
   end
