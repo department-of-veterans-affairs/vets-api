@@ -4,14 +4,14 @@ module VAOS
   module V2
     class EpsAppointmentsController < VAOS::BaseController
       def show
-        appointment = appointment_service.get_appointment(
+        appointment_data = appointment_service.get_appointment(
           appointment_id: eps_appointment_id,
           retrieve_latest_details: true
         )
 
-        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
+        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment_data[:state] == 'draft'
 
-        response_object = assemble_appt_response_object(appointment)
+        response_object = assemble_appt_response_object(appointment_data)
         render json: response_object
       end
 
@@ -21,27 +21,26 @@ module VAOS
       # Assembles a structured response object for an EPS appointment by:
       # 1. Fetching referral details if a referral number exists
       # 2. Fetching provider information if a provider service ID exists
-      # 3. Creating a serialized appointment object
-      # 4. Combining all data into a single response
+      # 3. Creating a comprehensive EpsAppointment object with all related data
+      # 4. Serializing the appointment object
       #
-      # @param appointment [Hash] Raw appointment data from the EPS service
+      # @param appointment_data [Hash] Raw appointment data from the EPS service
       # @return [Eps::EpsAppointmentSerializer] Serialized appointment with referral and provider data
-      def assemble_appt_response_object(appointment)
-        referral_detail = fetch_referral_detail(appointment)
-        provider = fetch_provider(appointment)
-        appointment = VAOS::V2::EpsAppointment.new(appointment).serializable_hash
-        appt_object = OpenStruct.new(id: appointment[:id], appointment:, referral_detail:, provider:)
+      def assemble_appt_response_object(appointment_data)
+        referral_detail = fetch_referral_detail(appointment_data)
+        provider = fetch_provider(appointment_data)
+        eps_appointment = VAOS::V2::EpsAppointment.new(appointment_data, referral_detail, provider)
 
-        Eps::EpsAppointmentSerializer.new(appt_object)
+        Eps::EpsAppointmentSerializer.new(eps_appointment)
       end
 
       ##
       # Retrieves referral details from CCRA service for the given appointment if a referral number is present.
       #
-      # @param appointment [Hash] The appointment data containing referral information
+      # @param appointment_data [Hash] The appointment data containing referral information
       # @return [Ccra::ReferralDetail, nil] The referral details if found, nil otherwise
-      def fetch_referral_detail(appointment)
-        referral_number = appointment.dig(:referral, :referral_number)
+      def fetch_referral_detail(appointment_data)
+        referral_number = appointment_data.dig(:referral, :referral_number)
         return nil if referral_number.blank?
 
         begin
@@ -56,10 +55,10 @@ module VAOS
       ##
       # Fetches provider information for the given appointment.
       #
-      # @param appointment [Hash] The appointment data containing provider service ID
+      # @param appointment_data [Hash] The appointment data containing provider service ID
       # @return [Object, nil] Provider object or nil if no provider ID is found
-      def fetch_provider(appointment)
-        provider_id = appointment[:provider_service_id]
+      def fetch_provider(appointment_data)
+        provider_id = appointment_data[:provider_service_id]
         return nil if provider_id.nil?
 
         provider_service.get_provider_service(provider_id:)
