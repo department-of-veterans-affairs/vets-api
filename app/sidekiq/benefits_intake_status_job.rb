@@ -16,6 +16,24 @@ class BenefitsIntakeStatusJob
   STATS_KEY = 'api.benefits_intake.submission_status'
   STALE_SLA = Settings.lighthouse.benefits_intake.report.stale_sla || 10
   BATCH_SIZE = Settings.lighthouse.benefits_intake.report.batch_size || 1000
+  FORM_IDS = BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS.keys.map(&:to_s)
+  DEFAULTS = {
+    '686C-674' => {
+      claim: SavedClaim::DependencyClaim,
+      monitor: Dependents::Monitor,
+      email_keys: %w[dependents_application veteran_contact_information email_address]
+    },
+    '28-8832' => {
+      claim: SavedClaim::EducationCareerCounselingClaim,
+      monitor: PCPG::Monitor,
+      email_keys: %w[claimantInformation emailAddress]
+    },
+    '28-1900' => {
+      claim: SavedClaim::VeteranReadinessEmploymentClaim,
+      monitor: VRE::Monitor,
+      email_keys: ['email']
+    }
+  }.freeze
 
   attr_reader :batch_size
 
@@ -49,147 +67,119 @@ class BenefitsIntakeStatusJob
       # Log the entire response for debugging purposes
       Rails.logger.info("Received bulk status response: #{response.body}")
 
-      errors << response.body unless response.success?
+      unless response.success?
+        errors << response.body
+        next
+      end
 
-      total_handled += handle_response(response)
+      total_handled += handle_response(response, batch)
     end
 
-    unless errors.empty?
-      Rails.logger.error('Errors occurred while processing Intake Status batch', class: self.class.name,
-                                                                                 errors:)
-    end
+    log_errors(errors) unless errors.empty?
 
     [total_handled, true]
   rescue => e
-    Rails.logger.error('Benefits Intake Status Job failed, some batched submissions may not have been processed',
-                       class: self.class.name, message: e.message)
+    Rails.logger.error('Benefits Intake Status Job failed', exception: e.message, backtrace: e.backtrace)
     [total_handled, false]
   end
 
-  # rubocop:disable Metrics/MethodLength
-  def handle_response(response)
-    total_handled = 0
+  def handle_response(response, batch)
+    0.tap do |total_handled|
+      form_submission_attempts_by_uuid = batch.index_by(&:benefits_intake_uuid)
 
-    # Ensure response body contains data, and log the data for debugging
-    if response.body['data'].blank?
-      Rails.logger.error("Response data is blank or missing: #{response.body}")
-      return total_handled
-    end
-
-    response.body['data']&.each do |submission|
-      uuid = submission['id']
-      form_submission_attempt = form_submission_attempts_hash[uuid]
-      form_submission = form_submission_attempt&.form_submission
-      form_id = form_submission&.form_type
-      saved_claim_id = form_submission&.saved_claim_id
-      time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
-
-      # https://developer.va.gov/explore/api/benefits-intake/docs
-      status = submission.dig('attributes', 'status')
-
-      # Log the status for debugging
-      Rails.logger.info("Processing submission UUID: #{uuid}, Status: #{status}")
-
-      lighthouse_updated_at = submission.dig('attributes', 'updated_at')
-      if status == 'expired'
-        # Expired - Indicate that documents were not successfully uploaded within the 15-minute window.
-        error_message = 'expired'
-        form_submission_attempt.update(error_message:, lighthouse_updated_at:)
-        form_submission_attempt.fail!
-        log_result('failure', form_id, uuid, time_to_transition, error_message)
-        monitor_failure(form_id, saved_claim_id, uuid)
-      elsif status == 'error'
-        # Error - Indicates that there was an error. Refer to the error code and detail for further information.
-        error_message = "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
-        form_submission_attempt.update(error_message:, lighthouse_updated_at:)
-        form_submission_attempt.fail!
-        log_result('failure', form_id, uuid, time_to_transition, error_message)
-        monitor_failure(form_id, saved_claim_id, uuid)
-      elsif status == 'vbms'
-        # submission was successfully uploaded into a Veteran's eFolder within VBMS
-        form_submission_attempt.update(lighthouse_updated_at:)
-        form_submission_attempt.vbms!
-        log_result('success', form_id, uuid, time_to_transition)
-      elsif time_to_transition > STALE_SLA.days
-        # exceeds SLA (service level agreement) days for submission completion
-        log_result('stale', form_id, uuid, time_to_transition)
-      else
-        # no change being tracked
-        log_result('pending', form_id, uuid)
-        Rails.logger.info(
-          "Submission UUID: #{uuid} is still pending, status: #{status}, time to transition: #{time_to_transition}"
-        )
+      (response.body['data'] || []).each do |response_submission|
+        total_handled += handle_submission(response_submission, form_submission_attempts_by_uuid)
       end
-
-      total_handled += 1
     end
+  end
 
-    total_handled
+  # https://developer.va.gov/explore/api/benefits-intake/docs
+  def handle_submission(response_submission, form_submission_attempts_by_uuid)
+    uuid = response_submission['id']
+    form_submission_attempt = form_submission_attempts_by_uuid[uuid]
+    return 0 unless form_submission_attempt
+
+    form_submission = form_submission_attempt.form_submission
+    form_id = form_submission&.form_type
+    saved_claim_id = form_submission&.saved_claim_id
+
+    process_submission_by_status(response_submission, form_submission_attempt, form_id, uuid, saved_claim_id)
+
+    1
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def process_submission_by_status(response_submission, form_submission_attempt, form_id, uuid, saved_claim_id)
+    time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
+    status = response_submission.dig('attributes', 'status')
+    final_status = response_submission.dig('attributes', 'final_status')
+    lighthouse_updated_at = response_submission.dig('attributes', 'updated_at')
+
+    case status
+    # Expired - Indicates that documents were not successfully uploaded within the 15-minute window.
+    # Error - Indicates that there was an error. Refer to the error code and detail for further information.
+    when 'expired', 'error'
+      error_message = if status == 'expired'
+                        'expired'
+                      else
+                        "#{response_submission.dig('attributes', 'code')}: " \
+                          "#{response_submission.dig('attributes', 'detail')}"
+                      end
+      form_submission_attempt.update(error_message:, lighthouse_updated_at:)
+      form_submission_attempt.fail!
+      log_result('failure', form_id, uuid, time_to_transition, error_message)
+      monitor_failure(form_id, saved_claim_id, uuid)
+    # VBMS - Indicates that the response_submission was successfully uploaded into a Veteran's eFolder within VBMS.
+    when 'vbms'
+      form_submission_attempt.update(lighthouse_updated_at:)
+      form_submission_attempt.vbms!
+      log_result('success', form_id, uuid, time_to_transition)
+    else
+      status = (time_to_transition > STALE_SLA.days && final_status == true ? 'stale' : 'pending')
+      log_result(status, form_id, uuid, time_to_transition)
+    end
   end
   # rubocop:enable Metrics/MethodLength
 
   def log_result(result, form_id, uuid, time_to_transition = nil, error_message = nil)
     StatsD.increment("#{STATS_KEY}.#{form_id}.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
-    if result == 'failure'
-      Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
-    else
-      Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
-    end
+
+    log_level = result == 'failure' ? :error : :info
+
+    kwargs = { result:, form_id:, uuid: }
+    kwargs[:time_to_transition] = time_to_transition if time_to_transition
+    kwargs[:error_message] = error_message if error_message
+
+    Rails.logger.public_send(log_level, 'BenefitsIntakeStatusJob', **kwargs)
   end
 
-  # rubocop:disable Metrics/MethodLength
-  def monitor_failure(form_id, saved_claim_id, bi_uuid)
-    context = {
-      form_id:,
-      claim_id: saved_claim_id,
-      benefits_intake_uuid: bi_uuid
-    }
+  def monitor_failure(form_id, claim_id, benefits_intake_uuid)
+    return unless claim_id
+
+    context = { form_id:, claim_id:, benefits_intake_uuid: }
     call_location = caller_locations.first
+    monitor_by_form_id(form_id, claim_id, context, call_location)
+  end
 
-    # Dependents
-    if %w[686C-674].include?(form_id)
-      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      email = if claim.present?
-                claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')
-              end
-      if claim.present? && email.present?
-        claim.send_failure_email(email)
-        Dependents::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
-      else
-        Dependents::Monitor.new.log_silent_failure(context, call_location:)
-      end
-    end
+  def monitor_by_form_id(form_id, saved_claim_id, context, call_location)
+    claim_class = DEFAULTS[:claim][form_id]
+    monitor = DEFAULTS[:monitor][form_id]&.new
 
-    # PCPG
-    if %w[28-8832].include?(form_id)
-      claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
-      email = claim.parsed_form.dig('claimantInformation', 'emailAddress') if claim.present?
-      if claim.present? && email.present?
-        claim.send_failure_email(email)
-        PCPG::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
-      else
-        PCPG::Monitor.new.log_silent_failure(context, call_location:)
-      end
-    end
+    return unless claim_class && monitor
 
-    # VRE
-    if %w[28-1900].include?(form_id)
-      claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
-      email = claim.parsed_form['email'] if claim.present?
-      if claim.present? && email.present?
-        claim.send_failure_email(email)
-        VRE::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
-      else
-        VRE::Monitor.new.log_silent_failure(context, call_location:)
-      end
+    claim = claim_class.find(saved_claim_id)
+    email = claim&.parsed_form&.dig(*DEFAULTS[:email_keys][form_id] || [])
+
+    if claim && email
+      claim.send_failure_email(email)
+      monitor.log_silent_failure_avoided(context, nil, call_location:)
+    else
+      monitor.log_silent_failure(context, nil, call_location:)
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
-  def form_submission_attempts_hash
-    @_form_submission_attempts_hash ||= FormSubmissionAttempt
-                                        .where(aasm_state: 'pending')
-                                        .index_by(&:benefits_intake_uuid)
+  def log_errors(errors)
+    Rails.logger.error('Errors occurred while processing Intake Status batch', class: self.class.name, errors:)
   end
 end
