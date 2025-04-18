@@ -172,7 +172,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
-  mgr.register('*/10 0-5 * * *', 'Form1095::DeleteOld1095BsJob')
+  mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
@@ -215,7 +215,14 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+  # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
+
+  # Sends emails to power of attorney claimants whose request will expire in 30 days
+  mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')
+
+  # Sends emails to power of attorney claimants whose request has expired
+  mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpiredEmailJob')
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')
@@ -225,6 +232,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
+
+  # Every hour job that retries failed VES submissions
+  mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
 
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')

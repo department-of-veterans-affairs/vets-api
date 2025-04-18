@@ -9,6 +9,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<DMC_TOKEN>') { Settings.dmc.client_secret }
+  c.filter_sensitive_data('<DMC_BASE_URL>') { Settings.dmc.url }
   c.filter_sensitive_data('<BGS_BASE_URL>') { Settings.bgs.url }
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
@@ -30,6 +31,8 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_MR_X_AUTH_KEY>') { Settings.mhv.medical_records.x_auth_key }
   c.filter_sensitive_data('<MHV_MR_APP_TOKEN>') { Settings.mhv.medical_records.app_token }
   c.filter_sensitive_data('<MHV_X_API_KEY>') { Settings.mhv.medical_records.mhv_x_api_key }
+  c.filter_sensitive_data('<MHV_MR_X_API_KEY>') { Settings.mhv.medical_records.x_api_key }
+  c.filter_sensitive_data('<MHV_MR_X_API_KEY_V2>') { Settings.mhv.medical_records.x_api_key_v2 }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
   c.filter_sensitive_data('<MPI_URL>') { IdentitySettings.mvi.url }
@@ -49,8 +52,6 @@ VCR.configure do |c|
     Settings.lighthouse.benefits_education.client_id
   end
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
-  c.filter_sensitive_data('<VRO_URL>') { Settings.virtual_regional_office.url }
-  c.filter_sensitive_data('<VRO_API_KEY>') { Settings.virtual_regional_office.api_key }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
   c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
@@ -62,7 +63,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<ARP_ALLOW_LIST_REPO>') { Settings.accredited_representative_portal.allow_list.github.repo }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_PATH>') { Settings.accredited_representative_portal.allow_list.github.path }
   c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
-  c.filter_sensitive_data('<VAOS_CCRA_TOKEN_URL>') { Settings.vaos.ccra.access_token_url }
+  c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
   c.before_record do |i|
     %i[response request].each do |env|

@@ -8,6 +8,7 @@ require 'lighthouse/facilities/v1/client'
 module V0
   class HealthCareApplicationsController < ApplicationController
     include IgnoreNotFound
+    include RetriableConcern
 
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
@@ -38,7 +39,6 @@ module V0
     end
 
     def create
-      health_care_application.async_compatible = params[:async_all]
       health_care_application.google_analytics_client_id = params[:ga_client_id]
       health_care_application.user = current_user
 
@@ -83,10 +83,11 @@ module V0
       render json: facilities.map { |facility| { id: facility.station_number, name: facility.name } }
     end
 
-    # If we were unable to submit the user's claim digitally, we allow them to the download
-    # the 10-10EZ PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      source_file_path = PdfFill::Filler.fill_form(health_care_application, SecureRandom.uuid)
+      file_name = SecureRandom.uuid
+      source_file_path = with_retries('Generate 10-10EZ PDF') do
+        PdfFill::Filler.fill_form(health_care_application, file_name)
+      end
 
       client_file_name = file_name_for_pdf(health_care_application.parsed_form)
       file_contents    = File.read(source_file_path)

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/v1/client'
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
@@ -40,8 +39,6 @@ module V0
       raise e
     end
 
-    # If we were unable to submit the user's claim digitally, we allow them to the download
-    # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
       source_file_path = if Flipper.enabled?(:caregiver_retry_pdf_fill)
                            file_name = SecureRandom.uuid
@@ -70,12 +67,7 @@ module V0
     private
 
     def lighthouse_facilities_service
-      @lighthouse_facilities_service ||=
-        if Flipper.enabled?(:caregiver_use_facilities_API_V2)
-          FacilitiesApi::V2::Lighthouse::Client.new
-        else
-          Lighthouse::Facilities::V1::Client.new
-        end
+      @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
     end
 
     def lighthouse_facilities_params

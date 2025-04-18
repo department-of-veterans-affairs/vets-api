@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/DocumentReference?_count=9999&patient=2952&status:not=entered-in-error&type=11506-3,18842-5,11488-4"
+      uri: "<MHV_MR_HOST>/fhir/DocumentReference?_count=200&category=http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category%7Cclinical-note&patient=2952&status:not=entered-in-error"
       body:
         encoding: US-ASCII
         string: ""

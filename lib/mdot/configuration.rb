@@ -17,7 +17,7 @@ module MDOT
 
     def connection
       @connection = Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
-        f.use(:breakers, service_name:)
+        f.use(:breakers, service_name:) if breakers_enabled?
         f.request :json
         f.use Faraday::Response::RaiseError
         f.response :betamocks if mock_enabled?
@@ -29,6 +29,10 @@ module MDOT
 
     def mock_enabled?
       Settings.mdot.mock || false
+    end
+
+    def breakers_enabled?
+      Settings.mdot.breakers || false
     end
   end
 end

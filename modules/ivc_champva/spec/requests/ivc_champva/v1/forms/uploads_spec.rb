@@ -30,7 +30,10 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     allow(IvcChampva::VesDataFormatter).to receive(:format_for_request).and_return(ves_request)
     allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
     allow(ves_client).to receive(:submit_1010d).with(anything, anything, anything)
-    allow(ves_request).to receive(:transaction_uuid).and_return('78444a0b-3ac8-454d-a28d-8d63cddd0d3b')
+    allow(ves_request).to receive_messages(transaction_uuid: '78444a0b-3ac8-454d-a28d-8d63cddd0d3b',
+                                           application_uuid: 'test-uuid')
+    allow(ves_request).to receive(:transaction_uuid=)
+    allow(ves_request).to receive(:to_json).and_return('{}')
   end
 
   after do
@@ -95,6 +98,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           with_settings(Settings, vsp_environment: 'staging') do
             controller = IvcChampva::V1::UploadsController.new
             allow(controller).to receive_messages(call_handle_file_uploads: [[200], nil],
+                                                  call_upload_form: [[200], nil],
+                                                  get_file_paths_and_metadata: [[['path'], {}], {}],
                                                   params: ActionController::Parameters.new(data))
             allow(controller).to receive(:render)
 
@@ -156,7 +161,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           with_settings(Settings, vsp_environment: 'staging') do
             if data['form_number'] == '10-10D'
               controller = IvcChampva::V1::UploadsController.new
-              allow(controller).to receive_messages(call_handle_file_uploads: [[400], 'oh no'],
+              allow(controller).to receive_messages(call_upload_form: [[400], 'oh no'],
+                                                    get_file_paths_and_metadata: [[['path'], {}], {}],
                                                     params: ActionController::Parameters.new(data))
               allow(controller).to receive(:render)
 
@@ -189,6 +195,26 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             end
           end
         end
+
+        it 'retries VES submission if it fails' do
+          with_settings(Settings, vsp_environment: 'staging') do
+            if data['form_number'] == '10-10D'
+              allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
+
+              controller = IvcChampva::V1::UploadsController.new
+
+              allow(ves_client).to receive(:submit_1010d)
+                .with(anything, anything, anything)
+                .and_raise(IvcChampva::VesApi::VesApiError.new('oh no'))
+
+              allow(IvcChampva::VesApi::Client).to receive(:new).and_return(ves_client)
+
+              controller.send(:submit_ves_request, ves_request, {})
+
+              expect(ves_client).to have_received(:submit_1010d).twice
+            end
+          end
+        end
       end
     end
   end
@@ -213,6 +239,13 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         post '/ivc_champva/v1/forms', params: data
         expect(ves_client).not_to have_received(:submit_1010d)
       end
+    end
+  end
+
+  describe 'stored ves data is encrypted' do
+    it 'ves_request_data is encrypted' do
+      # This is the only part of the test we actually need
+      expect(IvcChampvaForm.new).to encrypt_attr(:ves_request_data)
     end
   end
 

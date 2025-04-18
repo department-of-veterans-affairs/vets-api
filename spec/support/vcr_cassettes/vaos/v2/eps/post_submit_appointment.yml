@@ -46,6 +46,31 @@ http_interactions:
           - d0dd452c145554577bd09a839de81928
       body:
         encoding: UTF-8
-        string: '{"id":"J9BhspdR","state":"draft","patientId":"1012845331V153043"}'
+        string: |
+          {
+            "appointmentDetails": {
+              "cancelReason": {
+                "id": "930c8a9f-ce78-449c-8dda-d5428d183ec8",
+                "name": "Patient"
+              },
+              "isLatest": true,
+              "lastRetrieved": "2002-01-31T04:51:25Z",
+              "phone": "555-555-1000",
+              "start": "2026-01-01T17:00:00Z",
+              "status": "booked"
+            },
+            "error": "conflict",
+            "id": "J9BhspdR",
+            "networkId": "00eff3f3-ecfb-41ff-9ebc-78ed811e17f9",
+            "patientId": "b6cc1875-5313-4ca8-af8b-74adac0c5d0c",
+            "providerServiceId": "69cd9203-5e92-47a3-aa03-94b03752872a",
+            "referral": {
+              "referralNumber": "12345"
+            },
+            "slotIds": [
+              "dba0855e-5681-411d-801c-036f4f046988"
+            ],
+            "state": "submitted"
+          }
     recorded_at: Tue, 07 Jan 2025 18:36:41 GMT
 recorded_with: VCR 6.3.1
