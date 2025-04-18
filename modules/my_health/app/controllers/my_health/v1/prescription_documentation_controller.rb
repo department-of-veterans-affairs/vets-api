@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class PrescriptionDocumentationController < RxController
+    class PrescriptionDocumentationController < MyHealth::RxController
       def index
         if Flipper.enabled?(:mhv_medications_display_documentation_content, @current_user)
           begin
