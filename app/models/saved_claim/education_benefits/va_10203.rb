@@ -40,7 +40,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       user_uuid: @user.uuid,
       user_account: @user.user_account,
       auth_headers_json: EVSS::AuthHeaders.new(@user).to_h.to_json,
-      poa: nil,
       remaining_entitlement:
     ).save
   end
