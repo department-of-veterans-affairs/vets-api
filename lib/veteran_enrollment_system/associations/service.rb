@@ -28,15 +28,12 @@ module VeteranEnrollmentSystem
         with_monitoring do
           transformed_associations = transform_associations(@parsed_form['veteranContacts'])
 
-          debugger
-
-          # perform(
-          #   :put,
-          #   "#{config.base_path}/#{@current_user.icn}",
-          #   transformed_associations,
-          #   headers: config.base_request_headers
-          # )
-          puts 'hey'
+          perform(
+            :put,
+            "#{config.base_path}/#{@current_user.icn}",
+            transformed_associations,
+            headers: config.base_request_headers
+          )
         end
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")

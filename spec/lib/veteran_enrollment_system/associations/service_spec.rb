@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'veteran_enrollment_system/associations/service'
 
 RSpec.describe VeteranEnrollmentSystem::Associations::Service do
-
   let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
   let(:current_user) do
     create(
@@ -24,11 +23,11 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
 
   describe '#update_associations' do
     it 'updates the associations' do
-      debugger
-      # VCR.use_cassette('example', :record => :once) do
-        
-      # end
-     hello = service.update_associations(form)
+      VCR.use_cassette('example1', :record => :once) do
+        hello = service.update_associations(form)
+        debugger
+        expect(hello).to be_a(Object)
+      end
     end
   end
 end

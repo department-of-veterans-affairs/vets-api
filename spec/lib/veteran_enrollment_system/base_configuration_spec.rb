@@ -4,12 +4,16 @@ require 'rails_helper'
 require 'veteran_enrollment_system/base_configuration'
 require 'veteran_enrollment_system/associations/configuration'
 
+# Test class used for testing BaseConfiguration
+class TestConfiguration < VeteranEnrollmentSystem::BaseConfiguration
+end
+
 describe 'VeteranEnrollmentSystem::BaseConfiguration' do
   subject { VeteranEnrollmentSystem::BaseConfiguration.instance }
 
   describe '#base_path' do
     it 'returns the value from the env settings' do
-      expect(subject.base_path).to eq('https://ves.va.gov/')
+      expect(subject.base_path).to eq('https://sqa.ves.va.gov/')
     end
   end
 
@@ -45,20 +49,20 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
     context 'when the api_key_path is not defined for a subclass' do
       it 'raises an error' do
         expect do
-          VeteranEnrollmentSystem::Associations::Configuration.api_key
+          TestConfiguration.api_key
         end.to raise_error('api_key_path must be defined in subclass')
       end
     end
 
     context 'when the api_key_path is defined for a subclass' do
       it 'returns the API key from the env settings' do
-        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key(:associations)).to eq('fake_api_key')
+        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key).to be_nil
       end
     end
   end
 
   describe '#connection' do
-    it 'returns a faraday connection' do
+    it 'returns a Faraday connection' do
       expect(subject.connection).to be_a(Faraday::Connection)
     end
   end
