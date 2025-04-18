@@ -26,7 +26,7 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
-    context "when 'ezr_prefill_contacts' is disabled" do
+    context "when 'ezr_prefill_contacts' flipper is disabled" do
       before do
         allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(false)
       end
@@ -46,13 +46,13 @@ describe HCA::EnrollmentEligibility::Service do
           allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
         end
 
-        it 'gets Veteran data with without contacts, providers, or dependents' do
+        it 'gets Veteran data without contacts, providers, or dependents' do
           expect_veteran_data_to_match(veteran_data.except('providers', 'dependents', 'veteranContacts'))
         end
       end
     end
 
-    context "when 'ezr_prefill_contacts' is enabled" do
+    context "when 'ezr_prefill_contacts' flipper is enabled" do
       before do
         allow(Flipper).to receive(:enabled?).with(:ezr_prefill_contacts).and_return(true)
       end
@@ -62,7 +62,7 @@ describe HCA::EnrollmentEligibility::Service do
           allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(true)
         end
 
-        it 'gets Veteran data with contacts and with providers and dependents' do
+        it 'gets Veteran data with contacts, providers and dependents' do
           expect_veteran_data_to_match(veteran_data)
         end
       end
@@ -72,7 +72,7 @@ describe HCA::EnrollmentEligibility::Service do
           allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
         end
 
-        it 'gets Veteran data with without contacts and with providers and dependents' do
+        it 'gets Veteran data without contacts and with providers and dependents' do
           expect_veteran_data_to_match(veteran_data.except('providers', 'dependents'))
         end
       end
