@@ -59,7 +59,7 @@
         "middle": "JESSICA",
         "last": "BISHOP"
       },
-      "primaryPhone": "(274)294-3384",
+      "primaryPhone": "2742943384",
       "address": {
         "street": "748 TEST ST",
         "street2": "APT 394",
@@ -69,7 +69,7 @@
         "country": "USA",
         "postalCode": "87109"
       },
-      "relationship": "Daughter",
+      "relationship": "DAUGHTER",
       "contactType": "Other Next of Kin"
     },
     {
@@ -77,7 +77,7 @@
         "first": "DEBORAH",
         "last": "WILLIAMS"
       },
-      "primaryPhone": "(927)737-7486",
+      "primaryPhone": "9277377486",
       "address": {
         "street": "2645 TEST WAY",
         "street2": "UNIT 192",
@@ -86,7 +86,7 @@
         "state": "FL",
         "postalCode": "33760"
       },
-      "relationship": "Unrelated friend",
+      "relationship": "UNRELATED FRIEND",
       "contactType": "Other emergency contact"
     },
     {
@@ -95,7 +95,7 @@
         "middle": "JEREMY",
         "last": "BISHOP"
       },
-      "primaryPhone": "(439)573-8274",
+      "primaryPhone": "4395738274",
       "address": {
         "street": "9758 TEST AVE",
         "city": "ALBUQUERQUE",
@@ -103,7 +103,7 @@
         "state": "NM",
         "postalCode": "87109"
       },
-      "relationship": "Brother",
+      "relationship": "BROTHER",
       "contactType": "Emergency Contact"
     },
     {
@@ -111,7 +111,7 @@
         "first": "JANE",
         "last": "BISHOP"
       },
-      "primaryPhone": "(202)394-6688",
+      "primaryPhone": "2023946688",
       "address": {
         "street": "823 SE 2ND ST",
         "street2": "BLDG 2",
@@ -120,7 +120,7 @@
         "country": "MEX",
         "postalCode": "44100"
       },
-      "relationship": "Mother",
+      "relationship": "MOTHER",
       "contactType": "Primary Next of Kin"
     }
   ],

@@ -6,6 +6,7 @@ require_relative 'configuration'
 
 module HCA
   module EnrollmentEligibility
+    # rubocop:disable Metrics/ClassLength
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
@@ -48,7 +49,7 @@ module HCA
         %i[street2 line2],
         %i[street3 line3],
         %i[city city],
-        %i[country country],
+        %i[country country]
       ].freeze
 
       MEDICARE = 'Medicare'
@@ -304,9 +305,9 @@ module HCA
 
           contact = {
             fullName: {},
-            relationship: get_locate_value(association, 'relationship').downcase.upcase_first,
+            relationship: get_locate_value(association, 'relationship'),
             contactType: get_locate_value(association, 'contactType'),
-            primaryPhone: get_locate_value(association, 'primaryPhone'),
+            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()\-]/, ''),
             address: get_address_from_association(association)
           }
           fill_contact_full_name_from_association(contact, association)
@@ -339,7 +340,7 @@ module HCA
 
       def fill_address_mappings_from_association(address, association)
         ADDRESS_MAPPINGS.each do |address_map|
-          address[address_map[0]] = get_locate_value(association, "address/#{address_map[1]}")
+          address[address_map.first] = get_locate_value(association, "address/#{address_map.last}")
         end
       end
 
@@ -355,33 +356,25 @@ module HCA
       end
 
       def fill_mexico_address_from_association(address, association)
-        address[:state] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert["#{address[:state]}"]
-        address[:postalCode] = get_postal_code_from_association(association)
+        address[:state] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address[:state]]
+        address[:postalCode] = get_locate_value(association, 'address/postalCode')
       end
 
       def fill_usa_address_from_association(address, association)
-        address[:state] = get_locate_value(association, "address/state")
-        zip_code = get_locate_value(association, "address/zipCode")
-        zip_plus_4 = get_locate_value(association, "address/zipPlus4")
-        if zip_plus_4.present?
-          address[:postalCode] = "#{zip_code}-#{zip_plus_4}"
-        else
-          address[:postalCode] = zip_code
-        end
+        address[:state] = get_locate_value(association, 'address/state')
+        zip_code = get_locate_value(association, 'address/zipCode')
+        zip_plus4 = get_locate_value(association, 'address/zipPlus4')
+        address[:postalCode] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
       end
 
       def fill_other_address_from_association(address, association)
-        address[:state] = get_locate_value(association, "address/provinceCode")
-        address[:postalCode] = get_postal_code_from_association(association)
-      end
-
-      def get_postal_code_from_association(association)
-        get_locate_value(association, "address/postalCode")
+        address[:state] = get_locate_value(association, 'address/provinceCode')
+        address[:postalCode] = get_locate_value(association, 'address/postalCode')
       end
 
       def fill_contact_full_name_from_association(contact, association)
         NAME_MAPPINGS.each do |mapping|
-          contact[:fullName][mapping[0]] = get_locate_value(association, "#{mapping[1]}")
+          contact[:fullName][mapping.first] = get_locate_value(association, mapping.last.to_s)
         end
       end
 
@@ -500,5 +493,6 @@ module HCA
       end
       # rubocop:enable Metrics/MethodLength
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
