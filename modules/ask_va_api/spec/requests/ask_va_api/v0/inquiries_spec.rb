@@ -303,7 +303,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
     end
 
-    it_behaves_like 'an endpoint requiring loa3', :get, "/ask_va_api/v0/inquiries/A-1", { params: { user_mock_data: true } }
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/inquiries/A-1',
+                    { params: { user_mock_data: true } }
   end
 
   describe 'GET #download_attachment' do
@@ -313,17 +314,17 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       before do
         sign_in(authorized_user)
       end
-  
+
       context 'when successful' do
         before do
           get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
         end
-  
+
         it 'response with 200' do
           expect(response).to have_http_status(:ok)
         end
       end
-  
+
       context 'when Crm raise an error' do
         let(:body) do
           '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
@@ -331,21 +332,22 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
         end
         let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-  
+
         before do
           allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
           get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
         end
-  
+
         it 'raise the error' do
           expect(response).to have_http_status(:unprocessable_entity)
         end
-      end  
+      end
     end
 
-    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/download_attachment', { params: { id:, mock: true } }
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/download_attachment',
+                    { params: { id:, mock: true } }
   end
 
   describe 'GET #profile' do
@@ -503,10 +505,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             # inquiry_params is in include_context 'shared data'
             post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
           end
-  
+
           it { expect(response).to have_http_status(:created) }
         end
-  
+
         context 'when crm api fail' do
           context 'when the API call fails' do
             let(:body) do
@@ -515,14 +517,14 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                 'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
             end
             let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-  
+
             before do
               allow_any_instance_of(Crm::Service).to receive(:call)
                 .and_return(failure)
               sign_in(authorized_user)
               post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
             end
-  
+
             it 'raise InquiriesCreatorError and set span safe_fields' do
               expect(response).to have_http_status(:unprocessable_entity)
               safe_fields.each do |field|
@@ -532,7 +534,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                 )
               end
             end
-  
+
             it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                             'InquiriesCreatorError: {"Data":null,"Message":' \
                             '"Data Validation: missing InquiryCategory"' \
@@ -646,6 +648,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
     end
 
-    it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/123/reply/new', { params: { reply: 'reply'} }
+    it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/123/reply/new',
+                    { params: { reply: 'reply' } }
   end
 end
