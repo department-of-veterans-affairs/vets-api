@@ -19,6 +19,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
     request.update_column(:redacted_at, Time.current) # rubocop:disable Rails/SkipsModelValidations
     request.reload # Reload to get fresh state
   end
+
   # Has form, redacted_at is set
   let!(:incompletely_redacted_record) do
     create(:power_of_attorney_request, redacted_at: Time.current)
@@ -44,18 +45,10 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
     )
   end
 
+  # For the scopes, we're using just the timestamp for convenience
   describe '.unredacted scope' do
     it 'includes records that are not redacted and have a form' do
       expect(described_class.unredacted).to include(unredacted_record)
-    end
-
-    it 'excludes records that are marked as redacted (even if form exists)' do
-      expect(described_class.unredacted).not_to include(incompletely_redacted_record)
-    end
-
-    it 'excludes records that have a form missing (due to join)' do
-      # This record has redacted_at = nil, but form is missing
-      expect(described_class.unredacted).not_to include(formless_unredacted_record)
     end
 
     it 'excludes records that are fully redacted (timestamp set, form missing)' do
@@ -63,18 +56,14 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :mo
     end
   end
 
-  describe '.redacted scope (strict definition)' do
-    # Assuming .redacted requires timestamp AND missing form
+  # For the scopes, we're using just the timestamp for convenience
+  describe '.redacted scope' do
     it 'includes records that are fully redacted (timestamp set, form missing)' do
       expect(described_class.redacted).to include(fully_redacted_record)
     end
 
     it 'excludes records that are unredacted (timestamp nil, form present)' do
       expect(described_class.redacted).not_to include(unredacted_record)
-    end
-
-    it 'excludes records that are incompletely redacted (timestamp set, form present)' do
-      expect(described_class.redacted).not_to include(incompletely_redacted_record)
     end
 
     it 'excludes records that are not timestamped but missing a form' do

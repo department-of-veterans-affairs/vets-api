@@ -30,26 +30,47 @@ module AccreditedRepresentativePortal
     end
 
     def expired_request_ids
-      PowerOfAttorneyRequest
-        .joins(:resolution)
-        .unredacted
-        .where(resolution: {
-                 resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration'
-               }).ids
+      or_conditions_sql = <<~SQL.squish
+        (ar_power_of_attorney_form_submissions.service_response_ciphertext IS NOT NULL OR
+         ar_power_of_attorney_form_submissions.error_message_ciphertext IS NOT NULL OR
+         resolution.reason_ciphertext IS NOT NULL)
+      SQL
+
+      base_query = PowerOfAttorneyRequest
+                   .joins(
+                     :resolution,
+                     :power_of_attorney_form,
+                     :power_of_attorney_form_submission
+                   )
+                   .where(redacted_at: nil)
+                   .where(resolution: {
+                            resolving_type: PowerOfAttorneyRequestExpiration.name
+                          })
+
+      final_query = base_query.where(or_conditions_sql)
+      final_query.distinct.ids
     end
 
     def stale_processed_request_ids
       threshold = Time.current - STALE_RESOLUTION_DURATION
-      resolution_table_alias = 'resolution' # The alias defined in processed_join_sql; need to match
+      resolution_alias = 'resolution'
+      submission_alias = 'succeeded_form_submission'
 
-      PowerOfAttorneyRequest
-        .processed
-        .unredacted
-        .where("#{resolution_table_alias}.created_at < ?", threshold)
-        .where.not(
-          "#{resolution_table_alias}.resolving_type = ?",
-          'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration'
-        ).ids
+      or_conditions_sql = <<~SQL.squish
+        (#{submission_alias}.service_response_ciphertext IS NOT NULL OR
+         #{submission_alias}.error_message_ciphertext IS NOT NULL OR
+         #{resolution_alias}.reason_ciphertext IS NOT NULL)
+      SQL
+
+      query = PowerOfAttorneyRequest
+              .processed
+              .where(redacted_at: nil)
+              .where("#{resolution_alias}.created_at < ?", threshold)
+              .where.not(
+                "#{resolution_alias}.resolving_type = ?", PowerOfAttorneyRequestExpiration.name
+              ).where(or_conditions_sql)
+
+      query.distinct.ids
     end
 
     def process_requests(requests_to_process)
