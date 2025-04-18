@@ -25,7 +25,9 @@ module V0
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
-      itf_creation(form)
+
+      # only execute on the initial save of the ipf
+      itf_creation(form) if form.id_previously_changed?
 
       render json: InProgressFormSerializer.new(form)
     end
@@ -70,7 +72,7 @@ module V0
         itf_monitor.track_create_itf_initiated(form.form_id, form.created_at, @current_user.uuid, form.id)
 
         begin
-          Lighthouse::CreateIntentToFileJob.new.perform(form.id, @current_user.icn, @current_user.participant_id)
+          Lighthouse::CreateIntentToFileJob.perform_async(form.id, @current_user.icn, @current_user.participant_id)
         rescue Common::Exceptions::ResourceNotFound
           # prevent false error being reported to user - ICN present but not found by BenefitsClaims
           # todo: handle itf process from frontend
