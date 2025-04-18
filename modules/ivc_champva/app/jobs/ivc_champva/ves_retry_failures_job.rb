@@ -14,7 +14,7 @@ module IvcChampva
                     Settings.vsp_environment != 'production'
 
       # Get all failed VES submissions
-      failed_ves_submissions = IvcChampvaForm.where.not(ves_status: 'ok')
+      failed_ves_submissions = IvcChampvaForm.where.not(ves_status: [nil, 'ok'])
 
       return unless failed_ves_submissions.any?
 
@@ -24,10 +24,11 @@ module IvcChampva
       # Retry the failed submissions
       failed_ves_submissions.each do |record|
         begin # rubocop:disable Style/RedundantBegin
-          # for all records older than 4 hours, increment the StatsD counter and don't retry
-          # if the failure is less than 4 hours old, retry the submission
-          # note: 4 hours chosen due to 1 hour interval between retries and we want to alert after 5 retries
-          if record.created_at < 4.hours.ago
+          # for all records older than 5 hours, increment the StatsD counter and don't retry
+          # if the failure is less than 5 hours old, retry the submission
+          next if record.ves_request_data.nil?
+
+          if record.created_at < 5.hours.ago
             StatsD.increment('ivc_champva.ves_submission_failures', tags: ["id:#{record.form_uuid}"])
           else
             resubmit_ves_request(record)

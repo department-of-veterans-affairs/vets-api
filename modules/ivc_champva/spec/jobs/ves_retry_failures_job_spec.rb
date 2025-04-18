@@ -69,10 +69,10 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
       before do
         query_relation = double('ActiveRecord::Relation')
         allow(IvcChampvaForm).to receive(:where).with(no_args).and_return(query_relation)
-        allow(query_relation).to receive(:not).with(ves_status: 'ok').and_return([recent_record, old_record])
+        allow(query_relation).to receive(:not).with(ves_status: [nil, 'ok']).and_return([recent_record, old_record])
       end
 
-      it 'processes only records newer than 4 hours' do
+      it 'processes only records newer than 5 hours' do
         job.perform
 
         expect(ves_client).to have_received(:submit_1010d).once
@@ -101,13 +101,27 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
         expect(StatsD).to have_received(:gauge).with('ivc_champva.ves_submission_failures.count', 2)
       end
 
-      it 'properly queries for non-ok records' do
+      it 'properly queries for non-ok records excluding nil status' do
         query_relation = double('ActiveRecord::Relation')
 
         expect(IvcChampvaForm).to receive(:where).with(no_args).and_return(query_relation)
-        expect(query_relation).to receive(:not).with(ves_status: 'ok').and_return([recent_record, old_record])
+        expect(query_relation).to receive(:not).with(ves_status: [nil, 'ok']).and_return([recent_record, old_record])
 
         job.perform
+      end
+
+      it 'does not include records with nil ves_status' do
+        query_relation = double('ActiveRecord::Relation')
+        filtered_records = [recent_record, old_record]
+
+        # Simulate the where.not filtering by returning only non-nil records
+        allow(IvcChampvaForm).to receive(:where).with(no_args).and_return(query_relation)
+        allow(query_relation).to receive(:not).with(ves_status: [nil, 'ok']).and_return(filtered_records)
+
+        job.perform
+
+        # Verify we processed only the non-nil records
+        expect(StatsD).to have_received(:gauge).with('ivc_champva.ves_submission_failures.count', 2)
       end
     end
   end
