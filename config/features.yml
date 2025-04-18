@@ -183,6 +183,10 @@ features:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
+  ezr_associations_api_enabled:
+    actor_type: user
+    description: Enables VES's Associations REST API
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -1711,6 +1715,9 @@ features:
   vet_status_pdf_logging:
     actor_type: user
     description: Enables the Veteran Status Card to log PDF download events/failures
+  vet_status_stage_1:
+    actor_type: user
+    description: Enables the stage 1 features of the veteran status card
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
@@ -1830,9 +1837,6 @@ features:
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
-  mobile_veteran_status_stage_1:
-    actor_type: user
-    description: For mobile app, enables the stage 1 features of the veteran status card
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
