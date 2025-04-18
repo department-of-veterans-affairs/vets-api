@@ -37,10 +37,10 @@ module VAOS
       ##
       # Retrieves referral details from CCRA service for the given appointment if a referral number is present.
       #
-      # @param appointment_data [Hash] The appointment data containing referral information
+      # @param appointment [Hash] The appointment data containing referral information
       # @return [Ccra::ReferralDetail, nil] The referral details if found, nil otherwise
-      def fetch_referral_detail(appointment_data)
-        referral_number = appointment_data.dig(:referral, :referral_number)
+      def fetch_referral_detail(appointment)
+        referral_number = appointment.dig(:referral, :referral_number)
         return nil if referral_number.blank?
 
         begin
