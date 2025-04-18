@@ -12,15 +12,13 @@ module AskVAApi
       yield
     rescue Common::Exceptions::Unauthorized => e
       log_and_render_error('unauthorized', e, :unauthorized)
-    
     rescue ErrorHandler::ServiceError,
            Crm::ErrorHandler::ServiceError,
            Common::Exceptions::ValidationErrors,
            Inquiries::InquiriesCreatorError => e
-    
+
       status = e.message.include?('No Inquiries found') ? :not_found : :unprocessable_entity
       log_and_render_error('service_error', e, status)
-    
     rescue => e
       log_and_render_error('unexpected_error', e, :internal_server_error)
     end

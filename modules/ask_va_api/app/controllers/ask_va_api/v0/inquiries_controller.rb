@@ -106,9 +106,7 @@ module AskVAApi
       end
 
       def require_loa3!
-        unless current_user&.loa&.fetch(:current, nil) == 3
-          raise Common::Exceptions::Unauthorized
-        end
+        raise Common::Exceptions::Unauthorized unless current_user&.loa&.fetch(:current, nil) == 3
       end
 
       class InvalidAttachmentError < StandardError; end
