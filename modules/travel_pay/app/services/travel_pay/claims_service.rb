@@ -125,7 +125,7 @@ module TravelPay
         claims
       end
     rescue Date::Error => e
-      Rails.logger.info(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
+      Rails.logger.warn(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
       claims
     end
 
