@@ -8,7 +8,7 @@ module Mobile
       before_action { authorize :mhv_prescriptions, :access? }
 
       def index
-        resource = client.get_history_rxs
+        resource = client.get_all_rxs
         resource = resource.find_by(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
