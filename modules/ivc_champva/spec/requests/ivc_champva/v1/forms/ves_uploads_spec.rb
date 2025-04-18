@@ -69,7 +69,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
             it 'uploads a PDF file to S3 and submits to VES for form 10-10D' do
               # Allow for transaction_uuid= to be called but preserve the original 'fake-id' value
               allow(ves_request).to receive(:transaction_uuid).and_return('fake-id')
-              
+
               post '/ivc_champva/v1/forms', params: form_data
 
               record = IvcChampvaForm.first
@@ -114,7 +114,7 @@ RSpec.describe 'IvcChampva::V1::Forms::VesUploads', type: :request do
               allow(ves_client).to receive(:submit_1010d)
                 .with(anything, anything, anything)
                 .and_raise(StandardError.new('api error'))
-              
+
               # Make sure the FileUploader returns success to allow form submission to succeed
               allow_any_instance_of(IvcChampva::FileUploader).to receive(:handle_uploads)
                 .and_return([200, nil])
