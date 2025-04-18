@@ -29,6 +29,8 @@ jobs:
   build_and_push:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build and Push
+    permissions:
+      contents: write # Explicit permission for git operations
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     runs-on: ubuntu-latest
@@ -46,6 +48,22 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-gov-west-1
+
+      - name: Git Version
+        id: version
+        uses: codacy/git-version@2.8.0
+        with:
+          release-branch: master
+
+      - name: Echo the version
+        run: |
+          echo ${{ steps.version.outputs.version }}
+
+      - name: Create git tag if on master
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
 
       - name: Login to ECR
         id: ecr-login
@@ -73,8 +91,10 @@ jobs:
           push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
-          cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
-          cache-to: type=inline
+            ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ steps.version.outputs.version }}
+          cache-from: |
+            type=registry,ref=${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}
+          cache-to: type=inline,mode=max
   deploy:
     needs: build_and_push
     if: ${{ github.event.workflow_run.head_branch == 'master' && github.event.workflow_run.conclusion == 'success' }}
