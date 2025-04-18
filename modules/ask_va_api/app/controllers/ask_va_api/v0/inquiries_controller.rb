@@ -4,8 +4,8 @@ module AskVAApi
   module V0
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
+      before_action :require_loa3!, except: %i[unauth_create status]
       skip_before_action :authenticate, only: %i[unauth_create status]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create]
 
       def index
         inquiries = retriever.call
@@ -13,6 +13,10 @@ module AskVAApi
       end
 
       def show
+        if Settings.vsp_environment == 'production'
+          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
+        end
+
         inq = retriever.fetch_by_id(id: params[:id])
         render json: Inquiries::Serializer.new(inq).serializable_hash, status: :ok
       end
@@ -26,6 +30,10 @@ module AskVAApi
       end
 
       def download_attachment
+        if Settings.vsp_environment == 'production'
+          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
+        end
+
         entity_class = Attachments::Entity
         att = Attachments::Retriever.new(
           icn: current_user.icn,
@@ -95,6 +103,10 @@ module AskVAApi
 
       def fetch_parameters(key)
         I18n.t("ask_va_api.parameters.inquiry.#{key}")
+      end
+
+      def require_loa3!
+        raise Common::Exceptions::Unauthorized unless current_user&.loa&.fetch(:current, nil) == 3
       end
 
       class InvalidAttachmentError < StandardError; end
