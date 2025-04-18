@@ -181,7 +181,7 @@
   "exposureToShad": true,
   "exposureToWarfareAgents": true,
   "exposureToOther": true,
-  "otherToxicExposure": "Other Toxic Exposure",
-  "toxicExposureStartDate": "1990-08-01",
+  "otherToxicExposure": "Other Toxic Exposure that is a very long list of information so that it overflows.",
+  "toxicExposureStartDate": "1990-XX-XX",
   "toxicExposureEndDate": "1990-09-01"
 }

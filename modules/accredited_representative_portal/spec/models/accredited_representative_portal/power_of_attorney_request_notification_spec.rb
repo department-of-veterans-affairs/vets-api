@@ -111,16 +111,20 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     context 'when type is expiring' do
       let(:type) { 'expiring' }
 
-      it 'returns nil' do
-        expect(notification.template_id).to be_nil
+      it 'returns the template id for the expiring type' do
+        expect(notification.template_id).to eq(
+          Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_warning_email
+        )
       end
     end
 
     context 'when type is expired' do
       let(:type) { 'expired' }
 
-      it 'returns nil' do
-        expect(notification.template_id).to be_nil
+      it 'returns the template id for the expired type' do
+        expect(notification.template_id).to eq(
+          Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_confirmation_email
+        )
       end
     end
   end
