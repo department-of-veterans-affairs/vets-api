@@ -24,14 +24,21 @@ module BBInternal
     # User Management APIs
     ################################################################################
 
+    ##
     # Retrieves the patient information by user ID.
-    # @return [Hash] A hash containing the patient's details
     #
-    def get_patient
+    # @param conn [Faraday::Connection, nil] shared connection when running in_parallel
+    # @param raw  [Boolean] when true, return the Faraday::Response (for parallel use)
+    # @return [Hash, Faraday::Response]
+    #
+    def get_patient(conn: nil, raw: false)
       with_custom_base_path(USERMGMT_BASE_PATH) do
-        response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
-        patient = response.body
+        connection = conn || config.connection
+        response = connection.get("usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
 
+        return response if raw # For use with parallel connections (i.e. SEI)
+
+        patient = response.body
         raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
 
         patient
@@ -206,94 +213,118 @@ module BBInternal
     # Self-Entered Information (SEI) APIs
     ################################################################################
 
-    def get_sei_vital_signs_summary
+    def get_all_sei_data
+      sei_calls = sei_call_lambdas
+      result = execute_parallel_calls(sei_calls)
+
+      # Extract just the patient.userProfile and assign to demographics
+      patient = result[:responses].delete(:demographics)
+      result[:responses][:demographics] = patient['userProfile'] if patient && patient['userProfile']
+
+      result
+    end
+
+    def get_sei_vital_signs_summary(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "vitals/summary/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("vitals/summary/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_allergies
+    def get_sei_allergies(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "healthhistory/allergy/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("healthhistory/allergy/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_family_health_history
+    def get_sei_family_health_history(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "healthhistory/healthHistory/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("healthhistory/healthHistory/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_immunizations
+    def get_sei_immunizations(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "healthhistory/immunization/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("healthhistory/immunization/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_test_entries
+    def get_sei_test_entries(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "healthhistory/testEntry/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("healthhistory/testEntry/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_medical_events
+    def get_sei_medical_events(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "healthhistory/medicalEvent/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("healthhistory/medicalEvent/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_military_history
+    def get_sei_military_history(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "healthhistory/militaryHistory/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("healthhistory/militaryHistory/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_healthcare_providers
+    def get_sei_healthcare_providers(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "getcare/healthCareProvider/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("getcare/healthCareProvider/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_health_insurance
+    def get_sei_health_insurance(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "getcare/healthInsurance/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("getcare/healthInsurance/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_treatment_facilities
+    def get_sei_treatment_facilities(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "getcare/treatmentFacility/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("getcare/treatmentFacility/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_food_journal
+    def get_sei_food_journal(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "journal/journals/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("journal/journals/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_activity_journal
+    def get_sei_activity_journal(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "journal/activityjournals/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("journal/activityjournals/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
-    def get_sei_medications
+    def get_sei_medications(conn: nil, raw: false)
       with_custom_base_path(BLUEBUTTON_BASE_PATH) do
-        response = perform(:get, "pharmacy/medications/#{@session.user_id}", nil, token_headers)
-        response.body
+        connection = conn || config.connection
+        response = connection.get("pharmacy/medications/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
       end
     end
 
@@ -307,12 +338,52 @@ module BBInternal
       end
     end
 
-    def get_sei_emergency_contacts
-      response = perform(:get, "usermgmt/emergencycontacts/#{@session.user_id}", nil, token_headers)
-      response.body
+    def get_sei_emergency_contacts(conn: nil, raw: false)
+      with_custom_base_path(USERMGMT_BASE_PATH) do
+        connection = conn || config.connection
+        response = connection.get("usermgmt/emergencycontacts/#{@session.user_id}", nil, token_headers)
+        raw ? response : response.body
+      end
     end
 
     private
+
+    def sei_call_lambdas
+      {
+        vitals: ->(conn) { get_sei_vital_signs_summary(conn:, raw: true) },
+        allergy: ->(conn) { get_sei_allergies(conn:, raw: true) },
+        family_history: ->(conn) { get_sei_family_health_history(conn:, raw: true) },
+        immunizations: ->(conn) { get_sei_immunizations(conn:, raw: true) },
+        test_entries: ->(conn) { get_sei_test_entries(conn:, raw: true) },
+        medical_events: ->(conn) { get_sei_medical_events(conn:, raw: true) },
+        military_history: ->(conn) { get_sei_military_history(conn:, raw: true) },
+        providers: ->(conn) { get_sei_healthcare_providers(conn:, raw: true) },
+        insurance: ->(conn) { get_sei_health_insurance(conn:, raw: true) },
+        treatment_facilities: ->(conn) { get_sei_treatment_facilities(conn:, raw: true) },
+        food_journal: ->(conn) { get_sei_food_journal(conn:, raw: true) },
+        activity_journal: ->(conn) { get_sei_activity_journal(conn:, raw: true) },
+        medications: ->(conn) { get_sei_medications(conn:, raw: true) },
+        emergency_contacts: ->(conn) { get_sei_emergency_contacts(conn:, raw: true) },
+        demographics: ->(conn) { get_patient(conn:, raw: true) }
+      }
+    end
+
+    def execute_parallel_calls(call_lambdas)
+      deferred = {} # Faraday::Response objects
+      errors   = {}
+
+      conn = config.parallel_connection
+      conn.in_parallel do
+        call_lambdas.each do |key, request_lambda|
+          deferred[key] = request_lambda.call(conn)
+        rescue => e
+          errors[key] = { message: e.message, class: e.class.name }
+        end
+      end
+
+      responses = deferred.transform_values(&:body) # now safe
+      { responses:, errors: }
+    end
 
     def with_custom_base_path(custom_base_path)
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway) && custom_base_path
