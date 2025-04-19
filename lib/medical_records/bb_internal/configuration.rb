@@ -60,27 +60,39 @@ module BBInternal
       'BBInternal'
     end
 
+    COMMON_STACK = lambda do |conn, service_name|
+      conn.use(:breakers, service_name:)
+      conn.request :multipart_request
+      conn.request :multipart
+      conn.request :json
+
+      # Uncomment this if you want curl command equivalent or response output to log
+      # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+      # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+
+      conn.response :raise_custom_error, error_prefix: service_name
+      conn.response :mhv_errors
+      conn.response :mhv_xml_html_errors
+      conn.response :json_parser
+    end
+
     ##
-    # Creates a connection
-    #
     # @return [Faraday::Connection] a Faraday connection instance
     #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use(:breakers, service_name:)
-        conn.request :multipart_request
-        conn.request :multipart
-        conn.request :json
-
-        # Uncomment this if you want curl command equivalent or response output to log
-        # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-        # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
-
-        conn.response :raise_custom_error, error_prefix: service_name
-        conn.response :mhv_errors
-        conn.response :mhv_xml_html_errors
-        conn.response :json_parser
+        COMMON_STACK.call(conn, service_name)
         conn.adapter Faraday.default_adapter
+      end
+    end
+
+    ##
+    # @return [Faraday::Connection] a Faraday connection instance supporting parallel requests
+    #
+    def parallel_connection
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        COMMON_STACK.call(conn, service_name)
+        conn.adapter :typhoeus
       end
     end
   end
