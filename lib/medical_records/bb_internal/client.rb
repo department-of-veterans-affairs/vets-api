@@ -351,14 +351,14 @@ module BBInternal
     def sei_call_lambdas
       {
         vitals: ->(conn) { get_sei_vital_signs_summary(conn:, raw: true) },
-        allergy: ->(conn) { get_sei_allergies(conn:, raw: true) },
+        allergies: ->(conn) { get_sei_allergies(conn:, raw: true) },
         family_history: ->(conn) { get_sei_family_health_history(conn:, raw: true) },
-        immunizations: ->(conn) { get_sei_immunizations(conn:, raw: true) },
+        vaccines: ->(conn) { get_sei_immunizations(conn:, raw: true) },
         test_entries: ->(conn) { get_sei_test_entries(conn:, raw: true) },
         medical_events: ->(conn) { get_sei_medical_events(conn:, raw: true) },
         military_history: ->(conn) { get_sei_military_history(conn:, raw: true) },
         providers: ->(conn) { get_sei_healthcare_providers(conn:, raw: true) },
-        insurance: ->(conn) { get_sei_health_insurance(conn:, raw: true) },
+        health_insurance: ->(conn) { get_sei_health_insurance(conn:, raw: true) },
         treatment_facilities: ->(conn) { get_sei_treatment_facilities(conn:, raw: true) },
         food_journal: ->(conn) { get_sei_food_journal(conn:, raw: true) },
         activity_journal: ->(conn) { get_sei_activity_journal(conn:, raw: true) },
