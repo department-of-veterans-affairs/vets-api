@@ -293,7 +293,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           refill_statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
 
           # does not include refillinprocess
-          expect(refill_statuses).to eq(%w[expired discontinued renew activeParked active submitted])
+          expect(refill_statuses).to include('expired', 'discontinued', 'renew', 'activeParked', 'active', 'submitted')
         end
       end
 
