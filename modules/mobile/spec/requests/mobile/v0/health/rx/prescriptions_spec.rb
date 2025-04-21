@@ -156,18 +156,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
 
-    # NOTE: There is no equivalent cassette that includes a 'failed_facilites' attribute for
-    # the new endpoint
-    # context 'with a valid EVSS response and failed facilities' do
-    #   it 'returns 200 and omits failed facilities' do
-    #     VCR.use_cassette('mobile/rx_refill/prescriptions/handles_failed_stations') do
-    #       get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
-    #     end
-    #     expect(response).to have_http_status(:ok)
-    #     expect(response.body).to match_json_schema('prescription')
-    #   end
-    # end
-
     context 'when cache is populated' do
       it 'uses cache instead of service' do
         set_cache
@@ -197,15 +185,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     end
 
     describe 'error cases' do
-      # NOTE: There is no equivalent 'optimistic locking error' cassette for the new endpoint
-      # it 'converts 400 errors to 409' do
-      #   VCR.use_cassette('mobile/rx_refill/prescriptions/gets_optimistic_locking_error') do
-      #     get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
-      #   end
-
-      #   expect(response).to have_http_status(:conflict)
-      # end
-
       it 'converts Faraday::TimeoutError to 408' do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
 
