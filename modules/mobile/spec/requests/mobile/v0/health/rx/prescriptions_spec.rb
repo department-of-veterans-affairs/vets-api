@@ -233,7 +233,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
-          puts response.body
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].size).to eq(1)
