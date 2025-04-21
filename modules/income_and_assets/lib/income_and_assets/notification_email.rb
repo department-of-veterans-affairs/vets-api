@@ -19,6 +19,10 @@ module IncomeAndAssets
     end
 
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
+    # {
+    #   'date_submitted' => claim.submitted_at,
+    #   'confirmation_number' => claim.confirmation_number
+    # }
     def personalization
       default = super
 

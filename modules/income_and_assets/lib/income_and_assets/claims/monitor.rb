@@ -13,6 +13,14 @@ module IncomeAndAssets
       # statsd key for api
       CLAIM_STATS_KEY = 'api.income_and_assets'
 
+      attr_reader :tags
+
+      def initialize
+        super('income-and-assets')
+
+        @tags = ['form_id:21P-0969']
+      end
+
       ##
       # log GET 404 from controller
       # @see IncomeAndAssetsClaimsController

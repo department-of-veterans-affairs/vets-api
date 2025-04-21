@@ -67,12 +67,12 @@ module IncomeAndAssets
 
     # Instantiate instance variables for _this_ job
     def init(saved_claim_id, user_account_uuid)
-      monitor = IncomeAndAssets::Submissions::Monitor.new
-
       @user_account_uuid = user_account_uuid
       @user_account = UserAccount.find(@user_account_uuid) if @user_account_uuid.present?
+      # UserAccount.find will raise an error if unable to find the user_account record
+
       @claim = IncomeAndAssets::SavedClaim.find(saved_claim_id)
-      raise IncomeAndAssetsIntakeError, "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}" unless @claim
+      raise IncomeAndAssetsBenefitIntakeError, "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}" unless @claim
 
       @intake_service = ::BenefitsIntake::Service.new
     end
@@ -158,7 +158,6 @@ module IncomeAndAssets
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end
 
-
     # VANotify job to send Submission in Progress email to veteran
     def send_submitted_email
       IncomeAndAssets::NotificationEmail.new(@claim.id).deliver(:submitted)
@@ -172,7 +171,6 @@ module IncomeAndAssets
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
-      raise IncomeAndAssetsBenefitIntakeError, e.message
     end
   end
 end

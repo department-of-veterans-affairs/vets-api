@@ -13,6 +13,14 @@ module IncomeAndAssets
       # statsd key for sidekiq
       SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
 
+      attr_reader :tags
+
+      def initialize
+        super('income-and-assets')
+
+        @tags = ['form_id:21P-0969']
+      end
+
       ##
       # log Sidkiq job started
       # @see IncomeAndAssetsIntakeJob
@@ -106,6 +114,29 @@ module IncomeAndAssets
                              message: msg,
                              user_account_uuid: msg['args'].length <= 1 ? nil : msg['args'][1]
                            })
+      end
+
+      ##
+      # Tracks the failure to send a Submission in Progress email for a claim.
+      # @see IncomeAndAssets::BenefitIntakeJob
+      #
+      # @param claim [IncomeAndAssets::SavedClaim]
+      # @param lighthouse_service [LighthouseService]
+      # @param e [Exception]
+      #
+      def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
+        additional_context = {
+          confirmation_number: claim&.confirmation_number,
+          user_account_uuid:,
+          claim_id: claim&.id,
+          benefits_intake_uuid: lighthouse_service&.uuid,
+          message: e&.message,
+          tags:
+        }
+
+        track_request('warn', 'IncomeAndAssets::BenefitIntakeJob send_submitted_email failed',
+                      "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
+                      call_location: caller_locations.first, **additional_context)
       end
 
       ##

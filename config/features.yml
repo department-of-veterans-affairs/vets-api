@@ -1958,9 +1958,15 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
+  income_and_assets_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  income_and_assets_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   income_and_assets_submitted_email_notification:
     actor_type: user
-    description: Enable form 21P-0969 Update Income and Assets Evidence Form
+    description: Toggle sending of the Submission in Progress email notification
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
