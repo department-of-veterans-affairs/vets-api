@@ -17,8 +17,8 @@ module Kafka
     def data_values_are_strings
       return true if data.blank?
 
-      unless data.is_a?(Hash) && data.values.all? { |v| v.is_a?(String) }
-        errors.add(:data, 'must be a hash with all string values')
+      unless data.is_a?(Hash) && data.values.all? { |v| v.is_a?(String) } && data.keys.all? { |v| v.is_a?(String) }
+        errors.add(:data, 'must be a hash with all string keys and values')
       end
     end
   end
