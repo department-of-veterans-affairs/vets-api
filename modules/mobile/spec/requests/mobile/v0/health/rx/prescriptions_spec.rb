@@ -304,8 +304,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }).to eq(
-            %w[active active active active active active active active active
-               activeParked]
+            %w[active active active active active active active active active activeParked]
           )
         end
       end
