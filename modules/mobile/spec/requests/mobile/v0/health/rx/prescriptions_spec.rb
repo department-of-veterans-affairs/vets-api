@@ -48,7 +48,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_with_error') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
-              headers: sis_headers
+                                                           headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -69,7 +69,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_with_multiple_errors') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
-              headers: sis_headers
+                                                           headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -111,7 +111,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_not_found') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942 123456] },
-              headers: sis_headers
+                                                           headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -327,9 +327,9 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }).to eq(
-                                                                                                    %w[active active active active active active active active active
+            %w[active active active active active active active active active
                activeParked]
-                                                                                                  )
+          )
         end
       end
 
@@ -389,10 +389,10 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(statuses).to eq(['refillinprocess'])
 
         expect(response.parsed_body['data'].map { |p| p.dig('attributes', 'refillDate') }).to eq(
-                                                                                                %w[
+          %w[
             2025-04-11T04:00:00.000Z 2025-04-10T04:00:00.000Z 2025-04-10T04:00:00.000Z
           ]
-                                                                                              )
+        )
       end
     end
 
