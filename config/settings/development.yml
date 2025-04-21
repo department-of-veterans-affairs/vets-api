@@ -1652,7 +1652,7 @@ vaos:
   ccra:
     api_url: https://api.ccra.placeholder.va.local
     base_path: csp/healthshare/ccraint/rest
-    mock: true
+    mock: false
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
