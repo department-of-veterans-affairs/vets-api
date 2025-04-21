@@ -1683,7 +1683,7 @@ module PdfFill
       # rubocop:disable Metrics/MethodLength
       def expand_child_status(child)
         # expand child status
-        child_status = child['relationship_to_child']
+        child_status = child['relationship_to_child'] || {}
         date_entered_household = split_date(child['date_entered_household'])
 
         if child.key?('has_child_ever_been_married')

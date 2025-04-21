@@ -1528,10 +1528,6 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: Enables email notifications for CreateDailySpoolFiles errors
-  stem_automated_decision:
-    actor_type: user
-    description: Add automated decision to 10203 application workflow
-    enable_in_development: true
   subform_8940_4192:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
