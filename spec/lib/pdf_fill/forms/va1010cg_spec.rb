@@ -15,6 +15,10 @@ describe PdfFill::Forms::Va1010cg do
   end
 
   describe '#merge_fields' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:caregiver_lookup_facility_name_db).and_return(false)
+    end
+
     it 'merges the right fields' do
       expect(form_class.merge_fields.to_json).to eq(
         get_fixture('pdf_fill/10-10CG/merge_fields').to_json
