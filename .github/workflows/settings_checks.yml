@@ -88,11 +88,43 @@ jobs:
             exit 0
           fi
 
-
-          aws ssm get-parameters --names /dsva-vagov/vets-api/dev/env_vars/hostname --query "Parameters[*].Name"
-
           invalid_parameters=()
 
+          for key in "${keys[@]}"; do
+            param_names=()
+            
+            # replace double underscores with slashes
+            formatted_key=$(echo "$key" | sed 's/__/\//g')
+            
+            dev_ssm_param="/dsva-vagov/vets-api/dev/env_vars/$formatted_key"
+            staging_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$formatted_key"
+            sandbox_ssm_param="/dsva-vagov/vets-api/sandbox/env_vars/$formatted_key"
+            prod_ssm_param="/dsva-vagov/vets-api/prod/env_vars/$formatted_key"
+
+            param_names+=("$dev_ssm_param")
+            param_names+=("$staging_ssm_param")
+            param_names+=("$sandbox_ssm_param")
+            param_names+=("$prod_ssm_param")
+
+            # Quote the parameter names to handle spaces properly
+            ssm_output=$(aws ssm get-parameters --names "${param_names[@]}" --query "Parameters[*].Name" 2>/dev/null)
+            
+            # Append to invalid_parameters properly
+            if [[ "$ssm_output" == *"InvalidParameters"* ]]; then
+              invalid_param=$(echo "$ssm_output" | jq -r '.InvalidParameters[]' 2>/dev/null)
+              if [[ -n "$invalid_param" ]]; then
+                if [[ ${#invalid_parameters[@]} -eq 0 ]]; then
+                  invalid_parameters=("$invalid_param")
+                else
+                  invalid_parameters+=("$invalid_param")
+                fi
+              fi
+            fi
+          done
+
+          # Join invalid parameters with commas for output
+          invalid_params_string=$(IFS=,; echo "${invalid_parameters[*]}")
+          echo "INVALID_PARAMETERS=$invalid_params_string" >> $GITHUB_ENV
 
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
