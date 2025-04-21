@@ -10,7 +10,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }
-  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/gethistoryrx' }
+  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/medications' }
   let(:set_cache) do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
@@ -21,6 +21,11 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+    Timecop.freeze(Time.zone.parse('2025-04-21T00:00:00.000Z'))
+  end
+
+  after do
+    Timecop.return
   end
 
   describe 'GET /mobile/v0/health/rx/prescriptions/refill', :aggregate_failures do
@@ -201,7 +206,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       #   expect(response).to have_http_status(:conflict)
       # end
 
-      it 'converts Faraday::TimeouError to 408' do
+      it 'converts Faraday::TimeoutError to 408' do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
 
         get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
@@ -220,8 +225,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response.body).to match_json_schema('prescription')
         expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
                                                                    'perPage' => 3,
-                                                                   'totalPages' => 169,
-                                                                   'totalEntries' => 505 })
+                                                                   'totalPages' => 51,
+                                                                   'totalEntries' => 153 })
       end
     end
 
@@ -288,7 +293,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           refill_statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
 
           # does not include refillinprocess
-          expect(refill_statuses).to eq(%w[expired discontinued renew activeParked])
+          expect(refill_statuses).to eq(%w[expired discontinued renew activeParked active submitted])
         end
       end
 
@@ -398,8 +403,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         end
         expect(response.parsed_body['meta']['prescriptionStatusCount']).to eq({
                                                                                 'active' => 34,
-                                                                                'discontinued' => 253,
-                                                                                'expired' => 203,
+                                                                                'discontinued' => 82,
+                                                                                'expired' => 22,
                                                                                 'unknown' => 4,
                                                                                 'renew' => 4,
                                                                                 'newOrder' => 7
