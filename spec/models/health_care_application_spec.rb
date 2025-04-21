@@ -16,6 +16,10 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
+  end
+
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
       str = 'f' * 6000
