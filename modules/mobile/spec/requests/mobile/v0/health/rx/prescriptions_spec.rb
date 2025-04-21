@@ -226,10 +226,9 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'filter by multiple fields' do
-        # NOTE: There are currently no responses with 'is_refillable' AND 'is_trackable' as true
         params = { filter: { is_refillable: { eq: 'false' }, is_trackable: { eq: 'true' } } }
 
-        it 'returns all prescriptions that are both trackable and refillable' do
+        it 'returns all prescriptions that trackable but not refillable' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
