@@ -23,7 +23,9 @@
       "details": "Corpsman on medical ship in Da Nang harbor, Vietnam",
       "location": "Stationed on U.S.S. XYZ",
       "timing": "Summer of '70",
-      "otherReports": { "police": true },
+      "otherReports": {
+        "police": true
+      },
       "agency": "SVI",
       "city": "Dallas",
       "state": "TX",
@@ -40,7 +42,9 @@
       "details": "I would be minding my own business and this other soldier would use his rank to force me to do push ups and sit ups and other stuff even when we were off duty.\nIf I refused the next day would be worse during work hours and he would like to the chain of command that I had done something wrong. He would harass and belittle me. I tried to tell someone but nobody cared, I would just get in more trouble.",
       "location": "Fort Belvior, VA",
       "timing": "June 2007",
-      "militaryReports": { "restricted": true }
+      "militaryReports": {
+        "restricted": true
+      }
     },
     {
       "details": "Lorem ipsum dolor sit amet..",
@@ -75,7 +79,8 @@
   },
   "behaviorsDetails": {
     "reassignment": "Following the incident, I sought medical and psychological treatment, which included therapy sessions with a licensed psychologist and regular consultations with my healthcare provider. These professionals have indicated that due to trauma, I am no longer able to perform at my previous work capacity. In particular, I struggle with brain fog, concentration, and fatigue, which were not issues prior to the event.",
-    "appetite": ""
+    "appetite": "",
+    "unlisted": "Really long lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Really long lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
   },
   "evidence": {
     "crisis": true,
