@@ -42,3 +42,93 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: settings-failure
+  check-parameters:
+    runs-on: ubuntu-32-cores-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-gov-west-1
+
+      - name: Obtain GitHub Token
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Install jq
+        run: |
+          sudo apt update
+          sudo apt install jq -y
+
+      - name: Fetch the remote master branch
+        run: git fetch origin master
+
+      - name: Check ENV diff for aws_ssm_custom lookups
+        shell: bash
+        run: |
+          new_env_keys=$(git diff origin/master config/settings.yml | \
+            grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
+
+          keys=()
+          for line in $new_env_keys; do
+            keys+=("$line")
+          done
+
+          if [[ ${#keys[@]} -eq 0 ]]; then
+            echo "No new ENV keys found in config/settings.yml."
+            exit 0
+          fi
+
+          invalid_parameters=()
+
+          for key in "${keys[@]}"; do
+            param_names=()
+            
+            dev_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            staging_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            sandbox_ssm_param="/dsva-vagov/vets-api/sandbox/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            prod_ssm_param="/dsva-vagov/vets-api/prod/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+
+            param_names+=("$dev_ssm_param")
+            param_names+=("$staging_ssm_param")
+            param_names+=("$sandbox_ssm_param")
+            param_names+=("$prod_ssm_param")
+
+            param_names_string="${param_names[*]}"
+
+            ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
+
+            invalid_parameters+=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
+          done
+
+          echo "INVALID_PARAMETERS=$invalid_parameters" >> $GITHUB_ENV
+
+      - name: Respond to PR if invalid parameters are found
+        if: env.INVALID_PARAMETERS != ''
+        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
+        with:
+          message: |
+            :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
+            ${{ env.INVALID_PARAMETERS }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+      - name: Fail if invalid parameters are found
+        if: env.INVALID_PARAMETERS != ''
+        run: exit 1
+
+      - name: Respond to PR if no invalid parameters are found
+        if: env.INVALID_PARAMETERS == ''
+        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
+        with:
+          message: |
+            :+1: All Parameter Store values in this PR are valid
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
