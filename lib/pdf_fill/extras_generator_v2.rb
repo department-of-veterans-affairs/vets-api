@@ -60,6 +60,8 @@ module PdfFill
 
       # Render content to a temporary PDF and measure the actual height
       def measure_actual_height(temp_pdf)
+        return 0 unless should_render?
+
         # Save the current cursor position
         start_cursor = temp_pdf.cursor
 
