@@ -183,48 +183,4 @@ RSpec.describe Kafka do
       end
     end
   end
-
-  describe '#submit_event' do
-    context 'when use_test_topic is false' do
-      it 'creates an expected payload and calls EventBusSubmissionJob' do
-        payload = {
-          'ICN' => '12345',
-          'currentId' => '233',
-          'submissionName' => 'F527EZ',
-          'state' => 'received',
-          'vasiId' => Kafka::VASI_ID,
-          'systemName' => Kafka::SYSTEM_NAME,
-          'timestamp' => Time.current.iso8601
-        }
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(payload, false)
-        Kafka.submit_event(icn: '12345', current_id: '233', submission_name: 'F527EZ', state: 'received')
-      end
-    end
-
-    context 'when use_test_topic is true' do
-      it 'creates an expected payload and calls EventBusSubmissionJob' do
-        payload = {
-          'data' => {
-            'ICN' => '12345',
-            'currentId' => '233',
-            'submissionName' => 'F1010EZ',
-            'nextId' => '356',
-            'state' => 'sent',
-            'vasiId' => Kafka::VASI_ID,
-            'systemName' => Kafka::SYSTEM_NAME,
-            'timestamp' => Time.current.iso8601
-          }
-        }
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(payload, true)
-        Kafka.submit_event(
-          icn: '12345',
-          current_id: '233',
-          submission_name: 'F1010EZ',
-          state: 'sent',
-          next_id: 356,
-          use_test_topic: true
-        )
-      end
-    end
-  end
 end
