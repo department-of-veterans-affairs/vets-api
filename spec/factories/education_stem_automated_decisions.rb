@@ -2,9 +2,13 @@
 
 FactoryBot.define do
   factory :education_stem_automated_decision do
+    transient do
+      user { create(:user, :loa3, :with_terms_of_use_agreement, uuid: SecureRandom.uuid) }
+    end
     automated_decision_state { EducationStemAutomatedDecision::INIT }
-    user_uuid { SecureRandom.uuid }
+    user_uuid { user.uuid }
     poa { false }
+    user_account { user.user_account }
 
     trait :with_poa do
       poa { true }
