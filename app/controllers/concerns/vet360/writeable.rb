@@ -3,7 +3,6 @@
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
 require 'va_profile/v2/contact_information/service'
-require 'user_audit_logger'
 
 module Vet360
   module Writeable
@@ -57,11 +56,8 @@ module Vet360
     end
 
     def create_user_audit_log(type)
-      UserAuditLogger.new(user_action_event_identifier: PROFILE_AUDIT_LOG_TYPES[type],
-                          subject_user_verification: @current_user.user_verification,
-                          status: :success,
-                          acting_ip_address: request.remote_ip,
-                          acting_user_agent: request.user_agent).perform
+      UserAudit.logger.success(event: PROFILE_AUDIT_LOG_TYPES[type].to_sym,
+                               user_verification: @current_user.user_verification)
     end
 
     def validate!(record)
