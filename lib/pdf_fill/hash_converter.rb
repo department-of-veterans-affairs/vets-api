@@ -65,6 +65,7 @@ module PdfFill
       return if v.blank? || key_data.nil?
       return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
 
+      i = array_key_data.try(:[], :override_index) || i
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
@@ -126,14 +127,11 @@ module PdfFill
     end
 
     def handle_overflow_with_label_all(form_data, pdftk_keys)
-      form_data.each do |item|
+      form_data.each_with_index do |item, idx|
         item.each do |k, v|
-          text = if v == 'no response'
-                   ''
-                 else
-                   overflow?(pdftk_keys[k], v) ? EXTRAS_TEXT : v
-                 end
-          set_value(text, pdftk_keys[k], 0, true) if pdftk_keys[k].is_a?(Hash)
+          text = overflow?(pdftk_keys[k], v) ? EXTRAS_TEXT : v
+
+          set_value(text, pdftk_keys[k], idx, true) if pdftk_keys[k].is_a?(Hash)
         end
       end
     end
@@ -152,7 +150,7 @@ module PdfFill
       has_overflow = check_for_overflow(form_data, pdftk_keys)
 
       if has_overflow
-        if pdftk_keys[:label_all] && @extras_generator.is_a?(ExtrasGeneratorV2)
+        if pdftk_keys[:label_all]
           handle_overflow_with_label_all(form_data, pdftk_keys)
         else
           handle_overflow_with_first_key(pdftk_keys)

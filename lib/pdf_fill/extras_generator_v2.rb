@@ -49,6 +49,10 @@ module PdfFill
         subq_rows
       end
 
+      def should_render?
+        sorted_subquestions.any?
+      end
+
       def render(pdf, list_format: false)
         pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
         pdf.markup(['<table>', sorted_subquestions_markup, '</table>'].flatten.join, text: { margin_bottom: 10 })
@@ -91,7 +95,16 @@ module PdfFill
       def add_text(value, metadata)
         @overflow ||= metadata.fetch(:overflow, true)
         i = metadata[:i]
-        @items[i] ||= Question.new(nil, metadata, table_width: @table_width)
+
+        # Create the appropriate question type if it doesn't exist yet
+        if @items[i].nil?
+          @items[i] = if metadata[:question_type] == 'checked_description'
+                        CheckedDescriptionQuestion.new(nil, metadata, table_width: @table_width)
+                      else
+                        Question.new(nil, metadata, table_width: @table_width)
+                      end
+        end
+
         @items[i].add_text(value, metadata)
       end
 
@@ -102,7 +115,7 @@ module PdfFill
 
       # Render a single item from the list
       def render_item(pdf, item, index)
-        render_item_label(pdf, index)
+        render_item_label(pdf, index) if item.should_render?
         item.render(pdf, list_format: true)
       end
 
@@ -141,7 +154,7 @@ module PdfFill
       end
 
       # Measure heights of all components separately
-      def measure_component_heights(temp_pdf)
+      def measure_actual_height(temp_pdf)
         heights = { title: measure_title_height(temp_pdf) }
         heights[:items] = []
 
@@ -187,6 +200,7 @@ module PdfFill
             ListQuestion.new(question_text, metadata)
           end
       end
+
       @questions[question_num].add_text(value, metadata)
     end
 
@@ -240,11 +254,7 @@ module PdfFill
     def measure_all_blocks(temp_pdf, generate_blocks, heights)
       generate_blocks.each do |block|
         temp_pdf.start_new_page
-        heights[block] = if block.is_a?(ListQuestion)
-                           block.measure_component_heights(temp_pdf)
-                         else
-                           block.measure_actual_height(temp_pdf)
-                         end
+        heights[block] = block.measure_actual_height(temp_pdf)
       end
     end
 
@@ -336,7 +346,7 @@ module PdfFill
 
     def render_list_items(pdf, block, block_heights)
       block_heights = block_heights[block]
-      block.items.each.with_index(1) do |item, index|
+      block.items.select(&:should_render?).each.with_index(1) do |item, index|
         item_height = block_heights[:items][index - 1]
         pdf.start_new_page unless will_fit_on_page?(pdf, item_height)
         block.render_item(pdf, item, index)
