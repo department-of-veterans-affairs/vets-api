@@ -93,17 +93,13 @@ jobs:
           for key in "${keys[@]}"; do
             param_names=()
             
-            dev_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
-            staging_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
-            sandbox_ssm_param="/dsva-vagov/vets-api/sandbox/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
-            prod_ssm_param="/dsva-vagov/vets-api/prod/env_vars/$(echo "$key" | tr '[:upper:]' '[:lower:]' | sed 's/__/\//g')"
+            dev_ssm_param="/dsva-vagov/vets-api/dev/env_vars/hostname"
 
             param_names+=("$dev_ssm_param")
-            param_names+=("$staging_ssm_param")
-            param_names+=("$sandbox_ssm_param")
-            param_names+=("$prod_ssm_param")
 
             param_names_string="${param_names[*]}"
+
+            echo "$param_names_string"
 
             ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
 
