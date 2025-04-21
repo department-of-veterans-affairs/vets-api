@@ -213,10 +213,7 @@ module VAOS
       end
 
       def get_sorted_recent_appointments
-        appointments = get_appointments(1.year.ago, 1.year.from_now, 'booked,fulfilled,arrived,proposed')
-        if appointments[:data].length.zero?
-          appointments = get_appointments(3.years.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
-        end
+        appointments = get_appointments(1.year.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
         sort_recent_appointments(appointments[:data])
       end
 
