@@ -339,7 +339,7 @@ FactoryBot.define do
               end_date: '2010-07-06',
               start_date: '2010-03-05',
               reason_marriage_ended: 'Other',
-              reason_marriage_ended_other: 'annulled',
+              other_reason_marriage_ended: 'annulled',
               full_name: { first: 'test', middle: 'middle', last: 'spouseformerone' }
             },
             {
@@ -388,7 +388,7 @@ FactoryBot.define do
               end_date: '2011-12-06',
               start_date: '2011-08-02',
               reason_marriage_ended: 'Other',
-              reason_marriage_ended_other: 'annulled',
+              other_reason_marriage_ended: 'annulled',
               full_name: { first: 'test', middle: 'middle', last: 'formerspousetwo' }
             },
             {
