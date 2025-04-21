@@ -276,7 +276,6 @@ module PdfFill
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
           question_type: 'checked_description',
           question_num: 10,
-          override_index: 14,
           'description' => {
             key: '',
             question_num: 10,
@@ -679,8 +678,7 @@ module PdfFill
         if extras_redesign
           additional['checked'] = true
           additional['description'] = 'Unlisted Additional Behavioral Changes'
-        else
-          KEY['additionalBehaviorsDetails'][:override_index] = 0
+          KEY['additionalBehaviorsDetails'][:override_index] = 14
         end
         @form_data['additionalBehaviorsDetails'] = [additional]
       end

@@ -56,6 +56,8 @@ module PdfFill
 
       # Render content to a temporary PDF and measure the actual height
       def measure_actual_height(temp_pdf)
+        return 0 unless should_render?
+
         # Save the current cursor position
         start_cursor = temp_pdf.cursor
 
@@ -79,7 +81,6 @@ module PdfFill
       end
 
       def add_text(value, metadata)
-        super
         case metadata[:question_text]
         when 'Description'
           @description = value
@@ -106,12 +107,6 @@ module PdfFill
           "<tr><td style='width:#{@table_width}'>Additional Information:</td><td>#{info}</td></tr>",
           '</table>'
         ].flatten.join, text: { margin_bottom: 10 })
-      end
-
-      def measure_actual_height(temp_pdf)
-        return 0 unless should_render?
-
-        super
       end
     end
 
