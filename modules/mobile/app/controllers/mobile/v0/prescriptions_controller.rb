@@ -8,8 +8,7 @@ module Mobile
       before_action { authorize :mhv_prescriptions, :access? }
 
       def index
-        resource = client.get_all_rxs
-        resource.data = remove_old_expired_meds(resource)
+        resource = client.get_history_rxs
         resource = resource.find_by(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
@@ -81,13 +80,6 @@ module Mobile
         raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
 
         ids.map(&:to_i)
-      end
-
-      def remove_old_expired_meds(resource)
-        status_with_date_limit = %w[discontinued expired]
-        resource.data = resource.data.reject do |item|
-          status_with_date_limit.include?(item.refill_status) && item.expiration_date <= 180.days.ago
-        end
       end
     end
   end
