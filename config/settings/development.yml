@@ -1650,7 +1650,7 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
+    api_url: https://veteran.apps.va.gov
     base_path: csp/healthshare/ccraint/rest
     mock: false
   eps:
