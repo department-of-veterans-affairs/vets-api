@@ -72,7 +72,10 @@ module IncomeAndAssets
       # UserAccount.find will raise an error if unable to find the user_account record
 
       @claim = IncomeAndAssets::SavedClaim.find(saved_claim_id)
-      raise IncomeAndAssetsBenefitIntakeError, "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}" unless @claim
+      unless @claim
+        raise IncomeAndAssetsBenefitIntakeError,
+              "Unable to find IncomeAndAssets::SavedClaim #{saved_claim_id}"
+      end
 
       @intake_service = ::BenefitsIntake::Service.new
     end
