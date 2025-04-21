@@ -94,5 +94,45 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, headers)
       OpenStruct.new(response.body)
     end
+
+    ##
+    # Search for provider services using NPI
+    #
+    # @param npi [String] NPI number to search for
+    #
+    # @return OpenStruct response containing the provider service where an individual provider has
+    # matching NPI, or nil if not found
+    #
+    def search_provider_services(npi:)
+      query_params = { npi: }
+      response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
+
+      # NOTE: faraday converts keys to symbols
+      matching_provider = response.body[:provider_services]&.find do |provider|
+        provider[:individual_providers]&.any? { |individual| individual[:npi] == npi }
+      end
+
+      matching_provider ? OpenStruct.new(matching_provider) : nil
+    end
+
+    private
+
+    def build_search_params(params)
+      {
+        searchText: params[:search_text],
+        appointmentId: params[:appointment_id],
+        npi: params[:npi],
+        networkId: params[:network_id],
+        maxMilesFromNear: params[:max_miles_from_near],
+        nearLocation: params[:near_location],
+        organizationNames: params[:organization_names],
+        specialtyIds: params[:specialty_ids],
+        visitModes: params[:visit_modes],
+        includeInactive: params[:include_inactive],
+        digitalOrNot: params[:digital_or_not],
+        isSelfSchedulable: params[:is_self_schedulable],
+        nextToken: params[:next_token]
+      }.compact
+    end
   end
 end

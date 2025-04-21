@@ -6,10 +6,11 @@ module AskVAApi
     class AttachmentsRetrieverError < StandardError; end
 
     class Retriever < BaseRetriever
-      attr_reader :id, :service
+      attr_reader :icn, :id, :service
 
-      def initialize(id:, service: nil, **args)
+      def initialize(icn:, id:, service: nil, **args)
         super(**args)
+        @icn = icn
         @id = id
         @service = service || default_service
       end
@@ -17,7 +18,7 @@ module AskVAApi
       private
 
       def default_service
-        Crm::Service.new(icn: nil)
+        Crm::Service.new(icn:)
       end
 
       def fetch_data

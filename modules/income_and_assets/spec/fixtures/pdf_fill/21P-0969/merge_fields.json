@@ -232,7 +232,7 @@
         "millions": "12"
       },
       "canBeSold": 1,
-      "mitigatingCircumstances":"Contractual obligations",
+      "mitigatingCircumstances": "Contractual obligations",
       "recipientRelationship": 1,
       "recipientRelationshipOverflow": "SPOUSE",
       "incomeGenerationMethodOverflow": "OTHER",
@@ -497,6 +497,71 @@
       "marketValueAtEstablishmentOverflow": 1234568.89
     }
   ],
+  "unreportedAssets": [
+    {
+      "assetOwnerRelationship": 0,
+      "recipientName": null,
+      "assetType": "Cash",
+      "ownedPortionValue": {
+        "cents": "44",
+        "dollars": "333",
+        "thousands": "222",
+        "millions": "11"
+      },
+      "assetLocation": "Financial institution",
+      "assetOwnerRelationshipOverflow": "VETERAN",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Cash",
+      "ownedPortionValueOverflow": 11222333.44,
+      "assetLocationOverflow": "Financial institution"
+    },
+    {
+      "assetOwnerRelationship": 1,
+      "recipientName": null,
+      "assetType": "Art",
+      "ownedPortionValue": {
+        "cents": "45",
+        "dollars": "123"
+      },
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationshipOverflow": "SPOUSE",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Art",
+      "ownedPortionValueOverflow": 123.45,
+      "assetLocationOverflow": "123 Main St"
+    },
+    {
+      "assetOwnerRelationship": 3,
+      "recipientName": null,
+      "assetType": "Coins",
+      "ownedPortionValue": {
+        "cents": "00",
+        "dollars": "010"
+      },
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationshipOverflow": "CHILD",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Coins",
+      "ownedPortionValueOverflow": 10,
+      "assetLocationOverflow": "123 Main St"
+    },
+    {
+      "assetOwnerRelationship": 4,
+      "recipientName": null,
+      "assetType": "Chandelier",
+      "ownedPortionValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "002"
+      },
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationshipOverflow": "PARENT",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Chandelier",
+      "ownedPortionValueOverflow": 2000,
+      "assetLocationOverflow": "123 Main St"
+    }
+  ],
   "discontinuedIncomes": [
     {
       "grossAnnualAmount": {
@@ -595,6 +660,7 @@
   "assetTransfer": 0,
   "trust": 0,
   "annuity": 0,
+  "unreportedAsset": "YES",
   "discontinuedIncome": 0,
   "incomeReceiptWaiver": 0,
   "statementOfTruthSignatureDate": {
