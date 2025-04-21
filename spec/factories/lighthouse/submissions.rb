@@ -4,4 +4,3 @@ FactoryBot.define do
   factory :lighthouse_submission, class: 'Lighthouse::Submission' do
   end
 end
-  

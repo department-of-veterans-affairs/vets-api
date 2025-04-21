@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :bpds_submission, class: 'Bpds::Submission' do
+  factory :bpds_submission, class: 'BPDS::Submission' do
     form_id { 'test123' }
     reference_data do
       {

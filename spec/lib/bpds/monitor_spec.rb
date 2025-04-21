@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'bpds/monitor'
 
-RSpec.describe Bpds::Monitor do
+RSpec.describe BPDS::Monitor do
   let(:monitor) { described_class.new }
   let(:saved_claim_id) { 123 }
   let(:bpds_uuid) { 'abc-123' }
@@ -13,7 +13,7 @@ RSpec.describe Bpds::Monitor do
     it 'tracks the submit begun event' do
       expect(monitor).to receive(:track_request).with(
         'info',
-        "Bpds::Service submit begun for saved_claim ##{saved_claim_id}",
+        "BPDS::Service submit begun for saved_claim ##{saved_claim_id}",
         'api.bpds_service.submit_json.begun',
         call_location: instance_of(Thread::Backtrace::Location),
         saved_claim_id:
@@ -26,7 +26,7 @@ RSpec.describe Bpds::Monitor do
     it 'tracks the submit success event' do
       expect(monitor).to receive(:track_request).with(
         'info',
-        "Bpds::Service submit succeeded for saved_claim ##{saved_claim_id}",
+        "BPDS::Service submit succeeded for saved_claim ##{saved_claim_id}",
         'api.bpds_service.submit_json.success',
         call_location: instance_of(Thread::Backtrace::Location),
         saved_claim_id:
@@ -39,7 +39,7 @@ RSpec.describe Bpds::Monitor do
     it 'tracks the submit failure event' do
       expect(monitor).to receive(:track_request).with(
         'error',
-        "Bpds::Service submit failed for saved_claim ##{saved_claim_id}",
+        "BPDS::Service submit failed for saved_claim ##{saved_claim_id}",
         'api.bpds_service.submit_json.failure',
         call_location: instance_of(Thread::Backtrace::Location),
         saved_claim_id:,
@@ -53,7 +53,7 @@ RSpec.describe Bpds::Monitor do
     it 'tracks the get_json begun event' do
       expect(monitor).to receive(:track_request).with(
         'info',
-        "Bpds::Service get_json begun for bpds_uuid ##{bpds_uuid}",
+        "BPDS::Service get_json begun for bpds_uuid ##{bpds_uuid}",
         'api.bpds_service.get_json_by_bpds_uuid.begun',
         call_location: instance_of(Thread::Backtrace::Location),
         bpds_uuid:
@@ -66,7 +66,7 @@ RSpec.describe Bpds::Monitor do
     it 'tracks the get_json success event' do
       expect(monitor).to receive(:track_request).with(
         'info',
-        "Bpds::Service get_json succeeded for bpds_uuid ##{bpds_uuid}",
+        "BPDS::Service get_json succeeded for bpds_uuid ##{bpds_uuid}",
         'api.bpds_service.get_json_by_bpds_uuid.success',
         call_location: instance_of(Thread::Backtrace::Location),
         bpds_uuid:
@@ -79,7 +79,7 @@ RSpec.describe Bpds::Monitor do
     it 'tracks the get_json failure event' do
       expect(monitor).to receive(:track_request).with(
         'error',
-        "Bpds::Service get_json failed for bpds_uuid ##{bpds_uuid}",
+        "BPDS::Service get_json failed for bpds_uuid ##{bpds_uuid}",
         'api.bpds_service.get_json_by_bpds_uuid.failure',
         call_location: instance_of(Thread::Backtrace::Location),
         bpds_uuid:,

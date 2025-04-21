@@ -15,4 +15,3 @@ class Lighthouse::Submission < ApplicationRecord
   has_many :lighthouse_submission_attempts, class_name: 'Lighthouse::SubmissionAttempt'
   belongs_to :saved_claim, optional: true
 end
-  

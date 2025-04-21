@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'bpds/service'
 
-RSpec.describe Bpds::Service do
+RSpec.describe BPDS::Service do
   let(:service) { described_class.new }
   let(:claim) { double('SavedClaim', id: 1, form_id: '21-526EZ', parsed_form: { 'key' => 'value' }) }
   let(:participant_id) { '123456' }

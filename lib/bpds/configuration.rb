@@ -5,7 +5,7 @@ require 'faraday/multipart'
 
 # Benefits Processing Data Service (BPDS)
 # https://department.va.gov/privacy/wp-content/uploads/sites/5/2024/09/FY24BenefitsProcessingDataServiceBPDSPIA_508.pdf
-module Bpds
+module BPDS
   # Configuration for BPDS service
   class Configuration < Common::Client::Configuration::REST
     # settings bpds url
@@ -19,14 +19,14 @@ module Bpds
     #
     # @return [String] Service name to use in breakers and metrics.
     def service_name
-      'Bpds::Service'
+      'BPDS::Service'
     end
 
     # generate request headers
     #
     # @return [Hash] The basic headers required for any Lighthouse API call
     def self.base_request_headers
-      super.merge('Authorization' => "Bearer #{Bpds::JwtEncoder.new.get_token}")
+      super.merge('Authorization' => "Bearer #{BPDS::JwtEncoder.new.get_token}")
     end
 
     # Creates a connection with json parsing and breaker functionality.

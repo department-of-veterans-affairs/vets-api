@@ -3,10 +3,10 @@
 require 'rails_helper'
 require 'bpds/jwt_encoder'
 
-RSpec.describe Bpds::JwtEncoder do
+RSpec.describe BPDS::JwtEncoder do
   describe '#get_token' do
     it 'returns a token with required fields' do
-      encoded_jwt = Bpds::JwtEncoder.new.get_token
+      encoded_jwt = BPDS::JwtEncoder.new.get_token
       decoded_jwt = JWT.decode(encoded_jwt, Settings.bpds.jwt_secret, true, {
                                  typ: 'JWT',
                                  alg: 'HS256'

@@ -27,7 +27,7 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
-  has_many :bpds_submissions, dependent: :nullify
+  has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
   has_many :lighthouse_submissions, dependent: :nullify
   has_many :claim_va_notifications, dependent: :destroy
 

@@ -4,4 +4,3 @@ FactoryBot.define do
   factory :lightouse_submission_attempt, class: 'Lighthouse::SubmissionAttempts' do
   end
 end
-  

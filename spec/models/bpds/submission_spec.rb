@@ -2,6 +2,6 @@
 
 require 'rails_helper'
 
-RSpec.describe Bpds::Submission, type: :model do
+RSpec.describe BPDS::Submission, type: :model do
   it { is_expected.to validate_presence_of :form_id }
 end
