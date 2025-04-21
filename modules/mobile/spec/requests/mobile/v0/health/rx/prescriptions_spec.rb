@@ -363,7 +363,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response.parsed_body).to eq({ 'errors' =>
                                                  [{ 'title' => 'Invalid sort criteria',
                                                     'detail' =>
-                                                      '"quantity" is not a valid sort criteria for "PrescriptionDetails"',
+                                                      '"quantity" is not a valid sort criteria' \
+                                                      ' for "PrescriptionDetails"',
                                                     'code' => '106',
                                                     'status' => '400' }] })
         end
