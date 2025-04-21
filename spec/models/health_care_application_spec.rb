@@ -16,10 +16,6 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
-  end
-
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
       str = 'f' * 6000
@@ -371,6 +367,18 @@ RSpec.describe HealthCareApplication, type: :model do
 
           health_care_application.send_event_bus_event('received')
         end
+      end
+    end
+
+    context 'with the hca_ez_kafka_submission_enabled feature flag off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(false)
+      end
+
+      it 'does not call Kafka.submit_event' do
+        expect(Kafka).not_to receive(:submit_event)
+
+        health_care_application.send_event_bus_event('received')
       end
     end
   end
@@ -884,6 +892,17 @@ RSpec.describe HealthCareApplication, type: :model do
         end
       end
 
+      context 'hca_ez_kafka_submission_enabled feature flag off' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(false)
+        end
+
+        it 'does not send the "error" event to the Event Bus' do
+          expect(Kafka).not_to receive(:submit_event).with(hash_including(state: 'error'))
+          subject
+        end
+      end
+
       context '@parsed_form is nil' do
         before do
           health_care_application.instance_variable_set(:@parsed_form, nil)
@@ -972,6 +991,22 @@ RSpec.describe HealthCareApplication, type: :model do
       )
 
       health_care_application.set_result_on_success!(result)
+    end
+
+    context 'hca_ez_kafka_submission_enabled feature flag off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(false)
+      end
+
+      it 'does not send the "sent" event to the Event Bus' do
+        health_care_application = build(:health_care_application)
+
+        expect(Kafka).not_to receive(:submit_event).with(
+          hash_including(state: 'sent')
+        )
+
+        health_care_application.set_result_on_success!(result)
+      end
     end
   end
 

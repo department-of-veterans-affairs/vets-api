@@ -344,7 +344,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
         context 'with an email set' do
           before do
-            allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
             expect(HealthCareApplication).to receive(:user_icn).and_return('123')
           end
 
@@ -354,7 +353,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         context 'with no email set' do
           before do
             test_veteran.delete('email')
-            allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
           end
 
           it 'increments statsd' do
@@ -431,7 +429,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'raises an invalid field value error' do
-          allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
           expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
@@ -444,7 +441,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
           before do
             test_veteran.delete('email')
-            allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
             allow_any_instance_of(HCA::Service).to receive(:submit_form) do
               raise error
             end
