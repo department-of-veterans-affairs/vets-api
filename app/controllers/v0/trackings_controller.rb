@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class TrackingsController < RxController
+  class TrackingsController < MyHealth::RxController
     # This index action supports various parameters described below, all are optional
     # This comment can be removed once documentation is finalized
     # @param page - the paginated page to fetch
