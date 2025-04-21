@@ -88,25 +88,11 @@ jobs:
             exit 0
           fi
 
+
+          aws ssm get-parameters --names /dsva-vagov/vets-api/dev/env_vars/hostname --query "Parameters[*].Name
+
           invalid_parameters=()
 
-          for key in "${keys[@]}"; do
-            param_names=()
-            
-            dev_ssm_param="/dsva-vagov/vets-api/dev/env_vars/hostname"
-
-            param_names+=("$dev_ssm_param")
-
-            param_names_string="${param_names[*]}"
-
-            echo "$param_names_string"
-
-            ssm_output=$(aws ssm get-parameters --names $param_names_string --query "Parameters[*].Name")
-
-            invalid_parameters+=$(echo "$ssm_output" | jq -c 'select(.InvalidParameters != null).InvalidParameters')
-          done
-
-          echo "INVALID_PARAMETERS=$invalid_parameters" >> $GITHUB_ENV
 
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
