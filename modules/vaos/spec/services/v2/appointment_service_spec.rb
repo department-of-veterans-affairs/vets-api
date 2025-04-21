@@ -2153,13 +2153,20 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
+    %w[MOBILE_ANY ADHOC].each do |input|
       it "is vaVideoCareAtHome for #{input} vvsKind" do
         appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
         appt[:telehealth][:vvs_kind] = input
         subject.send(:set_modality, appt)
         expect(appt[:modality]).to eq('vaVideoCareAtHome')
       end
+    end
+
+    it 'is vaInPerson for nil vvsKind' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = nil
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaInPerson')
     end
 
     it 'is nil for unrecognized vvsKind' do

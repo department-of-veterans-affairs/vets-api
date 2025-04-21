@@ -918,8 +918,10 @@ module VAOS
           'vaVideoCareAtAnAtlasLocation'
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
+        elsif %w[MOBILE_ANY ADHOC].include?(vvs_kind)
           'vaVideoCareAtHome'
+        elsif vvs_kind.nil?
+          'vaInPerson'
         end
       end
 
