@@ -3,5 +3,5 @@
 require 'rails_helper'
 
 RSpec.describe BPDS::SubmissionAttempt, type: :model do
-  it { is_expected.to validate_presence_of :bpds_submission_id }
+  it { is_expected.to validate_presence_of :submission }
 end

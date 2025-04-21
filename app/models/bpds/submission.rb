@@ -9,6 +9,7 @@ class BPDS::Submission < Submission
   has_kms_key
   has_encrypted :reference_data, key: :kms_key, **lockbox_options
 
-  has_many :submission_attempts, class_name: 'BPDS::SubmissionAttempt', foreign_key: :bpds_submission_id
+  has_many :submission_attempts, class_name: 'BPDS::SubmissionAttempt', foreign_key: :bpds_submission_id,
+                                 dependent: :destroy, inverse_of: :submission
   belongs_to :saved_claim, optional: true
 end

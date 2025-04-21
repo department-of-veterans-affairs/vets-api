@@ -8,9 +8,11 @@ class SubmissionAttempt < ApplicationRecord
   after_create :update_submission_status
   after_update :update_submission_status
 
+  validates :submission, presence: true
+
   private
 
   def update_submission_status
-    raise NotImplementedError, 'You must implement the update_submission_status method in your subclass'
+    submission.update(latest_status: status) if status_changed? || id_previously_changed?
   end
 end
