@@ -1,0 +1,86 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/v1/fhir/Patient?identifier=12345"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Authorization: Bearer <TOKEN>
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - localhost:2003
+    response:
+      status:
+        code: 200
+        message: ""
+      headers:
+        Date:
+          - Thu, 28 Sep 2023 18:36:15 GMT
+        Content-Type:
+          - application/fhir+json;charset=UTF-8
+        Transfer-Encoding:
+          - chunked
+        X-Powered-By:
+          - HAPI FHIR 6.2.2 REST Server (FHIR Server; FHIR 4.0.1/R4)
+        X-Request-Id:
+          - d2627c3d159be1e9d944fbfb77fe9e2c
+        Last-Modified:
+          - Thu, 28 Sep 2023 18:36:15 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "Bundle",
+            "id": "ec562c9d-59e6-489d-9d75-0204dd8dc1e1",
+            "meta": {
+              "lastUpdated": "2023-09-28T14:36:15.932-04:00"
+            },
+            "type": "searchset",
+            "total": 1,
+            "link": [ {
+              "relation": "self",
+              "url": "https://mhv-sysb-api.myhealth.va.gov/fhir/Patient?identifier=10055240"
+            } ],
+            "entry": [ {
+              "fullUrl": "https://mhv-sysb-api.myhealth.va.gov/fhir/Patient/2952",
+              "resource": {
+                "resourceType": "Patient",
+                "id": "2952",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-09-12T17:31:44.651-04:00",
+                  "source": "#23I9uIyUA32rA5IF"
+                },
+                "text": {
+                  "status": "generated",
+                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\">MELVIN FREEMAN </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Identifier</td><td>10055240</td></tr><tr><td>Date of birth</td><td><span>19 November 1971</span></td></tr></tbody></table></div>"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "10055240"
+                } ],
+                "active": true,
+                "name": [ {
+                  "given": [ "MELVIN", "FREEMAN" ]
+                } ],
+                "gender": "male",
+                "birthDate": "1971-11-19"
+              },
+              "search": {
+                "mode": "match"
+              }
+            } ]
+          }
+    recorded_at: Thu, 28 Sep 2023 18:36:15 GMT
+recorded_with: VCR 6.2.0
