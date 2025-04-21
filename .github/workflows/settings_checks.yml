@@ -80,6 +80,8 @@ jobs:
 
           keys=()
           for line in $new_env_keys; do
+            # Remove any quotes that might be present
+            line=$(echo "$line" | tr -d "'")
             keys+=("$line")
           done
 
@@ -88,6 +90,11 @@ jobs:
             exit 0
           fi
 
+          echo "Found the following ENV keys:"
+          for key in "${keys[@]}"; do
+            echo "  - $key"
+          done
+
           invalid_parameters=()
 
           for key in "${keys[@]}"; do
@@ -95,6 +102,8 @@ jobs:
             
             # replace double underscores with slashes
             formatted_key=$(echo "$key" | sed 's/__/\//g')
+            
+            echo "Processing key: $key (formatted as: $formatted_key)"
             
             dev_ssm_param="/dsva-vagov/vets-api/dev/env_vars/$formatted_key"
             staging_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$formatted_key"
@@ -106,26 +115,48 @@ jobs:
             param_names+=("$sandbox_ssm_param")
             param_names+=("$prod_ssm_param")
 
-            # Quote the parameter names to handle spaces properly
-            ssm_output=$(aws ssm get-parameters --names "${param_names[@]}" --query "Parameters[*].Name" 2>/dev/null)
+            # Use a more resilient approach for the AWS command
+            set +e  # Don't exit on error
+            ssm_output=$(aws ssm get-parameters \
+              --names "${param_names[@]}" \
+              --query "InvalidParameters" \
+              --output json 2>&1)
+            aws_exit_code=$?
+            set -e  # Restore exit on error
             
-            # Append to invalid_parameters properly
-            if [[ "$ssm_output" == *"InvalidParameters"* ]]; then
-              invalid_param=$(echo "$ssm_output" | jq -r '.InvalidParameters[]' 2>/dev/null)
-              if [[ -n "$invalid_param" ]]; then
-                if [[ ${#invalid_parameters[@]} -eq 0 ]]; then
-                  invalid_parameters=("$invalid_param")
-                else
-                  invalid_parameters+=("$invalid_param")
+            echo "AWS command exit code: $aws_exit_code"
+            
+            if [ $aws_exit_code -ne 0 ]; then
+              echo "AWS SSM command failed with output: $ssm_output"
+              continue  # Skip to next key
+            }
+            
+            # Process invalid parameters
+            if [[ -n "$ssm_output" && "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
+              echo "Found invalid parameters: $ssm_output"
+              # Parse the JSON output to extract invalid parameters
+              while read -r param; do
+                if [[ -n "$param" ]]; then
+                  invalid_parameters+=("$param")
                 fi
-              fi
+              done < <(echo "$ssm_output" | jq -r '.[]' 2>/dev/null || echo "")
             fi
           done
 
-          # Join invalid parameters with commas for output
-          invalid_params_string=$(IFS=,; echo "${invalid_parameters[*]}")
-          echo "INVALID_PARAMETERS=$invalid_params_string" >> $GITHUB_ENV
-
+          # Display invalid parameters
+          echo "Invalid parameters found: ${#invalid_parameters[@]}"
+          if [[ ${#invalid_parameters[@]} -gt 0 ]]; then
+            for param in "${invalid_parameters[@]}"; do
+              echo "  - $param"
+            done
+            
+            invalid_params_string=$(IFS=,; echo "${invalid_parameters[*]}")
+            echo "Setting GITHUB_ENV: INVALID_PARAMETERS=$invalid_params_string"
+            echo "INVALID_PARAMETERS=$invalid_params_string" >> $GITHUB_ENV
+          else
+            echo "No invalid parameters found"
+            echo "INVALID_PARAMETERS=" >> $GITHUB_ENV
+          fi
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
         uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
