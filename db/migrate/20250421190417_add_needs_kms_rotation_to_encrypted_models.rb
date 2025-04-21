@@ -1,0 +1,11 @@
+class AddNeedsKmsRotationToEncryptedModels < ActiveRecord::Migration[7.2]
+  def change
+    tables = %i[
+      appeal_submissions appeals_api_evidence_submissions appeals_api_higher_level_reviews appeals_api_notice_of_disagreements appeals_api_supplemental_claims ar_power_of_attorney_form_submissions ar_power_of_attorney_forms ar_power_of_attorney_request_resolutions async_transactions claims_api_auto_established_claims claims_api_evidence_waiver_submissions claims_api_power_of_attorneys claims_api_supporting_documents decision_review_notification_audit_logs education_benefits_claims education_stem_automated_decisions evidence_submissions form1095_bs form526_submissions form5655_submissions form_attachments form_submission_attempts form_submissions gibs_not_found_users health_quest_questionnaire_responses in_progress_forms ivc_champva_forms nod_notifications oauth_sessions persistent_attachments personal_information_logs saved_claims secondary_appeal_forms user_credential_emails va_notify_notifications vye_address_changes vye_direct_deposit_changes vye_user_infos
+    ]
+
+    tables.each do |table|
+      add_column table, :needs_kms_rotation, :boolean, default: false, null: false
+    end
+  end
+end
