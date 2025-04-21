@@ -1239,6 +1239,9 @@ features:
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
+  profile_international_phone_numbers:
+    actor_type: user
+    description: When enabled, users can save international phone numbers to their profile contact information.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
