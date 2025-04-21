@@ -15,11 +15,11 @@ module IncomeAndAssets
       include ::PdfFill::Forms::FormHelper
       include IncomeAndAssets::Helpers
 
+      # The Form ID
+      FORM_ID = IncomeAndAssets::FORM_ID
+
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
-
-      # The ID of the form being processed
-      FORM_ID = '21P-0969'
 
       # The path to the PDF template for the form
       TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
@@ -766,6 +766,51 @@ module IncomeAndAssets
             question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
           }
         },
+        # 10a
+        'unreportedAsset' => { key: 'F[0].#subform[8].DependentsHaveAssetsNotReported10a[0]' },
+        'unreportedAssets' => {
+          limit: 4,
+          first_key: 'assetOwnerRelationship',
+          # 10b
+          'assetOwnerRelationship' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
+          'otherRelationshipType' => {
+            key: "F[0].OtherRelationship10[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(b)',
+            question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
+          },
+          'assetOwnerRelationshipOverflow' => {
+            question_num: 10,
+            question_suffix: '(b)',
+            question_text: 'SPECIFY ASSET OWNER\'S RELATIONSHIP TO THE VETERAN'
+          },
+          # 10c
+          'assetType' => {
+            key: "F[0].TypeOfAsset10[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(d)',
+            question_text: 'SPECIFY TYPE OF ASSET (CASH, ART, ETC.)'
+          },
+          # 10d
+          'ownedPortionValue' => {
+            'millions' => { key: "F[0].ValueOfYourPortionOfProperty1_10[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].ValueOfYourPortionOfProperty2_10[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].ValueOfYourPortionOfProperty3_10[#{ITERATOR}]" },
+            'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
+          },
+          'ownedPortionValueOverflow' => {
+            question_num: 10,
+            question_suffix: '(c)',
+            question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
+          },
+          # 10e
+          'assetLocation' => {
+            key: "F[0].AssetLocation[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(e)',
+            question_text: 'SPECIFY ASSET LOCATION (FINANCIAL INSTITUTION, PROPERTY ADDRESS, ETC.)'
+          }
+        },
         # Section 11
         # 11a
         'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
@@ -786,7 +831,7 @@ module IncomeAndAssets
             key: "F[0].OtherRelationship11[#{ITERATOR}]",
             question_num: 11,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN (OTHER)"
           },
           # Q2
           'recipientName' => {
@@ -968,6 +1013,7 @@ module IncomeAndAssets
         expand_asset_transfers
         expand_trusts
         expand_annuities
+        expand_unreported_assets
         expand_discontinued_incomes
         expand_income_receipt_waivers
         expand_statement_of_truth
@@ -1305,6 +1351,42 @@ module IncomeAndAssets
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = annuity[fieldname]
+        end
+        expanded.merge(overflow)
+      end
+
+      # Section 10
+      ##
+      # Expands and transforms the `unreportedAssets` field in the form data.
+      #
+      # If `unreportedAssets` is present and not empty, sets a flag `unreportedAssets` to 0,
+      # otherwise sets it to 1. Then maps over the assets to apply individual transformations.
+      #
+      def expand_unreported_assets
+        unreported_assets = form_data['unreportedAssets']
+        form_data['unreportedAsset'] = unreported_assets&.length ? 'YES' : 'NO'
+        form_data['unreportedAssets'] = unreported_assets&.map do |asset|
+          expand_unreported_asset(asset)
+        end
+      end
+
+      ##
+      # Expands a asset's data by processing its attributes and transforming them into structured output
+      #
+      # @param asset [Hash]
+      # @return [Hash]
+      #
+      def expand_unreported_asset(asset)
+        expanded = {
+          'assetOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[asset['assetOwnerRelationship']],
+          'recipientName' => asset['recipientName'],
+          'assetType' => asset['assetType'],
+          'ownedPortionValue' => split_currency_amount(asset['ownedPortionValue']),
+          'assetLocation' => asset['assetLocation']
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = asset[fieldname]
         end
         expanded.merge(overflow)
       end
