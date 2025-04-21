@@ -118,5 +118,16 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
         expect(builder.call[:SubmitterStateOfResidency]).to eq({ Name: 'Colorado', StateCode: 'CO' })
       end
     end
+
+    context 'when counselor field is present' do
+      let(:params) { veteran_spouse_edu_vrae_flow[:inquiry] }
+
+      it 'includes the counselor value in the payload' do
+        result = builder.call
+
+        # Adjust this line based on how and where counselor is mapped in your payload
+        expect(result[:WhoWasTheirCounselor]).to eq('Joe Smith')
+      end
+    end
   end
 end
