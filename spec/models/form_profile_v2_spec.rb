@@ -1524,7 +1524,7 @@ RSpec.describe FormProfile, type: :model do
           26-4555
           21-22
           21-22A
-          10-7959f-2
+          10-7959F-2
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
