@@ -4,6 +4,8 @@ require 'ivc_champva/monitor'
 
 module IvcChampva
   class FileUploader
+    attr_reader :metadata
+
     ##
     # Initialize new file uploader
     #

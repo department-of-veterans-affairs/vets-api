@@ -615,9 +615,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
           let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
           let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
-          let(:file_uploader) do
-            IvcChampva::FileUploader.new(form_id, metadata, file_paths)
-          end
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata: metadata) }
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
@@ -626,6 +624,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           context 'when require_all_s3_success feature is enabled' do
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
@@ -637,9 +636,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             it 'returns success when all uploads succeed' do
               allow(mock_s3).to receive(:put_object).and_return({ success: true })
 
-              expect(file_uploader.handle_uploads).to eq([200, nil])
+              expect(uploader.handle_uploads).to eq([200, nil])
 
-              statuses, error_message = controller.call_handle_file_uploads(form_id, parsed_form_data)
+              statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200])
               expect(error_message).to eq([])
             end
@@ -652,7 +651,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                                                 })
 
               expect do
-                file_uploader.handle_uploads
+                uploader.handle_uploads
               end.to raise_error(StandardError, /failed to upload all documents/)
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
@@ -744,9 +743,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
           let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
           let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
-          let(:file_uploader) do
-            IvcChampva::FileUploader.new(form_id, metadata, file_paths)
-          end
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata: metadata) }
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
@@ -755,6 +752,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           context 'when require_all_s3_success feature is enabled' do
+            let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, true) }
             let(:mock_s3) { instance_double(IvcChampva::S3) }
 
             before do
@@ -766,7 +764,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             it 'returns success when all uploads succeed' do
               allow(mock_s3).to receive(:put_object).and_return({ success: true })
 
-              expect(file_uploader.handle_uploads).to eq([200, nil])
+              expect(uploader.handle_uploads).to eq([200, nil])
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
               expect(statuses).to eq([200])
@@ -781,7 +779,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                                                 })
 
               expect do
-                file_uploader.handle_uploads
+                uploader.handle_uploads
               end.to raise_error(StandardError, /failed to upload all documents/)
 
               statuses, error_message = controller.send(:call_handle_file_uploads, form_id, parsed_form_data)
