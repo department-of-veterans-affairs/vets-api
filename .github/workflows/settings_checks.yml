@@ -89,7 +89,7 @@ jobs:
           fi
 
 
-          aws ssm get-parameters --names /dsva-vagov/vets-api/dev/env_vars/hostname --query "Parameters[*].Name
+          aws ssm get-parameters --names /dsva-vagov/vets-api/dev/env_vars/hostname --query "Parameters[*].Name"
 
           invalid_parameters=()
 
