@@ -4,6 +4,7 @@ module AskVAApi
   module V0
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
+      before_action :require_loa3!, except: %i[unauth_create status]
       skip_before_action :authenticate, only: %i[unauth_create status]
 
       def index
@@ -102,6 +103,10 @@ module AskVAApi
 
       def fetch_parameters(key)
         I18n.t("ask_va_api.parameters.inquiry.#{key}")
+      end
+
+      def require_loa3!
+        raise Common::Exceptions::Unauthorized unless current_user&.loa&.fetch(:current, nil) == 3
       end
 
       class InvalidAttachmentError < StandardError; end
