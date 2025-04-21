@@ -1451,7 +1451,7 @@ vanotify:
           template_id: <%= ENV['vanotify__services__21p_527ez__email__error__template_id'] %>
         received:
           flipper_id: pension_received_email_notification
-          template_id: 54140052-af03-4d2b-9903-cd33f21dc422
+          template_id: <%= ENV['vanotify__services__21p_527ez__email__received__template_id'] %>
         submitted:
           flipper_id: pension_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__submitted__template_id'] %>
