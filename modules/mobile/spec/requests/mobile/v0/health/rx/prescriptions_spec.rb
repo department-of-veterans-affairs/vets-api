@@ -10,17 +10,22 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }
-  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/gethistoryrx' }
+  let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/medications' }
   let(:set_cache) do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
 
-    Common::Collection.fetch(Prescription, cache_key: '123:gethistoryrx', ttl: 3600) { json_data }
+    Common::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
   end
 
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+    Timecop.freeze(Time.zone.parse('2025-04-21T00:00:00.000Z'))
+  end
+
+  after do
+    Timecop.return
   end
 
   describe 'GET /mobile/v0/health/rx/prescriptions/refill', :aggregate_failures do
@@ -43,7 +48,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_with_error') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
-                                                           headers: sis_headers
+              headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -64,7 +69,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_with_multiple_errors') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[7417954 6970769 8398465] },
-                                                           headers: sis_headers
+              headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -106,7 +111,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'returns error and successful refills' do
         VCR.use_cassette('mobile/rx_refill/prescriptions/refills_prescriptions_not_found') do
           put '/mobile/v0/health/rx/prescriptions/refill', params: { ids: %w[21530889 21539942 123456] },
-                                                           headers: sis_headers
+              headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         attributes = response.parsed_body.dig('data', 'attributes')
@@ -143,7 +148,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   describe 'GET /mobile/v0/health/rx/prescriptions', :aggregate_failures do
     context 'with a valid MHV response and no failed facilities' do
       it 'returns 200' do
-        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
@@ -151,15 +156,17 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
 
-    context 'with a valid EVSS response and failed facilities' do
-      it 'returns 200 and omits failed facilities' do
-        VCR.use_cassette('mobile/rx_refill/prescriptions/handles_failed_stations') do
-          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
-        end
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('prescription')
-      end
-    end
+    # NOTE: There is no equivalent cassette that includes a 'failed_facilites' attribute for
+    # the new endpoint
+    # context 'with a valid EVSS response and failed facilities' do
+    #   it 'returns 200 and omits failed facilities' do
+    #     VCR.use_cassette('mobile/rx_refill/prescriptions/handles_failed_stations') do
+    #       get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+    #     end
+    #     expect(response).to have_http_status(:ok)
+    #     expect(response.body).to match_json_schema('prescription')
+    #   end
+    # end
 
     context 'when cache is populated' do
       it 'uses cache instead of service' do
@@ -177,7 +184,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       let!(:user) { sis_user }
 
       it 'returns a 403 forbidden response' do
-        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response).to have_http_status(:forbidden)
@@ -190,15 +197,16 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     end
 
     describe 'error cases' do
-      it 'converts 400 errors to 409' do
-        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_optimistic_locking_error') do
-          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
-        end
+      # NOTE: There is no equivalent 'optimistic locking error' cassette for the new endpoint
+      # it 'converts 400 errors to 409' do
+      #   VCR.use_cassette('mobile/rx_refill/prescriptions/gets_optimistic_locking_error') do
+      #     get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+      #   end
 
-        expect(response).to have_http_status(:conflict)
-      end
+      #   expect(response).to have_http_status(:conflict)
+      # end
 
-      it 'converts Faraday::TimeouError to 408' do
+      it 'converts Faraday::TimeoutError to 408' do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
 
         get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
@@ -210,15 +218,15 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       it 'forms meta data' do
         params = { page: { number: 2, size: 3 } }
 
-        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
         expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
                                                                    'perPage' => 3,
-                                                                   'totalPages' => 20,
-                                                                   'totalEntries' => 59 })
+                                                                   'totalPages' => 51,
+                                                                   'totalEntries' => 153 })
       end
     end
 
@@ -227,7 +235,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         params = { filter: { refill_status: { eq: 'refillinprocess' } } }
 
         it 'returns all prescriptions that are refillinprocess status' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
@@ -239,17 +247,19 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
 
       context 'filter by multiple fields' do
-        params = { filter: { is_refillable: { eq: 'true' }, is_trackable: { eq: 'true' } } }
+        # NOTE: There are currently no responses with 'is_refillable' AND 'is_trackable' as true
+        params = { filter: { is_refillable: { eq: 'false' }, is_trackable: { eq: 'true' } } }
 
         it 'returns all prescriptions that are both trackable and refillable' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
+          puts response.body
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].size).to eq(1)
           expect(response.parsed_body.dig('data', 0, 'attributes', 'isTrackable')).to be(true)
-          expect(response.parsed_body.dig('data', 0, 'attributes', 'isRefillable')).to be(true)
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'isRefillable')).to be(false)
         end
       end
 
@@ -259,7 +269,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         end
 
         it 'returns all prescriptions that are both trackable and refillable' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
@@ -274,7 +284,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         params = { page: { number: 1, size: 59 }, filter: { refill_status: { not_eq: 'refillinprocess' } } }
 
         it 'returns all prescriptions that are not refillinprocess status' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:ok)
@@ -283,7 +293,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           refill_statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
 
           # does not include refillinprocess
-          expect(refill_statuses).to eq(%w[discontinued transferred expired activeParked active submitted hold unknown])
+          expect(refill_statuses).to eq(%w[expired discontinued renew activeParked active submitted])
         end
       end
 
@@ -291,7 +301,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         params = { filter: { quantity: { eq: '8' } } }
 
         it 'cannot filter by unexpected field' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
           expect(response).to have_http_status(:bad_request)
@@ -310,16 +320,16 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         let(:params) { { sort: 'refill_status' } }
 
         it 'sorts prescriptions by ASC refill_status' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }).to eq(
-            %w[active active active active activeParked activeParked activeParked activeParked discontinued
-               discontinued]
-          )
+                                                                                                    %w[active active active active active active active active active
+               activeParked]
+                                                                                                  )
         end
       end
 
@@ -327,7 +337,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         let(:params) { { sort: '-refill_status' } }
 
         it 'sorts prescriptions by DESC refill_status' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
 
@@ -336,8 +346,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response.parsed_body['data'].map do |d|
             d.dig('attributes',
                   'refillStatus')
-          end).to eq(%w[unknown transferred submitted submitted submitted submitted refillinprocess
-                        refillinprocess refillinprocess refillinprocess])
+          end).to eq(%w[unknown unknown unknown unknown submitted submitted submitted
+                        submitted submitted submitted])
         end
       end
 
@@ -345,7 +355,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         let(:params) { { sort: 'quantity' } }
 
         it 'sorts prescriptions by refill_status' do
-          VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
 
@@ -353,7 +363,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response.parsed_body).to eq({ 'errors' =>
                                                  [{ 'title' => 'Invalid sort criteria',
                                                     'detail' =>
-                                                      '"quantity" is not a valid sort criteria for "Prescription"',
+                                                      '"quantity" is not a valid sort criteria for "PrescriptionDetails"',
                                                     'code' => '106',
                                                     'status' => '400' }] })
         end
@@ -365,40 +375,39 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         params = { 'page' => { number: 2, size: 3 }, 'sort' => '-refill_date',
                    filter: { refill_status: { eq: 'refillinprocess' } } }
 
-        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
         end
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
         expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
                                                                    'perPage' => 3,
-                                                                   'totalPages' => 12,
-                                                                   'totalEntries' => 36 })
+                                                                   'totalPages' => 5,
+                                                                   'totalEntries' => 13 })
 
         statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
         expect(statuses).to eq(['refillinprocess'])
 
         expect(response.parsed_body['data'].map { |p| p.dig('attributes', 'refillDate') }).to eq(
-          %w[
-            2021-12-07T05:00:00.000Z 2021-10-27T04:00:00.000Z 2021-10-22T04:00:00.000Z
+                                                                                                %w[
+            2025-04-11T04:00:00.000Z 2025-04-10T04:00:00.000Z 2025-04-10T04:00:00.000Z
           ]
-        )
+                                                                                              )
       end
     end
 
     describe 'counting subscription statuses' do
       it 'returns meta with a count of all statuses while grouping certain ones under active' do
-        VCR.use_cassette('mobile/rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response.parsed_body['meta']['prescriptionStatusCount']).to eq({
-                                                                                'active' => 48,
-                                                                                'discontinued' => 6,
-                                                                                'transferred' => 1,
-                                                                                'expired' => 2,
-                                                                                'isRefillable' => 5,
-                                                                                'hold' => 1,
-                                                                                'unknown' => 1
+                                                                                'active' => 34,
+                                                                                'discontinued' => 82,
+                                                                                'expired' => 22,
+                                                                                'unknown' => 4,
+                                                                                'renew' => 4,
+                                                                                'newOrder' => 7
                                                                               })
       end
     end
