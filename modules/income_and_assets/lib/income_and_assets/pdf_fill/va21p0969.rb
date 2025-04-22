@@ -5,7 +5,6 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
-require 'income_and_assets/pdf_fill/sections/section_08'
 require 'income_and_assets/pdf_fill/sections/section_09'
 require 'income_and_assets/pdf_fill/sections/section_10'
 require 'income_and_assets/pdf_fill/sections/section_11'
@@ -548,12 +547,128 @@ module IncomeAndAssets
             question_suffix: '(11)',
             question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)'
           }
+        },
+        # 8a
+        'trust' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
+        'trusts' => {
+          limit: 1,
+          first_key: 'establishedDate',
+          # 8b
+          'establishedDate' => {
+            'month' => { key: "F[0].Page_10[0].Month8b[#{ITERATOR}]" },
+            'day' => { key: "F[0].Page_10[0].Day8b[#{ITERATOR}]" },
+            'year' => { key: "F[0].Page_10[0].Year8b[#{ITERATOR}]" }
+          },
+          'establishedDateOverflow' => {
+            question_num: 8,
+            question_suffix: '(b)',
+            question_text: 'DATE TRUST ESTABLISHED (MM/DD/YYYY)'
+          },
+          # 8c
+          'marketValueAtEstablishment' => {
+            'millions' => { key: "F[0].Page_10[0].MarketValue1_8c[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].Page_10[0].MarketValue2_8c[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].MarketValue3_8c[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
+          },
+          'marketValueAtEstablishmentOverflow' => {
+            question_num: 8,
+            question_suffix: '(c)',
+            question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHEMENT'
+          },
+          # 8d
+          'trustType' => { key: "F[0].Page_10[0].TypeOfTrust8d[#{ITERATOR}]" },
+          'trustTypeOverflow' => {
+            question_num: 8,
+            question_suffix: '(d)',
+            question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED'
+          },
+          # 8e
+          'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
+          'addedFundsAfterEstablishmentOverflow' => {
+            question_num: 8,
+            question_suffix: '(e)',
+            question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?'
+          },
+          # 8f
+          'addedFundsDate' => {
+            'month' => { key: "F[0].Page_10[0].Transfer8fMonth[#{ITERATOR}]" },
+            'day' => { key: "F[0].Page_10[0].Transfer8fDay[#{ITERATOR}]" },
+            'year' => { key: "F[0].Page_10[0].Transfer8fYear[#{ITERATOR}]" }
+          },
+          'addedFundsDateOverflow' => {
+            question_num: 8,
+            question_suffix: '(f)',
+            question_text: 'WHEN DID YOU ADD FUNDS? (MM/DD/YYYY)'
+          },
+          # 8g
+          'addedFundsAmount' => {
+            'thousands' => { key: "F[0].Page_10[0].HowMuchTransferred1_8g[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].HowMuchTransferred2_8g[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
+          },
+          'addedFundsAmountOverflow' => {
+            question_num: 8,
+            question_suffix: '(g)',
+            question_text: 'HOW MUCH DID YOU ADD?'
+          },
+          # 8h
+          'receivingIncomeFromTrust' => { key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]" },
+          'receivingIncomeFromTrustOverflow' => {
+            question_num: 8,
+            question_suffix: '(h)',
+            question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? '
+          },
+          # 8i
+          'annualReceivedIncome' => {
+            'thousands' => { key: "F[0].Page_10[0].ReceiveAnnually1_8i[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].ReceiveAnnually2_8i[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]" }
+          },
+          'annualReceivedIncomeOverflow' => {
+            question_num: 8,
+            question_suffix: '(i)',
+            question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?'
+          },
+          # 8j
+          'trustUsedForMedicalExpenses' => { key: "F[0].Page_10[0].TrustUsedToPay8j[#{ITERATOR}]" },
+          'trustUsedForMedicalExpensesOverflow' => {
+            question_num: 8,
+            question_suffix: '(j)',
+            question_text:
+                              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+          },
+          # 8k
+          'monthlyMedicalReimbursementAmount' => {
+            'thousands' => { key: "F[0].Page_10[0].ReimbursedMonthly1_8k[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].Page_10[0].ReimbursedMonthly2_8k[#{ITERATOR}]" },
+            'cents' => { key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]" }
+          },
+          'monthlyMedicalReimbursementAmountOverflow' => {
+            question_num: 8,
+            question_suffix: '(k)',
+            question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?'
+          },
+          # 8l
+          'trustEstablishedForVeteransChild' => { key: "F[0].Page_10[0].EstablishedForChild8l[#{ITERATOR}]" },
+          'trustEstablishedForVeteransChildOverflow' => {
+            question_num: 8,
+            question_suffix: '(l)',
+            question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?' # rubocop:disable Layout/LineLength
+          },
+          # 8m
+          'haveAuthorityOrControlOfTrust' => { key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]" },
+          'haveAuthorityOrControlOfTrustOverflow' => {
+            question_num: 8,
+            question_suffix: '(m)',
+            question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
+          }
         }
       }
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section8, Section9, Section10, Section11].freeze
+      SECTIONS = [Section9, Section10, Section11].freeze
 
       SECTIONS.each { |section| key = key.merge(section::KEY) }
 
@@ -682,8 +797,9 @@ module IncomeAndAssets
         expand_owned_assets
         expand_royalties_and_other_properties
         expand_asset_transfers
+        expand_trusts
 
-        # Sections 8, 9, 10, and 11
+        # Sections 9, 10, and 11
         SECTIONS.each { |section| section.new.expand(form_data) }
 
         # Section 12
@@ -944,6 +1060,47 @@ module IncomeAndAssets
           'capitalGainValue' => split_currency_amount_lg(transfer['capitalGainValue']),
           'capitalGainValueOverflow' => transfer['capitalGainValue']
         }
+      end
+
+      ##
+      # Expands trusts by processing each trust entry and setting an indicator
+      # based on the presence of trusts.
+      #
+      # @note Modifies `form_data`
+      #
+      def expand_trusts
+        trusts = form_data['trusts']
+        form_data['trust'] = trusts&.length ? 0 : 1
+        form_data['trusts'] = trusts&.map { |trust| expand_trust(trust) }
+      end
+
+      ##
+      # Expands a trust's data by processing its attributes and transforming them into structured output
+      #
+      # @param trust [Hash]
+      # @return [Hash]
+      #
+      def expand_trust(trust)
+        market_value = split_currency_amount_lg(trust['marketValueAtEstablishment'], { 'millions' => 1 })
+        expanded = {
+          'establishedDate' => split_date(trust['establishedDate']),
+          'marketValueAtEstablishment' => market_value,
+          'trustType' => IncomeAndAssets::Constants::TRUST_TYPES[trust['trustType']],
+          'addedFundsAfterEstablishment' => trust['addedFundsAfterEstablishment'] ? 0 : 1,
+          'addedFundsDate' => split_date(trust['addedFundsDate']),
+          'addedFundsAmount' => split_currency_amount_sm(trust['addedFundsAmount']),
+          'receivingIncomeFromTrust' => trust['receivingIncomeFromTrust'] ? 0 : 1,
+          'annualReceivedIncome' => split_currency_amount_sm(trust['annualReceivedIncome']),
+          'trustUsedForMedicalExpenses' => trust['trustUsedForMedicalExpenses'] ? 0 : 1,
+          'monthlyMedicalReimbursementAmount' => split_currency_amount_sm(trust['monthlyMedicalReimbursementAmount']),
+          'trustEstablishedForVeteransChild' => trust['trustEstablishedForVeteransChild'] ? 0 : 1,
+          'haveAuthorityOrControlOfTrust' => trust['haveAuthorityOrControlOfTrust'] ? 0 : 1
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = trust[fieldname]
+        end
+        expanded.merge(overflow)
       end
 
       # Section 12
