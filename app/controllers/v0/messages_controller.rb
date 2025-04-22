@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class MessagesController < SMController
+  class MessagesController < MyHealth::SMController
     include Filterable
 
     def index

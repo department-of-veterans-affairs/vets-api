@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class FoldersController < SMController
+  class FoldersController < MyHealth::SMController
     def index
       resource = client.get_folders(@current_user.uuid, use_cache? || true)
       resource = resource.paginate(**pagination_params)

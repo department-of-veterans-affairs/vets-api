@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class MessageDraftsController < SMController
+  class MessageDraftsController < MyHealth::SMController
     def create
       draft_response = client.post_create_message_draft(draft_params)
       render json: MessageSerializer.new(draft_response), status: :created

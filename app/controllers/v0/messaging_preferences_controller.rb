@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class MessagingPreferencesController < SMController
+  class MessagingPreferencesController < MyHealth::SMController
     def show
       resource = client.get_preferences
       render json: MessagingPreferenceSerializer.new(resource)

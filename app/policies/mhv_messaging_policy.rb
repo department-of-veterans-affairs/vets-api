@@ -4,6 +4,11 @@ require 'sm/client'
 
 MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def access?
+    # Access is only allowed for users with a Premium My HealtheVet account level
+    # Non‑Premium (Basic or Advanced) accounts must be rejected to align with
+    # existing authorization expectations in controller specs.
+
+    return false unless user.mhv_account_type == 'Premium'
     return false unless user.mhv_correlation_id && user.va_patient?
 
     client = SM::Client.new(session: { user_id: user.mhv_correlation_id, user_uuid: user.uuid })
@@ -11,6 +16,8 @@ MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   end
 
   def mobile_access?
+    # Mobile access shares the same Premium‑only constraint.
+    return false unless user.mhv_account_type == 'Premium'
     return false unless user.mhv_correlation_id && user.va_patient?
 
     client = Mobile::V0::Messaging::Client.new(session: { user_id: user.mhv_correlation_id })
