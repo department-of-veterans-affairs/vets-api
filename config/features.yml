@@ -146,7 +146,7 @@ features:
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
-    description: Enables the 10-10EZ Kafka Event Bus submission 
+    description: Enables the 10-10EZ Kafka Event Bus submission
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -1132,6 +1132,10 @@ features:
   mhv_medical_records_filter_and_sort:
     actor_type: user
     description: Enables/disables Medical Records new filter and sort changes
+    enable_in_development: true
+  mhv_medical_records_use_unified_sei_api:
+    actor_type: user
+    description: Enables/disables use of the unified API call self-entered information
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -2130,4 +2134,3 @@ features:
     description: If enabled, show links to new forms instead of download links on SCO page
   only_use_direct_deposit_email_template:
     description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates
-
