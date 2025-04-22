@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<VAOS_CCRA_API_URL>/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/care-nav-patient-casey/referrals/error_id"
     body:
       encoding: UTF-8
       string: '{"Id":"984_646372","Mode":"invalid"}'

@@ -1651,7 +1651,7 @@ vanotify:
 vaos:
   ccra:
     api_url: https://veteran.apps.va.gov
-    base_path: csp/healthshare/ccraint/rest
+    base_path: vaos/v1/patients
     mock: false
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
