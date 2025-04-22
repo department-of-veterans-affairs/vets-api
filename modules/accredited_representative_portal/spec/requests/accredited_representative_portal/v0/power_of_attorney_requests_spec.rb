@@ -456,7 +456,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['meta']['page']['number']).to eq(1)
         expect(parsed_response['meta']['page']['size']).to eq(10)
         expect(parsed_response['meta']['page']['total']).to eq(26) # 25 additional + 1 initial
-        expect(parsed_response['meta']['page']['total_pages']).to eq(3)
+        expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
       it 'returns the requested page of results' do
@@ -467,7 +467,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['meta']['page']['number']).to eq(2)
         expect(parsed_response['meta']['page']['size']).to eq(10)
         expect(parsed_response['meta']['page']['total']).to eq(26)
-        expect(parsed_response['meta']['page']['total_pages']).to eq(3)
+        expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
       it 'returns the requested page size' do
@@ -478,7 +478,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['meta']['page']['number']).to eq(1)
         expect(parsed_response['meta']['page']['size']).to eq(10)
         expect(parsed_response['meta']['page']['total']).to eq(26)
-        expect(parsed_response['meta']['page']['total_pages']).to eq(3)
+        expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
       it 'returns 400 if page size is less than 10' do
@@ -494,7 +494,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(response).to have_http_status(:ok)
         expect(parsed_response['data']).to eq([])
         expect(parsed_response['meta']['page']['number']).to eq(10)
-        expect(parsed_response['meta']['page']['total_pages']).to eq(3)
+        expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
       it 'properly validates and normalizes pagination parameters' do

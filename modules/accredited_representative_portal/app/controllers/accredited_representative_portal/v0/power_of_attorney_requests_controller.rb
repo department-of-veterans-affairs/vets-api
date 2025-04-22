@@ -102,7 +102,7 @@ module AccreditedRepresentativePortal
             number: poa_requests.current_page,
             size: poa_requests.limit_value,
             total: poa_requests.total_entries,
-            total_pages: poa_requests.total_pages
+            totalPages: poa_requests.total_pages
           }
         }
       end
