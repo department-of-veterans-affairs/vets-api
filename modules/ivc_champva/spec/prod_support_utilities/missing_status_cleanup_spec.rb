@@ -26,11 +26,9 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
 
   describe '#get_missing_statuses' do
     it 'returns batches of records with nil pega_status' do
-      # We'll use a spy instead of stubbing the subject
       cleanup = instance_double(described_class)
       allow(described_class).to receive(:new).and_return(cleanup)
 
-      # Use receive_messages instead of multiple stubs
       allow(cleanup).to receive_messages(
         get_missing_statuses: forms.each_with_object({}) do |form, hash|
           hash[form.form_uuid] = IvcChampvaForm.where(form_uuid: form.form_uuid)
@@ -40,7 +38,6 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
 
       result = subject.get_missing_statuses
 
-      # Each form has a unique form_uuid
       expect(result.keys.count).to eq(3)
       result.each_value do |batch|
         expect(batch.count).to eq(1)
@@ -57,13 +54,10 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
       expect(result.keys.count).to eq(3)
       expect(result.keys).not_to include(recent_form.form_uuid)
 
-      # Clean up
       recent_form.destroy
     end
 
     it 'calls display_batch when silent is false' do
-      # We'll test the method's implementation rather than using subject stubs
-      # Create a spy that we can use to verify the behavior
       display_batch_called = 0
       original_method = described_class.instance_method(:display_batch)
 
@@ -111,7 +105,6 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
     end
 
     it 'returns batches of records with matching email' do
-      # Instead of stubbing subject, check the method's behavior
       result = subject.get_batches_for_email(email_addr: email, silent: true)
 
       expect(result.keys.count).to eq(3)
@@ -122,7 +115,6 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
     end
 
     it 'calls display_batch when silent is false' do
-      # Use a counter instead of expectations on subject
       display_batch_called = 0
       original_method = described_class.instance_method(:display_batch)
 
@@ -142,7 +134,6 @@ RSpec.describe IvcChampva::ProdSupportUtilities::MissingStatusCleanup do
     end
 
     it 'does not call display_batch when silent is true' do
-      # Use a flag instead of expectations on subject
       display_batch_called = false
       original_method = described_class.instance_method(:display_batch)
 

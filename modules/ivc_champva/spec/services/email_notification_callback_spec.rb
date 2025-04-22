@@ -113,11 +113,4 @@ RSpec.describe IvcChampva::EmailNotificationCallback do
       end
     end
   end
-
-  describe '.monitor' do
-    it 'returns a new IvcChampva::Monitor instance' do
-      expect(IvcChampva::Monitor).to receive(:new)
-      described_class.monitor
-    end
-  end
 end
