@@ -1443,6 +1443,18 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21p_0969: &vanotify_services_income_and_assets
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: income_and_assets_error_email_notification
+          template_id: form0969_error_email_template_id
+        received:
+          flipper_id: income_and_assets_received_email_notification
+          template_id: form0969_received_email_template_id
+        submitted:
+          flipper_id: income_and_assets_submitted_email_notification
+          template_id: form0969_submitted_email_template_id
     21p_527ez: &vanotify_services_pension
       api_key: fake_secret
       email:
@@ -1519,6 +1531,7 @@ vanotify:
         form1010_cg_failure_email: fake_template_id
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
+    income_and_assets: *vanotify_services_income_and_assets
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
