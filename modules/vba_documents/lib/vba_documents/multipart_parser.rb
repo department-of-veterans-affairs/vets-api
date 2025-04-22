@@ -10,7 +10,7 @@ module VBADocuments
     BASE64_PREFIX = 'data:multipart/form-data;base64,'
 
     def self.parse(file_path)
-      file_path = decode_base64_file(file_path) if base64_encoded?(file_path)
+      file_path = decode_base64_file(file_path) if base64_encoded_file?(file_path)
 
       validate_virus_free(file_path) if Flipper.enabled?(:vba_documents_virus_scan)
 
@@ -44,7 +44,7 @@ module VBADocuments
       raise
     end
 
-    def self.base64_encoded?(file_path)
+    def self.base64_encoded_file?(file_path)
       File.read(file_path).start_with?(BASE64_PREFIX)
     end
 
