@@ -70,40 +70,86 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
 
       describe 'sorting' do
-        let!(:poa_requests) do
-          [
-            create(:power_of_attorney_request, :with_veteran_claimant,
-                   created_at: time.to_time - 2.days,
-                   poa_code:),
-            create(:power_of_attorney_request, :with_veteran_claimant,
-                   created_at: time.to_time - 1.day,
-                   poa_code:),
-            create(:power_of_attorney_request, :with_veteran_claimant,
-                   created_at: time.to_time - 3.days,
-                   poa_code:)
-          ]
+        context 'when sorting by created_at' do
+          let!(:poa_requests) do
+            [
+              create(:power_of_attorney_request, :with_veteran_claimant,
+                     created_at: time.to_time - 2.days,
+                     poa_code:),
+              create(:power_of_attorney_request, :with_veteran_claimant,
+                     created_at: time.to_time - 1.day,
+                     poa_code:),
+              create(:power_of_attorney_request, :with_veteran_claimant,
+                     created_at: time.to_time - 3.days,
+                     poa_code:)
+            ]
+          end
+
+          it 'sorts by created_at in ascending order' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests',
+                params: { sort: { by: 'created_at', order: 'asc' } })
+
+            expect(response).to have_http_status(:ok)
+
+            # check that they're sorted by created_at in ascending order
+            ids = parsed_response.to_h['data'].map { |item| item['id'] }[0..2]
+            expect(ids).to eq([poa_requests[2].id, poa_requests[0].id, poa_requests[1].id])
+          end
+
+          it 'sorts by created_at in descending order' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests',
+                params: { sort: { by: 'created_at', order: 'desc' } })
+
+            expect(response).to have_http_status(:ok)
+
+            # check that they're sorted by created_at in descending order
+            ids = parsed_response.to_h['data'].map { |item| item['id'] }[1..3]
+            expect(ids).to eq([poa_requests[1].id, poa_requests[0].id, poa_requests[2].id])
+          end
         end
 
-        it 'sorts by created_at in ascending order' do
-          get('/accredited_representative_portal/v0/power_of_attorney_requests',
-              params: { sort: { by: 'created_at', order: 'asc' } })
+        context 'when sorting by resolved_at' do
+          # NOTE: The base 'poa_request' from the outer 'before' block is unresolved.
+          let!(:resolved_request1) do
+            create(:power_of_attorney_request, :with_acceptance,
+                   poa_code:, resolution_created_at: time.to_time - 1.day)
+          end
+          let!(:resolved_request2) do
+            create(:power_of_attorney_request, :with_declination,
+                   poa_code:, resolution_created_at: time.to_time - 2.days)
+          end
+          let!(:resolved_request3) do
+            create(:power_of_attorney_request, :with_expiration,
+                   poa_code:, resolution_created_at: time.to_time - 3.days)
+          end
+          # Expected order: resolved3, resolved2, resolved1, unresolved poa_request (NULLS LAST)
+          let(:expected_resolved_asc_ids) do
+            [resolved_request3.id, resolved_request2.id, resolved_request1.id, poa_request.id]
+          end
+          # Expected order: resolved1, resolved2, resolved3, unresolved poa_request (NULLS LAST)
+          let(:expected_resolved_desc_ids) do
+            [resolved_request1.id, resolved_request2.id, resolved_request3.id, poa_request.id]
+          end
 
-          expect(response).to have_http_status(:ok)
+          it 'sorts by resolved_at in ascending order (NULLS LAST)' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests',
+                params: { sort: { by: 'resolved_at', order: 'asc' } })
 
-          # check that they're sorted by created_at in ascending order
-          ids = parsed_response.to_h['data'].map { |item| item['id'] }[0..2]
-          expect(ids).to eq([poa_requests[2].id, poa_requests[0].id, poa_requests[1].id])
-        end
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response['data'].size).to eq(4) # 3 resolved + 1 unresolved
+            ids = parsed_response.to_h['data'].map { |item| item['id'] }
+            expect(ids).to eq(expected_resolved_asc_ids)
+          end
 
-        it 'sorts by created_at in descending order' do
-          get('/accredited_representative_portal/v0/power_of_attorney_requests',
-              params: { sort: { by: 'created_at', order: 'desc' } })
+          it 'sorts by resolved_at in descending order (NULLS LAST)' do
+            get('/accredited_representative_portal/v0/power_of_attorney_requests',
+                params: { sort: { by: 'resolved_at', order: 'desc' } })
 
-          expect(response).to have_http_status(:ok)
-
-          # check that they're sorted by created_at in descending order
-          ids = parsed_response.to_h['data'].map { |item| item['id'] }[1..3]
-          expect(ids).to eq([poa_requests[1].id, poa_requests[0].id, poa_requests[2].id])
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response['data'].size).to eq(4) # 3 resolved + 1 unresolved
+            ids = parsed_response.to_h['data'].map { |item| item['id'] }
+            expect(ids).to eq(expected_resolved_desc_ids)
+          end
         end
 
         it 'returns error for invalid sort field' do
