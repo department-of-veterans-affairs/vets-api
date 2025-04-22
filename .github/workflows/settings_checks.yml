@@ -186,7 +186,7 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: settings-failure
+          labels: parameter-failure
 
 
       - name: Remove Parameter Failure label
@@ -194,4 +194,4 @@ jobs:
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: settings-failure
+          labels: parameter-failure
