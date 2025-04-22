@@ -34,6 +34,10 @@ Timecop.freeze(Date.new(2025, 4, 14)) do
   puts "STORED IN DATABASE"
   puts "----------------------------------------"
   Vye::BdnClone.destroy_all
+  Vye::PendingDocument.destroy_all
+  Vye::Verification.destroy_all
+  Vye::UserProfile.destroy_all
+
   bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
   ld = Vye::LoadData.new(source: :bdn_feed, locator: 0, bdn_clone:, records: record)
   (puts "FAILED TO LOAD DATA" and exit) unless ld.valid?
