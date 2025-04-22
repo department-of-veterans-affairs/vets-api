@@ -123,7 +123,7 @@ module AccreditedRepresentativePortal
                       Arel.sql('ar_power_of_attorney_request_resolutions.created_at DESC NULLS LAST')
                     end
 
-        includes(:resolution).references(:resolution).order(order_sql)
+        left_joins(:resolution).references(:resolution).order(order_sql)
       else
         raise ArgumentError, "Invalid sort column: #{sort_column}"
       end
