@@ -1663,9 +1663,9 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
+    api_url: https://veteran.apps.va.gov
     base_path: csp/healthshare/ccraint/rest
-    mock: true
+    mock: false
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1674,7 +1674,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500

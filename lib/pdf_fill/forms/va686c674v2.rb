@@ -506,7 +506,7 @@ module PdfFill
               'annulment' => { key: 'veteran_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
               'other' => { key: 'veteran_marriage_history.reason_marriage_ended.other[%iterator%]' }
             },
-            'reason_marriage_ended_other' => {
+            'other_reason_marriage_ended' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 14,
               question_suffix: 'K',
@@ -642,7 +642,7 @@ module PdfFill
               'annulment' => { key: 'spouse_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
               'other' => { key: 'spouse_marriage_history.reason_marriage_ended.other[%iterator%]' }
             },
-            'reason_marriage_ended_other' => {
+            'other_reason_marriage_ended' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 15,
               question_suffix: 'G',
