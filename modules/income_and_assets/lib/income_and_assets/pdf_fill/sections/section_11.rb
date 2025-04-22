@@ -4,6 +4,7 @@ require 'income_and_assets/pdf_fill/section'
 
 module IncomeAndAssets
   module PdfFill
+    # Section XI: Discontinued Incomes
     class Section11 < Section
       # Section configuration hash
       KEY = {

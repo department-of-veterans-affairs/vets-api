@@ -927,6 +927,7 @@ module IncomeAndAssets
         }
       )
 
+      # Form configuration hash
       KEY = key.freeze
 
       # Post-process form data to match the expected format.
