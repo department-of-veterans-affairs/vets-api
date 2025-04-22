@@ -112,6 +112,10 @@ class FormProfiles::VA526ez < FormProfile
     { form_data:, metadata: }
   end
 
+  def sync_modern_0781_flow
+    Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
+  end
+
   def metadata
     {
       version: 0,
@@ -164,10 +168,6 @@ class FormProfiles::VA526ez < FormProfile
     rescue => e
       Rails.logger.error("Form526 Prefill for military information failed. #{e.message}")
     end
-  end
-
-  def sync_modern_0781_flow
-    Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
   end
 
   def initialize_form526_prefill
