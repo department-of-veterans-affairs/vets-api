@@ -24,9 +24,10 @@ properties:
             - triageTeamId
             - name
             - stationNumber
-            - blockedStatus
-            - preferredTeam
             - relationType
+            - locationName
+            - suggestedNameDisplay
+            - healthCareSystemName
           properties:
             triageTeamId:
               type: integer
@@ -37,12 +38,6 @@ properties:
             stationNumber:
               type: string
               example: 989
-            blockedStatus:
-              type: boolean
-              example: false
-            preferredTeam:
-              type: boolean
-              example: true
             relationType:
               type: string
               enum: [PATIENT]
@@ -50,36 +45,16 @@ properties:
             locationName:
               type: string
               example: "Main Hospital"
-            leadProviderName:
-              type: string
-              example: "Dr. Smith"
-            teamName:
-              type: string
-              example: "Radiology Team"
             suggestedNameDisplay:
               type: string
               example: "Radiology Triage Group 1"
             healthCareSystemName:
               type: string
               example: "VA Health Care System"
-            groupTypeEnumVal:
-              type: string
-              example: "Primary"
-            subGroupTypeEnumVal:
-              type: string
-              example: "Secondary"
-            groupTypePatientDisplay:
-              type: string
-              example: "Primary Care"
-            subGroupTypePatientDisplay:
-              type: string
-              example: "Specialty Care"
   meta:
     type: object
     required:
       - sort
-      - associatedTriageGroups
-      - associatedBlockedTriageGroups
     properties:
       sort:
         type: object
@@ -90,12 +65,3 @@ properties:
             type: string
             enum: [ASC, DESC]
             example: ASC
-      associatedTriageGroups:
-        type: integer
-        example: 38
-      associatedBlockedTriageGroups:
-        type: integer
-        example: 1
-      friendlyTriageTeamPilotFacilities:
-        type: string
-        example: "979,989"

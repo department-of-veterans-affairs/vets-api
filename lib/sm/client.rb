@@ -484,6 +484,7 @@ module SM
         data
       end
     end
+    # @!endgroup
 
     ##
     # Update preferredTeam value for a patient's list of triage teams
