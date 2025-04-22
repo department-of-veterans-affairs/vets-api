@@ -90,6 +90,14 @@ module IncomeAndAssets
         }
       }.freeze
 
+      ##
+      # Expands discontinued incomes by processing each discontinued income entry and setting an indicator
+      # based on the presence of discontinued incomes.
+      #
+      # @param form_data [Hash]
+      #
+      # @note Modifies `form_data`
+      #
       def expand(form_data)
         incomes = form_data['discontinuedIncomes']
 
@@ -97,6 +105,13 @@ module IncomeAndAssets
         form_data['discontinuedIncomes'] = incomes&.map { |income| expand_item(income) }
       end
 
+      ##
+      # Expands a discontinued incomes's data by processing its attributes and transforming them into
+      # structured output
+      #
+      # @param item [Hash]
+      # @return [Hash]
+      #
       def expand_item(item)
         recipient_relationship = item['recipientRelationship']
         income_frequency = item['incomeFrequency']
