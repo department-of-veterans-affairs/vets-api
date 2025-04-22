@@ -340,14 +340,14 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
         end
       end
 
-      # rubocop:disable Rspec/NoExpectationExample
+      # rubocop:disable RSpec/NoExpectationExample
       it 'notifies the slack channel with a warning if no files were written' do
         stub_env_and_writer(
           byte_count: 0,
           expected_message: 'Warning: Uploaded 0 bytes to region: eastern'
         )
       end
-      # rubocop:enable Rspec/NoExpectationExample
+      # rubocop:enable RSpec/NoExpectationExample
 
       def stub_env_and_writer(byte_count:, expected_message:)
         allow(Rails.env).to receive(:production?).and_return(true)
