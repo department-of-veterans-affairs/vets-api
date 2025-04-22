@@ -24,7 +24,16 @@ matchExpressions:
 topologyKey: kubernetes.io/hostname
 traefikApiVersion: traefik.containo.us/v1alpha1
 annotations:
-  ad.datadoghq.com/vets-api-web.checks:
+  ad.datadoghq.com/vets-api-web.checks: |-
+    {
+      "puma": {
+        "instances": [
+          {
+            "control_url": "http://%%host%%:9293/stats"
+          }
+        ]
+      }
+    }
 serviceAccount:
   enabled: false
   role_arn:
