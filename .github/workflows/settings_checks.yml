@@ -123,9 +123,7 @@ jobs:
               --output json 2>&1)
             aws_exit_code=$?
             set -e  # Restore exit on error
-            
-            echo "AWS command exit code: $aws_exit_code"
-            
+                        
             if [ $aws_exit_code -ne 0 ]; then
               echo "AWS SSM command failed with output: $ssm_output"
               continue  # Skip to next key
@@ -143,13 +141,13 @@ jobs:
           done
 
           # Display invalid parameters
+          echo "Invalid parameters found: ${#invalid_parameters[@]}"
           if [[ ${#invalid_parameters[@]} -gt 0 ]]; then
             for param in "${invalid_parameters[@]}"; do
               echo "  - $param"
             done
             
             invalid_params_string=$(printf -- '- %s\n' "${invalid_parameters[@]}")
-            echo "Invalid parameters found: ${#invalid_parameters[@]}"
             {
               echo "INVALID_PARAMETERS<<EOF"
               echo "$invalid_params_string"
