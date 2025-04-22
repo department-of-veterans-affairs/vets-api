@@ -43,6 +43,27 @@ module AccreditedRepresentativePortal
     validates :power_of_attorney_request, uniqueness: true
     validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
 
+    # Enum for declination reasons
+    enum declination_reason: {
+      decline_health: 0,
+      decline_address: 1,
+      decline_health_address: 2,
+      decline_VSO: 3,
+      decline_other: 4
+    }
+
+    DECLINATION_REASON_TEXTS = {
+      decline_health: "Decline, because protected medical record access is limited",
+      decline_address: "Decline, because change of address isn't authorized"
+      decline_health_address: "Decline, because change of address isn't authorized and protected mediecal record access is limited"
+      decline_VSO: "Decline, because the VSO isn't accepting new clients"
+      decline_other: "Decline, because of another reason"
+    }.freeze
+
+    def declination_reason_text
+      DECLINATION_REASON_TEXTS[declination_reason&.to_sym]
+    end
+
     class << self
       ##
       # Adding this public class method in addition to `create!` because this
