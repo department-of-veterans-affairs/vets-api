@@ -78,7 +78,8 @@ jobs:
           new_env_keys=$(git diff origin/master config/settings.yml | \
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
-          if [[ -z "$new_env_keys" ]]; then
+          # Exit early if no ENV keys found
+          if [[ $(echo "$new_env_keys" | grep -c .) -eq 0 ]]; then
             echo "No new ENV keys found in config/settings.yml."
             exit 0
           fi
