@@ -8,7 +8,7 @@ module IncomeAndAssets
   class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
     # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
-      super(saved_claim_id, service_name: 'burials')
+      super(saved_claim_id, service_name: 'income_and_assets')
     end
 
     private

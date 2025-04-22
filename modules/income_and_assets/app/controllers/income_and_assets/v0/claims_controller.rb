@@ -46,7 +46,7 @@ module IncomeAndAssets
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        claim.upload_to_lighthouse(current_user)
+        process_and_upload_to_lighthouse
 
         ia_monitor.track_create_success(in_progress_form&.id, claim, current_user&.user_account_uuid)
 
@@ -63,6 +63,13 @@ module IncomeAndAssets
       def check_flipper_flag
         raise Common::Exceptions::Forbidden unless Flipper.enabled?(:pension_income_and_assets_clarification,
                                                                     current_user)
+      end
+
+      # send this Income and Assets Evidence claim to the Lighthouse Benefit Intake API
+      #
+      # @see https://developer.va.gov/explore/api/benefits-intake/docs
+      def process_and_upload_to_lighthouse
+        IncomeAndAssets::BenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
       end
 
       # Filters out the parameters to form access.
