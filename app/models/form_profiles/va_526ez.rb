@@ -112,16 +112,11 @@ class FormProfiles::VA526ez < FormProfile
     { form_data:, metadata: }
   end
 
-  def sync_modern_0781_flow
-    Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
-  end
-
   def metadata
     {
       version: 0,
       prefill: true,
-      returnUrl: '/veteran-information',
-      sync_modern_0781_flow:
+      returnUrl: '/veteran-information'
     }
   end
 
@@ -173,7 +168,7 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_form526_prefill
     VA526ez::Form526Prefill.new(
       started_form_version: '2022',
-      sync_modern_0781_flow:
+      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
     )
   end
 
