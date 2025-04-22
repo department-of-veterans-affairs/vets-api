@@ -17,8 +17,8 @@
     "year": "1981"
   },
   "veteranServiceNumber": "987654321",
-   "email": "testy.testerson@gmail.com",
-   "veteranPhone": {
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": {
     "first": "212",
     "second": "345",
     "third": "6789"
@@ -76,16 +76,22 @@
     "relationships": true,
     "unlisted": true
   },
-  "behaviorsDetails": {
-    "reassignment": "requested duty assignment",
-    "performance": "poor evaluations",
-    "episodes": "severe depression",
-    "selfMedication": "stopped treating headaches",
-    "appetite": "skipping meals",
-    "screenings": "positive tests",
-    "relationships": "separation",
-    "unlisted": "Lorem ipsum dolor sit amet."
-  },
+  "behaviorsDetails": [
+    { "additionalInfo": null },
+    { "additionalInfo": "requested duty assignment" },
+    { "additionalInfo": null },
+    { "additionalInfo": "poor evaluations" },
+    { "additionalInfo": "severe depression" },
+    { "additionalInfo": null },
+    { "additionalInfo": "stopped treating headaches" },
+    { "additionalInfo": null },
+    { "additionalInfo": null },
+    { "additionalInfo": "skipping meals" },
+    { "additionalInfo": null },
+    { "additionalInfo": "positive tests" },
+    { "additionalInfo": null },
+    { "additionalInfo": "separation" }
+  ],
   "evidence": {
     "crisisCenter": true,
     "counseling": true,
@@ -152,8 +158,8 @@
     "first": "123",
     "second": "45",
     "third": "6789"
-   },
-   "veteranSocialSecurityNumber2": {
+  },
+  "veteranSocialSecurityNumber2": {
     "first": "123",
     "second": "45",
     "third": "6789"
@@ -171,5 +177,10 @@
   "otherReport": 4,
   "reportFiled": 0,
   "noReportFiled": null,
+  "additionalBehaviorsDetails": [
+    {
+      "additionalInfo": "Lorem ipsum dolor sit amet."
+    }
+  ],
   "signature": "/es/ Testy Testerson"
 }
