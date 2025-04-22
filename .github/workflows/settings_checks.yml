@@ -180,4 +180,3 @@ jobs:
           message: |
             :+1: All Parameter Store values in this PR are valid
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-
