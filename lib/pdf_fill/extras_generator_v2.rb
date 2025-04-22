@@ -26,7 +26,11 @@ module PdfFill
 
       def sorted_subquestions
         @subquestions.sort_by do |subq|
-          [subq[:metadata][:question_suffix] || '', subq[:metadata][:question_text] || '']
+          [
+            subq[:metadata][:question_suffix] || '',
+            subq[:metadata][:question_text] || '',
+            subq[:metadata][:i] || 99_999
+          ]
         end
       end
 
@@ -242,7 +246,14 @@ module PdfFill
 
     def sort_generate_blocks
       populate_section_indices!
-      @questions.keys.sort.map { |qnum| @questions[qnum] }.filter(&:overflow)
+      @questions.sort_by do |qnum, question|
+        [
+          question.section_index || 99_999,
+          qnum,
+          question.sorted_subquestions.first&.dig(:metadata, :question_suffix) || '',
+          question.sorted_subquestions.first&.dig(:metadata, :question_text) || ''
+        ]
+      end.map(&:last).filter(&:overflow)
     end
 
     def measure_section_header_height(temp_pdf, section_index)
