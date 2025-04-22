@@ -9,7 +9,13 @@ class Form0781StateSnapshotJob
   ROLLOUT_DATE = Date.new(2025, 4, 2)
 
   def perform
-    write_0781_snapshot
+    if Flipper.enabled?(:disability_compensation_0781_stats_job)
+      write_0781_snapshot
+    else
+      Rails.logger.info('0781 state snapshot job disabled',
+                        class: self.class.name,
+                        message: 'Flipper flag disability_compensation_0781_stats_job is disabled')
+    end
   rescue => e
     Rails.logger.error('Error logging 0781 state snapshot',
                        class: self.class.name,
