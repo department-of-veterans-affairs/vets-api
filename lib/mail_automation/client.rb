@@ -39,6 +39,9 @@ module MailAutomation
         form526: @form526['form526'],
         form526_uploads: @form526_uploads
       }
+      if Flipper.enabled?(:disability_526_send_mas_all_ancillaries)
+        params.merge!(@form526.slice(*%w[form526_uploads form4142 form0781]).symbolize_keys)
+      end
 
       perform(:post, Settings.mail_automation.endpoint, params.to_json.to_s, headers_hash)
     end
