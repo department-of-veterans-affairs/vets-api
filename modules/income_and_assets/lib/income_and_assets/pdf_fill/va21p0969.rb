@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
+require 'income_and_assets/pdf_fill/sections/section_11'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -15,17 +16,17 @@ module IncomeAndAssets
       include ::PdfFill::Forms::FormHelper
       include IncomeAndAssets::Helpers
 
+      # The Form ID
+      FORM_ID = IncomeAndAssets::FORM_ID
+
       # Hash iterator
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
-
-      # The ID of the form being processed
-      FORM_ID = '21P-0969'
 
       # The path to the PDF template for the form
       TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
-      # Hash keys
-      KEY = {
+      # Form configuration hash (using "key" instead of "KEY" here as we will be modifying this later)
+      key = {
         # 1a
         'veteranFullName' => {
           # form allows up to 39 characters but validation limits to 30,
@@ -766,190 +767,168 @@ module IncomeAndAssets
             question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
           }
         },
-        # Section 11
-        # 11a
-        'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
-        # 11b-11c (only space for 2 on form)
-        'discontinuedIncomes' => {
-          limit: 2,
-          first_key: 'otherRecipientRelationshipType',
-          # Q1
-          'recipientRelationship' => {
-            key: "F[0].RelationshipToVeteran11[#{ITERATOR}]"
+        # 10a
+        'unreportedAsset' => { key: 'F[0].#subform[8].DependentsHaveAssetsNotReported10a[0]' },
+        'unreportedAssets' => {
+          limit: 4,
+          first_key: 'assetOwnerRelationship',
+          # 10b
+          'assetOwnerRelationship' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
+          'otherRelationshipType' => {
+            key: "F[0].OtherRelationship10[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(b)',
+            question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
           },
-          'recipientRelationshipOverflow' => {
-            question_num: 11,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          'assetOwnerRelationshipOverflow' => {
+            question_num: 10,
+            question_suffix: '(b)',
+            question_text: 'SPECIFY ASSET OWNER\'S RELATIONSHIP TO THE VETERAN'
           },
-          'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          # 10c
+          'assetType' => {
+            key: "F[0].TypeOfAsset10[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(d)',
+            question_text: 'SPECIFY TYPE OF ASSET (CASH, ART, ETC.)'
           },
-          # Q2
-          'recipientName' => {
-            key: "F[0].IncomeRecipientName11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(2)',
-            question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          # 10d
+          'ownedPortionValue' => {
+            'millions' => { key: "F[0].ValueOfYourPortionOfProperty1_10[#{ITERATOR}]" },
+            'thousands' => { key: "F[0].ValueOfYourPortionOfProperty2_10[#{ITERATOR}]" },
+            'dollars' => { key: "F[0].ValueOfYourPortionOfProperty3_10[#{ITERATOR}]" },
+            'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
           },
-          # Q3
-          'payer' => {
-            key: "F[0].IncomePayer11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+          'ownedPortionValueOverflow' => {
+            question_num: 10,
+            question_suffix: '(c)',
+            question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           },
-          # Q4
-          'incomeType' => {
-            key: "F[0].TypeOfIncomeReceived11[#{ITERATOR}]",
-            question_num: 11,
-            question_suffix: '(4)',
-            question_text: 'SPECIFY TYPE OF INCOME RECEIVED (Interest, dividends, etc.)'
-          },
-          # Q5
-          'incomeFrequency' => {
-            key: "F[0].FrequencyOfIncomeReceived[#{ITERATOR}]"
-          },
-          'incomeFrequencyOverflow' => {
-            question_num: 11,
-            question_suffix: '(5)',
-            question_text: 'SPECIFY FREQUENCY OF INCOME RECEIVED'
-          },
-          # Q6
-          'incomeLastReceivedDate' => {
-            'month' => { key: "F[0].DateIncomeLastPaidMonth11[#{ITERATOR}]" },
-            'day' => { key: "F[0].DateIncomeLastPaidDay11[#{ITERATOR}]" },
-            'year' => { key: "F[0].DateIncomeLastPaidYear11[#{ITERATOR}]" }
-          },
-          'incomeLastReceivedDateOverflow' => {
-            question_num: 11,
-            question_suffix: '(6)',
-            question_text: 'DATE INCOME LAST PAID (MM/DD/YYYY)'
-          },
-          # Q7
-          'grossAnnualAmount' => {
-            'thousands' => {
-              key: "F[0].GrossAnnualAmount1_11[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].GrossAnnualAmount2_11[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].GrossAnnualAmount3_11[#{ITERATOR}]"
-            }
-          },
-          'grossAnnualAmountOverflow' => {
-            question_num: 11,
-            question_suffix: '(7)',
-            question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?'
+          # 10e
+          'assetLocation' => {
+            key: "F[0].AssetLocation[#{ITERATOR}]",
+            question_num: 10,
+            question_suffix: '(e)',
+            question_text: 'SPECIFY ASSET LOCATION (FINANCIAL INSTITUTION, PROPERTY ADDRESS, ETC.)'
           }
-        },
-        # Section 12
-        # 12a
-        'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
-        # 12b-12c (only space for 2 on form)
-        'incomeReceiptWaivers' => {
-          limit: 2,
-          first_key: 'otherRecipientRelationshipType',
-          # Q1
-          'recipientRelationship' => {
-            key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
-          },
-          'recipientRelationshipOverflow' => {
-            question_num: 12,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship12[#{ITERATOR}]",
-            question_num: 12,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          # Q2
-          'recipientName' => {
-            key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
-            question_num: 12,
-            question_suffix: '(2)',
-            question_text:
-                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
-          },
-          # Q3
-          'payer' => {
-            key: "F[0].IncomePayer12[#{ITERATOR}]",
-            question_num: 12,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
-          },
-          # Q4
-          'expectedIncome' => {
-            'thousands' => {
-              key: "F[0].AmountExpected1[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].AmountExpected2[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].AmountExpected3[#{ITERATOR}]"
-            }
-          },
-          'expectedIncomeOverflow' => {
-            question_num: 12,
-            question_suffix: '(4)',
-            question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
-          },
-          # Q5
-          'paymentResumeDate' => {
-            'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
-            'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
-            'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
-          },
-          'paymentResumeDateOverflow' => {
-            question_num: 12,
-            question_suffix: '(5)',
-            question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
-          },
-          'paymentWillNotResume' => {
-            key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
-          },
-          'paymentWillNotResumeOverflow' => {
-            question_num: 12,
-            question_suffix: '(5)',
-            question_text: 'This income will not resume'
-          },
-          # Q6
-          'waivedGrossMonthlyIncome' => {
-            'thousands' => {
-              key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
-            }
-          },
-          'waivedGrossMonthlyIncomeOverflow' => {
-            question_num: 12,
-            question_suffix: '(6)',
-            question_text: 'WAIVED GROSS MONTHLY INCOME'
-          }
-        },
-        # Section 13
-        # NOTE: No overflow for this section
-        # 13a
-        'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
-        # 13b
-        'statementOfTruthSignatureDate' => {
-          'month' => { key: 'F[0].DateSigned13bMonth[0]' },
-          'day' => { key: 'F[0].DateSigned13bDay[0]' },
-          'year' => { key: 'F[0].DateSigned13bYear[0]' }
         }
-      }.freeze
+      }
+
+      # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
+      # Going to add them in reverse order so that the keys maintain the previous ordering
+      SECTIONS = [Section11].freeze
+
+      SECTIONS.each { |section| key = key.merge(section::KEY) }
+
+      # Sections 12 and 13 (Temporary, will be handled in the next PR)
+      key = key.merge(
+        {
+          # Section 12
+          # 12a
+          'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
+          # 12b-12c (only space for 2 on form)
+          'incomeReceiptWaivers' => {
+            limit: 2,
+            first_key: 'otherRecipientRelationshipType',
+            # Q1
+            'recipientRelationship' => {
+              key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
+            },
+            'recipientRelationshipOverflow' => {
+              question_num: 12,
+              question_suffix: '(1)',
+              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            },
+            'otherRecipientRelationshipType' => {
+              key: "F[0].OtherRelationship12[#{ITERATOR}]",
+              question_num: 12,
+              question_suffix: '(1)',
+              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            },
+            # Q2
+            'recipientName' => {
+              key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
+              question_num: 12,
+              question_suffix: '(2)',
+              question_text:
+                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+            },
+            # Q3
+            'payer' => {
+              key: "F[0].IncomePayer12[#{ITERATOR}]",
+              question_num: 12,
+              question_suffix: '(3)',
+              question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+            },
+            # Q4
+            'expectedIncome' => {
+              'thousands' => {
+                key: "F[0].AmountExpected1[#{ITERATOR}]"
+              },
+              'dollars' => {
+                key: "F[0].AmountExpected2[#{ITERATOR}]"
+              },
+              'cents' => {
+                key: "F[0].AmountExpected3[#{ITERATOR}]"
+              }
+            },
+            'expectedIncomeOverflow' => {
+              question_num: 12,
+              question_suffix: '(4)',
+              question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
+            },
+            # Q5
+            'paymentResumeDate' => {
+              'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
+              'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
+              'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
+            },
+            'paymentResumeDateOverflow' => {
+              question_num: 12,
+              question_suffix: '(5)',
+              question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
+            },
+            'paymentWillNotResume' => {
+              key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
+            },
+            'paymentWillNotResumeOverflow' => {
+              question_num: 12,
+              question_suffix: '(5)',
+              question_text: 'This income will not resume'
+            },
+            # Q6
+            'waivedGrossMonthlyIncome' => {
+              'thousands' => {
+                key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
+              },
+              'dollars' => {
+                key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
+              },
+              'cents' => {
+                key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
+              }
+            },
+            'waivedGrossMonthlyIncomeOverflow' => {
+              question_num: 12,
+              question_suffix: '(6)',
+              question_text: 'WAIVED GROSS MONTHLY INCOME'
+            }
+          },
+          # Section 13
+          # NOTE: No overflow for this section
+          # 13a
+          'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
+          # 13b
+          'statementOfTruthSignatureDate' => {
+            'month' => { key: 'F[0].DateSigned13bMonth[0]' },
+            'day' => { key: 'F[0].DateSigned13bDay[0]' },
+            'year' => { key: 'F[0].DateSigned13bYear[0]' }
+          }
+        }
+      )
+
+      # Form configuration hash
+      KEY = key.freeze
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
@@ -968,7 +947,12 @@ module IncomeAndAssets
         expand_asset_transfers
         expand_trusts
         expand_annuities
-        expand_discontinued_incomes
+        expand_unreported_assets
+
+        # Section 11
+        SECTIONS.each { |section| section.new.expand(form_data) }
+
+        # Section 12
         expand_income_receipt_waivers
         expand_statement_of_truth
 
@@ -1305,6 +1289,42 @@ module IncomeAndAssets
         overflow = {}
         expanded.each_key do |fieldname|
           overflow["#{fieldname}Overflow"] = annuity[fieldname]
+        end
+        expanded.merge(overflow)
+      end
+
+      # Section 10
+      ##
+      # Expands and transforms the `unreportedAssets` field in the form data.
+      #
+      # If `unreportedAssets` is present and not empty, sets a flag `unreportedAssets` to 0,
+      # otherwise sets it to 1. Then maps over the assets to apply individual transformations.
+      #
+      def expand_unreported_assets
+        unreported_assets = form_data['unreportedAssets']
+        form_data['unreportedAsset'] = unreported_assets&.length ? 'YES' : 'NO'
+        form_data['unreportedAssets'] = unreported_assets&.map do |asset|
+          expand_unreported_asset(asset)
+        end
+      end
+
+      ##
+      # Expands a asset's data by processing its attributes and transforming them into structured output
+      #
+      # @param asset [Hash]
+      # @return [Hash]
+      #
+      def expand_unreported_asset(asset)
+        expanded = {
+          'assetOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[asset['assetOwnerRelationship']],
+          'recipientName' => asset['recipientName'],
+          'assetType' => asset['assetType'],
+          'ownedPortionValue' => split_currency_amount(asset['ownedPortionValue']),
+          'assetLocation' => asset['assetLocation']
+        }
+        overflow = {}
+        expanded.each_key do |fieldname|
+          overflow["#{fieldname}Overflow"] = asset[fieldname]
         end
         expanded.merge(overflow)
       end
