@@ -506,7 +506,7 @@ module PdfFill
               'annulment' => { key: 'veteran_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
               'other' => { key: 'veteran_marriage_history.reason_marriage_ended.other[%iterator%]' }
             },
-            'reason_marriage_ended_other' => {
+            'other_reason_marriage_ended' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 14,
               question_suffix: 'K',
@@ -642,7 +642,7 @@ module PdfFill
               'annulment' => { key: 'spouse_marriage_history.reason_marriage_ended.annulment[%iterator%]' },
               'other' => { key: 'spouse_marriage_history.reason_marriage_ended.other[%iterator%]' }
             },
-            'reason_marriage_ended_other' => {
+            'other_reason_marriage_ended' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 15,
               question_suffix: 'G',
@@ -1683,7 +1683,7 @@ module PdfFill
       # rubocop:disable Metrics/MethodLength
       def expand_child_status(child)
         # expand child status
-        child_status = child['relationship_to_child']
+        child_status = child['relationship_to_child'] || {}
         date_entered_household = split_date(child['date_entered_household'])
 
         if child.key?('has_child_ever_been_married')

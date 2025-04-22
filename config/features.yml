@@ -110,9 +110,6 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
-  caregiver_retry_pdf_fill:
-    actor_type: user
-    description: Enables 1010CG to retry pdf fill for download_pdf endpoint
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -1528,10 +1525,6 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: Enables email notifications for CreateDailySpoolFiles errors
-  stem_automated_decision:
-    actor_type: user
-    description: Add automated decision to 10203 application workflow
-    enable_in_development: true
   subform_8940_4192:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
