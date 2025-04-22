@@ -416,7 +416,6 @@ evss:
   mock_common_service: true
   mock_disabilities_form: true
   mock_gi_bill_status: false
-  mock_itf: true
   mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
@@ -571,10 +570,6 @@ hca:
     pass: password
     user: HCASvcUsr
   endpoint: https://test-foo.vets.gov
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: ~
   prefill: true
   s3:
@@ -668,6 +663,8 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
+    ves_retry_failures_job:
+      enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
@@ -675,6 +672,8 @@ kafka_producer:
   sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
   security_protocol: 'plaintext'
+  test_topic_name: submission_trace_mock_test
+  topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
 lgy:
   api_key: ~
@@ -933,6 +932,7 @@ mcp:
     url: https://fake_url.com:9000
 mdot:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+  breakers: false
   mock: false
   prefill: true
   url: https://fwdproxy-staging.vfs.va.gov:4466
@@ -1572,6 +1572,8 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
@@ -1581,7 +1583,6 @@ vanotify:
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
         direct_deposit_comp_pen: comp_pen_template_id
-        direct_deposit_edu: edu_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1655,7 +1656,7 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
+    api_url: https://veteran.apps.va.gov
     base_path: csp/healthshare/ccraint/rest
     mock: false
   eps:
@@ -1666,11 +1667,15 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: "/fake/client/key/path"
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500
     scopes: care-nav
+  referral:
+    encryption:
+      hex_iv: "0123456789abcdef0123456789abcdef"
+      hex_secret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 vba_documents:
   custom_metadata_allow_list: ~
   documentation:
@@ -1756,6 +1761,14 @@ vet360:
     enabled: true
     mock: false
     timeout: 30
+veteran_enrollment_system:
+  associations:
+    api_key: ~
+  ee_summary:
+    api_key: ~
+  host: https://sqa.ves.va.gov
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:
@@ -1872,11 +1885,6 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
-virtual_regional_office:
-  api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  evidence_pdf_path: evidence-pdf
-  max_cfi_path: employee-experience/max-ratings
-  url: http://localhost:8120
 vre_counseling:
   prefill: true
 vre_readiness:

@@ -7,6 +7,7 @@ require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
 require 'hca/overrides_parser'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
@@ -22,7 +23,7 @@ class HealthCareApplication < ApplicationRecord
   ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
-  attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
+  attr_accessor :user, :google_analytics_client_id, :form
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
@@ -89,12 +90,11 @@ class HealthCareApplication < ApplicationRecord
       )
     end
 
-    Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+    set_result_on_success!(result)
 
     result
   rescue
     log_sync_submission_failure
-
     raise
   end
 
@@ -115,9 +115,11 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
+    save!
 
-    if email.present? || async_compatible
-      save!
+    send_event_bus_event('received')
+
+    if email.present?
       submit_async
     else
       submit_sync
@@ -208,6 +210,8 @@ class HealthCareApplication < ApplicationRecord
       form_submission_id_string: result[:formSubmissionId].to_s,
       timestamp: result[:timestamp]
     )
+
+    send_event_bus_event('sent', result[:formSubmissionId].to_s)
   end
 
   def form_submission_id
@@ -216,6 +220,25 @@ class HealthCareApplication < ApplicationRecord
 
   def parsed_form
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
+  end
+
+  def send_event_bus_event(status, next_id = nil)
+    return unless Flipper.enabled?(:hca_ez_kafka_submission_enabled)
+
+    begin
+      user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+    rescue Common::Exceptions::ValidationErrors
+      # if certain user attributes are missing, we can't get an ICN
+      user_icn = nil
+    end
+
+    Kafka.submit_event(
+      icn: user_icn,
+      current_id: id,
+      submission_name: 'F1010EZ',
+      state: status,
+      next_id:
+    )
   end
 
   private
@@ -245,10 +268,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
-    "HCA::#{submission_job}".constantize.perform_async(
+    HCA::SubmissionJob.perform_async(
       self.class.get_user_identifier(user),
       HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
       id,
@@ -272,6 +294,8 @@ class HealthCareApplication < ApplicationRecord
 
   def log_submission_failure_details
     return if parsed_form.blank?
+
+    send_event_bus_event('error')
 
     PersonalInformationLog.create!(
       data: parsed_form,

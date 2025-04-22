@@ -18,6 +18,10 @@ describe MDOT::Client, type: :mdot_helpers do
 
   let(:user) { build(:user, :loa3, user_details) }
 
+  around do |ex|
+    with_settings(Settings.mdot, { breakers: true }) { ex.run }
+  end
+
   describe '#get_supplies' do
     context 'with a valid supplies response' do
       it 'returns an array of supplies' do
@@ -44,6 +48,23 @@ describe MDOT::Client, type: :mdot_helpers do
           expect(response).to be_ok
           expect(response).to be_an MDOT::Response
           expect(response.eligibility.attributes[:assistive_devices]).to be(true)
+        end
+      end
+    end
+
+    context 'with a gateway timeout' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::GatewayTimeout)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::GatewayTimeout
+          ) do |e|
+            expect(e.message).to match('Gateway timeout')
+          end
         end
       end
     end
@@ -369,6 +390,38 @@ describe MDOT::Client, type: :mdot_helpers do
           MDOT::Exceptions::ServiceException
         ) do |e|
           expect(e.message).to match(/MDOT_supplies_not_selected/)
+        end
+      end
+    end
+
+    context 'with a nil token' do
+      it 'generates a new token' do
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri]
+        ) do
+          VCR.use_cassette('mdot/submit_order', match_requests_on: %i[method uri]) do
+            # set_mdot_token_for(user)
+            res = subject.submit_order(valid_order)
+            expect(res[0]['status']).to eq('Order Processed')
+            expect(res[0]['order_id']).to be_an(Integer)
+          end
+        end
+      end
+    end
+
+    context 'with an expired token' do
+      it 'generates a new token' do
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri]
+        ) do
+          VCR.use_cassette('mdot/submit_order', match_requests_on: %i[method uri]) do
+            set_expired_mdot_token_for(user)
+            res = subject.submit_order(valid_order)
+            expect(res[0]['status']).to eq('Order Processed')
+            expect(res[0]['order_id']).to be_an(Integer)
+          end
         end
       end
     end
