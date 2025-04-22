@@ -874,6 +874,15 @@ features:
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
+  form107959c_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959c (IVC CHAMPVA)
+  form107959f1_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959f-1 (IVC CHAMPVA)
+  form107959a_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959a (IVC CHAMPVA)
   form107959c:
     actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
