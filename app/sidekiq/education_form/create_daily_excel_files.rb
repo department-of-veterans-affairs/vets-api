@@ -76,7 +76,6 @@ module EducationForm
         records.each { |r| r.update(processed_at: Time.zone.now) }
         excel_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
       rescue => e
-        raise e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
         if retry_count < MAX_RETRIES
           log_exception(DailyExcelFileError.new("Error creating excel files.\n\n#{e}
