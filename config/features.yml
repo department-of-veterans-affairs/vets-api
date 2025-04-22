@@ -1269,6 +1269,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_limit_direct_deposit_for_non_beneficiaries:
+    actor_type: user
+    description: Limits the Direct Deposit page functionality based on the veteranStatus property.
+    enable_in_development: true
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
