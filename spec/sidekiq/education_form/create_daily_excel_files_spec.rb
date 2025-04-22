@@ -8,25 +8,21 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     create(:va10282).education_benefits_claim
   end
 
-  let(:s3_client) { instance_double(Aws::S3::Client) }
-
   before do
-    allow(Flipper).to receive(:enabled?).with(:form_10282_s3_upload).and_return(true)
-    allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
-    allow(s3_client).to receive(:put_object)
+    allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload_upload).and_return(true)
   end
 
-  after(:all) do
-    FileUtils.rm_rf('tmp/*.csv')
+  after(:each) do
+    FileUtils.rm_rf(Dir.glob('tmp/**/*.csv'))
   end
 
   context 'with the feature flag disabled' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:form_10282_s3_upload).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload_upload).and_return(false)
     end
 
     it 'just returns immediately' do
-      expect(s3_client).not_to receive(:put_object)
+      expect(SFTPWriter::Factory).not_to receive(:get_writer)
       expect { described_class.new.perform }.not_to change { EducationBenefitsClaim.unprocessed.count }
     end
   end
@@ -92,10 +88,11 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
         ActionMailer::Base.deliveries.clear
       end
 
-      it 'processes records and uploads to S3' do
+      it 'processes records and uploads to SFTP' do
         with_settings(Settings, hostname: 'staging-api.va.gov') do
-          expect(s3_client).to receive(:put_object)
+          expect(SFTPWriter::Factory).to receive(:get_writer).and_call_original
           expect { described_class.new.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(2).to(0)
+          expect(Dir['tmp/form_10282/*.csv'].count).to eq(1)
         end
       end
     end

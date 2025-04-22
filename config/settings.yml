@@ -476,11 +476,13 @@ form526_export:
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
 form_10282:
-  s3:
-    aws_access_key_id: <%= ENV['form_10282__s3__aws_access_key_id'] %>
-    aws_secret_access_key: <%= ENV['form_10282__s3__aws_secret_access_key'] %>
-    bucket: <%= ENV['form_10282__s3__bucket'] %>
-    region: us-gov-west-1
+  sftp:
+    host: <%= ENV['form_10282__sftp__host'] %>
+    key_path: <%= ENV['form_10282__sftp__key_path'] %>
+    pass: <%= ENV['form_10282__sftp__pass'] %>
+    port: <%= ENV['form_10282__sftp__port'] %>
+    relative_path: <%= ENV['form_10282__sftp__relative_path'] %>
+    user: <%= ENV['form_10282__sftp__user'] %>
 form_10_10cg:
   carma:
     mulesoft:

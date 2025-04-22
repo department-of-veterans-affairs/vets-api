@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'net/sftp'
 require 'sentry_logging'
 require 'sftp_writer/factory'
 
@@ -42,7 +43,7 @@ module EducationForm
 
     # rubocop:disable Metrics/MethodLength
     def perform
-      return unless Flipper.enabled?(:form_10282_s3_upload)
+      return unless Flipper.enabled?(:form_10282_sftp_upload_upload)
 
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
@@ -69,23 +70,24 @@ module EducationForm
         formatted_records = format_records(records)
         write_csv_file(formatted_records, filename)
 
-        upload_file_to_s3(filename)
+        upload_file_to_sftp(filename)
 
         # Make records processed and add excel file event for rake job
         records.each { |r| r.update(processed_at: Time.zone.now) }
         excel_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
       rescue => e
-        StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
-        if retry_count < MAX_RETRIES
-          log_exception(DailyExcelFileError.new("Error creating excel files.\n\n#{e}
-                                                 Retry count: #{retry_count}. Retrying..... "))
-          retry_count += 1
-          sleep(10 * retry_count) # exponential backoff for retries
-          retry
-        else
-          log_exception(DailyExcelFileError.new("Error creating excel files.
-                                                 Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
-        end
+        raise e
+        # StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
+        # if retry_count < MAX_RETRIES
+        #   log_exception(DailyExcelFileError.new("Error creating excel files.\n\n#{e}
+        #                                          Retry count: #{retry_count}. Retrying..... "))
+        #   retry_count += 1
+        #   sleep(10 * retry_count) # exponential backoff for retries
+        #   retry
+        # else
+        #   log_exception(DailyExcelFileError.new("Error creating excel files.
+        #                                          Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
+        # end
       end
       true
     end
@@ -189,24 +191,20 @@ module EducationForm
       logger.info(message)
     end
 
-    def upload_file_to_s3(filename)
-      log_info('Form 10282 S3 Upload: Begin')
-      client = Aws::S3::Client.new(
-        region: Settings.form_10282.s3.region,
-        access_key_id: Settings.form_10282.s3.aws_access_key_id,
-        secret_access_key: Settings.form_10282.s3.aws_secret_access_key
-      )
+    def upload_file_to_sftp(filename)
+      log_info('Form 10282 SFTP Upload: Begin')
 
-      client.put_object(
-        bucket: Settings.form_10282.s3.bucket,
-        key: filename,
-        body: File.open("tmp/#{filename}"),
-        content_type: 'text/plain'
-      )
-      log_info('Form 10282 S3 Upload: Complete')
+      writer = SFTPWriter::Factory.get_writer(Settings.form_10282.sftp).new(Settings.form_10282.sftp, logger:)
+      file_size = File.size("tmp/#{filename}")
+      bytes_sent = writer.write(File.open("tmp/#{filename}"), filename)
+      log_info("Form 10282 SFTP Upload: wrote #{bytes_sent} bytes of a #{file_size} byte file")
+
+      log_info('Form 10282 SFTP Upload: Complete')
     rescue => e
-      log_exception(DailyExcelFileError.new("Failed S3 upload: #{e.message}"))
+      log_exception(DailyExcelFileError.new("Failed SFTP upload: #{e.message}"))
       raise
+    ensure
+      writer.close
     end
   end
 end

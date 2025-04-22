@@ -475,11 +475,13 @@ form526_export:
     region: ~
     secret_access_key: ~
 form_10282:
-  s3:
-    aws_access_key_id: ~
-    aws_secret_access_key: ~
-    bucket: ~
-    region: ~
+  sftp:
+    host: ~
+    key_path: ~
+    pass: ~
+    port: ~
+    relative_path: ~
+    user: ~
 form_10_10cg:
   carma:
     mulesoft:
