@@ -278,7 +278,7 @@ describe PdfFill::ExtrasGeneratorV2 do
       allow(question_block2).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(false)
       allow(question_block2).to receive(:measure_actual_height).and_return(150)
       allow(list_block).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(true)
-      allow(list_block).to receive(:measure_component_heights).and_return({ title: 30, items: [50, 60] })
+      allow(list_block).to receive(:measure_actual_height).and_return({ title: 30, items: [50, 60] })
     end
 
     it 'creates a hash with heights for each block' do
@@ -379,6 +379,8 @@ describe PdfFill::ExtrasGeneratorV2 do
     before do
       allow(list_block).to receive(:items).and_return([item1, item2])
       allow(list_block).to receive(:render_item)
+      allow(item1).to receive(:should_render?).and_return(true)
+      allow(item2).to receive(:should_render?).and_return(true)
       allow(pdf).to receive(:cursor).and_return(75)
       allow(pdf).to receive(:start_new_page)
     end
@@ -392,30 +394,59 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
   end
 
-  describe '#sorted_subquestions_markup' do
-    let(:metadata) do
+  describe '#render' do
+    let(:table_width) { 91 }
+
+    let(:description_metadata) do
       {
         question_suffix: 'A',
-        question_label: 'Additional information',
-        question_text: 'Request for a change in duty assignment',
-        is_description: true,
+        question_text: 'Description',
+        question_num: 10
+      }
+    end
+
+    let(:additional_info_metadata) do
+      {
+        question_suffix: 'B',
+        question_text: 'Additional Information',
+        question_num: 10
+      }
+    end
+
+    let(:checked_metadata) do
+      {
+        question_suffix: 'C',
+        question_text: 'Checked',
         question_num: 10
       }
     end
 
     let(:question) do
-      PdfFill::ExtrasGeneratorV2::Question.new(
-        'Behavioral Change', metadata, table_width: 91
+      PdfFill::ExtrasGeneratorV2::CheckedDescriptionQuestion.new(
+        'Behavioral Change', description_metadata, table_width:
       )
     end
 
-    it 'adds a description row when label is Additional information' do
-      question.add_text('no response', metadata)
-      rows = question.sorted_subquestions_markup
+    it 'renders the correct markup when Checked is true' do
+      pdf = double('Prawn::Document')
+      allow(pdf).to receive(:markup)
 
-      expect(rows.first).to include('<b>Description:</b>')
-      expect(rows.first).to include(metadata[:question_text])
-      expect(rows.last).to include('no response')
+      question.add_text('Request for a change in duty assignment', description_metadata)
+      question.add_text('no response', additional_info_metadata)
+      question.add_text('true', checked_metadata)
+
+      question.render(pdf)
+
+      expected_markup =
+        '<table>' \
+        "<tr><td style='width:91'><b>Description:</b></td>" \
+        '<td><b>Request for a change in duty assignment</b></td></tr>' \
+        "<tr><td style='width:91'>Additional Information:</td>" \
+        '<td>no response</td></tr>' \
+        '</table>'
+
+      expect(pdf).to have_received(:markup).with('<h3>10. Behavioral Change</h3>')
+      expect(pdf).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
     end
   end
 end
