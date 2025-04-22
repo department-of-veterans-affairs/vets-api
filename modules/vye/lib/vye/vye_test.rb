@@ -6,7 +6,7 @@
 
 # This generates the erroneous result w/a run date of 3/31. A run date of 4/1 does not create a pv unless the award indicator is 'C' in which case it
 # produces the result Shay says it should (3/30). So 2 problems: 1) The run date is ?, and 2) the award indicator is not 'C'
- row_str = "123158112345678999  19951009A1943333202503212028050420250301TESTERS J DOESSON   9999 EASTBUMFK DR S COLUMBUS OH                                                                     64747    RLJOHNS351249445030243800202412092025020342025030102438006061B06SP2025020300000000420250301024380029  B09SC202503032025033142025030102438007261B07SF                                         B"
+# row_str = "123158112345678999  19951009A1943333202503212028050420250301TESTERS J DOESSON   9999 EASTBUMFK DR S COLUMBUS OH                                                                     64747    RLJOHNS351249445030243800202412092025020342025030102438006061B06SP2025020300000000420250301024380029  B09SC202503032025033142025030102438007261B07SF                                         B"
 # Same row as above but the award indicator is 'C' and the run date is 4/1.
 # row_str = "123158112345678999  19951009A1943333202503212028050420250301TESTERS J DOESSON   9999 EASTBUMFK DR S COLUMBUS OH                                                                     64747    RLJOHNS351249445030243800202412092025020342025030102438006061B06SP2025020300000000420250301024380029  B09SC202503032025033142025030102438007261B07SC                                         B"
 
