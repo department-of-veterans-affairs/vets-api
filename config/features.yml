@@ -110,9 +110,6 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
-  caregiver_retry_pdf_fill:
-    actor_type: user
-    description: Enables 1010CG to retry pdf fill for download_pdf endpoint
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
