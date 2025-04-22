@@ -150,10 +150,14 @@ jobs:
               echo "  - $param"
             done
             
-            invalid_params_string=$(IFS=,; echo "${invalid_parameters[*]}")
             invalid_params_string=$(printf -- '- %s\n' "${invalid_parameters[@]}")
-            echo "Setting GITHUB_ENV: INVALID_PARAMETERS=$invalid_params_string"
-            echo "INVALID_PARAMETERS=$invalid_params_string" >> $GITHUB_ENV
+            echo "Invalid parameters found"
+            echo -e "$invalid_params_string"
+            {
+              echo "INVALID_PARAMETERS<<EOF"
+              echo "$invalid_params_string"
+              echo "EOF"
+            } >> "$GITHUB_ENV"
           else
             echo "No invalid parameters found"
             echo "INVALID_PARAMETERS=" >> $GITHUB_ENV
