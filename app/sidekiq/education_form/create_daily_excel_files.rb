@@ -77,17 +77,17 @@ module EducationForm
         excel_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
       rescue => e
         raise e
-        # StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
-        # if retry_count < MAX_RETRIES
-        #   log_exception(DailyExcelFileError.new("Error creating excel files.\n\n#{e}
-        #                                          Retry count: #{retry_count}. Retrying..... "))
-        #   retry_count += 1
-        #   sleep(10 * retry_count) # exponential backoff for retries
-        #   retry
-        # else
-        #   log_exception(DailyExcelFileError.new("Error creating excel files.
-        #                                          Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
-        # end
+        StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
+        if retry_count < MAX_RETRIES
+          log_exception(DailyExcelFileError.new("Error creating excel files.\n\n#{e}
+                                                 Retry count: #{retry_count}. Retrying..... "))
+          retry_count += 1
+          sleep(10 * retry_count) # exponential backoff for retries
+          retry
+        else
+          log_exception(DailyExcelFileError.new("Error creating excel files.
+                                                 Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
+        end
       end
       true
     end
