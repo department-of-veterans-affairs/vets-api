@@ -1,5 +1,4 @@
 ---
-aaa_bbb_ccc: <%= ENV['aaa_bbb_ccc'] %>
 acc_rep_management:
   prefill: true
 account:

@@ -181,17 +181,3 @@ jobs:
             :+1: All Parameter Store values in this PR are valid
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
-      - name: Add Parameter Failure label
-        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'parameter-failure')
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: parameter-failure
-
-
-      - name: Remove Parameter Failure label
-        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'parameter-failure')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: parameter-failure
