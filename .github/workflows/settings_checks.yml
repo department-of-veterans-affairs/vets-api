@@ -152,7 +152,6 @@ jobs:
             
             invalid_params_string=$(printf -- '- %s\n' "${invalid_parameters[@]}")
             echo "Invalid parameters found"
-            echo -e "$invalid_params_string"
             {
               echo "INVALID_PARAMETERS<<EOF"
               echo "$invalid_params_string"
