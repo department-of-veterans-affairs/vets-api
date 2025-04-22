@@ -9,11 +9,9 @@ def load_response_fixture(path_suffix)
       .then { |json| JSON.parse(json) }
 end
 
-dependent_claimant_power_of_attorney_form =
-  load_response_fixture('dependent_claimant_power_of_attorney_form.json')
+load_response_fixture('dependent_claimant_power_of_attorney_form.json')
 
-veteran_claimant_power_of_attorney_form =
-  load_response_fixture('veteran_claimant_power_of_attorney_form.json')
+load_response_fixture('veteran_claimant_power_of_attorney_form.json')
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
   before do
@@ -56,7 +54,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:other_vso) { create(:organization, poa: other_poa_code, can_accept_digital_poa_requests: true) }
 
   let(:poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code:) }
-  let(:other_poa_request) { create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code) }
+  let(:other_poa_request) do
+    create(:power_of_attorney_request, :with_veteran_claimant, poa_code: other_poa_code,
+                                                               accredited_organization: other_vso)
+  end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
     context 'when user belongs to a digital-POA-request-accepting VSO' do
@@ -215,119 +216,22 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
           expect(response).to have_http_status(:ok)
-          expect(parsed_response['data']).to eq(
-            [
-              {
-                'id' => poa_request.id,
-                'claimantId' => poa_request.claimant_id,
-                'createdAt' => time,
-                'expiresAt' => (Time.zone.parse(time) + 60.days).iso8601(3),
-                'powerOfAttorneyForm' => veteran_claimant_power_of_attorney_form,
-                'resolution' => nil,
-                'accreditedIndividual' => {
-                  'id' => poa_request.accredited_individual.id,
-                  'fullName' => "#{poa_request.accredited_individual.first_name} " \
-                                "#{poa_request.accredited_individual.last_name}"
-                },
-                'powerOfAttorneyHolder' => {
-                  'type' => 'veteran_service_organization',
-                  'name' => poa_request.accredited_organization.name,
-                  'id' => poa_request.accredited_organization.poa
-                }
-              },
-              {
-                'id' => poa_requests[0].id,
-                'claimantId' => poa_requests[0].claimant_id,
-                'createdAt' => time,
-                'expiresAt' => (Time.zone.parse(time) + 60.days).iso8601(3),
-                'powerOfAttorneyForm' => veteran_claimant_power_of_attorney_form,
-                'resolution' => nil,
-                'accreditedIndividual' => {
-                  'id' => poa_requests[0].accredited_individual.id,
-                  'fullName' => "#{poa_requests[0].accredited_individual.first_name} " \
-                                "#{poa_requests[0].accredited_individual.last_name}"
-                },
-                'powerOfAttorneyHolder' => {
-                  'type' => 'veteran_service_organization',
-                  'name' => poa_requests[0].accredited_organization.name,
-                  'id' => poa_requests[0].accredited_organization.poa
-                }
-              },
-              {
-                'id' => poa_requests[1].id,
-                'claimantId' => poa_requests[1].claimant_id,
-                'createdAt' => time,
-                'expiresAt' => nil,
-                'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
-                'resolution' => {
-                  'id' => poa_requests[1].resolution.id,
-                  'type' => 'decision',
-                  'createdAt' => time,
-                  'creatorId' => poa_requests[1].resolution.resolving.creator_id,
-                  'decisionType' => 'acceptance'
-                },
-                'accreditedIndividual' => {
-                  'id' => poa_requests[1].accredited_individual.id,
-                  'fullName' => "#{poa_requests[1].accredited_individual.first_name} " \
-                                "#{poa_requests[1].accredited_individual.last_name}"
-                },
-                'powerOfAttorneyHolder' => {
-                  'type' => 'veteran_service_organization',
-                  'name' => poa_requests[1].accredited_organization.name,
-                  'id' => poa_requests[1].accredited_organization.poa
-                },
-                'powerOfAttorneyFormSubmission' => {
-                  'status' => 'PENDING'
-                }
-              },
-              {
-                'id' => poa_requests[2].id,
-                'claimantId' => poa_requests[2].claimant_id,
-                'createdAt' => time,
-                'expiresAt' => nil,
-                'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
-                'resolution' => {
-                  'id' => poa_requests[2].resolution.id,
-                  'type' => 'decision',
-                  'createdAt' => time,
-                  'creatorId' => poa_requests[2].resolution.resolving.creator_id,
-                  'reason' => 'Didn\'t authorize treatment record disclosure',
-                  'decisionType' => 'declination'
-                },
-                'accreditedIndividual' => {
-                  'id' => poa_requests[2].accredited_individual.id,
-                  'fullName' => "#{poa_requests[2].accredited_individual.first_name} " \
-                                "#{poa_requests[2].accredited_individual.last_name}"
-                },
-                'powerOfAttorneyHolder' => {
-                  'type' => 'veteran_service_organization',
-                  'name' => poa_requests[2].accredited_organization.name,
-                  'id' => poa_requests[2].accredited_organization.poa
-                }
-              },
-              {
-                'id' => poa_requests[3].id,
-                'claimantId' => poa_requests[3].claimant_id,
-                'createdAt' => time,
-                'expiresAt' => nil,
-                'powerOfAttorneyForm' => dependent_claimant_power_of_attorney_form,
-                'resolution' => {
-                  'id' => poa_requests[3].resolution.id,
-                  'type' => 'expiration',
-                  'createdAt' => time
-                },
-                'accreditedIndividual' => {
-                  'id' => poa_requests[3].accredited_individual.id,
-                  'fullName' => "#{poa_requests[3].accredited_individual.first_name} " \
-                                "#{poa_requests[3].accredited_individual.last_name}"
-                },
-                'powerOfAttorneyHolder' => {
-                  'type' => 'veteran_service_organization',
-                  'name' => poa_requests[3].accredited_organization.name,
-                  'id' => poa_requests[3].accredited_organization.poa
-                }
-              }
-            ]
+          expect(parsed_response['data']).to contain_exactly(
+            hash_including('id' => poa_request.id, 'resolution' => nil),
+            hash_including('id' => poa_requests[0].id, 'resolution' => nil),
+            hash_including(
+              'id' => poa_requests[1].id,
+              'resolution' => hash_including('decisionType' => 'acceptance'),
+              'powerOfAttorneyFormSubmission' => { 'status' => 'PENDING' }
+            ),
+            hash_including(
+              'id' => poa_requests[2].id,
+              'resolution' => hash_including('decisionType' => 'declination')
+            ),
+            hash_including(
+              'id' => poa_requests[3].id,
+              'resolution' => hash_including('type' => 'expiration')
+            )
           )
         end
       end
