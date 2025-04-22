@@ -81,7 +81,8 @@ module VBADocuments
         retry_errors(e, @upload)
       ensure
         tempfile.close
-        close_part_files(parts) if parts.present?
+        tempfile.unlink
+        close_and_unlink_part_files(parts) if parts.present?
       end
       response
     end
@@ -149,11 +150,13 @@ module VBADocuments
       VBADocuments::UploadSubmission.refresh_statuses!([@upload])
     end
 
-    def close_part_files(parts)
-      parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to? :close
+    def close_and_unlink_part_files(parts)
+      parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to?(:close)
+      parts[DOC_PART_NAME]&.unlink if parts[DOC_PART_NAME].respond_to?(:unlink)
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       attachment_names.each do |att|
-        parts[att]&.close if parts[att].respond_to? :close
+        parts[att]&.close if parts[att].respond_to?(:close)
+        parts[att]&.unlink if parts[att].respond_to?(:unlink)
       end
     end
 
