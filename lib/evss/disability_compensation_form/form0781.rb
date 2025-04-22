@@ -53,16 +53,21 @@ module EVSS
       end
 
       def create_form_v2
+        events = @form_content['events'].nil? ? nil : sanitize_details(@form_content['events'])
+        bd = @form_content['behaviorsDetails'].nil? ? nil : sanitize_hash_values(@form_content['behaviorsDetails'])
+        ai = @form_content['additionalInformation'].nil? ? nil : sanitize_text(@form_content['additionalInformation'])
+
         prepare_veteran_info.merge({
-                                     'events' => @form_content['events'],
+                                     'eventTypes' => @form_content['eventTypes'],
+                                     'events' => events,
                                      'behaviors' => aggregate_behaviors,
-                                     'behaviorsDetails' => @form_content['behaviorsDetails'],
+                                     'behaviorsDetails' => bd,
                                      'evidence' => aggregate_supporting_evidence,
                                      'treatmentNoneCheckbox' => @form_content['treatmentNoneCheckbox'],
                                      'treatmentProviders' => aggregate_treatment_providers,
                                      'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
                                      'optionIndicator' => @form_content['optionIndicator'],
-                                     'additionalInformation' => @form_content['additionalInformation']
+                                     'additionalInformation' => ai
                                    })
       end
 
@@ -107,6 +112,24 @@ module EVSS
         (@form_content['treatmentReceivedVaProvider'] || {})
           .merge(@form_content['treatmentReceivedNonVaProvider'] || {})
           .select { |_key, value| value }
+      end
+
+      def sanitize_text(string)
+        string.gsub(/\n|\r/, ' ') # Replace each line break with a space
+      end
+
+      def sanitize_hash_values(hash)
+        hash.transform_values { |value| sanitize_text(value) }
+      end
+
+      def sanitize_details(events)
+        events.map do |event|
+          if event.key?('details') && !event['details'].nil?
+            event.merge('details' => sanitize_text(event['details']))
+          else
+            event
+          end
+        end
       end
 
       def split_incidents(incidents)

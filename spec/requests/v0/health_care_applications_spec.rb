@@ -343,20 +343,16 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         context 'with an email set' do
+          before do
+            expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+          end
+
           expect_async_submit
         end
 
         context 'with no email set' do
           before do
             test_veteran.delete('email')
-          end
-
-          context 'with async_all set' do
-            before do
-              params[:async_all] = true
-            end
-
-            expect_async_submit
           end
 
           it 'increments statsd' do
@@ -374,6 +370,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           end
 
           it 'renders success', run_at: '2017-01-31' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
             VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
               subject
               expect(JSON.parse(response.body)).to eq(body)
@@ -432,6 +429,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'raises an invalid field value error' do
+          expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -452,6 +450,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             let(:error) { HCA::SOAPParser::ValidationError.new }
 
             it 'renders error message' do
+              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
+
               subject
 
               expect(response).to have_http_status(:unprocessable_entity)
@@ -477,6 +477,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
             it 'renders error message' do
               expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
               subject
 
@@ -499,6 +500,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           before do
             Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
             test_veteran.delete('email')
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
             allow_any_instance_of(HCA::Service).to receive(:post) do
               raise error
             end

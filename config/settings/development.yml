@@ -564,10 +564,6 @@ hca:
     pass: password
     user: HCASvcUsr
   endpoint: https://test-foo.vets.gov
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: ~
   prefill: true
   s3:
@@ -660,6 +656,8 @@ ivc_forms:
     region: region
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
@@ -1568,6 +1566,8 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_confirmation_email: appoint_a_representative_digital_expiration_confirmation_email_template_id
+        appoint_a_representative_digital_expiration_warning_email: appoint_a_representative_digital_expiration_warning_email_template_id
         appoint_a_representative_digital_submit_confirmation_email: appoint_a_rep_v2_digital_submit_confirm_email_template_id
         appoint_a_representative_digital_submit_decline_email: appoint_a_rep_v2_digital_submit_decline_email_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
@@ -1577,7 +1577,6 @@ vanotify:
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
         direct_deposit_comp_pen: comp_pen_template_id
-        direct_deposit_edu: edu_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1651,9 +1650,9 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
+    api_url: https://veteran.apps.va.gov
     base_path: csp/healthshare/ccraint/rest
-    mock: true
+    mock: false
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1662,7 +1661,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: "/fake/client/key/path"
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500
@@ -1756,6 +1755,14 @@ vet360:
     enabled: true
     mock: false
     timeout: 30
+veteran_enrollment_system:
+  associations:
+    api_key: ~
+  ee_summary:
+    api_key: ~
+  host: https://sqa.ves.va.gov
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:

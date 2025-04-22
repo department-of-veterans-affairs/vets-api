@@ -75,7 +75,7 @@ module MDOT
 
     def submission_headers
       {
-        VAAPIKEY: MDOT::Token.find(@user.uuid).token
+        VAAPIKEY: handle_token
       }
     end
 
@@ -91,7 +91,7 @@ module MDOT
       Sentry.set_extras(
         url: config.base_path,
         message: error.message,
-        body: error.body
+        body: error.try(:body)
       )
     end
 
@@ -131,6 +131,12 @@ module MDOT
       else
         raise error
       end
+    end
+
+    def handle_token
+      existing_token = MDOT::Token.find(@user.uuid)
+      get_supplies if !existing_token || existing_token.ttl < 5
+      MDOT::Token.find(@user.uuid).try(:token)
     end
   end
 end
