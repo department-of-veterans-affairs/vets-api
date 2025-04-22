@@ -6,7 +6,7 @@ class Form0781StateSnapshotJob
   sidekiq_options retry: false
 
   STATSD_PREFIX = 'form526.form0781.state.snapshot'
-  ROLLOUT_DATE = Date.new(2025, 4, 1)
+  STAT_START_DATE = Date.new(2025, 4, 1)
 
   def perform
     if Flipper.enabled?(:disability_compensation_0781_stats_job)
@@ -21,6 +21,7 @@ class Form0781StateSnapshotJob
                        class: self.class.name,
                        message: e.try(:message))
   end
+
   def write_0781_snapshot
     state_as_counts.each do |description, count|
       StatsD.gauge("#{STATSD_PREFIX}.#{description}", count)
@@ -60,6 +61,7 @@ class Form0781StateSnapshotJob
   # Helper methods for new 0781 form metrics
   def new_0781_in_progress_forms
     InProgressForm.where(form_id: '21-526EZ')
+                  .where('created_at >= ?', STAT_START_DATE)
                   .select { |ipf| new_mental_health_workflow?(ipf) }
                   .pluck(:id)
   end
@@ -70,14 +72,14 @@ class Form0781StateSnapshotJob
 
   def new_0781_submissions
     form526_submissions
-      .where('created_at >= ?', ROLLOUT_DATE)
+      .where('created_at >= ?', STAT_START_DATE)
       .select { |sub| new_0781_form?(sub) }
       .pluck(:id)
   end
 
   def new_0781_successful_submissions
     form526_submissions
-      .where('created_at >= ?', ROLLOUT_DATE)
+      .where('created_at >= ?', STAT_START_DATE)
       .select do |sub|
         next unless new_0781_form?(sub)
 
@@ -87,7 +89,7 @@ class Form0781StateSnapshotJob
 
   def new_0781_failed_submissions
     form526_submissions
-      .where('created_at >= ?', ROLLOUT_DATE)
+      .where('created_at >= ?', STAT_START_DATE)
       .select do |sub|
         next unless new_0781_form?(sub)
 
@@ -96,14 +98,14 @@ class Form0781StateSnapshotJob
   end
 
   def new_0781_primary_path_submissions
-    form526_submissions.where('created_at >= ?', ROLLOUT_DATE)
+    form526_submissions.where('created_at >= ?', STAT_START_DATE)
                        .where.not(submitted_claim_id: nil)
                        .select { |sub| new_0781_form?(sub) }
                        .pluck(:id)
   end
 
   def new_0781_secondary_path_submissions
-    form526_submissions.where('created_at >= ?', ROLLOUT_DATE)
+    form526_submissions.where('created_at >= ?', STAT_START_DATE)
                        .where(submitted_claim_id: nil)
                        .select { |sub| new_0781_form?(sub) }
                        .pluck(:id)
@@ -112,6 +114,7 @@ class Form0781StateSnapshotJob
   # Helper methods for old 0781 form metrics
   def old_0781_in_progress_forms
     InProgressForm.where(form_id: '21-526EZ')
+                  .where('created_at >= ?', STAT_START_DATE)
                   .select { |ipf| old_ptsd_types_selected?(ipf) }
                   .pluck(:id)
   end
@@ -122,14 +125,14 @@ class Form0781StateSnapshotJob
 
   def old_0781_submissions
     form526_submissions
-      .where('created_at >= ?', ROLLOUT_DATE)
+      .where('created_at >= ?', STAT_START_DATE)
       .reject { |sub| new_0781_form?(sub) }
       .pluck(:id)
   end
 
   def old_0781_successful_submissions
     form526_submissions
-      .where('created_at >= ?', ROLLOUT_DATE)
+      .where('created_at >= ?', STAT_START_DATE)
       .select do |sub|
         next if new_0781_form?(sub)
 
@@ -139,7 +142,7 @@ class Form0781StateSnapshotJob
 
   def old_0781_failed_submissions
     form526_submissions
-      .where('created_at >= ?', ROLLOUT_DATE)
+      .where('created_at >= ?', STAT_START_DATE)
       .select do |sub|
         next if new_0781_form?(sub)
 
