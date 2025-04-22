@@ -292,7 +292,7 @@ module BenefitsClaims
         i['displayName'] = 'Private Medical Record'
       end
 
-      tracked_items.select { |i| i['displayName'] == 'Proof of Service (DD214, etc.)' }.each do |i|
+      tracked_items.select { |i| i['displayName'] == 'Proof of service (DD214, etc.)' }.each do |i|
         i['status'] = 'NEEDED_FROM_OTHERS'
       end
       tracked_items
