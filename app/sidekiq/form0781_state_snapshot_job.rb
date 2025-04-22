@@ -5,8 +5,8 @@ class Form0781StateSnapshotJob
   include Sidekiq::Job
   sidekiq_options retry: false
 
-  STATSD_PREFIX = 'form0781.state.snapshot'
-  ROLLOUT_DATE = Date.new(2025, 4, 2)
+  STATSD_PREFIX = 'form526.form0781.state.snapshot'
+  ROLLOUT_DATE = Date.new(2025, 4, 1)
 
   def perform
     if Flipper.enabled?(:disability_compensation_0781_stats_job)
@@ -21,7 +21,6 @@ class Form0781StateSnapshotJob
                        class: self.class.name,
                        message: e.try(:message))
   end
-
   def write_0781_snapshot
     state_as_counts.each do |description, count|
       StatsD.gauge("#{STATSD_PREFIX}.#{description}", count)
