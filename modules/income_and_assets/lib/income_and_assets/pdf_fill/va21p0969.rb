@@ -550,6 +550,7 @@ module IncomeAndAssets
         },
         # 8a
         'trust' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
+        # 8b-8m (only space for one on form)
         'trusts' => {
           limit: 1,
           first_key: 'establishedDate',
@@ -636,7 +637,7 @@ module IncomeAndAssets
             question_num: 8,
             question_suffix: '(j)',
             question_text:
-                              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+              'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
