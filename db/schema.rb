@@ -202,7 +202,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.integer "upload_submission_id", null: false
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
-    t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
     t.index ["upload_submission_id"], name: "index_appeals_api_evidence_submissions_on_upload_submission_id", unique: true
@@ -706,7 +705,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.integer "saved_claim_id", null: false
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
-    t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at"], name: "index_education_benefits_claims_on_created_at"
     t.index ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id"
     t.index ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at"
