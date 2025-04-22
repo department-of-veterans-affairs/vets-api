@@ -8,7 +8,7 @@ module VeteranEnrollmentSystem
   # Provides common functionality for all VES endpoints
   class BaseConfiguration < Common::Client::Configuration::REST
     def base_path
-      "#{Settings.veteran_enrollment_system.host}/"
+      "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}/"
     end
 
     def service_name

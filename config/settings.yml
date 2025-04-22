@@ -1737,7 +1737,8 @@ veteran_enrollment_system:
     api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
   ee_summary:
     api_key: ~
-  host: https://ves.va.gov
+  host: <%= ENV['veteran_enrollment_system__host'] %>
+  port: <%= ENV['veteran_enrollment_system__port'] %>
   open_timeout: 10
   timeout: 30
 veteran_onboarding:
