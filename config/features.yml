@@ -383,11 +383,7 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_friendly_evidence_requests_first_party:
-    actor_type: user
-    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
-    enable_in_development: true
-  cst_friendly_evidence_requests_third_party:
+  cst_friendly_evidence_requests:
     actor_type: user
     description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
     enable_in_development: true

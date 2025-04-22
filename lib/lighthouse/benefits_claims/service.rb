@@ -40,12 +40,7 @@ module BenefitsClaims
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
       override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
-      if Flipper.enabled?(:cst_friendly_evidence_requests_first_party)
-        apply_friendlier_language_first_party(claim['data'])
-      end
-      if Flipper.enabled?(:cst_friendly_evidence_requests_third_party)
-        apply_friendlier_language_third_party(claim['data'])
-      end
+      apply_friendlier_language(claim['data']) if Flipper.enabled?(:cst_friendly_evidence_requests)
       claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -296,37 +291,26 @@ module BenefitsClaims
         i['status'] = 'NEEDED_FROM_OTHERS'
         i['displayName'] = 'Private Medical Record'
       end
-      tracked_items
-    end
 
-    def apply_friendlier_language_first_party(claim)
-      tracked_items = claim['attributes']['trackedItems']
-      return unless tracked_items
-
-      tracked_items.select { |i| i['status'] == 'NEEDED_FROM_YOU' }.each do |i|
-        display_name = i['displayName']
-        i['canUploadFile'] =
-          BenefitsClaims::Constants::UPLOADER_MAPPING_FIRST_PARTY[display_name].nil? ||
-          BenefitsClaims::Constants::UPLOADER_MAPPING_FIRST_PARTY[display_name]
-        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING_FIRST_PARTY[display_name]
-        i['friendlyDescription'] = BenefitsClaims::Constants::FRIENDLY_DESCRIPTION_MAPPING_FIRST_PARTY[display_name]
-        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING_FIRST_PARTY[display_name] || []
+      tracked_items.select { |i| i['displayName'] == 'Proof of Service (DD214, etc.)' }.each do |i|
+        i['status'] = 'NEEDED_FROM_OTHERS'
       end
       tracked_items
     end
 
-    def apply_friendlier_language_third_party(claim)
+    def apply_friendlier_language(claim)
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.select { |i| i['status'] == 'NEEDED_FROM_OTHERS' }.each do |i|
+      tracked_items.each do |i|
         display_name = i['displayName']
         i['canUploadFile'] =
-          BenefitsClaims::Constants::UPLOADER_MAPPING_THIRD_PARTY[display_name].nil? ||
-          BenefitsClaims::Constants::UPLOADER_MAPPING_THIRD_PARTY[display_name]
-        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING_THIRD_PARTY[display_name]
-        i['friendlyDescription'] = BenefitsClaims::Constants::FRIENDLY_DESCRIPTION_MAPPING_THIRD_PARTY[display_name]
-        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING_THIRD_PARTY[display_name] || []
+          BenefitsClaims::Constants::UPLOADER_MAPPING[display_name].nil? ||
+          BenefitsClaims::Constants::UPLOADER_MAPPING[display_name]
+        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[display_name]
+        i['activityDescription'] = BenefitsClaims::Constants::ACTIVITY_DESCRIPTION_MAPPING[display_name]
+        i['shortDescription'] = BenefitsClaims::Constants::SHORT_DESCRIPTION_MAPPING[display_name]
+        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING[display_name] || []
       end
       tracked_items
     end
