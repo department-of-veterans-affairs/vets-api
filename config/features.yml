@@ -143,7 +143,7 @@ features:
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
-    description: Enables the 10-10EZ Kafka Event Bus submission 
+    description: Enables the 10-10EZ Kafka Event Bus submission
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -714,6 +714,10 @@ features:
   representative_status_enable_v2_features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
+    enable_in_development: true
+  accredited_representative_portal_declination:
+    actor_type: user
+    description: Enables declination reason feature for frontend and backend
     enable_in_development: true
   form4142_validate_schema:
     actor_type: user
@@ -2123,4 +2127,3 @@ features:
     description: If enabled, show links to new forms instead of download links on SCO page
   only_use_direct_deposit_email_template:
     description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates
-
