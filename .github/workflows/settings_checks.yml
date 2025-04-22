@@ -150,7 +150,7 @@ jobs:
               echo "  - $param"
             done
             
-            invalid_params_string=$(IFS=,; echo "${invalid_parameters[*]}")
+            invalid_params_string=$(printf -- '- %s\n' "${invalid_parameters[@]}")
             echo "Setting GITHUB_ENV: INVALID_PARAMETERS=$invalid_params_string"
             echo "INVALID_PARAMETERS=$invalid_params_string" >> $GITHUB_ENV
           else
@@ -163,7 +163,7 @@ jobs:
         with:
           message: |
             :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
-            ${{ env.INVALID_PARAMETERS }}
+            ${{ env.INVALID_PARAMETERS | tr ',' '\n' | sed 's/^/- /' }}
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Fail if invalid parameters are found
