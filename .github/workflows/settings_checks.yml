@@ -78,17 +78,17 @@ jobs:
           new_env_keys=$(git diff origin/master config/settings.yml | \
             grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
 
+          if [[ -z "$new_env_keys" ]]; then
+            echo "No new ENV keys found in config/settings.yml."
+            exit 0
+          fi
+
           keys=()
           for line in $new_env_keys; do
             # Remove any quotes that might be present
             line=$(echo "$line" | tr -d "'")
             keys+=("$line")
           done
-
-          if [[ ${#keys[@]} -eq 0 ]]; then
-            echo "No new ENV keys found in config/settings.yml."
-            exit 0
-          fi
 
           echo "Found the following ENV keys:"
           for key in "${keys[@]}"; do
@@ -133,7 +133,6 @@ jobs:
             
             # Process invalid parameters
             if [[ -n "$ssm_output" && "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
-              echo "Found invalid parameters: $ssm_output"
               # Parse the JSON output to extract invalid parameters
               while read -r param; do
                 if [[ -n "$param" ]]; then
@@ -144,14 +143,13 @@ jobs:
           done
 
           # Display invalid parameters
-          echo "Invalid parameters found: ${#invalid_parameters[@]}"
           if [[ ${#invalid_parameters[@]} -gt 0 ]]; then
             for param in "${invalid_parameters[@]}"; do
               echo "  - $param"
             done
             
             invalid_params_string=$(printf -- '- %s\n' "${invalid_parameters[@]}")
-            echo "Invalid parameters found"
+            echo "Invalid parameters found: ${#invalid_parameters[@]}"
             {
               echo "INVALID_PARAMETERS<<EOF"
               echo "$invalid_params_string"
