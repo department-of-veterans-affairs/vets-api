@@ -45,6 +45,8 @@ require 'va_profile/military_personnel/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
+require 'veteran_enrollment_system/associations/configuration'
+require 'veteran_enrollment_system/base_configuration'
 require 'unified_health_data/configuration'
 
 Rails.application.reloader.to_prepare do
@@ -72,6 +74,8 @@ Rails.application.reloader.to_prepare do
     Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
+    VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
+    VeteranEnrollmentSystem::BaseConfiguration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,

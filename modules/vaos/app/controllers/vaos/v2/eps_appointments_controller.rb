@@ -11,20 +11,28 @@ module VAOS
 
         raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
 
-        referral_detail = fetch_referral_detail(appointment)
-        provider = fetch_provider(appointment)
-        enriched_provider = Eps::EnrichedProvider.from_referral(provider, referral_detail)
-
-        response = OpenStruct.new(
-          id: appointment[:id],
-          appointment:,
-          provider: enriched_provider
-        )
-
-        render json: Eps::EpsAppointmentSerializer.new(response)
+        response_object = assemble_appt_response_object(appointment)
+        render json: response_object
       end
 
       private
+
+      ##
+      # Assembles a structured response object for an EPS appointment by:
+      # 1. Fetching referral details if a referral number exists
+      # 2. Fetching provider information if a provider service ID exists
+      # 3. Creating a comprehensive EpsAppointment object with all related data
+      # 4. Serializing the appointment object
+      #
+      # @param appointment_data [Hash] Raw appointment data from the EPS service
+      # @return [Eps::EpsAppointmentSerializer] Serialized appointment with referral and provider data
+      def assemble_appt_response_object(appointment_data)
+        referral_detail = fetch_referral_detail(appointment_data)
+        provider = fetch_provider(appointment_data)
+        eps_appointment = VAOS::V2::EpsAppointment.new(appointment_data, referral_detail, provider)
+
+        Eps::EpsAppointmentSerializer.new(eps_appointment)
+      end
 
       ##
       # Retrieves referral details from CCRA service for the given appointment if a referral number is present.
@@ -37,7 +45,7 @@ module VAOS
 
         begin
           # TODO: Need correct mode parameter, this one is hard-coded based on examples
-          ccra_referral_service.get_referral(referral_number, '2')
+          ccra_referral_service.get_referral(referral_number, '2', current_user.icn)
         rescue => e
           Rails.logger.error "Failed to retrieve referral details: #{e.message}"
           nil

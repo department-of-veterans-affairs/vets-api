@@ -13,6 +13,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'DGI' # Digital GI
   inflect.acronym 'EVSS'
   inflect.acronym 'FHIR'
+  inflect.acronym 'GCLAWS' # General Counsel Automated Workload System
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'HCA'
