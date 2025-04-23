@@ -184,6 +184,87 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
 
+    context 'when there are expired/discontinued meds older than 180 days' do
+      it 'filters out the old meds' do
+        params = { page: { number: 1, size: 104 }, filter: { refill_status: { eq: 'discontinued,expired' } } }
+
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
+          get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
+        end
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('prescription')
+
+        expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(104)
+
+        old_med = response.parsed_body['data'].find do |rx|
+          rx['attributes']['expirationDate'] < 180.days.ago
+        end
+
+        expect(old_med).to be_falsey
+      end
+    end
+
+    context 'veteran has Non-VA medication' do
+      it 'filters out all Non-VA meds' do
+        params = { page: { number: 1, size: 100 }, filter: { refill_status: { eq: 'active' } } }
+
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
+          get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
+        end
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('prescription')
+
+        expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(2)
+
+        # Only Non-VA meds can have missing prescriptionsName
+        missing_name_med = response.parsed_body['data'].find do |rx|
+          rx['attributes']['prescriptionName'].nil?
+        end
+
+        expect(missing_name_med).to be_falsey
+      end
+    end
+
+    describe 'feature mhv_medications_display_pending_meds' do
+      context 'when mhv_medications_display_pending_meds is set to true"' do
+        before do
+          Flipper.enable_actor(:mhv_medications_display_pending_meds, user)
+        end
+
+        it 'responds to GET #index with pending meds included in list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
+            get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response.body).to match_json_schema('prescription')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(146)
+        end
+      end
+
+      context 'when mhv_medications_display_pending_meds is set to false"' do
+        before do
+          Flipper.disable(:mhv_medications_display_pending_meds)
+        end
+
+        it 'responds to GET #index with pending meds not included in list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_prescriptions_w_pending_meds') do
+            get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response.body).to match_json_schema('prescription')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          expect(response.parsed_body['meta']['pagination']['totalEntries']).to eq(135)
+        end
+      end
+    end
+
     describe 'error cases' do
       it 'converts Faraday::TimeoutError to 408' do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
@@ -204,8 +285,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         expect(response.body).to match_json_schema('prescription')
         expect(response.parsed_body['meta']['pagination']).to eq({ 'currentPage' => 2,
                                                                    'perPage' => 3,
-                                                                   'totalPages' => 51,
-                                                                   'totalEntries' => 153 })
+                                                                   'totalPages' => 49,
+                                                                   'totalEntries' => 146 })
       end
     end
 
@@ -270,7 +351,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           refill_statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
 
           # does not include refillinprocess
-          expect(refill_statuses).to include('expired', 'discontinued', 'renew', 'activeParked', 'active', 'submitted')
+          expect(refill_statuses).to include('expired', 'discontinued', 'activeParked', 'active', 'submitted')
         end
       end
 
@@ -304,7 +385,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('prescription')
           expect(response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }).to eq(
-            %w[active active active active active active active active active activeParked]
+            %w[active active activeParked discontinued discontinued discontinued discontinued discontinued discontinued
+               discontinued]
           )
         end
       end
@@ -379,7 +461,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
         expect(response.parsed_body['meta']['prescriptionStatusCount']).to eq({
-                                                                                'active' => 34,
+                                                                                'active' => 27,
                                                                                 'discontinued' => 82,
                                                                                 'expired' => 22,
                                                                                 'unknown' => 4,
