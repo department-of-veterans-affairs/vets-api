@@ -26,18 +26,18 @@ end
 class FormMilitaryInformation
   include Vets::Model
 
-  attribute :service_episodes_by_date, Hash, array: true
+  attribute :service_episodes_by_date, VAProfile::Models::ServiceHistory, array: true
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
-  attribute :post_nov111998_combat, Bool
-  attribute :sw_asia_combat, Bool
+  attribute :post_nov111998_combat, Bool, default: false
+  attribute :sw_asia_combat, Bool, default: false
   attribute :tours_of_duty, Hash, array: true
-  attribute :currently_active_duty, Bool
+  attribute :currently_active_duty, Bool, default: false
   attribute :currently_active_duty_hash, Hash
-  attribute :vic_verified, Bool
+  attribute :vic_verified, Bool, default: false
   attribute :service_branches, String, array: true
   attribute :service_periods, Hash, array: true
   attribute :guard_reserve_service_history, FormDate, array: true
