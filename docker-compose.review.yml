@@ -84,4 +84,4 @@ services:
 
 volumes:
   shared-vol:
-  certs-vol:  # Shared volume holding certss
+  certs-vol:  # Shared volume holding certs
