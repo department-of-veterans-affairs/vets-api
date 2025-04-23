@@ -302,7 +302,8 @@ module Burials
       }
 
       track_request('error', 'Burial 21P-530EZ process document failure',
-                    "#{SUBMISSION_STATS_KEY}.process_document_failure", call_location:, **additional_context)
+                    "#{SUBMISSION_STATS_KEY}.process_document_failure",
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -326,7 +327,8 @@ module Burials
       }
 
       track_request('error', 'Burial 21P-530EZ generate metadata failure',
-                    "#{SUBMISSION_STATS_KEY}.generate_metadata_failure", call_location:, **additional_context)
+                    "#{SUBMISSION_STATS_KEY}.generate_metadata_failure",
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -350,7 +352,8 @@ module Burials
       }
 
       track_request('error', 'Burial 21P-530EZ submission polling failure',
-                    "#{SUBMISSION_STATS_KEY}.submission_polling_failure", call_location:, **additional_context)
+                    "#{SUBMISSION_STATS_KEY}.submission_polling_failure",
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##

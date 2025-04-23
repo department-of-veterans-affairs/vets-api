@@ -62,6 +62,8 @@ RSpec.describe Burials::Monitor do
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           tags: monitor.tags
         }
 
@@ -83,6 +85,8 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [],
           tags: monitor.tags
         }
@@ -105,6 +109,8 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [],
           message: monitor_error.message,
           tags: monitor.tags
@@ -128,6 +134,8 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [],
           tags: monitor.tags
         }
@@ -150,6 +158,8 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [],
           tags: monitor.tags
         }
@@ -170,6 +180,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ submission to LH begun'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -198,6 +209,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ submission to LH attempted'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -223,6 +235,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ submission to LH succeeded'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -246,6 +259,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ submission to LH failed, retrying'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -325,101 +339,80 @@ RSpec.describe Burials::Monitor do
           monitor.track_submission_exhaustion(msg, nil)
         end
       end
+    end
 
-      describe '#track_document_processing_error' do
-        it 'Log document processing failure' do
-          log = 'Burial 21P-530EZ process document failure'
-          payload = {
-            claim_id: claim.id,
-            benefits_intake_uuid: lh_service.uuid,
-            confirmation_number: claim.confirmation_number,
-            user_account_uuid: current_user.uuid,
-            message: monitor_error.message,
-            tags: monitor.tags
-          }
+    describe '#track_document_processing_error' do
+      it 'Log document processing failure' do
+        log = 'Burial 21P-530EZ process document failure'
+        payload = {
+          claim_id: claim.id,
+          form_id: claim.form_id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          message: monitor_error.message,
+          tags: monitor.tags
+        }
 
-          expect(monitor).to receive(:track_request).with(
-            'error',
-            log,
-            "#{submission_stats_key}.process_document_failure",
-            call_location: anything,
-            **payload
-          )
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{submission_stats_key}.process_document_failure",
+          call_location: anything,
+          **payload
+        )
 
-          monitor.track_document_processing_error(claim, lh_service, current_user.uuid, monitor_error)
-        end
+        monitor.track_document_processing_error(claim, lh_service, current_user.uuid, monitor_error)
       end
+    end
 
-      describe '#track_metadata_generation_error' do
-        it 'Log metadata generation failures' do
-          log = 'Burial 21P-530EZ generate metadata failure'
-          payload = {
-            claim_id: claim.id,
-            benefits_intake_uuid: lh_service.uuid,
-            confirmation_number: claim.confirmation_number,
-            user_account_uuid: current_user.uuid,
-            message: monitor_error.message,
-            tags: monitor.tags
-          }
+    describe '#track_metadata_generation_error' do
+      it 'Log metadata generation failures' do
+        log = 'Burial 21P-530EZ generate metadata failure'
+        payload = {
+          claim_id: claim.id,
+          form_id: claim.form_id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          message: monitor_error.message,
+          tags: monitor.tags
+        }
 
-          expect(monitor).to receive(:track_request).with(
-            'error',
-            log,
-            "#{submission_stats_key}.generate_metadata_failure",
-            call_location: anything,
-            **payload
-          )
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{submission_stats_key}.generate_metadata_failure",
+          call_location: anything,
+          **payload
+        )
 
-          monitor.track_metadata_generation_error(claim, lh_service, current_user.uuid, monitor_error)
-        end
+        monitor.track_metadata_generation_error(claim, lh_service, current_user.uuid, monitor_error)
       end
+    end
 
-      describe '#track_submission_polling_error' do
-        it 'Log submission polling failures' do
-          log = 'Burial 21P-530EZ submission polling failure'
-          payload = {
-            claim_id: claim.id,
-            benefits_intake_uuid: lh_service.uuid,
-            confirmation_number: claim.confirmation_number,
-            user_account_uuid: current_user.uuid,
-            message: monitor_error.message,
-            tags: monitor.tags
-          }
+    describe '#track_submission_polling_error' do
+      it 'Log submission polling failures' do
+        log = 'Burial 21P-530EZ submission polling failure'
+        payload = {
+          claim_id: claim.id,
+          form_id: claim.form_id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          message: monitor_error.message,
+          tags: monitor.tags
+        }
 
-          expect(monitor).to receive(:track_request).with(
-            'error',
-            log,
-            "#{submission_stats_key}.submission_polling_failure",
-            call_location: anything,
-            **payload
-          )
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{submission_stats_key}.submission_polling_failure",
+          call_location: anything,
+          **payload
+        )
 
-          monitor.track_submission_polling_error(claim, lh_service, current_user.uuid, monitor_error)
-        end
-      end
-
-      describe '#track_send_submitted_email_failure' do
-        it 'logs sidekiq job send_submitted_email error' do
-          log = 'Burial 21P-530EZ send_submitted_email failed'
-          payload = {
-            claim_id: claim.id,
-            user_account_uuid: current_user.uuid,
-            benefits_intake_uuid: lh_service.uuid,
-            confirmation_number: claim.confirmation_number,
-            message: monitor_error.message,
-            tags: monitor.tags
-          }
-
-          expect(monitor).to receive(:track_request).with(
-            'warn',
-            log,
-            "#{submission_stats_key}.send_submitted_failed",
-            call_location: anything,
-            **payload
-          )
-
-          monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
-        end
+        monitor.track_submission_polling_error(claim, lh_service, current_user.uuid, monitor_error)
       end
     end
 
@@ -428,6 +421,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ send_confirmation_email failed'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -452,6 +446,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ send_submitted_email failed'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -476,6 +471,7 @@ RSpec.describe Burials::Monitor do
         log = 'Burial 21P-530EZ cleanup failed'
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
