@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals?ICN=1012845331V153043&ReferralStatus='S','BP','AP','AC','A','I'"
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals?status='S','BP','AP','AC','A','I'"
     headers:
       Accept:
       - application/json

@@ -11,7 +11,7 @@ module Ccra
     #
     # @return [Array<ReferralListEntry>] An array of ReferralListEntry objects representing the referral list.
     def get_vaos_referral_list(icn, referral_status)
-      data = { ICN: icn, ReferralStatus: referral_status }
+      data = { status: referral_status }
       with_monitoring do
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
