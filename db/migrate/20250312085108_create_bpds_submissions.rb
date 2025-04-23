@@ -1,4 +1,4 @@
-class CreateBPDSSubmissions < ActiveRecord::Migration[7.2]
+class CreateBpdsSubmissions < ActiveRecord::Migration[7.2]
   def change
     create_enum :bpds_submission_status, %w[pending submitted]
 

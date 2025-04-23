@@ -1,4 +1,4 @@
-class CreateBPDSSubmissionAttempts < ActiveRecord::Migration[7.2]
+class CreateBpdsSubmissionAttempts < ActiveRecord::Migration[7.2]
   def change
     create_table :bpds_submission_attempts do |t|
       t.timestamps

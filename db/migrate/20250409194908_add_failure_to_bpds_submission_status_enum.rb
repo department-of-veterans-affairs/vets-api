@@ -1,10 +1,12 @@
-class AddFailureToBPDSSubmissionStatusEnum < ActiveRecord::Migration[7.2]
+class AddFailureToBpdsSubmissionStatusEnum < ActiveRecord::Migration[7.2]
   def up
     add_enum_value :bpds_submission_status, 'failure'
   end
 
   def down
     # Retrieve list of all successful and failed submissions and attempts
+    submissions = BPDS::Submission.pluck(:id, :latest_status)
+    attempts = BPDS::SubmissionAttempt.pluck(:id, :status)
     submissions = BPDS::Submission.pluck(:id, :latest_status)
     attempts = BPDS::SubmissionAttempt.pluck(:id, :status)
 
@@ -45,7 +47,6 @@ class AddFailureToBPDSSubmissionStatusEnum < ActiveRecord::Migration[7.2]
 
   def set_submission_status(id, latest_status)
     return if latest_status == 'pending'
-
     BPDS::Submission.find_by(id:)&.update(latest_status:)
   end
 
