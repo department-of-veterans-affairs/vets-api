@@ -572,7 +572,7 @@ module PdfFill
           expand_collection('events', :format_event, 'eventOverflow') unless options[:extras_redesign]
         end
 
-        handle_overflow_processing(options)
+        process_treatment_providers_details(options[:extras_redesign])
 
         process_behaviors_details(options[:extras_redesign]) if @form_data['behaviorsDetails']&.any?
 
@@ -585,8 +585,8 @@ module PdfFill
         @form_data
       end
 
-      def handle_overflow_processing(options)
-        if options[:extras_redesign]
+      def process_treatment_providers_details(extras_redesign)
+        if extras_redesign
           process_treatment_dates
         else
           expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
