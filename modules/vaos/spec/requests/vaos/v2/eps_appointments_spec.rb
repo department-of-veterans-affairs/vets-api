@@ -63,7 +63,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                 },
                 'networkIds' => ['sandbox-network-test']
               },
-              'referringFacility' => {},
+              'referringFacility' => {}
             }
           }
         }
