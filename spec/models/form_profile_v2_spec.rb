@@ -712,12 +712,12 @@ RSpec.describe FormProfile, type: :model do
   let(:vfeedback_tool_expected) do
     {
       'address' => {
-        'street' => va_profile_address[:street],
-        'street2' => va_profile_address[:street2],
-        'city' => va_profile_address[:city],
-        'state' => va_profile_address[:state],
+        'street' => va_profile_address.street,
+        'street2' => va_profile_address.street2,
+        'city' => va_profile_address.city,
+        'state' => va_profile_address.state,
         'country' => 'US',
-        'postal_code' => va_profile_address[:postal_code]
+        'postal_code' => va_profile_address.postal_code
       },
       'serviceBranch' => 'Army',
       'fullName' => {
