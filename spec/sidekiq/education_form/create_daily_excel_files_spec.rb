@@ -12,7 +12,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload_upload).and_return(true)
   end
 
-  after(:each) do
+  after do
     FileUtils.rm_rf(Dir.glob('tmp/**/*.csv'))
   end
 
