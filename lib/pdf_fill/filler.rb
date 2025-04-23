@@ -178,8 +178,7 @@ module PdfFill
             submit_date:,
             question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
-            sections: form_class::SECTIONS,
-            table_width: form_class::TABLE_WIDTH
+            sections: form_class::SECTIONS
           )
         else
           ExtrasGenerator.new
