@@ -65,3 +65,12 @@ properties:
             type: string
             enum: [ASC, DESC]
             example: ASC
+      associatedTriageGroups:
+        type:    integer
+        example: 38
+      associatedBlockedTriageGroups:
+        type:    integer
+        example: 1
+      friendlyTriageTeamPilotFacilities:
+        type:    string
+        example: "979,989"
