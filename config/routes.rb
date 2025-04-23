@@ -195,15 +195,6 @@ Rails.application.routes.draw do
 
     resources :maintenance_windows, only: [:index]
 
-    resources :prescriptions, only: %i[index show], defaults: { format: :json } do
-      get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
-      patch :refill, to: 'prescriptions#refill', on: :member
-      resources :trackings, only: :index, controller: :trackings
-      collection do
-        resource :preferences, only: %i[show update], controller: 'prescription_preferences'
-      end
-    end
-
     resource :health_records, only: [:create], defaults: { format: :json } do
       get :refresh, to: 'health_records#refresh', on: :collection
       get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
