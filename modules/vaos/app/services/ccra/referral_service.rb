@@ -11,14 +11,14 @@ module Ccra
     #
     # @return [Array<ReferralListEntry>] An array of ReferralListEntry objects representing the referral list.
     def get_vaos_referral_list(icn, referral_status)
-      data = { ICN: icn, ReferralStatus: referral_status }
+      params = { status: referral_status }
       with_monitoring do
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
         response = perform(
-          :post,
+          :get,
           "/#{config.base_path}/#{icn}/referrals",
-          data,
+          params,
           req_headers
         )
         ReferralListEntry.build_collection(JSON.parse(response.body))
@@ -31,15 +31,15 @@ module Ccra
     # @param mode [String] The mode of the referral.
     #
     # @return [ReferralDetail] A ReferralDetail object representing the detailed referral information.
-    def get_referral(id, mode, icn)
-      data = { Id: id, Mode: mode }
+    def get_referral(id, icn)
+      params = {}
       with_monitoring do
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
         response = perform(
-          :post,
+          :get,
           "/#{config.base_path}/#{icn}/referrals/#{id}",
-          data,
+          params,
           req_headers
         )
         ReferralDetail.new(JSON.parse(response.body))
