@@ -135,6 +135,8 @@ web:
   dbMigrate:
     enabled: true
     envSecrets:
+      - name: STATSD_PREFIX
+        value: "vets_api.statsd"
       - name: DD_APM_ENABLED
         value: "true"
 #Worker Configuration
