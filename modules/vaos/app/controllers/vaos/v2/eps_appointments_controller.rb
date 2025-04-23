@@ -26,10 +26,10 @@ module VAOS
       #
       # @param appointment_data [Hash] Raw appointment data from the EPS service
       # @return [Eps::EpsAppointmentSerializer] Serialized appointment with referral and provider data
-      def assemble_appt_response_object(appointment_data)
-        referral_detail = fetch_referral_detail(appointment_data)
-        provider = fetch_provider(appointment_data)
-        eps_appointment = VAOS::V2::EpsAppointment.new(appointment_data, referral_detail, provider)
+      def assemble_appt_response_object(appointment)
+        referral = fetch_referral(appointment)
+        provider = fetch_provider(appointment)
+        eps_appointment = VAOS::V2::EpsAppointment.new(appointment, referral, provider)
 
         Eps::EpsAppointmentSerializer.new(eps_appointment)
       end
@@ -39,7 +39,7 @@ module VAOS
       #
       # @param appointment [Hash] The appointment data containing referral information
       # @return [Ccra::ReferralDetail, nil] The referral details if found, nil otherwise
-      def fetch_referral_detail(appointment)
+      def fetch_referral(appointment)
         referral_number = appointment.dig(:referral, :referral_number)
         return nil if referral_number.blank?
 
