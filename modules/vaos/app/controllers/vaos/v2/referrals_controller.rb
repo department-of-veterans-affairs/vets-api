@@ -30,7 +30,6 @@ module VAOS
 
         response = referral_service.get_referral(
           decrypted_id,
-          referral_mode_param,
           current_user.icn
         )
 
