@@ -10,7 +10,7 @@ module VeteranEnrollmentSystem
       end
 
       def base_path
-        "#{Settings.veteran_enrollment_system.host}/ves-associate-gateway-svc/associations/person/"
+        "#{super}ves-associate-gateway-svc/associations/person/"
       end
     end
   end
