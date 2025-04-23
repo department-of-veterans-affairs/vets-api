@@ -13,7 +13,6 @@ AskVAApi::Engine.routes.draw do
     get '/profile', to: 'inquiries#profile'
     post '/inquiries/auth', to: 'inquiries#create'
     post '/inquiries', to: 'inquiries#unauth_create'
-    post '/upload_attachment', to: 'inquiries#upload_attachment'
     post '/inquiries/:id/reply/new', to: 'inquiries#create_reply'
 
     # static_data
