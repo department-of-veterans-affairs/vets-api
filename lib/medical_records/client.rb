@@ -13,7 +13,7 @@ module MedicalRecords
     include Common::Client::Concerns::MhvFhirSessionClient
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 9999
+    DEFAULT_COUNT = 200
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
@@ -79,11 +79,6 @@ module MedicalRecords
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
-      default_headers = { 'Cache-Control' => 'no-cache' }
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
-      end
-
       result = fhir_client.search(FHIR::Patient, {
                                     search: { parameters: { identifier: } },
                                     headers: default_headers
@@ -223,14 +218,30 @@ module MedicalRecords
     #
     def fhir_search(fhir_model, params)
       reply = fhir_search_query(fhir_model, params)
+
       combined_bundle = reply.resource
       loop do
+        rewrite_next_link(reply.resource)
         break unless reply.resource.next_link
 
-        reply = fhir_client.next_page(reply)
+        reply = fhir_client.next_page(reply, headers: default_headers)
         combined_bundle = merge_bundles(combined_bundle, reply.resource)
       end
       combined_bundle
+    end
+
+    ##
+    # Because we use a fwdproxy, the "next" link has the wrong host. This method rewrites the link.
+    #
+    # @param bundle [FHIR:Bundle] A FHIR bundle, potentially with a "next" link to rewrite
+    #
+    def rewrite_next_link(bundle)
+      next_link = bundle.link.find { |l| l.relation == 'next' }
+      return unless next_link
+
+      uri = URI.parse(next_link.url)
+      stripped_base = base_path.chomp('/')
+      next_link.url = "#{stripped_base}?#{uri.query}"
     end
 
     ##
@@ -241,11 +252,6 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      default_headers = { 'Cache-Control' => 'no-cache' }
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
-      end
-
       params[:headers] = default_headers.merge(params.fetch(:headers, {}))
 
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
@@ -256,14 +262,17 @@ module MedicalRecords
     end
 
     def fhir_read(fhir_model, id)
-      default_headers = {}
-      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        default_headers = default_headers.merge('x-api-key' => Settings.mhv.medical_records.x_api_key)
-      end
-
       result = fhir_client.read(fhir_model, id, nil, nil, { headers: default_headers })
       handle_api_errors(result) if result.resource.nil?
       result.resource
+    end
+
+    def default_headers
+      headers = { 'Cache-Control' => 'no-cache' }
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        headers['x-api-key'] = Settings.mhv.medical_records.x_api_key
+      end
+      headers
     end
 
     def handle_api_errors(result)

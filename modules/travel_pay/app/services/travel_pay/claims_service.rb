@@ -2,8 +2,9 @@
 
 module TravelPay
   class ClaimsService
-    def initialize(auth_manager)
+    def initialize(auth_manager, user)
       @auth_manager = auth_manager
+      @user = user
     end
 
     def get_claims(params = {})
@@ -60,10 +61,13 @@ module TravelPay
       @auth_manager.authorize => { veis_token:, btsss_token: }
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
 
+      documents = get_document_summaries(veis_token, btsss_token, claim_id)
+
       claim = claim_response.body['data']
 
       if claim
         claim['claimStatus'] = claim['claimStatus'].underscore.humanize
+        claim['documents'] = documents
         claim
       end
     end
@@ -121,7 +125,7 @@ module TravelPay
         claims
       end
     rescue Date::Error => e
-      Rails.logger.debug(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
+      Rails.logger.warn(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
       claims
     end
 
@@ -139,8 +143,33 @@ module TravelPay
             message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
     end
 
+    def get_document_summaries(veis_token, btsss_token, claim_id)
+      documents = []
+      if include_documents?
+        begin
+          documents_response = documents_client.get_document_ids(veis_token, btsss_token, claim_id)
+          documents = documents_response.body['data'] || []
+        rescue => e
+          Rails.logger.error(message:
+          "#{e}. Could not retrieve document summary for requested claim.")
+          # Because we're appending documents to the claim details we need to rescue and return the details,
+          # even if we don't get documents
+          documents = []
+        end
+      end
+      documents
+    end
+
+    def include_documents?
+      Flipper.enabled?(:travel_pay_claims_management, @user)
+    end
+
     def client
       TravelPay::ClaimsClient.new
+    end
+
+    def documents_client
+      TravelPay::DocumentsClient.new
     end
   end
 end
