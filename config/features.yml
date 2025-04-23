@@ -1139,6 +1139,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new filter and sort changes
     enable_in_development: true
+  mhv_medical_records_use_unified_sei_api:
+    actor_type: user
+    description: Enables/disables use of the unified API call self-entered information
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
