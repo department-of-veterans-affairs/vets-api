@@ -44,7 +44,6 @@ module VAOS
         return nil if referral_number.blank?
 
         begin
-          # TODO: Need correct mode parameter, this one is hard-coded based on examples
           ccra_referral_service.get_referral(referral_number, current_user.icn)
         rescue => e
           Rails.logger.error "Failed to retrieve referral details: #{e.message}"
