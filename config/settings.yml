@@ -1638,7 +1638,7 @@ vanotify:
 vaos:
   ccra:
     api_url: <%= ENV['va_mobile__url'] %>
-    base_path: csp/healthshare/ccraint/rest
+    base_path: vaos/v1/patients
     mock: <%= ENV['vaos__ccra__mock'] %>
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token

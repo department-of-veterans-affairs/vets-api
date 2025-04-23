@@ -17,7 +17,7 @@ module Ccra
         req_headers = config.mock_enabled? ? {} : headers
         response = perform(
           :post,
-          "/#{config.base_path}/VAOS/patients/ReferralList",
+          "/#{config.base_path}/#{icn}/referrals",
           data,
           req_headers
         )
@@ -31,14 +31,14 @@ module Ccra
     # @param mode [String] The mode of the referral.
     #
     # @return [ReferralDetail] A ReferralDetail object representing the detailed referral information.
-    def get_referral(id, mode)
+    def get_referral(id, mode, icn)
       data = { Id: id, Mode: mode }
       with_monitoring do
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
         response = perform(
           :post,
-          "/#{config.base_path}/ReferralUtil/GetReferral",
+          "/#{config.base_path}/#{icn}/referrals/#{id}",
           data,
           req_headers
         )
