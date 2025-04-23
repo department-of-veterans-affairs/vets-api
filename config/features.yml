@@ -1188,6 +1188,10 @@ features:
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
+  mobile_get_all_triage_teams:
+    actor_type: user
+    description: For mobile app, enables retrieving all available triage teams data instead of a subset
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)

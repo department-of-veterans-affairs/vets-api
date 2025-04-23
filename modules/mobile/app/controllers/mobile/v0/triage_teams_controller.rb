@@ -4,7 +4,9 @@ module Mobile
   module V0
     class TriageTeamsController < MessagingController
       def index
-        resource = if Flipper.enabled?(:mobile_get_all_triage_teams, @current_user)
+        use_all_triage_teams = Flipper.enabled?(:mobile_get_all_triage_teams, @current_user)
+
+        resource = if use_all_triage_teams
                      # Use get_all_triage_teams and filter out blocked teams
                      all_teams = client.get_all_triage_teams(@current_user.uuid, use_cache? || true)
                      raise Common::Exceptions::ResourceNotFound if all_teams.blank?
@@ -27,7 +29,7 @@ module Mobile
         # Even though this is a collection action we are not going to paginate
         options = { meta: resource.metadata }
 
-        if Flipper.enabled?(:mobile_get_all_triage_teams, @current_user)
+        if use_all_triage_teams
           render json: AllTriageTeamsSerializer.new(resource.data, options)
         else
           render json: TriageTeamSerializer.new(resource.data, options)
