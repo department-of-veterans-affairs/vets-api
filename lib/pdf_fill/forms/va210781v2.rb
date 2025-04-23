@@ -13,6 +13,7 @@ module PdfFill
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
       START_PAGE = 8
+      TABLE_WIDTH = 91
 
       # Create map of question_texts from KEY[behaviorsDetails] by copying the strings from the KEY
       BEHAVIOR_DESCRIPTIONS = {
