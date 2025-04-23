@@ -133,10 +133,10 @@ web:
     recordTTL:
     targets:
   dbMigrate:
-    enabled: false
+    enabled: true
     envSecrets:
       - name: DD_APM_ENABLED
-        value: false
+        value: "true"
 #Worker Configuration
 worker:
   enabled: false
