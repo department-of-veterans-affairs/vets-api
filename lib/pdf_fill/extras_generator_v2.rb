@@ -11,13 +11,12 @@ module PdfFill
     class Question
       attr_accessor :section_index, :overflow
 
-      def initialize(question_text, metadata, table_width:)
+      def initialize(question_text, metadata)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
-        @table_width = table_width
       end
 
       def add_text(value, metadata)
@@ -87,10 +86,9 @@ module PdfFill
     class ListQuestion < Question
       attr_reader :items, :item_label
 
-      def initialize(question_text, metadata, table_width:)
+      def initialize(question_text, metadata)
         super
         @item_label = metadata[:item_label]
-        @table_width = table_width
         @items = []
       end
 
@@ -101,9 +99,9 @@ module PdfFill
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
           @items[i] = if metadata[:question_type] == 'checked_description'
-                        CheckedDescriptionQuestion.new(nil, metadata, table_width: @table_width)
+                        CheckedDescriptionQuestion.new(nil, metadata)
                       else
-                        Question.new(nil, metadata, table_width: @table_width)
+                        Question.new(nil, metadata)
                       end
         end
 
@@ -175,7 +173,6 @@ module PdfFill
       @question_key           = options[:question_key]
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
-      @table_width            = options[:table_width] || 91
       @questions              = {}
       super()
     end
