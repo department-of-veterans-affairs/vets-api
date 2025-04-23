@@ -207,6 +207,7 @@ app/models/attachment.rb @department-of-veterans-affairs/va-api-engineers @depar
 app/models/audit/ @department-of-veterans-affairs/octo-identity
 app/models/average_days_for_claim_completion.rb @department-of-veterans-affairs/benefits-microservices @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/bgs_dependents @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+app/models/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/central_mail_claim.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/central_mail_submission.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/claims_api @department-of-veterans-affairs/backend-review-group
@@ -270,6 +271,7 @@ app/models/identifier_index.rb @department-of-veterans-affairs/vsa-debt-resoluti
 app/models/in_progress_form.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
 app/models/intent_to_file_queue_exhaustion.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 app/models/ivc_champva_form.rb @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/lighthouse @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/lighthouse526_document_upload.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/lighthouse_document.rb @department-of-veterans-affairs/backend-review-group
 app/models/maintenance_window.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
