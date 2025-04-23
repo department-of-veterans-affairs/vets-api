@@ -609,6 +609,10 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_compensation_sync_modern0781_flow_ipf_metadata:
+    actor_type: user
+    description: enables adding new 0781 form indicator to in progress forms for 526 claims to allow for better tracking of IPF form states
+    enable_in_development: true
   disability_526_send_form526_submitted_email:
     actor_type: user
     description: enables sending submitted email in both primary and backup paths
