@@ -26,8 +26,7 @@ module Kafka
           'request.required.acks': 1,
           'message.timeout.ms': 100,
           'security.protocol': Settings.kafka_producer.security_protocol,
-          'sasl.mechanisms': Settings.kafka_producer.sasl_mechanisms,
-          'statistics.interval.ms': 1000
+          'sasl.mechanisms': Settings.kafka_producer.sasl_mechanisms
         }
         config.logger = Rails.logger
         config.client_class = if Rails.env.test?
