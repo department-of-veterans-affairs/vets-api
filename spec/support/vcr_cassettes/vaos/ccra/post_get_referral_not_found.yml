@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals/invalid_id?Id=invalid_id&Mode=2"
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals/invalid_id"
     headers:
       Accept:
       - application/json
@@ -24,5 +24,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"error":"Referral not found"}'
-    http_version: 
-  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT 
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT
