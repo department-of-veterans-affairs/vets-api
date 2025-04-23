@@ -20,5 +20,9 @@ module SimpleFormsApi
     def notification_email_address
       data.dig('veteran', 'email')
     end
+
+    def should_send_to_point_of_contact?
+      false
+    end
   end
 end

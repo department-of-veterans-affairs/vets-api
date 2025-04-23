@@ -22,7 +22,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.disable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { create(:user, :loa3) }
+    let(:user_account) { user.user_account }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
@@ -35,6 +36,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json:,
@@ -120,6 +122,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: missing_postalcode_form_json,
@@ -138,7 +141,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
     context 'catastrophic failure state' do
       describe 'when all retries are exhausted' do
-        let!(:form526_submission) { create(:form526_submission) }
+        let!(:form526_submission) { create(:form526_submission, user_account:) }
         let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
         it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -168,11 +171,11 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
               {
                 job_id: form526_job_status.job_id,
                 error_class: nil,
-                error_message: 'An error occured',
+                error_message: 'An error occurred',
                 timestamp: instance_of(Time),
                 form526_submission_id: form526_submission.id
               },
-              nil,
+              user_account.id,
               call_location: instance_of(Logging::CallLocation)
             )
 
@@ -201,7 +204,8 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.enable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { create(:user, :loa3) }
+    let(:user_account) { user.user_account }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
@@ -214,6 +218,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json:,
@@ -349,6 +354,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: missing_postalcode_form_json,

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-1-value/versions/latest
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/submission_trace_form_status_change_test-value/versions/latest
     body:
       encoding: US-ASCII
       string: ''
@@ -55,15 +55,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{
-                "subject": "topic-1-value",
-                "version": 1,
-                "id": 5,
-                "schema": "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"gov.va.eventbus.test.data\",\"fields\":[{\"name\":\"data\",\"type\":{\"type\":\"map\",\"values\":\"string\"},\"default\":{}}]}"
+                  "subject": "submission_trace_form_status_change_test-value",
+                  "version": 1,
+                  "id": 5,
+                  "schema": "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.submissiontrace.form.data\",\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"],\"doc\":\"ID that represents a unique identifier from a upstream system\"},{\"name\":\"currentId\",\"type\":\"string\",\"doc\":\"ID that represents a unique identifier in the current system\"},{\"name\":\"nextId\",\"type\":[\"null\",\"string\"],\"doc\":\"ID that represents a unique identifier in the downstream system\"},{\"name\":\"icn\",\"type\":[\"null\",\"string\"],\"doc\":\"Unique Veteran ID to identify the Veteran independently of other IDs provided\"},{\"name\":\"vasiId\",\"type\":\"string\",\"doc\":\"ID that represents a unique identifier in the Veteran Affairs Systems Inventory (VASI)\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\"name\":\"SystemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}],\"doc\":\"System submitting status update, e.g. va.gov\"},{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"SubmissionName\",\"symbols\":[\"F1010EZ\",\"F527EZ\"]}],\"doc\":\"Form or name of the submission; should be the same across systems, e.g. 526ez, 4142, Notice Of Disagreement, etc.\"},{\"name\":\"state\",\"type\":\"string\",\"doc\":\"What triggered the event, limited to this set (but not enforced): received, sent, error, completed\"},{\"name\":\"timestamp\",\"type\":\"string\",\"doc\":\"Current datetime in JS standard format ISO 8601\"},{\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}],\"doc\":\"(Optional) for cases when more than one current ID is appropriate\"}]}"
               }'
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-2-value/versions/latest
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/submission_trace_mock_test-value/versions/latest
     body:
       encoding: US-ASCII
       string: ''
@@ -116,7 +116,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{
-                "subject": "topic-2-value",
+                "subject": "submission_trace_mock_test-value",
                 "version": 1,
                 "id": 6,
                 "schema": "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"gov.va.eventbus.test.data\",\"fields\":[{\"name\":\"data\",\"type\":{\"type\":\"map\",\"values\":\"string\"},\"default\":{}}]}"
@@ -124,7 +124,7 @@ http_interactions:
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
-    uri: http://localhost:8081/subjects/topic-1-value/versions/1
+    uri: http://localhost:8081/ves-event-bus-infra/schema-registry/subjects/submission_trace_form_status_change_test-value/versions/1
     body:
       encoding: US-ASCII
       string: ''
@@ -177,72 +177,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{
-                "subject": "topic-1-value",
-                "version": 1,
-                "id": 5,
-                "schema": "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"gov.va.eventbus.test.data\",\"fields\":[{\"name\":\"data\",\"type\":{\"type\":\"map\",\"values\":\"string\"},\"default\":{}}]}"
-              }'
-  recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
-- request:
-    method: get
-    uri: http://localhost:8081/subjects/topic-3-value/versions/latest
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Referer:
-      - https://review-instance.va.gov
-      X-Vamf-Jwt:
-      - stubbed_token
-      X-Request-Id:
-      - ''
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Tue, 10 Aug 2021 15:55:41 GMT
-      Content-Type:
-      - application/json
-      Transfer-Encoding:
-      - chunked
-      Server:
-      - openresty
-      X-Vamf-Version:
-      - 1.9.0
-      B3:
-      - e1836f37ef12a997-bd3cba28a9b29067-1
-      Access-Control-Allow-Headers:
-      - x-vamf-jwt
-      X-Vamf-Build:
-      - e208742
-      X-Vamf-Timestamp:
-      - '2021-08-03T18:59:01+0000'
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET,OPTIONS
-      Access-Control-Max-Age:
-      - '3600'
-      Strict-Transport-Security:
-      - max-age=63072000; includeSubDomains; preload
-    body:
-      encoding: UTF-8
-      string: '{
-                  "subject": "topic-3-value",
+                  "subject": "submission_trace_form_status_change_test-value",
                   "version": 1,
                   "id": 5,
-                  "schema": "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.submissiontrace.form.data\",\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"]},{\"name\":\"currentId\",\"type\":\"string\"},{\"name\":\"nextId\",\"type\":[\"null\",\"string\"]},{\"name\":\"icn\",\"type\":[\"null\",\"string\"]},{\"name\":\"vasiId\",\"type\":\"string\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\"name\":\"systemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}]},{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"submissionName\",\"symbols\":[\"F1010EZ\",\"F527EZ\"]}]},{\"name\":\"state\",\"type\":\"string\"},{\"name\":\"timestamp\",\"type\":\"string\"},{\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]}]}"
+                  "schema": "{\"type\":\"record\",\"name\":\"SubmissionTrace\",\"namespace\":\"gov.va.submissiontrace.form.data\",\"fields\":[{\"name\":\"priorId\",\"type\":[\"null\",\"string\"],\"doc\":\"ID that represents a unique identifier from a upstream system\"},{\"name\":\"currentId\",\"type\":\"string\",\"doc\":\"ID that represents a unique identifier in the current system\"},{\"name\":\"nextId\",\"type\":[\"null\",\"string\"],\"doc\":\"ID that represents a unique identifier in the downstream system\"},{\"name\":\"icn\",\"type\":[\"null\",\"string\"],\"doc\":\"Unique Veteran ID to identify the Veteran independently of other IDs provided\"},{\"name\":\"vasiId\",\"type\":\"string\",\"doc\":\"ID that represents a unique identifier in the Veteran Affairs Systems Inventory (VASI)\"},{\"name\":\"systemName\",\"type\":[{\"type\":\"enum\",\"name\":\"SystemName\",\"symbols\":[\"Lighthouse\",\"CMP\",\"VBMS\",\"VA_gov\",\"VES\"]}],\"doc\":\"System submitting status update, e.g. va.gov\"},{\"name\":\"submissionName\",\"type\":[{\"type\":\"enum\",\"name\":\"SubmissionName\",\"symbols\":[\"F1010EZ\",\"F527EZ\"]}],\"doc\":\"Form or name of the submission; should be the same across systems, e.g. 526ez, 4142, Notice Of Disagreement, etc.\"},{\"name\":\"state\",\"type\":\"string\",\"doc\":\"What triggered the event, limited to this set (but not enforced): received, sent, error, completed\"},{\"name\":\"timestamp\",\"type\":\"string\",\"doc\":\"Current datetime in JS standard format ISO 8601\"},{\"name\":\"additionalIds\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}],\"doc\":\"(Optional) for cases when more than one current ID is appropriate\"}]}"
               }'
-  recorded_at: Tue, 10 Aug 2021 15:55:41 GMT  
-
+  recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 recorded_with: VCR 6.0.0

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'kafka/concerns/kafka'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
 
@@ -54,6 +55,8 @@ module Pensions
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
+        submit_traceability_to_event_bus(claim) if Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
+
         process_and_upload_to_lighthouse(in_progress_form, claim)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
@@ -66,6 +69,18 @@ module Pensions
       end
 
       private
+
+      # Build payload and submit to EventBusSubmissionJob
+      #
+      # @param claim [Pensions::SavedClaim]
+      def submit_traceability_to_event_bus(claim)
+        Kafka.submit_event(
+          icn: current_user&.icn.to_s,
+          current_id: claim&.confirmation_number.to_s,
+          submission_name: Pensions::FORM_ID,
+          state: Kafka::State::RECEIVED
+        )
+      end
 
       # link the form to the uploaded attachments and perform submission job
       #

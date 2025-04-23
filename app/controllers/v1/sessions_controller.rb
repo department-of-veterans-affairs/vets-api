@@ -165,6 +165,7 @@ module V1
       else
         redirect_to url_service.login_redirect_url
       end
+      UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
     end
 

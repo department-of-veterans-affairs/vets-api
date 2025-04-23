@@ -9,7 +9,6 @@ class DirectDepositMailer < TransactionalEmailMailer
   TEMPLATE = 'direct_deposit'
 
   DD_TYPES = {
-    ch33: 'education',
     comp_pen: 'disability compensation or pension'
   }.freeze
 

@@ -166,6 +166,66 @@ describe Rx::Client do
     it_behaves_like 'prescriptions', true
   end
 
+  describe 'Test new API gateway methods' do
+    before do
+      allow(Settings.mhv.rx).to receive(:use_new_api).and_return(use_new_api)
+      allow(Settings.mhv_mobile).to receive(:x_api_key).and_return('test-api-key')
+      allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
+                                                                  app_token: 'test-app-token'))
+    end
+
+    describe '#auth_headers' do
+      let(:use_new_api) { true }
+
+      it 'returns headers with appToken and mhvCorrelationId' do
+        result = client.send(:auth_headers)
+        expect(result).to include('x-api-key' => 'test-api-key')
+      end
+    end
+
+    describe '#get_headers' do
+      let(:headers) { { 'custom-header' => 'value' } }
+
+      context 'when use_new_api is true' do
+        let(:use_new_api) { true }
+
+        it 'adds x-api-key to headers' do
+          result = client.send(:get_headers, headers)
+          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'test-api-key')
+        end
+      end
+
+      context 'when use_new_api is false' do
+        let(:use_new_api) { false }
+
+        it 'returns headers without x-api-key' do
+          result = client.send(:get_headers, headers)
+          expect(result).to eq(headers)
+        end
+      end
+    end
+
+    describe '#get_path' do
+      context 'when use_new_api is true' do
+        let(:use_new_api) { true }
+
+        it 'returns path with pharmacy/ess' do
+          result = client.send(:get_path, 'test-endpoint')
+          expect(result).to eq('pharmacy/ess/test-endpoint')
+        end
+      end
+
+      context 'when use_new_api is false' do
+        let(:use_new_api) { false }
+
+        it 'returns path with prescription' do
+          result = client.send(:get_path, 'test-endpoint')
+          expect(result).to eq('prescription/test-endpoint')
+        end
+      end
+    end
+  end
+
   def cache_key_for(collection)
     collection.instance_variable_get(:@cache_key)
   end

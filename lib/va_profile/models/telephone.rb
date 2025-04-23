@@ -11,8 +11,9 @@ module VAProfile
       include VAProfile::Concerns::Defaultable
       include VAProfile::Concerns::Expirable
 
-      VALID_AREA_CODE_REGEX = /[0-9]+/
-      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
+      VALID_COUNTRY_CODE_REGEX = /\A[1-9][0-9]*\z/
+      VALID_AREA_CODE_REGEX = /\A[0-9]+\z/
+      VALID_PHONE_NUMBER_REGEX = /\A[0-9]+\z/
 
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
@@ -22,7 +23,7 @@ module VAProfile
       PHONE_TYPES = [MOBILE, HOME, WORK, FAX, TEMPORARY].freeze
 
       attribute :area_code, String
-      attribute :country_code, String
+      attribute :country_code, String, default: '1'
       attribute :created_at, Common::ISO8601Time
       attribute :extension, String
       attribute :effective_end_date, Common::ISO8601Time
@@ -45,6 +46,7 @@ module VAProfile
       validates(
         :area_code,
         presence: true,
+        unless: :is_international?,
         format: { with: VALID_AREA_CODE_REGEX },
         length: { maximum: 3, minimum: 3 }
       )
@@ -71,22 +73,25 @@ module VAProfile
 
       validates(
         :is_international,
-        inclusion: { in: [false] }
+        inclusion: { in: [true, false] }
       )
 
       validates(
         :country_code,
         presence: true,
-        inclusion: { in: ['1'] }
+        format: { with: VALID_COUNTRY_CODE_REGEX },
+        length: { maximum: 3, minimum: 1 }
       )
 
       def formatted_phone
         return if phone_number.blank?
 
-        # TODO: support international numbers
-
-        return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
-        return_val += " Ext. #{extension}" if extension.present?
+        if is_international
+          return_val = "+#{country_code} #{phone_number}"
+        else
+          return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
+          return_val += " Ext. #{extension}" if extension.present?
+        end
 
         return_val
       end

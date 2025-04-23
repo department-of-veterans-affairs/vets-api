@@ -106,7 +106,9 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
           message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}",
           backtrace: anything
         )
-        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+        expect(Rails.logger).to receive(:error) do |message|
+          expect(message).to include(extra_error_log_message)
+        end
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 
@@ -206,7 +208,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                 },
                 'veteranDateOfBirth' => '1809-02-12',
                 'veteranAddress' => { 'addressLine1' => '123  Main St', 'city' => 'New York', 'countryCodeISO2' => 'US',
-                                      'zipCode5' => '30012', 'country' => 'US', 'postalCode' => '30012' },
+                                      'zipCode5' => '30012', 'country' => 'USA', 'postalCode' => '30012',
+                                      'street' => '123  Main St', 'street2' => nil, 'state' => nil },
                 'email' => 'josie@example.com',
                 'veteranPhone' => '5558001111'
               }
