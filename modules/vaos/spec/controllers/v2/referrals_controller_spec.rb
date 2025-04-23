@@ -8,7 +8,6 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:encrypted_uuid) { 'encrypted-5682' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:referral_statuses) { "'AP','AC','I'" }
-  let(:referral_mode) { 'C' }
   let(:icn) { '1012845331V153043' }
 
   before do
@@ -187,7 +186,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
       before do
         sign_in_as(user)
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-          .with(referral_number, referral_mode, icn)
+          .with(referral_number, icn)
           .and_return(referral_detail)
       end
 
@@ -212,7 +211,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         before do
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-            .with(referral_number, custom_mode, icn)
+            .with(referral_number, icn)
             .and_return(referral_detail)
         end
 
