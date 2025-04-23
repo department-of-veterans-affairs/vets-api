@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 module IncomeAndAssets
-  # current semver
+  # version
   VERSION = '0.1.0'
 end
