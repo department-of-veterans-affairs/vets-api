@@ -1,10 +1,7 @@
 http_interactions:
 - request:
-    method: post
+    method: get
     uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/care-nav-patient-casey/referrals/12345"
-    body:
-      encoding: UTF-8
-      string: '{"Id":"12345","Mode":"2"}'
     headers:
       Accept:
       - application/json
