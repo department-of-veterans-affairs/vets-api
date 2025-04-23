@@ -9,9 +9,6 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
 
   self.table_name = 'lighthouse_submission_attempts'
 
-  has_kms_key
-  has_encrypted :metadata, :error_message, :response, key: :kms_key, **lockbox_options
-
   belongs_to :submission, class_name: 'Lighthouse::Submission', foreign_key: :lighthouse_submission_id,
                           inverse_of: :submission_attempts
   has_one :saved_claim, through: :lighthouse_submission

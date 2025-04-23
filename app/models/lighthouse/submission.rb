@@ -9,9 +9,6 @@ class Lighthouse::Submission < Submission
 
   validates :form_id, presence: true
 
-  has_kms_key
-  has_encrypted :reference_data, key: :kms_key, **lockbox_options
-
   has_many :submission_attempts, class_name: 'Lighthouse::SubmissionAttempt', dependent: :destroy,
                                  foreign_key: :lighthouse_submission_id, inverse_of: :submission
   belongs_to :saved_claim, optional: true
