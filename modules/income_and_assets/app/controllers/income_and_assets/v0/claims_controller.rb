@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'income_and_assets/benefits_intake/benefit_intake_job'
 require 'income_and_assets/claims/monitor'
 
 module IncomeAndAssets
@@ -26,17 +27,17 @@ module IncomeAndAssets
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
         render json: SavedClaimSerializer.new(claim)
       rescue ActiveRecord::RecordNotFound => e
-        ia_monitor.track_show404(params[:id], current_user&.user_account_uuid, e)
+        monitor.track_show404(params[:id], current_user&.user_account_uuid, e)
         render(json: { error: e.to_s }, status: :not_found)
       rescue => e
-        ia_monitor.track_show_error(params[:id], current_user&.user_account_uuid, e)
+        monitor.track_show_error(params[:id], current_user&.user_account_uuid, e)
         raise e
       end
 
       # POST creates and validates an instance of `claim_class`
       def create
         claim = claim_class.new(form: filtered_params[:form])
-        ia_monitor.track_create_attempt(claim, current_user&.user_account_uuid)
+        monitor.track_create_attempt(claim, current_user&.user_account_uuid)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
         claim.form_start_date = in_progress_form.created_at if in_progress_form
@@ -46,14 +47,14 @@ module IncomeAndAssets
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        process_and_upload_to_lighthouse
+        process_and_upload_to_lighthouse(claim)
 
-        ia_monitor.track_create_success(in_progress_form&.id, claim, current_user&.user_account_uuid)
+        monitor.track_create_success(in_progress_form&.id, claim, current_user&.user_account_uuid)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
-        ia_monitor.track_create_error(in_progress_form&.id, claim, current_user&.user_account_uuid, e)
+        monitor.track_create_error(in_progress_form&.id, claim, current_user&.user_account_uuid, e)
         raise e
       end
 
@@ -68,8 +69,8 @@ module IncomeAndAssets
       # send this Income and Assets Evidence claim to the Lighthouse Benefit Intake API
       #
       # @see https://developer.va.gov/explore/api/benefits-intake/docs
-      def process_and_upload_to_lighthouse
-        IncomeAndAssets::BenefitIntakeJob.perform_async(id, current_user&.user_account_uuid)
+      def process_and_upload_to_lighthouse(claim)
+        IncomeAndAssets::BenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
       end
 
       # Filters out the parameters to form access.
@@ -97,7 +98,7 @@ module IncomeAndAssets
       #
       # @return [IncomeAndAssets::Claims::Monitor]
       #
-      def ia_monitor
+      def monitor
         @monitor ||= IncomeAndAssets::Claims::Monitor.new
       end
     end

@@ -26,5 +26,12 @@ module IncomeAndAssets
       # parsed_form['email'] # TODO add email field to the form
       'test@example.com'
     end
+
+    # Utility function to retrieve veteran first name from form
+    #
+    # @return [String]
+    def first_name
+      parsed_form.dig('veteranFullName', 'first')
+    end
   end
 end

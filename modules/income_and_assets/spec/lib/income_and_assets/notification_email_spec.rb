@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'income_and_assets/notification_email'
 
 RSpec.describe IncomeAndAssets::NotificationEmail do
   let(:saved_claim) { create(:income_and_assets_claim) }
