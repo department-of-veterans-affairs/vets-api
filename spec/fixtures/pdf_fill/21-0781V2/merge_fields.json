@@ -177,10 +177,8 @@
   "otherReport": 4,
   "reportFiled": 0,
   "noReportFiled": null,
-  "additionalBehaviorsDetails": [
-    {
-      "additionalInfo": "Lorem ipsum dolor sit amet."
-    }
-  ],
+  "additionalBehaviorsDetails": {
+    "additionalInfo": "Lorem ipsum dolor sit amet."
+  },
   "signature": "/es/ Testy Testerson"
 }

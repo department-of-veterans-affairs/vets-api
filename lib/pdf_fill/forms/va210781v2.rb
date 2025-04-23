@@ -679,8 +679,10 @@ module PdfFill
           additional['checked'] = true
           additional['description'] = 'Unlisted Additional Behavioral Changes'
           KEY['additionalBehaviorsDetails'][:override_index] = 14
+          @form_data['additionalBehaviorsDetails'] = [additional]
+        else
+          @form_data['additionalBehaviorsDetails'] = additional
         end
-        @form_data['additionalBehaviorsDetails'] = [additional]
       end
 
       def merge_reports(event)
