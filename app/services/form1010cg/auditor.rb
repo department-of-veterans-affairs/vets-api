@@ -10,6 +10,8 @@ module Form1010cg
 
     METRICS = lambda do
       submission_prefix = "#{STATSD_KEY_PREFIX}.submission"
+      process_prefix = "#{STATSD_KEY_PREFIX}.process"
+      process_async_prefix = "#{STATSD_KEY_PREFIX}.process_async"
 
       OpenStruct.new(
         submission: OpenStruct.new(
@@ -29,7 +31,15 @@ module Form1010cg
             attachments: "#{submission_prefix}.failure.attachments"
           )
         ),
-        pdf_download: "#{STATSD_KEY_PREFIX}.pdf_download"
+        pdf_download: "#{STATSD_KEY_PREFIX}.pdf_download",
+        process: OpenStruct.new(
+          success: "#{process_prefix}.success",
+          failure: "#{process_prefix}.failure"
+        ),
+        process_async: OpenStruct.new(
+          success: "#{process_async_prefix}.success",
+          failure: "#{process_async_prefix}.failure"
+        )
       )
     end.call
 
@@ -92,6 +102,12 @@ module Form1010cg
       log("MPI Profile #{result_label} for #{form_subject.titleize}", { claim_guid: })
     end
 
+    def log_caregiver_request_duration(context:, event:, start_time:)
+      return unless Flipper.enabled?(:caregiver_request_duration_monitoring)
+
+      measure_duration(self.class.metrics[context][event], start_time)
+    end
+
     private
 
     def increment_primary_caregiver_data(secondaries_count)
@@ -118,6 +134,11 @@ module Form1010cg
 
     def increment(stat)
       StatsD.increment stat
+    end
+
+    def measure_duration(stat, start_time)
+      current_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+      StatsD.measure "#{stat}.duration", (current_time - start_time).round(4)
     end
 
     def log(message, context_hash = {})
