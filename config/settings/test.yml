@@ -1630,9 +1630,9 @@ vanotify:
         form526ez_reminder_email: ~
         form5490_confirmation_email: form5490_confirmation_email_template_id
         form5495_confirmation_email: form5495_confirmation_email_template_id
+        form674_only_confirmation_email: 674_confirmation_template_id
         form686c_674_confirmation_email: 686c_674_confirmation_template_id
         form686c_confirmation_email: fake_template_id
-        form674_only_confirmation_email: 674_confirmation_template_id
         form686c_only_confirmation_email: 686c_confirmation_template_id
         form686c_reminder_email: fake_template_id
         form_upload_confirmation_email: form_upload_confirmation_template_id
