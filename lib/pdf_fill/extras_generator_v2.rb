@@ -44,8 +44,6 @@ module PdfFill
             "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
           end
         end
-
-        subq_rows
       end
 
       def should_render?

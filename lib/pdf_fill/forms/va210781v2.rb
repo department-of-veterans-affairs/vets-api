@@ -14,7 +14,7 @@ module PdfFill
       ITERATOR = PdfFill::HashConverter::ITERATOR
       START_PAGE = 8
 
-      # Create map of question_texts from KEY[behaviorsDetails] by copying the strings from the KEY
+      # Maps behavior keys to their corresponding descriptive text for the form's behavioral changes section
       BEHAVIOR_DESCRIPTIONS = {
         'consultations' => 'Increased/decreased visits to a healthcare professional, counselor, or treatment facility',
         'reassignment' => 'Request for a change in occupational series or duty assignment',
@@ -275,6 +275,7 @@ module PdfFill
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
           question_type: 'checked_description',
           question_num: 10,
+          override_index: 14,
           'description' => {
             key: '',
             question_num: 10,
@@ -678,7 +679,6 @@ module PdfFill
         if extras_redesign
           additional['checked'] = true
           additional['description'] = 'Unlisted Additional Behavioral Changes'
-          KEY['additionalBehaviorsDetails'][:override_index] = 14
           @form_data['additionalBehaviorsDetails'] = [additional]
         else
           @form_data['additionalBehaviorsDetails'] = additional

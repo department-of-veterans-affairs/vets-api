@@ -126,7 +126,7 @@ module PdfFill
       false
     end
 
-    def handle_overflow_with_label_all(form_data, pdftk_keys)
+    def handle_overflow_and_label_all(form_data, pdftk_keys)
       form_data.each_with_index do |item, idx|
         item.each do |k, v|
           text = overflow?(pdftk_keys[k], v) ? EXTRAS_TEXT : v
@@ -136,7 +136,7 @@ module PdfFill
       end
     end
 
-    def handle_overflow_with_first_key(pdftk_keys)
+    def handle_overflow_and_label_first_key(pdftk_keys)
       first_key = pdftk_keys[:first_key]
       transform_data(
         form_data: { first_key => EXTRAS_TEXT },
@@ -151,9 +151,9 @@ module PdfFill
 
       if has_overflow
         if pdftk_keys[:label_all]
-          handle_overflow_with_label_all(form_data, pdftk_keys)
+          handle_overflow_and_label_all(form_data, pdftk_keys)
         else
-          handle_overflow_with_first_key(pdftk_keys)
+          handle_overflow_and_label_first_key(pdftk_keys)
         end
         add_array_to_extras(form_data, pdftk_keys)
       else
