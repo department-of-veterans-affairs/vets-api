@@ -24,7 +24,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
       ccra.api_url = 'http://ccra.api.example.com'
-      ccra.base_path = 'csp/healthshare/ccraint/rest'
+      ccra.base_path = 'vaos/v1/patients'
     end
     Settings.vaos.eps ||= OpenStruct.new
     Settings.vaos.eps.tap do |eps|
