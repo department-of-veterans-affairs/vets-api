@@ -59,6 +59,18 @@ module Kafka
 
         Rails.logger.info "WaterDrop [#{producer_id}] delivered message with offset: #{offset}"
       end
+
+      setup_datadog_instrumentation
+    end
+
+    def setup_datadog_instrumentation
+      listener = ::WaterDrop::Instrumentation::Vendors::Datadog::MetricsListener.new do |config|
+        host, port = ENV['STATSD_ADDR'].split(':')
+        config.client = Datadog::Statsd.new(host, port)
+        config.default_tags = ["host:#{host}"]
+      end
+
+      producer.monitor.subscribe(listener)
     end
   end
 end
