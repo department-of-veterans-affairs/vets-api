@@ -257,7 +257,7 @@ module PdfFill
         dependent['dateOfBirth'] = FORMATTER.format_date(dependent['dateOfBirth'])
         dependent['becameDependent'] = FORMATTER.format_date(dependent['becameDependent'])
 
-        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[(dependent['dependentRelation'])] || OFF
+        dependent['dependentRelation'] = DEPENDENT_RELATIONSHIP[dependent['dependentRelation']] || OFF
         dependent['attendedSchoolLastYear'] = map_radio_box_value(dependent['attendedSchoolLastYear'])
         dependent['disabledBefore18'] = map_radio_box_value(dependent['disabledBefore18'])
         dependent['cohabitedLastYear'] = map_radio_box_value(dependent['cohabitedLastYear'])
