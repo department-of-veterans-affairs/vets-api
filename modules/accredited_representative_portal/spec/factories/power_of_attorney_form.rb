@@ -2,7 +2,6 @@
 
 dependent_claimant_data_hash = {
   authorizations: {
-    recordDisclosure: true,
     recordDisclosureLimitations: [],
     addressChange: true
   },
@@ -53,7 +52,6 @@ dependent_claimant_data_hash = {
 
 veteran_claimant_data_hash = {
   authorizations: {
-    recordDisclosure: true,
     recordDisclosureLimitations: %w[
       HIV
       DRUG_ABUSE
@@ -94,7 +92,6 @@ FactoryBot.define do
       data_hash do
         {
           authorizations: {
-            recordDisclosure: Faker::Boolean.boolean,
             recordDisclosureLimitations: %w[
               ALCOHOLISM
               DRUG_ABUSE

@@ -107,6 +107,9 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
+  caregiver_lookup_facility_name_db:
+    actor_type: user
+    description: Enables 1010CG pdf fill to lookup facility id in the database instead of vets-json-schema
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -143,7 +146,7 @@ features:
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
   hca_ez_kafka_submission_enabled:
     actor_type: cookie_id
-    description: Enables the 10-10EZ Kafka Event Bus submission 
+    description: Enables the 10-10EZ Kafka Event Bus submission
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -383,11 +386,7 @@ features:
     actor_type: user
     description: When enabled, CST overrides RV1 - Reserve Records Request tracked items to be NEEDED_FROM_OTHERS on mobile app
     enable_in_development: true
-  cst_friendly_evidence_requests_first_party:
-    actor_type: user
-    description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
-    enable_in_development: true
-  cst_friendly_evidence_requests_third_party:
+  cst_friendly_evidence_requests:
     actor_type: user
     description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
     enable_in_development: true
@@ -715,6 +714,10 @@ features:
     actor_type: user
     description: Enables Representative Status widget 2.0 features for frontend and backend
     enable_in_development: true
+  accredited_representative_portal_declination:
+    actor_type: user
+    description: Enables declination reason feature for frontend and backend
+    enable_in_development: true
   form4142_validate_schema:
     actor_type: user
     description: Enable validation of form 4142 in Form4142Processor
@@ -874,6 +877,15 @@ features:
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
+  form107959c_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959c (IVC CHAMPVA)
+  form107959f1_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959f-1 (IVC CHAMPVA)
+  form107959a_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959a (IVC CHAMPVA)
   form107959c:
     actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
@@ -1130,6 +1142,10 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new filter and sort changes
     enable_in_development: true
+  mhv_medical_records_use_unified_sei_api:
+    actor_type: user
+    description: Enables/disables use of the unified API call self-entered information
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
@@ -1265,6 +1281,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_limit_direct_deposit_for_non_beneficiaries:
+    actor_type: user
+    description: Limits the Direct Deposit page functionality based on the veteranStatus property.
+    enable_in_development: true
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
@@ -2123,4 +2143,3 @@ features:
     description: If enabled, show links to new forms instead of download links on SCO page
   only_use_direct_deposit_email_template:
     description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates
-
