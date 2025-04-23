@@ -16,7 +16,7 @@ module Ccra
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
         response = perform(
-          :post,
+          :get,
           "/#{config.base_path}/#{icn}/referrals",
           data,
           req_headers
@@ -37,7 +37,7 @@ module Ccra
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
         response = perform(
-          :post,
+          :get,
           "/#{config.base_path}/#{icn}/referrals/#{id}",
           data,
           req_headers
