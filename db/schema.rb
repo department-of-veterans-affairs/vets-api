@@ -10,6 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -23,7 +24,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
-  create_enum "bpds_submission_status", ["pending", "submitted", "failure"]
+  create_enum "bpds_submission_status", ["pending", "submitted"]
   create_enum "itf_remediation_status", ["unprocessed"]
   create_enum "lighthouse_submission_status", ["pending", "submitted"]
   create_enum "user_action_status", ["initial", "success", "error"]
@@ -454,25 +455,23 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "bpds_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the bpds submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the bpds submission"
     t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
     t.string "bpds_id", comment: "ID of the submission in BPDS"
-    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
-    t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
   end
 
   create_table "bpds_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
     t.enum "latest_status", default: "pending", enum_type: "bpds_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.string "va_claim_id", comment: "claim ID in VA (non-vets-api) systems"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
-    t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
@@ -1164,18 +1163,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
     t.datetime "lighthouse_updated_at", comment: "timestamp of the last update from lighthouse"
     t.string "benefits_intake_uuid"
-    t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
   end
 
   create_table "lighthouse_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.integer "saved_claim_id", null: false, comment: "ID of the saved claim in vets-api"
     t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
-    t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
