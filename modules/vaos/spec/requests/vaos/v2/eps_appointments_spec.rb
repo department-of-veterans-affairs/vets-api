@@ -132,7 +132,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                 VCR.use_cassette('vaos/ccra/post_get_referral_with_phone', match_requests_on: %i[method path query]) do
                   get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
-                  # expect(response).to have_http_status(:success)
+                  expect(response).to have_http_status(:success)
 
                   # Check that the phone number is in the response
                   body = JSON.parse(response.body)
