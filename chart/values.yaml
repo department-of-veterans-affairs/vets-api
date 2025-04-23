@@ -139,6 +139,8 @@ web:
         value: "vets_api.statsd"
       - name: DD_APM_ENABLED
         value: "true"
+      - name: DD_TRACE_AGENT_URL
+        value: "unix:///var/run/datadog/apm.socket"
 #Worker Configuration
 worker:
   enabled: false
