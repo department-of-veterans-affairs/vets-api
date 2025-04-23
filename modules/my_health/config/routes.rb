@@ -35,7 +35,7 @@ MyHealth::Engine.routes.draw do
         get :status, on: :collection
       end
       resources :military_service, only: %i[index]
-      resources :self_entered, only: [], defaults: { format: :json } do
+      resources :self_entered, only: %i[index], defaults: { format: :json } do
         get :vitals, on: :collection
         get :allergies, on: :collection
         get :family_history, on: :collection
