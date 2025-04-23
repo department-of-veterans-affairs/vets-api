@@ -9,7 +9,7 @@ module SFTPWriter
 
     def sftp
       @sftp ||= begin
-        key_data = File.read(@config.key_path)
+        key_data = @config.key_data.presence || File.read(@config.key_path)
         Net::SFTP.start(
           @config.host,
           @config.user,

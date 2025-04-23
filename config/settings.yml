@@ -478,7 +478,7 @@ form526_export:
 form_10282:
   sftp:
     host: <%= ENV['form_10282__sftp__host'] %>
-    key_path: <%= ENV['form_10282__sftp__key_path'] %>
+    key_data: <%= ENV['form_10282__sftp__key_data'] %>
     pass: <%= ENV['form_10282__sftp__pass'] %>
     port: <%= ENV['form_10282__sftp__port'] %>
     relative_path: <%= ENV['form_10282__sftp__relative_path'] %>
