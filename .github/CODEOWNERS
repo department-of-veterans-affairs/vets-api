@@ -322,6 +322,8 @@ app/models/secondary_appeal_form.rb @department-of-veterans-affairs/benefits-dec
 app/models/sign_in @department-of-veterans-affairs/octo-identity
 app/models/single_logout_request.rb @department-of-veterans-affairs/octo-identity
 app/models/spool_file_event.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
+app/models/submission.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/submission_attempt.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/supporting_evidence_attachment.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/terms_of_use_agreement.rb @department-of-veterans-affairs/octo-identity
 app/models/tooltip.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/backend-review-group
