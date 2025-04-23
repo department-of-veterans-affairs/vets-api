@@ -136,7 +136,8 @@ module PdfFill
       def merge_healthcare_info
         merge_value('wantsInitialVaContact', :map_radio_box_value)
         merge_value('isMedicaidEligible', :map_radio_box_value)
-        merge_value('isEnrolledMedicarePartA', :map_radio_box_value)
+        # The pdf field for isEnrolledMedicarePartA is backwards from the normal radio box, so we negate the value here
+        @form_data['isEnrolledMedicarePartA'] = map_radio_box_value(!@form_data['isEnrolledMedicarePartA'])
       end
 
       def merge_veteran_service_info
