@@ -47,6 +47,5 @@ module IncomeAndAssets
     def claimant_first_name
       parsed_form.dig('claimantFullName', 'first')
     end
-
   end
 end
