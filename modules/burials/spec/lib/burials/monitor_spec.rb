@@ -326,6 +326,78 @@ RSpec.describe Burials::Monitor do
         end
       end
 
+      describe '#track_document_processing_error' do
+        it 'Log document processing failure' do
+          log = 'Burial 21P-530EZ process document failure'
+          payload = {
+            claim_id: claim.id,
+            benefits_intake_uuid: lh_service.uuid,
+            confirmation_number: claim.confirmation_number,
+            user_account_uuid: current_user.uuid,
+            message: monitor_error.message,
+            tags: monitor.tags
+          }
+
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.process_document_failure",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_document_processing_error(claim, lh_service, current_user.uuid, monitor_error)
+        end
+      end
+
+      describe '#track_metadata_generation_error' do
+        it 'Log metadata generation failures' do
+          log = 'Burial 21P-530EZ generate metadata failure'
+          payload = {
+            claim_id: claim.id,
+            benefits_intake_uuid: lh_service.uuid,
+            confirmation_number: claim.confirmation_number,
+            user_account_uuid: current_user.uuid,
+            message: monitor_error.message,
+            tags: monitor.tags
+          }
+
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.generate_metadata_failure",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_metadata_generation_error(claim, lh_service, current_user.uuid, monitor_error)
+        end
+      end
+
+      describe '#track_submission_polling_error' do
+        it 'Log submission polling failures' do
+          log = 'Burial 21P-530EZ submission polling failure'
+          payload = {
+            claim_id: claim.id,
+            benefits_intake_uuid: lh_service.uuid,
+            confirmation_number: claim.confirmation_number,
+            user_account_uuid: current_user.uuid,
+            message: monitor_error.message,
+            tags: monitor.tags
+          }
+
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.submission_polling_failure",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_submission_polling_error(claim, lh_service, current_user.uuid, monitor_error)
+        end
+      end
+
       describe '#track_send_submitted_email_failure' do
         it 'logs sidekiq job send_submitted_email error' do
           log = 'Burial 21P-530EZ send_submitted_email failed'

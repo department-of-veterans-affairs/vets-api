@@ -71,6 +71,8 @@ module Burials
       additional_context = {
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
         tags:
       }
       track_request('info', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
@@ -89,6 +91,8 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
         errors: claim&.errors&.errors,
         tags:
       }
@@ -110,6 +114,8 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
         errors: claim&.errors&.errors,
         message: e&.message,
         tags:
@@ -131,6 +137,8 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
         errors: claim&.errors&.errors,
         tags:
       }
@@ -151,6 +159,8 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
         errors: claim&.errors&.errors,
         tags:
       }
@@ -169,6 +179,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         tags:
       }
@@ -188,6 +199,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         file: upload[:file],
         attachments: upload[:attachments],
@@ -209,6 +221,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         tags:
       }
@@ -229,6 +242,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         message: e&.message,
         tags:
@@ -249,8 +263,8 @@ module Burials
       additional_context = {
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
-        form_id: claim&.form_id,
         claim_id: msg['args'].first,
+        form_id: claim&.form_id,
         message: msg,
         tags:
       }
@@ -268,6 +282,78 @@ module Burials
     end
 
     ##
+    # Log document processing failures
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param e [Error]
+    #
+    def track_document_processing_error(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('error', 'Burial 21P-530EZ process document failure',
+                    "#{SUBMISSION_STATS_KEY}.process_document_failure", call_location:, **additional_context)
+    end
+
+    ##
+    # Log metadata generation failures
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param e [Error]
+    #
+    def track_metadata_generation_error(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('error', 'Burial 21P-530EZ generate metadata failure',
+                    "#{SUBMISSION_STATS_KEY}.generate_metadata_failure", call_location:, **additional_context)
+    end
+
+    ##
+    # Log submission polling failures
+    # @see Burials::BenefitsIntake::SubmitClaimJob
+    #
+    # @param claim [Burials::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param e [Error]
+    #
+    def track_submission_polling_error(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        form_id: claim&.form_id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('error', 'Burial 21P-530EZ submission polling failure',
+                    "#{SUBMISSION_STATS_KEY}.submission_polling_failure", call_location:, **additional_context)
+    end
+
+    ##
     # Tracks the failure to send a Submission in Progress email for a claim.
     # @see Burials::BenefitsIntake::SubmitClaimJob
     #
@@ -280,6 +366,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         message: e&.message,
         tags:
@@ -303,6 +390,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         message: e&.message,
         tags:
@@ -326,6 +414,7 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_account_uuid:,
         claim_id: claim&.id,
+        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         error: e&.message,
         tags:
