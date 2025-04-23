@@ -343,6 +343,13 @@ RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
         expect(e['code']).to eq('direct.deposit.account.number.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
+
+      it 'returns a fraud indicator error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/422_fraud_indicator') do
+          put(:update, params:)
+        end
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
     end
 
     context 'when user profile info is invalid' do

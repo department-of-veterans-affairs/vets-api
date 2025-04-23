@@ -31,7 +31,7 @@ module HCA
       return unless result
 
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
-
+      @health_care_application.form = form.to_json
       @health_care_application.set_result_on_success!(result)
     end
 

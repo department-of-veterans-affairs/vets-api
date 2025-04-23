@@ -9,6 +9,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:referral_statuses) { "'AP','AC','I'" }
   let(:referral_mode) { 'C' }
+  let(:icn) { '1012845331V153043' }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
@@ -41,7 +42,6 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
     end
 
     context 'when called with authorization' do
-      let(:icn) { '1012845331V153043' }
       let(:user) { build(:user, :vaos, :loa3, icn:) }
       let(:referral_list_entries) { build_list(:ccra_referral_list_entry, 3) }
 
@@ -181,13 +181,13 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
     end
 
     context 'when called with authorization' do
-      let(:user) { build(:user, :vaos, :loa3) }
+      let(:user) { build(:user, :vaos, :loa3, icn:) }
       let(:referral_detail) { build(:ccra_referral_detail, referral_number:) }
 
       before do
         sign_in_as(user)
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-          .with(referral_number, referral_mode)
+          .with(referral_number, referral_mode, icn)
           .and_return(referral_detail)
       end
 
@@ -212,7 +212,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         before do
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-            .with(referral_number, custom_mode)
+            .with(referral_number, custom_mode, icn)
             .and_return(referral_detail)
         end
 
