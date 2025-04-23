@@ -7,6 +7,8 @@ module PdfFill
     FOOTER_FONT_SIZE = 9
     HEADER_FOOTER_BOUNDS_HEIGHT = 20
 
+    attr_reader :question_key
+
     class Question
       attr_accessor :section_index, :overflow
 
@@ -201,7 +203,6 @@ module PdfFill
       @question_key           = options[:question_key]
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
-      @table_width            = options[:table_width] || 91
       @questions              = {}
       super()
     end
@@ -215,13 +216,15 @@ module PdfFill
     def add_text(value, metadata)
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
-        question_text = @question_key[question_num]
+        question_data = @question_key[question_num]
+        question_text = question_data[:text]
+        table_width = question_data[:table_width]
 
         @questions[question_num] =
           if metadata[:i].blank?
-            Question.new(question_text, metadata, table_width: @table_width)
+            Question.new(question_text, metadata, table_width:)
           else
-            ListQuestion.new(question_text, metadata, table_width: @table_width)
+            ListQuestion.new(question_text, metadata, table_width:)
           end
       end
 

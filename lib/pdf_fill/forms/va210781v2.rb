@@ -512,21 +512,70 @@ module PdfFill
       # rubocop:enable Layout/LineLength
 
       QUESTION_KEY = {
-        1 => 'Veteran/Service member\'s name',
-        2 => 'Social security number',
-        3 => 'VA file number',
-        4 => 'Date of birth',
-        5 => 'Veteran\'s service number',
-        6 => 'Telephone number',
-        7 => 'Email address',
-        8 => 'Type of in-service traumatic event(s)',
-        9 => 'Traumatic event(s) information',
-        10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-        11 => 'Was an official report filed?',
-        12 => 'Possible sources of evidence following the traumatic event(s)',
-        13 => 'Treatment information',
-        14 => 'Remarks',
-        16 => 'Veteran/service member\'s signature'
+        1 => {
+          text: 'Veteran/Service member\'s name',
+          table_width: 91
+        },
+        2 => {
+          text: 'Social security number',
+          table_width: 91
+        },
+        3 => {
+          text: 'VA file number',
+          table_width: 91
+        },
+        4 => {
+          text: 'Date of birth',
+          table_width: 91
+        },
+        5 => {
+          text: 'Veteran\'s service number',
+          table_width: 91
+        },
+        6 => {
+          text: 'Telephone number',
+          table_width: 91
+        },
+        7 => {
+          text: 'Email address',
+          table_width: 91
+        },
+        8 => {
+          text: 'Type of in-service traumatic event(s)',
+          table_width: 91
+        },
+        9 => {
+          text: 'Traumatic event(s) information',
+          table_width: 91
+        },
+        10 => {
+          text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
+          table_width: 120
+        },
+        11 => {
+          text: 'Was an official report filed?',
+          table_width: 100
+        },
+        12 => {
+          text: 'Possible sources of evidence following the traumatic event(s)',
+          table_width: 91
+        },
+        13 => {
+          text: 'Treatment information',
+          table_width: 120
+        },
+        14 => {
+          text: 'Remarks',
+          table_width: 91
+        },
+        15 => {
+          text: 'Certification and Signature',
+          table_width: 91
+        },
+        16 => {
+          text: 'Veteran/service member\'s signature',
+          table_width: 91
+        }
       }.freeze
 
       SECTIONS = [
