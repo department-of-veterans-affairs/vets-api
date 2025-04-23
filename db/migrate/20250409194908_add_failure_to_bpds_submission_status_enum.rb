@@ -1,12 +1,12 @@
-class AddFailureToBpdsSubmissionStatusEnum < ActiveRecord::Migration[7.2]
+class AddFailureToBPDSSubmissionStatusEnum < ActiveRecord::Migration[7.2]
   def up
     add_enum_value :bpds_submission_status, 'failure'
   end
 
   def down
     # Retrieve list of all successful and failed submissions and attempts
-    submissions = Bpds::Submission.pluck(:id, :latest_status)
-    attempts = Bpds::SubmissionAttempt.pluck(:id, :status)
+    submissions = BPDS::Submission.pluck(:id, :latest_status)
+    attempts = BPDS::SubmissionAttempt.pluck(:id, :status)
 
     # Drop the enum list and remove columns using the enum
     safety_assured do
@@ -46,12 +46,12 @@ class AddFailureToBpdsSubmissionStatusEnum < ActiveRecord::Migration[7.2]
   def set_submission_status(id, latest_status)
     return if latest_status == 'pending'
 
-    Bpds::Submission.find_by(id:)&.update(latest_status:)
+    BPDS::Submission.find_by(id:)&.update(latest_status:)
   end
 
   def set_attempt_status(id, status)
     return if status == 'pending'
 
-    Bpds::SubmissionAttempt.find_by(id:)&.update(status:)
+    BPDS::SubmissionAttempt.find_by(id:)&.update(status:)
   end
 end
