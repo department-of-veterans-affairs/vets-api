@@ -28,7 +28,7 @@ module IncomeAndAssets
 
       template = {
         # confirmation, error
-        'first_name' => claim.first_name&.titleize,
+        'first_name' => claim.claimant_first_name&.titleize,
         # received
         'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
       }

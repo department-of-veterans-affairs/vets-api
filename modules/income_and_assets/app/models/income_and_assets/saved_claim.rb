@@ -30,8 +30,23 @@ module IncomeAndAssets
     # Utility function to retrieve veteran first name from form
     #
     # @return [String]
-    def first_name
+    def veteran_first_name
       parsed_form.dig('veteranFullName', 'first')
     end
+
+    # Utility function to retrieve veteran last name from form
+    #
+    # @return [String]
+    def veteran_last_name
+      parsed_form.dig('veteranFullName', 'last')
+    end
+
+    # Utility function to retrieve claimant first name from form
+    #
+    # @return [String]
+    def claimant_first_name
+      parsed_form.dig('claimantFullName', 'first')
+    end
+
   end
 end
