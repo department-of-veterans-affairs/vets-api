@@ -5,15 +5,12 @@ require 'rails_helper'
 describe Mobile::V0::TriageTeamsController, type: :controller do
   include ActiveJob::TestHelper
 
-  let(:user) { FactoryBot.create(:user, :mhv) }
+  let(:user) { create(:user, :mhv) }
   let(:use_all_triage_teams) { false }
   let(:client) { double('client') }
-  let(:rsa_key) do
-    OpenSSL::PKey::RSA.new(File.read(Rails.root.join('spec', 'support', 'jwt', 'fake_rsa_key.pem')))
-  end
 
   before do
-    sign_in_as(user, FactoryBot.build(:access_token))
+    sign_in_as(user, build(:access_token))
     allow(controller).to receive(:client).and_return(client)
     allow(Flipper).to receive(:enabled?).with(:mobile_get_all_triage_teams, user).and_return(use_all_triage_teams)
   end
