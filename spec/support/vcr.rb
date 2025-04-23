@@ -88,4 +88,5 @@ VCR.configure do |c|
     path2 = request2.uri.gsub(%r{/isValidSMUser/.*}, '/isValidSMUser')
     path1 == path2
   end
+  c.filter_sensitive_data('<MDOT_V2_API_URL>') { Settings.mdot_v2.url }
 end

@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <MDOT_V2_API_URL>/supplies
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      VA_VETERAN_FIRST_NAME:
+      - patient
+      VA_VETERAN_MIDDLE_NAME:
+      - " "
+      VA_VETERAN_LAST_NAME:
+      - test
+      VA_VETERAN_ID:
+      - '3322'
+      VA_VETERAN_BIRTH_DATE:
+      - '1922-02-22'
+      VA_ICN:
+      - '82836359962678900'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      vary:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+      vaapikey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Mon, 14 Apr 2025 20:38:09 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"permanentAddress":{"street":"123 S ELM","street2":", ","city":"MUSKOGEE","state":"OK","country":"UNITED
+        STATES","postalCode":"73477"},"temporaryAddress":{"street":"552 WEST BLVD","street2":",
+        ","city":"PHOENIX","state":"AZ","country":"UNITED STATES","postalCode":"90221"},"vetEmail":null,"supplies":[]}'
+  recorded_at: Mon, 14 Apr 2025 20:38:20 GMT
+recorded_with: VCR 6.3.1
