@@ -70,9 +70,7 @@ module VBADocuments
       file_safe = Common::VirusScan.scan(temp_path)
       Common::FileHelpers.delete_file_if_exists(temp_path)
 
-      unless file_safe
-        raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected in submission')
-      end
+      raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected in submission') unless file_safe
 
       true
     end
