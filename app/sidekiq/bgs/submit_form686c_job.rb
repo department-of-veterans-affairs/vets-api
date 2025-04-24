@@ -140,7 +140,7 @@ module BGS
     end
 
     def send_686c_confirmation_email
-      return if user.va_profile_email.blank?
+      return if user&.va_profile_email.blank?
 
       VANotify::ConfirmationEmail.send(
         email_address: user.va_profile_email,
