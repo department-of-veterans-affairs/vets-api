@@ -43,7 +43,6 @@ module AccreditedRepresentativePortal
     validates :power_of_attorney_request, uniqueness: true
     validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
 
-    # Enum for declination reasons
     enum declination_reason: {
       decline_health: 0,
       decline_address: 1,
@@ -62,7 +61,7 @@ module AccreditedRepresentativePortal
     }.freeze
 
     def declination_reason_text
-      DECLINATION_REASON_TEXTS[declination_reason&.to_sym]
+      DECLINATION_REASON_TEXTS[declination_reason]
     end
 
     class << self
