@@ -319,6 +319,109 @@ module IncomeAndAssets
             question_suffix: '(5)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
           }
+        },
+        # 6a
+        'royaltiesAndOtherProperty' => {
+          key: 'F[0].Page_9[0].DependentsReceiving6a[0]'
+        },
+        # 6b-c (only space for two on form)
+        'royaltiesAndOtherProperties' => {
+          limit: 2,
+          first_key: 'otherRecipientRelationshipType',
+          # Q1
+          'recipientRelationship' => {
+            key: "F[0].IncomeRecipients6[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 6,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship6[#{ITERATOR}]",
+            question_num: 6,
+            question_suffix: '(1)',
+            question_text: 'RELATIONSHIP TYPE OTHER'
+          },
+          # Q2
+          'recipientName' => {
+            key: "F[0].NameofIncomeRecipient6[#{ITERATOR}]",
+            limit: 37,
+            question_num: 6,
+            question_suffix: '(2)',
+            question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          # Q3
+          'incomeGenerationMethod' => {
+            key: "F[0].HowIncomeIsGenerated6[#{ITERATOR}]"
+          },
+          'incomeGenerationMethodOverflow' => {
+            question_num: 6,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY HOW INCOME IS GENERATED'
+          },
+          'otherIncomeType' => {
+            limit: 73,
+            question_num: 6,
+            question_suffix: '(3)',
+            question_text: 'INCOME TYPE OTHER',
+            key: "F[0].OtherIncomeGenerationMethod6[#{ITERATOR}]"
+          },
+          # Q4
+          'grossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].GrossMonthlyIncome1_6[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].GrossMonthlyIncome2_6[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].GrossMonthlyIncome3_6[#{ITERATOR}]"
+            }
+          },
+          'grossMonthlyIncomeOverflow' => {
+            question_num: 6,
+            question_suffix: '(4)',
+            question_text: 'GROSS MONTHLY INCOME'
+          },
+          # Q5
+          'fairMarketValue' => {
+            'millions' => {
+              key: "F[0].FairMarketValue1_6[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].FairMarketValue2_6[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].FairMarketValue3_6[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].FairMarketValue4_6[#{ITERATOR}]"
+            }
+          },
+          'fairMarketValueOverflow' => {
+            question_num: 6,
+            question_suffix: '(5)',
+            question_text: 'SPECIFY FAIR MARKET VALUE OF THIS ASSET'
+          },
+          # Q6
+          'canBeSold' => {
+            key: "F[0].CanAssetBeSold6[#{ITERATOR}]"
+          },
+          'canBeSoldOverflow' => {
+            question_num: 6,
+            question_suffix: '(6)',
+            question_text: 'CAN THIS ASSET BE SOLD?'
+          },
+          # Q7
+          'mitigatingCircumstances' => {
+            limit: 172,
+            question_num: 6,
+            question_suffix: '(7)',
+            question_text: 'EXPLAIN ANY MITIGATING CIRCUMSTANCES THAT PREVENT THE SALE OF THIS ASSET',
+            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]"
+          }
         }
       }
 
