@@ -9,6 +9,8 @@ require 'income_and_assets/pdf_fill/sections/section_08'
 require 'income_and_assets/pdf_fill/sections/section_09'
 require 'income_and_assets/pdf_fill/sections/section_10'
 require 'income_and_assets/pdf_fill/sections/section_11'
+require 'income_and_assets/pdf_fill/sections/section_12'
+require 'income_and_assets/pdf_fill/sections/section_13'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -553,116 +555,9 @@ module IncomeAndAssets
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section8, Section9, Section10, Section11].freeze
+      SECTIONS = [Section8, Section9, Section10, Section11, Section12, Section13].freeze
 
       SECTIONS.each { |section| key = key.merge(section::KEY) }
-
-      # Sections 12 and 13 (Temporary, will be handled in the next PR)
-      key = key.merge(
-        {
-          # Section 12
-          # 12a
-          'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
-          # 12b-12c (only space for 2 on form)
-          'incomeReceiptWaivers' => {
-            limit: 2,
-            first_key: 'otherRecipientRelationshipType',
-            # Q1
-            'recipientRelationship' => {
-              key: "F[0].RelationshipToVeteran12[#{ITERATOR}]"
-            },
-            'recipientRelationshipOverflow' => {
-              question_num: 12,
-              question_suffix: '(1)',
-              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-            },
-            'otherRecipientRelationshipType' => {
-              key: "F[0].OtherRelationship12[#{ITERATOR}]",
-              question_num: 12,
-              question_suffix: '(1)',
-              question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-            },
-            # Q2
-            'recipientName' => {
-              key: "F[0].IncomeRecipientName12[#{ITERATOR}]",
-              question_num: 12,
-              question_suffix: '(2)',
-              question_text:
-                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
-            },
-            # Q3
-            'payer' => {
-              key: "F[0].IncomePayer12[#{ITERATOR}]",
-              question_num: 12,
-              question_suffix: '(3)',
-              question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
-            },
-            # Q4
-            'expectedIncome' => {
-              'thousands' => {
-                key: "F[0].AmountExpected1[#{ITERATOR}]"
-              },
-              'dollars' => {
-                key: "F[0].AmountExpected2[#{ITERATOR}]"
-              },
-              'cents' => {
-                key: "F[0].AmountExpected3[#{ITERATOR}]"
-              }
-            },
-            'expectedIncomeOverflow' => {
-              question_num: 12,
-              question_suffix: '(4)',
-              question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
-            },
-            # Q5
-            'paymentResumeDate' => {
-              'month' => { key: "F[0].DatePaymentsResumeMonth[#{ITERATOR}]" },
-              'day' => { key: "F[0].DatePaymentsResumeDay[#{ITERATOR}]" },
-              'year' => { key: "F[0].DatePaymentsResumeYear[#{ITERATOR}]" }
-            },
-            'paymentResumeDateOverflow' => {
-              question_num: 12,
-              question_suffix: '(5)',
-              question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
-            },
-            'paymentWillNotResume' => {
-              key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
-            },
-            'paymentWillNotResumeOverflow' => {
-              question_num: 12,
-              question_suffix: '(5)',
-              question_text: 'This income will not resume'
-            },
-            # Q6
-            'waivedGrossMonthlyIncome' => {
-              'thousands' => {
-                key: "F[0].WaivedGrossMonthlyIncome1[#{ITERATOR}]"
-              },
-              'dollars' => {
-                key: "F[0].WaivedGrossMonthlyIncome2[#{ITERATOR}]"
-              },
-              'cents' => {
-                key: "F[0].WaivedGrossMonthlyIncome3[#{ITERATOR}]"
-              }
-            },
-            'waivedGrossMonthlyIncomeOverflow' => {
-              question_num: 12,
-              question_suffix: '(6)',
-              question_text: 'WAIVED GROSS MONTHLY INCOME'
-            }
-          },
-          # Section 13
-          # NOTE: No overflow for this section
-          # 13a
-          'statementOfTruthSignature' => { key: 'F[0].#subform[9].SignatureField11[0]' },
-          # 13b
-          'statementOfTruthSignatureDate' => {
-            'month' => { key: 'F[0].DateSigned13bMonth[0]' },
-            'day' => { key: 'F[0].DateSigned13bDay[0]' },
-            'year' => { key: 'F[0].DateSigned13bYear[0]' }
-          }
-        }
-      )
 
       # Form configuration hash
       KEY = key.freeze
@@ -683,12 +578,8 @@ module IncomeAndAssets
         expand_royalties_and_other_properties
         expand_asset_transfers
 
-        # Sections 8, 9, 10, and 11
+        # Sections 8, 9, 10, 11, 12, and 13
         SECTIONS.each { |section| section.new.expand(form_data) }
-
-        # Section 12
-        expand_income_receipt_waivers
-        expand_statement_of_truth
 
         form_data
       end
@@ -944,63 +835,6 @@ module IncomeAndAssets
           'capitalGainValue' => split_currency_amount_lg(transfer['capitalGainValue']),
           'capitalGainValueOverflow' => transfer['capitalGainValue']
         }
-      end
-
-      # Section 12
-      ##
-      # Expands income receipt waivers by processing each income receipt waiver entry and setting an indicator
-      # based on the presence of income receipt waivers.
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_income_receipt_waivers
-        waivers = form_data['incomeReceiptWaivers']
-
-        form_data['incomeReceiptWaiver'] = waivers&.length ? 0 : 1
-        form_data['incomeReceiptWaivers'] = waivers&.map { |waiver| expand_income_receipt_waiver(waiver) }
-      end
-
-      ##
-      # Expands a income receipt waivers's data by processing its attributes and transforming them into
-      # structured output
-      #
-      # @param waiver [Hash]
-      # @return [Hash]
-      #
-      def expand_income_receipt_waiver(waiver)
-        recipient_relationship = waiver['recipientRelationship']
-        payment_resume_date = waiver['paymentResumeDate']
-
-        overflow_fields = %w[recipientRelationship expectedIncome waivedGrossMonthlyIncome]
-
-        expanded = waiver.clone
-        overflow_fields.each do |field|
-          expanded["#{field}Overflow"] = waiver[field]
-        end
-
-        overrides = {
-          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
-          'expectedIncome' => split_currency_amount_sm(waiver['expectedIncome']),
-          'paymentResumeDate' => split_date(payment_resume_date),
-          'paymentResumeDateOverflow' => format_date_to_mm_dd_yyyy(payment_resume_date),
-          'paymentWillNotResume' => payment_resume_date ? 0 : 1,
-          'paymentWillNotResumeOverflow' => payment_resume_date ? 'NO' : 'YES',
-          'waivedGrossMonthlyIncome' => split_currency_amount_sm(waiver['waivedGrossMonthlyIncome'])
-        }
-
-        expanded.merge(overrides)
-      end
-
-      # Section 13
-      ##
-      # Expands statement of truth section
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_statement_of_truth
-        # We want today's date in the form 'YYYY-MM-DD' as that's the format it comes
-        # back from vets-website in
-        form_data['statementOfTruthSignatureDate'] = split_date(Date.current.iso8601)
       end
     end
   end
