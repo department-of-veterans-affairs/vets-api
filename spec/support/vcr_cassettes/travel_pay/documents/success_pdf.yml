@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://btsss.gov/api/v2/claims/claim-123/documents/doc-456
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer string
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type: 
+      - 'application/pdf'
+      Content-Disposition:
+      - 'attachment; filename=\"AppealForm.pdf\"; filename*=UTF-8''AppealForm.pdf'
+    body:
+      encoding: ASCII-8BIT
+      string: >
+        {
+          "data": "shoop doop"
+        }
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+recorded_with: VCR 6.1.0

@@ -18,7 +18,7 @@ module TravelPay
 
     def self.raise_mapped_error(error)
       begin
-        status_code = error.response_status
+        status_code = error.status
         symbolized_body = error.response_body.deep_symbolize_keys
         message = symbolized_body[:message]
       rescue

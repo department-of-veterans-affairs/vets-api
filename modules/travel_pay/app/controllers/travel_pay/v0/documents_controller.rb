@@ -4,12 +4,22 @@ module TravelPay
   module V0
     class DocumentsController < ApplicationController
       def show
-        document = service.download_document(params[:claim_id], params[:id])
+        document_data = service.download_document(params[:claim_id], params[:id])
 
-        send_data(document.body['data'], disposition: 'attachment', filename: params[:filename])
+        extension = File.extname(params[:filename])
+        content_type = Rack::Mime::MIME_TYPES[extension] || 'application/octet-stream'
+
+        send_data(
+          document_data,
+          type: content_type,
+          disposition: "attachment; filename=\"#{params[:filename]}\"",
+          filename: params[:filename]
+        )
+      rescue Faraday::ResourceNotFound => e
+        handle_resource_not_found_error(e)
       rescue Faraday::Error => e
-        Rails.logger.error("Error downloading document: #{e.message}. Tried mime_type: #{params[:mime_type]}")
-        TravelPay::ServiceError.raise_mapped_error(e)
+        Rails.logger.error("Error downloading document: #{e.message}")
+        render json: { error: 'Error downloading document' }, status: e.response[:status]
       end
 
       private
@@ -20,6 +30,17 @@ module TravelPay
 
       def service
         @service ||= TravelPay::DocumentsService.new(auth_manager)
+      end
+
+      def handle_resource_not_found_error(e)
+        Rails.logger.error("Document not found: #{e.message}")
+        render(
+          json: {
+            error: 'Document not found',
+            correlation_id: e.response[:request][:headers]['X-Correlation-ID']
+          },
+          status: :not_found
+        )
       end
     end
   end

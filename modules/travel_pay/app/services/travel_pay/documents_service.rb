@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class DocumentsService
+  class DocumentsService < TravelPay::BaseClient
     def initialize(auth_manager)
+      # NOTE: calling `super` without parentheses calls the super's initialize and passes the sub's arguments
+      super()
       @auth_manager = auth_manager
     end
 
@@ -13,11 +15,16 @@ module TravelPay
     end
 
     def download_document(claim_id, doc_id)
-      raise ArgumentError, message: "Missing claim ID or document ID, given: #{params}" unless claim_id && doc_id
+      unless claim_id.present? && doc_id.present?
+        raise ArgumentError,
+              message: "Missing claim ID or document ID, given: #{params}"
+      end
 
       params = { claim_id:, doc_id: }
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      client.get_document_binary(veis_token, btsss_token, params)
+
+      response = client.get_document_binary(veis_token, btsss_token, params)
+      response.body['data']
     end
 
     private
