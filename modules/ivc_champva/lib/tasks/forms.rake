@@ -143,7 +143,7 @@ namespace :ivc_champva do
     unless disjoint.empty?
       puts "\e[43;30mThe following keys are different between old/new mapping:\e[0m"
       puts disjoint
-      puts "\n"
+      puts "--\n"
     end
 
     unless new_keys.sort != old_keys.sort
