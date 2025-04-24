@@ -15,13 +15,16 @@ module Ccra
       with_monitoring do
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
+
         response = perform(
           :get,
           "/#{config.base_path}/#{icn}/referrals",
           params,
           req_headers
         )
-        ReferralListEntry.build_collection(JSON.parse(response.body))
+
+        data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+        ReferralListEntry.build_collection(data)
       end
     end
 
@@ -42,7 +45,9 @@ module Ccra
           params,
           req_headers
         )
-        ReferralDetail.new(JSON.parse(response.body))
+
+        data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+        ReferralDetail.new(data)
       end
     end
   end
