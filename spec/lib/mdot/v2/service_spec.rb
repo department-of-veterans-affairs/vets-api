@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'mdot/v2/service'
 
 describe MDOT::V2::Service do
-  subject { MDOT::V2::Service.new(user) }
-
   let(:user_details) do
     {
       first_name: 'patient',
@@ -38,26 +38,32 @@ describe MDOT::V2::Service do
 
   describe '#authenticate' do
     context 'veteran is authorized' do
-      let!(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
+      let(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
+      let(:service) { MDOT::V2::Service.new(user:) }
+
+      it 'returns true when successful' do
+        expect(service.authenticate).to be(true)
+      end
 
       it 'creates a redis-backed session' do
-        subject.authenticate
-        expect(subject.send(:session)).to be_a(Common::RedisStore)
+        service.authenticate
+        expect(service.send(:session)).to be_a(Common::RedisStore)
       end
 
       it 'sets the supplies_resource attribute' do
-        expect(subject.supplies_resource).to be_nil
-        subject.authenticate
+        expect(service.supplies_resource).to be_nil
+        service.authenticate
         expected_keys = %w[permanentAddress temporaryAddress vetEmail supplies]
-        expect(subject.supplies_resource.keys).to match_array(expected_keys)
+        expect(service.supplies_resource.keys).to match_array(expected_keys)
       end
     end
 
     context 'veteran is unauthorized' do
-      let(:cassette) { '/mdot/v2/20250415145657-get-supplies' }
+      let(:cassette) { 'mdot/v2/20250415145657-get-supplies' }
+      let(:service) { MDOT::V2::Service.new(user:) }
 
       it 'blows up' do
-        subject.authenticate
+        service.authenticate
       end
     end
 
@@ -91,11 +97,12 @@ describe MDOT::V2::Service do
 
     let(:cassette) { 'mdot/v2/20250417162831-post-supplies' }
     let(:session) { MDOT::V2::Session.create({ uuid: user.uuid, token: 'abcd1234abcd1234abcd1234abcd1234abcd1234' }) }
+    let(:service) { MDOT::V2::Service.new(user:, form_data:) }
 
     it 'creates an order with the system of record' do
       allow_any_instance_of(MDOT::V2::Service).to receive(:session).and_return(session)
-      subject.create_order(form_data)
-      expect(subject.orders.first['status']).to eq('Order Processed')
+      service.create_order(form_data)
+      expect(service.orders.first['status']).to eq('Order Processed')
     end
   end
 end

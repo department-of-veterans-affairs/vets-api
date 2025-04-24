@@ -9,21 +9,28 @@ module MDOT::V2
 
     STATSD_KEY_PREFIX = 'api.mdot_v2'
 
-    attr_reader :user, :supplies_resource, :orders, :connection
+    attr_reader(
+      :user,
+      :supplies_resource,
+      :orders,
+      :response
+    )
 
-    def initialize(user)
+    def initialize(user:, form_data: {})
       @user = user
+      @form_data = form_data
     end
 
     def authenticate
-      @connection = get('/supplies', nil, auth_headers, {})
-      handle_error unless connection.success?
+      # @response = perform(:get, '/supplies', nil, auth_headers, {})
+      @response = get('/supplies', nil, auth_headers, {})
+      handle_error unless response.success?
 
-      token = connection.response_headers['vaapikey']
+      token = response.response_headers['vaapikey']
       @session = MDOT::V2::Session.create({ uuid: user.uuid, token: })
       permitted_params = %w[permanentAddress temporaryAddress vetEmail supplies].freeze
-      @supplies_resource = connection.response_body&.slice(*permitted_params)
-      self
+      @supplies_resource = response.response_body&.slice(*permitted_params)
+      response.success?
     end
 
     def create_order(form_data)
