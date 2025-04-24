@@ -122,9 +122,22 @@ namespace :ivc_champva do
     end
 
     form_name = file_path.split('/').last.split('.').first
+    update_test_msg = "\e[41;30mIMPORTANT: Don't forget to update the form OMB expiration unit test found in modules/ivc_champva/spec/models/#{form_name}_spec.rb\e[0m"
 
     meta_data = reader.get_field_names(file_path).map do |field|
       { pdf_field: field, data_type: 'String', attribute: field.split('.').last.split('[').first }
+    end
+
+    # Read the existing mapping file and compare keynames. If we have the same
+    # quantity + names, then a new mapping file is not needed.
+    old_file = Rails.root.join(MAPPINGS_PATH, "#{form_name}.json.erb")
+    old_keys = JSON.parse(File.read(old_file)).keys
+    new_keys = meta_data.map {|el| el[:pdf_field] }
+
+    unless new_keys.sort != old_keys.sort
+      puts "\e[42;30mThe mapping file is already up to date. No changes made.\e[0m"
+      puts update_test_msg
+      return
     end
 
     # create the form mapping file
@@ -139,6 +152,9 @@ namespace :ivc_champva do
       f.puts '}'
     end
 
-    puts "Created #{mapping_file}"
+    puts "\n"
+    puts "\e[42;30mCreated #{mapping_file}\e[0m"
+    puts update_test_msg
+    puts "\n"
   end
 end
