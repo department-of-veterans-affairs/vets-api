@@ -138,7 +138,7 @@ namespace :ivc_champva do
     old_keys = JSON.parse(File.read(old_file)).keys
     new_keys = meta_data.map { |el| el[:pdf_field] }
 
-    difference = old_keys - new_keys | new_keys - old_keys
+    difference = (old_keys - new_keys) | (new_keys - old_keys)
 
     if difference.empty?
       puts "\e[42;30mNew mapping file would not result in any changes. Skipping.\e[0m"
