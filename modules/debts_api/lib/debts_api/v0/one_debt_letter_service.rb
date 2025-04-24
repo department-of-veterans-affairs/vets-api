@@ -5,12 +5,12 @@ require 'debt_management_center/debts_service'
 module DebtsApi
   module V0
     class OneDebtLetterService
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       COPAY_TABLE_DESCRIPTION = '<i>– You are receiving this billing statement because you are currently enrolled in a priority group requiring copayments for treatment of nonservice-connected conditions.</i>'
       COPAY_PAYMENT_INSTRUCTIONS = 'To Pay Your Copay Bills:<br><b>In Person:</b>: At your local Veteran Affairs Medical Center Agent Cashier’s Office<br><b>By Phone</b>: Contact VA at 1-888-827-4817<br><b>Online</b>: Pay by ACH withdrawal from your bank account, or by debit or credit card at www.pay.gov'
       DEBT_PAYMENT_INSTRUCTIONS = "To Pay Your VA Benefit Debt:\n<b>By Phone</b>: Contact VA’s Debt Management Center at 1-800-827-0648\n<b>Online</b>: Pay by ACH withdrawal from your bank account, or by debit or credit card at www.pay.va.gov"
       BENEFITS_TABLE_DESCRIPTION = '<i>– Veterans Benefits Administration overpayments are due to changes in your entitlement which result in you being paid more than you were entitled to receive.</i>'
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
       COPAY_TOTAL_TEXT = 'Total Copayment Due'
       COPAY_TABLE_TITLE = '<b><i>VA Medical Center Copay Charges</i></b>'
       DEBT_TOTAL_TEXT = 'Total VBA Overpayment Due'

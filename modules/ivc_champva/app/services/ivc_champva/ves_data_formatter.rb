@@ -201,8 +201,6 @@ module IvcChampva
         sponsor[:address] =
           { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }
         sponsor[:date_of_death] = validate_date(sponsor[:date_of_death], 'date of death')
-        # Use a default phone since deceased sponsors don't have one
-        sponsor[:phone_number] = '0000000000'
       end
       validate_address(sponsor[:address], 'sponsor')
       sponsor[:date_of_birth] = validate_date(sponsor[:date_of_birth], 'date of birth')

@@ -13,7 +13,7 @@ class EducationStemAutomatedDecision < ApplicationRecord
   validates(:automated_decision_state, inclusion: DECISION_STATES)
 
   belongs_to(:education_benefits_claim, inverse_of: :education_stem_automated_decision)
-  belongs_to(:user_account, dependent: nil, optional: true)
+  belongs_to(:user_account, dependent: nil, optional: false)
 
   def self.init
     where(automated_decision_state: INIT)

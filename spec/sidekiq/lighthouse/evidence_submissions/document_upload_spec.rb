@@ -178,7 +178,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           Timecop.freeze(current_date_time) do
             expect(failed_evidence_submission.failed_date).to be_within(1.second).of(current_date_time)
             expect(failed_evidence_submission.acknowledgement_date)
-              .to be_within(1.second).of((current_date_time + 30.days))
+              .to be_within(1.second).of(current_date_time + 30.days)
           end
           Timecop.unfreeze
         end

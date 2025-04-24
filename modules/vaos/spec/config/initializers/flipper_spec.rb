@@ -4,19 +4,19 @@ require 'rails_helper'
 
 RSpec.describe Flipper::Instrumentation::AppointmentsEventSubscriber do
   context 'logs changes to toggle values' do
-    it 'logs warning for restricted operation of critical feature' do
-      allow(Rails.logger).to receive(:warn)
+    it 'logs error for restricted operation of critical feature' do
+      allow(Rails.logger).to receive(:error)
       Flipper.disable(:va_online_scheduling_subscriber_unit_testing)
-      expect(Rails.logger).to have_received(:warn).with(
+      expect(Rails.logger).to have_received(:error).with(
         'Restricted operation for critical appointments feature: disable va_online_scheduling_subscriber_unit_testing'
       )
     end
 
-    it 'logs info for routine operation of critical feature' do
-      allow(Rails.logger).to receive(:info)
+    it 'logs warning for routine operation of critical feature' do
+      allow(Rails.logger).to receive(:warn)
       Flipper.enable(:va_online_scheduling_subscriber_unit_testing)
-      expect(Rails.logger).to have_received(:info).with(
-        'Routine operation for appointments feature: enable va_online_scheduling_subscriber_unit_testing'
+      expect(Rails.logger).to have_received(:warn).with(
+        'Routine operation for critical appointments feature: enable va_online_scheduling_subscriber_unit_testing'
       )
     end
 

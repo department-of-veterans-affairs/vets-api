@@ -24,7 +24,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
       ccra.api_url = 'http://ccra.api.example.com'
-      ccra.base_path = 'csp/healthshare/ccraint/rest'
+      ccra.base_path = 'vaos/v1/patients'
     end
     Settings.vaos.eps ||= OpenStruct.new
     Settings.vaos.eps.tap do |eps|
@@ -62,7 +62,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'timezone' => 'America/New_York'
                 },
                 'networkIds' => ['sandbox-network-test']
-              }
+              },
+              'referringFacility' => {}
             }
           }
         }
@@ -119,16 +120,12 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         end
       end
 
-      context 'with provider phone number from referral' do
+      context 'with referral detail data' do
         let(:provider_phone) { '555-123-4567' }
+        let(:referring_facility_phone) { '555-123-0000' }
+        let(:referring_facility_name) { 'Test Referring Facility' }
 
-        let(:expected_response_with_phone) do
-          expected = expected_response.deep_dup
-          expected['data']['attributes']['provider']['phoneNumber'] = provider_phone
-          expected
-        end
-
-        it 'includes phone number in provider data when available from referral' do
+        it 'includes referral detail data in response when available' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
               VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
@@ -139,7 +136,10 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
                   # Check that the phone number is in the response
                   body = JSON.parse(response.body)
+
                   expect(body['data']['attributes']['provider']['phoneNumber']).to eq(provider_phone)
+                  expect(body['data']['attributes']['referringFacility']['phoneNumber']).to eq(referring_facility_phone)
+                  expect(body['data']['attributes']['referringFacility']['name']).to eq(referring_facility_name)
                 end
               end
             end

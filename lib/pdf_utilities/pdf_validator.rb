@@ -5,11 +5,11 @@ require 'pdf_info'
 module PDFUtilities
   def self.formatted_file_size(file_size_in_bytes)
     if file_size_in_bytes >= 1.gigabyte
-      "#{format('%g', (file_size_in_bytes.to_f / 1.gigabyte))} GB"
+      "#{format('%g', file_size_in_bytes.to_f / 1.gigabyte)} GB"
     elsif file_size_in_bytes >= 1.megabyte
-      "#{format('%g', (file_size_in_bytes.to_f / 1.megabyte))} MB"
+      "#{format('%g', file_size_in_bytes.to_f / 1.megabyte)} MB"
     elsif file_size_in_bytes >= 1.kilobyte
-      "#{format('%g', (file_size_in_bytes.to_f / 1.kilobyte))} KB"
+      "#{format('%g', file_size_in_bytes.to_f / 1.kilobyte)} KB"
     else
       "#{file_size_in_bytes} bytes"
     end

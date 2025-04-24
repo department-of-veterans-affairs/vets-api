@@ -251,15 +251,6 @@ describe IvcChampva::VesDataFormatter do
       expect(res.sponsor.address.city).to eq('NA')
       expect(res.sponsor.address.zip_code).to eq('NA')
     end
-
-    it 'adds a default phone when sponsor is deceased' do
-      @parsed_form_data_copy['veteran']['is_deceased'] = true
-      @parsed_form_data_copy['veteran']['date_of_death'] = '2020-01-01'
-      @parsed_form_data_copy['veteran']['phone_number'] = nil
-
-      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
-      expect(res.sponsor.phone_number).to eq('0000000000')
-    end
   end
 
   describe 'sponsor date of birth' do
@@ -338,6 +329,17 @@ describe IvcChampva::VesDataFormatter do
         IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
       end.to raise_error(ArgumentError,
                          "beneficiary gender is invalid. Must be in #{possible_values}")
+    end
+  end
+
+  describe 'phone number for deceased sponsor' do
+    it 'is not added when phone number is nil' do
+      @parsed_form_data_copy['veteran']['is_deceased'] = true
+      @parsed_form_data_copy['veteran']['date_of_death'] = '2020-01-01'
+      @parsed_form_data_copy['veteran']['phone_number'] = nil
+
+      res = IvcChampva::VesDataFormatter.format_for_request(@parsed_form_data_copy)
+      expect(res.sponsor.phone_number).to be_nil
     end
   end
 

@@ -58,6 +58,7 @@ RSpec.shared_examples 'a form filler' do |options|
           before do
             allow(Flipper).to receive(:enabled?).with(anything).and_call_original
             allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:caregiver_lookup_facility_name_db).and_return(false)
           end
 
           it 'fills the form correctly' do

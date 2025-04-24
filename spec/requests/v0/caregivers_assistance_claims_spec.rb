@@ -204,6 +204,10 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       post('/v0/caregivers_assistance_claims/download_pdf', params: body, headers:)
     end
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:caregiver_lookup_facility_name_db).and_return(false)
+    end
+
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }

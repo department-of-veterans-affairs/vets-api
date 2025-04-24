@@ -7,7 +7,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
   it_behaves_like 'a controller that deletes an InProgressForm', 'education_benefits_claim', 'va1990', '22-1990'
 
   context 'with a user' do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
 
     it 'returns zero results for a user without submissions' do
       sign_in_as(user)

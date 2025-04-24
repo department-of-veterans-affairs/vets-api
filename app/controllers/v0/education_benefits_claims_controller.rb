@@ -58,7 +58,7 @@ module V0
     def user_stem_automated_decision_claims
       EducationBenefitsClaim.joins(:education_stem_automated_decision)
                             .where(
-                              'education_stem_automated_decisions.user_uuid' => @current_user.uuid
+                              'education_stem_automated_decisions.user_account_id' => @current_user.user_account_uuid
                             ).to_a
     end
 

@@ -11,10 +11,10 @@ RSpec.describe EducationStemAutomatedDecision, type: :model do
     end
 
     it 'correctly returns hash' do
-      user = create(:user)
+      user = create(:user, :loa3, :with_terms_of_use_agreement)
       subject.education_benefits_claim = create(:education_benefits_claim)
       subject.auth_headers_json = EVSS::AuthHeaders.new(user).to_h.to_json
-      subject.user_uuid = user.uuid
+      subject.user_account = user.user_account
       expect(subject.auth_headers).not_to be_nil
     end
   end

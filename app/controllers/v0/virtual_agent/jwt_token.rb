@@ -31,7 +31,7 @@ module V0
       end
 
       def body?(response)
-        response&.body && response.body.present?
+        response&.body&.present?
       end
 
       def referrer

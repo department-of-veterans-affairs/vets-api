@@ -95,60 +95,91 @@ RSpec.describe Kafka do
     end
   end
 
-  describe '#truncate_form_id' do
-    context 'when form_id contains a dash' do
-      it 'returns the truncated form ID with "F" prefix' do
-        expect(Kafka.truncate_form_id('21P-527EZ')).to eq('F527EZ')
+  describe '#submit_test_event' do
+    let(:icn) { '154786' }
+    let(:current_id) { 'eded0764-7f5f-46c5-b40f-3c24335bf24f' }
+    let(:submission_name) { '21P-527EZ' }
+    let(:state) { 'sent' }
+    let(:next_id) { '123456' }
+    let(:prior_id) { '789012' }
+    let(:payload) do
+      { 'currentId' => current_id,
+        'icn' => icn,
+        'nextId' => next_id,
+        'priorId' => prior_id,
+        'state' => 'sent',
+        'submissionName' => 'F527EZ',
+        'systemName' => 'VA_gov',
+        'timestamp' => Time.zone.now.iso8601,
+        'vasiId' => '2103' }
+    end
+
+    context 'when payload is valid' do
+      let(:expected_valid_output) do
+        { 'data' => payload }
+      end
+
+      it 'kicks off Event Bus Submission Job' do
+        VCR.use_cassette('kafka/topics') do
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(expected_valid_output, true)
+          expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
+          Kafka.submit_test_event(payload)
+          Kafka::AvroProducer.new.produce('submission_trace_mock_test', expected_valid_output)
+        end
       end
     end
 
-    context 'when form_id does not contain a dash' do
-      it 'returns the form ID with "F" prefix' do
-        expect(Kafka.truncate_form_id('1010EZ')).to eq('F1010EZ')
+    context 'when payload is invalid' do
+      it 'raises validation error' do
+        invalid_payload = payload.merge({ data: { 'icn' => 123 } })
+        expect do
+          Kafka.submit_test_event(invalid_payload)
+        end.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end
   end
 
   describe '#submit_event' do
-    context 'when use_test_topic is false' do
-      it 'creates an expected payload and calls EventBusSubmissionJob' do
-        payload = {
-          'ICN' => '12345',
-          'currentId' => '233',
-          'submissionName' => 'F527EZ',
-          'state' => 'received',
-          'vasiId' => Kafka::VASI_ID,
-          'systemName' => Kafka::SYSTEM_NAME,
-          'timestamp' => Time.current.iso8601
-        }
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(payload, false)
-        Kafka.submit_event(icn: '12345', current_id: '233', submission_name: 'F527EZ', state: 'received')
+    let(:icn) { '154786' }
+    let(:current_id) { 'eded0764-7f5f-46c5-b40f-3c24335bf24f' }
+    let(:submission_name) { '21P-527EZ' }
+    let(:state) { 'sent' }
+    let(:next_id) { '123456' }
+    let(:prior_id) { '789012' }
+    let(:additional_ids) { %w[123 456] }
+    let(:expected_valid_output) do
+      { 'currentId' => current_id,
+        'icn' => icn,
+        'nextId' => next_id,
+        'priorId' => prior_id,
+        'state' => 'sent',
+        'submissionName' => 'F527EZ',
+        'systemName' => 'VA_gov',
+        'timestamp' => Time.zone.now.iso8601,
+        'vasiId' => '2103',
+        'additionalIds' => %w[123 456] }
+    end
+
+    after { Kafka::ProducerManager.instance.producer.client.reset }
+
+    context 'when payload is valid' do
+      it 'kicks off Event Bus Submission Job' do
+        VCR.use_cassette('kafka/topics') do
+          expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(expected_valid_output, false)
+          expect(Kafka::ProducerManager.instance.producer).to receive(:produce_sync)
+          Kafka.submit_event(icn:, prior_id:, current_id:, next_id:, submission_name:, state:, additional_ids:)
+          Kafka::AvroProducer.new.produce('submission_trace_form_status_change_test', expected_valid_output)
+        end
       end
     end
 
-    context 'when use_test_topic is true' do
-      it 'creates an expected payload and calls EventBusSubmissionJob' do
-        payload = {
-          'data' => {
-            'ICN' => '12345',
-            'currentId' => '233',
-            'submissionName' => 'F1010EZ',
-            'nextId' => '356',
-            'state' => 'sent',
-            'vasiId' => Kafka::VASI_ID,
-            'systemName' => Kafka::SYSTEM_NAME,
-            'timestamp' => Time.current.iso8601
-          }
-        }
-        expect(Kafka::EventBusSubmissionJob).to receive(:perform_async).with(payload, true)
-        Kafka.submit_event(
-          icn: '12345',
-          current_id: '233',
-          submission_name: 'F1010EZ',
-          state: 'sent',
-          next_id: 356,
-          use_test_topic: true
-        )
+    context 'when payload is invalid' do
+      let(:state) { 'MALFORMED_STATE' }
+
+      it 'raises validation error' do
+        expect do
+          Kafka.submit_event(icn:, current_id:, next_id:, submission_name:, state:)
+        end.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end
   end
