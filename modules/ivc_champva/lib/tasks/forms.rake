@@ -110,19 +110,23 @@ namespace :ivc_champva do
 
     puts "Created #{mapping_file}"
   end
+end
 
+namespace :ivc_champva do
   # This task can be used when there's a new version of a form's PDF
   task :generate_mapping, [:form_path] => :environment do |_, args|
     file_path = args[:form_path]
 
     reader = if File.exist?(PDFTK_HOMEBREW_PATH)
-      PdfForms.new(PDFTK_HOMEBREW_PATH)
-    else
-      PdfForms.new(PDFTK_LOCAL_PATH)
-    end
+               PdfForms.new(PDFTK_HOMEBREW_PATH)
+             else
+               PdfForms.new(PDFTK_LOCAL_PATH)
+             end
 
     form_name = file_path.split('/').last.split('.').first
+    # rubocop:disable Layout/LineLength
     update_test_msg = "\e[41;30mIMPORTANT: Don't forget to update the form OMB expiration unit test found in modules/ivc_champva/spec/models/#{form_name}_spec.rb\e[0m"
+    # rubocop:enable Layout/LineLength
 
     meta_data = reader.get_field_names(file_path).map do |field|
       { pdf_field: field, data_type: 'String', attribute: field.split('.').last.split('[').first }
@@ -132,10 +136,10 @@ namespace :ivc_champva do
     # quantity + names, then a new mapping file is not needed.
     old_file = Rails.root.join(MAPPINGS_PATH, "#{form_name}.json.erb")
     old_keys = JSON.parse(File.read(old_file)).keys
-    new_keys = meta_data.map {|el| el[:pdf_field] }
+    new_keys = meta_data.map { |el| el[:pdf_field] }
 
     unless new_keys.sort != old_keys.sort
-      puts "\e[42;30mThe mapping file is already up to date. No changes made.\e[0m"
+      puts "\e[42;30mNew mapping file would not result in any changes. Skipping.\e[0m"
       puts update_test_msg
       return
     end
