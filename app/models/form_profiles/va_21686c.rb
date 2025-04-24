@@ -1,98 +1,93 @@
 # frozen_string_literal: true
 
 require 'evss/dependents/retrieved_info'
-
-class ScrubbedString < Virtus::Attribute
-  def coerce(value)
-    ['NONE'].include?(value.to_s.upcase) ? '' : value
-  end
-end
+require 'vets/model'
 
 module VA21686c
   class FormAddress
-    include Virtus.model
+    include Vets::Model
 
-    attribute :address_type, ScrubbedString
-    attribute :street, ScrubbedString
-    attribute :street2, ScrubbedString
-    attribute :street3, ScrubbedString
-    attribute :city, ScrubbedString
-    attribute :state, ScrubbedString
-    attribute :country_dropdown, ScrubbedString
-    attribute :postal_code, ScrubbedString
-    attribute :country_text, ScrubbedString
-    attribute :post_office, ScrubbedString
-    attribute :postal_type, ScrubbedString
+    attribute :address_type, Vets::Type::ScrubbedString
+    attribute :street, Vets::Type::ScrubbedString
+    attribute :street2, Vets::Type::ScrubbedString
+    attribute :street3, Vets::Type::ScrubbedString
+    attribute :city, Vets::Type::ScrubbedString
+    attribute :state, Vets::Type::ScrubbedString
+    attribute :country_dropdown, Vets::Type::ScrubbedString
+    attribute :postal_code, Vets::Type::ScrubbedString
+    attribute :country_text, Vets::Type::ScrubbedString
+    attribute :post_office, Vets::Type::ScrubbedString
+    attribute :postal_type, Vets::Type::ScrubbedString
   end
 
   class FormFullName
-    include Virtus.model
+    include Vets::Model
 
-    attribute :first, ScrubbedString
-    attribute :middle, ScrubbedString
-    attribute :last, ScrubbedString
+    attribute :first, Vets::Type::ScrubbedString
+    attribute :middle, Vets::Type::ScrubbedString
+    attribute :last, Vets::Type::ScrubbedString
   end
 
   class FormLocation
-    include Virtus.model
+    include Vets::Model
 
-    attribute :country_dropdown, ScrubbedString
-    attribute :country_text, ScrubbedString
-    attribute :city, ScrubbedString
-    attribute :state, ScrubbedString
+    attribute :country_dropdown, Vets::Type::ScrubbedString
+    attribute :country_text, Vets::Type::ScrubbedString
+    attribute :city, Vets::Type::ScrubbedString
+    attribute :state, Vets::Type::ScrubbedString
   end
 
   class FormDependent
-    include Virtus.model
+    include Vets::Model
 
     attribute :full_name, VA21686c::FormFullName
-    attribute :child_date_of_birth, ScrubbedString
-    attribute :child_in_household, Boolean
+    attribute :child_date_of_birth, Vets::Type::ScrubbedString
+    attribute :child_in_household, Bool
     attribute :child_address, VA21686c::FormAddress
-    attribute :child_social_security_number, ScrubbedString
-    attribute :child_has_no_ssn, Boolean
-    attribute :child_has_no_ssn_reason, ScrubbedString
-    attribute :attending_college, Boolean
-    attribute :disabled, Boolean
-    attribute :married, Boolean
+    attribute :child_social_security_number, Vets::Type::ScrubbedString
+    attribute :child_has_no_ssn, Bool
+    attribute :child_has_no_ssn_reason, Vets::Type::ScrubbedString
+    attribute :attending_college, Bool
+    attribute :disabled, Bool
+    attribute :married, Bool
     attribute :place_of_birth, VA21686c::FormLocation
   end
 
   class FormMarriage
-    include Virtus.model
+    include Vets::Model
 
-    attribute :date_of_marriage, ScrubbedString
+    attribute :date_of_marriage, Vets::Type::ScrubbedString
     attribute :location_of_marriage, VA21686c::FormLocation
     attribute :spouse_full_name, VA21686c::FormFullName
   end
 
   class FormCurrentMarriage
-    include Virtus.model
+    include Vets::Model
 
-    attribute :spouse_social_security_number, ScrubbedString
-    attribute :spouse_has_no_ssn, Boolean
-    attribute :spouse_has_no_ssn_reason, ScrubbedString
+    attribute :spouse_social_security_number, Vets::Type::ScrubbedString
+    attribute :spouse_has_no_ssn, Bool
+    attribute :spouse_has_no_ssn_reason, Vets::Type::ScrubbedString
     attribute :spouse_address, VA21686c::FormAddress
-    attribute :spouse_is_veteran, Boolean
-    attribute :live_with_spouse, Boolean
-    attribute :spouse_date_of_birth, ScrubbedString
+    attribute :spouse_is_veteran, Bool
+    attribute :live_with_spouse, Bool
+    attribute :spouse_date_of_birth, Vets::Type::ScrubbedString
   end
 
   class FormContactInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :veteran_address, VA21686c::FormAddress
     attribute :veteran_full_name, VA21686c::FormFullName
-    attribute :veteran_email, ScrubbedString
-    attribute :day_phone, ScrubbedString
-    attribute :night_phone, ScrubbedString
-    attribute :veteran_social_security_number, ScrubbedString
+    attribute :veteran_email, Vets::Type::ScrubbedString
+    attribute :day_phone, Vets::Type::ScrubbedString
+    attribute :night_phone, Vets::Type::ScrubbedString
+    attribute :veteran_social_security_number, Vets::Type::ScrubbedString
     attribute :current_marriage, VA21686c::FormCurrentMarriage
-    attribute :spouse_marriages, Array[VA21686c::FormMarriage]
-    attribute :marriages, Array[VA21686c::FormMarriage]
-    attribute :dependents, Array[VA21686c::FormDependent]
-    attribute :va_file_number, ScrubbedString
-    attribute :marital_status, ScrubbedString
+    attribute :spouse_marriages, VA21686c::FormMarriage, array: true
+    attribute :marriages, VA21686c::FormMarriage, array: true
+    attribute :dependents, VA21686c::FormDependent, array: true
+    attribute :va_file_number, Vets::Type::ScrubbedString
+    attribute :marital_status, Vets::Type::ScrubbedString
   end
 end
 
