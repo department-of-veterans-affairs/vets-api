@@ -534,15 +534,25 @@ module SM
     private
 
     def auth_headers
-      base_headers = config.base_request_headers.merge(
+      headers = config.base_request_headers.merge(
         'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s,
+        'mhvCorrelationId' => session.user_id.to_s
       )
-      # Conditionally add x-api-key if use_new_api is true
-      if Settings.mhv.sm.use_new_api
-        base_headers.merge('x-api-key' => config.x_api_key)
+      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
       else
-        base_headers
+        headers
+      end
+    end
+
+    def token_headers
+      headers = config.base_request_headers.merge(
+        'Token' => session.token
+      )
+      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
+      else
+        headers
       end
     end
 

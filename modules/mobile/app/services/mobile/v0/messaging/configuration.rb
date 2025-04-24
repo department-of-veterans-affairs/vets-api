@@ -27,7 +27,7 @@ module Mobile
         end
 
         def x_api_key
-          Settings.mhv.sm.use_new_api ? Settings.mhv_mobile.sm.x_api_key : nil # Returns nil if use_new_api is false or not set
+          Settings.mhv_mobile.sm.x_api_key
         end
       end
     end
