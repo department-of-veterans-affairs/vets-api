@@ -281,7 +281,7 @@ http_interactions:
           {
           "closedDate": null,
           "description": "VA DD214",
-          "displayName": "Proof of Service (DD214, etc.)",
+          "displayName": "Proof of service (DD214, etc.)",
           "overdue": false,
           "receivedDate": "2023-03-15",
           "requestedDate": "2023-04-14",
@@ -385,7 +385,7 @@ http_interactions:
           {
           "closedDate": null,
           "description": "VA DD214",
-          "displayName": "Proof of Service (DD214, etc.)",
+          "displayName": "Proof of service (DD214, etc.)",
           "overdue": false,
           "receivedDate": "2023-03-15",
           "requestedDate": "2023-04-14",
