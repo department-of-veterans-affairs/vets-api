@@ -9,35 +9,47 @@ module MDOT::V2
 
     STATSD_KEY_PREFIX = 'api.mdot_v2'
 
+    TOKEN_HEADER = 'VaApiKey'
+
     attr_reader(
-      :user,
-      :supplies_resource,
+      :form_data,
+      :error,
       :orders,
-      :response
+      :response,
+      :session,
+      :supplies_resource,
+      :user
     )
 
     def initialize(user:, form_data: {})
       @user = user
       @form_data = form_data
+      get_session
     end
 
     def authenticate
-      # @response = perform(:get, '/supplies', nil, auth_headers, {})
-      @response = get('/supplies', nil, auth_headers, {})
-      handle_error unless response.success?
+      get_supplies
 
-      token = response.response_headers['vaapikey']
-      @session = MDOT::V2::Session.create({ uuid: user.uuid, token: })
-      permitted_params = %w[permanentAddress temporaryAddress vetEmail supplies].freeze
-      @supplies_resource = response.response_body&.slice(*permitted_params)
+      if response.success?
+        create_session
+        set_supplies_resource
+      else
+        set_error
+      end
+
       response.success?
     end
 
-    def create_order(form_data)
-      @connection = post('/supplies', form_data, order_headers, {})
-      handle_error unless connection.success?
+    def create_order
+      post_supplies
 
-      @orders = connection.response_body
+      if response.success?
+        set_orders
+      else
+        set_error
+      end
+
+      response.success?
     end
 
     private
@@ -53,19 +65,42 @@ module MDOT::V2
       }
     end
 
+    def create_session
+      @session = MDOT::V2::Session.create({ uuid: user.uuid, token: })
+    end
+
+    def get_session
+      @session = MDOT::V2::Session.find(user.uuid)
+    end
+
+    def get_supplies
+      @response = get('/supplies', nil, auth_headers, {})
+    end
+
     def order_headers
-      {
-        'VaApiKey' => session&.token
-      }
+      { TOKEN_HEADER => session&.token }
     end
 
-    def session
-      @session ||= MDOT::V2::Session.find(uuid: user.uuid)
+    def post_supplies
+      @response = post('/supplies', form_data, order_headers, {})
     end
 
-    def handle_error
-      # if 401 and this -> unauthorized message
-      # if 500 and connection.response_body['message'] ~= /SQL/ -> try again?
+    def set_error
+      permitted_params = %w[timestamp message details result]
+      @error = response.body&.slice(*permitted_params)
+    end
+
+    def set_orders
+      @orders = response.response_body
+    end
+
+    def set_supplies_resource
+      permitted_params = %w[permanentAddress temporaryAddress vetEmail supplies].freeze
+      @supplies_resource = response.response_body&.slice(*permitted_params)
+    end
+
+    def token
+      response.response_headers[TOKEN_HEADER]
     end
   end
 end

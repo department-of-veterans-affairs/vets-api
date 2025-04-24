@@ -41,13 +41,13 @@ describe MDOT::V2::Service do
       let(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
       let(:service) { MDOT::V2::Service.new(user:) }
 
-      it 'returns true when successful' do
+      it 'returns true' do
         expect(service.authenticate).to be(true)
       end
 
       it 'creates a redis-backed session' do
         service.authenticate
-        expect(service.send(:session)).to be_a(Common::RedisStore)
+        expect(service.session).to be_a(Common::RedisStore)
       end
 
       it 'sets the supplies_resource attribute' do
@@ -59,11 +59,27 @@ describe MDOT::V2::Service do
     end
 
     context 'veteran is unauthorized' do
-      let(:cassette) { 'mdot/v2/20250415145657-get-supplies' }
+      let(:cassette) { 'mdot/v2/20250416181933-get-supplies' }
       let(:service) { MDOT::V2::Service.new(user:) }
 
-      it 'blows up' do
+      it 'returns false' do
+        expect(service.authenticate).to be(false)
+      end
+
+      it 'has no session' do
         service.authenticate
+        expect(service.session).to be_nil
+      end
+
+      it 'has no supplies_resource' do
+        service.authenticate
+        expect(service.supplies_resource).to be_nil
+      end
+
+      it 'sets the error attribute' do
+        service.authenticate
+        expected_keys = %w[timestamp message details result]
+        expect(service.error.keys).to match_array(expected_keys)
       end
     end
 
@@ -101,7 +117,7 @@ describe MDOT::V2::Service do
 
     it 'creates an order with the system of record' do
       allow_any_instance_of(MDOT::V2::Service).to receive(:session).and_return(session)
-      service.create_order(form_data)
+      service.create_order
       expect(service.orders.first['status']).to eq('Order Processed')
     end
   end
