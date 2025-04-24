@@ -975,7 +975,6 @@ mhv:
     gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
     host: <%= ENV['mhv__sm__host'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
-    use_new_api: <%= ENV['mhv__sm__use_new_api'] %>
     x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>

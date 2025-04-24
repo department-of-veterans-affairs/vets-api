@@ -983,7 +983,6 @@ mhv:
     gw_base_path: v1/sm/patient/
     host: https://mhv-api.example.com
     mock: true
-    use_new_api: false
     x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
