@@ -16,6 +16,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
+
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(VAProfile::Models::V3::Person)
@@ -58,6 +59,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
           email.email_address = 'person42@example.com'
           response = subject.post_email(email)
+          binding.pry
           expect(response).to be_ok
         end
       end

@@ -34,6 +34,8 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
+            verify_user!
+
             raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
             PersonResponse.from(raw_response)
           end
@@ -102,6 +104,7 @@ module VAProfile
         #   an transaction object
         def post_address(address)
           post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
+          post_or_put_mpi_data(:post, address, 'addresses')
         end
 
         # PUTs an updated address to the VAProfile API
@@ -109,6 +112,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around a transaction object
         def put_address(address)
           post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
+          post_or_put_mpi_data(:put, address, 'addresses')
         end
 
         # GET's the status of an address transaction from the VAProfile api
@@ -116,7 +120,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_address_transaction_status(transaction_id)
           route = "addresses/status/#{transaction_id}"
-          Rails.logger.info("Contact Information V2 Address #{transaction_id}") if log_transaction_id?
+          Rails.logger.info("ContactInformationV2 Address Transaction_ID: #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -130,6 +134,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around an transaction object
         def post_email(email)
           post_or_put_data(:post, email, 'emails', EmailTransactionResponse)
+          post_or_put_mpi_data(:post, email, 'emails')
         end
 
         # PUTs an updated address to the VAProfile API
@@ -144,6 +149,7 @@ module VAProfile
             end
 
           response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
+          post_or_put_mpi_data(:put, email, 'emails')
 
           transaction = response.transaction
           if transaction.received? && old_email.present?
@@ -159,7 +165,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def get_email_transaction_status(transaction_id)
           route = "emails/status/#{transaction_id}"
-          Rails.logger.info("Contact Information V2 Email #{transaction_id}") if log_transaction_id?
+          Rails.logger.info("ContactInformationV2 Email Transaction_ID: #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, EmailTransactionResponse)
 
           send_email_change_notification(transaction_status)
@@ -172,6 +178,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::TelephoneUpdateResponse] wrapper around a transaction object
         def post_telephone(telephone)
           post_or_put_data(:post, telephone, 'telephones', TelephoneTransactionResponse)
+          post_or_put_mpi_data(:post, telephone, 'telephones')
         end
 
         # PUTs an updated telephone to the VAProfile API
@@ -179,6 +186,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::TelephoneUpdateResponse] wrapper around a transaction object
         def put_telephone(telephone)
           post_or_put_data(:put, telephone, 'telephones', TelephoneTransactionResponse)
+          post_or_put_mpi_data(:put, telephone, 'telephones')
         end
 
         # GET's the status of a telephone transaction from the VAProfile api
@@ -187,7 +195,7 @@ module VAProfile
         #   a transaction object
         def get_telephone_transaction_status(transaction_id)
           route = "telephones/status/#{transaction_id}"
-          Rails.logger.info("Contact Information V2 Telephone #{transaction_id}") if log_transaction_id?
+          Rails.logger.info("ContactInformationV2 Telephone Transaction_ID: #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
 
           changes = transaction_status.changed_field
@@ -204,7 +212,7 @@ module VAProfile
         #
         def get_person_transaction_status(transaction_id)
           with_monitoring do
-            Rails.logger.info("Contact Information V2 Person #{transaction_id}") if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 Person Transaction_ID: #{transaction_id}") if log_transaction_id?
             raw_response = perform(:get, "status/#{transaction_id}")
             VAProfile::Stats.increment_transaction_results(raw_response, 'init_va_profile')
 
@@ -216,12 +224,24 @@ module VAProfile
 
         private
 
-        def icn_with_aaid
-          "#{@user.icn}^NI^200M^USVHA"
+        def verify_user!
+          raise 'ContactInformationV2 - No User ICN found' if @user&.icn.blank?
         end
 
-        def vet360_id
-          @user.vet360_id
+        def required_id_present!
+          unless @user&.vet360_id.present? && @user&.icn.present?
+            raise 'ContactInformationV2 - Missing User ICN and VAProfile_ID'
+          end
+        end
+
+        def vaprofile_id_aaid
+          return "#{@user.vet360_id}^PI^200VETS^USDVA" if @user.vet360_id.present?
+
+          "#{@user.icn}^NI^200M^USVHA" # AAID for VAProfile Requests ONLY
+        end
+
+        def icn_with_aaid
+          "#{@user.icn}^NI^200M^USVHA^P" # AAID for Vets-API MPI Requests ONLY
         end
 
         def log_transaction_id?
@@ -285,10 +305,22 @@ module VAProfile
 
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
-            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
-            # in_json method should replace in_json_v2 after Contact Information V1 has depreciated
-            raw_response = perform(method, request_path, model.in_json_v2)
+            required_id_present!
+            # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
+            raw_response = perform(method, path, model.in_json_v2)
             response_class.from(raw_response)
+          end
+        rescue => e
+          handle_error(e)
+        end
+
+        def post_or_put_mpi_data(method, model, path)
+          with_monitoring do
+            verify_user!
+
+            # MPI request
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            perform(method, request_path, model.in_json_v2)
           end
         rescue => e
           handle_error(e)
