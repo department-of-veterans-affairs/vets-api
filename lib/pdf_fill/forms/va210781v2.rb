@@ -244,7 +244,7 @@ module PdfFill
           first_key: 'additionalInfo',
           item_label: 'Behavioral Change',
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-          question_type: 'checked_description',
+          description_type: 'checked_description',
           question_num: 10,
           label_all: true,
           'description' => {
@@ -273,7 +273,7 @@ module PdfFill
           first_key: 'additionalInfo',
           item_label: 'Behavioral Change',
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-          question_type: 'checked_description',
+          description_type: 'checked_description',
           question_num: 10,
           override_index: 14,
           'description' => {

@@ -12,7 +12,7 @@ describe PdfFill::HashConverter do
   def verify_extras_text(text, metadata)
     metadata[:overflow] = true unless metadata.key?(:overflow)
     metadata[:item_label] = nil unless metadata.key?(:item_label)
-    metadata[:question_type] = nil unless metadata.key?(:question_type)
+    metadata[:description_type] = nil unless metadata.key?(:description_type)
     expect(extras_generator).to receive(:add_text).with(text, metadata).once
   end
 

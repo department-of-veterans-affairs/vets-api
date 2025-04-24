@@ -81,6 +81,46 @@ module PdfFill
       end
     end
 
+    class CheckedDescriptionQuestion < Question
+      attr_reader :description, :additional_info
+
+      def initialize(question_text, metadata)
+        super
+        @description = nil
+        @additional_info = nil
+        @checked = false
+      end
+
+      def add_text(value, metadata)
+        case metadata[:question_text]
+        when 'Description'
+          @description = value
+        when 'Additional Information'
+          @additional_info = value
+        when 'Checked'
+          @checked = value == 'true'
+        end
+        @overflow ||= metadata.fetch(:overflow, true)
+      end
+
+      def should_render?
+        @checked
+      end
+
+      def render(pdf, list_format: false)
+        return 0 unless should_render?
+
+        pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
+        info = @additional_info.presence || '<i>no response</i>'
+        pdf.markup([
+          '<table>',
+          "<tr><td style='width:91'><b>Description:</b></td><td><b>#{@description}</b></td></tr>",
+          "<tr><td style='width:91'>Additional Information:</td><td>#{info}</td></tr>",
+          '</table>'
+        ].flatten.join, text: { margin_bottom: 10 })
+      end
+    end
+
     class ListQuestion < Question
       attr_reader :items, :item_label
 
@@ -96,7 +136,7 @@ module PdfFill
 
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
-          @items[i] = if metadata[:question_type] == 'checked_description'
+          @items[i] = if metadata[:description_type] == 'checked_description'
                         CheckedDescriptionQuestion.new(nil, metadata)
                       else
                         Question.new(nil, metadata)
