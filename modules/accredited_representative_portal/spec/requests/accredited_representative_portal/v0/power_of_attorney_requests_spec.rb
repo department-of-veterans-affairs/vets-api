@@ -249,67 +249,177 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when providing a status param' do
-      let(:pending_request2) { create(:power_of_attorney_request, created_at: time_plus_one_day, poa_code:) }
-      let(:declined_request) do
-        create(:power_of_attorney_request, :with_declination,
-               resolution_created_at: time, poa_code:)
+      # Base request for pending status
+      let!(:pending_request_base) { poa_request } # Created at 'time' (2024-12-21)
+
+      # Additional requests with specific dates for sorting tests
+      let!(:pending_request_earlier) do
+        create(:power_of_attorney_request,
+               :with_veteran_claimant,
+               created_at: time.to_time - 2.days, # 2024-12-19
+               poa_code:)
       end
-      let(:accepted_pending_request) do
-        create(:power_of_attorney_request, :with_acceptance, resolution_created_at: time_plus_one_day, poa_code:)
+      let!(:pending_request_later) do
+        create(:power_of_attorney_request,
+               :with_veteran_claimant,
+               created_at: time.to_time + 1.day, # 2024-12-22
+               poa_code:)
       end
-      let(:accepted_failed_request) do
+      # NOTE: accepted_pending_request and accepted_failed_request are also pending
+      # We need to give them specific created_at times for predictable sorting
+      let!(:accepted_pending_request) do
+        create(:power_of_attorney_request, :with_acceptance,
+               created_at: time.to_time - 1.day, # 2024-12-20
+               resolution_created_at: time_plus_one_day, # Resolution doesn't affect pending status
+               poa_code:)
+      end
+      let!(:accepted_failed_request) do
         create(:power_of_attorney_request, :with_acceptance, :with_failed_form_submission,
-               resolution_created_at: time_plus_one_day, poa_code:)
+               created_at: time.to_time + 2.days, # 2024-12-23
+               resolution_created_at: time_plus_one_day, # Resolution doesn't affect pending status
+               poa_code:)
       end
-      let(:accepted_success_request) do
+
+      # Processed requests with specific resolution dates
+      let!(:declined_request) do
+        create(:power_of_attorney_request, :with_declination,
+               resolution_created_at: time.to_time - 1.day, # 2024-12-20
+               poa_code:)
+      end
+      let!(:accepted_success_request) do
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
-               resolution_created_at: time_plus_one_day, poa_code:)
+               resolution_created_at: time.to_time + 1.day, # 2024-12-22
+               poa_code:)
       end
-      let(:replaced_request) do
+      # Add another processed request for better sorting test
+      let!(:accepted_success_request_earlier) do
+        create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
+               resolution_created_at: time.to_time - 3.days, # 2024-12-18
+               poa_code:)
+      end
+
+      # Requests that are neither pending nor processed (should not appear in filtered results)
+      let!(:expired_request) do
+        create(:power_of_attorney_request, :with_expiration, resolution_created_at: time, poa_code:)
+      end
+      let!(:replaced_request) do
         create(:power_of_attorney_request, :with_replacement, resolution_created_at: time, poa_code:)
       end
-      let(:expired_request) do
-        create(:power_of_attorney_request, :with_expiration, resolution_created_at: time_plus_one_day, poa_code:)
+
+      let(:all_pending_ids) do
+        [
+          pending_request_earlier.id, # 2024-12-19
+          accepted_pending_request.id, # 2024-12-20
+          pending_request_base.id,     # 2024-12-21
+          pending_request_later.id,    # 2024-12-22
+          accepted_failed_request.id   # 2024-12-23
+        ]
+      end
+      let(:all_processed_ids) do
+        [
+          accepted_success_request_earlier.id, # 2024-12-18
+          declined_request.id,                  # 2024-12-20
+          accepted_success_request.id           # 2024-12-22
+        ]
       end
 
-      before do
-        pending_request2
-        declined_request
-        accepted_pending_request
-        accepted_failed_request
-        accepted_success_request
-        replaced_request
-        expired_request
-      end
+      # --- PENDING STATUS TESTS ---
 
-      it 'returns the list of pending power of attorney requests sorted by creation ascending' do
+      it 'returns pending requests sorted by created_at DESC by default' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=pending')
-        parsed_response = JSON.parse(response.body)
+
         expect(response).to have_http_status(:ok)
-        expect(parsed_response['data'].length).to eq 4
-        expect(parsed_response['data'].map { |poa| poa['id'] }).to include(poa_request.id)
-        expect(parsed_response['data'].map { |poa| poa['id'] }).to include(pending_request2.id)
-        expect(parsed_response['data'].map { |poa| poa['id'] }).to include(accepted_pending_request.id)
-        expect(parsed_response['data'].map { |poa| poa['id'] }).to include(accepted_failed_request.id)
-        expect(parsed_response['data'].map { |poa| poa['id'] }).not_to include(expired_request.id)
-        expect(parsed_response['data'].map { |h| h['createdAt'] }).to eq(
-          [time_plus_one_day, time, time, time]
-        )
+        expect(parsed_response['data'].length).to eq(5)
+        ids = parsed_response['data'].map { |poa| poa['id'] }
+        # Default is DESC: latest first
+        expect(ids).to eq(all_pending_ids.reverse)
+        expect(ids).not_to include(expired_request.id, replaced_request.id, *all_processed_ids)
       end
 
-      it 'returns the list of completed power of attorney requests sorted by resolution creation descending' do
+      it 'returns pending requests sorted by created_at ASC when specified' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests',
+            params: { status: 'pending', sort: { by: 'created_at', order: 'asc' } })
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['data'].length).to eq(5)
+        ids = parsed_response['data'].map { |poa| poa['id'] }
+        # Custom sort overrides default: ASC means earliest first
+        expect(ids).to eq(all_pending_ids)
+      end
+
+      it 'returns pending requests sorted by created_at DESC when specified explicitly' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests',
+            params: { status: 'pending', sort: { by: 'created_at', order: 'desc' } })
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['data'].length).to eq(5)
+        ids = parsed_response['data'].map { |poa| poa['id'] }
+        # Explicit DESC sort matches default
+        expect(ids).to eq(all_pending_ids.reverse)
+      end
+
+      # --- PROCESSED STATUS TESTS ---
+
+      it 'returns processed requests sorted by resolved_at DESC by default' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=processed')
+
         expect(response).to have_http_status(:ok)
-        expect(parsed_response['data'].length).to eq 2
-        expect(parsed_response['data'].map { |poa| poa['id'] }).to include(declined_request.id)
-        expect(parsed_response['data'].map { |poa| poa['id'] }).to include(accepted_success_request.id)
-        expect(parsed_response['data'].map { |poa| poa['id'] }).not_to include(expired_request.id)
-        expect(parsed_response['data'].map { |h| h['resolution']['createdAt'] }).to eq([time_plus_one_day, time])
+        expect(parsed_response['data'].length).to eq(3)
+        ids = parsed_response['data'].map { |poa| poa['id'] }
+        # Default is DESC: latest resolution first
+        expect(ids).to eq(all_processed_ids.reverse)
+        expect(ids).not_to include(expired_request.id, replaced_request.id, *all_pending_ids)
       end
 
+      it 'returns processed requests sorted by resolved_at ASC when specified' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests',
+            params: { status: 'processed', sort: { by: 'resolved_at', order: 'asc' } })
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['data'].length).to eq(3)
+        ids = parsed_response['data'].map { |poa| poa['id'] }
+        # Custom sort overrides default: ASC means earliest resolution first
+        expect(ids).to eq(all_processed_ids)
+      end
+
+      it 'returns processed requests sorted by resolved_at DESC when specified explicitly' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests',
+            params: { status: 'processed', sort: { by: 'resolved_at', order: 'desc' } })
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['data'].length).to eq(3)
+        ids = parsed_response['data'].map { |poa| poa['id'] }
+        # Explicit DESC sort matches default
+        expect(ids).to eq(all_processed_ids.reverse)
+      end
+
+      # --- INVALID STATUS TEST ---
       it 'returns a 400 Bad Request for invalid status parameter' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=invalid_status')
         expect(response).to have_http_status(:bad_request)
+
+        expect(parsed_response['errors']).to be_an(Array)
+        expect(parsed_response['errors'].size).to be >= 1
+
+        error_message = parsed_response['errors'].first
+        expect(error_message).to be_a(String)
+        status_error_pattern = /Invalid parameters.*?text="must be one of: pending, processed".*?path=\[:status\]/
+        expect(error_message).to match(status_error_pattern)
+      end
+
+      # --- INVALID SORT WITH STATUS TEST ---
+      it 'returns a 400 Bad Request for invalid sort field when status is provided' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests',
+            params: { status: 'pending', sort: { by: 'invalid_field', order: 'asc' } })
+        expect(response).to have_http_status(:bad_request)
+
+        expect(parsed_response['errors']).to be_an(Array)
+        expect(parsed_response['errors'].size).to be >= 1
+
+        error_message = parsed_response['errors'].first
+        expect(error_message).to be_a(String)
+        expect(error_message).to match(/Invalid parameters.*?path=\[:sort, :by\]/)
+        expect(error_message).to match(/Invalid parameters.*?text="must be one of: created_at, resolved_at".*?path=\[:sort, :by\]/) # rubocop:disable Layout/LineLength
       end
     end
 
