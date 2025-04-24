@@ -116,11 +116,6 @@ module IncomeAndAssets
       ##
       # Expands the royalties and other properties data in the form.
       #
-      # This method processes the `royaltiesAndOtherProperties` field from the `form_data` hash.
-      # It sets the `royaltiesAndOtherProperty` field to `0` if `royaltiesAndOtherProperties` has any elements,
-      # otherwise it sets it to `1`. Then, it iterates over each property in `royaltiesAndOtherProperties`,
-      # merging it with the result of the `expand_royalties_and_other_property` method.
-      #
       # @param form_data [Hash]
       #
       # @note Modifies `form_data`
