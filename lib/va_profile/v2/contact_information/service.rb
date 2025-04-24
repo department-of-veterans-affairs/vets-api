@@ -285,6 +285,24 @@ module VAProfile
 
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
+<<<<<<< Updated upstream
+=======
+            required_id_present!
+            # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vapro)}" + "/#{path}"
+            raw_response = perform(method, path, model.in_json_v2)
+            response_class.from(raw_response)
+          end
+        rescue => e
+          handle_error(e)
+        end
+
+        def post_or_put_mpi_data(method, model, path)
+          with_monitoring do
+            verify_user!
+
+            # MPI request
+>>>>>>> Stashed changes
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
             # in_json method should replace in_json_v2 after Contact Information V1 has depreciated
             raw_response = perform(method, request_path, model.in_json_v2)
