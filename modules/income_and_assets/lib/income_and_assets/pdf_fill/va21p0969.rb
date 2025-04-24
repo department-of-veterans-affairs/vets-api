@@ -5,6 +5,8 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
+require 'income_and_assets/pdf_fill/sections/section_09'
+require 'income_and_assets/pdf_fill/sections/section_10'
 require 'income_and_assets/pdf_fill/sections/section_11'
 
 # rubocop:disable Metrics/ClassLength
@@ -662,161 +664,12 @@ module IncomeAndAssets
             question_suffix: '(m)',
             question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
           }
-        },
-        # 9a
-        'annuity' => { key: 'F[0].#subform[8].DependentsEstablishedAnnuity9a[0]' },
-        'annuities' => {
-          limit: 1,
-          first_key: 'establishedDate',
-          # 9b
-          'establishedDate' => {
-            'month' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedMonth[#{ITERATOR}]" },
-            'day' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedDay[#{ITERATOR}]" },
-            'year' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedYear[#{ITERATOR}]" }
-          },
-          'establishedDateOverflow' => {
-            question_num: 9,
-            question_suffix: '(b)',
-            question_text: 'SPECIFY DATE ANNUITY WAS ESTABLISHED'
-          },
-          # 9c
-          'marketValueAtEstablishment' => {
-            'millions' => { key: "F[0].#subform[8].MarketAnnuity1_9c[#{ITERATOR}]" },
-            'thousands' => { key: "F[0].#subform[8].MarketAnnuity2_9c[#{ITERATOR}]" },
-            'dollars' => { key: "F[0].#subform[8].MarketAnnuity3_9c[#{ITERATOR}]" },
-            'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
-          },
-          'marketValueAtEstablishmentOverflow' => {
-            question_num: 9,
-            question_suffix: '(c)',
-            question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE'
-          },
-          # 9d
-          'addedFundsAfterEstablishment' => { key: 'F[0].#subform[8].AddedFundsToAnnuity9d[0]' },
-          'addedFundsAfterEstablishmentOverflow' => {
-            question_num: 9,
-            question_suffix: '(d)',
-            question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?'
-          },
-          # 9e
-          'addedFundsDate' => {
-            'month' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredMonth[#{ITERATOR}]" },
-            'day' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredDay[#{ITERATOR}]" },
-            'year' => { key: "F[0].#subform[8].DateAdditionalFundsTransferredYear[#{ITERATOR}]" }
-          },
-          'addedFundsDateOverflow' => {
-            question_num: 9,
-            question_suffix: '(e)',
-            question_text: 'WHEN DID YOU ADD FUNDS?'
-          },
-          # 9f
-          'addedFundsAmount' => {
-            'millions' => { key: "F[0].#subform[8].HowMuchTransferred1_9f[#{ITERATOR}]" },
-            'thousands' => { key: "F[0].#subform[8].HowMuchTransferred2_9f[#{ITERATOR}]" },
-            'dollars' => { key: "F[0].#subform[8].HowMuchTransferred3_9f[#{ITERATOR}]" },
-            'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
-          },
-          'addedFundsAmountOverflow' => {
-            question_num: 9,
-            question_suffix: '(f)',
-            question_text: 'HOW MUCH DID YOU ADD?'
-          },
-          # 9g
-          'revocable' => { key: "F[0].#subform[8].Annuity9g[#{ITERATOR}]" },
-          'revocableOverflow' => {
-            question_num: 9,
-            question_suffix: '(g)',
-            question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?'
-          },
-          # 9h
-          'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
-          'receivingIncomeFromAnnuityOverflow' => {
-            question_num: 9,
-            question_suffix: '(h)',
-            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUNITY?'
-          },
-          # 9i
-          'annualReceivedIncome' => {
-            'millions' => { key: "F[0].#subform[8].AnnualAmountReceived1_9i[#{ITERATOR}]" },
-            'thousands' => { key: "F[0].#subform[8].AnnualAmountReceived2_9i[#{ITERATOR}]" },
-            'dollars' => { key: "F[0].#subform[8].AnnualAmountReceived3_9i[#{ITERATOR}]" },
-            'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
-          },
-          'annualReceivedIncomeOverflow' => {
-            question_num: 9,
-            question_suffix: '(i)',
-            question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED'
-          },
-          # 9j
-          'canBeLiquidated' => { key: "F[0].#subform[8].AnnuityLiquidated9j[#{ITERATOR}]" },
-          'canBeLiquidatedOverflow' => {
-            question_num: 9,
-            question_suffix: '(j)',
-            question_text: 'CAN THE ANNUITY BE LIQUIDATED?'
-          },
-          # 9k
-          'surrenderValue' => {
-            'millions' => { key: "F[0].#subform[8].SurrenderValue1_9k[#{ITERATOR}]" },
-            'thousands' => { key: "F[0].#subform[8].SurrenderValue2_9k[#{ITERATOR}]" },
-            'dollars' => { key: "F[0].#subform[8].SurrenderValue3_9k[#{ITERATOR}]" },
-            'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
-          },
-          'surrenderValueOverflow' => {
-            question_num: 9,
-            question_suffix: '(k)',
-            question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
-          }
-        },
-        # 10a
-        'unreportedAsset' => { key: 'F[0].#subform[8].DependentsHaveAssetsNotReported10a[0]' },
-        'unreportedAssets' => {
-          limit: 4,
-          first_key: 'assetOwnerRelationship',
-          # 10b
-          'assetOwnerRelationship' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
-          'otherRelationshipType' => {
-            key: "F[0].OtherRelationship10[#{ITERATOR}]",
-            question_num: 10,
-            question_suffix: '(b)',
-            question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
-          },
-          'assetOwnerRelationshipOverflow' => {
-            question_num: 10,
-            question_suffix: '(b)',
-            question_text: 'SPECIFY ASSET OWNER\'S RELATIONSHIP TO THE VETERAN'
-          },
-          # 10c
-          'assetType' => {
-            key: "F[0].TypeOfAsset10[#{ITERATOR}]",
-            question_num: 10,
-            question_suffix: '(d)',
-            question_text: 'SPECIFY TYPE OF ASSET (CASH, ART, ETC.)'
-          },
-          # 10d
-          'ownedPortionValue' => {
-            'millions' => { key: "F[0].ValueOfYourPortionOfProperty1_10[#{ITERATOR}]" },
-            'thousands' => { key: "F[0].ValueOfYourPortionOfProperty2_10[#{ITERATOR}]" },
-            'dollars' => { key: "F[0].ValueOfYourPortionOfProperty3_10[#{ITERATOR}]" },
-            'cents' => { key: "F[0].ValueOfYourPortionOfProperty4_10[#{ITERATOR}]" }
-          },
-          'ownedPortionValueOverflow' => {
-            question_num: 10,
-            question_suffix: '(c)',
-            question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
-          },
-          # 10e
-          'assetLocation' => {
-            key: "F[0].AssetLocation[#{ITERATOR}]",
-            question_num: 10,
-            question_suffix: '(e)',
-            question_text: 'SPECIFY ASSET LOCATION (FINANCIAL INSTITUTION, PROPERTY ADDRESS, ETC.)'
-          }
         }
       }
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section11].freeze
+      SECTIONS = [Section9, Section10, Section11].freeze
 
       SECTIONS.each { |section| key = key.merge(section::KEY) }
 
@@ -946,10 +799,8 @@ module IncomeAndAssets
         expand_royalties_and_other_properties
         expand_asset_transfers
         expand_trusts
-        expand_annuities
-        expand_unreported_assets
 
-        # Section 11
+        # Sections 9, 10, and 11
         SECTIONS.each { |section| section.new.expand(form_data) }
 
         # Section 12
@@ -1251,129 +1102,6 @@ module IncomeAndAssets
           overflow["#{fieldname}Overflow"] = trust[fieldname]
         end
         expanded.merge(overflow)
-      end
-
-      # Section 9
-      ##
-      # Expands annuities by processing each annuity entry and setting an indicator
-      # based on the presence of annuities.
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_annuities
-        annuities = form_data['annuities']
-        form_data['annuity'] = annuities&.length ? 0 : 1
-        form_data['annuities'] = annuities&.map { |annuity| expand_annuity(annuity) }
-      end
-
-      ##
-      # Expands a annuity's data by processing its attributes and transforming them into structured output
-      #
-      # @param annuity [Hash]
-      # @return [Hash]
-      #
-      def expand_annuity(annuity)
-        market_value = split_currency_amount_lg(annuity['marketValueAtEstablishment'], { 'millions' => 1 })
-        expanded = {
-          'addedFundsDate' => split_date(annuity['addedFundsDate']),
-          'addedFundsAmount' => split_currency_amount_lg(annuity['addedFundsAmount'], { 'millions' => 1 }),
-          'addedFundsAfterEstablishment' => annuity['addedFundsAfterEstablishment'] ? 0 : 1,
-          'canBeLiquidated' => annuity['canBeLiquidated'] ? 0 : 1,
-          'surrenderValue' => split_currency_amount_lg(annuity['surrenderValue'], { 'millions' => 1 }),
-          'receivingIncomeFromAnnuity' => annuity['receivingIncomeFromAnnuity'] ? 0 : 1,
-          'annualReceivedIncome' => split_currency_amount_lg(annuity['annualReceivedIncome'], { 'millions' => 1 }),
-          'revocable' => annuity['revocable'] ? 0 : 1,
-          'establishedDate' => split_date(annuity['establishedDate']),
-          'marketValueAtEstablishment' => market_value
-        }
-        overflow = {}
-        expanded.each_key do |fieldname|
-          overflow["#{fieldname}Overflow"] = annuity[fieldname]
-        end
-        expanded.merge(overflow)
-      end
-
-      # Section 10
-      ##
-      # Expands and transforms the `unreportedAssets` field in the form data.
-      #
-      # If `unreportedAssets` is present and not empty, sets a flag `unreportedAssets` to 0,
-      # otherwise sets it to 1. Then maps over the assets to apply individual transformations.
-      #
-      def expand_unreported_assets
-        unreported_assets = form_data['unreportedAssets']
-        form_data['unreportedAsset'] = unreported_assets&.length ? 'YES' : 'NO'
-        form_data['unreportedAssets'] = unreported_assets&.map do |asset|
-          expand_unreported_asset(asset)
-        end
-      end
-
-      ##
-      # Expands a asset's data by processing its attributes and transforming them into structured output
-      #
-      # @param asset [Hash]
-      # @return [Hash]
-      #
-      def expand_unreported_asset(asset)
-        expanded = {
-          'assetOwnerRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[asset['assetOwnerRelationship']],
-          'recipientName' => asset['recipientName'],
-          'assetType' => asset['assetType'],
-          'ownedPortionValue' => split_currency_amount(asset['ownedPortionValue']),
-          'assetLocation' => asset['assetLocation']
-        }
-        overflow = {}
-        expanded.each_key do |fieldname|
-          overflow["#{fieldname}Overflow"] = asset[fieldname]
-        end
-        expanded.merge(overflow)
-      end
-
-      # Section 11
-      ##
-      # Expands discontinued incomes by processing each discontinued income entry and setting an indicator
-      # based on the presence of discontinued incomes.
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_discontinued_incomes
-        incomes = form_data['discontinuedIncomes']
-
-        form_data['discontinuedIncome'] = incomes&.length ? 0 : 1
-        form_data['discontinuedIncomes'] = incomes&.map { |income| expand_discontinued_income(income) }
-      end
-
-      ##
-      # Expands a discontinued incomes's data by processing its attributes and transforming them into
-      # structured output
-      #
-      # @param income [Hash]
-      # @return [Hash]
-      #
-      def expand_discontinued_income(income)
-        recipient_relationship = income['recipientRelationship']
-        income_frequency = income['incomeFrequency']
-        income_last_received_date = income['incomeLastReceivedDate']
-
-        # NOTE: recipientName, payer, and incomeType are already part of the income hash
-        # and do not need to be overflowed / overriden as they are free text fields
-        overflow_fields = %w[recipientRelationship incomeFrequency
-                             grossAnnualAmount]
-
-        expanded = income.clone
-        overflow_fields.each do |field|
-          expanded["#{field}Overflow"] = income[field]
-        end
-
-        overrides = {
-          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
-          'incomeFrequency' => IncomeAndAssets::Constants::INCOME_FREQUENCIES[income_frequency],
-          'incomeLastReceivedDate' => split_date(income_last_received_date),
-          'incomeLastReceivedDateOverflow' => format_date_to_mm_dd_yyyy(income_last_received_date),
-          'grossAnnualAmount' => split_currency_amount_sm(income['grossAnnualAmount'])
-        }
-
-        expanded.merge(overrides)
       end
 
       # Section 12
