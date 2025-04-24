@@ -30,6 +30,68 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
       end
     end
+
+    describe '#sorted_subquestions_markup' do
+      context 'when there is only one subquestion' do
+        let(:add_text_calls) do
+          [
+            ["foo\nbar", { question_suffix: 'A', question_text: 'Name' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
+          expect(subject.sorted_subquestions_markup).to eq(
+            "<tr><td style='#{expected_style}'>foo<br/>bar</td><td></td></tr>"
+          )
+        end
+      end
+
+      context 'when there is more than one subquestion' do
+        let(:add_text_calls) do
+          [
+            ["foo\nbar", { question_suffix: 'A', question_text: 'Name' }],
+            ['bar', { question_suffix: 'B', question_text: 'Email' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expect(subject.sorted_subquestions_markup).to eq(
+            [
+              "<tr><td style='width:91'>Name:</td><td>foo<br/>bar</td></tr>",
+              "<tr><td style='width:91'>Email:</td><td>bar</td></tr>"
+            ]
+          )
+        end
+      end
+    end
+  end
+
+  describe PdfFill::ExtrasGeneratorV2::FreeTextQuestion do
+    subject do
+      question = described_class.new('Additional Remarks', add_text_calls.first[1])
+      add_text_calls.each { |call| question.add_text(*call) }
+      question
+    end
+
+    describe '#sorted_subquestions_markup' do
+      let(:add_text_calls) do
+        [
+          ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+        ]
+      end
+
+      it 'renders correctly' do
+        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
+        expect(subject.sorted_subquestions_markup).to eq(
+          [
+            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
+            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+          ]
+        )
+      end
+    end
   end
 
   describe '#populate_section_indices!' do
