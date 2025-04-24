@@ -19,7 +19,7 @@ module MDOT::V2
         faraday.request :json
 
         # faraday.response :snakecase
-        faraday.response :raise_custom_error, error_prefix: service_name
+        # faraday.response :raise_custom_error, error_prefix: service_name
         faraday.response :betamocks if mock_enabled?
         faraday.response :json
 

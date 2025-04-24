@@ -37,19 +37,31 @@ describe MDOT::V2::Service do
   end
 
   describe '#authenticate' do
-    let!(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
+    context 'veteran is authorized' do
+      let!(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
 
-    it 'creates a redis-backed session' do
-      subject.authenticate
-      expect(subject.send(:session)).to be_a(Common::RedisStore)
+      it 'creates a redis-backed session' do
+        subject.authenticate
+        expect(subject.send(:session)).to be_a(Common::RedisStore)
+      end
+
+      it 'sets the supplies_resource attribute' do
+        expect(subject.supplies_resource).to be_nil
+        subject.authenticate
+        expected_keys = %w[permanentAddress temporaryAddress vetEmail supplies]
+        expect(subject.supplies_resource.keys).to match_array(expected_keys)
+      end
     end
 
-    it 'sets the supplies_resource attribute' do
-      expect(subject.supplies_resource).to be_nil
-      subject.authenticate
-      expected_keys = %w[permanentAddress temporaryAddress vetEmail supplies]
-      expect(subject.supplies_resource.keys).to match_array(expected_keys)
+    context 'veteran is unauthorized' do
+      let(:cassette) { '/mdot/v2/20250415145657-get-supplies' }
+
+      it 'blows up' do
+        subject.authenticate
+      end
     end
+
+    # context ''
   end
 
   describe '#create_order' do

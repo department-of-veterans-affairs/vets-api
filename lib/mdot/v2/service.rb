@@ -9,14 +9,16 @@ module MDOT::V2
 
     STATSD_KEY_PREFIX = 'api.mdot_v2'
 
-    attr_reader :user, :supplies_resource, :orders
+    attr_reader :user, :supplies_resource, :orders, :connection
 
     def initialize(user)
       @user = user
     end
 
     def authenticate
-      connection = get('/supplies', nil, auth_headers, {})
+      @connection = get('/supplies', nil, auth_headers, {})
+      handle_error unless connection.success?
+
       token = connection.response_headers['vaapikey']
       @session = MDOT::V2::Session.create({ uuid: user.uuid, token: })
       permitted_params = %w[permanentAddress temporaryAddress vetEmail supplies].freeze
@@ -25,12 +27,10 @@ module MDOT::V2
     end
 
     def create_order(form_data)
-      connection = post('/supplies', form_data, order_headers, {})
-      if connection.success?
-        @orders = connection.response_body
-      else
-        false
-      end
+      @connection = post('/supplies', form_data, order_headers, {})
+      handle_error unless connection.success?
+
+      @orders = connection.response_body
     end
 
     private
@@ -54,6 +54,11 @@ module MDOT::V2
 
     def session
       @session ||= MDOT::V2::Session.find(uuid: user.uuid)
+    end
+
+    def handle_error
+      # if 401 and this -> unauthorized message
+      # if 500 and connection.response_body['message'] ~= /SQL/ -> try again?
     end
   end
 end
