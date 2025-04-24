@@ -428,7 +428,7 @@ module IncomeAndAssets
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section6, Section7, Section8,
+      SECTIONS = [Section7, Section8,
                   Section9, Section10, Section11,
                   Section12, Section13].freeze
 
@@ -452,8 +452,10 @@ module IncomeAndAssets
         expand_associated_incomes
         expand_owned_assets
 
+        # Temporary
+        sections = [Section6] + SECTIONS
         # Sections 6, 7, 8, 9, 10, 11, 12, and 13
-        SECTIONS.each { |section| section.new.expand(form_data) }
+        sections.each { |section| section.new.expand(form_data) }
 
         form_data
       end
