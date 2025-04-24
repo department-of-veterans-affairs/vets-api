@@ -27,7 +27,7 @@ module Vet360
       record = build_record(type, params)
       validate!(record)
       response = write_valid_record!(http_verb, type, record)
-      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES.keys.include?(type.to_sym)
+      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES[type].present?
       render_new_transaction!(type, response)
     end
 
