@@ -113,8 +113,10 @@ module PdfFill
 
       # Render a single item from the list
       def render_item(pdf, item, index)
-        render_item_label(pdf, index) if item.should_render?
-        item.render(pdf, list_format: true)
+        if item.should_render?
+          render_item_label(pdf, index)
+          item.render(pdf, list_format: true)
+        end
       end
 
       # Render the label for a list item
@@ -342,9 +344,9 @@ module PdfFill
     end
 
     def render_list_items(pdf, block, block_heights)
-      block_heights = block_heights[block]
+      block_heights = block_heights[block][:items].select(&:positive?)
       block.items.select(&:should_render?).each.with_index(1) do |item, index|
-        item_height = block_heights[:items][index - 1]
+        item_height = block_heights[index - 1]
         pdf.start_new_page unless will_fit_on_page?(pdf, item_height)
         block.render_item(pdf, item, index)
       end
