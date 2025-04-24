@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'mdot/v2/service'
 
-describe MDOT::V2::Service do
+describe MDOT::V2::Service, :focus do
   subject { MDOT::V2::Service.new(user) }
 
   let(:user_details) do
