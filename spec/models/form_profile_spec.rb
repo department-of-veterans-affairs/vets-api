@@ -1179,7 +1179,6 @@ RSpec.describe FormProfile, type: :model do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                          allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-
           output = form_profile.send(:initialize_military_information).attribute_values.transform_keys(&:to_s)
 
           expected_output = initialize_va_profile_prefill_military_information_expected
