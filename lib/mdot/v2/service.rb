@@ -1,9 +1,24 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/backend_service_exception'
 require 'mdot/v2/configuration'
 require 'mdot/v2/session'
+require 'vets/shared_logging'
 
 module MDOT::V2
+  class ServiceException < Common::Exceptions::BackendServiceException
+    include Vets::SharedLogging
+
+    def initialize(key, response_values = {}, original_status = nil, original_body = nil)
+      super(
+        key,
+        response_values, # response_values.merge({ detail: original_body['details'] }),
+        original_status,
+        original_body
+      )
+    end
+  end
+
   class Service < Common::Client::Base
     configuration MDOT::V2::Configuration
 
@@ -13,7 +28,6 @@ module MDOT::V2
 
     attr_reader(
       :form_data,
-      :error,
       :orders,
       :response,
       :session,
@@ -21,33 +35,25 @@ module MDOT::V2
       :user
     )
 
-    def initialize(user:, form_data: {})
+    def initialize(user:, form_data: nil)
+      super()
       @user = user
-      @form_data = form_data
+      permitted_params = %i[useVeteranAddress useTemporaryAddress vetEmail permanentAddress temporaryAddress order]
+      @form_data = (form_data || {}).slice(*permitted_params)
       get_session
     end
 
     def authenticate
       get_supplies
-
-      if response.success?
-        create_session
-        set_supplies_resource
-      else
-        set_error
-      end
+      create_session
+      set_supplies_resource
 
       response.success?
     end
 
     def create_order
       post_supplies
-
-      if response.success?
-        set_orders
-      else
-        set_error
-      end
+      set_orders
 
       response.success?
     end
@@ -83,11 +89,6 @@ module MDOT::V2
 
     def post_supplies
       @response = post('/supplies', form_data, order_headers, {})
-    end
-
-    def set_error
-      permitted_params = %w[timestamp message details result]
-      @error = response.body&.slice(*permitted_params)
     end
 
     def set_orders

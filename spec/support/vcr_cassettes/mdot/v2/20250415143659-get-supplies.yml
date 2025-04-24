@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <MDOT_V2_API_URL>/supplies
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      VA_VETERAN_FIRST_NAME:
+      - patient
+      VA_VETERAN_MIDDLE_NAME:
+      - " "
+      VA_VETERAN_LAST_NAME:
+      - test
+      VA_VETERAN_ID:
+      - '3322'
+      VA_VETERAN_BIRTH_DATE:
+      - '1922-02-22'
+      VA_ICN:
+      - '1234123412341234'
+  response:
+    status:
+      code: 503
+      message: Service Unavailable
+    headers:
+      content-length:
+      - '107'
+      cache-control:
+      - no-cache
+      content-type:
+      - text/html
+    body:
+      encoding: UTF-8
+      string: |
+        <html><body><h1>503 Service Unavailable</h1>
+        No server is available to handle this request.
+        </body></html>
+  recorded_at: Tue, 15 Apr 2025 14:37:40 GMT
+recorded_with: VCR 6.3.1

@@ -19,7 +19,11 @@ module MDOT::V2
         faraday.request :json
 
         # faraday.response :snakecase
-        # faraday.response :raise_custom_error, error_prefix: service_name
+
+        # :raise_custom_error
+        # raise errors through middleware: Common::Client::Middleware::Response::RaiseCustomError
+        # rescue ::ServiceException => e from errors in ::Service
+        faraday.response :raise_custom_error, error_prefix: service_name
         faraday.response :betamocks if mock_enabled?
         faraday.response :json
 
@@ -28,11 +32,11 @@ module MDOT::V2
     end
 
     def breakers_enabled?
-      Settings.mdot.breakers || false
+      Settings.mdot_v2.breakers || false
     end
 
     def mock_enabled?
-      Settings.mdot.mock || false
+      Settings.mdot_v2.mock || false
     end
   end
 end

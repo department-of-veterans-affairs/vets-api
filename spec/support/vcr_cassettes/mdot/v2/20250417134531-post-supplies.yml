@@ -1,11 +1,12 @@
 ---
 http_interactions:
 - request:
-    method: get
+    method: post
     uri: <MDOT_V2_API_URL>/supplies
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"veteran@va.gov","permanentAddress":{"street":"123
+        ASH CIRCLE","street2":", ","city":"ASHVILLE","state":"NC","country":"UNITED STATES","postalCode":"77733"},"temporaryAddress":{},"order":[{"productId":"5939"}]}'
     headers:
       Accept:
       - application/json
@@ -13,22 +14,12 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      VA_VETERAN_FIRST_NAME:
-      - patient
-      VA_VETERAN_MIDDLE_NAME:
-      - " "
-      VA_VETERAN_LAST_NAME:
-      - test
-      VA_VETERAN_ID:
-      - '3322'
-      VA_VETERAN_BIRTH_DATE:
-      - '1922-02-22'
-      VA_ICN:
-      - '1234123412341234'
+      VaApiKey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
   response:
     status:
-      code: 401
-      message: Unauthorized
+      code: 200
+      message: OK
     headers:
       vary:
       - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
@@ -49,12 +40,11 @@ http_interactions:
       transfer-encoding:
       - chunked
       date:
-      - Wed, 16 Apr 2025 18:19:31 GMT
+      - Thu, 17 Apr 2025 13:45:30 GMT
       strict-transport-security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"timestamp":"2025-04-16T18:19:31.788+0000","message":"Invalid","details":"No
-        patient matching ICN found","result":"Invalid"}'
-  recorded_at: Wed, 16 Apr 2025 18:19:33 GMT
+      string: '[{"status":"No Disability Station for Veteran","orderID":0,"productId":8350}]'
+  recorded_at: Thu, 17 Apr 2025 13:45:32 GMT
 recorded_with: VCR 6.3.1

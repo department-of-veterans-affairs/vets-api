@@ -754,6 +754,12 @@ en:
         code: 'IHUB_102'
         detail: 'The user does not have an ICN.'
         status: 502
+      MDOT_V2_401:
+        <<: *external_defaults
+        title: Unauthorized
+        detail: We could not authenticate your credentials for this resource
+        code: 'MDOT_V2_401'
+        status: 401
       MVI_404:
         <<: *external_defaults
         title: Record not found

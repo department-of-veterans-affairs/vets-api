@@ -18,10 +18,8 @@ describe MDOT::V2::Service do
   let(:user) { build(:user, :loa3, user_details) }
 
   around do |ex|
-    VCR.configure do |c|
-      c.hook_into :faraday
-      # c.debug_logger = $stderr # or File.open('vcr.log', 'w')
-    end
+    # Keep request header names SCREAMING_SNAKE_CASE, instead of Kebab-Case. It's an important detail.
+    VCR.configure { |c| c.hook_into :faraday }
 
     options = {
       record: :none,
@@ -30,16 +28,15 @@ describe MDOT::V2::Service do
     }.merge(VCR::MATCH_EVERYTHING)
     VCR.use_cassette(cassette, options) { ex.run }
 
-    VCR.configure do |c|
-      c.hook_into :webmock
-      # c.debug_logger = nil
-    end
+    # Switch back to :webmock, as in spec/rails_helper.rb
+    VCR.configure { |c| c.hook_into :webmock }
   end
 
   describe '#authenticate' do
+    let(:service) { MDOT::V2::Service.new(user:) }
+
     context 'veteran is authorized' do
       let(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
-      let(:service) { MDOT::V2::Service.new(user:) }
 
       it 'returns true' do
         expect(service.authenticate).to be(true)
@@ -60,30 +57,33 @@ describe MDOT::V2::Service do
 
     context 'veteran is unauthorized' do
       let(:cassette) { 'mdot/v2/20250416181933-get-supplies' }
-      let(:service) { MDOT::V2::Service.new(user:) }
 
-      it 'returns false' do
-        expect(service.authenticate).to be(false)
-      end
-
-      it 'has no session' do
-        service.authenticate
-        expect(service.session).to be_nil
-      end
-
-      it 'has no supplies_resource' do
-        service.authenticate
-        expect(service.supplies_resource).to be_nil
-      end
-
-      it 'sets the error attribute' do
-        service.authenticate
-        expected_keys = %w[timestamp message details result]
-        expect(service.error.keys).to match_array(expected_keys)
+      it 'raises MDOT_V2_401' do
+        expect { service.authenticate }.to raise_exception(MDOT::V2::ServiceException) do |error|
+          expect(error.key).to eq('MDOT_V2_401')
+        end
       end
     end
 
-    # context ''
+    context 'system-of-record experiences a SQL query error' do
+      let(:cassette) { 'mdot/v2/20250415145657-get-supplies' }
+
+      it 'raises MDOT_V2_500' do
+        expect { service.authenticate }.to raise_exception(MDOT::V2::ServiceException) do |error|
+          expect(error.key).to eq('MDOT_V2_500')
+        end
+      end
+    end
+
+    context 'system-of-record is unavailable' do
+      let(:cassette) { 'mdot/v2/20250415143659-get-supplies' }
+
+      it 'raises MDOT_V2_503' do
+        expect { service.authenticate }.to raise_exception(MDOT::V2::ServiceException) do |error|
+          expect(error.key).to eq('MDOT_V2_503')
+        end
+      end
+    end
   end
 
   describe '#create_order' do
@@ -111,14 +111,27 @@ describe MDOT::V2::Service do
       }
     end
 
-    let(:cassette) { 'mdot/v2/20250417162831-post-supplies' }
-    let(:session) { MDOT::V2::Session.create({ uuid: user.uuid, token: 'abcd1234abcd1234abcd1234abcd1234abcd1234' }) }
     let(:service) { MDOT::V2::Service.new(user:, form_data:) }
 
-    it 'creates an order with the system of record' do
-      allow_any_instance_of(MDOT::V2::Service).to receive(:session).and_return(session)
-      service.create_order
-      expect(service.orders.first['status']).to eq('Order Processed')
+    context 'with a valid session' do
+      let(:cassette) { 'mdot/v2/20250417162831-post-supplies' }
+      let(:token) { 'abcd1234abcd1234abcd1234abcd1234abcd1234' }
+      let!(:session) { MDOT::V2::Session.create({ uuid: user.uuid, token: }) }
+
+      it 'creates an order with the system of record' do
+        service.create_order
+        expect(service.orders.first['status']).to eq('Order Processed')
+      end
+    end
+
+    context 'order was not completed' do
+      let(:cassette) { 'mdot/v2/20250417134531-post-supplies' }
+      let(:token) { 'abcd1234abcd1234abcd1234abcd1234abcd1234' }
+      let!(:session) { MDOT::V2::Session.create({ uuid: user.uuid, token: }) }
+
+      it 'raises an error when orderID is zero' do
+        binding.pry
+      end
     end
   end
 end
