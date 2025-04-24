@@ -6,7 +6,7 @@
   "sameAddress": false,
   "medicarePartAEffectiveDate": "01/01/2000",
   "medicareClaimNumber": "0123456",
-  "isEnrolledMedicarePartA": 1,
+  "isEnrolledMedicarePartA": 2,
   "isCoveredByHealthInsurance": true,
   "providers": [
     {

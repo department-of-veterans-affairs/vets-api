@@ -2,7 +2,6 @@
 
 require 'pdf_fill/form_value'
 
-# frozen_string_literal: true
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
@@ -70,9 +69,10 @@ module PdfFill
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
       item_label = array_key_data.try(:[], :item_label)
+
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :question_type).merge(
           i:, overflow:, item_label:
         )
       )

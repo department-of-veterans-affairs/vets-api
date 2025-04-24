@@ -6,6 +6,7 @@ module PdfFill
     SUBHEADER_FONT_SIZE = 10.5
     FOOTER_FONT_SIZE = 9
     HEADER_FOOTER_BOUNDS_HEIGHT = 20
+    FREE_TEXT_QUESTION_WIDTH = 404
 
     class Question
       attr_accessor :section_index, :overflow
@@ -30,12 +31,18 @@ module PdfFill
       end
 
       def sorted_subquestions_markup
-        sorted_subquestions.map do |subq|
-          metadata = subq[:metadata]
-          label = metadata[:question_label].presence || metadata[:question_text]
-          value = subq[:value].to_s.gsub("\n", '<br/>')
+        if @subquestions.size == 1
+          value = @subquestions.first[:value].to_s.gsub("\n", '<br/>')
           value = "<i>#{value}</i>" if value == 'no response'
-          "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
+          "<tr><td style='width:#{FREE_TEXT_QUESTION_WIDTH}'>#{value}</td><td></td></tr>"
+        else
+          sorted_subquestions.map do |subq|
+            metadata = subq[:metadata]
+            label = metadata[:question_label].presence || metadata[:question_text]
+            value = subq[:value].to_s.gsub("\n", '<br/>')
+            value = "<i>#{value}</i>" if value == 'no response'
+            "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
+          end
         end
       end
 
@@ -55,6 +62,16 @@ module PdfFill
 
         # Calculate the actual height by measuring cursor movement
         start_cursor - temp_pdf.cursor
+      end
+    end
+
+    class FreeTextQuestion < Question
+      def sorted_subquestions_markup
+        @subquestions.map do |subq|
+          value = subq[:value].to_s.gsub("\n", '</p><p>')
+          value = "<i>#{value}</i>" if value == 'no response'
+          "<tr><td style='width:#{FREE_TEXT_QUESTION_WIDTH}'><p>#{value}</p></td><td></td></tr>"
+        end
       end
     end
 
@@ -153,7 +170,17 @@ module PdfFill
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
         question_text = @question_key[question_num]
-        @questions[question_num] = (metadata[:i].blank? ? Question : ListQuestion).new(question_text, metadata)
+
+        @questions[question_num] =
+          if metadata[:i].blank?
+            if metadata[:question_type] == 'free_text'
+              FreeTextQuestion.new(question_text, metadata)
+            else
+              Question.new(question_text, metadata)
+            end
+          else
+            ListQuestion.new(question_text, metadata)
+          end
       end
       @questions[question_num].add_text(value, metadata)
     end

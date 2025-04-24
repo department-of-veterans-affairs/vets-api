@@ -10,6 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+
 ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -342,6 +343,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.text "reason_ciphertext"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
+    t.integer "declination_reason"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_2e9bb1b8e7"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
