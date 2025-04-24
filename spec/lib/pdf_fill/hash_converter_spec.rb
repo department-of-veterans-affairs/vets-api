@@ -265,7 +265,8 @@ describe PdfFill::HashConverter do
       let(:form_data) do
         {
           veteranFullName: { first: 'Hubert', last: 'Wolfeschlegelsteinhausenbergerdorff' },
-          treatmentProviders: ['Walter Reed, Bethesda MD', 'Silver Oak Recovery Center, Clearwater FL']
+          treatmentProviders: ['Walter Reed, Bethesda MD', 'Silver Oak Recovery Center, Clearwater FL'],
+          additionalRemarks: 'Additional Remarks'
         }
       end
       let(:pdftk_keys) do
@@ -284,6 +285,13 @@ describe PdfFill::HashConverter do
               question_text: 'Last Name'
             }
           },
+          additionalRemarks: {
+            key: 'form1[0].#subform[0].Additional_Remarks[0]',
+            limit: 1,
+            question_num: 3,
+            question_text: 'Additional Remarks',
+            question_type: 'free_text'
+          },
           treatmentProviders: {
             limit: 1,
             item_label: 'Treatment facility',
@@ -300,6 +308,8 @@ describe PdfFill::HashConverter do
                            overflow: false)
         verify_extras_text('Wolfeschlegelsteinhausenbergerdorff',
                            i: nil, question_num: 2, question_text: 'Last Name')
+        verify_extras_text('Additional Remarks',
+                           i: nil, question_num: 3, question_text: 'Additional Remarks', question_type: 'free_text')
         verify_extras_text('Walter Reed, Bethesda MD',
                            i: 0, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         verify_extras_text('Silver Oak Recovery Center, Clearwater FL',

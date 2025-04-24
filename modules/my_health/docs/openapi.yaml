@@ -629,6 +629,65 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/radiology
+/v1/medical_records/self_entered:
+  get:
+    description: Get the current user's self-entered information.
+    operationId: get_patient
+    responses:
+      "200":
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                responses:
+                  type: array
+                  description: |
+                    A list of self-entered health information objects. Each object will be a self-entered type, such as:
+                    - <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-getcare-api/blob/development/mhv-getcare-portal-api/src/main/java/gov/va/med/mhv/getcare/common/dto/HealthInsuranceDTO.java'>HealthInsuranceDTO</a>
+                    - <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-health-history-api/blob/development/mhv-health-history-portal-api/src/main/java/gov/va/med/mhv/health/dto/MilitaryHistoryDTO.java'>MilitaryHistoryDTO</a>
+                    - <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-health-history-api/blob/development/mhv-health-history-portal-api/src/main/java/gov/va/med/mhv/health/dto/ImmunizationDTO.java'>ImmunizationDTO</a>
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      source_date:
+                        type: string
+                        format: date
+                      note:
+                        type: string
+                errors:
+                  type: array
+                  description: |
+                    An array of errors encountered while retrieving the records, if any.
+                    Each object may include a code and a human-readable message.
+                  items:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              required:
+                - responses
+                - errors
+        description: OK
+      "401":
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/Errors.yml
+        description: Unauthorized
+      "403":
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/Errors.yml
+        description: Forbidden
+    summary: /v1/medical_records/self_entered
   /v1/medical_records/session:
     get:
       description: Creates a session to the upstream MHV APIs. Note that any MR API call will do this as well. This endpoint ONLY creates a session.

@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
+
+ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -188,6 +189,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.uuid "user_account_id"
     t.datetime "failure_notification_sent_at"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_appeal_submissions_on_needs_kms_rotation"
     t.index ["submitted_appeal_uuid"], name: "index_appeal_submissions_on_submitted_appeal_uuid"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
@@ -222,6 +224,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_appeals_api_higher_level_reviews_on_needs_kms_rotation"
     t.index ["veteran_icn"], name: "index_appeals_api_higher_level_reviews_on_veteran_icn"
   end
 
@@ -241,6 +244,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_8edcf0bbde"
     t.index ["veteran_icn"], name: "index_appeals_api_notice_of_disagreements_on_veteran_icn"
   end
 
@@ -273,6 +277,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_appeals_api_supplemental_claims_on_needs_kms_rotation"
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
@@ -293,6 +298,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "error_message_ciphertext"
     t.datetime "created_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_fff6def3ad"
   end
 
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -307,6 +313,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.string "claimant_zip_code_bidx", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["claimant_city_bidx", "claimant_state_code_bidx", "claimant_zip_code_bidx"], name: "idx_on_claimant_city_bidx_claimant_state_code_bidx__11e9adbe25"
+    t.index ["needs_kms_rotation"], name: "index_ar_power_of_attorney_forms_on_needs_kms_rotation"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fc59a0dabc", unique: true
   end
 
@@ -336,7 +343,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "reason_ciphertext"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
+    t.integer "declination_reason"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_2e9bb1b8e7"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
   end
@@ -383,6 +392,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at"], name: "index_async_transactions_on_created_at"
     t.index ["id", "type"], name: "index_async_transactions_on_id_and_type"
+    t.index ["needs_kms_rotation"], name: "index_async_transactions_on_needs_kms_rotation"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
     t.index ["user_account_id"], name: "index_async_transactions_on_user_account_id"
@@ -508,6 +518,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["header_hash"], name: "index_claims_api_auto_established_claims_on_header_hash"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
+    t.index ["needs_kms_rotation"], name: "index_claims_api_auto_established_claims_on_needs_kms_rotation"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
     t.index ["veteran_icn"], name: "index_claims_api_auto_established_claims_on_veteran_icn"
   end
@@ -535,6 +546,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.string "claim_id"
     t.integer "tracked_items", default: [], array: true
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_5ea0be45c3"
   end
 
   create_table "claims_api_intent_to_files", force: :cascade do |t|
@@ -579,6 +591,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["header_hash"], name: "index_claims_api_power_of_attorneys_on_header_hash"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
+    t.index ["needs_kms_rotation"], name: "index_claims_api_power_of_attorneys_on_needs_kms_rotation"
   end
 
   create_table "claims_api_processes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -600,6 +613,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_claims_api_supporting_documents_on_needs_kms_rotation"
   end
 
   create_table "client_configs", force: :cascade do |t|
@@ -635,6 +649,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_16518323ec"
     t.index ["notification_id"], name: "idx_on_notification_id_e2314be616"
     t.index ["reference"], name: "index_decision_review_notification_audit_logs_on_reference"
   end
@@ -746,6 +761,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.uuid "user_account_id"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
+    t.index ["needs_kms_rotation"], name: "index_education_stem_automated_decisions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_education_stem_automated_decisions_on_user_account_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -770,6 +786,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_evidence_submissions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end
 
@@ -857,6 +874,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_form1095_bs_on_needs_kms_rotation"
     t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
   end
 
@@ -904,6 +922,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.integer "backup_submitted_claim_status"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["backup_submitted_claim_id"], name: "index_form526_submissions_on_backup_submitted_claim_id"
+    t.index ["needs_kms_rotation"], name: "index_form526_submissions_on_needs_kms_rotation"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -923,6 +942,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.string "error_message"
     t.text "ipf_data_ciphertext"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_form5655_submissions_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_form5655_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_form5655_submissions_on_user_uuid"
   end
@@ -937,6 +957,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
+    t.index ["needs_kms_rotation"], name: "index_form_attachments_on_needs_kms_rotation"
   end
 
   create_table "form_email_matches_profile_logs", force: :cascade do |t|
@@ -963,6 +984,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.jsonb "response_ciphertext"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["form_submission_id"], name: "index_form_submission_attempts_on_form_submission_id"
+    t.index ["needs_kms_rotation"], name: "index_form_submission_attempts_on_needs_kms_rotation"
   end
 
   create_table "form_submissions", force: :cascade do |t|
@@ -974,6 +996,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_form_submissions_on_needs_kms_rotation"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
     t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
@@ -989,6 +1012,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
+    t.index ["needs_kms_rotation"], name: "index_gibs_not_found_users_on_needs_kms_rotation"
   end
 
   create_table "gmt_thresholds", force: :cascade do |t|
@@ -1041,6 +1065,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_01daeb119b"
     t.index ["user_account_id"], name: "index_health_quest_questionnaire_responses_on_user_account_id"
     t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
   end
@@ -1065,6 +1090,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.integer "status", default: 0
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true
+    t.index ["needs_kms_rotation"], name: "index_in_progress_forms_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_in_progress_forms_on_user_account_id"
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
@@ -1105,6 +1131,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["form_uuid"], name: "index_ivc_champva_forms_on_form_uuid"
+    t.index ["needs_kms_rotation"], name: "index_ivc_champva_forms_on_needs_kms_rotation"
   end
 
   create_table "lighthouse526_document_uploads", force: :cascade do |t|
@@ -1185,6 +1212,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_nod_notifications_on_needs_kms_rotation"
   end
 
   create_table "oauth_sessions", force: :cascade do |t|
@@ -1205,6 +1233,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
     t.index ["hashed_device_secret"], name: "index_oauth_sessions_on_hashed_device_secret"
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
+    t.index ["needs_kms_rotation"], name: "index_oauth_sessions_on_needs_kms_rotation"
     t.index ["refresh_creation"], name: "index_oauth_sessions_on_refresh_creation"
     t.index ["refresh_expiration"], name: "index_oauth_sessions_on_refresh_expiration"
     t.index ["user_account_id"], name: "index_oauth_sessions_on_user_account_id"
@@ -1233,6 +1262,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
+    t.index ["needs_kms_rotation"], name: "index_persistent_attachments_on_needs_kms_rotation"
     t.index ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id"
   end
 
@@ -1245,6 +1275,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at"], name: "index_personal_information_logs_on_created_at"
     t.index ["error_class"], name: "index_personal_information_logs_on_error_class"
+    t.index ["needs_kms_rotation"], name: "index_personal_information_logs_on_needs_kms_rotation"
   end
 
   create_table "pghero_query_stats", force: :cascade do |t|
@@ -1299,6 +1330,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
     t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
+    t.index ["needs_kms_rotation"], name: "index_saved_claims_on_needs_kms_rotation"
     t.index ["user_account_id"], name: "index_saved_claims_on_user_account_id"
   end
 
@@ -1326,6 +1358,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "failure_notification_sent_at"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
+    t.index ["needs_kms_rotation"], name: "index_secondary_appeal_forms_on_needs_kms_rotation"
   end
 
   create_table "service_account_configs", force: :cascade do |t|
@@ -1562,6 +1595,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_user_credential_emails_on_needs_kms_rotation"
     t.index ["user_verification_id"], name: "index_user_credential_emails_on_user_verification_id", unique: true
   end
 
@@ -1611,6 +1645,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "to_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_va_notify_notifications_on_needs_kms_rotation"
     t.index ["notification_id"], name: "index_va_notify_notifications_on_notification_id"
   end
 
@@ -1757,6 +1792,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.text "address5_ciphertext"
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at"], name: "index_vye_address_changes_on_created_at"
+    t.index ["needs_kms_rotation"], name: "index_vye_address_changes_on_needs_kms_rotation"
     t.index ["user_info_id"], name: "index_vye_address_changes_on_user_info_id"
   end
 
@@ -1807,6 +1843,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["created_at"], name: "index_vye_direct_deposit_changes_on_created_at"
+    t.index ["needs_kms_rotation"], name: "index_vye_direct_deposit_changes_on_needs_kms_rotation"
     t.index ["user_info_id"], name: "index_vye_direct_deposit_changes_on_user_info_id"
   end
 
@@ -1845,6 +1882,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_21_190417) do
     t.index ["bdn_clone_active"], name: "index_vye_user_infos_on_bdn_clone_active"
     t.index ["bdn_clone_id"], name: "index_vye_user_infos_on_bdn_clone_id"
     t.index ["bdn_clone_line"], name: "index_vye_user_infos_on_bdn_clone_line"
+    t.index ["needs_kms_rotation"], name: "index_vye_user_infos_on_needs_kms_rotation"
     t.index ["user_profile_id"], name: "index_vye_user_infos_on_user_profile_id"
   end
 
