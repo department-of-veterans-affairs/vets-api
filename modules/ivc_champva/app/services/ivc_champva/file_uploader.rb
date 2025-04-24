@@ -92,7 +92,8 @@ module IvcChampva
 
         # Upload the combined PDF
         response_status = upload(file_name, merged_pdf_path, metadata_for_s3(attachment_id))
-        insert_form(file_name, response_status.to_s) if @insert_db_row
+
+        insert_merged_pdf_and_docs(file_name, response_status) if @insert_db_row
 
         [response_status]
       rescue => e
@@ -101,6 +102,20 @@ module IvcChampva
         raise
       ensure
         FileUtils.rm_f(merged_pdf_path)
+      end
+    end
+
+    def insert_merged_pdf_and_docs(file_name, response_status)
+      # insert the combined PDF
+      insert_form(file_name, response_status.to_s)
+
+      # insert attachments
+      @metadata['attachment_ids'].zip(@file_paths).map do |_attachment_id, file_path|
+        next if file_path.blank?
+        next unless file_path.include?('supporting_doc')
+
+        file_name = File.basename(file_path).gsub('-tmp', '')
+        insert_form(file_name, response_status.to_s)
       end
     end
 
