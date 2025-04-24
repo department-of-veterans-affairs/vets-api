@@ -1,3 +1,4 @@
+
 # frozen_string_literal: true
 
 module Mobile
@@ -51,6 +52,9 @@ module Mobile
 
         def save!(http_method, resource_type, params)
           record = build_record(resource_type, params)
+          if Settings.vsp_environment == 'staging'
+            Rails.logger.info("ContactInformationV2 #{type} #{http_verb} Request Initiated")
+          end
           raise Common::Exceptions::ValidationErrors, record unless record.valid?
 
           response = contact_information_service.send("#{http_method}_#{resource_type.downcase}", record)
