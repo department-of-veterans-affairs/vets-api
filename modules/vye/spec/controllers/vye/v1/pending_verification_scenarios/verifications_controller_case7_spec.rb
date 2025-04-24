@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/controller_spec_helper'
 require_relative '../../../../support/shared_award_helpers'
