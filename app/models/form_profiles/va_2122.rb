@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module VA2122
   class IdentityValidation
     include Vets::Model
