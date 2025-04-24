@@ -138,16 +138,16 @@ namespace :ivc_champva do
     old_keys = JSON.parse(File.read(old_file)).keys
     new_keys = meta_data.map { |el| el[:pdf_field] }
 
-    disjoint = old_keys - new_keys | new_keys - old_keys
+    difference = old_keys - new_keys | new_keys - old_keys
 
-    if disjoint.empty?
+    if difference.empty?
       puts "\e[42;30mNew mapping file would not result in any changes. Skipping.\e[0m"
       puts update_test_msg
       return
     end
 
     puts "\e[43;30mThe following keys are different between old/new mapping:\e[0m"
-    puts disjoint
+    puts difference
     puts "--\nCreating mapping file..."
 
     # create the form mapping file
