@@ -101,20 +101,17 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(6)',
             question_text: 'CAN THIS ASSET BE SOLD?'
-          },
-          # Q7
-          'mitigatingCircumstances' => {
-            limit: 172,
-            question_num: 6,
-            question_suffix: '(7)',
-            question_text: 'EXPLAIN ANY MITIGATING CIRCUMSTANCES THAT PREVENT THE SALE OF THIS ASSET',
-            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]"
           }
         }
       }.freeze
 
       ##
       # Expands the royalties and other properties data in the form.
+      #
+      # This method processes the `royaltiesAndOtherProperties` field from the `form_data` hash.
+      # It sets the `royaltiesAndOtherProperty` field to `0` if `royaltiesAndOtherProperties` has any elements,
+      # otherwise it sets it to `1`. Then, it iterates over each property in `royaltiesAndOtherProperties`,
+      # merging it with the result of the `expand_royalties_and_other_property` method.
       #
       # @param form_data [Hash]
       #
