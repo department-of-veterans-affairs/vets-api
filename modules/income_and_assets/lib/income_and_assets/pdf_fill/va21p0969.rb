@@ -14,6 +14,7 @@ require 'income_and_assets/pdf_fill/sections/section_11'
 require 'income_and_assets/pdf_fill/sections/section_12'
 require 'income_and_assets/pdf_fill/sections/section_13'
 
+# rubocop:disable Metrics/ClassLength
 module IncomeAndAssets
   module PdfFill
     # The Va21p0969 Form
@@ -619,3 +620,5 @@ module IncomeAndAssets
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
