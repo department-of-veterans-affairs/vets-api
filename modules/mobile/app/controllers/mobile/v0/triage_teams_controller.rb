@@ -8,10 +8,8 @@ module Mobile
 
         resource = if use_all_triage_teams
 
-                     # TODO: add parameter to get OH data from BE
-                     #
-                     # Use get_all_triage_teams and filter out blocked teams
-                     all_teams = client.get_all_triage_teams(@current_user.uuid, use_cache? || true)
+                     all_teams = client.get_all_triage_teams(@current_user.uuid, use_cache? || true,
+                                                             params[:requires_oh].try(:to_s))
                      raise Common::Exceptions::ResourceNotFound if all_teams.blank?
 
                      # Filter out blocked teams
