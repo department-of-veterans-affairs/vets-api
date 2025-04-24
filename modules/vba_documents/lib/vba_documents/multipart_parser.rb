@@ -67,11 +67,10 @@ module VBADocuments
 
     def self.validate_virus_free(file_path)
       temp_path = Common::FileHelpers.generate_clamav_temp_file(file_path)
-      result = Common::VirusScan.scan(temp_path)
+      file_safe = Common::VirusScan.scan(temp_path)
       Common::FileHelpers.delete_file_if_exists(temp_path)
 
-      # Common::VirusScan result will return true or false
-      unless result # unless safe
+      unless file_safe
         raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected in submission')
       end
 
