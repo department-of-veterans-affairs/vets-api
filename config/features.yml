@@ -107,6 +107,9 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
+  caregiver_lookup_facility_name_db:
+    actor_type: user
+    description: Enables 1010CG pdf fill to lookup facility id in the database instead of vets-json-schema
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -612,6 +615,9 @@ features:
   disability_compensation_sync_modern0781_flow_metadata:
     actor_type: user
     description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
+  disability_compensation_0781_stats_job:
+    actor_type: user
+    description: enables a job to run that will check DB records and report stats as metrics, into Datadog
     enable_in_development: true
   disability_526_send_form526_submitted_email:
     actor_type: user
