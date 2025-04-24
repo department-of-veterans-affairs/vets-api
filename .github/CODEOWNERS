@@ -26,7 +26,6 @@ import-va-certs.sh @department-of-veterans-affairs/backend-review-group
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
-app/controllers/bb_controller.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/claims_base_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/concerns/accountable.rb @department-of-veterans-affairs/octo-identity
 app/controllers/concerns/appointment_authorization.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -98,7 +97,6 @@ app/controllers/v0/gids/institutions_controller.rb @department-of-veterans-affai
 app/controllers/v0/gids/yellow_ribbon_programs_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/gids/zipcode_rates_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/hca_attachments_controller.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/controllers/v0/health_records_controller.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/health_care_applications_controller.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/form1010_ezr_attachments_controller.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/form1010_ezrs_controller.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1777,7 +1775,6 @@ spec/requests/v0/form1095_bs_spec.rb @department-of-veterans-affairs/vfs-1095-b 
 spec/requests/v0/profile/full_name_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/health_care_applications_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/form1010_ezrs_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/requests/v0/health_records_spec.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/id_card/announcement_subscription_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/id_card/attributes_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/requests/v0/in_progress_forms_controller_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
