@@ -4,10 +4,11 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
+require 'vets/model'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
-  include Virtus.model
+  include Vets::Model
 
   attribute :first, String
   attribute :middle, String
@@ -16,51 +17,51 @@ class FormFullName
 end
 
 class FormDate
-  include Virtus.model
+  include Vets::Model
 
   attribute :from, Date
   attribute :to, Date
 end
 
 class FormMilitaryInformation
-  include Virtus.model
+  include Vets::Model
 
-  attribute :service_episodes_by_date, Array
+  attribute :service_episodes_by_date, VAProfile::Models::ServiceHistory, array: true
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
-  attribute :post_nov111998_combat, Boolean
-  attribute :sw_asia_combat, Boolean
-  attribute :tours_of_duty, Array
-  attribute :currently_active_duty, Boolean
+  attribute :post_nov111998_combat, Bool, default: false
+  attribute :sw_asia_combat, Bool, default: false
+  attribute :tours_of_duty, Hash, array: true
+  attribute :currently_active_duty, Bool, default: false
   attribute :currently_active_duty_hash, Hash
-  attribute :vic_verified, Boolean
-  attribute :service_branches, Array[String]
-  attribute :service_periods, Array
-  attribute :guard_reserve_service_history, Array[FormDate]
+  attribute :vic_verified, Bool, default: false
+  attribute :service_branches, String, array: true
+  attribute :service_periods, Hash, array: true
+  attribute :guard_reserve_service_history, FormDate, array: true
   attribute :latest_guard_reserve_service_period, FormDate
 end
 
 class FormAddress
-  include Virtus.model
+  include Vets::Model
 
-  attribute :street
-  attribute :street2
-  attribute :city
-  attribute :state
-  attribute :country
-  attribute :postal_code
+  attribute :street, String
+  attribute :street2, String
+  attribute :city, String
+  attribute :state, String
+  attribute :country, String
+  attribute :postal_code, String
 end
 
 class FormIdentityInformation
-  include Virtus.model
+  include Vets::Model
 
   attribute :full_name, FormFullName
   attribute :date_of_birth, Date
   attribute :gender, String
-  attribute :ssn
+  attribute :ssn, String
 
   def hyphenated_ssn
     StringHelpers.hyphenated_ssn(ssn)
@@ -72,7 +73,7 @@ class FormIdentityInformation
 end
 
 class FormContactInformation
-  include Virtus.model
+  include Vets::Model
 
   attribute :address, FormAddress
   attribute :home_phone, String
@@ -82,7 +83,7 @@ class FormContactInformation
 end
 
 class FormProfile
-  include Virtus.model
+  include Vets::Model
   include SentryLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }

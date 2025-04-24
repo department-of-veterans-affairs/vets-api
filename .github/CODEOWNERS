@@ -1687,7 +1687,7 @@ spec/models/form526_submission_remediation_spec.rb @department-of-veterans-affai
 spec/models/form_attachment_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_profile_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_profile_v2_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/models/form_profile/mdot_spec.rb  @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
+spec/models/form_profiles/mdot_spec.rb  @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/models/form_submission_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_submission_attempt_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/gi_bill_feedback_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
