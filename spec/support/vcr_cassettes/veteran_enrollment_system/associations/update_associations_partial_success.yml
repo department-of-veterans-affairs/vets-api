@@ -54,13 +54,13 @@ http_interactions:
       - dtSInfo;desc="0", dtRpid;desc="-206729999"
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
-body:
-  encoding: UTF-8
-  string: '{"data":{"associations":[{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"UPDATEDFIRSTNOKA","middleName":"UPDATEDMIDDLENOKA","familyName":"UPDATEDLASTNOKA","suffix":"JR."},"status":"DELETED"},{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"UPDATEDFIRSTNOKB","middleName":"UPDATEDMIDDLENOKB","familyName":"UPDATEDLASTNOKB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
-    association was not deleted for this record, as there are no matching association
-    on file."},{"role":"EMERGENCY_CONTACT","name":{"givenName":"UPDATEDFIRSTECA","middleName":"UPDATEDMIDDLEECA","familyName":"UPDATEDLASTECA"},"status":"DELETED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"UPDATEDFIRSTECB","middleName":"UPDATEDMIDDLEECB","familyName":"UPDATEDLASTECB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
-    association was not deleted for this record, as there are no matching association
-    on file."}]},"messages":[{"description":"Not all of the association records
-    were updated","code":"completed_partial"}]}'
+    body:
+      encoding: UTF-8
+      string: '{"data":{"associations":[{"role":"PRIMARY_NEXT_OF_KIN","name":{"givenName":"UPDATEDFIRSTNOKA","middleName":"UPDATEDMIDDLENOKA","familyName":"UPDATEDLASTNOKA","suffix":"JR."},"status":"DELETED"},{"role":"OTHER_NEXT_OF_KIN","name":{"givenName":"UPDATEDFIRSTNOKB","middleName":"UPDATEDMIDDLENOKB","familyName":"UPDATEDLASTNOKB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
+        association was not deleted for this record, as there are no matching association
+        on file."},{"role":"EMERGENCY_CONTACT","name":{"givenName":"UPDATEDFIRSTECA","middleName":"UPDATEDMIDDLEECA","familyName":"UPDATEDLASTECA"},"status":"DELETED"},{"role":"OTHER_EMERGENCY_CONTACT","name":{"givenName":"UPDATEDFIRSTECB","middleName":"UPDATEDMIDDLEECB","familyName":"UPDATEDLASTECB"},"status":"NOT_DELETED_NO_MATCHING_ASSOCIATION","message":"The
+        association was not deleted for this record, as there are no matching association
+        on file."}]},"messages":[{"description":"Not all of the association records
+        were updated","code":"completed_partial"}]}'
   recorded_at: Tue, 22 Apr 2025 22:03:48 GMT
 recorded_with: VCR 6.3.1

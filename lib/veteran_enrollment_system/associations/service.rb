@@ -46,7 +46,8 @@ module VeteranEnrollmentSystem
       ERROR_MAP = {
         400 => Common::Exceptions::BadRequest,
         404 => Common::Exceptions::ResourceNotFound,
-        500 => Common::Exceptions::ExternalServerInternalServerError
+        500 => Common::Exceptions::ExternalServerInternalServerError,
+        504 => Common::Exceptions::GatewayTimeout
       }.freeze
 
       def initialize(current_user, parsed_form)
@@ -69,8 +70,8 @@ module VeteranEnrollmentSystem
           handle_ves_response(response, form_id)
         end
       rescue => e
+        Rails.logger.info("#{form_id} update associations failed: #{e.errors}")
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
-        Rails.logger.info("#{form_id} update associations failed: #{e.message}")
 
         raise e
       end
@@ -142,7 +143,7 @@ module VeteranEnrollmentSystem
           status: 'partial_success',
           message: 'Some associations could not be updated',
           successful_records: updated_associations(response).map { |a| { role: a['role'], status: a['status'] } },
-          failed_records: unchanged_associations(response).map { |a| { role: a['role'], status: a['status'] } }
+          failed_records: non_updated_associations(response).map { |a| { role: a['role'], status: a['status'] } }
         )
       end
 
@@ -156,26 +157,26 @@ module VeteranEnrollmentSystem
 
       def handle_ves_response(response, form_id)
         if response.status == 200
-          if response.body['messages'].find { |message| message['code'] != 'completed_success' }
-            StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.partial_success")
+          if response.body['messages'].find { |message| message['code'] != 'completed_partial' }
+            StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
+            Rails.logger.info("#{form_id} associations updated successfully")
 
-            Rails.logger.warning(
+            set_response
+          else
+            StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.partial_success")
+            Rails.logger.info(
               "The following #{form_id} associations could not be updated: " \
               "#{non_updated_associations(response).pluck('role').join(', ')}"
             )
 
             set_partial_success_response(response)
-          else
-            StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
-            Rails.logger.info("#{form_id} associations updated successfully")
-
-            set_response
           end
         else
+          message = response.body['messages']&.pluck('description')&.join(', ') || response.body
           # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
           raise (
             ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
-          ).new(detail: response.body['messages'].pluck('description').join(', '))
+          ).new(errors: message)
         end
       end
     end
