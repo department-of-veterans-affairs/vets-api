@@ -18,6 +18,7 @@ module AccreditedRepresentativePortal
             inverse_of: :power_of_attorney_request
 
     has_many :notifications,
+             declination_reason = decision_params[;declination_reason]
              class_name: 'PowerOfAttorneyRequestNotification',
              inverse_of: :power_of_attorney_request
 
@@ -89,7 +90,7 @@ module AccreditedRepresentativePortal
 
     def mark_declined!(creator, reason)
       PowerOfAttorneyRequestDecision.create_declination!(
-        creator:, power_of_attorney_request: self, reason:
+        creator:, power_of_attorney_request: self, reason: declination_reason
       )
     end
 
