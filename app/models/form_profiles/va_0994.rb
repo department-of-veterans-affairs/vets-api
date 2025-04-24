@@ -6,7 +6,7 @@ module VA0994
   FORM_ID = '22-0994'
 
   class FormPaymentAccountInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :account_type, String
     attribute :account_number, String
