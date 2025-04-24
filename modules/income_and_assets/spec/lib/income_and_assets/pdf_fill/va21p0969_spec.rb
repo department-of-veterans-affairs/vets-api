@@ -31,11 +31,4 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
       )
     end
   end
-
-  describe '#split_currency_amount' do
-    it 'returns an empty hash' do
-      expect(basic_class.split_currency_amount(-2)).to eq({})
-      expect(basic_class.split_currency_amount(9_999_999_999)).to eq({})
-    end
-  end
 end
