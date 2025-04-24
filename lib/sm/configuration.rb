@@ -22,6 +22,10 @@ module SM
       Settings.mhv.sm.app_token
     end
 
+    def x_api_key
+      Settings.mhv.sm.x_api_key 
+    end
+
     ##
     # @return [String] Base path for dependent URLs
     #

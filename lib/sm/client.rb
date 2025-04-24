@@ -31,7 +31,7 @@ module SM
     # @return [Hash] an object containing the body of the response
     #
     def get_preferences_frequency_list
-      perform(:get, 'preferences/notification/list', nil, get_headers(token_headers)).body
+      perform(:get, 'preferences/notification/list', nil, token_headers).body
     end
 
     ##
@@ -40,7 +40,7 @@ module SM
     # @return [MessagingPreference]
     #
     def get_preferences
-      json = perform(:get, 'preferences/notification', nil, get_headers(token_headers)).body
+      json = perform(:get, 'preferences/notification', nil, token_headers).body
       frequency = MessagingPreference::FREQUENCY_GET_MAP[json[:data][:notify_me]]
       MessagingPreference.new(email_address: json[:data][:email_address],
                               frequency:)
@@ -59,7 +59,7 @@ module SM
     #
     def post_preferences(params)
       mhv_params = MessagingPreference.new(params).mhv_params
-      perform(:post, 'preferences/notification', mhv_params, get_headers(token_headers))
+      perform(:post, 'preferences/notification', mhv_params, token_headers)
       get_preferences
     end
 
@@ -69,7 +69,7 @@ module SM
     # @return [Sting] json response
     #
     def get_signature
-      perform(:get, 'preferences/signature', nil, get_headers(token_headers)).body
+      perform(:get, 'preferences/signature', nil, token_headers).body
     end
 
     ##
@@ -79,7 +79,7 @@ module SM
     #
     def post_signature(params)
       request_body = MessagingSignature.new(params).to_h
-      perform(:post, 'preferences/signature', request_body, get_headers(token_headers)).body
+      perform(:post, 'preferences/signature', request_body, token_headers).body
     end
     # @!endgroup
 
@@ -96,7 +96,7 @@ module SM
 
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
-        json = perform(:get, path, nil, get_headers(token_headers)).body
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(Folder, **json)
         Folder.set_cached(cache_key, data)
         data
@@ -112,7 +112,7 @@ module SM
       path = "folder/#{id}"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
       Folder.new(json)
     end
 
@@ -123,7 +123,7 @@ module SM
     # @return [Folder]
     #
     def post_create_folder(name)
-      json = perform(:post, 'folder', { 'name' => name }, get_headers(token_headers)).body
+      json = perform(:post, 'folder', { 'name' => name }, token_headers).body
       Folder.new(json)
     end
 
@@ -135,7 +135,7 @@ module SM
     # @return [Folder]
     #
     def post_rename_folder(folder_id, name)
-      json = perform(:post, "folder/#{folder_id}/rename", { 'folderName' => name }, get_headers(token_headers)).body
+      json = perform(:post, "folder/#{folder_id}/rename", { 'folderName' => name }, token_headers).body
       Folder.new(json)
     end
 
@@ -146,7 +146,7 @@ module SM
     # @return [Fixnum] the status code of the response
     #
     def delete_folder(id)
-      response = perform(:delete, "folder/#{id}", nil, get_headers(token_headers))
+      response = perform(:delete, "folder/#{id}", nil, token_headers)
       response&.status
     end
 
@@ -163,7 +163,7 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-          page_data = perform(:get, path, nil, get_headers(token_headers)).body
+          page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
           break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
@@ -198,7 +198,7 @@ module SM
       path = "#{base_path}?#{query_params}"
       path = append_requires_oh_messages_query(path, params[:requires_oh_messages])
 
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
 
       Common::Collection.new(MessageThread, **json)
     end
@@ -222,7 +222,7 @@ module SM
       json_data = perform(:post,
                           path,
                           args.to_h,
-                          get_headers(token_headers)).body
+                          token_headers).body
       Common::Collection.new(Message, **json_data)
     end
     # @!endgroup
@@ -240,7 +240,7 @@ module SM
       # Prevent call if this is a reply draft, otherwise reply-to message suject can change.
       validate_draft(args)
 
-      json = perform(:post, 'message/draft', args, get_headers(token_headers)).body
+      json = perform(:post, 'message/draft', args, token_headers).body
       draft = MessageDraft.new(json)
       draft.body = draft.original_attributes[:body]
       draft
@@ -258,7 +258,7 @@ module SM
       # prevent call if this an existing draft with no association to a reply-to message
       validate_reply_draft(args)
 
-      json = perform(:post, "message/#{id}/replydraft", args, get_headers(token_headers)).body
+      json = perform(:post, "message/#{id}/replydraft", args, token_headers).body
       json[:data][:has_message] = true
 
       draft = MessageDraft.new(json)
@@ -277,7 +277,7 @@ module SM
     def get_categories
       path = 'message/category'
 
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
       Category.new(json)
     end
 
@@ -289,7 +289,7 @@ module SM
     #
     def get_message(id)
       path = "message/#{id}/read"
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
       Message.new(json)
     end
 
@@ -301,7 +301,7 @@ module SM
     #
     def get_message_history(id)
       path = "message/#{id}/history"
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(Message, **json)
     end
 
@@ -315,7 +315,7 @@ module SM
       path = "message/#{id}/messagesforthread"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
 
@@ -328,7 +328,7 @@ module SM
     def get_full_messages_for_thread(id, requires_oh_messages = nil)
       path = "message/#{id}/allmessagesforthread/1"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
-      json = perform(:get, path, nil, get_headers(token_headers)).body
+      json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(MessageThreadDetails, **json)
     end
 
@@ -342,7 +342,7 @@ module SM
     def post_create_message(args = {})
       validate_create_context(args)
 
-      json = perform(:post, 'message', args.to_h, get_headers(token_headers)).body
+      json = perform(:post, 'message', args.to_h, token_headers).body
       Message.new(json)
     end
 
@@ -356,7 +356,7 @@ module SM
     def post_create_message_with_attachment(args = {})
       validate_create_context(args)
 
-      custom_headers = get_headers(token_headers).merge('Content-Type' => 'multipart/form-data')
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
       Message.new(json)
     end
@@ -371,7 +371,7 @@ module SM
     def post_create_message_reply_with_attachment(id, args = {})
       validate_reply_context(args)
 
-      custom_headers = get_headers(token_headers).merge('Content-Type' => 'multipart/form-data')
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
       Message.new(json)
     end
@@ -386,7 +386,7 @@ module SM
     def post_create_message_reply(id, args = {})
       validate_reply_context(args)
 
-      json = perform(:post, "message/#{id}/reply", args.to_h, get_headers(token_headers)).body
+      json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
       Message.new(json)
     end
 
@@ -398,7 +398,7 @@ module SM
     # @return [Fixnum] the response status code
     #
     def post_move_message(id, folder_id)
-      custom_headers = get_headers(token_headers).merge('Content-Type' => 'application/json')
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, custom_headers)
 
       response&.status
@@ -412,7 +412,7 @@ module SM
     # @return [Fixnum] the response status code
     #
     def post_move_thread(id, folder_id)
-      custom_headers = get_headers(token_headers).merge('Content-Type' => 'application/json')
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, "message/#{id}/movethreadmessages/tofolder/#{folder_id}", nil, custom_headers)
       response&.status
     end
@@ -424,7 +424,7 @@ module SM
     # @return [Fixnum] the response status code
     #
     def delete_message(id)
-      custom_headers = get_headers(token_headers).merge('Content-Type' => 'application/json')
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, "message/#{id}", nil, custom_headers)
 
       response&.status
@@ -440,7 +440,7 @@ module SM
     def get_attachment(message_id, attachment_id)
       path = "message/#{message_id}/attachment/#{attachment_id}"
 
-      response = perform(:get, path, nil, get_headers(token_headers))
+      response = perform(:get, path, nil, token_headers)
       filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
       { body: response.body, filename: }
     end
@@ -456,7 +456,7 @@ module SM
     def get_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
-        json = perform(:get, 'triageteam', nil, get_headers(token_headers)).body
+        json = perform(:get, 'triageteam', nil, token_headers).body
         data = Common::Collection.new(TriageTeam, **json)
         TriageTeam.set_cached(cache_key, data)
         data
@@ -478,7 +478,7 @@ module SM
           separator = path.include?('?') ? '&' : '?'
           path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
         end
-        json = perform(:get, path, nil, get_headers(token_headers)).body
+        json = perform(:get, path, nil, token_headers).body
         data = Common::Collection.new(AllTriageTeams, **json)
         AllTriageTeams.set_cached(cache_key, data)
         data
@@ -494,7 +494,7 @@ module SM
     # @return [Fixnum] the response status code
     #
     def update_triage_team_preferences(updated_triage_teams_list)
-      custom_headers = get_headers(token_headers).merge('Content-Type' => 'application/json')
+      custom_headers = token_headers.merge('Content-Type' => 'application/json')
       response = perform(:post, 'preferences/patientpreferredtriagegroups', updated_triage_teams_list, custom_headers)
       response&.status
     end
@@ -536,24 +536,13 @@ module SM
     def auth_headers
       base_headers = config.base_request_headers.merge(
         'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s
+        'mhvCorrelationId' => session.user_id.to_s,
       )
-      get_headers(base_headers) # Ensure get_headers is called to add x-api-key
-    end
-
-    def get_headers(headers)
-      headers = headers.dup
+      # Conditionally add x-api-key if use_new_api is true
       if Settings.mhv.sm.use_new_api
-        case headers['appToken']
-        when Settings.mhv.sm.app_token
-          headers.merge('x-api-key' => Settings.mhv.sm.x_api_key)
-        when Settings.mhv_mobile.sm.app_token
-          headers.merge('x-api-key' => Settings.mhv_mobile.x_api_key)
-        else
-          headers
-        end
+        base_headers.merge('x-api-key' => config.x_api_key)
       else
-        headers
+        base_headers
       end
     end
 

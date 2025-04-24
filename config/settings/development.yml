@@ -986,7 +986,7 @@ mhv:
   sm:
     app_token: fake-app-token
     base_path: mhv-sm-api/patient/v1/
-    gw_base_path: v1/
+    gw_base_path: v1/sm/patient/
     host: https://mhv-api.example.com
     mock: true
     use_new_api: false
@@ -1002,7 +1002,7 @@ mhv:
 mhv_mobile:
   sm:
     app_token: fake-app-token
-  x_api_key: fake-x-api-key
+    x_api_key: fake-x-api-key
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
