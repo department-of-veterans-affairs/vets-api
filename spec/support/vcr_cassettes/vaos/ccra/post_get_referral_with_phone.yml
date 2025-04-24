@@ -1,10 +1,7 @@
 http_interactions:
 - request:
-    method: post
-    uri: "<VAOS_CCRA_API_URL>/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"
-    body:
-      encoding: UTF-8
-      string: '{"Id":"12345","Mode":"2"}'
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/care-nav-patient-casey/referrals/12345"
     headers:
       Accept:
       - application/json
@@ -31,6 +28,6 @@ http_interactions:
       - Tue, 26 Nov 2024 17:06:42 GMT
     body:
       encoding: UTF-8
-      string: '{"Referral":{"APPTYesNo1":"Y","AffilitationCode":"CCN2","AffilitationDesc":"CCN2","AppointmentDate":"2024-06-01","CategoryOfCare":"CARDIOLOGY","ClinicallyIndicatedDate":"2024-03-28","EpisodeID":"5682","ReferralNumber":"12345","Status":"First Appointment Made","TreatingFacilityInfo":{"Phone":"555-123-4567"}}}'
+      string: '{"Referral":{"APPTYesNo1":"Y","AffilitationCode":"CCN2","AffilitationDesc":"CCN2","AppointmentDate":"2024-06-01","CategoryOfCare":"CARDIOLOGY","ClinicallyIndicatedDate":"2024-03-28","EpisodeID":"5682","ReferralNumber":"12345","Status":"First Appointment Made","TreatingFacilityInfo":{"Phone":"555-123-4567"}, "ReferringFacilityInfo":{"Phone":"555-123-0000", "FacilityName":"Test Referring Facility"}}}'
     http_version:
   recorded_at: Tue, 26 Nov 2024 17:06:42 GMT
