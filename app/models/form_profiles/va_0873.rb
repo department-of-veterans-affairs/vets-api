@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/demographics/service'
+require 'vets/model'
 
 module VA0873
   FORM_ID = '0873'

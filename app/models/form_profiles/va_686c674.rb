@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 class FormProfiles::VA686c674 < FormProfile
   class FormAddress
     include Vets::Model

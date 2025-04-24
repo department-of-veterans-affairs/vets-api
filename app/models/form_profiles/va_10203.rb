@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_education/service'
+require 'vets/model'
 
 module VA10203
   FORM_ID = '22-10203'

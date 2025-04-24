@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module VA1990s
   FORM_ID = '22-1990s'
 
