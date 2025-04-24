@@ -2,11 +2,11 @@
 
 module VA2122
   class IdentityValidation
-    include Virtus.model
+    include Vets::Model
 
-    attribute :has_icn, Boolean
-    attribute :has_participant_id, Boolean
-    attribute :is_loa3, Boolean
+    attribute :has_icn, Bool
+    attribute :has_participant_id, Bool
+    attribute :is_loa3, Bool
   end
 end
 
