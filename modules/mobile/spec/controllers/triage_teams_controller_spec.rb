@@ -12,7 +12,7 @@ describe Mobile::V0::TriageTeamsController, type: :controller do
   before do
     sign_in_as(user, build(:access_token))
     allow(controller).to receive(:client).and_return(client)
-    allow(Flipper).to receive(:enabled?).with(:mobile_get_all_triage_teams, user).and_return(use_all_triage_teams)
+    allow(Flipper).to receive(:enabled?).with(:mobile_get_expanded_triage_teams, user).and_return(use_all_triage_teams)
   end
 
   describe '#index' do

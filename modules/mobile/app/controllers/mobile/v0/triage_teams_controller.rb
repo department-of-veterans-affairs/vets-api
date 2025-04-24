@@ -4,9 +4,12 @@ module Mobile
   module V0
     class TriageTeamsController < MessagingController
       def index
-        use_all_triage_teams = Flipper.enabled?(:mobile_get_all_triage_teams, @current_user)
+        use_all_triage_teams = Flipper.enabled?(:mobile_get_expanded_triage_teams, @current_user)
 
         resource = if use_all_triage_teams
+
+                     # TODO: add parameter to get OH data from BE
+                     #
                      # Use get_all_triage_teams and filter out blocked teams
                      all_teams = client.get_all_triage_teams(@current_user.uuid, use_cache? || true)
                      raise Common::Exceptions::ResourceNotFound if all_teams.blank?
