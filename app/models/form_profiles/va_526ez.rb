@@ -4,6 +4,7 @@ require 'evss/disability_compensation_form/service'
 require 'evss/pciu_address/service'
 require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
+require 'vets/model'
 
 module VA526ez
   class FormSpecialIssue
