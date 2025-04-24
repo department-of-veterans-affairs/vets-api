@@ -110,4 +110,35 @@ namespace :ivc_champva do
 
     puts "Created #{mapping_file}"
   end
+
+  # This task can be used when there's a new version of a form's PDF
+  task :generate_mapping, [:form_path] => :environment do |_, args|
+    file_path = args[:form_path]
+
+    reader = if File.exist?(PDFTK_HOMEBREW_PATH)
+      PdfForms.new(PDFTK_HOMEBREW_PATH)
+    else
+      PdfForms.new(PDFTK_LOCAL_PATH)
+    end
+
+    form_name = file_path.split('/').last.split('.').first
+
+    meta_data = reader.get_field_names(file_path).map do |field|
+      { pdf_field: field, data_type: 'String', attribute: field.split('.').last.split('[').first }
+    end
+
+    # create the form mapping file
+    mapping_file = Rails.root.join(MAPPINGS_PATH, "#{form_name}_latest.json.erb")
+    File.open(mapping_file, 'w') do |f|
+      f.puts '{'
+      meta_data.each_with_index do |field, index|
+        puts field.inspect
+        f.print "  \"#{field[:pdf_field]}\": \"<%= data.dig('#{field[:attribute]}') %>"
+        f.puts "\"#{index + 1 == meta_data.size ? '' : ','}"
+      end
+      f.puts '}'
+    end
+
+    puts "Created #{mapping_file}"
+  end
 end
