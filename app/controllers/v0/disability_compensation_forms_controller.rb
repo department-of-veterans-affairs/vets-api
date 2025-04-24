@@ -64,6 +64,13 @@ module V0
       )
 
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata)
+        sync_modern0781_flow = form_content['syncModern0781Flow']
+        if sync_modern0781_flow.present?
+          sync_modern0781_flow_answered_online = form_content['form0781'].present?
+          saved_claim.metadata = { sync_modern0781_flow:, sync_modern0781_flow_answered_online: }.to_json
+        end
+      end
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process

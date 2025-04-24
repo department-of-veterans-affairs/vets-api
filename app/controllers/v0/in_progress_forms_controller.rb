@@ -22,9 +22,10 @@ module V0
       form.user_account = @current_user.user_account
       form.real_user_uuid = @current_user.uuid
 
-      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_ipf_metadata) &&
-         (form_id == FormProfiles::VA526ez::FORM_ID)
-        params[:metadata][:sync_modern0781_flow] = params[:form_data][:sync_modern0781_flow]
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
+         (form_id == FormProfiles::VA526ez::FORM_ID) &&
+         params[:metadata].present?
+        params[:metadata][:sync_modern0781_flow] = params.dig(:form_data, :sync_modern0781_flow) || false
       end
 
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
