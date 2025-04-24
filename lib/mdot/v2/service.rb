@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'mdot/v2/configuration'
+require 'mdot/v2/session'
 
 module MDOT::V2
   class Service < Common::Client::Base
@@ -8,17 +9,29 @@ module MDOT::V2
 
     STATSD_KEY_PREFIX = 'api.mdot_v2'
 
-    attr_reader :user
+    attr_reader :user, :supplies_resource, :orders
 
     def initialize(user)
       @user = user
     end
 
     def authenticate
-      response = get("/supplies", nil, auth_headers, {})
+      connection = get('/supplies', nil, auth_headers, {})
+      token = connection.response_headers['vaapikey']
+      @session = MDOT::V2::Session.create({ uuid: user.uuid, token: })
+      permitted_params = %w[permanentAddress temporaryAddress vetEmail supplies].freeze
+      @supplies_resource = connection.response_body&.slice(*permitted_params)
+      self
     end
 
-    def create_order; end
+    def create_order(form_data)
+      connection = post('/supplies', form_data, order_headers, {})
+      if connection.success?
+        @orders = connection.response_body
+      else
+        false
+      end
+    end
 
     private
 
@@ -27,10 +40,20 @@ module MDOT::V2
         'VA_VETERAN_FIRST_NAME' => user.first_name,
         'VA_VETERAN_MIDDLE_NAME' => user.middle_name || ' ',
         'VA_VETERAN_LAST_NAME' => user.last_name,
-        'VA_VETERAN_ID' => user.ssn[-4..-1],
+        'VA_VETERAN_ID' => user.ssn[-4..],
         'VA_VETERAN_BIRTH_DATE' => user.birth_date,
         'VA_ICN' => user.icn || ' '
       }
+    end
+
+    def order_headers
+      {
+        'VaApiKey' => session&.token
+      }
+    end
+
+    def session
+      @session ||= MDOT::V2::Session.find(uuid: user.uuid)
     end
   end
 end
