@@ -289,12 +289,16 @@ describe BBInternal::Client do
       end
 
       it 'raises a ServiceError when the patient is not found' do
-        empty_response = double('Response', body: nil)
-        allow(client).to receive(:perform).and_return(empty_response)
+        empty_response = instance_double(Faraday::Response, body: nil)
 
-        expect { client.get_patient }.to raise_error(Common::Exceptions::ServiceError) do |error|
+        fake_conn = instance_double(Faraday::Connection,
+                                    get: empty_response)
+
+        expect do
+          client.get_patient(conn: fake_conn)
+        end.to raise_error(Common::Exceptions::ServiceError) { |error|
           expect(error.errors.first[:detail]).to eq('Patient not found')
-        end
+        }
       end
 
       describe '#get_sei_vital_signs_summary' do

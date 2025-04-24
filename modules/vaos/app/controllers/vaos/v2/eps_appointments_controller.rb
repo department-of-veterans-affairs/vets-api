@@ -45,7 +45,7 @@ module VAOS
 
         begin
           # TODO: Need correct mode parameter, this one is hard-coded based on examples
-          ccra_referral_service.get_referral(referral_number, '2')
+          ccra_referral_service.get_referral(referral_number, '2', current_user.icn)
         rescue => e
           Rails.logger.error "Failed to retrieve referral details: #{e.message}"
           nil
