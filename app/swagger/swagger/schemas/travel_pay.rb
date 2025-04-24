@@ -94,13 +94,17 @@ module Swagger::Schemas
 
     swagger_schema :TravelPayAppointment do
       property :id, type: :string, example: '33333333-5555-4444-bbbb-222222444444'
+      property :appointmentSource, type: :string, example: 'VISTA'
       property :appointmentDateTime, type: :string, example: '2024-06-13T13:57:07.291Z'
+      property :appointmentName, type: :string, example: 'VistA - 983 CHY TEST CLINIC'
       property :appointmentType, type: :string, example: 'EnvironmentalHealth'
       property :facilityId, type: :string, example: '33333333-5555-4444-bbbb-222222444444'
       property :facilityName, type: :string, example: 'Cheyenne VA Medical Center'
-      property :serviceConnectedDisability, type: :number, example: 30
+      property :serviceConnectedDisability, type: :number, example: 421750001 # rubocop:disable Style/NumericLiterals
+      property :currentStatus, type: :string, example: 'CHECKED OUT'
       property :appointmentStatus, type: :string, example: 'Complete'
-      property :associatedClaimId, type: :string, example: '33333333-5555-4444-bbbb-222222444444'
+      property :externalAppointmentId, type: :string, example: 'A;3250113.083;1414'
+      property :associatedClaimId, type: :string, example: 'TC1234123412341234'
       property :associatedClaimNumber, type: :string, example: 'TC1234123412341234'
       property :isCompleted, type: :boolean, example: true
       property :createdOn, type: :string, example: '2024-06-13T13:57:07.291Z'

@@ -46,11 +46,11 @@ module TravelPay
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
-          appt_id = get_appt_or_raise(params['appointment_datetime'])
+          appt_id = get_appt_or_raise(params)
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
-          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_datetime'] })
+          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
 
           Rails.logger.info(message: "SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
@@ -99,10 +99,10 @@ module TravelPay
         end
       end
 
-      def get_appt_or_raise(appt_datetime)
-        appt_not_found_msg = "No appointment found for #{appt_datetime}"
-        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{appt_datetime}")
-        appt = appts_service.get_appointment_by_date_time({ 'appt_datetime' => appt_datetime })
+      def get_appt_or_raise(params = {})
+        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
+        appt = appts_service.find_or_create_appointment(params)
 
         if appt[:data].nil?
           Rails.logger.error(message: appt_not_found_msg)

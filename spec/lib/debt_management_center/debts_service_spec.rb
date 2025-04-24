@@ -9,19 +9,9 @@ RSpec.describe DebtManagementCenter::DebtsService do
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:user_no_ssn) { build(:user, :loa3, ssn: '') }
-  let(:cached_error_metric) { 'api.dmc.init_cached_debts.fail' }
-  let(:non_cached_error_metric) { 'api.dmc.init_debts.fail' }
-  let(:cached_total_metric) { 'api.dmc.init_cached_debts.total' }
-  let(:non_cached_total_metric) { 'api.dmc.init_debts.total' }
 
   describe '#get_debts' do
-    context 'with Flipper debts_cache_dmc_empty_response disabled' do
-      it_behaves_like 'Flipper debts_cache_dmc_empty_response behavior', false
-    end
-
-    context 'with Flipper debts_cache_dmc_empty_response enabled' do
-      it_behaves_like 'Flipper debts_cache_dmc_empty_response behavior', true
-    end
+    it_behaves_like 'debt service behavior'
   end
 
   describe '#get_debt_by_id' do
