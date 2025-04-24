@@ -10,7 +10,7 @@ module Vet360
 
     PROFILE_AUDIT_LOG_TYPES = { email: :update_email_address,
                                 address: :update_mailing_address,
-                                telephone: :update_phone_number }.freeze
+                                telephone: :update_phone_number }.with_indifferent_access.freeze
 
     # For the passed VAProfile model type and params, it:
     #   - builds and validates a VAProfile models
