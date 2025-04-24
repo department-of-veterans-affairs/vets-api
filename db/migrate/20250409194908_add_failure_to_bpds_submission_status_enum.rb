@@ -7,8 +7,6 @@ class AddFailureToBpdsSubmissionStatusEnum < ActiveRecord::Migration[7.2]
     # Retrieve list of all successful and failed submissions and attempts
     submissions = BPDS::Submission.pluck(:id, :latest_status)
     attempts = BPDS::SubmissionAttempt.pluck(:id, :status)
-    submissions = BPDS::Submission.pluck(:id, :latest_status)
-    attempts = BPDS::SubmissionAttempt.pluck(:id, :status)
 
     # Drop the enum list and remove columns using the enum
     safety_assured do
