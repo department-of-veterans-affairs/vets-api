@@ -459,7 +459,23 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityName": "Tomah VA Medical Center",
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
                           }
                         }
                       ],
@@ -517,7 +533,23 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityName": "Tomah VA Medical Center",
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
                           }
                         }
                       ],
@@ -575,7 +607,23 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityName": "Tomah VA Medical Center",
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
                           }
                         }
                       ],
@@ -624,7 +672,14 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              }
+                            }
                           }
                         }
                       ],
@@ -845,7 +900,14 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 500,
+                                "success": false,
+                                "message": "Something went wrong"
+                              }
+                            }
                           }
                         }
                       ],
@@ -9348,6 +9410,94 @@
                 "type": "string",
                 "nullable": true,
                 "example": "COMPENSATION & PENSION"
+              },
+              "travelPayClaim": {
+                "type": "object",
+                "nullable": true,
+                "description": "This is the travel pay claim object.",
+                "additionalProperties": false,
+                "properties": {
+                  "metadata": {
+                    "type": "object",
+                    "nullable": false,
+                    "description": "Metadata about the claim call success",
+                    "additionalProperties": false,
+                    "required": [
+                      "status",
+                      "success",
+                      "message"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "integer",
+                        "nullable": false,
+                        "example": 200
+                      },
+                      "success": {
+                        "type": "boolean",
+                        "nullable": false,
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "nullable": true,
+                        "example": "Data retrieved successfully"
+                      }
+                    }
+                  },
+                  "claim": {
+                    "type": "object",
+                    "nullable": true,
+                    "description": "The claim object - only appended if there is an existing claim for the appointment",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "claimNumber",
+                      "claimStatus",
+                      "appointmentDateTime",
+                      "facilityName",
+                      "createdOn",
+                      "modifiedOn"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53"
+                      },
+                      "claimNumber": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "TC00000000001"
+                      },
+                      "claimStatus": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "In process"
+                      },
+                      "appointmentDateTime": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "2023-02-23T22:22:52.549Z"
+                      },
+                      "facilityName": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "Tomah VA Medical Center"
+                      },
+                      "createdOn": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "2023-02-24T22:22:52.549Z"
+                      },
+                      "modifiedOn": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "2023-02-26T22:22:52.549Z"
+                      }
+                    }
+                  }
+                }
               }
             }
           }

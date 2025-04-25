@@ -38,8 +38,13 @@ module Mobile
           {
             clinics: true,
             facilities: true,
-            travel_pay_claims: false
+            travel_pay_claims: include_travel_claims?
           }
+        end
+
+        def include_travel_claims?
+          # TODO: make a new mobile-specific flag for this
+          Flipper.enabled?(:travel_pay_view_claim_details, @user)
         end
 
         def appointments_helper

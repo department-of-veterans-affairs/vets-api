@@ -43,9 +43,9 @@ data:
       friendly_location_name: null
       travelPayClaim:
         metadata:
-          status: 200
-          success: true
-          message: 'Data retrieved successfully'
+          status: 500
+          success: false
+          message: 'Something went wrong'
 meta:
   errors: [{source: "VA Service"}]
   upcomingAppointmentsCount: 1

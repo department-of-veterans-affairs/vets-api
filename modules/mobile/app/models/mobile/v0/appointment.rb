@@ -76,13 +76,13 @@ module Mobile
       attribute :friendly_location_name, Types::String.optional
       attribute :service_category_name, Types::String.optional
       attribute? :travelPayClaim do
-        attribute :metadata do
+        attribute? :metadata do
           attribute :status, Types::Integer
           attribute :success, Types::Bool
           attribute :message, Types::String
         end
         attribute? :claim do
-          attribute :id, Types::String,
+          attribute :id, Types::String
           attribute :claimNumber, Types::String
           attribute :claimStatus, Types::String
           attribute :appointmentDateTime, Types::DateTime

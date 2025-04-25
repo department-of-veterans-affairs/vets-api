@@ -15,6 +15,8 @@ properties:
   attributes:
     type: object
     additionalProperties: false
+    # We'll need to add travelPayClaim to this, but indicate it's optional
+    # TODO: Probably we need a separate schema for travel pay stuff as well
     required:
       - appointmentType
       - appointmentIen
@@ -219,3 +221,73 @@ properties:
         type: string
         nullable: true
         example: "COMPENSATION & PENSION"
+      travelPayClaim:
+        type: object
+        nullable: true
+        description: This is the travel pay claim object. 
+        additionalProperties: false
+        properties:
+          metadata:
+            type: object
+            nullable: false
+            description: Metadata about the claim call success
+            additionalProperties: false
+            required:
+              - status
+              - success
+              - message
+            properties:
+              status:
+                type: integer
+                nullable: false
+                example: 200
+              success:
+                type: boolean
+                nullable: false
+                example: true
+              message:
+                type: string
+                nullable: true
+                example: 'Data retrieved successfully'
+          claim:
+            type: object
+            nullable: true
+            description: The claim object - only appended if there is an existing claim for the appointment
+            additionalProperties: false
+            required:
+              - id
+              - claimNumber
+              - claimStatus
+              - appointmentDateTime
+              - facilityName
+              - createdOn
+              - modifiedOn
+            properties:
+              id:
+                type: string
+                nullable: false
+                example: "16cbc3d0-56de-4d86-abf3-ed0f6908ee53"
+              claimNumber:
+                type: string
+                nullable: false
+                example: 'TC00000000001'
+              claimStatus:
+                type: string
+                nullable: false
+                example: 'In process'
+              appointmentDateTime:
+                type: string
+                nullable: false
+                example: '2023-02-23T22:22:52.549Z'
+              facilityName: 
+                type: string
+                nullable: false
+                example: 'Tomah VA Medical Center'
+              createdOn:  
+                type: string
+                nullable: false
+                example: '2023-02-24T22:22:52.549Z'
+              modifiedOn:
+                type: string
+                nullable: false
+                example: '2023-02-26T22:22:52.549Z' 

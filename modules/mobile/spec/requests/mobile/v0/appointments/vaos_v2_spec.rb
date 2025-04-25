@@ -205,6 +205,53 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         end
       end
 
+      context 'travel pay claims' do
+        it 'appends claim info when travel_pay_view_claim_details is enabled' do
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_200_for_travel_pay',
+                               allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+                VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range',
+                                 match_requests_on: %i[method path]) do
+                  get '/mobile/v0/appointments', headers: sis_headers, params:
+                end
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+          # The first appointment should have a claim attached
+          travel_pay_claim = response.parsed_body.dig('data', 0, 'attributes', 'travelPayClaim')
+          expect(travel_pay_claim).to eq({
+                                           'metadata' => {
+                                             'status' => 200,
+                                             'message' => 'nice job everyone',
+                                             'success' => true
+                                           },
+                                           'claim' => {
+                                             'id' => 'claim_id_1',
+                                             'claimNumber' => 'TC0928098230498',
+                                             'claimStatus' => 'In process',
+                                             'appointmentDateTime' => '2021-09-02T10:00:00Z',
+                                             'facilityName' => 'Cheyenne VA Medical Center',
+                                             'createdOn' => '2024-04-22T21:22:34.465Z',
+                                             'modifiedOn' => '2024-04-23T16:44:34.465Z'
+                                           }
+                                         })
+
+          # The second appointment should only have metadata, but no claim
+          meta_only_appt = response.parsed_body.dig('data', 1, 'attributes', 'travelPayClaim')
+          expect(meta_only_appt).to eq({
+                                         'metadata' => {
+                                           'status' => 200,
+                                           'message' => 'nice job everyone',
+                                           'success' => true
+                                         }
+                                       })
+        end
+      end
+
       context 'request telehealth onsite appointment' do
         let(:start_date) { Time.zone.parse('1991-01-01T00:00:00Z').iso8601 }
         let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }

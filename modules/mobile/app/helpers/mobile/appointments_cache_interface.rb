@@ -11,6 +11,7 @@ module Mobile
       search_start_date = [start_date, latest_allowable_cache_start_date].compact.min
       search_end_date = [end_date, earliest_allowable_cache_end_date].compact.max
 
+      # TODO: Research how the cache works in re: appending new claims to existing appointments
       if fetch_cache?(search_start_date, search_end_date, fetch_cache)
         appointments = Mobile::V0::Appointment.get_cached(user)
         return [appointments, nil] if appointments
