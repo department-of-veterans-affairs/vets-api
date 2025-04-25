@@ -24,8 +24,8 @@ module Ccra
         )
 
         # Log the response body for debugging purposes, will remove upon completion of staging testing
-        body_preview = response.body.is_a?(String) ? response.body[0..100] : response.body.inspect[0..100]
-        Rails.logger.info("CCRA Referral List - Content-Type: #{response.request_headers['Content-Type']}, " \
+        body_preview = response.body.is_a?(String) ? response.body : response.body.inspect
+        Rails.logger.info("CCRA Referral List - Content-Type: #{response.response_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
         data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
