@@ -244,10 +244,10 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             failure_message =
               'associations[0].relationType: Relation type is required, associations[1].role: Role is required, ' \
               'associations[0].role: Role is required, associations[3].role: Role is required, associations[2].role: ' \
-              'Role is required, associations[3].relationType: Relation type is required, '\
+              'Role is required, associations[3].relationType: Relation type is required, ' \
               'associations[2].relationType: Relation type is required, associations[1].relationType: Relation ' \
               'type is required'
-    
+
             expect do
               described_class.new(current_user, delete_associations_form).update_associations('10-10EZR')
             end.to raise_error(
