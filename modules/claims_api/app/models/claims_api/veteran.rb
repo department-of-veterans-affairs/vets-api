@@ -28,7 +28,7 @@ module ClaimsApi
       attribute attr, String
     end
 
-    # Vets::Model will not work with `default: -> { {} }`
+    # Vets::Attribute will not work with `default: -> { {} }`
     attribute :loa, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
