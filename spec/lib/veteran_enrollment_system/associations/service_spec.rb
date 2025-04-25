@@ -48,7 +48,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
 
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
-    it 'it creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
+    it 'creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
       # Because the timestamps differ between the cassette's request body and when they are set in the code,
       # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
@@ -60,13 +60,14 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         expect_successful_response_output(response, '2025-04-24T18:22:00Z')
       end
     end
+
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
-    it 'it deletes associations', run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
+    it 'deletes associations', run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
       # Because the timestamps differ between the cassette's request body and when they are set in the code,
       # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
-        'veteran_enrollment_system/associations/example9',
+        'veteran_enrollment_system/associations/delete_associations_success',
         { match_requests_on: %i[method uri], erb: true }
       ) do
         response = described_class.new(current_user, form).update_associations('10-10EZR')
@@ -74,6 +75,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         expect_successful_response_output(response, '2025-04-24T17:08:31Z')
       end
     end
+
     context 'when a 200 response status is returned' do
       context "when the Associations API code returned is not 'partial_success'" do
         it 'increments StatsD, logs a success message, and returns a success response',
@@ -89,7 +91,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
           end
         end
       end
-
 
       context "when the Associations API code returned is a 'partial_success'" do
         before do
@@ -110,32 +111,32 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
 
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.partial_success'
-              )
+            )
             expect(Rails.logger).to have_received(:info).with(
               'The following 10-10EZR associations could not be updated: OTHER_NEXT_OF_KIN, OTHER_EMERGENCY_CONTACT'
             )
             expect(response).to eq(
               {
-                :status => 'partial_success',
-                :message => 'Some associations could not be updated',
-                :timestamp => '2025-04-22T22:03:48Z',
-                :successful_records => [
+                status: 'partial_success',
+                message: 'Some associations could not be updated',
+                timestamp: '2025-04-22T22:03:48Z',
+                successful_records: [
                   {
-                    :role => 'PRIMARY_NEXT_OF_KIN',
-                    :status => 'DELETED'
+                    role: 'PRIMARY_NEXT_OF_KIN',
+                    status: 'DELETED'
                   },
                   {
-                    :role => 'EMERGENCY_CONTACT',
-                    :status => 'DELETED'
+                    role: 'EMERGENCY_CONTACT',
+                    status: 'DELETED'
                   }],
-                :failed_records => [
+                failed_records: [
                   {
-                    :role => 'OTHER_NEXT_OF_KIN',
-                    :status => 'NOT_DELETED_NO_MATCHING_ASSOCIATION'
+                    role: 'OTHER_NEXT_OF_KIN',
+                    status: 'NOT_DELETED_NO_MATCHING_ASSOCIATION'
                   },
                   {
-                    :role => 'OTHER_EMERGENCY_CONTACT',
-                    :status => 'NOT_DELETED_NO_MATCHING_ASSOCIATION'
+                    role: 'OTHER_EMERGENCY_CONTACT',
+                    status: 'NOT_DELETED_NO_MATCHING_ASSOCIATION'
                   }
                 ]
               }
@@ -269,9 +270,9 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     expect(Rails.logger).to have_received(:info).with('10-10EZR associations updated successfully')
     expect(response).to eq(
       {
-        :status => 'success',
-        :message => 'All associations were updated successfully',
-        :timestamp => timestamp
+        status: 'success',
+        message: 'All associations were updated successfully',
+        timestamp: timestamp
       }
     )
   end

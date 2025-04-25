@@ -38,7 +38,7 @@ module VeteranEnrollmentSystem
         DELETED
       ].freeze
 
-      UNCHANGED_STATUSES = %w[
+      NON_UPDATED_STATUSES = %w[
         NOT_DELETED_NO_MATCHING_ASSOCIATION
         NO_CHANGES
       ].freeze
@@ -152,7 +152,7 @@ module VeteranEnrollmentSystem
       end
 
       def non_updated_associations(response)
-        response.body['data']['associations'].select { |assoc| UNCHANGED_STATUSES.include?(assoc['status']) }
+        response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
       end
 
       def handle_ves_response(response, form_id)

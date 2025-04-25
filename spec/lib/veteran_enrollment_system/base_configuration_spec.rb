@@ -5,7 +5,7 @@ require 'veteran_enrollment_system/base_configuration'
 require 'veteran_enrollment_system/associations/configuration'
 
 # Test class used for testing BaseConfiguration
-class TestConfiguration < VeteranEnrollmentSystem::BaseConfiguration
+class BaseConfigurationSubclass < VeteranEnrollmentSystem::BaseConfiguration
 end
 
 describe 'VeteranEnrollmentSystem::BaseConfiguration' do
@@ -13,7 +13,9 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
 
   describe '#base_path' do
     it 'returns the value from the env settings' do
-      expect(subject.base_path).to eq('https://sqa.ves.va.gov/')
+      expect(subject.base_path).to eq(
+        "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}/"
+      )
     end
   end
 
@@ -49,14 +51,15 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
     context 'when the api_key_path is not defined for a subclass' do
       it 'raises an error' do
         expect do
-          TestConfiguration.api_key
+          BaseConfigurationSubclass.api_key
         end.to raise_error('api_key_path must be defined in subclass')
       end
     end
 
     context 'when the api_key_path is defined for a subclass' do
       it 'returns the API key from the env settings' do
-        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key).to be_nil
+        allow(Settings.veteran_enrollment_system.associations).to receive(:api_key).and_return('test_key')
+        expect(VeteranEnrollmentSystem::Associations::Configuration.api_key).to eq('test_key')
       end
     end
   end
