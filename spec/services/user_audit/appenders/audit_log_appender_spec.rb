@@ -75,14 +75,46 @@ RSpec.describe UserAudit::Appenders::AuditLogAppender do
         let(:subject_user_icn) { nil }
         let(:acting_user_icn)  { nil }
 
-        it 'uses the user_verification credential_identifier for the user identifier' do
-          appender.log(log)
+        shared_examples 'a csp identifier' do
+          it 'maps to the correct identifier and identifier_type' do
+            appender.log(log)
 
-          audit_log = Audit::Log.last
-          expect(audit_log.subject_user_identifier).to eq(subject_user_verification.credential_identifier)
-          expect(audit_log.subject_user_identifier_type).to eq('idme_uuid')
-          expect(audit_log.acting_user_identifier).to eq(acting_user_verification.credential_identifier)
-          expect(audit_log.acting_user_identifier_type).to eq('idme_uuid')
+            audit_log = Audit::Log.last
+            expect(audit_log.subject_user_identifier).to eq(subject_user_verification.credential_identifier)
+            expect(audit_log.subject_user_identifier_type).to eq(expected_identifier_type)
+            expect(audit_log.acting_user_identifier).to eq(acting_user_verification.credential_identifier)
+            expect(audit_log.acting_user_identifier_type).to eq(expected_identifier_type)
+          end
+        end
+
+        context 'when the user_verification is idme' do
+          let(:expected_identifier_type) { 'idme_uuid' }
+
+          it_behaves_like 'a csp identifier'
+        end
+
+        context 'when the user_verification logingov' do
+          let!(:subject_user_verification) { create(:logingov_user_verification, user_account: subject_user_account) }
+          let!(:acting_user_verification) { create(:logingov_user_verification, user_account: acting_user_account) }
+          let(:expected_identifier_type) { 'logingov_uuid' }
+
+          it_behaves_like 'a csp identifier'
+        end
+
+        context 'when the user_verification is dslogon' do
+          let!(:subject_user_verification) { create(:dslogon_user_verification, user_account: subject_user_account) }
+          let!(:acting_user_verification) { create(:dslogon_user_verification, user_account: acting_user_account) }
+          let(:expected_identifier_type) { 'dslogon_id' }
+
+          it_behaves_like 'a csp identifier'
+        end
+
+        context 'when the user_verification is mhv' do
+          let!(:subject_user_verification) { create(:mhv_user_verification, user_account: subject_user_account) }
+          let!(:acting_user_verification) { create(:mhv_user_verification, user_account: acting_user_account) }
+          let(:expected_identifier_type) { 'mhv_id' }
+
+          it_behaves_like 'a csp identifier'
         end
       end
     end

@@ -65,7 +65,7 @@ module UserAudit
 
         case user_verification.credential_type
         when SAML::User::IDME_CSID         then 'idme_uuid'
-        when SAML::User::LOGINGOV_CSID     then 'login_uuid'
+        when SAML::User::LOGINGOV_CSID     then 'logingov_uuid'
         when SAML::User::MHV_ORIGINAL_CSID then 'mhv_id'
         when SAML::User::DSLOGON_CSID      then 'dslogon_id'
         end
