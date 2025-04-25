@@ -138,11 +138,9 @@ class FormProfiles::VA526ez < FormProfile
     response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
     ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
-    binding.pry
-
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
-      rated_disabilities: response.rated_disabilities
+      rated_disabilities: response.rated_disabilities.map(&:to_h)
     )
   end
 
