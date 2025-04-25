@@ -1205,6 +1205,9 @@ features:
     actor_type: user
     description: Enables/disables partial fill content
     enable_in_development: true
+  mhv_milestone_2_changes_enabled:
+    actor_type: user
+    description: Enables MHV Milestone 2 changes
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
