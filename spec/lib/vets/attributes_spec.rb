@@ -43,10 +43,11 @@ RSpec.describe Vets::Attributes do
       model.age = 30
       model.tags = %w[ruby rails]
       model.name = 'Steven'
+      model.active = false
       expect(model.age).to eq(30)
       expect(model.tags).to eq(%w[ruby rails])
       expect(model.name).to eq('Steven')
-      expect(model.active).to be_nil
+      expect(model.active).to be_falsey
     end
 
     it 'defines the defaults' do
