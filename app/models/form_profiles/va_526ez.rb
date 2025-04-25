@@ -74,7 +74,7 @@ module VA526ez
     include Vets::Model
 
     attribute :started_form_version, String
-    attribute :sync_modern_0781_flow, Bool, default: false
+    attribute :sync_modern_0781_flow, Bool
   end
 end
 
