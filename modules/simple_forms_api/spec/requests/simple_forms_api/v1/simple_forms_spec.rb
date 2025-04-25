@@ -42,8 +42,11 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
   end
 
-  # TODO: Note to fix these tests for the team that manages them
-  xdescribe '#submit' do
+  describe '#submit' do
+    before do
+      skip('TODO: Note to fix these tests for the team that manages them')
+    end
+
     context 'submitting to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
