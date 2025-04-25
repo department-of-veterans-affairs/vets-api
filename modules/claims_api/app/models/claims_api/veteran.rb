@@ -28,7 +28,7 @@ module ClaimsApi
       attribute attr, String
     end
 
-    attribute :loa, Hash, default: {}
+    attribute :loa, Hash, default: -> { {} }
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
 
