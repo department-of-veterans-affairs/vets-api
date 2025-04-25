@@ -453,6 +453,10 @@ flipper:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['flipper__github_team'] %>
   mute_logs: <%= ENV['flipper__mute_logs'] %>
+form0781_remediation:
+  aws:
+    bucket: <%= ENV['evidence_remediation__aws__bucket'] %>
+    region: us-gov-west-1
 form1095_b:
   s3:
     aws_access_key_id: <%= ENV['form1095_b__s3__aws_access_key_id'] %>
