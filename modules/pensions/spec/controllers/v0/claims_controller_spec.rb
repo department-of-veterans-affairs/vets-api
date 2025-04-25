@@ -4,6 +4,9 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'kafka/sidekiq/event_bus_submission_job'
+require 'bpds/submit_to_bpds_job'
+require 'bpds/monitor'
+require 'bpds/submission'
 
 RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   routes { Pensions::Engine.routes }
@@ -101,6 +104,42 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
 
       expect do
         subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      end.to raise_error(StandardError, 'mock error')
+    end
+  end
+
+  describe '#process_and_upload_to_bpds' do
+    let(:claim) { build(:pensions_saved_claim) }
+    let(:in_progress_form) { build(:in_progress_form) }
+    let(:bpds_submission) { double('BPDS::Submission', id: '12345') }
+    let(:bpds_monitor) { double('BPDS::Monitor') }
+    let(:current_user) { create(:user) }
+
+    before do
+      allow(BPDS::Monitor).to receive(:new).and_return(bpds_monitor)
+      allow(bpds_monitor).to receive(:track_submit_begun)
+      allow(BPDS::Submission).to receive(:create).and_return(bpds_submission)
+      allow(BPDS::SubmitToBPDSJob).to receive(:perform_async)
+    end
+
+    it 'tracks the submission and enqueues the job' do
+      expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+      expect(BPDS::Submission).to receive(:create).with(
+        saved_claim: claim,
+        form_id: claim.form_id,
+        reference_data: claim.form
+      ).once
+      expect(BPDS::SubmitToBPDSJob).to receive(:perform_async).with(bpds_submission.id).once
+
+      subject.send(:process_and_upload_to_bpds, in_progress_form, claim)
+    end
+
+    it 'raises an error and tracks the process attachment error' do
+      allow(BPDS::Submission).to receive(:create).and_raise(StandardError, 'mock error')
+      expect(monitor).to receive(:track_process_attachment_error).once
+
+      expect do
+        subject.send(:process_and_upload_to_bpds, in_progress_form, claim)
       end.to raise_error(StandardError, 'mock error')
     end
   end
