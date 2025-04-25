@@ -15,7 +15,7 @@ describe PdfFill::Forms::Va1010cg do
     PdfFill::Forms::Va1010cg.new(form_data)
   end
 
-  it_behaves_like 'a form filler',   {
+  it_behaves_like 'a form filler', {
     form_id: '10-10CG',
     factory: :caregivers_assistance_claim,
     input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
