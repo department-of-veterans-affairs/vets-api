@@ -4,6 +4,10 @@ module MyHealth
   module V1
     module MedicalRecords
       class SelfEnteredController < MrController
+        def index
+          render json: bb_client.get_all_sei_data.to_json
+        end
+
         def vitals
           render json: bb_client.get_sei_vital_signs_summary.to_json
         end

@@ -865,22 +865,6 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    context 'when old appointments are available' do
-      before do
-        allow(instance_of_class)
-          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived,proposed')
-          .and_return({ data: [] })
-        allow(instance_of_class)
-          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived')
-          .and_return({ data: [mock_appointment_one, mock_appointment_two, mock_appointment_three] })
-      end
-
-      it 'returns the recent sorted clinic appointments' do
-        expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
-        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
-      end
-    end
-
     context 'when no appointments are available' do
       before do
         allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
@@ -888,7 +872,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns nil' do
         expect(subject.first).to be_nil
-        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
+        expect(instance_of_class).to have_received(:get_appointments).once
       end
     end
   end
@@ -2169,13 +2153,20 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
+    %w[MOBILE_ANY ADHOC].each do |input|
       it "is vaVideoCareAtHome for #{input} vvsKind" do
         appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
         appt[:telehealth][:vvs_kind] = input
         subject.send(:set_modality, appt)
         expect(appt[:modality]).to eq('vaVideoCareAtHome')
       end
+    end
+
+    it 'is vaInPerson for nil vvsKind' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = nil
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaInPerson')
     end
 
     it 'is nil for unrecognized vvsKind' do

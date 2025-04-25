@@ -579,7 +579,8 @@ module PdfFill
           key: 'F[0].#subform[5].Remarks_If_Any[0]',
           limit: 1940,
           question_num: 14,
-          question_text: 'REMARKS'
+          question_text: 'REMARKS',
+          question_type: 'free_text'
         },
         'additionalInformationOverflow' => {
           key: '',

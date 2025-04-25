@@ -34,8 +34,8 @@ module Lighthouse
       form_type = in_progress_form&.form_id
       itf_type = ITF_FORMS[form_type]
 
-      itf_monitor = BenefitsClaims::IntentToFile::Monitor.new
-      itf_monitor.track_create_itf_exhaustion(itf_type, in_progress_form, error)
+      monitor = BenefitsClaims::IntentToFile::Monitor.new
+      monitor.track_create_itf_exhaustion(itf_type, in_progress_form, error)
 
       # create ITF queue exhaustion entry
       exhaustion = IntentToFileQueueExhaustion.create({
@@ -66,16 +66,19 @@ module Lighthouse
       service = BenefitsClaims::Service.new(veteran_icn)
       begin
         itf_found = service.get_intent_to_file(itf_type)
-        return itf_found if itf_found&.dig('data', 'attributes', 'status') == 'active'
+        if itf_found&.dig('data', 'attributes', 'status') == 'active'
+          monitor.track_create_itf_active_found(itf_type, form&.created_at&.to_s, form&.user_account_id, itf_found)
+          return itf_found
+        end
       rescue Common::Exceptions::ResourceNotFound
         # do nothing, continue with creation
       end
 
-      itf_monitor.track_create_itf_begun(itf_type, form&.created_at&.to_s, form&.user_account_id)
+      monitor.track_create_itf_begun(itf_type, form&.created_at&.to_s, form&.user_account_id)
 
       itf_created = service.create_intent_to_file(itf_type, '')
 
-      itf_monitor.track_create_itf_success(itf_type, form&.created_at&.to_s, form&.user_account_id)
+      monitor.track_create_itf_success(itf_type, form&.created_at&.to_s, form&.user_account_id)
       itf_created
     rescue => e
       triage_rescued_error(e)
@@ -106,15 +109,15 @@ module Lighthouse
     # @param exception [Exception] error thrown within #perform
     def triage_rescued_error(exception)
       if exception.instance_of?(MissingICNError)
-        itf_monitor.track_missing_user_icn(form, exception)
+        monitor.track_missing_user_icn(form, exception)
       elsif exception.instance_of?(MissingParticipantIDError)
-        itf_monitor.track_missing_user_pid(form, exception)
+        monitor.track_missing_user_pid(form, exception)
       elsif exception.instance_of?(InvalidITFTypeError)
-        itf_monitor.track_invalid_itf_type(form, exception)
+        monitor.track_invalid_itf_type(form, exception)
       elsif exception.instance_of?(FormNotFoundError)
-        itf_monitor.track_missing_form(form, exception)
+        monitor.track_missing_form(form, exception)
       else
-        itf_monitor.track_create_itf_failure(itf_type, form&.created_at&.to_s, form&.user_account_id, exception)
+        monitor.track_create_itf_failure(itf_type, form&.created_at&.to_s, form&.user_account_id, exception)
         raise exception
       end
     end
@@ -122,8 +125,8 @@ module Lighthouse
     # retreive a monitor for tracking
     #
     # @return [BenefitsClaims::IntentToFile::Monitor]
-    def itf_monitor
-      @itf_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
+    def monitor
+      @monitor ||= BenefitsClaims::IntentToFile::Monitor.new
     end
   end
 end
