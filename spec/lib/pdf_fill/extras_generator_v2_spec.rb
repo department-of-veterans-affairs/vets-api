@@ -395,10 +395,11 @@ describe PdfFill::ExtrasGeneratorV2 do
   end
 
   describe 'CheckedDescriptionQuestion' do
+    subject { described_class::CheckedDescriptionQuestion.new(question_text, metadata) }
+
     let(:question_text) { 'Test Question' }
-    let(:metadata) { { question_num: 1 } }
-    let(:subject) { described_class::CheckedDescriptionQuestion.new(question_text, metadata) }
     let(:pdf_double) { double('PDF', markup: nil) }
+    let(:metadata) { { question_num: 1 } }
 
     describe '#initialize' do
       it 'initializes with default values' do
@@ -473,12 +474,12 @@ describe PdfFill::ExtrasGeneratorV2 do
 
         it 'renders the header when not in list format' do
           subject.render(pdf_double)
-          expect(pdf_double).to have_received(:markup).with("<h3>1. Test Question</h3>")
+          expect(pdf_double).to have_received(:markup).with('<h3>1. Test Question</h3>')
         end
 
         it 'does not render the header in list format' do
           subject.render(pdf_double, list_format: true)
-          expect(pdf_double).not_to have_received(:markup).with("<h3>1. Test Question</h3>")
+          expect(pdf_double).not_to have_received(:markup).with('<h3>1. Test Question</h3>')
         end
 
         context 'with additional info' do

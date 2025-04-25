@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
 describe PdfFill::HashConverter do
-  let(:hash_converter) do
+  let(:converter) do
     described_class.new('%m/%d/%Y', extras_generator)
   end
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
@@ -18,19 +18,19 @@ describe PdfFill::HashConverter do
 
   describe '#set_value' do
     def verify_hash(hash)
-      expect(hash_converter.instance_variable_get(:@pdftk_form)).to eq(
+      expect(converter.instance_variable_get(:@pdftk_form)).to eq(
         hash
       )
     end
 
     def call_set_value(*args)
       final_args = ['bar'] + args
-      hash_converter.set_value(*final_args)
+      converter.set_value(*final_args)
     end
 
     def call_set_custom_value(value, *args)
       final_args = [value] + args
-      hash_converter.set_value(*final_args)
+      converter.set_value(*final_args)
     end
 
     context 'with a dollar value' do
@@ -321,7 +321,8 @@ describe PdfFill::HashConverter do
   end
 
   describe '#handle_overflow_and_label_all' do
-    let(:subject) { described_class.new('%m/%d/%Y', extras_generator) }
+    subject { described_class.new('%m/%d/%Y', extras_generator) }
+
     let(:form_data) do
       [
         { 'name' => 'Aziz', 'description' => 'A short description' },
@@ -367,41 +368,51 @@ describe PdfFill::HashConverter do
   end
 
   describe '#handle_overflow_and_label_first_key' do
-    let(:subject) { described_class.new('%m/%d/%Y', extras_generator) }
-    let(:pdftk_keys) do
-      {
-        first_key: 'myField',
-        myField: {
-          key: 'form1[0].myField[0]'
+    it 'sets the first key to EXTRAS_TEXT in @pdftk_form' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key1' => { key: 'form_key1' }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq('See add\'l info page')
+    end
+
+    it 'does nothing if first_key is not found in pdftk_keys' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key2' => { key: 'form_key2' }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)).to be_empty
+    end
+
+    it 'does nothing if key is not present in key_data' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key1' => { other_data: 'something' }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)).to be_empty
+    end
+
+    it 'sets the first key value to EXTRAS_TEXT even with nested structure' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key1' => {
+          key: 'form_key1',
+          'nested_key' => { key: 'form_nested_key' }
         }
       }
-    end
 
-    before do
-      allow(extras_generator).to receive(:add_text)
-    end
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
 
-    it 'sets the first key in pdftk_form to extras text' do
-      expect(subject).to receive(:transform_data).with(
-        form_data: { 'myField' => PdfFill::HashConverter::EXTRAS_TEXT },
-        pdftk_keys:,
-        i: 0,
-        from_array_overflow: true
-      ) do
-        subject.instance_variable_set(:@pdftk_form, { 'form1[0].myField[0]' => PdfFill::HashConverter::EXTRAS_TEXT })
-      end
-      
-      subject.handle_overflow_and_label_first_key(pdftk_keys)
-      
-      expect(subject.instance_variable_get(:@pdftk_form)).to eq(
-        'form1[0].myField[0]' => PdfFill::HashConverter::EXTRAS_TEXT
-      )
-    end
-
-    it 'does not call add_text when from_array_overflow is true' do
-      allow(subject).to receive(:transform_data)
-      expect(extras_generator).not_to receive(:add_text)
-      subject.handle_overflow_and_label_first_key(pdftk_keys)
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq('See add\'l info page')
     end
   end
 end
