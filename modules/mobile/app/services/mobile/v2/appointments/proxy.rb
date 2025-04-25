@@ -43,8 +43,7 @@ module Mobile
         end
 
         def include_travel_claims?
-          # TODO: make a new mobile-specific flag for this
-          Flipper.enabled?(:travel_pay_view_claim_details, @user)
+          Flipper.enabled?(:travel_pay_smoc_on_mobile, @user)
         end
 
         def appointments_helper
