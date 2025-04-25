@@ -75,7 +75,7 @@ module MyHealth
         end
 
         def authorize
-          raise_access_denied if current_user.mhv_correlation_id.is_blank? || current_user.icn.is_blank?
+          raise_access_denied if current_user.mhv_correlation_id.blank? || current_user.icn.blank?
         end
 
         def raise_access_denied
