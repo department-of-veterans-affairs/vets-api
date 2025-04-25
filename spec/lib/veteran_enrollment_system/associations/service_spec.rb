@@ -128,7 +128,8 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
                   {
                     role: 'EMERGENCY_CONTACT',
                     status: 'DELETED'
-                  }],
+                  }
+                ],
                 failed_records: [
                   {
                     role: 'OTHER_NEXT_OF_KIN',
@@ -146,22 +147,24 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       end
 
       context 'when any status other than 200 is returned' do
-        it 'increments StatsD, logs a failure message, and raises an exception', run_at: 'Thu, 24 Apr 2025 19:44:12 GMT' do
+        it 'increments StatsD, logs a failure message, and raises an exception',
+           run_at: 'Thu, 24 Apr 2025 19:44:12 GMT' do
           # Because the timestamps differ between the cassette's request body and when they are set in the code,
           # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/bad_request',
             { match_requests_on: %i[method uri], erb: true }
           ) do
-            failure_message = 
-              'associations[0].relationType: Relation type is required, associations[1].role: Role is required, '\
-              'associations[0].role: Role is required, associations[3].role: Role is required, associations[2].role: '\
-              'Role is required, associations[3].relationType: Relation type is required, associations[2].relationType: '\
-              'Relation type is required, associations[1].relationType: Relation type is required'
+            failure_message =
+              'associations[0].relationType: Relation type is required, associations[1].role: Role is required, ' \
+              'associations[0].role: Role is required, associations[3].role: Role is required, associations[2].role: ' \
+              'Role is required, associations[3].relationType: Relation type is required, '\
+              'associations[2].relationType: Relation type is required, associations[1].relationType: Relation ' \
+              'type is required'
     
-            expect { 
+            expect do
               described_class.new(current_user, delete_associations_form).update_associations('10-10EZR')
-             }.to raise_error(
+            end.to raise_error(
               an_instance_of(Common::Exceptions::BadRequest).and having_attributes(errors: failure_message)
             )
             expect(StatsD).to have_received(:increment).with(

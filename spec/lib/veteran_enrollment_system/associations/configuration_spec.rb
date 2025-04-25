@@ -9,7 +9,7 @@ describe 'VeteranEnrollmentSystem::Associations::Configuration' do
   describe '#base_path' do
     it 'returns the base path' do
       expect(subject.base_path).to eq(
-        "#{Settings.veteran_enrollment_system.host}:"\
+        "#{Settings.veteran_enrollment_system.host}:" \
         "#{Settings.veteran_enrollment_system.port}/ves-associate-gateway-svc/associations/person/"
       )
     end
