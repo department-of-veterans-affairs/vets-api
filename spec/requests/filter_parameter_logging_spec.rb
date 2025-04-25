@@ -8,9 +8,6 @@ RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request d
     @original_logger = Rails.logger
     @log_output = StringIO.new
 
-    # Ensure we remove any existing appenders before adding a new one
-    SemanticLogger.appenders.each { |appender| SemanticLogger.remove_appender(appender) }
-
     # Add StringIO as a new appender for SemanticLogger
     @test_appender = SemanticLogger.add_appender(io: @log_output, formatter: :json)
     SemanticLogger.default_level = :debug
