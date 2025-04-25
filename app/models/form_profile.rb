@@ -359,8 +359,13 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if pciu_disabled? && user.icn.present?
-      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+    if pciu_disabled?
+      if user.icn.present?
+        # Monitor logs to verify user and to ensure only verified users are retrieving Contact Info
+        @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+      else
+        Rails.logger.info('VAProfile Contact Info: Non verified user')
+      end
     elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
