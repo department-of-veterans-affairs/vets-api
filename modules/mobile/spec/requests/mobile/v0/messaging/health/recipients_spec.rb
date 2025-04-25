@@ -7,7 +7,10 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Recipients', type: :request do
 
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }
 
+  # TODO: update this. Make sure the feature toggle is always set to false
   before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+    allow(Flipper).to receive(:enabled?).with(:mobile_get_expanded_triage_teams, anything).and_return(false)
     Timecop.freeze(Time.zone.parse('2017-05-01T19:25:00Z'))
   end
 
