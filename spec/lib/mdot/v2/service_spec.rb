@@ -16,6 +16,11 @@ describe MDOT::V2::Service do
   end
 
   let(:user) { build(:user, :loa3, user_details) }
+  let(:cassette_data) { YAML.load_file("spec/support/vcr_cassettes/#{cassette}.yml") }
+  let(:token) { cassette_data['http_interactions'].first['request']['headers']['VaApiKey']&.first }
+
+  let(:form_data) { nil }
+  let(:service) { MDOT::V2::Service.new(user:, form_data:) }
 
   around do |ex|
     # Keep request header names SCREAMING_SNAKE_CASE, instead of Kebab-Case. It's an important detail.
@@ -33,8 +38,6 @@ describe MDOT::V2::Service do
   end
 
   describe '#authenticate' do
-    let(:service) { MDOT::V2::Service.new(user:) }
-
     context 'veteran is authorized' do
       let(:cassette) { 'mdot/v2/20250414203819-get-supplies' }
 
@@ -87,7 +90,7 @@ describe MDOT::V2::Service do
   end
 
   describe '#create_order' do
-    let(:permanentAddress) do
+    let(:permanentAddress) do # rubocop:disable RSpec/VariableName
       {
         street: '123 ASH CIRCLE',
         street2: ', ',
@@ -111,11 +114,8 @@ describe MDOT::V2::Service do
       }
     end
 
-    let(:service) { MDOT::V2::Service.new(user:, form_data:) }
-
     context 'with a valid session' do
       let(:cassette) { 'mdot/v2/20250417162831-post-supplies' }
-      let(:token) { 'abcd1234abcd1234abcd1234abcd1234abcd1234' }
       let!(:session) { MDOT::V2::Session.create({ uuid: user.uuid, token: }) }
 
       it 'creates an order with the system of record' do
@@ -126,12 +126,9 @@ describe MDOT::V2::Service do
 
     context 'order was not completed' do
       let(:cassette) { 'mdot/v2/20250417134531-post-supplies' }
-      let(:token) { 'abcd1234abcd1234abcd1234abcd1234abcd1234' }
       let!(:session) { MDOT::V2::Session.create({ uuid: user.uuid, token: }) }
 
-      it 'raises an error when orderID is zero' do
-        binding.pry
-      end
+      it 'raises an error when orderID is zero'
     end
   end
 end

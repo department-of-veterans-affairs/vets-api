@@ -12,3 +12,6 @@ module MDOT
     attribute :token
   end
 end
+
+# JSON.parse( $redis.get("mdot:#{current_user.uuid}") ) =>
+# { ":uuid"=>"[REDACTED]", ":token"=>"[REDACTED]" }

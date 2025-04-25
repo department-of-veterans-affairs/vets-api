@@ -923,8 +923,6 @@ mdot:
   prefill: true
   url: <%= ENV['mdot__url'] %>
 mdot_v2:
-  breakers: false
-  mock: false
   url: https://localhost:4466
 mhv:
   account:

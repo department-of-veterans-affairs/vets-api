@@ -14,29 +14,17 @@ module MDOT::V2
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        # faraday.use(:breakers, service_name:)
-        # faraday.request :camelcase
         faraday.request :json
 
-        # faraday.response :snakecase
-
-        # :raise_custom_error
-        # raise errors through middleware: Common::Client::Middleware::Response::RaiseCustomError
-        # rescue ::ServiceException => e from errors in ::Service
+        # :raise_custom_error faraday middleware
+        #   raise ::ServiceException < Common::Exceptions::BackendServiceException type errors
+        #   through Common::Client::Middleware::Response::RaiseCustomError middleware
+        #   when response.status&.between?(400, 599)
         faraday.response :raise_custom_error, error_prefix: service_name
-        faraday.response :betamocks if mock_enabled?
         faraday.response :json
 
         faraday.adapter Faraday.default_adapter
       end
-    end
-
-    def breakers_enabled?
-      Settings.mdot_v2.breakers || false
-    end
-
-    def mock_enabled?
-      Settings.mdot_v2.mock || false
     end
   end
 end

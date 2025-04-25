@@ -10,8 +10,9 @@ module MDOT::V2
     include Vets::SharedLogging
 
     def initialize(key, response_values = {}, original_status = nil, original_body = nil)
+
       super(
-        key,
+        key, # keys: ./config/locales/exceptions.en.yml -- e.g. - en.common.exceptions."MDOT_V2_401"
         response_values, # response_values.merge({ detail: original_body['details'] }),
         original_status,
         original_body
@@ -62,12 +63,12 @@ module MDOT::V2
 
     def auth_headers
       {
-        'VA_VETERAN_FIRST_NAME' => user.first_name,
-        'VA_VETERAN_MIDDLE_NAME' => user.middle_name || ' ',
-        'VA_VETERAN_LAST_NAME' => user.last_name,
-        'VA_VETERAN_ID' => user.ssn[-4..],
-        'VA_VETERAN_BIRTH_DATE' => user.birth_date,
-        'VA_ICN' => user.icn || ' '
+        VA_VETERAN_FIRST_NAME: user.first_name,
+        VA_VETERAN_MIDDLE_NAME: user.middle_name || ' ',
+        VA_VETERAN_LAST_NAME: user.last_name,
+        VA_VETERAN_ID: user.ssn[-4..],
+        VA_VETERAN_BIRTH_DATE: user.birth_date,
+        VA_ICN: user.icn || ' '
       }
     end
 

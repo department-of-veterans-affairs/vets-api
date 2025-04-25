@@ -9,12 +9,7 @@ module Common
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
-      attr_reader(
-        :key, # keys: ./config/locales/exceptions.en.yml -- e.g. - en.common.exceptions.MDOT_V2_401
-        :original_body,
-        :original_status,
-        :response_values
-      )
+      attr_reader :response_values, :original_status, :original_body, :key
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
