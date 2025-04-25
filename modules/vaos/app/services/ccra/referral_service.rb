@@ -15,13 +15,22 @@ module Ccra
       with_monitoring do
         # Skip token authentication for mock requests
         req_headers = config.mock_enabled? ? {} : headers
+
         response = perform(
           :get,
           "/#{config.base_path}/#{icn}/referrals",
           params,
           req_headers
         )
-        ReferralListEntry.build_collection(JSON.parse(response.body))
+
+        # Log the response body for debugging purposes, will remove upon completion of staging testing
+        body_preview = response.body.is_a?(String) ? response.body : response.body.inspect
+        Rails.logger.info("CCRA Referral List - Content-Type: #{response.response_headers['Content-Type']}, " \
+                          "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
+
+        data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+
+        ReferralListEntry.build_collection(data)
       end
     end
 
@@ -42,7 +51,15 @@ module Ccra
           params,
           req_headers
         )
-        ReferralDetail.new(JSON.parse(response.body))
+
+        # Log the response body for debugging purposes, will remove upon completion of staging testing
+        body_preview = response.body.is_a?(String) ? response.body[0..100] : response.body.inspect[0..100]
+        Rails.logger.info("CCRA Referral Detail - Content-Type: #{response.request_headers['Content-Type']}, " \
+                          "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
+
+        data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+
+        ReferralDetail.new(data)
       end
     end
   end
