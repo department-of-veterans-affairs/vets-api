@@ -1760,8 +1760,8 @@ veteran_enrollment_system:
     api_key: ~
   ee_summary:
     api_key: ~
-  host: ~
-  port: ~
+  host: https://localhost
+  port: 4430
   open_timeout: 10
   timeout: 30
 veteran_onboarding:
