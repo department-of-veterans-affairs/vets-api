@@ -1,4 +1,4 @@
-class AddFailureToBpdsSubmissionStatusEnum < ActiveRecord::Migration[7.2]
+class AddFailureToBPDSSubmissionStatusEnum < ActiveRecord::Migration[7.2]
   def up
     add_enum_value :bpds_submission_status, 'failure'
   end
