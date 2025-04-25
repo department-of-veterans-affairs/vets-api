@@ -105,22 +105,22 @@ module VAProfileRedis
       #
       # @return [VAProfile::Models::Telephone] The user's one temporary phone model
       #
-      # def temporary_phone
-      #   return unless verified_user?
+      def temporary_phone
+        return unless verified_user?
 
-      #   dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::TEMPORARY)
-      # end
+        dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::TEMPORARY)
+      end
 
       # Returns the user's fax number. In VA Profile, a user can only have one
       # fax number.
       #
       # @return [VAProfile::Models::Telephone] The user's one fax number model
       #
-      # def fax_number
-      #   return unless verified_user?
+      def fax_number
+        return unless verified_user?
 
-      #   dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::FAX)
-      # end
+        dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::FAX)
+      end
 
       # The status of the last VAProfile::V2::ContactInformation::Service response,
       # or not authorized for for users < LOA 3
