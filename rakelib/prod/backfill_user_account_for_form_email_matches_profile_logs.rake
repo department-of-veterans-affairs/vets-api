@@ -26,7 +26,7 @@ task backfill_user_account_for_form_email_matches_profile_logs: :environment do
               mpi_service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile&.icn
         user_account = UserAccount.find_or_create_by(icn:) if icn
       end
-      sub.user_account_id = user_account.uuid
+      sub.user_account_id = user_account.id
       sub.save!
     end
   end
