@@ -107,7 +107,7 @@ module Mobile
       end
 
       def send_lighthouse_confirmation_email
-        VANotifyDdEmailJob.send_to_emails(@current_user.all_emails, 'comp_and_pen')
+        VANotifyDdEmailJob.send_to_emails(@current_user.all_emails)
       end
 
       # this handles a bug that has been observed in datadog.
