@@ -461,7 +461,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
     t.string "bpds_id", comment: "ID of the submission in BPDS"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
+    t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
+    t.index ["needs_kms_rotation"], name: "index_bpds_submission_attempts_on_needs_kms_rotation"
   end
 
   create_table "bpds_submissions", force: :cascade do |t|
@@ -473,6 +475,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.string "va_claim_id", comment: "claim ID in VA (non-vets-api) systems"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_bpds_submissions_on_needs_kms_rotation"
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
@@ -1165,7 +1169,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.datetime "lighthouse_updated_at", comment: "timestamp of the last update from lighthouse"
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
+    t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
+    t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
 
   create_table "lighthouse_submissions", force: :cascade do |t|
@@ -1176,6 +1182,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
