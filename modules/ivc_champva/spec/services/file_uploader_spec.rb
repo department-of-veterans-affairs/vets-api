@@ -49,7 +49,6 @@ describe IvcChampva::FileUploader do
 
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_fmp_single_file_upload, @current_user).and_return(true)
-        allow(uploader).to receive(:insert_form)
         allow(FileUtils).to receive(:rm_f)
       end
 
@@ -161,6 +160,16 @@ describe IvcChampva::FileUploader do
 
         expect(FileUtils).to have_received(:rm_f).with(combined_pdf_path)
       end
+    end
+  end
+
+  describe '#insert_form' do
+    it 're-raises the exception when inserting into the DB fails' do
+      allow(IvcChampvaForm).to receive(:create!).and_raise(ActiveRecord::RecordInvalid.new(IvcChampvaForm.new))
+
+      expect do
+        uploader.send(:insert_form, 'test_file.pdf', [400, 'Upload failed'])
+      end.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 
