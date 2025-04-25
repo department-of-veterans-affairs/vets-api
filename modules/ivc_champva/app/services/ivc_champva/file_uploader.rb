@@ -4,6 +4,8 @@ require 'ivc_champva/monitor'
 
 module IvcChampva
   class FileUploader
+    attr_reader :metadata
+
     ##
     # Initialize new file uploader
     #
@@ -142,6 +144,7 @@ module IvcChampva
       monitor.track_insert_form(@metadata['uuid'], @form_id)
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
+      raise
     end
 
     ##

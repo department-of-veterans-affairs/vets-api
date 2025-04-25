@@ -15,7 +15,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     attribute :international_postal_code, String
   end
 
-  attribute :form_address
+  attribute :form_address, FormAddress
 
   def prefill
     prefill_form_address
