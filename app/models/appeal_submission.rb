@@ -7,7 +7,7 @@ class AppealSubmission < ApplicationRecord
 
   APPEAL_TYPES = %w[HLR NOD SC].freeze
   validates :user_uuid, :submitted_appeal_uuid, presence: true
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil, optional: false
   validates :type_of_appeal, inclusion: APPEAL_TYPES
 
   has_kms_key
