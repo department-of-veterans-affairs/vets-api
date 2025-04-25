@@ -19,8 +19,7 @@ jobs:
     name: Yardoc
 
     env:
-      COVERBAND_DISABLE: true
-      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      COVERBAND_DISABLE_AUTO_START: true
 
     runs-on: ubuntu-latest
 
