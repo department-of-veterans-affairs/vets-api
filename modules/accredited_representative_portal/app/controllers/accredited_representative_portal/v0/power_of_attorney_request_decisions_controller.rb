@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
       private
 
       def decision_params
-        params.require(:decision).permit(:type, :reason)
+        params.require(:decision).permit(:type, :reason, :declination_reason)
       end
 
       def creator
