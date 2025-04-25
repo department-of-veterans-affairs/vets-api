@@ -5,9 +5,95 @@ require 'veteran_enrollment_system/associations/service'
 
 RSpec.describe VeteranEnrollmentSystem::Associations::Service do
   let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
+  let(:updated_veteran_contacts) do
+    [
+      {
+        'fullName' => {
+          'first' => 'UpdatedFirstNoKA',
+          'middle' => 'UpdatedMiddleNoKA',
+          'last' => 'UpdatedLastNoKA',
+          'suffix' => 'Jr.'
+        },
+        'contactType' => 'Primary Next of Kin',
+        'relationship' => 'NIECE/NEPHEW',
+        'address' => {
+          'street' => 'SW 54th St',
+          'street2' => 'Apt 1',
+          'street3' => 'Unit 4',
+          'city' => 'chihuahua',
+          'country' => 'MEX',
+          'state' => 'chihuahua',
+          'provinceCode' => 'chihuahua',
+          'postalCode' => '54345'
+        },
+        'primaryPhone' => '4449131234',
+        'alternatePhone' => '6544551234'
+      },
+      {
+        'fullName' => {
+          'first' => 'UpdatedFirstNoKB',
+          'middle' => 'UpdatedMiddleNoKB',
+          'last' => 'UpdatedLastNoKB'
+        },
+        'contactType' => 'Other Next of Kin',
+        'relationship' => 'CHILD-IN-LAW',
+        'address' => {
+          'street' => '845 Glendale Ave',
+          'street2' => 'Unit 43',
+          'street3' => '',
+          'city' => 'Clearwater',
+          'country' => 'USA',
+          'state' => 'FL',
+          'postalCode' => '33754-8753'
+        },
+        'primaryPhone' => '1238835546',
+        'alternatePhone' => '2658350023'
+      },
+      {
+        'fullName' => {
+          'first' => 'UpdatedFirstECA',
+          'middle' => 'UpdatedMiddleECA',
+          'last' => 'UpdatedLastECA'
+        },
+        'contactType' => 'Emergency Contact',
+        'relationship' => 'EXTENDED FAMILY MEMBER',
+        'address' => {
+          'street' => '28 Parker St',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Los Angeles',
+          'country' => 'USA',
+          'state' => 'CA',
+          'postalCode' => '90038-1234'
+        },
+        'primaryPhone' => '3322743546',
+        'alternatePhone' => '2694437134'
+      },
+      {
+        'fullName' => {
+          'first' => 'UpdatedFirstECB',
+          'middle' => 'UpdatedMiddleECB',
+          'last' => 'UpdatedLastECB'
+        },
+        'contactType' => 'Other emergency contact',
+        'relationship' => 'GRANDCHILD',
+        'address' => {
+          'street' => '875 West Blvd',
+          'street2' => 'Apt 3',
+          'street3' => 'Unit 6',
+          'city' => 'Wichita',
+          'country' => 'USA',
+          'state' => 'KS',
+          'postalCode' => '67203-1234'
+        },
+        'primaryPhone' => '9942738265',
+        'alternatePhone' => '9563001117'
+      }
+    ]
+  end
   let(:update_associations_form) do
     JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = build_updated_veteran_contacts
+      f['veteranContacts'] = updated_veteran_contacts
     end
   end
   let(:delete_associations_form) do
@@ -19,7 +105,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
   end
   let(:missing_required_fields_form) do
     JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = build_updated_veteran_contacts.map do |contact|
+      f['veteranContacts'] = updated_veteran_contacts.map do |contact|
         contact.except('contactType', 'relationship')
       end
     end
@@ -165,7 +251,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             expect do
               described_class.new(current_user, delete_associations_form).update_associations('10-10EZR')
             end.to raise_error(
-              an_instance_of(Common::Exceptions::BadRequest).and having_attributes(errors: failure_message)
+              an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
             )
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
@@ -179,93 +265,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     end
   end
 
-  def build_updated_veteran_contacts
-    [
-      {
-        'fullName' => {
-          'first' => 'UpdatedFirstNoKA',
-          'middle' => 'UpdatedMiddleNoKA',
-          'last' => 'UpdatedLastNoKA',
-          'suffix' => 'Jr.'
-        },
-        'contactType' => 'Primary Next of Kin',
-        'relationship' => 'NIECE/NEPHEW',
-        'address' => {
-          'street' => 'SW 54th St',
-          'street2' => 'Apt 1',
-          'street3' => 'Unit 4',
-          'city' => 'chihuahua',
-          'country' => 'MEX',
-          'state' => 'chihuahua',
-          'provinceCode' => 'chihuahua',
-          'postalCode' => '54345'
-        },
-        'primaryPhone' => '4449131234',
-        'alternatePhone' => '6544551234'
-      },
-      {
-        'fullName' => {
-          'first' => 'UpdatedFirstNoKB',
-          'middle' => 'UpdatedMiddleNoKB',
-          'last' => 'UpdatedLastNoKB'
-        },
-        'contactType' => 'Other Next of Kin',
-        'relationship' => 'CHILD-IN-LAW',
-        'address' => {
-          'street' => '845 Glendale Ave',
-          'street2' => 'Unit 43',
-          'street3' => '',
-          'city' => 'Clearwater',
-          'country' => 'USA',
-          'state' => 'FL',
-          'postalCode' => '33754-8753'
-        },
-        'primaryPhone' => '1238835546',
-        'alternatePhone' => '2658350023'
-      },
-      {
-        'fullName' => {
-          'first' => 'UpdatedFirstECA',
-          'middle' => 'UpdatedMiddleECA',
-          'last' => 'UpdatedLastECA'
-        },
-        'contactType' => 'Emergency Contact',
-        'relationship' => 'EXTENDED FAMILY MEMBER',
-        'address' => {
-          'street' => '28 Parker St',
-          'street2' => '',
-          'street3' => '',
-          'city' => 'Los Angeles',
-          'country' => 'USA',
-          'state' => 'CA',
-          'postalCode' => '90038-1234'
-        },
-        'primaryPhone' => '3322743546',
-        'alternatePhone' => '2694437134'
-      },
-      {
-        'fullName' => {
-          'first' => 'UpdatedFirstECB',
-          'middle' => 'UpdatedMiddleECB',
-          'last' => 'UpdatedLastECB'
-        },
-        'contactType' => 'Other emergency contact',
-        'relationship' => 'GRANDCHILD',
-        'address' => {
-          'street' => '875 West Blvd',
-          'street2' => 'Apt 3',
-          'street3' => 'Unit 6',
-          'city' => 'Wichita',
-          'country' => 'USA',
-          'state' => 'KS',
-          'postalCode' => '67203-1234'
-        },
-        'primaryPhone' => '9942738265',
-        'alternatePhone' => '9563001117'
-      }
-    ]
-  end
-
   def expect_successful_response_output(response, timestamp)
     expect(StatsD).to have_received(:increment).with(
       'api.veteran_enrollment_system.associations.update_associations.success'
@@ -275,7 +274,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       {
         status: 'success',
         message: 'All associations were updated successfully',
-        timestamp: timestamp
+        timestamp:
       }
     )
   end
