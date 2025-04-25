@@ -467,10 +467,6 @@ class User < Common::RedisStore
     (edipi.present? && veteran?) || military_person?
   end
 
-  def power_of_attorney
-    EVSS::CommonService.get_current_info[:poa]
-  end
-
   def flipper_id
     email&.downcase || account_uuid
   end
