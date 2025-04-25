@@ -24,8 +24,10 @@ module V0
 
       if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
          (form_id == FormProfiles::VA526ez::FORM_ID) &&
-         params[:metadata].present?
-        params[:metadata][:sync_modern0781_flow] = params.dig(:form_data, :sync_modern0781_flow) || false
+         params[:metadata].present? &&
+         params[:form_data].present?
+        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+        params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
       end
 
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
