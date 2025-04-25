@@ -71,7 +71,7 @@ module V0
       )
 
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
-      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata)
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
         saved_claim.metadata = add_0781_metadata(form_content['form526'])
       end
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
