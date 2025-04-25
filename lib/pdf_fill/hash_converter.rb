@@ -70,12 +70,16 @@ module PdfFill
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
       item_label = array_key_data.try(:[], :item_label)
-      description_type = array_key_data.try(:[], :description_type)
+      type = if array_key_data.present?
+               array_key_data.try(:[], :question_type)
+             else
+               key_data[:question_type]
+             end
 
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :question_type).merge(
-          i:, overflow:, item_label:, description_type:
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+          i:, overflow:, item_label:, question_type: type
         )
       )
     end

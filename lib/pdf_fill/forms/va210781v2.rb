@@ -244,7 +244,7 @@ module PdfFill
           first_key: 'additionalInfo',
           item_label: 'Behavioral Change',
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-          description_type: 'checked_description',
+          question_type: 'checked_description',
           question_num: 10,
           label_all: true,
           'description' => {
@@ -252,7 +252,8 @@ module PdfFill
             limit: 105,
             question_num: 10,
             question_suffix: 'A',
-            question_text: 'Description'
+            question_text: 'Description of Behavioral Change',
+            question_label: 'Description'
           },
           'checked' => {
             key: '',
@@ -265,7 +266,8 @@ module PdfFill
             limit: 217,
             question_num: 10,
             question_suffix: 'B',
-            question_text: 'Additional Information'
+            question_text: 'Additional Information about Behavioral Changes',
+            question_label: 'Additional Information'
           }
         },
         'additionalBehaviorsDetails' => { # question_num: 10C
@@ -273,7 +275,7 @@ module PdfFill
           first_key: 'additionalInfo',
           item_label: 'Behavioral Change',
           question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-          description_type: 'checked_description',
+          question_type: 'checked_description',
           question_num: 10,
           override_index: 14,
           'description' => {
@@ -293,7 +295,8 @@ module PdfFill
             limit: 784,
             question_num: 10,
             question_suffix: 'C',
-            question_text: 'Additional Information'
+            question_text: 'Additional Information about unlisted behavioral changes',
+            question_label: 'Additional Information'
           }
         },
         'reportFiled' => { # question_num: 11
@@ -662,17 +665,27 @@ module PdfFill
         end
       end
 
-      def process_behaviors_details(extras_redesign)
-        behaviors_details = @form_data['behaviorsDetails']
-        return if behaviors_details.blank?
-
+      def process_standard_behaviors(behaviors_details, extras_redesign)
         @form_data['behaviorsDetails'] = BEHAVIOR_DESCRIPTIONS.map do |k, v|
           # If the behavior is present, that means the checkbox was checked,
           # so add the additional info, even if there was no response.
           item = { 'additionalInfo' => behaviors_details[k] }
           item['checked'] = behaviors_details.key?(k) if extras_redesign
-          item['description'] = v if extras_redesign
+          item['description'] = v
           item
+        end
+      end
+
+      def process_behaviors_details(extras_redesign)
+        behaviors_details = @form_data['behaviorsDetails']
+        return if behaviors_details.blank?
+
+        process_standard_behaviors(behaviors_details, extras_redesign)
+
+        unless extras_redesign
+          @form_data['behaviorsDetails'].select { |item| item['additionalInfo'].blank? }.each do |item|
+            item['description'] = nil
+          end
         end
 
         additional = { 'additionalInfo' => behaviors_details['unlisted'] }

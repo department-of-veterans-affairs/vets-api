@@ -92,7 +92,9 @@ module PdfFill
       end
 
       def add_text(value, metadata)
-        case metadata[:question_text]
+        question = metadata[:question_label] || metadata[:question_text]
+
+        case question
         when 'Description'
           @description = value
         when 'Additional Information'
@@ -136,7 +138,7 @@ module PdfFill
 
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
-          @items[i] = if metadata[:description_type] == 'checked_description'
+          @items[i] = if metadata[:question_type] == 'checked_description'
                         CheckedDescriptionQuestion.new(nil, metadata)
                       else
                         Question.new(nil, metadata)
@@ -230,8 +232,11 @@ module PdfFill
 
         @questions[question_num] =
           if metadata[:i].blank?
-            if metadata[:question_type] == 'free_text'
+            case metadata[:question_type]
+            when 'free_text'
               FreeTextQuestion.new(question_text, metadata)
+            when 'checked_description'
+              CheckedDescriptionQuestion.new(question_text, metadata)
             else
               Question.new(question_text, metadata)
             end
