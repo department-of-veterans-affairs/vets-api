@@ -393,4 +393,126 @@ describe PdfFill::ExtrasGeneratorV2 do
       expect(pdf).to have_received(:start_new_page).once
     end
   end
+
+  describe 'CheckedDescriptionQuestion' do
+    let(:question_text) { 'Test Question' }
+    let(:metadata) { { question_num: 1 } }
+    let(:subject) { described_class::CheckedDescriptionQuestion.new(question_text, metadata) }
+    let(:pdf_double) { double('PDF', markup: nil) }
+
+    describe '#initialize' do
+      it 'initializes with default values' do
+        expect(subject.description).to be_nil
+        expect(subject.additional_info).to be_nil
+        expect(subject.send(:should_render?)).to be false
+      end
+    end
+
+    describe '#add_text' do
+      context 'when adding Description' do
+        it 'sets the description' do
+          subject.add_text('Test Description', { question_text: 'Description' })
+          expect(subject.description).to eq('Test Description')
+        end
+      end
+
+      context 'when adding Additional Information' do
+        it 'sets the additional_info' do
+          subject.add_text('More Info', { question_text: 'Additional Information' })
+          expect(subject.additional_info).to eq('More Info')
+        end
+      end
+
+      context 'when setting Checked status' do
+        it 'sets checked to true when value is "true"' do
+          subject.add_text('true', { question_text: 'Checked' })
+          expect(subject.send(:should_render?)).to be true
+        end
+
+        it 'sets checked to false when value is not "true"' do
+          subject.add_text('false', { question_text: 'Checked' })
+          expect(subject.send(:should_render?)).to be false
+        end
+      end
+
+      context 'when using question_label instead of question_text' do
+        it 'sets the description using question_label' do
+          subject.add_text('Test Description', { question_label: 'Description' })
+          expect(subject.description).to eq('Test Description')
+        end
+      end
+
+      it 'sets overflow from metadata' do
+        subject.add_text('Test', { overflow: false })
+        expect(subject.instance_variable_get(:@overflow)).to be false
+      end
+
+      it 'defaults overflow to true when not specified' do
+        subject.add_text('Test', {})
+        expect(subject.instance_variable_get(:@overflow)).to be true
+      end
+    end
+
+    describe '#render' do
+      before do
+        allow(pdf_double).to receive(:markup)
+      end
+
+      context 'when not checked' do
+        it 'returns 0 without rendering' do
+          expect(subject.render(pdf_double)).to eq(0)
+          expect(pdf_double).not_to have_received(:markup)
+        end
+      end
+
+      context 'when checked' do
+        before do
+          subject.add_text('true', { question_text: 'Checked' })
+          subject.add_text('Test Description', { question_text: 'Description' })
+        end
+
+        it 'renders the header when not in list format' do
+          subject.render(pdf_double)
+          expect(pdf_double).to have_received(:markup).with("<h3>1. Test Question</h3>")
+        end
+
+        it 'does not render the header in list format' do
+          subject.render(pdf_double, list_format: true)
+          expect(pdf_double).not_to have_received(:markup).with("<h3>1. Test Question</h3>")
+        end
+
+        context 'with additional info' do
+          before do
+            subject.add_text('More Details', { question_text: 'Additional Information' })
+          end
+
+          it 'renders the table with description and additional info' do
+            expected_markup = [
+              '<table>',
+              "<tr><td style='width:91'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:91'>Additional Information:</td><td>More Details</td></tr>",
+              '</table>'
+            ].join
+
+            subject.render(pdf_double)
+            expect(pdf_double).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
+          end
+        end
+
+        context 'without additional info' do
+          it 'renders the table with no response for additional info' do
+            expected_markup = [
+              '<table>',
+              "<tr><td style='width:91'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:91'>Additional Information:</td><td><i>no response</i></td></tr>",
+              '</table>'
+            ].join
+
+            subject.render(pdf_double)
+            expect(pdf_double).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
+          end
+        end
+      end
+    end
+  end
 end

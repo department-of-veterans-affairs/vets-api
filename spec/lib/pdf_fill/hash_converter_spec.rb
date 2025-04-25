@@ -319,4 +319,89 @@ describe PdfFill::HashConverter do
       end
     end
   end
+
+  describe '#handle_overflow_and_label_all' do
+    let(:subject) { described_class.new('%m/%d/%Y', extras_generator) }
+    let(:form_data) do
+      [
+        { 'name' => 'Aziz', 'description' => 'A short description' },
+        { 'name' => 'Puku', 'description' => 'A very long description that exceeds the limit' },
+        { 'name' => 'Habibi', 'description' => 'Another description' }
+      ]
+    end
+
+    let(:pdftk_keys) do
+      {
+        'name' => {
+          key: 'form.name',
+          limit: 10,
+          question_num: 1,
+          question_text: 'Name'
+        },
+        'description' => {
+          key: 'form.description',
+          limit: 5,
+          question_num: 2,
+          question_text: 'Description'
+        }
+      }
+    end
+
+    before do
+      allow(extras_generator).to receive(:add_text)
+    end
+
+    it 'processes each item and handles overflow correctly' do
+      subject.handle_overflow_and_label_all(form_data, pdftk_keys)
+
+      # Verify the form data is set correctly
+      # The last item's values should be in the form
+      expect(subject.instance_variable_get(:@pdftk_form)).to eq(
+        'form.name' => 'Habibi',
+        'form.description' => "See add'l info page"
+      )
+
+      # Since from_array_overflow is true, add_text should not be called
+      expect(extras_generator).not_to have_received(:add_text)
+    end
+  end
+
+  describe '#handle_overflow_and_label_first_key' do
+    let(:subject) { described_class.new('%m/%d/%Y', extras_generator) }
+    let(:pdftk_keys) do
+      {
+        first_key: 'myField',
+        myField: {
+          key: 'form1[0].myField[0]'
+        }
+      }
+    end
+
+    before do
+      allow(extras_generator).to receive(:add_text)
+    end
+
+    it 'sets the first key in pdftk_form to extras text' do
+      expect(subject).to receive(:transform_data).with(
+        form_data: { 'myField' => PdfFill::HashConverter::EXTRAS_TEXT },
+        pdftk_keys:,
+        i: 0,
+        from_array_overflow: true
+      ) do
+        subject.instance_variable_set(:@pdftk_form, { 'form1[0].myField[0]' => PdfFill::HashConverter::EXTRAS_TEXT })
+      end
+      
+      subject.handle_overflow_and_label_first_key(pdftk_keys)
+      
+      expect(subject.instance_variable_get(:@pdftk_form)).to eq(
+        'form1[0].myField[0]' => PdfFill::HashConverter::EXTRAS_TEXT
+      )
+    end
+
+    it 'does not call add_text when from_array_overflow is true' do
+      allow(subject).to receive(:transform_data)
+      expect(extras_generator).not_to receive(:add_text)
+      subject.handle_overflow_and_label_first_key(pdftk_keys)
+    end
+  end
 end
