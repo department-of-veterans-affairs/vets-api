@@ -134,26 +134,10 @@ RSpec.describe 'V0::PPIU::PaymentInformation', type: :request do
 
         it 'sends an email through va notify' do
           expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
-            user.all_emails, 'comp_and_pen'
+            user.all_emails
           )
 
           subject
-        end
-      end
-
-      context 'when user does not have an associated email address' do
-        before do
-          allow(Settings.sentry).to receive(:dsn).and_return('asdf')
-        end
-
-        it 'logs a message to Sentry' do
-          VCR.use_cassette('evss/ppiu/update_payment_information') do
-            expect_any_instance_of(User).to receive(:all_emails).and_return([])
-            expect(Sentry).to receive(:capture_message).once
-
-            put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
-            expect(response).to have_http_status(:ok)
-          end
         end
       end
     end
