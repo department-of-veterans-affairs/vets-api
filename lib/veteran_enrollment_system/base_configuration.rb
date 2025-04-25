@@ -37,7 +37,7 @@ module VeteranEnrollmentSystem
     end
 
     def connection
-      @conn ||= Faraday.new(
+      Faraday.new(
         base_path,
         headers: base_request_headers,
         request: request_options
