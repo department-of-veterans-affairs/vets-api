@@ -15,8 +15,6 @@ properties:
   attributes:
     type: object
     additionalProperties: false
-    # We'll need to add travelPayClaim to this, but indicate it's optional
-    # TODO: Probably we need a separate schema for travel pay stuff as well
     required:
       - appointmentType
       - appointmentIen
