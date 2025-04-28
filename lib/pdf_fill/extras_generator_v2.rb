@@ -43,7 +43,32 @@ module PdfFill
         label
       end
 
+      def checklist_group?
+        @subquestions.any? { |subq| subq[:metadata][:question_type] == 'checklist_group' }
+      end
+
       def sorted_subquestions_markup
+        if checklist_group?
+          checklist_group_markup
+        else
+          tabular_subquestions_markup
+        end
+      end
+
+      def checklist_group_markup
+        sorted_subquestions.map do |subq|
+          meta = subq[:metadata]
+          if [0, false, nil].include?(subq[:value]) || meta[:question_type] != 'checklist_group'
+            ''
+          else
+            value = subq[:metadata][:question_label]
+            value = "#{value}: #{subq[:value]}" unless [1, true].include?(subq[:value])
+            "<tr><td><ul><li>#{value}</li></ul></td></tr>"
+          end
+        end
+      end
+
+      def tabular_subquestions_markup
         if @subquestions.size == 1
           subq = @subquestions.first
           format_options = subq[:metadata][:format_options] || {}

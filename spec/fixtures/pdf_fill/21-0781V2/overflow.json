@@ -92,9 +92,9 @@
     "clergy": true,
     "service": true,
     "personal": true,
-    "none": true,
+    "none": false,
     "other": true,
-    "otherDetails": "photographic evidence"
+    "otherDetails": "Photographic evidence. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
   },
   "treatmentNoneCheckbox": {
     "none": false
