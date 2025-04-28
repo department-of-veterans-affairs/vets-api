@@ -1034,6 +1034,9 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
+  mhv_landing_page_show_share_my_health_data_link:
+    actor_type: user
+    description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
