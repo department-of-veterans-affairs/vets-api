@@ -453,6 +453,10 @@ flipper:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['flipper__github_team'] %>
   mute_logs: <%= ENV['flipper__mute_logs'] %>
+form0781_remediation:
+  aws:
+    bucket: <%= ENV['evidence_remediation__aws__bucket'] %>
+    region: us-gov-west-1
 form1095_b:
   s3:
     aws_access_key_id: <%= ENV['form1095_b__s3__aws_access_key_id'] %>
@@ -565,10 +569,6 @@ hca:
     pass: <%= ENV['hca__ee__pass'] %>
     user: HCASvcUsr
   endpoint: <%= ENV['hca__endpoint'] %>
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: <%= ENV['hca__future_discharge_testing'] %>
   prefill: true
   s3:
@@ -1633,8 +1633,8 @@ vanotify:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
-    base_path: csp/healthshare/ccraint/rest
+    api_url: <%= ENV['va_mobile__url'] %>
+    base_path: vaos/v1/patients
     mock: <%= ENV['vaos__ccra__mock'] %>
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
@@ -1736,6 +1736,14 @@ vet360:
     enabled: true
     mock: <%= ENV['vet360__veteran_status__mock'] %>
     timeout: 30
+veteran_enrollment_system:
+  associations:
+    api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
+  ee_summary:
+    api_key: ~
+  host: https://ves.va.gov
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:

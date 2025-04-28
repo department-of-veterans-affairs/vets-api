@@ -89,13 +89,16 @@ RSpec.describe RepresentationManagement::PowerOfAttorneyRequestService::Orchestr
 
     context 'when there is an error' do
       before do
-        data[:record_consent] = 'abc'
+        data[:consent_limits] = ['foobar']
       end
 
       it 'returns a meaningful error message' do
         result = subject.call
 
-        expect(result[:errors]).to eq(['value at `/authorizations/recordDisclosure` is not a boolean'])
+        expect(result[:errors]).to eq(
+          ['value at `/authorizations/recordDisclosureLimitations/0` is not one of: ["ALCOHOLISM", ' \
+           '"DRUG_ABUSE", "HIV", "SICKLE_CELL"]']
+        )
       end
 
       it 'does not create a new AccreditedRepresentativePortal::PowerOfAttorneyRequest' do

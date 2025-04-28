@@ -451,6 +451,10 @@ flipper:
   github_organization: organization
   github_team: 0
   mute_logs: false
+form0781_remediation:
+  aws:
+    bucket: ~
+    region: ~
 form1095_b:
   s3:
     aws_access_key_id: ~
@@ -563,10 +567,6 @@ hca:
     pass: password
     user: HCASvcUsr
   endpoint: https://test-foo.vets.gov
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: ~
   prefill: true
   s3:
@@ -1649,7 +1649,7 @@ vanotify:
 vaos:
   ccra:
     api_url: https://api.ccra.placeholder.va.local
-    base_path: csp/healthshare/ccraint/rest
+    base_path: vaos/v1/patients
     mock: false
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
@@ -1753,6 +1753,14 @@ vet360:
     enabled: true
     mock: false
     timeout: 30
+veteran_enrollment_system:
+  associations:
+    api_key: ~
+  ee_summary:
+    api_key: ~
+  host: https://sqa.ves.va.gov
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: ~
 veteran_readiness_and_employment:

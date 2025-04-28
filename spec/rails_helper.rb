@@ -40,6 +40,7 @@ require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
+SemanticLogger.sync!
 
 # Helper function for testing changes to the global Settings object
 # Pass in the particular settings object that you want to change,
