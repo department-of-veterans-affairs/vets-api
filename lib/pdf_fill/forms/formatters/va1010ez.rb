@@ -17,10 +17,13 @@ module PdfFill
 
             date_string = date_string.strip
 
-            # Handle 1990-08-XX format where the day is not provided
-            if date_string.match?(/^\d{4}-\d{2}-XX$/)
-              year, month = date_string.split('-')
-              return "#{month}/#{year}"
+            # Handle 1990-08-XX and 1990-XX-XX formats where the day or month is not provided
+            # Regex matches vets-json-schema regex for some date fields
+            if (match = date_string.match(/^(\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/))
+              year, month, day = match.captures
+
+              return year if month == 'XX'
+              return "#{month}/#{year}" if day == 'XX'
             end
 
             begin

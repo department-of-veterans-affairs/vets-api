@@ -210,7 +210,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                 },
                 'veteranDateOfBirth' => '1809-02-12',
                 'veteranAddress' => { 'addressLine1' => '123  Main St', 'city' => 'New York', 'countryCodeISO2' => 'US',
-                                      'zipCode5' => '30012', 'country' => 'US', 'postalCode' => '30012' },
+                                      'zipCode5' => '30012', 'country' => 'USA', 'postalCode' => '30012',
+                                      'street' => '123  Main St', 'street2' => nil, 'state' => nil },
                 'email' => 'josie@example.com',
                 'veteranPhone' => '5558001111'
               }

@@ -186,7 +186,11 @@ module PdfFill
             key: 'F[0].P5[0].ExposedToTheFollowing[9]'
           },
           'otherToxicExposure' => {
-            key: 'F[0].P5[0].SpecifyOther[0]'
+            key: 'F[0].P5[0].SpecifyOther[0]',
+            limit: 20,
+            question_num: 2.3,
+            question_suffix: 'E',
+            question_text: 'HAVE YOU BEEN EXPOSED TO ANY OF THE FOLLOWING? (Check all that apply) - OTHER'
           },
           'toxicExposureStartDate' => {
             key: 'F[0].P5[0].FromDate_3D[0]'

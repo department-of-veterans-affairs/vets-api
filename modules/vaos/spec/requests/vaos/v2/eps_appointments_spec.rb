@@ -24,7 +24,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
       ccra.api_url = 'http://ccra.api.example.com'
-      ccra.base_path = 'csp/healthshare/ccraint/rest'
+      ccra.base_path = 'vaos/v1/patients'
     end
     Settings.vaos.eps ||= OpenStruct.new
     Settings.vaos.eps.tap do |eps|
@@ -42,31 +42,18 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
             'id' => 'qdm61cJ5',
             'type' => 'eps_appointment',
             'attributes' => {
-              'appointment' => {
-                'id' => 'qdm61cJ5',
-                'status' => 'booked',
-                'patientIcn' => 'care-nav-patient-casey',
-                'created' => '2025-02-10T14:35:44Z',
-                'locationId' => 'sandbox-network-5vuTac8v',
-                'clinic' => 'Aq7wgAux',
-                'start' => '2024-11-21T18:00:00Z',
-                'referralId' => '12345',
-                'referral' => { 'referralNumber' => '12345' },
-                'providerServiceId' => 'Aq7wgAux',
-                'providerName' => 'unknown'
-              },
+              'id' => 'qdm61cJ5',
+              'status' => 'booked',
+              'start' => '2024-11-21T18:00:00Z',
+              'typeOfCare' => nil,
+              'isLatest' => true,
+              'lastRetrieved' => '2025-02-10T14:35:44Z',
+              'modality' => 'OV',
               'provider' => {
                 'id' => 'test-provider-id',
                 'name' => 'Timothy Bob',
                 'isActive' => true,
-                'individualProviders' => [
-                  {
-                    'name' => 'Timothy Bob', 'npi' => 'test-npi'
-                  }
-                ],
-                'providerOrganization' => {
-                  'name' => 'test-provider-org-name'
-                },
+                'organization' => { 'name' => 'test-provider-org-name' },
                 'location' => {
                   'name' => 'Test Medical Complex',
                   'address' => '207 Davishill Ln',
@@ -74,26 +61,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   'longitude' => -80.032819,
                   'timezone' => 'America/New_York'
                 },
-                'networkIds' => [
-                  'sandbox-network-test'
-                ],
-                'schedulingNotes' => 'New patients need to send their previous records to the office prior to their' \
-                                     ' appt.',
-                'appointmentTypes' => [
-                  {
-                    'id' => 'off',
-                    'name' => 'Office Visit',
-                    'isSelfSchedulable' => true
-                  }
-                ],
-                'specialties' => [
-                  {
-                    'id' => 'test-id',
-                    'name' => 'Urology'
-                  }
-                ],
-                'visitMode' => 'phone'
-              }
+                'networkIds' => ['sandbox-network-test']
+              },
+              'referringFacility' => {}
             }
           }
         }
@@ -150,16 +120,12 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         end
       end
 
-      context 'with provider phone number from referral' do
+      context 'with referral detail data' do
         let(:provider_phone) { '555-123-4567' }
+        let(:referring_facility_phone) { '555-123-0000' }
+        let(:referring_facility_name) { 'Test Referring Facility' }
 
-        let(:expected_response_with_phone) do
-          expected = expected_response.deep_dup
-          expected['data']['attributes']['provider']['phoneNumber'] = provider_phone
-          expected
-        end
-
-        it 'includes phone number in provider data when available from referral' do
+        it 'includes referral detail data in response when available' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
               VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
@@ -170,7 +136,10 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
                   # Check that the phone number is in the response
                   body = JSON.parse(response.body)
+
                   expect(body['data']['attributes']['provider']['phoneNumber']).to eq(provider_phone)
+                  expect(body['data']['attributes']['referringFacility']['phoneNumber']).to eq(referring_facility_phone)
+                  expect(body['data']['attributes']['referringFacility']['name']).to eq(referring_facility_name)
                 end
               end
             end

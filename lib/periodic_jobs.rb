@@ -84,6 +84,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Log a snapshot of everything in a full failure type state
   mgr.register('5 * * * *', 'Form526FailureStateSnapshotJob')
 
+  # Send metrics to datadog related to 526 submission 0781 in-progress forms and submission
+  mgr.register('0 3 * * *', 'Form0781StateSnapshotJob')
+
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
 
@@ -232,6 +235,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
+
+  # Every hour job that retries failed VES submissions
+  mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
 
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')

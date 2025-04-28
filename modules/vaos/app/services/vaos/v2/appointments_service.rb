@@ -213,10 +213,7 @@ module VAOS
       end
 
       def get_sorted_recent_appointments
-        appointments = get_appointments(1.year.ago, 1.year.from_now, 'booked,fulfilled,arrived,proposed')
-        if appointments[:data].length.zero?
-          appointments = get_appointments(3.years.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
-        end
+        appointments = get_appointments(1.year.ago, Date.current.end_of_day.yesterday, 'booked,fulfilled,arrived')
         sort_recent_appointments(appointments[:data])
       end
 
@@ -411,11 +408,10 @@ module VAOS
 
         clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
         if clinic&.[](:service_name)
-          appt[:service_name] = clinic[:service_name]
           # In VAOS Service there is no dedicated clinic friendlyName field.
           # If the clinic is configured with a patient-friendly name then that will be the value
           # in the clinic service name; otherwise it will be the internal clinic name.
-          appt[:friendly_name] = clinic[:service_name]
+          appt[:service_name] = clinic[:service_name]
         end
 
         appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
@@ -921,8 +917,10 @@ module VAOS
           'vaVideoCareAtAnAtlasLocation'
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(vvs_kind)
           'vaVideoCareAtAVaLocation'
-        elsif vvs_kind.nil? || vvs_kind == 'MOBILE_ANY' || vvs_kind == 'ADHOC'
+        elsif %w[MOBILE_ANY ADHOC].include?(vvs_kind)
           'vaVideoCareAtHome'
+        elsif vvs_kind.nil?
+          'vaInPerson'
         end
       end
 

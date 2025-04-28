@@ -453,6 +453,10 @@ flipper:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['flipper__github_team'] %>
   mute_logs: <%= ENV['flipper__mute_logs'] %>
+form0781_remediation:
+  aws:
+    bucket: <%= ENV['evidence_remediation__aws__bucket'] %>
+    region: us-gov-west-1
 form1095_b:
   s3:
     aws_access_key_id: <%= ENV['form1095_b__s3__aws_access_key_id'] %>
@@ -565,10 +569,6 @@ hca:
     pass: <%= ENV['hca__ee__pass'] %>
     user: HCASvcUsr
   endpoint: <%= ENV['hca__endpoint'] %>
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: <%= ENV['hca__future_discharge_testing'] %>
   prefill: true
   s3:
@@ -661,6 +661,8 @@ ivc_forms:
     region: us-gov-west-1
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
@@ -1430,18 +1432,30 @@ vanotify:
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
     va_gov: <%= ENV['vanotify__service_callback_tokens__va_gov'] %>
   services:
+    21p_0969: &vanotify_services_income_and_assets
+      api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
+      email:
+        error:
+          flipper_id: income_and_assets_error_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__error__template_id'] %>
+        received:
+          flipper_id: income_and_assets_received_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__received__template_id'] %>
+        submitted:
+          flipper_id: income_and_assets_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__submitted__template_id'] %>
     21p_527ez: &vanotify_services_pension
       api_key: <%= ENV['vanotify__services__21p_527ez__api_key'] %>
       email:
         confirmation:
-          flipper_id: <%= ENV['vanotify__services__21p_527ez__email__confirmation__flipper_id'] %>
+          flipper_id: false
           template_id: <%= ENV['vanotify__services__21p_527ez__email__confirmation__template_id'] %>
         error:
           flipper_id: pension_error_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__error__template_id'] %>
         received:
           flipper_id: pension_received_email_notification
-          template_id: 54140052-af03-4d2b-9903-cd33f21dc422
+          template_id: <%= ENV['vanotify__services__21p_527ez__email__received__template_id'] %>
         submitted:
           flipper_id: pension_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__submitted__template_id'] %>
@@ -1449,7 +1463,7 @@ vanotify:
       api_key: <%= ENV['vanotify__services__21p_530ez__api_key'] %>
       email:
         confirmation:
-          flipper_id: <%= ENV['vanotify__services__21p_530ez__email__confirmation__flipper_id'] %>
+          flipper_id: false
           template_id: <%= ENV['vanotify__services__21p_530ez__email__confirmation__template_id'] %>
         error:
           flipper_id: burial_error_email_notification
@@ -1506,6 +1520,7 @@ vanotify:
         form1010_cg_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_cg_failure_email'] %>
         form1010_ez_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ez_failure_email'] %>
         form1010_ezr_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ezr_failure_email'] %>
+    income_and_assets: *vanotify_services_income_and_assets
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
@@ -1547,6 +1562,8 @@ vanotify:
       api_key: <%= ENV['vanotify__services__va_gov__api_key'] %>
       template_id:
         appoint_a_representative_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_confirmation_email'] %>
+        appoint_a_representative_digital_expiration_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_expiration_confirmation_email'] %>
+        appoint_a_representative_digital_expiration_warning_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_expiration_warning_email'] %>
         appoint_a_representative_digital_submit_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_confirmation_email'] %>
         appoint_a_representative_digital_submit_decline_email: <%= ENV['vanotify__services__va_gov__template_id__appoint_a_representative_digital_submit_decline_email'] %>
         career_counseling_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__career_counseling_confirmation_email'] %>
@@ -1629,8 +1646,8 @@ vanotify:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
-    base_path: csp/healthshare/ccraint/rest
+    api_url: <%= ENV['va_mobile__url'] %>
+    base_path: vaos/v1/patients
     mock: <%= ENV['vaos__ccra__mock'] %>
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
@@ -1732,6 +1749,14 @@ vet360:
     enabled: true
     mock: <%= ENV['vet360__veteran_status__mock'] %>
     timeout: 30
+veteran_enrollment_system:
+  associations:
+    api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
+  ee_summary:
+    api_key: ~
+  host: https://ves.va.gov
+  open_timeout: 10
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:
