@@ -236,12 +236,6 @@ module VAProfile
           false
         end
 
-        def log_transaction_id?
-          return true if Settings.vsp_environment == 'staging'
-
-          false
-        end
-
         def update_model(model, attr, method_name)
           contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
           model.id = contact_info.public_send(attr)&.id
