@@ -44,7 +44,7 @@ module Preneeds
       @faraday ||= Faraday.new(
         path, headers: base_request_headers, request: request_options, ssl: { verify: false }
       ) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
 
         conn.options.timeout = TIMEOUT
 

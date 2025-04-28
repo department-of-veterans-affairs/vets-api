@@ -28,6 +28,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
     let(:valid_form_data) { get_fixture('pdf_fill/10-10CG/simple').to_json }
     let(:invalid_form_data) { '{}' }
+    let(:claim) { {} }
 
     before do
       allow(SavedClaim::CaregiversAssistanceClaim).to receive(:new)
@@ -170,11 +171,41 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         expect(response).to have_http_status(:internal_server_error)
       end
     end
+
+    context 'when missing params: caregivers_assistance_claim' do
+      let(:body) { {}.to_json }
+
+      it 'logs the error and re-raises it' do
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+          :submission_failure_client_data,
+          errors: ['param is missing or the value is empty: caregivers_assistance_claim']
+        )
+        subject
+      end
+    end
+
+    context 'when missing params: form' do
+      let(:body) { { caregivers_assistance_claim: { form: nil } }.to_json }
+
+      it 'logs the error and re-raises it' do
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+          :submission_failure_client_data,
+          errors: ['param is missing or the value is empty: form']
+        )
+        subject
+      end
+    end
   end
 
   describe 'POST /v0/caregivers_assistance_claims/download_pdf' do
     subject do
       post('/v0/caregivers_assistance_claims/download_pdf', params: body, headers:)
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:caregiver_lookup_facility_name_db).and_return(false)
     end
 
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
@@ -189,7 +220,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       FileUtils.rm_f(response_pdf)
     end
 
-    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+    it 'returns a completed PDF' do
       expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
         form: form_data
       ).and_return(
@@ -218,7 +249,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       ).to be(false)
     end
 
-    it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
+    it 'ensures the tmp file is deleted when send_data fails' do
       expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
         form: form_data
       ).and_return(claim)
@@ -237,12 +268,13 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       ).to be(false)
     end
 
-    it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
+    it 'ensures the tmp file is deleted when fill_form fails after retries' do
       expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
         form: form_data
       ).and_return(claim)
 
       allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
+      expect(claim).to receive(:to_pdf).exactly(3).times.and_raise(StandardError, 'error filling form')
 
       expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
@@ -302,10 +334,11 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         ]
       }
     end
-    let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+
+    let(:lighthouse_service) { double('FacilitiesApi::V2::Lighthouse::Client') }
 
     before do
-      allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+      allow(FacilitiesApi::V2::Lighthouse::Client).to receive(:new).and_return(lighthouse_service)
       allow(lighthouse_service).to receive(:get_paginated_facilities).and_return(mock_facility_response)
     end
 

@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/usermgmt/emergencycontacts/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 05 Apr 2025 00:12:52 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"id":14372893,"oplock":0,"addressStreet1":"123 Applte","title":null,"contactInfoEmail":"micky@gmail.com","isPrimary":false,"addressProvince":null,"addressState":"UT","contactInfoWorkPhoneExt":null,"relationship":null,"firstName":"Mickey","addressStreet2":null,"lastName":"Mouse","addressPostalCode":"84020","addressCountry":null,"addressCity":"sandy","suffix":null,"contactInfoHomePhone":null,"contactInfoContactMethod":"Email","contactInfoMobilePhone":null,"middleName":"M","contactInfoWorkPhone":null,"contactInfoPager":null,"priority":null,"contactInfoFax":null,"userProfileId":11375034}]'
+  recorded_at: Sat, 05 Apr 2025 00:12:52 GMT
+recorded_with: VCR 6.3.1

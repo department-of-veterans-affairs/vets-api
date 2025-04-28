@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+
+# bin/prod - Run Vets API in production mode locally
+# Usage: bin/prod [command]
+#
+# If no command is provided, defaults to 'rails server -e production'
+# Examples:
+#   bin/prod           # Starts the rails server in production mode
+#   bin/prod console   # Starts the rails console in production mode
+#   bin/prod -h        # Shows this help message
+
+set -e
+
+# Display help if requested
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "Usage: bin/prod [command]"
+  echo ""
+  echo "Runs the Vets API in RAILS_ENV=production mode locally with all necessary"
+  echo "environment variables pre-configured."
+  echo ""
+  echo "If no command is provided, defaults to 'rails server'"
+  echo ""
+  echo "Examples:"
+  echo "  bin/prod           # Starts the rails server in production mode"
+  echo "  bin/prod console   # Starts the rails console in production mode"
+  echo "  bin/prod runner 'puts Rails.env'  # Run a Rails runner command in production mode"
+  echo "  bin/prod -h        # Shows this help message"
+  exit 0
+fi
+
+# Check for existing secret key or generate a new one
+SECRET_FILE="tmp/local_secret.txt"
+if [[ -f "$SECRET_FILE" ]]; then
+  SECRET_KEY=$(cat "$SECRET_FILE")
+else
+  # Generate and save a new secret key
+  SECRET_KEY=$(rails secret)
+  mkdir -p tmp
+  echo "$SECRET_KEY" > "$SECRET_FILE"
+  echo "Generated new secret key in $SECRET_FILE"
+fi
+
+# Determine the command to run
+if [[ $# -eq 0 ]]; then
+  # No arguments provided, default to server
+  COMMAND="server"
+else
+  # Use the provided arguments
+  COMMAND="$*"
+fi
+
+# ID.me credentials from config files:
+# - client_id from config/identity_settings/settings.yml
+# - client_secret from config/identity_settings/environments/development.yml
+
+# Run the Rails command with all the necessary environment variables
+APPLICATION_ENV=production \
+  RAILS_ENV=production \
+  RAILS_LOCAL_STORAGE=true \
+  identity_settings__sign_in__jwt_encode_key="spec/fixtures/sign_in/privatekey.pem" \
+  identity_settings__sign_in__jwt_old_encode_key="spec/fixtures/sign_in/privatekey_old.pem" \
+  identity_settings__sign_in__sts_client__key_path="spec/fixtures/sign_in/sts_client.pem" \
+  identity_settings__idme__client_id="ef7f1237ed3c396e4b4a2b04b608a7b1" \
+  identity_settings__idme__client_secret="ae657fd2b253d17be7b48ecdb39d7b34" \
+  identity_settings__idme__client_cert_path="spec/fixtures/sign_in/oauth.crt" \
+  identity_settings__idme__client_key_path="spec/fixtures/sign_in/oauth.key" \
+  identity_settings__idme__redirect_uri="http://localhost:3000/v0/sign_in/callback" \
+  identity_settings__idme__oauth_url="https://api.idmelabs.com" \
+  identity_settings__mvi__client_cert_path="spec/support/certificates/ruby-saml.crt" \
+  identity_settings__mvi__client_key_path="spec/support/certificates/ruby-saml.key" \
+  identity_settings__mvi__mock=true \
+  identity_settings__mvi__processing_code="T" \
+  identity_settings__mvi__url="http://mvi.example.com/psim_webservice/IdMWebService" \
+  hostname="localhost:3000" \
+  vsp_environment="localhost" \
+  vet360__contact_information__mock=true \
+  vet360__military_personnel__mock=true \
+  vet360__profile_information__use_mocks=true \
+  vet360__veteran_status__mock=true \
+  CONSIDER_ALL_REQUESTS_LOCAL=true \
+  DEBUG_EXCEPTIONS=true \
+  LOG_LEVEL=debug \
+  BACKTRACE=1 \
+  RAILS_LOG_TO_STDOUT=true \
+  breakers_disabled=true \
+  evss__aws__region="us-gov-west-1" \
+  evss__s3__bucket="evss_s3_bucket" \
+  mhv__account_creation__host="https://mhv-api.example.com" \
+  mhv__rx__host="https://mhv-api.example.com" \
+  mhv__sm__host="https://mhv-api.example.com" \
+  mhv__bb__mock=true \
+  mpi__mock=true \
+  central_mail__upload__enabled=false \
+  va_mobile__mock=true \
+  va_mobile__url="https://veteran.apps-staging.va.gov" \
+  va_mobile__key_path="spec/support/certificates/ruby-saml.key" \
+  va_mobile__timeout=55 \
+  caseflow__host="https://caseflow.example.com" \
+  caseflow__mock=true \
+  preneeds__host="https://preneeds.example.com" \
+  decision_review__url="https://decision-review.example.com" \
+  decision_review__mock=true \
+  dmc__url="https://dmc.example.com" \
+  dmc__mock_debts=true \
+  dmc__mock_fsr=true \
+  gibft__mock=true \
+  gi__version="v0" \
+  gi__url="https://gi.example.com" \
+  hca__mock=true \
+  hca__endpoint="https://vaww.esrprod.aac.va.gov/voa/voaSvc" \
+  hca__timeout=30 \
+  rx__mock=true \
+  sm__mock=true \
+  search__mock_search=true \
+  search__url="https://search.example.com" \
+  search_gsa__mock_search=true \
+  search_gsa__url="https://search-gsa.example.com" \
+  search_typeahead__url="https://search-typeahead.example.com" \
+  search_click_tracking__url="https://search-click-tracking.example.com" \
+  mdot__url="https://mdot.va.gov/api" \
+  mdot__mock=true \
+  mdot__timeout=30 \
+  iam_ssoe__oauth_url="https://dev.sqa.eauth.va.gov/oauthv2" \
+  iam_ssoe__client_cert_path="spec/support/certificates/ruby-saml.crt" \
+  iam_ssoe__client_key_path="spec/support/certificates/ruby-saml.key" \
+  iam_ssoe__timeout=15 \
+  vetext_push__base_url="https://vetext.example.com" \
+  vetext_push__user="user" \
+  vetext_push__pass="pass" \
+  vetext_push__va_mobile_app_sid="sid1234" \
+  vetext_push__va_mobile_app_debug_sid="debugsid1234" \
+  maintenance__pagerduty_api_url="https://api.pagerduty.com" \
+  bgs__url="https://bgs.example.com" \
+  bgs__ssl_verify_mode="none" \
+  bgs__mock_responses=true \
+  claims_api__bgs__mock_responses=true \
+  betamocks__enabled=true \
+  betamocks__cache_dir="../vets-api-mockdata" \
+  secret_key_base="$SECRET_KEY" \
+  maintenance__service_query_prefix=foo \
+  lockbox__master_key=0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9 \
+  SETTINGS__DATABASE_URL="postgis://localhost/vets-api" \
+  SETTINGS__TEST_DATABASE_URL="postgis://postgres@localhost:5432/vets_api_test" \
+  web_origin="localhost" \
+  sign_in__web_origins=localhost \
+  old_secret_key_base=abc123 \
+  bin/rails $COMMAND -e production

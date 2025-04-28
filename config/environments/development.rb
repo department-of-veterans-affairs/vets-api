@@ -74,17 +74,21 @@ Rails.application.configure do
   # Raises error for missing translations.
   config.i18n.raise_on_missing_translations = true
 
+  # Raise error if a controller references an action callback that isn't defined
   config.action_controller.raise_on_missing_callback_actions = true
 
   ConfigHelper.setup_action_mailer(config)
 
-  config.rails_semantic_logger.semantic   = false
-  config.rails_semantic_logger.started    = true
-  config.rails_semantic_logger.processing = true
-  config.rails_semantic_logger.rendered   = true
-  # Prepend all log lines with the following tags.
-  config.log_tags = {
-    request_id: :request_id,
-    correlation_id: ->(request) { request.headers['Correlation-ID'] }
-  }
+  # Control what Semantic Logger logs from Rails internals:
+  config.rails_semantic_logger.semantic   = false  # Don't use SemanticLogger's "semantic" mode
+  config.rails_semantic_logger.started    = true   # Log when a controller action starts
+  config.rails_semantic_logger.processing = true   # Log when processing completes
+  config.rails_semantic_logger.rendered   = true   # Log rendering details (views/partials)
+
+  # Set SemanticLogger to log to stdout for foreman and rails console.
+  config.semantic_logger.add_appender(
+    io: $stdout,
+    level: :info, # For debug, see log/development.log
+    formatter: config.rails_semantic_logger.format
+  )
 end

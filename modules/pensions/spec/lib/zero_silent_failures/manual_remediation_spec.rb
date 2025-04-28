@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Pensions::ZeroSilentFailures::ManualRemediation do
-  let(:fake_claim) { build(:pensions_module_pension_claim) }
+  let(:fake_claim) { build(:pensions_saved_claim) }
 
   context 'method override coverage' do
     it 'uses expected claim class' do

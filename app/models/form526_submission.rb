@@ -23,9 +23,7 @@ class Form526Submission < ApplicationRecord
                     :submit_flashes,
                     :poll_form526_pdf,
                     :cleanup,
-                    additional_class_logs: {
-                      action: 'Begin as anciliary 526 submission'
-                    },
+                    additional_class_logs: { action: 'Begin as anciliary 526 submission' },
                     additional_instance_logs: {
                       saved_claim_id: %i[saved_claim id],
                       user_uuid: %i[user_uuid]
@@ -54,13 +52,11 @@ class Form526Submission < ApplicationRecord
   has_kms_key
   has_encrypted :auth_headers_json, :birls_ids_tried, :form_json, key: :kms_key, **lockbox_options
 
-  belongs_to :saved_claim,
-             class_name: 'SavedClaim::DisabilityCompensation',
-             inverse_of: false
+  belongs_to :saved_claim, class_name: 'SavedClaim::DisabilityCompensation', inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
   has_many :form526_submission_remediations, dependent: :destroy
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil
 
   validates(:auth_headers_json, presence: true)
   enum :backup_submitted_claim_status, { accepted: 0, rejected: 1, paranoid_success: 2 }
@@ -79,6 +75,17 @@ class Form526Submission < ApplicationRecord
   MAX_PENDING_TIME = 3.weeks
   ZSF_DD_TAG_SERVICE = 'disability-application'
 
+  # the keys of the Toxic Exposure details for each section
+  TOXIC_EXPOSURE_DETAILS_MAPPING = {
+    'gulfWar1990Details' => %w[afghanistan bahrain egypt iraq israel jordan kuwait neutralzone oman qatar saudiarabia
+                               somalia syria uae turkey waters airspace],
+    'gulfWar2001Details' => %w[djibouti lebanon uzbekistan yemen airspace],
+    'herbicideDetails' => %w[cambodia guam koreandemilitarizedzone johnston laos c123 thailand vietnam],
+    'otherExposuresDetails' => %w[asbestos chemical mos mustardgas radiation water],
+    'otherHerbicideLocations' => [],
+    'specifyOtherExposures' => []
+  }.freeze
+
   # used to track in APMs between systems such as Lighthouse
   # example: can be used as a search parameter in Datadog
   # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
@@ -93,6 +100,7 @@ class Form526Submission < ApplicationRecord
   # go here and call start_evss_submission_job when done.
   def start
     log_max_cfi_metrics_on_submit
+    log_document_type_metrics
     start_evss_submission_job
   end
 
@@ -151,9 +159,7 @@ class Form526Submission < ApplicationRecord
 
   # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
   def get_first_name
-    user = User.find(user_uuid)
-    user&.first_name&.upcase.presence ||
-      auth_headers&.dig('va_eauth_firstName')&.upcase
+    user&.first_name&.upcase.presence || auth_headers&.dig('va_eauth_firstName')&.upcase
   end
 
   # Checks against the User record first, and then resorts to checking the auth_headers
@@ -162,15 +168,13 @@ class Form526Submission < ApplicationRecord
   # @return [Hash] of the user's full name (first, middle, last, suffix)
   #
   def full_name
-    name_hash = User.find(user_uuid)&.full_name_normalized
+    name_hash = user&.full_name_normalized
     return name_hash if name_hash&.[](:first).present?
 
-    {
-      first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
+    { first: auth_headers&.dig('va_eauth_firstName')&.capitalize,
       middle: nil,
       last: auth_headers&.dig('va_eauth_lastName')&.capitalize,
-      suffix: nil
-    }
+      suffix: nil }
   end
 
   # form_json is memoized here so call invalidate_form_hash after updating form_json
@@ -456,22 +460,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def account
-    # first, check for an ICN on the UserAccount associated to the submission, return it if found
-    account = user_account
-    return account if account&.icn.present?
+    return user_account if user_account&.icn.present?
 
-    # next, check past submissions for different UserAccounts that might have ICNs
-    past_submissions = get_past_submissions
-    account = find_user_account_with_icn(past_submissions, 'past submissions')
-    return account if account.present? && account.icn.present?
-
-    # next, check for any historical UserAccounts for that user which might have an ICN
-    user_verifications = get_user_verifications
-    account = find_user_account_with_icn(user_verifications, 'user verifications')
-    return account if account.present? && account.icn.present?
-
-    # failing all the above, default to an Account lookup
-    Account.lookup_by_user_uuid(user_uuid)
+    Rails.logger.info('Form526Submission::account - no UserAccount ICN found', log_payload)
+    # query MPI by EDIPI first & attributes second for user ICN, return in OpenStruct
+    get_icn_from_mpi
   end
 
   # Send the Submitted Email - when the Veteran has clicked the "submit" button in va.gov
@@ -481,8 +474,7 @@ class Form526Submission < ApplicationRecord
   # @param invoker: string where the Received Email trigger is being called from
   def send_submitted_email(invoker)
     if Flipper.enabled?(:disability_526_send_form526_submitted_email)
-      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
+      Rails.logger.info("Form526SubmittedEmailJob called for user #{user_uuid}, submission: #{id} from #{invoker}")
       first_name = get_first_name
       params = personalization_parameters(first_name)
       Form526SubmittedEmailJob.perform_async(params)
@@ -494,8 +486,7 @@ class Form526Submission < ApplicationRecord
   # Backup Path: when Form526StatusPollingJob reaches "paranoid_success" status
   # @param invoker: string where the Received Email trigger is being called from
   def send_received_email(invoker)
-    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid},
-                                                          submission: #{id} from #{invoker}")
+    Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid}, submission: #{id} from #{invoker}")
     first_name = get_first_name
     params = personalization_parameters(first_name)
     Form526ConfirmationEmailJob.perform_async(params)
@@ -600,7 +591,6 @@ class Form526Submission < ApplicationRecord
   end
 
   def submit_flashes
-    user = User.find(user_uuid)
     # Note that the User record is cached in Redis -- `User.redis_namespace_ttl`
     # If this method runs after the TTL, then the flashes will not be applied -- a possible bug.
     BGS::FlashUpdater.perform_async(id) if user && Flipper.enabled?(:disability_compensation_flashes, user)
@@ -618,27 +608,51 @@ class Form526Submission < ApplicationRecord
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 
-  def find_user_account_with_icn(records, record_type)
-    records.pluck(:user_account_id).uniq.each do |user_account_id|
-      user_account = UserAccount.find(user_account_id)
-      next if user_account&.icn.blank?
-
-      Rails.logger.info("ICN not found on submission #{id}, " \
-                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
-      return user_account
+  def get_icn_from_mpi
+    edipi_response_profile = edipi_mpi_profile_query(auth_headers['va_eauth_dodedipnid'])
+    if edipi_response_profile&.icn.present?
+      OpenStruct.new(icn: edipi_response_profile.icn)
+    else
+      Rails.logger.info('Form526Submission::account - unable to look up MPI profile with EDIPI', log_payload)
+      attributes_response_profile = attributes_mpi_profile_query(auth_headers)
+      if attributes_response_profile&.icn.present?
+        OpenStruct.new(icn: attributes_response_profile.icn)
+      else
+        Rails.logger.info('Form526Submission::account - no ICN present', log_payload)
+        OpenStruct.new(icn: nil)
+      end
     end
   end
 
-  def get_past_submissions
-    Form526Submission.where(user_uuid:).where.not(user_account_id:)
+  def edipi_mpi_profile_query(edipi)
+    return unless edipi
+
+    edipi_response = mpi_service.find_profile_by_edipi(edipi:)
+    edipi_response.profile if edipi_response.ok? && edipi_response.profile.icn.present?
   end
 
-  def get_user_verifications
-    UserVerification.where(idme_uuid: user_uuid)
-                    .or(UserVerification.where(backing_idme_uuid: user_uuid))
-                    .or(UserVerification.where(logingov_uuid: user_uuid))
-                    .or(UserVerification.where(mhv_uuid: user_uuid))
-                    .or(UserVerification.where(dslogon_uuid: user_uuid))
-                    .where.not(user_account_id:)
+  def attributes_mpi_profile_query(auth_headers)
+    required_attributes = %w[va_eauth_firstName va_eauth_lastName va_eauth_birthdate va_eauth_pnid]
+    return unless required_attributes.all? { |attr| auth_headers[attr].present? }
+
+    attributes_response = mpi_service.find_profile_by_attributes(
+      first_name: auth_headers['va_eauth_firstName'],
+      last_name: auth_headers['va_eauth_lastName'],
+      birth_date: auth_headers['va_eauth_birthdate']&.to_date.to_s,
+      ssn: auth_headers['va_eauth_pnid']
+    )
+    attributes_response.profile if attributes_response.ok? && attributes_response.profile.icn.present?
+  end
+
+  def log_payload
+    @log_payload ||= { user_uuid:, submission_id: id }
+  end
+
+  def mpi_service
+    @mpi_service ||= MPI::Service.new
+  end
+
+  def user
+    @user ||= User.find(user_uuid)
   end
 end

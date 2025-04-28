@@ -23,6 +23,7 @@ require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
 require 'lighthouse/benefits_education/configuration'
+require 'mdot/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
@@ -45,8 +46,8 @@ require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
 require 'lighthouse/veterans_health/configuration'
-require 'lighthouse/veteran_verification/configuration'
-require 'lighthouse/benefits_documents/configuration'
+require 'veteran_enrollment_system/associations/configuration'
+require 'veteran_enrollment_system/base_configuration'
 require 'unified_health_data/configuration'
 
 Rails.application.reloader.to_prepare do
@@ -74,6 +75,8 @@ Rails.application.reloader.to_prepare do
     Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
+    VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
+    VeteranEnrollmentSystem::BaseConfiguration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
@@ -94,10 +97,9 @@ Rails.application.reloader.to_prepare do
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service,
-    BenefitsDocuments::Configuration.instance.breakers_service,
-    VeteranVerification::Configuration.instance.breakers_service,
     Lighthouse::VeteransHealth::Configuration.instance.breakers_service,
-    UnifiedHealthData::Configuration.instance.breakers_service
+    UnifiedHealthData::Configuration.instance.breakers_service,
+    MDOT::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

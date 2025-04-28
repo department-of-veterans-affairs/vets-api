@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'pega_api/client'
 
 # This job grabs all IVC Forms that are missing a status update from the third-party Pega
 # Returns a sends stats to DataDog with the form ids
@@ -14,7 +15,7 @@ module IvcChampva
     def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
-      batches = missing_status_cleanup.get_missing_statuses(silent: true)
+      batches = missing_status_cleanup.get_missing_statuses(silent: true, ignore_last_minute: true)
 
       return unless batches.any?
 

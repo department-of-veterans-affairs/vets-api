@@ -38,6 +38,14 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
+    context 'form_id 21-686c' do
+      before { instance.form_id = '21-686c' }
+
+      it 'returns 16' do
+        expect(instance.max_pages).to eq 16
+      end
+    end
+
     context 'form_id 21P-0518-1' do
       before { instance.form_id = '21P-0518-1' }
 
@@ -54,11 +62,19 @@ RSpec.describe PersistentAttachments::VAForm, :uploader_helpers do
       end
     end
 
-    context 'form_id 21-686c' do
-      before { instance.form_id = '21-686c' }
+    context 'form_id 21P-530a' do
+      before { instance.form_id = '21P-530a' }
 
-      it 'returns 16' do
-        expect(instance.max_pages).to eq 16
+      it 'returns 2' do
+        expect(instance.max_pages).to eq 2
+      end
+    end
+
+    context 'form_id 21P-8049' do
+      before { instance.form_id = '21P-8049' }
+
+      it 'returns 4' do
+        expect(instance.max_pages).to eq 4
       end
     end
 

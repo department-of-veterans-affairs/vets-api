@@ -13,7 +13,6 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestService::Cr
     let(:form_data) do
       {
         'authorizations' => {
-          'recordDisclosure' => true,
           'recordDisclosureLimitations' => ['HIV'],
           'addressChange' => true
         },

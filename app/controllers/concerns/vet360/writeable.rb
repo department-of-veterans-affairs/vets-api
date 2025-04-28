@@ -8,6 +8,10 @@ module Vet360
   module Writeable
     extend ActiveSupport::Concern
 
+    PROFILE_AUDIT_LOG_TYPES = { email: :update_email_address,
+                                address: :update_mailing_address,
+                                telephone: :update_phone_number }.with_indifferent_access.freeze
+
     # For the passed VAProfile model type and params, it:
     #   - builds and validates a VAProfile models
     #   - POSTs/PUTs the model data to VAProfile
@@ -23,6 +27,7 @@ module Vet360
       record = build_record(type, params)
       validate!(record)
       response = write_valid_record!(http_verb, type, record)
+      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES[type].present?
       render_new_transaction!(type, response)
     end
 
@@ -48,6 +53,11 @@ module Vet360
       model.constantize
            .new(params)
            .set_defaults(@current_user)
+    end
+
+    def create_user_audit_log(type)
+      UserAudit.logger.success(event: PROFILE_AUDIT_LOG_TYPES[type],
+                               user_verification: @current_user.user_verification)
     end
 
     def validate!(record)

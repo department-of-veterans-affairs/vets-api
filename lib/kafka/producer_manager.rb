@@ -3,6 +3,8 @@
 require 'singleton'
 require 'waterdrop'
 require 'kafka/oauth_token_refresher'
+require 'datadog/statsd'
+require 'waterdrop/instrumentation/vendors/datadog/metrics_listener'
 
 module Kafka
   class ProducerManager
@@ -59,6 +61,19 @@ module Kafka
 
         Rails.logger.info "WaterDrop [#{producer_id}] delivered message with offset: #{offset}"
       end
+
+      setup_datadog_instrumentation
+    end
+
+    def setup_datadog_instrumentation
+      listener = ::WaterDrop::Instrumentation::Vendors::Datadog::MetricsListener.new do |config|
+        statsd_addr = ENV['STATSD_ADDR'] || '127.0.0.1:8125'
+        host, port = statsd_addr.split(':')
+        config.client = Datadog::Statsd.new(host, port)
+        config.default_tags = ["host:#{host}"]
+      end
+
+      producer.monitor.subscribe(listener)
     end
   end
 end

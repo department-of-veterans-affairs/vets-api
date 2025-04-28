@@ -110,6 +110,14 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v0873_expected) do
+    user_work_phone = user.vet360_contact_info.work_phone
+    work_phone = [
+      user_work_phone.country_code,
+      user_work_phone.area_code,
+      user_work_phone.phone_number,
+      user_work_phone.extension
+    ].compact.join
+
     {
       'personalInformation' => {
         'first' => user.first_name&.capitalize,
@@ -124,7 +132,8 @@ RSpec.describe FormProfile, type: :model do
       'contactInformation' => {
         'email' => user.pciu_email,
         'phone' => us_phone,
-        'address' => address
+        'address' => address,
+        'workPhone' => work_phone
       },
       'avaProfile' => {
         'schoolInfo' => {
@@ -1170,7 +1179,7 @@ RSpec.describe FormProfile, type: :model do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                          allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-          output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
+          output = form_profile.send(:initialize_military_information).attribute_values.transform_keys(&:to_s)
 
           expected_output = initialize_va_profile_prefill_military_information_expected
           expected_output['vic_verified'] = false
@@ -1189,8 +1198,8 @@ RSpec.describe FormProfile, type: :model do
           expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
 
           first_item = actual_guard_reserve_service_history.map(&:attributes).first
-          expect(first_item[:from].to_s).to eq(expected_guard_reserve_service_history.first[:from])
-          expect(first_item[:to].to_s).to eq(expected_guard_reserve_service_history.first[:to])
+          expect(first_item['from'].to_s).to eq(expected_guard_reserve_service_history.first[:from])
+          expect(first_item['to'].to_s).to eq(expected_guard_reserve_service_history.first[:to])
 
           guard_period = actual_latest_guard_reserve_service_period.attributes.transform_keys(&:to_s)
           expect(guard_period['from'].to_s).to eq(expected_latest_guard_reserve_service_period[:from])
@@ -1669,6 +1678,7 @@ RSpec.describe FormProfile, type: :model do
               'contactInformation' => {
                 'email' => user.pciu_email,
                 'phone' => us_phone,
+                'workPhone' => '13035551234',
                 'address' => address
               },
               'avaProfile' => {

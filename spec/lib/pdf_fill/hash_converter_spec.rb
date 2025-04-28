@@ -10,6 +10,8 @@ describe PdfFill::HashConverter do
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
 
   def verify_extras_text(text, metadata)
+    metadata[:overflow] = true unless metadata.key?(:overflow)
+    metadata[:item_label] = nil unless metadata.key?(:item_label)
     expect(extras_generator).to receive(:add_text).with(text, metadata).once
   end
 
@@ -32,7 +34,7 @@ describe PdfFill::HashConverter do
 
     context 'with a dollar value' do
       it 'adds text to the extras page' do
-        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
+        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil)
 
         call_set_value(
           {
@@ -49,7 +51,7 @@ describe PdfFill::HashConverter do
 
     context "with a value that's over limit" do
       it 'adds text to the extras page' do
-        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
+        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil)
 
         call_set_value(
           {
@@ -65,7 +67,7 @@ describe PdfFill::HashConverter do
       end
 
       it 'formats date' do
-        verify_extras_text('02/15/1995', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
+        verify_extras_text('02/15/1995', question_num: 1, question_text: 'foo', i: nil)
 
         call_set_custom_value(
           '1995-2-15',
@@ -83,7 +85,7 @@ describe PdfFill::HashConverter do
       end
 
       it 'does not format string with date' do
-        verify_extras_text('It was on 1995-2-15', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
+        verify_extras_text('It was on 1995-2-15', question_num: 1, question_text: 'foo', i: nil)
 
         call_set_custom_value(
           'It was on 1995-2-15',
@@ -100,7 +102,7 @@ describe PdfFill::HashConverter do
       end
 
       it 'displays boolean as string' do
-        verify_extras_text('true', question_num: 1, question_text: 'foo', i: nil, top_level_key: nil)
+        verify_extras_text('true', question_num: 1, question_text: 'foo', i: nil)
 
         call_set_custom_value(
           [true],
@@ -118,7 +120,7 @@ describe PdfFill::HashConverter do
 
       context 'with an index' do
         it 'adds text with line number' do
-          verify_extras_text('bar', question_num: 1, question_text: 'foo', i: 0, top_level_key: nil)
+          verify_extras_text('bar', question_num: 1, question_text: 'foo', i: 0)
 
           call_set_value(
             {
@@ -145,6 +147,15 @@ describe PdfFill::HashConverter do
           nil
         )
 
+        verify_hash(foo: 'bar')
+      end
+    end
+
+    context 'when called from array overflow' do
+      it 'does not add any text to overflow' do
+        expect(extras_generator).not_to receive(:add_text)
+
+        call_set_value({ key: :foo, question_num: 1, question_text: 'Foo' }, nil, true)
         verify_hash(foo: 'bar')
       end
     end
@@ -254,7 +265,8 @@ describe PdfFill::HashConverter do
       let(:form_data) do
         {
           veteranFullName: { first: 'Hubert', last: 'Wolfeschlegelsteinhausenbergerdorff' },
-          treatmentProviders: ['Walter Reed, Bethesda MD', 'Silver Oak Recovery Center, Clearwater FL']
+          treatmentProviders: ['Walter Reed, Bethesda MD', 'Silver Oak Recovery Center, Clearwater FL'],
+          additionalRemarks: 'Additional Remarks'
         }
       end
       let(:pdftk_keys) do
@@ -273,8 +285,16 @@ describe PdfFill::HashConverter do
               question_text: 'Last Name'
             }
           },
+          additionalRemarks: {
+            key: 'form1[0].#subform[0].Additional_Remarks[0]',
+            limit: 1,
+            question_num: 3,
+            question_text: 'Additional Remarks',
+            question_type: 'free_text'
+          },
           treatmentProviders: {
             limit: 1,
+            item_label: 'Treatment facility',
             question_text: 'Provider',
             question_num: 13,
             key: "F[0].#subform[5].Name_And_Location_Of_Treatment_Facility[#{PdfFill::HashConverter::ITERATOR}]"
@@ -283,12 +303,17 @@ describe PdfFill::HashConverter do
       end
 
       it 'calls add_to_extras with the correct data and metadata' do
+        verify_extras_text('Hubert',
+                           i: nil, question_num: 1, question_text: 'First Name',
+                           overflow: false)
         verify_extras_text('Wolfeschlegelsteinhausenbergerdorff',
-                           i: nil, question_num: 2, question_text: 'Last Name', top_level_key: :veteranFullName)
+                           i: nil, question_num: 2, question_text: 'Last Name')
+        verify_extras_text('Additional Remarks',
+                           i: nil, question_num: 3, question_text: 'Additional Remarks', question_type: 'free_text')
         verify_extras_text('Walter Reed, Bethesda MD',
-                           i: 0, question_num: 13, question_text: 'Provider', top_level_key: :treatmentProviders)
+                           i: 0, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         verify_extras_text('Silver Oak Recovery Center, Clearwater FL',
-                           i: 1, question_num: 13, question_text: 'Provider', top_level_key: :treatmentProviders)
+                           i: 1, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         subject.transform_data(form_data:, pdftk_keys:)
       end
     end

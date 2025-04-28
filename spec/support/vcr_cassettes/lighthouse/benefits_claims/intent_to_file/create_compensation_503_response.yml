@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/intent-to-file
+    body:
+      encoding: UTF-8
+      string: '{"data":{"type":"intent_to_file","attributes":{"type":"compensation","claimantSsn":""}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 503
+      message: Gateway Timeout
+    headers:
+      Date:
+      - Mon, 08 May 2023 20:19:15 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '45'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '117'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '117'
+      Www-Authenticate:
+      - Bearer
+      X-Kong-Response-Latency:
+      - '224'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: "{ \n  \"message\": \"The server took too long to respond\"\n}\n"
+  recorded_at: Mon, 08 May 2023 20:19:15 GMT
+recorded_with: VCR 6.1.0
