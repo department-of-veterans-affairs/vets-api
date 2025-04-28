@@ -21,7 +21,6 @@ FactoryBot.define do
     mhv_icn { nil }
     pid { nil }
     loa { { current: 3 } }
-
     after(:build)  { |vet| vet.instance_variable_set(:@mpi, MPIData.for_user(vet)) }
   end
 
