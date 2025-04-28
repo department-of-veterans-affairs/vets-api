@@ -7,6 +7,11 @@ RSpec.describe 'sm client', type: :request do
   let(:user_id) { '10616687' }
   let(:current_user) { build(:user, :mhv) }
 
+  # Ensure Flipper is mocked before the VCR block - remove this when AWS API GW is fully implemented
+before do
+  allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
+end
+
   before do
     sign_in_as(current_user)
   end

@@ -14,25 +14,25 @@ RSpec.describe SM::Configuration do
   end
 
   describe '#base_path' do
-    context 'when use_new_api is true' do
+    context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is true' do
       it 'returns the new API base path' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(true)
         allow(Settings.mhv.sm).to receive_messages(
-          use_new_api: true,
-          base_path: 'mhv-sm-api-patient/v1/',
-          gw_base_path: 'v1/'
+          base_path: 'mhv-sm-api/patient/v1/',
+          gw_base_path: 'v1/sm/patient/'
         )
         allow(Settings.mhv.api_gateway.hosts).to receive(:sm_patient).and_return('https://new-api.example.com')
-        expect(configuration.base_path).to eq('https://new-api.example.com/v1/')
+        expect(configuration.base_path).to eq('https://new-api.example.com/v1/sm/patient/')
       end
     end
 
-    context 'when use_new_api is false' do
+    context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is false' do
       it 'returns the old API base path' do
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
         allow(Settings.mhv.sm).to receive_messages(
-          use_new_api: false,
           host: 'https://old-api.example.com',
           base_path: 'mhv-sm-api-patient/v1/',
-          gw_base_path: 'v1/'
+          gw_base_path: 'v1/sm/patient/'
         )
         expect(configuration.base_path).to eq('https://old-api.example.com/mhv-sm-api-patient/v1/')
       end

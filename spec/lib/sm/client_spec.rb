@@ -5,7 +5,12 @@ require 'sm/client'
 require 'sm/configuration'
 
 describe SM::Client do
-  before(:all) do
+  # Ensure Flipper is mocked before the VCR block - remove this when AWS API GW is fully implemented
+before do
+  allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
+end
+
+  before do
     VCR.use_cassette('sm_client/session') do
       @client ||= begin
         client = SM::Client.new(session: { user_id: '10616687' })
@@ -20,9 +25,9 @@ describe SM::Client do
   describe 'Test new API gateway methods' do
     let(:config) { SM::Configuration.instance }
 
-    context 'when use_new_api is true' do
+    context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is true' do
       before do
-        allow(Settings.mhv.sm).to receive(:use_new_api).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(true)
         allow(Settings.mhv.sm).to receive(:x_api_key).and_return('test-api-key')
       end
 
@@ -35,9 +40,9 @@ describe SM::Client do
       end
     end
       
-    context 'when use_new_api is false' do
+    context 'when mhv_secure_messaging_migrate_to_api_gateway flipper flag is false' do
       before do
-        allow(Settings.mhv.sm).to receive(:use_new_api).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
       end
 
       it 'returns nil for x-api-key' do

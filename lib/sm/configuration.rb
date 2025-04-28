@@ -29,7 +29,7 @@ module SM
     ##
     # @return [String] Base path for dependent URLs
     #
-    def base_paths
+    def base_path
       if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
         "#{Settings.mhv.api_gateway.hosts.sm_patient}/#{Settings.mhv.sm.gw_base_path}"
       else
@@ -63,8 +63,8 @@ module SM
         conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log
-        conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-        conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+        # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+        # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :betamocks if Settings.mhv.sm.mock
         conn.response :sm_parser
