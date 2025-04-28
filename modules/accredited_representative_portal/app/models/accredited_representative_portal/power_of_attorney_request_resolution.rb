@@ -51,14 +51,13 @@ module AccreditedRepresentativePortal
       DECLINATION_OTHER: 4
     }
 
-
     DECLINATION_REASON_TEXTS = {
       DECLINATION_HEALTH_RECORDS_WITHHELD: 'Decline, because protected medical record access is limited',
       DECLINATION_ADDRESS_CHANGE_WITHHELD: 'Decline, because change of address isn\'t authorized',
       DECLINATION_BOTH_WITHHELD:
         'Decline, because change of address isn\'t authorized and protected medical record access is limited',
-        DECLINATION_NOT_ACCEPTING_CLIENTS: 'Decline, because the VSO isn\'t accepting new clients',
-        DECLINATION_OTHER: 'Decline, because of another reason'
+      DECLINATION_NOT_ACCEPTING_CLIENTS: 'Decline, because the VSO isn\'t accepting new clients',
+      DECLINATION_OTHER: 'Decline, because of another reason'
     }.freeze
 
     def declination_reason_text
