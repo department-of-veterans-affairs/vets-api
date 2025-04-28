@@ -6,8 +6,10 @@
 #  String, Integer, Float, Date, Time, DateTime, Bool
 
 # If we enable autoloading then it appears that these imports aren't needed
-require 'vets/type/array'
 require 'vets/type/base'
+
+# NOTE: The classes defined in these files are all subclasses of Base
+require 'vets/type/array'
 require 'vets/type/date_time_string'
 require 'vets/type/hash'
 require 'vets/type/http_date'
