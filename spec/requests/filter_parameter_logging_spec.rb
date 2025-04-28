@@ -36,8 +36,6 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     post '/test_params', params: { attachment: file }
     logs = @log_output.string
 
-    puts "DEBUG LOG OUTPUT TEST 1: #{logs}"
-
     expect(logs).to include('"attachment"')
 
     expect(logs).not_to include('test_file_with_pii.txt')
@@ -63,8 +61,6 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     post '/test_params', params: { attachment: file_params }
     logs = @log_output.string
 
-    puts "DEBUG LOG OUTPUT TEST 2: #{logs}"
-
     expect(logs).not_to include('private_file.docx')
     expect(logs).not_to include('sensitive binary content')
 
@@ -85,8 +81,6 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
 
     post '/test_params', params: sensitive_params
     logs = @log_output.string
-
-    puts "DEBUG LOG OUTPUT 3: #{logs}" # Debugging output
 
     expect(logs).not_to include('123-45-6789') # SSN should be wiped out
     expect(logs).not_to include('johndoe@example.com') # Ensure emails are also wiped
