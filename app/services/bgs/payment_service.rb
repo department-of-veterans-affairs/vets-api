@@ -23,7 +23,9 @@ module BGS
 
       if Flipper.enabled?(:payment_history_exclude_third_party_disbursements)
         payments = response[:payments][:payment]
-        payments.select! { |pay| pay[:beneficiary_participant_id] == pay[:recipient_participant_id] }
+        payments.select! do |pay|
+          pay[:payee_type] != 'Third Party/Vendor' && pay[:beneficiary_participant_id] == pay[:recipient_participant_id]
+        end
       end
 
       recategorize_hardship(response[:payments][:payment]) if Flipper.enabled?(:payment_history_recategorize_hardship)
