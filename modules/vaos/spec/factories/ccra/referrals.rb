@@ -26,6 +26,8 @@ FactoryBot.define do
     treating_facility { 'VA Medical Center' }
     referral_number { 'VA0000005681' }
     expiration_date { (Date.current + 30.days).to_s }
+    referral_date { Date.current.to_s }
+    station_id { '528A6' }
     phone_number { '555-123-4567' }
     referring_facility_name { 'Dayton VA Medical Center' }
     referring_facility_phone { '(937) 262-3800' }
@@ -34,35 +36,35 @@ FactoryBot.define do
     referring_facility_city { 'DAYTON' }
     referring_facility_state { 'OH' }
     referring_facility_zip { '45428' }
-    has_appointments { 'Y' }
+    has_appointments { true }
 
     initialize_with do
       attributes = {
-        'Referral' => {
-          'CategoryOfCare' => category_of_care,
-          'TreatingFacility' => treating_facility,
-          'ReferralNumber' => referral_number,
-          'ReferralExpirationDate' => expiration_date,
-          'APPTYesNo1' => has_appointments,
-          'ReferringFacilityInfo' => {
-            'FacilityName' => referring_facility_name,
-            'Phone' => referring_facility_phone,
-            'FacilityCode' => referring_facility_code,
-            'Address' => {
-              'Address1' => referring_facility_address1,
-              'City' => referring_facility_city,
-              'State' => referring_facility_state,
-              'ZipCode' => referring_facility_zip
-            }
-          },
-          'TreatingFacilityInfo' => {
-            'Phone' => phone_number
-          },
-          'TreatingProviderInfo' => {
-            'ProviderName' => provider_name,
-            'ProviderNPI' => provider_npi,
-            'Telephone' => provider_telephone
+        'categoryOfCare' => category_of_care,
+        'treatingFacility' => treating_facility,
+        'referralNumber' => referral_number,
+        'referralExpirationDate' => expiration_date,
+        'referralDate' => referral_date,
+        'stationId' => station_id,
+        'appointments' => has_appointments ? [{ 'appointmentDate' => Date.current.to_s }] : [],
+        'referringFacilityInfo' => {
+          'facilityName' => referring_facility_name,
+          'phone' => referring_facility_phone,
+          'facilityCode' => referring_facility_code,
+          'address' => {
+            'address1' => referring_facility_address1,
+            'city' => referring_facility_city,
+            'state' => referring_facility_state,
+            'zipCode' => referring_facility_zip
           }
+        },
+        'treatingFacilityInfo' => {
+          'phone' => phone_number
+        },
+        'treatingProviderInfo' => {
+          'providerName' => provider_name,
+          'providerNpi' => provider_npi,
+          'telephone' => provider_telephone
         }
       }
       Ccra::ReferralDetail.new(attributes)
