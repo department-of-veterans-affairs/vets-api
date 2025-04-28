@@ -1705,10 +1705,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_past_appt_date_range:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for modifying the date range selection on the Past appointments page.
   va_online_scheduling_mhv_route_guards:
     actor_type: user
     enable_in_development: true
