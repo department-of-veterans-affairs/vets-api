@@ -153,6 +153,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
       describe '#update' do
         let(:update_user) { loa3_user }
         let(:new_form) { build(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID) }
+        let(:flipper0781) { :disability_compensation_sync_modern0781_flow_metadata }
 
         before do
           sign_in_as(update_user)
@@ -168,8 +169,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'adds 0781 metadata if flippers enabled' do
-          Flipper.enable(:disability_compensation_sync_modern0781_flow_metadata)
+        it 'adds 0781 metadata if flipper enabled' do
+          allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(true)
           put v0_in_progress_form_url(new_form.form_id),
               params: {
                 form_data: { greeting: 'Hello!' },
@@ -181,8 +182,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'does not add 0781 metadata if form and flipper enabled' do
-          Flipper.disable(:disability_compensation_sync_modern0781_flow_metadata)
+        it 'does not add 0781 metadata if form and flipper disabled' do
+          allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(false)
           put v0_in_progress_form_url(new_form.form_id),
               params: {
                 form_data: { greeting: 'Hello!' },
@@ -190,7 +191,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               }.to_json,
               headers: { 'CONTENT_TYPE' => 'application/json' }
           expect(JSON.parse(response.body)['data']['attributes']['metadata'].key?('sync_modern0781_flow')).to be(false)
-
           expect(response).to have_http_status(:ok)
         end
       end
