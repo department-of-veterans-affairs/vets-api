@@ -36,7 +36,7 @@ module SM
         "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}"
       end
     rescue NoMethodError => e
-      Rails.logger.error("Flipper error: #{e.message}")
+      Rails.logger.error("SM:Configuration Flipper error: #{e.message}")
       "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}" # Default path
     end
 
