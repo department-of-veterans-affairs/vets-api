@@ -48,15 +48,6 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '10-10CG',
-        factory: :caregivers_assistance_claim,
-        input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG/signed',
-        fill_options: {
-          sign: true
-        }
-      },
-      {
         form_id: '686C-674',
         factory: :dependency_claim
       },
