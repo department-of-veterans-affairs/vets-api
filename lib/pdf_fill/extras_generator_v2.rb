@@ -11,12 +11,13 @@ module PdfFill
     class Question
       attr_accessor :section_index, :overflow
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, table_width:)
         @section_index = nil
         @number = metadata[:question_num]
         @text = question_text
         @subquestions = []
         @overflow = false
+        @table_width = table_width
       end
 
       def add_text(value, metadata)
@@ -41,7 +42,7 @@ module PdfFill
             label = metadata[:question_label].presence || metadata[:question_text]
             value = subq[:value].to_s.gsub("\n", '<br/>')
             value = "<i>#{value}</i>" if value == 'no response'
-            "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
+            "<tr><td style='width:#{@table_width}'>#{label}:</td><td>#{value}</td></tr>"
           end
         end
       end
@@ -84,7 +85,7 @@ module PdfFill
     class CheckedDescriptionQuestion < Question
       attr_reader :description, :additional_info
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, table_width:)
         super
         @description = nil
         @additional_info = nil
@@ -116,8 +117,8 @@ module PdfFill
         info = @additional_info.presence || '<i>no response</i>'
         pdf.markup([
           '<table>',
-          "<tr><td style='width:91'><b>Description:</b></td><td><b>#{@description}</b></td></tr>",
-          "<tr><td style='width:91'>Additional Information:</td><td>#{info}</td></tr>",
+          "<tr><td style='width:#{@table_width}'><b>Description:</b></td><td><b>#{@description}</b></td></tr>",
+          "<tr><td style='width:#{@table_width}'>Additional Information:</td><td>#{info}</td></tr>",
           '</table>'
         ].flatten.join, text: { margin_bottom: 10 })
       end
@@ -126,10 +127,11 @@ module PdfFill
     class ListQuestion < Question
       attr_reader :items, :item_label
 
-      def initialize(question_text, metadata)
+      def initialize(question_text, metadata, table_width:)
         super
         @item_label = metadata[:item_label]
         @items = []
+        @table_width = table_width
       end
 
       def add_text(value, metadata)
@@ -139,9 +141,9 @@ module PdfFill
         # Create the appropriate question type if it doesn't exist yet
         if @items[i].nil?
           @items[i] = if metadata[:question_type] == 'checked_description'
-                        CheckedDescriptionQuestion.new(nil, metadata)
+                        CheckedDescriptionQuestion.new(nil, metadata, table_width: @table_width)
                       else
-                        Question.new(nil, metadata)
+                        Question.new(nil, metadata, table_width: @table_width)
                       end
         end
 
@@ -228,20 +230,21 @@ module PdfFill
     def add_text(value, metadata)
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
-        question_text = @question_key[question_num]
-
+        question_data = @question_key[question_num]
+        question_text = question_data[:text]
+        table_width = question_data[:table_width]
         @questions[question_num] =
           if metadata[:i].blank?
             case metadata[:question_type]
             when 'free_text'
-              FreeTextQuestion.new(question_text, metadata)
+              FreeTextQuestion.new(question_text, metadata, table_width:)
             when 'checked_description'
-              CheckedDescriptionQuestion.new(question_text, metadata)
+              CheckedDescriptionQuestion.new(question_text, metadata, table_width:)
             else
-              Question.new(question_text, metadata)
+              Question.new(question_text, metadata, table_width:)
             end
           else
-            ListQuestion.new(question_text, metadata)
+            ListQuestion.new(question_text, metadata, table_width:)
           end
       end
 

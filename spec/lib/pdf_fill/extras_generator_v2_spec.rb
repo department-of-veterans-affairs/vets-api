@@ -10,7 +10,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
   describe PdfFill::ExtrasGeneratorV2::Question do
     subject do
-      question = described_class.new('First name', add_text_calls.first[1])
+      question = described_class.new('First name', add_text_calls.first[1], table_width: 91)
       add_text_calls.each { |call| question.add_text(*call) }
       question
     end
@@ -69,7 +69,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
   describe PdfFill::ExtrasGeneratorV2::FreeTextQuestion do
     subject do
-      question = described_class.new('Additional Remarks', add_text_calls.first[1])
+      question = described_class.new('Additional Remarks', add_text_calls.first[1], table_width: 91)
       add_text_calls.each { |call| question.add_text(*call) }
       question
     end
@@ -110,7 +110,7 @@ describe PdfFill::ExtrasGeneratorV2 do
 
     it 'populates section indices correctly' do
       questions = [1, 9, 42, 7].index_with do |question_num|
-        described_class::Question.new(nil, { question_num: })
+        described_class::Question.new(nil, { question_num: }, table_width: 91)
       end
       subject.instance_variable_set(:@questions, questions)
       subject.populate_section_indices!
@@ -395,7 +395,7 @@ describe PdfFill::ExtrasGeneratorV2 do
   end
 
   describe 'CheckedDescriptionQuestion' do
-    subject { described_class::CheckedDescriptionQuestion.new(question_text, metadata) }
+    subject { described_class::CheckedDescriptionQuestion.new(question_text, metadata, table_width: 91) }
 
     let(:question_text) { 'Test Question' }
     let(:pdf_double) { double('PDF', markup: nil) }
@@ -514,6 +514,62 @@ describe PdfFill::ExtrasGeneratorV2 do
           end
         end
       end
+    end
+  end
+
+  describe '#render' do
+    let(:table_width) { 91 }
+
+    let(:description_metadata) do
+      {
+        question_suffix: 'A',
+        question_text: 'Description',
+        question_num: 10
+      }
+    end
+
+    let(:additional_info_metadata) do
+      {
+        question_suffix: 'B',
+        question_text: 'Additional Information',
+        question_num: 10
+      }
+    end
+
+    let(:checked_metadata) do
+      {
+        question_suffix: 'C',
+        question_text: 'Checked',
+        question_num: 10
+      }
+    end
+
+    let(:question) do
+      PdfFill::ExtrasGeneratorV2::CheckedDescriptionQuestion.new(
+        'Behavioral Change', description_metadata, table_width:
+      )
+    end
+
+    it 'renders the correct markup when Checked is true' do
+      pdf = double('Prawn::Document')
+      allow(pdf).to receive(:markup)
+
+      question.add_text('Request for a change in duty assignment', description_metadata)
+      question.add_text('no response', additional_info_metadata)
+      question.add_text('true', checked_metadata)
+
+      question.render(pdf)
+
+      expected_markup =
+        '<table>' \
+        "<tr><td style='width:91'><b>Description:</b></td>" \
+        '<td><b>Request for a change in duty assignment</b></td></tr>' \
+        "<tr><td style='width:91'>Additional Information:</td>" \
+        '<td>no response</td></tr>' \
+        '</table>'
+
+      expect(pdf).to have_received(:markup).with('<h3>10. Behavioral Change</h3>')
+      expect(pdf).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
     end
   end
 end
