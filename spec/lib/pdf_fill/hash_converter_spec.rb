@@ -64,7 +64,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: "See add'l info page")
+        verify_hash(foo: PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       it 'formats date' do
@@ -82,7 +82,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash('foo' => "See add'l info page")
+        verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       it 'does not format string with date' do
@@ -99,7 +99,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash('foo' => "See add'l info page")
+        verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       it 'displays boolean as string' do
@@ -116,7 +116,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: "See add'l info page")
+        verify_hash(foo: PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       context 'with an index' do
@@ -133,7 +133,7 @@ describe PdfFill::HashConverter do
             0
           )
 
-          verify_hash('foo' => "See add'l info page")
+          verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
         end
       end
     end
@@ -359,7 +359,7 @@ describe PdfFill::HashConverter do
       # The last item's values should be in the form
       expect(subject.instance_variable_get(:@pdftk_form)).to eq(
         'form.name' => 'Habibi',
-        'form.description' => "See add'l info page"
+        'form.description' => PdfFill::HashConverter::EXTRAS_TEXT
       )
 
       # Since from_array_overflow is true, add_text should not be called
@@ -376,7 +376,7 @@ describe PdfFill::HashConverter do
 
       converter.handle_overflow_and_label_first_key(pdftk_keys)
 
-      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq('See add\'l info page')
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
     end
 
     it 'does nothing if first_key is not found in pdftk_keys' do
@@ -412,7 +412,7 @@ describe PdfFill::HashConverter do
 
       converter.handle_overflow_and_label_first_key(pdftk_keys)
 
-      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq('See add\'l info page')
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
     end
   end
 end

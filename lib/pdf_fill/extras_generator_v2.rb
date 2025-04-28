@@ -389,12 +389,15 @@ module PdfFill
     end
 
     def render_list_items(pdf, block, block_heights)
-      block_heights = block_heights[block][:items].select(&:positive?)
-      block.items.select(&:should_render?).each.with_index(1) do |item, index|
-        item_height = block_heights[index - 1]
-        pdf.start_new_page unless will_fit_on_page?(pdf, item_height)
-        block.render_item(pdf, item, index)
-      end
+      heights = block_heights.dig(block, :items).select(&:positive?)
+
+      block.items
+           .select(&:should_render?)
+           .zip(heights) # pair each item with its height
+           .each.with_index(1) do |(item, height), index|
+             pdf.start_new_page unless will_fit_on_page?(pdf, height)
+             block.render_item(pdf, item, index)
+           end
     end
 
     def render_new_section(pdf, section_index)
