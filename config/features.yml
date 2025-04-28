@@ -1082,6 +1082,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
     enable_in_development: true
+  mhv_secure_messaging_milestone_2_aal:
+    actor_type: user
+    description: Disables/Enables Secure Messaging AAL Milestone 2
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
