@@ -17,8 +17,10 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'HCA'
+  inflect.acronym 'HTTP'
   inflect.acronym 'IAM'
   inflect.acronym 'IHub'
+  inflect.acronym 'ISO8601'
   inflect.acronym 'LCPE' # Licenses, Certifications, Prep Courses & Exams
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV' # My HealtheVet
@@ -34,6 +36,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SM'
   inflect.acronym 'SSOe'
   inflect.acronym 'SSO'
+  inflect.acronym 'UTC'
   inflect.acronym 'VAOS'
   inflect.acronym 'VAR' # an older term for what is now VAOS
   inflect.acronym 'VA'

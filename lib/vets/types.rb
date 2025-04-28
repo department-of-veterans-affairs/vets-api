@@ -5,6 +5,7 @@
 # Primitive types include:
 #  String, Integer, Float, Date, Time, DateTime, Bool
 
+require 'vets/type/array'
 require 'vets/type/base'
 require 'vets/type/date_time_string'
 require 'vets/type/hash'
@@ -14,4 +15,8 @@ require 'vets/type/object'
 require 'vets/type/primitive'
 require 'vets/type/titlecase_string'
 require 'vets/type/utc_time'
-require 'vets/type/array'
+
+module Vets
+  module Types
+  end
+end
