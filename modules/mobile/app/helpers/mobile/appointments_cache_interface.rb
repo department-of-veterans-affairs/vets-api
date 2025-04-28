@@ -6,7 +6,12 @@ module Mobile
       @now = DateTime.now.utc
     end
 
-    def fetch_appointments(user:, start_date: nil, end_date: nil, fetch_cache: true, cache_on_failures: true)
+    def fetch_appointments(user:, # rubocop:disable Metrics/ParameterLists
+                           include_claims: false,
+                           start_date: nil,
+                           end_date: nil,
+                           fetch_cache: true,
+                           cache_on_failures: true)
       appointments = nil
       search_start_date = [start_date, latest_allowable_cache_start_date].compact.min
       search_end_date = [end_date, earliest_allowable_cache_end_date].compact.max
@@ -17,7 +22,7 @@ module Mobile
         return [appointments, nil] if appointments
       end
 
-      appointments, failures = fetch_from_external_service(user, search_start_date, search_end_date)
+      appointments, failures = fetch_from_external_service(user, search_start_date, search_end_date, include_claims)
 
       Mobile::V0::Appointment.set_cached(user, appointments) if cache_on_failures == true || failures.blank?
 
@@ -36,11 +41,12 @@ module Mobile
 
     private
 
-    def fetch_from_external_service(user, start_date, end_date)
+    def fetch_from_external_service(user, start_date, end_date, include_claims)
       appointments_proxy(user).get_appointments(
         start_date:,
         end_date:,
-        include_pending: true
+        include_pending: true,
+        include_claims:
       )
     rescue => e
       raise Common::Exceptions::BadGateway.new(detail: e.try(:errors).try(:first).try(:detail))
