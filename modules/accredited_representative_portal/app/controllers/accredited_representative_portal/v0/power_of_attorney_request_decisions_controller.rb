@@ -18,7 +18,7 @@ module AccreditedRepresentativePortal
 
       def create
         reason = decision_params[:reason]
-        declination_reason = decision_params[:declination_reason] ? decision_params[:declination_reason] : nil
+        declination_reason = decision_params[:declination_reason]
 
         case decision_params[:type]
         when 'acceptance'
