@@ -113,10 +113,40 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
       end
 
-      it 'creates a declination decision' do
+      it 'creates a declination decision with reason but not declination_reason' do
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'declination', reason: 'bad data' } }
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
+        poa_request.reload
+
+        expect(poa_request.resolution).to be_present
+        expect(poa_request.resolution.resolving).to be_present
+        expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestDeclination')
+      end
+
+      it 'creates a declination decision with both reason and declination_reason' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'declination', reason: 'bad data', declination_reason: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
+             } }
+
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to eq({})
+        poa_request.reload
+
+        expect(poa_request.resolution).to be_present
+        expect(poa_request.resolution.resolving).to be_present
+        expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestDeclination')
+      end
+
+      it 'creates a declination decision with declination_reason but not reason' do
+        expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'declination', declination_reason: 'DECLINATION_HEALTH_RECORDS_WITHHELD'
+             } }
 
         expect(response).to have_http_status(:ok)
         expect(parsed_response).to eq({})
