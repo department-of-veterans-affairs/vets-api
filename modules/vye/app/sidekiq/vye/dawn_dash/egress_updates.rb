@@ -6,11 +6,22 @@ module Vye
       include Sidekiq::Job
       sidekiq_options retry: 0
 
+      def log_current_time_info
+        Rails.logger.info("Vye::DawnDash::EgressUpdates: Job started at: #{Time.zone.now}")
+        Rails.logger.info("Vye::DawnDash::EgressUpdates: Current Time.zone: #{Time.zone}")
+
+        us_holidays = Holidays.on(Time.zone.today, :us, :observed)
+        Rails.logger.info("Vye::DawnDash::EgressUpdates: US holidays today: #{us_holidays.inspect}")
+
+        is_holiday = Vye::CloudTransfer.holiday?
+        Rails.logger.info("Vye::DawnDash::EgressUpdates: Vye::CloudTransfer.holiday? returned: #{is_holiday}")
+      end
+
       def perform
-        Vye::CloudTransfer.log_current_time_info
+        log_current_time_info
 
         if Vye::CloudTransfer.holiday?
-          logger.info("Vye::DawnDash::ActivateBdn: holiday detected, job run at: #{Time.zone.now}")
+          logger.info("Vye::DawnDash::EgressUpdates: holiday detected, job run at: #{Time.zone.now}")
           return
         end
 

@@ -24,22 +24,6 @@ module Vye
       Holidays.on(Time.zone.today, :us, :observed).any?
     end
 
-    def log_current_time_info
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Job started at: #{Time.zone.now}")
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Current Rails.env: #{Rails.env}")
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Current Time.zone: #{Time.zone}")
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Current Time.zone.now: #{Time.zone.now}")
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Current Time.now (system): #{Time.now}")
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Current Time.now.utc: #{Time.now.utc}")
-
-      us_holidays = Holidays.on(Time.zone.today, :us, :observed)
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: US holidays today: #{us_holidays.inspect}")
-
-      # Directly check for holiday with holiday? method - for comparison with our manual check
-      is_holiday = Vye::CloudTransfer.holiday?
-      Rails.logger.info("Vye::DawnDash::EgressUpdates: Vye::CloudTransfer.holiday? returned: #{is_holiday}")
-    end
-
     def tmp_dir
       result = Rails.root / "tmp/vye/#{SecureRandom.uuid}"
       result.mkpath
