@@ -52,7 +52,6 @@ module Ccra
         end
 
         conn.response :betamocks if mock_enabled?
-        conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.response :vaos_errors
         conn.use :ccra_logging
