@@ -614,8 +614,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
           end
           let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
-          let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
-          let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
+          let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
@@ -742,8 +742,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
           end
           let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
-          let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
-          let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
+          let(:metadata) { { 'attachment_ids' => %w[id1 id2], 'uuid' => SecureRandom.uuid } }
+          let(:file_uploader) { instance_double(IvcChampva::FileUploader, metadata:) }
           let(:error_response) { [[200, nil], [400, 'Upload failed']] }
 
           before do
