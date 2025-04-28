@@ -36,7 +36,7 @@ module SM
         "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}"
       end
     rescue NoMethodError => e
-      Rails.logger.error("Flipper error: #{e.message}")
+      Rails.logger.error("SM:Configuration Flipper error: #{e.message}")
       "#{Settings.mhv.sm.host}/#{Settings.mhv.sm.base_path}" # Default path
     end
 
@@ -63,8 +63,8 @@ module SM
         conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log
-        conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-        conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+        # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+        # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :betamocks if Settings.mhv.sm.mock
         conn.response :sm_parser
