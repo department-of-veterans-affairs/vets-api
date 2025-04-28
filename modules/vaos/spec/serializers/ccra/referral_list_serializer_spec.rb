@@ -8,14 +8,14 @@ RSpec.describe Ccra::ReferralListSerializer do
       # Mock referrals with new model structure
       let(:cardiology_referral) do
         attributes = {
-          'category_of_care' => 'CARDIOLOGY',
-          'referral_number' => 'VA0000005681',
-          'referral_consult_id' => '984_646372',
+          'categoryOfCare' => 'CARDIOLOGY',
+          'referralNumber' => 'VA0000005681',
+          'referralConsultId' => '984_646372',
           'status' => 'A',
-          'station_id' => '552',
-          'referral_date' => '2024-03-28',
-          'seoc_number_of_days' => '60',
-          'referral_last_update_date_time' => '2024-03-28 16:29:52'
+          'stationId' => '552',
+          'referralDate' => '2024-03-28',
+          'seocNumberOfDays' => '60',
+          'referralLastUpdateDateTime' => '2024-03-28 16:29:52'
         }
         ref = Ccra::ReferralListEntry.new(attributes)
         ref.uuid = 'encrypted-5682'
@@ -24,14 +24,14 @@ RSpec.describe Ccra::ReferralListSerializer do
 
       let(:podiatry_referral) do
         attributes = {
-          'category_of_care' => 'PODIATRY',
-          'referral_number' => 'VA0000005682',
-          'referral_consult_id' => '984_646373',
+          'categoryOfCare' => 'PODIATRY',
+          'referralNumber' => 'VA0000005682',
+          'referralConsultId' => '984_646373',
           'status' => 'AP',
-          'station_id' => '552',
-          'referral_date' => '2024-03-28',
-          'seoc_number_of_days' => '60',
-          'referral_last_update_date_time' => '2024-03-28 16:29:52'
+          'stationId' => '552',
+          'referralDate' => '2024-03-28',
+          'seocNumberOfDays' => '60',
+          'referralLastUpdateDateTime' => '2024-03-28 16:29:52'
         }
         ref = Ccra::ReferralListEntry.new(attributes)
         ref.uuid = 'encrypted-5683'
@@ -40,14 +40,14 @@ RSpec.describe Ccra::ReferralListSerializer do
 
       let(:optometry_referral) do
         attributes = {
-          'category_of_care' => 'OPTOMETRY',
-          'referral_number' => 'VA0000005683',
-          'referral_consult_id' => '984_646374',
+          'categoryOfCare' => 'OPTOMETRY',
+          'referralNumber' => 'VA0000005683',
+          'referralConsultId' => '984_646374',
           'status' => 'BP',
-          'station_id' => '552',
-          'referral_date' => '2024-03-28',
-          'seoc_number_of_days' => '60',
-          'referral_last_update_date_time' => '2024-03-28 16:29:52'
+          'stationId' => '552',
+          'referralDate' => '2024-03-28',
+          'seocNumberOfDays' => '60',
+          'referralLastUpdateDateTime' => '2024-03-28 16:29:52'
         }
         ref = Ccra::ReferralListEntry.new(attributes)
         ref.uuid = 'encrypted-5684'

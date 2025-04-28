@@ -50,7 +50,7 @@ module VAOS
 
         referrals.each do |referral|
           # Add encrypted UUID from the referral number
-          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_number)
+          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referralNumber)
         end
       end
 
@@ -92,7 +92,7 @@ module VAOS
         raise ArgumentError, 'referrals must be an enumerable collection' unless referrals.respond_to?(:each)
 
         today = Date.current
-        referrals.reject { |referral| referral.expiration_date.present? && referral.expiration_date < today }
+        referrals.reject { |referral| referral.expirationDate.present? && referral.expirationDate < today }
       end
 
       # Memoized referral service instance

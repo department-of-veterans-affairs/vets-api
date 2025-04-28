@@ -27,8 +27,8 @@ module VAOS
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
 
-        @type_of_care = referral&.category_of_care
-        @referral_phone_number = referral&.phone_number
+        @type_of_care = referral&.categoryOfCare
+        @referral_phone_number = referral&.phoneNumber
         @referring_facility_details = parse_referring_facility_details(referral)
         @provider = provider
       end
@@ -66,8 +66,8 @@ module VAOS
 
       def parse_referring_facility_details(referral)
         {
-          name: referral&.referring_facility_name,
-          phone_number: referral&.referring_facility_phone
+          name: referral&.referringFacilityName,
+          phone_number: referral&.referringFacilityPhone
         }.compact
       end
 

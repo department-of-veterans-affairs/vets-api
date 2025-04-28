@@ -10,13 +10,13 @@ module Ccra
     set_id :uuid
     set_type :referrals
 
-    attribute :category_of_care
-    attribute :referral_number
+    attribute :categoryOfCare, &:categoryOfCare
+    attribute :referralNumber, &:referralNumber
     attribute :uuid
 
     # Include the expiration date formatted as YYYY-MM-DD
-    attribute :expiration_date do |referral|
-      referral.expiration_date&.strftime('%Y-%m-%d')
+    attribute :expirationDate do |referral|
+      referral.expirationDate&.strftime('%Y-%m-%d')
     end
 
     # Override to handle nil collection

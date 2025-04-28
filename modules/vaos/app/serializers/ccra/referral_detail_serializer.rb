@@ -10,36 +10,36 @@ module Ccra
     set_id :uuid
     set_type :referrals
 
-    attribute :category_of_care
-    attribute :expiration_date
-    attribute :referral_number
+    attribute :categoryOfCare, &:categoryOfCare
+    attribute :expirationDate, &:expirationDate
+    attribute :referralNumber, &:referralNumber
     attribute :uuid
-    attribute :has_appointments
-    attribute :referral_date
-    attribute :station_id
+    attribute :hasAppointments, &:hasAppointments
+    attribute :referralDate, &:referralDate
+    attribute :stationId, &:stationId
 
     # Nested provider information
     attribute :provider do |referral|
       {
-        name: referral.provider_name,
-        npi: referral.provider_npi,
-        telephone: referral.provider_telephone,
-        location: referral.treating_facility
+        name: referral.providerName,
+        npi: referral.providerNpi,
+        telephone: referral.providerTelephone,
+        location: referral.treatingFacility
       }
     end
 
     # Nested referring facility information
     # Use camelCase keys directly since nested attributes don't get transformed
-    attribute :referring_facility do |referral|
-      if referral.referring_facility_name.present?
+    attribute :referringFacility do |referral|
+      if referral.referringFacilityName.present?
         facility_info = {
-          name: referral.referring_facility_name,
-          phone: referral.referring_facility_phone,
-          code: referral.referring_facility_code
+          name: referral.referringFacilityName,
+          phone: referral.referringFacilityPhone,
+          code: referral.referringFacilityCode
         }
 
         # Only add address if it exists and has actual data
-        address = referral.referring_facility_address
+        address = referral.referringFacilityAddress
         if address.present? && address.values.any?(&:present?)
           # Create a new hash instead of modifying the address hash directly
           # This ensures all fields are properly included

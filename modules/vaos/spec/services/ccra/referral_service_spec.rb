@@ -34,8 +34,8 @@ describe Ccra::ReferralService do
           expect(result).to be_an(Array)
           expect(result.size).to eq(3)
           expect(result.first).to be_a(Ccra::ReferralListEntry)
-          expect(result.first.referral_number).to eq('5682')
-          expect(result.first.category_of_care).to eq('CARDIOLOGY')
+          expect(result.first.referralNumber).to eq('VA0000005681')
+          expect(result.first.categoryOfCare).to eq('CARDIOLOGY')
         end
       end
     end
@@ -73,8 +73,8 @@ describe Ccra::ReferralService do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
           result = subject.get_referral(id, icn)
           expect(result).to be_a(Ccra::ReferralDetail)
-          expect(result.category_of_care).to eq('CARDIOLOGY')
-          expect(result.referral_number).to eq('VA0000005681')
+          expect(result.categoryOfCare).to eq('CARDIOLOGY')
+          expect(result.referralNumber).to eq('VA0000005681')
         end
       end
     end

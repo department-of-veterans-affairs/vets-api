@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  let(:referral_number) { '5682' }
+  let(:referral_number) { 'VA0000005681' }
   let(:encrypted_uuid) { 'encrypted-5682' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:referral_statuses) { "'AP','AC','I'" }
@@ -63,10 +63,10 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         # Verify first referral entry structure
         first_referral = response_data['data'].first
-        expect(first_referral['id']).to eq('encrypted-5682')
+        expect(first_referral['id']).to eq(encrypted_uuid)
         expect(first_referral['type']).to eq('referrals')
         expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
-        expect(first_referral['attributes']['referralNumber']).to eq('5682')
+        expect(first_referral['attributes']['referralNumber']).to eq(referral_number)
         expect(first_referral['attributes']['expirationDate']).to eq((Date.current + 60.days).strftime('%Y-%m-%d'))
       end
 
@@ -92,15 +92,15 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           # Create a referral that expired yesterday by setting start date to 60 days ago
           # and SEOC days to 59 days (so it expired yesterday)
           build(:ccra_referral_list_entry,
-                start_date: (today - 60.days).to_s,
-                seoc_days: '59')
+                referralDate: (today - 60.days).to_s,
+                seocNumberOfDays: '59')
         end
         let(:active_referral) do
           # Create a referral that expires 30 days from now by setting start date to today
           # and SEOC days to 30
           build(:ccra_referral_list_entry,
-                start_date: today.to_s,
-                seoc_days: '30')
+                referralDate: today.to_s,
+                seocNumberOfDays: '30')
         end
         let(:mixed_referrals) { [expired_referral, active_referral] }
 
@@ -128,12 +128,12 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
           [
             # Expired 1 day ago (start date 10 days ago, valid for 9 days)
             build(:ccra_referral_list_entry,
-                  start_date: (today - 10.days).to_s,
-                  seoc_days: '9'),
+                  referralDate: (today - 10.days).to_s,
+                  seocNumberOfDays: '9'),
             # Expired 5 days ago (start date 15 days ago, valid for 10 days)
             build(:ccra_referral_list_entry,
-                  start_date: (today - 15.days).to_s,
-                  seoc_days: '10')
+                  referralDate: (today - 15.days).to_s,
+                  seocNumberOfDays: '10')
           ]
         end
 
@@ -181,7 +181,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
     context 'when called with authorization' do
       let(:user) { build(:user, :vaos, :loa3, icn:) }
-      let(:referral_detail) { build(:ccra_referral_detail, referral_number:) }
+      let(:referral_detail) { build(:ccra_referral_detail, referralNumber: referral_number) }
 
       before do
         sign_in_as(user)

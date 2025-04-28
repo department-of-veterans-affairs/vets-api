@@ -3,29 +3,29 @@
 module Ccra
   # ReferralListEntry represents the essential referral data from the CCRA ReferralList endpoint.
   class ReferralListEntry
-    attr_reader :category_of_care, :expiration_date, :status, :station_id, :last_update_date_time
-    attr_accessor :referral_number, :uuid
+    attr_reader :categoryOfCare, :expirationDate, :status, :stationId, :lastUpdateDateTime
+    attr_accessor :referralNumber, :uuid
 
     ##
     # Initializes a new instance of ReferralListEntry.
     #
     # @param attributes [Hash] A hash containing the referral details.
     def initialize(attributes)
-      @category_of_care = attributes['category_of_care']
-      @referral_number = attributes['referral_number'] || attributes['referral_consult_id']
+      @categoryOfCare = attributes['categoryOfCare']
+      @referralNumber = attributes['referralNumber'] || attributes['referralConsultId']
       @uuid = nil # Will be set by controller
       @status = attributes['status']
-      @station_id = attributes['station_id']
-      @last_update_date_time = attributes['referral_last_update_date_time']
+      @stationId = attributes['stationId']
+      @lastUpdateDateTime = attributes['referralLastUpdateDateTime']
 
       # If referral_expiration_date is directly provided, use it
-      if attributes['referral_expiration_date'].present?
-        @expiration_date = parse_date(attributes['referral_expiration_date'])
+      if attributes['referralExpirationDate'].present?
+        @expirationDate = parse_date(attributes['referralExpirationDate'])
       # Otherwise calculate it from referral_date and days if available
-      elsif attributes['referral_date'].present? && attributes['seoc_number_of_days'].present?
-        start_date = parse_date(attributes['referral_date'])
-        days = attributes['seoc_number_of_days'].to_i
-        @expiration_date = start_date + days if start_date && days&.positive?
+      elsif attributes['referralDate'].present? && attributes['seocNumberOfDays'].present?
+        start_date = parse_date(attributes['referralDate'])
+        days = attributes['seocNumberOfDays'].to_i
+        @expirationDate = start_date + days if start_date && days&.positive?
       end
     end
 

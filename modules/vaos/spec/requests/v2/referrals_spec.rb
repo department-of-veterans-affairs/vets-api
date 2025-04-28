@@ -20,8 +20,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
       # Mock the encryption service for each referral in the list
       referrals.each do |ref|
         allow(VAOS::ReferralEncryptionService).to receive(:encrypt)
-          .with(ref.referral_number)
-          .and_return("encrypted-#{ref.referral_number}")
+          .with(ref.referralNumber)
+          .and_return("encrypted-#{ref.referralNumber}")
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
     let(:referral_number) { 'VA0000005681' }
     let(:encrypted_uuid) { 'encrypted-VA0000005681' }
     let(:user) { build(:user, :vaos, :loa3, icn:) }
-    let(:referral) { build(:ccra_referral_detail, referral_number:) }
+    let(:referral) { build(:ccra_referral_detail, referralNumber: referral_number) }
     let(:service_double) { instance_double(Ccra::ReferralService) }
 
     before do

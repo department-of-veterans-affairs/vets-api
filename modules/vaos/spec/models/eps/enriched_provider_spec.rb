@@ -13,7 +13,7 @@ describe Eps::EnrichedProvider do
 
     context 'when referral_detail has a phone number' do
       let(:phone_number) { '555-123-4567' }
-      let(:referral_detail) { build(:ccra_referral_detail, phone_number:) }
+      let(:referral_detail) { build(:ccra_referral_detail, phoneNumber: phone_number) }
 
       it 'adds the phone number to the provider' do
         result = described_class.from_referral(provider, referral_detail)
@@ -26,8 +26,8 @@ describe Eps::EnrichedProvider do
     context 'when referral_detail has no phone number' do
       let(:referral_detail) do
         attributes = {
-          'treating_facility_info' => { 'phone' => '' },
-          'treating_provider_info' => { 'telephone' => '' }
+          'treatingFacilityInfo' => { 'phone' => '' },
+          'treatingProviderInfo' => { 'telephone' => '' }
         }
         Ccra::ReferralDetail.new(attributes)
       end
@@ -51,7 +51,7 @@ describe Eps::EnrichedProvider do
       it 'returns nil' do
         result = described_class.from_referral(
           nil,
-          build(:ccra_referral_detail, phone_number: '555-555-5555')
+          build(:ccra_referral_detail, phoneNumber: '555-555-5555')
         )
         expect(result).to be_nil
       end

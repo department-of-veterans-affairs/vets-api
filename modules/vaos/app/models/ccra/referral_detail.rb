@@ -2,12 +2,12 @@
 
 module Ccra
   class ReferralDetail
-    attr_reader :expiration_date, :category_of_care, :provider_name, :provider_npi,
-                :provider_telephone, :treating_facility, :referral_number,
-                :phone_number, :referring_facility_name,
-                :referring_facility_phone, :referring_facility_code,
-                :referring_facility_address, :has_appointments,
-                :referral_date, :station_id
+    attr_reader :expirationDate, :categoryOfCare, :providerName, :providerNpi,
+                :providerTelephone, :treatingFacility, :referralNumber,
+                :phoneNumber, :referringFacilityName,
+                :referringFacilityPhone, :referringFacilityCode,
+                :referringFacilityAddress, :hasAppointments,
+                :referralDate, :stationId
     attr_accessor :uuid
 
     ##
@@ -17,25 +17,23 @@ module Ccra
     def initialize(attributes)
       return if attributes.blank?
 
-      @expiration_date = attributes['referral_expiration_date']
-      @category_of_care = attributes['category_of_care']
-      @treating_facility = attributes['treating_facility']
-      @referral_number = attributes['referral_number']
-      @referral_date = attributes['referral_date']
-      @station_id = attributes['station_id']
+      @expirationDate = attributes['referralExpirationDate']
+      @categoryOfCare = attributes['categoryOfCare']
+      @treatingFacility = attributes['treatingFacility']
+      @referralNumber = attributes['referralNumber']
+      @referralDate = attributes['referralDate']
+      @stationId = attributes['stationId']
       @uuid = nil # Will be set by controller
-      @has_appointments = attributes['appointments'].present?
+      @hasAppointments = attributes['appointments'].present?
 
       # Get phone number from treating facility or provider info
-      treating_facility_info = attributes['treating_facility_info']
-      treating_provider_info = attributes['treating_provider_info']
+      treating_facility_info = attributes['treatingFacilityInfo']
+      treating_provider_info = attributes['treatingProviderInfo']
 
-      @phone_number = treating_facility_info&.dig('phone').presence || treating_provider_info&.dig('telephone').presence
+      @phoneNumber = treating_facility_info&.dig('phone').presence || treating_provider_info&.dig('telephone').presence
 
       # Parse provider and facility info
-      if attributes['referring_facility_info'].present?
-        parse_referring_facility_info(attributes['referring_facility_info'])
-      end
+      parse_referring_facility_info(attributes['referringFacilityInfo']) if attributes['referringFacilityInfo'].present?
       parse_treating_provider_info(treating_provider_info) if treating_provider_info.present?
     end
 
@@ -47,17 +45,17 @@ module Ccra
     def parse_referring_facility_info(facility_info)
       return if facility_info.blank?
 
-      @referring_facility_name = facility_info['facility_name']
-      @referring_facility_phone = facility_info['phone']
-      @referring_facility_code = facility_info['facility_code']
+      @referringFacilityName = facility_info['facilityName']
+      @referringFacilityPhone = facility_info['phone']
+      @referringFacilityCode = facility_info['facilityCode']
 
       # Parse address information
       if facility_info['address'].present?
-        @referring_facility_address = {
+        @referringFacilityAddress = {
           street1: facility_info['address']['address1'],
           city: facility_info['address']['city'],
           state: facility_info['address']['state'],
-          zip: facility_info['address']['zip_code']
+          zip: facility_info['address']['zipCode']
         }
       end
     end
@@ -68,9 +66,9 @@ module Ccra
     def parse_treating_provider_info(provider_info)
       return if provider_info.blank?
 
-      @provider_name = provider_info['provider_name']
-      @provider_npi = provider_info['provider_npi']
-      @provider_telephone = provider_info['telephone']
+      @providerName = provider_info['providerName']
+      @providerNpi = provider_info['providerNpi']
+      @providerTelephone = provider_info['telephone']
     end
 
     # Converts Y/N/yes/no string values to boolean

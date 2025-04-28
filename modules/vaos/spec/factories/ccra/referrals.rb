@@ -2,78 +2,78 @@
 
 FactoryBot.define do
   factory :ccra_referral_list_entry, class: 'Ccra::ReferralListEntry' do
-    category_of_care { 'CARDIOLOGY' }
-    referral_number { 'VA0000005681' }
-    referral_date { Date.current.to_s }
-    seoc_number_of_days { '60' }
+    categoryOfCare { 'CARDIOLOGY' }
+    referralNumber { 'VA0000005681' }
+    referralDate { Date.current.to_s }
+    seocNumberOfDays { '60' }
     status { 'A' }
-    station_id { '552' }
+    stationId { '552' }
     sta6 { '984' }
-    referral_last_update_date_time { "#{Date.current} 10:30:00" }
-    referral_consult_id { '984_646372' }
+    lastUpdateDateTime { "#{Date.current} 10:30:00" }
+    referralConsultId { '984_646372' }
 
     initialize_with do
       attributes = {
-        'category_of_care' => category_of_care,
-        'referral_number' => referral_number,
-        'referral_date' => referral_date,
-        'seoc_number_of_days' => seoc_number_of_days,
+        'categoryOfCare' => categoryOfCare,
+        'referralNumber' => referralNumber,
+        'referralDate' => referralDate,
+        'seocNumberOfDays' => seocNumberOfDays,
         'status' => status,
-        'station_id' => station_id,
+        'stationId' => stationId,
         'sta6' => sta6,
-        'referral_last_update_date_time' => referral_last_update_date_time,
-        'referral_consult_id' => referral_consult_id
+        'referralLastUpdateDateTime' => lastUpdateDateTime,
+        'referralConsultId' => referralConsultId
       }
       Ccra::ReferralListEntry.new(attributes)
     end
   end
 
   factory :ccra_referral_detail, class: 'Ccra::ReferralDetail' do
-    category_of_care { 'CARDIOLOGY' }
-    provider_name { 'Dr. Smith' }
-    provider_npi { '1234567890' }
-    provider_telephone { '555-987-6543' }
-    treating_facility { 'VA Medical Center' }
-    referral_number { 'VA0000005681' }
-    referral_expiration_date { (Date.current + 30.days).to_s }
-    phone_number { '555-123-4567' }
-    referring_facility_name { 'Dayton VA Medical Center' }
-    referring_facility_phone { '(937) 262-3800' }
-    referring_facility_code { '552' }
-    referring_facility_address1 { '4100 West Third Street' }
-    referring_facility_city { 'DAYTON' }
-    referring_facility_state { 'OH' }
-    referring_facility_zip { '45428' }
-    referral_date { Date.current.to_s }
-    station_id { '552' }
+    categoryOfCare { 'CARDIOLOGY' }
+    providerName { 'Dr. Smith' }
+    providerNpi { '1234567890' }
+    providerTelephone { '555-987-6543' }
+    treatingFacility { 'VA Medical Center' }
+    referralNumber { 'VA0000005681' }
+    expirationDate { (Date.current + 30.days).to_s }
+    phoneNumber { '555-123-4567' }
+    referringFacilityName { 'Dayton VA Medical Center' }
+    referringFacilityPhone { '(937) 262-3800' }
+    referringFacilityCode { '552' }
+    referringFacilityAddress1 { '4100 West Third Street' }
+    referringFacilityCity { 'DAYTON' }
+    referringFacilityState { 'OH' }
+    referringFacilityZip { '45428' }
+    referralDate { Date.current.to_s }
+    stationId { '552' }
 
     initialize_with do
       attributes = {
-        'category_of_care' => category_of_care,
-        'treating_facility' => treating_facility,
-        'referral_number' => referral_number,
-        'referral_expiration_date' => referral_expiration_date,
-        'referral_date' => referral_date,
-        'station_id' => station_id,
-        'appointments' => [{ 'appointment_date' => Date.current.to_s }],
-        'referring_facility_info' => {
-          'facility_name' => referring_facility_name,
-          'phone' => referring_facility_phone,
-          'facility_code' => referring_facility_code,
+        'categoryOfCare' => categoryOfCare,
+        'treatingFacility' => treatingFacility,
+        'referralNumber' => referralNumber,
+        'referralExpirationDate' => expirationDate,
+        'referralDate' => referralDate,
+        'stationId' => stationId,
+        'appointments' => [{ 'appointmentDate' => Date.current.to_s }],
+        'referringFacilityInfo' => {
+          'facilityName' => referringFacilityName,
+          'phone' => referringFacilityPhone,
+          'facilityCode' => referringFacilityCode,
           'address' => {
-            'address1' => referring_facility_address1,
-            'city' => referring_facility_city,
-            'state' => referring_facility_state,
-            'zip_code' => referring_facility_zip
+            'address1' => referringFacilityAddress1,
+            'city' => referringFacilityCity,
+            'state' => referringFacilityState,
+            'zipCode' => referringFacilityZip
           }
         },
-        'treating_facility_info' => {
-          'phone' => phone_number
+        'treatingFacilityInfo' => {
+          'phone' => phoneNumber
         },
-        'treating_provider_info' => {
-          'provider_name' => provider_name,
-          'provider_npi' => provider_npi,
-          'telephone' => provider_telephone
+        'treatingProviderInfo' => {
+          'providerName' => providerName,
+          'providerNpi' => providerNpi,
+          'telephone' => providerTelephone
         }
       }
       Ccra::ReferralDetail.new(attributes)

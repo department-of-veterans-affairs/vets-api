@@ -20,62 +20,62 @@ describe Ccra::ReferralDetail do
 
     let(:valid_attributes) do
       {
-        'referral_expiration_date' => '2024-05-27',
-        'category_of_care' => 'CARDIOLOGY',
-        'treating_facility' => 'VA Medical Center',
-        'referral_number' => 'VA0000005681',
-        'referral_date' => '2024-07-24',
-        'station_id' => '528A6',
-        'appointments' => [{ 'appointment_date' => '2024-08-15' }],
-        'referring_facility_info' => {
-          'facility_name' => 'Bath VA Medical Center',
+        'referralExpirationDate' => '2024-05-27',
+        'categoryOfCare' => 'CARDIOLOGY',
+        'treatingFacility' => 'VA Medical Center',
+        'referralNumber' => 'VA0000005681',
+        'referralDate' => '2024-07-24',
+        'stationId' => '528A6',
+        'appointments' => [{ 'appointmentDate' => '2024-08-15' }],
+        'referringFacilityInfo' => {
+          'facilityName' => 'Bath VA Medical Center',
           'phone' => '555-123-4567',
-          'facility_code' => '528A6',
+          'facilityCode' => '528A6',
           'address' => {
             'address1' => '801 VASSAR DR NE',
             'city' => 'ALBUQUERQUE',
             'state' => 'NM',
-            'zip_code' => '87106'
+            'zipCode' => '87106'
           }
         },
-        'treating_provider_info' => {
-          'provider_name' => 'Dr. Smith',
-          'provider_npi' => '1659458917',
+        'treatingProviderInfo' => {
+          'providerName' => 'Dr. Smith',
+          'providerNpi' => '1659458917',
           'telephone' => '505-248-4062'
         },
-        'treating_facility_info' => {
+        'treatingFacilityInfo' => {
           'phone' => '505-555-1234'
         }
       }
     end
 
     it 'sets all attributes correctly' do
-      expect(subject.expiration_date).to eq('2024-05-27')
-      expect(subject.category_of_care).to eq('CARDIOLOGY')
-      expect(subject.treating_facility).to eq('VA Medical Center')
-      expect(subject.referral_number).to eq('VA0000005681')
-      expect(subject.referral_date).to eq('2024-07-24')
-      expect(subject.station_id).to eq('528A6')
+      expect(subject.expirationDate).to eq('2024-05-27')
+      expect(subject.categoryOfCare).to eq('CARDIOLOGY')
+      expect(subject.treatingFacility).to eq('VA Medical Center')
+      expect(subject.referralNumber).to eq('VA0000005681')
+      expect(subject.referralDate).to eq('2024-07-24')
+      expect(subject.stationId).to eq('528A6')
       expect(subject.uuid).to be_nil
-      expect(subject.has_appointments).to be(true)
+      expect(subject.hasAppointments).to be(true)
 
       # Phone number should come from treating facility
-      expect(subject.phone_number).to eq('505-555-1234')
+      expect(subject.phoneNumber).to eq('505-555-1234')
 
       # Provider info
-      expect(subject.provider_name).to eq('Dr. Smith')
-      expect(subject.provider_npi).to eq('1659458917')
-      expect(subject.provider_telephone).to eq('505-248-4062')
+      expect(subject.providerName).to eq('Dr. Smith')
+      expect(subject.providerNpi).to eq('1659458917')
+      expect(subject.providerTelephone).to eq('505-248-4062')
 
       # Referring facility info
-      expect(subject.referring_facility_name).to eq('Bath VA Medical Center')
-      expect(subject.referring_facility_phone).to eq('555-123-4567')
-      expect(subject.referring_facility_code).to eq('528A6')
-      expect(subject.referring_facility_address).to be_a(Hash)
-      expect(subject.referring_facility_address[:street1]).to eq('801 VASSAR DR NE')
-      expect(subject.referring_facility_address[:city]).to eq('ALBUQUERQUE')
-      expect(subject.referring_facility_address[:state]).to eq('NM')
-      expect(subject.referring_facility_address[:zip]).to eq('87106')
+      expect(subject.referringFacilityName).to eq('Bath VA Medical Center')
+      expect(subject.referringFacilityPhone).to eq('555-123-4567')
+      expect(subject.referringFacilityCode).to eq('528A6')
+      expect(subject.referringFacilityAddress).to be_a(Hash)
+      expect(subject.referringFacilityAddress[:street1]).to eq('801 VASSAR DR NE')
+      expect(subject.referringFacilityAddress[:city]).to eq('ALBUQUERQUE')
+      expect(subject.referringFacilityAddress[:state]).to eq('NM')
+      expect(subject.referringFacilityAddress[:zip]).to eq('87106')
     end
 
     context 'with empty attributes' do
@@ -95,35 +95,35 @@ describe Ccra::ReferralDetail do
 
       let(:provider_phone_attributes) do
         {
-          'treating_facility_info' => {},
-          'treating_provider_info' => {
+          'treatingFacilityInfo' => {},
+          'treatingProviderInfo' => {
             'telephone' => '123-456-7890'
           }
         }
       end
 
       it 'uses provider telephone as phone_number' do
-        expect(subject.phone_number).to eq('123-456-7890')
+        expect(subject.phoneNumber).to eq('123-456-7890')
       end
     end
 
     context 'with appointments array' do
-      it 'sets has_appointments to true when appointments are present' do
-        attributes = { 'appointments' => [{ 'appointment_date' => '2024-08-15' }] }
+      it 'sets hasAppointments to true when appointments are present' do
+        attributes = { 'appointments' => [{ 'appointmentDate' => '2024-08-15' }] }
         detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(true)
+        expect(detail.hasAppointments).to be(true)
       end
 
-      it 'sets has_appointments to false when appointments is empty array' do
+      it 'sets hasAppointments to false when appointments is empty array' do
         attributes = { 'appointments' => [] }
         detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(false)
+        expect(detail.hasAppointments).to be(false)
       end
 
-      it 'sets has_appointments to false when appointments is nil' do
+      it 'sets hasAppointments to false when appointments is nil' do
         attributes = { 'appointments' => nil }
         detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be(false)
+        expect(detail.hasAppointments).to be(false)
       end
     end
   end

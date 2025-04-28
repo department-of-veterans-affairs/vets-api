@@ -122,6 +122,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
       context 'with referral detail data' do
         let(:provider_phone) { '555-123-4567' }
+        let(:referring_facility_phone) { '555-987-6543' }
+        let(:referring_facility_name) { 'VA Medical Center' }
 
         it 'includes phone number in provider data when available from referral' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
