@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'stringio'
 
-RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request do
+RSpec.describe 'Filter Parameter Logging', type: :request do
   before do
     @original_log_level = SemanticLogger.default_level
     @original_logger = Rails.logger
