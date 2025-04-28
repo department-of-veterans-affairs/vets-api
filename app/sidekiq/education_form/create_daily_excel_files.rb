@@ -193,7 +193,9 @@ module EducationForm
     def upload_file_to_sftp(filename)
       log_info('Form 10282 SFTP Upload: Begin')
 
-      writer = SFTPWriter::Factory.get_writer(Settings.form_10282.sftp).new(Settings.form_10282.sftp, logger:)
+      options = Settings.form_10282.sftp.merge!(allow_staging_uploads: true)
+
+      writer = SFTPWriter::Factory.get_writer(options).new(options, logger:)
       file_size = File.size("tmp/#{filename}")
       bytes_sent = writer.write(File.open("tmp/#{filename}"), filename)
       log_info("Form 10282 SFTP Upload: wrote #{bytes_sent} bytes of a #{file_size} byte file")

@@ -46,7 +46,7 @@ module SFTPWriter
       # The decision was made to push spool files only on production
       bytes_sent = 0
 
-      if Settings.hostname.eql?('api.va.gov')
+      if Settings.hostname.eql?('api.va.gov') || @config.allow_staging_uploads
         mkdir_safe(path)
         sftp.upload!(StringIO.new(contents), path)
 
