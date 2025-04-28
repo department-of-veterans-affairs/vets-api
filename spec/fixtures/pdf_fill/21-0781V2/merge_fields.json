@@ -17,8 +17,8 @@
     "year": "1981"
   },
   "veteranServiceNumber": "987654321",
-   "email": "testy.testerson@gmail.com",
-   "veteranPhone": {
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": {
     "first": "212",
     "second": "345",
     "third": "6789"
@@ -76,16 +76,22 @@
     "relationships": true,
     "unlisted": true
   },
-  "behaviorsDetails": {
-    "reassignment": "requested duty assignment",
-    "performance": "poor evaluations",
-    "episodes": "severe depression",
-    "selfMedication": "stopped treating headaches",
-    "appetite": "skipping meals",
-    "screenings": "positive tests",
-    "relationships": "separation",
-    "unlisted": "Lorem ipsum dolor sit amet."
-  },
+  "behaviorsDetails": [
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": "requested duty assignment", "description": "Request for a change in occupational series or duty assignment" },
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": "poor evaluations", "description": "Changes in performance or performance evaluations" },
+    { "additionalInfo": "severe depression", "description": "Episodes of depression, panic attacks, or anxiety" },
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": "stopped treating headaches", "description": "Increased/decreased use of over-the-counter medications" },
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": "skipping meals", "description": "Changes in eating habits, such as overeating or under eating, or significant changes in weight" },
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": "positive tests", "description": "Tests for sexually transmitted infections" },
+    { "additionalInfo": null, "description": null },
+    { "additionalInfo": "separation", "description": "Changes in or breakup of a significant relationship" }
+  ],
   "evidence": {
     "crisisCenter": true,
     "counseling": true,
@@ -152,8 +158,8 @@
     "first": "123",
     "second": "45",
     "third": "6789"
-   },
-   "veteranSocialSecurityNumber2": {
+  },
+  "veteranSocialSecurityNumber2": {
     "first": "123",
     "second": "45",
     "third": "6789"
@@ -171,5 +177,8 @@
   "otherReport": 4,
   "reportFiled": 0,
   "noReportFiled": null,
+  "additionalBehaviorsDetails": {
+    "additionalInfo": "Lorem ipsum dolor sit amet."
+  },
   "signature": "/es/ Testy Testerson"
 }

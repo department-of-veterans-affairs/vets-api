@@ -452,6 +452,10 @@ flipper:
   github_organization: ~
   github_team: ~
   mute_logs: false
+form0781_remediation:
+  aws:
+    bucket: ~
+    region: ~
 form1095_b:
   s3:
     aws_access_key_id: ~
@@ -1449,6 +1453,18 @@ vanotify:
     ivc_forms: ivc_forms_token
     va_gov: va_gov_token
   services:
+    21p_0969: &vanotify_services_income_and_assets
+      api_key: fake_secret
+      email:
+        error:
+          flipper_id: income_and_assets_error_email_notification
+          template_id: form0969_error_email_template_id
+        received:
+          flipper_id: income_and_assets_received_email_notification
+          template_id: form0969_received_email_template_id
+        submitted:
+          flipper_id: income_and_assets_submitted_email_notification
+          template_id: form0969_submitted_email_template_id
     21p_527ez: &vanotify_services_pension
       api_key: fake_secret
       email:
@@ -1525,6 +1541,7 @@ vanotify:
         form1010_cg_failure_email: fake_template_id
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
+    income_and_assets: *vanotify_services_income_and_assets
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
@@ -1636,7 +1653,10 @@ vanotify:
         form526ez_reminder_email: ~
         form5490_confirmation_email: form5490_confirmation_email_template_id
         form5495_confirmation_email: form5495_confirmation_email_template_id
+        form674_only_confirmation_email: 674_confirmation_template_id
+        form686c_674_confirmation_email: 686c_674_confirmation_template_id
         form686c_confirmation_email: fake_template_id
+        form686c_only_confirmation_email: 686c_confirmation_template_id
         form686c_reminder_email: fake_template_id
         form_upload_confirmation_email: form_upload_confirmation_template_id
         form_upload_error_email: form_upload_error_template_id
@@ -1650,9 +1670,9 @@ vanotify:
     bearer_token: fake_bearer_token
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
-    base_path: csp/healthshare/ccraint/rest
-    mock: true
+    api_url: https://veteran.apps.va.gov
+    base_path: vaos/v1/patients
+    mock: false
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1661,7 +1681,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500
