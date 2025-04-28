@@ -15,8 +15,13 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
     original_ac_lvl  = ac_logger.level
     ac_logger.level  = :debug
 
+    quiet_logger         = SemanticLogger['SemanticLogger::Appenders']
+    original_quiet_level = quiet_logger.level
+    quiet_logger.level   = :fatal
+
     example.run
   ensure
+    quiet_logger.level   = original_quiet_level
     SemanticLogger.flush
     ac_logger.level = original_ac_lvl
     SemanticLogger.remove_appender(appender)
