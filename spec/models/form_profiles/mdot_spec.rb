@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FormProfile::MDOT, type: :model do
+RSpec.describe FormProfiles::MDOT, type: :model do
   let(:user_details) do
     {
       first_name: 'Greg',
