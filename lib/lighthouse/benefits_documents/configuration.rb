@@ -15,10 +15,10 @@ module BenefitsDocuments
 
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
-    BASE_PATH = 'services/benefits-documents/v1/'
-    DOCUMENTS_PATH = 'documents'
-    DOCUMENTS_STATUS_PATH = 'uploads/status'
-    TOKEN_PATH = '/oauth2/benefits-documents/system/v1/token'
+    BASE_PATH = 'services/benefits-documents/v1'
+    DOCUMENTS_PATH = "#{BASE_PATH}/documents".freeze
+    DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
+    TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
 
     ##
@@ -38,7 +38,11 @@ module BenefitsDocuments
     # @return [String] Base path for veteran_verification URLs.
     #
     def base_path(host = nil)
-      (host || documents_settings.host).to_s + "/#{BASE_PATH}"
+      (host || documents_settings.host).to_s
+    end
+
+    def base_api_path(host = nil)
+      "#{base_path(host)}/"
     end
 
     ##
@@ -114,7 +118,7 @@ module BenefitsDocuments
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
-    def connection(api_path = base_path)
+    def connection(api_path = base_api_path)
       @conn ||= Faraday.new(api_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
@@ -169,12 +173,12 @@ module BenefitsDocuments
 
     def documents_status_access_token
       # Lighthouse requires the documents status endpoint be tested on the QA testing domain
-      ENV['RAILS_ENV'] == 'test' ? access_token(nil, nil, { host: QA_TESTING_DOMAIN }) : access_token
+      ENV['RAILS_ENV'] == 'test' ? access_token(nil, nil, { host:  QA_TESTING_DOMAIN }) : access_token
     end
 
     def documents_status_api_connection
       # Lighthouse requires the documents status endpoint be tested on the QA testing domain
-      ENV['RAILS_ENV'] == 'test' ? connection(base_path(QA_TESTING_DOMAIN)) : connection
+      ENV['RAILS_ENV'] == 'test' ? connection(QA_TESTING_DOMAIN) : connection
     end
   end
 end

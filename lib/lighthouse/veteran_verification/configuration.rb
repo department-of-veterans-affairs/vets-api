@@ -26,7 +26,11 @@ module VeteranVerification
     # @return [String] Base path for veteran_verification URLs.
     #
     def base_path(host = nil)
-      (host || settings.host).to_s + "/#{VETERAN_VERIFICATION_PATH}"
+      (host || settings.host).to_s
+    end
+
+    def base_api_path(host = nil)
+      "#{base_path(host)}/#{VETERAN_VERIFICATION_PATH}"
     end
 
     ##

@@ -35,10 +35,7 @@ module BenefitsDocuments
       rescue => e
         # NOTE: third argument, lighthouse_client_id is left nil so it isn't logged.
         error = Lighthouse::ServiceException.send_error(
-          e,
-          self.class.to_s.underscore,
-          nil,
-          BenefitsDocuments::Configuration::BASE_PATH + BenefitsDocuments::Configuration::DOCUMENTS_PATH
+          e, self.class.to_s.underscore, nil, BenefitsDocuments::Configuration::DOCUMENTS_PATH
         )
 
         # Lighthouse::ServiceException can either raise an error or return an error object, so we need to

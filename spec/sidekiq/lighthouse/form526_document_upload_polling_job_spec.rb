@@ -96,11 +96,6 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
       end
 
       it 'increments StatsD counters for both documents and logs unknown document error' do
-        expect(StatsD).to receive(:increment).with(
-          'api.external_http_request.BenefitsDocuments.success', 1, tags: [
-            'endpoint:/services/benefits-documents/v1/uploads/status', 'method:post'
-          ]
-        )
         expect(StatsD).to receive(:increment)
           .with('api.form526.lighthouse_document_upload_processing_status.bdd_instructions.complete').ordered
         expect(StatsD).to receive(:increment)

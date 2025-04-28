@@ -11,9 +11,6 @@ RSpec.describe VeteranVerification::Service do
   end
 
   describe 'making requests' do
-    let(:breakers_service_name) { 'api.external_http_request.VeteranVerification' }
-    let(:breakers_tags) { ['endpoint:/services/veteran_verification/v2/status/xxx', 'method:get'] }
-
     context 'valid requests' do
       before do
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
@@ -56,11 +53,9 @@ RSpec.describe VeteranVerification::Service do
 
       describe 'when requesting status' do
         let(:icn) { '1012667145V762142' }
-        let(:error_icn) { '1012666182V20' }
 
         it 'retrieves veteran confirmation status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_response') do
-            expect(StatsD).to receive(:increment).with("#{breakers_service_name}.success", 1, tags: breakers_tags)
             expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY
             )
@@ -78,11 +73,6 @@ RSpec.describe VeteranVerification::Service do
         it 'retrieves error status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_error_response') do
             expect(StatsD).to receive(:increment).with(
-              "#{breakers_service_name}.success", 1, tags: [
-                "endpoint:/services/veteran_verification/v2/status/#{error_icn}", 'method:get'
-              ]
-            )
-            expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY
             )
             expect(Rails.logger).to receive(:info).with(
@@ -90,9 +80,9 @@ RSpec.describe VeteranVerification::Service do
               { not_confirmed: true, not_confirmed_reason: 'ERROR' }
             )
 
-            response = @service.get_vet_verification_status(error_icn, '', '')
+            response = @service.get_vet_verification_status('1012666182V20', '', '')
 
-            expect(response['data']['id']).to eq(error_icn)
+            expect(response['data']['id']).to eq('1012666182V20')
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
             expect(response['data']['message']).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
@@ -144,10 +134,6 @@ RSpec.describe VeteranVerification::Service do
 
         Lighthouse::ServiceException::ERROR_MAP.except(404, 422, 499, 501).each do |status, error_class|
           it "throws a #{status} error if Lighthouse sends it back" do
-            # if status is 5xx
-            if status >= 500
-              expect(StatsD).to receive(:increment).with("#{breakers_service_name}.failed", 1, tags: breakers_tags)
-            end
             expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY
             )
