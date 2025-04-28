@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'pdf_info'
 
-class LighthouseDocument < Common::Base
-  include ActiveModel::Validations
+class LighthouseDocument
+  include Vets::Model
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
@@ -84,10 +84,9 @@ class LighthouseDocument < Common::Base
     to_hash.tap { |h| h.delete :file_obj }
   end
 
-  # The front-end URLencodes a nil tracked_item_id as the string 'null'
+  # The front-end URL encodes a nil tracked_item_id as the string 'null'
   def tracked_item_id=(num)
-    num = nil if num == 'null'
-    super num
+    @tracked_item_id = num == 'null' ? nil : num
   end
 
   private
