@@ -77,7 +77,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsIntakeError,
+        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsBenefitIntakeError,
         "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
       )
     end
@@ -116,16 +116,35 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       job.instance_variable_set(:@form_path, 'path/file.pdf')
       job.instance_variable_set(:@attachment_paths, '/invalid_path/should_be_an_array.failure')
 
-      job.instance_variable_set(:@ia_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive(:track_file_cleanup_error)
     end
 
-    it 'returns expected hash' do
+    it 'errors and logs but does not reraise' do
       expect(monitor).to receive(:track_file_cleanup_error)
-      expect { job.send(:cleanup_file_paths) }.to raise_error(
-        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsIntakeError,
-        anything
-      )
+      job.send(:cleanup_file_paths)
+    end
+  end
+
+  describe '#send_submitted_email' do
+    let(:monitor_error) { create(:monitor_error) }
+    let(:notification) { double('notification') }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+
+      allow(IncomeAndAssets::NotificationEmail).to receive(:new).and_return(notification)
+      allow(notification).to receive(:deliver).and_raise(monitor_error)
+
+      job.instance_variable_set(:@monitor, monitor)
+      allow(monitor).to receive(:track_send_submitted_email_failure)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id)
+      expect(notification).to receive(:deliver).with(:submitted)
+      expect(monitor).to receive(:track_send_submitted_email_failure)
+      job.send(:send_submitted_email)
     end
   end
 
