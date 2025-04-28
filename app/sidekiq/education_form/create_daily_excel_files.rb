@@ -203,7 +203,7 @@ module EducationForm
       log_exception(DailyExcelFileError.new("Failed SFTP upload: #{e.message}"))
       raise
     ensure
-      writer.close
+      writer&.close
     end
   end
 end
