@@ -1738,8 +1738,8 @@ veteran_enrollment_system:
   ee_summary:
     api_key: ~
   host: <%= ENV['veteran_enrollment_system__host'] %>
-  port: <%= ENV['veteran_enrollment_system__port'] %>
   open_timeout: 10
+  port: <%= ENV['veteran_enrollment_system__port'] %>
   timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
