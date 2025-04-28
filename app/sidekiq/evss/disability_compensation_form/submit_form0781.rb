@@ -186,7 +186,10 @@ module EVSS
             'form0781v2' => FORM_ID_0781V2
           }.each do |form_key, form_id|
             form_content = parsed_forms[form_key]
-            process_0781(submission.submitted_claim_id, form_id, form_content) if form_content.present?
+            if form_content.present?
+              ::Rails.logger.info('Performing SubmitForm0781', { submission_id:, form_id: })
+              process_0781(submission.submitted_claim_id, form_id, form_content)
+            end
           end
         end
       rescue => e
