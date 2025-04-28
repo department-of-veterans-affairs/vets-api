@@ -125,8 +125,8 @@ type: application
 # 0.15.21  - Set web.terminationGracePeriodSeconds
 # 0.15.22  - Move image value and pullPolicy to Parent Helm Chart
 # 0.15.23  - Set annotations to parent helm chart
-# 0.15.23  - Set dbMigrate to parent helm chart and enable to true
-# 0.15.24  - Add all dbMigrate secrets to parameter store (every entry based on env)
+# 0.15.24  - Set dbMigrate to parent helm chart and enable to true
+# 0.15.25  - Add all dbMigrate secrets to parameter store (every entry based on env)
 version: 0.15.25
 
 # This is the version number of the application being deployed. This version number should be
