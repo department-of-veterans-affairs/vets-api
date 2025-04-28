@@ -2,34 +2,12 @@
 
 module AccreditedRepresentativePortal
   class ClaimantSerializer < ApplicationSerializer
-    set_id do |profile|
-      IcnTemporaryIdentifier.save_icn(profile.icn).id
-    end
+    set_id(&:id)
 
-    attribute :first_name do |profile|
-      profile.given_names.first
-    end
+    attributes :first_name, :last_name, :city, :state, :postal_code, :representative
 
-    attribute :last_name, &:family_name
-
-    attribute :city do |profile|
-      profile.address.city
-    end
-
-    attribute :state do |profile|
-      profile.address.state
-    end
-
-    attribute :postal_code do |profile|
-      profile.address.postal_code
-    end
-
-    attribute :representative do |_, params|
-      params[:representative]
-    end
-
-    attribute :poa_requests do |profile, params|
-      params[:poa_requests].joins(:claimant).where(claimant: { icn: profile.icn }).map do |poa_request|
+    attribute :poa_requests do |claimant|
+      claimant.poa_requests.map do |poa_request|
         PowerOfAttorneyRequestSerializer.new(poa_request).serializable_hash
       end
     end

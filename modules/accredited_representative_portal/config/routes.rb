@@ -27,7 +27,6 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     end
 
     namespace :claimant do
-      post 'power_of_attorney_requests', to: 'power_of_attorney_requests#index'
       post 'search'
     end
 

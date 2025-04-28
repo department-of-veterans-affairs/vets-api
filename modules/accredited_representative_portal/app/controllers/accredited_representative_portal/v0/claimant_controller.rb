@@ -6,17 +6,16 @@ module AccreditedRepresentativePortal
       before_action :check_feature_toggle
 
       def search
-        authorize true, policy_class: ClaimantPolicy
+        authorize nil, policy_class: ClaimantPolicy
 
         poa_requests = policy_scope(PowerOfAttorneyRequest).joins(:claimant).where(claimant: { icn: })
+        claimant = Claimant.new(search_result.try(:profile), poa_requests)
 
         raise Common::Exceptions::RecordNotFound, 'Claimant not found' unless icn.present? && (
-          ClaimantPolicy.new(current_user, icn).power_of_attorney? || poa_requests.any?
+          ClaimantPolicy.new(current_user, claimant).power_of_attorney? || poa_requests.any?
         )
 
-        serializer = ClaimantSerializer.new(search_result.profile, params: { poa_requests:, representative: })
-
-        render json: { data: serializer.serializable_hash }, status: :ok
+        render json: { data: ClaimantSerializer.new(claimant).serializable_hash }, status: :ok
       rescue ClaimantSearchService::Error => e
         raise Common::Exceptions::BadRequest.new(detail: e.message, source: ClaimantSearchService)
       end
@@ -31,20 +30,6 @@ module AccreditedRepresentativePortal
 
       def icn
         search_result.try(:profile).try(:icn)
-      end
-
-      def representative
-        PoaLookupService.new(icn).representative_name
-      end
-
-      def scope_includes
-        [
-          :power_of_attorney_form,
-          :power_of_attorney_form_submission,
-          :accredited_individual,
-          :accredited_organization,
-          { resolution: :resolving }
-        ]
       end
 
       def check_feature_toggle

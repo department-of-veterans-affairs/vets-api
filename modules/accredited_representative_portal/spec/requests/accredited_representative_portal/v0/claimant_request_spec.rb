@@ -72,7 +72,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :re
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           VCR.use_cassette(
             'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
-            'lighthouse/benefits_claims/200_response', allow_playback_repeats: true
+            'lighthouse/benefits_claims/200_response'
           ) do
             post('/accredited_representative_portal/v0/claimant/search', params: {
                    first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: '666-66-6666'

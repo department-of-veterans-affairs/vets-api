@@ -6,6 +6,11 @@ module AccreditedRepresentativePortal
   class ClaimantPolicy < ApplicationPolicy
     include ValidatePowerOfAttorney
 
+    def initialize(user, claimant)
+      super(user, claimant)
+      @claimant_poa_code = claimant&.claimant_poa_code
+    end
+
     def search?
       @user.user_account.active_power_of_attorney_holders.size.positive?
     end
