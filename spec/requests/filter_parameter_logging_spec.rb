@@ -21,7 +21,7 @@ RSpec.describe 'Filter Parameter Logging', type: :request do
 
     example.run
   ensure
-    quiet_logger.level   = original_quiet_level
+    quiet_logger.level = original_quiet_level
     SemanticLogger.flush
     ac_logger.level = original_ac_lvl
     SemanticLogger.remove_appender(appender)
