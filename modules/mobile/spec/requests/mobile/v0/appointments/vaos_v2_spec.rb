@@ -258,6 +258,27 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                        })
         end
 
+        it 'does not append claim info when flipper is disabled and flag is passed' do
+          # These both need to be enabled for the claims to be appended (one for mobile use, one for VAOS use)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_smoc_on_mobile, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_200_for_travel_pay',
+                               allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
+                VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range',
+                                 match_requests_on: %i[method path]) do
+                  get '/mobile/v0/appointments', headers: sis_headers, params:
+                end
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+          # The first appointment should not have a claim attached
+          expect(response.parsed_body.dig('data', 0, 'attributes', 'travelPayClaim')).to be_nil
+        end
+
         it 'does not append claim info when flipper is enabled and flag is not passed' do
           # These both need to be enabled for the claims to be appended (one for mobile use, one for VAOS use)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_smoc_on_mobile, instance_of(User)).and_return(true)
