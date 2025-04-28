@@ -46,6 +46,10 @@ module PdfFill
         end
       end
 
+      def should_render?
+        sorted_subquestions.any?
+      end
+
       def render(pdf, list_format: false)
         pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
         pdf.markup(['<table>', sorted_subquestions_markup, '</table>'].flatten.join, text: { margin_bottom: 10 })
@@ -53,6 +57,8 @@ module PdfFill
 
       # Render content to a temporary PDF and measure the actual height
       def measure_actual_height(temp_pdf)
+        return 0 unless should_render?
+
         # Save the current cursor position
         start_cursor = temp_pdf.cursor
 
@@ -75,6 +81,48 @@ module PdfFill
       end
     end
 
+    class CheckedDescriptionQuestion < Question
+      attr_reader :description, :additional_info
+
+      def initialize(question_text, metadata)
+        super
+        @description = nil
+        @additional_info = nil
+        @checked = false
+      end
+
+      def add_text(value, metadata)
+        question = metadata[:question_label] || metadata[:question_text]
+
+        case question
+        when 'Description'
+          @description = value
+        when 'Additional Information'
+          @additional_info = value
+        when 'Checked'
+          @checked = value == 'true'
+        end
+        @overflow ||= metadata.fetch(:overflow, true)
+      end
+
+      def should_render?
+        @checked
+      end
+
+      def render(pdf, list_format: false)
+        return 0 unless should_render?
+
+        pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
+        info = @additional_info.presence || '<i>no response</i>'
+        pdf.markup([
+          '<table>',
+          "<tr><td style='width:91'><b>Description:</b></td><td><b>#{@description}</b></td></tr>",
+          "<tr><td style='width:91'>Additional Information:</td><td>#{info}</td></tr>",
+          '</table>'
+        ].flatten.join, text: { margin_bottom: 10 })
+      end
+    end
+
     class ListQuestion < Question
       attr_reader :items, :item_label
 
@@ -87,7 +135,16 @@ module PdfFill
       def add_text(value, metadata)
         @overflow ||= metadata.fetch(:overflow, true)
         i = metadata[:i]
-        @items[i] ||= Question.new(nil, metadata)
+
+        # Create the appropriate question type if it doesn't exist yet
+        if @items[i].nil?
+          @items[i] = if metadata[:question_type] == 'checked_description'
+                        CheckedDescriptionQuestion.new(nil, metadata)
+                      else
+                        Question.new(nil, metadata)
+                      end
+        end
+
         @items[i].add_text(value, metadata)
       end
 
@@ -98,8 +155,10 @@ module PdfFill
 
       # Render a single item from the list
       def render_item(pdf, item, index)
-        render_item_label(pdf, index)
-        item.render(pdf, list_format: true)
+        if item.should_render?
+          render_item_label(pdf, index)
+          item.render(pdf, list_format: true)
+        end
       end
 
       # Render the label for a list item
@@ -137,7 +196,7 @@ module PdfFill
       end
 
       # Measure heights of all components separately
-      def measure_component_heights(temp_pdf)
+      def measure_actual_height(temp_pdf)
         heights = { title: measure_title_height(temp_pdf) }
         heights[:items] = []
 
@@ -150,14 +209,14 @@ module PdfFill
       end
     end
 
-    def initialize(form_name: nil, submit_date: nil, question_key: nil, start_page: 1, sections: nil)
+    def initialize(options = {})
+      @form_name              = options[:form_name]
+      @submit_date            = options[:submit_date]
+      @question_key           = options[:question_key]
+      @start_page             = options[:start_page] || 1
+      @sections               = options[:sections]
+      @questions              = {}
       super()
-      @form_name = form_name
-      @submit_date = submit_date
-      @question_key = question_key
-      @start_page = start_page
-      @sections = sections
-      @questions = {}
     end
 
     def set_font(pdf)
@@ -173,8 +232,11 @@ module PdfFill
 
         @questions[question_num] =
           if metadata[:i].blank?
-            if metadata[:question_type] == 'free_text'
+            case metadata[:question_type]
+            when 'free_text'
               FreeTextQuestion.new(question_text, metadata)
+            when 'checked_description'
+              CheckedDescriptionQuestion.new(question_text, metadata)
             else
               Question.new(question_text, metadata)
             end
@@ -182,6 +244,7 @@ module PdfFill
             ListQuestion.new(question_text, metadata)
           end
       end
+
       @questions[question_num].add_text(value, metadata)
     end
 
@@ -235,11 +298,7 @@ module PdfFill
     def measure_all_blocks(temp_pdf, generate_blocks, heights)
       generate_blocks.each do |block|
         temp_pdf.start_new_page
-        heights[block] = if block.is_a?(ListQuestion)
-                           block.measure_component_heights(temp_pdf)
-                         else
-                           block.measure_actual_height(temp_pdf)
-                         end
+        heights[block] = block.measure_actual_height(temp_pdf)
       end
     end
 
@@ -330,12 +389,15 @@ module PdfFill
     end
 
     def render_list_items(pdf, block, block_heights)
-      block_heights = block_heights[block]
-      block.items.each.with_index(1) do |item, index|
-        item_height = block_heights[:items][index - 1]
-        pdf.start_new_page unless will_fit_on_page?(pdf, item_height)
-        block.render_item(pdf, item, index)
-      end
+      heights = block_heights.dig(block, :items).select(&:positive?)
+
+      block.items
+           .select(&:should_render?)
+           .zip(heights) # pair each item with its height
+           .each.with_index(1) do |(item, height), index|
+             pdf.start_new_page unless will_fit_on_page?(pdf, height)
+             block.render_item(pdf, item, index)
+           end
     end
 
     def render_new_section(pdf, section_index)
@@ -388,7 +450,6 @@ module PdfFill
       end
     end
 
-    # Formats the timestamp for the PDF footer
     def format_timestamp(datetime)
       return nil if datetime.blank?
 

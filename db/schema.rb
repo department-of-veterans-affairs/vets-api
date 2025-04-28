@@ -454,12 +454,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "bpds_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the bpds submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the bpds submission"
     t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
     t.string "bpds_id", comment: "ID of the submission in BPDS"
-    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
   end

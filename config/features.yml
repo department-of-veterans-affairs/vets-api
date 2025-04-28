@@ -559,6 +559,9 @@ features:
   dependents_failure_callback_email:
     actor_type: user
     description: Enables the dependents action needed email callback to be used when an action needed email is triggered
+  dependents_separate_confirmation_email:
+    actor_type: cookie_id
+    description: Enables the dependents confirmation email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -1215,6 +1218,10 @@ features:
   mhv_milestone_2_changes_enabled:
     actor_type: user
     description: Enables MHV Milestone 2 changes
+  mhv_header_links:
+    actor_type: user
+    description: Display My HealtheVet and My VA links in the site header
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
