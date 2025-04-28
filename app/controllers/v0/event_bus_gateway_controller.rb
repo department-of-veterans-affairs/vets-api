@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+service_tag 'event_bus_gateway'
 
 module V0
   class EventBusGatewayController < ApplicationController
@@ -17,11 +18,14 @@ module V0
     # Eventually this will create a record in the DB for a scheduled
     # job to pick up and *that* will send the email.
     def send_email
-      EventBusGateway::DecisionLetters::LetterReadyJob.perform_async(
-        participant_id: send_email_params[:participant_id],
-        template_id: send_email_params[:template_id],
-        personalisation: send_email_params[:personalisation]
-      )
+      if Flipper.enabled?(:event_bus_gateway_emails_enabled)
+        EventBusGateway::DecisionLetters::LetterReadyJob.perform_async(
+          participant_id: send_email_params[:participant_id],
+          template_id: send_email_params[:template_id],
+          personalisation: send_email_params[:personalisation]
+        )
+      end
+      head :ok
     end
 
     private
