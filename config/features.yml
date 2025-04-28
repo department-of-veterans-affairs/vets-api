@@ -1211,7 +1211,6 @@ features:
   mhv_header_links:
     actor_type: user
     description: Display My HealtheVet and My VA links in the site header
-    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
