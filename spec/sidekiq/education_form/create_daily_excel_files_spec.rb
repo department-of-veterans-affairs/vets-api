@@ -9,7 +9,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload_upload).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload).and_return(true)
   end
 
   after do
@@ -18,7 +18,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
 
   context 'with the feature flag disabled' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload_upload).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:form_10282_sftp_upload).and_return(false)
     end
 
     it 'just returns immediately' do
