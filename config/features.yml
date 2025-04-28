@@ -1040,9 +1040,6 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
-  mhv_transitional_medical_records_landing_page:
-    actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
   mhv_integration_medical_records_to_phase_1:
     actor_type: user
     description: Enables MHV integration to point the Medical Records application on VA.gov
