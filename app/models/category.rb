@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 # Category model
-class Category < Common::Base
+class Category
+  include Vets::Model
+
   def category_id
     0
   end
 
-  attribute :message_category_type, Array
+  attribute :message_category_type, String, array: true
 
   # Categories are simply an array and have no id.
   def <=>(other)

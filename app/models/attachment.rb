@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 # Attachment model
-class Attachment < Common::Base
+class Attachment
+  include Vets::Model
+
   attribute :id, Integer
   attribute :message_id, Integer
   attribute :name, String
