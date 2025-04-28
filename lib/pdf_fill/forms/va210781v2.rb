@@ -154,7 +154,7 @@ module PdfFill
             question_num: 9,
             question_suffix: 'A',
             question_text: 'Description',
-            limit: 150
+            limit: 105
           },
           'location' => {
             key: "F[0].#subform[2].Location_Of_The_Traumatic_Events[#{ITERATOR}]",
@@ -579,7 +579,8 @@ module PdfFill
           key: 'F[0].#subform[5].Remarks_If_Any[0]',
           limit: 1940,
           question_num: 14,
-          question_text: 'REMARKS'
+          question_text: 'REMARKS',
+          question_type: 'free_text'
         },
         'additionalInformationOverflow' => {
           key: '',
@@ -768,6 +769,7 @@ module PdfFill
 
       def process_treatment_dates
         @form_data['treatmentProvidersDetails'].each do |item|
+          item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
           item['treatmentDate'] = if item['noDates']
                                     'no response'
                                   else
@@ -853,7 +855,8 @@ module PdfFill
         facility_info = provider['facilityInfo']
         month = provider['treatmentMonth'] || 'XX'
         year = provider['treatmentYear'] || 'XXXX'
-        no_date = provider['noDates']
+        no_date = provider['treatmentMonth'].to_s.strip.empty? && provider['treatmentYear'].to_s.strip.empty?
+        provider['noDates'] = no_date
 
         provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
         provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")

@@ -23,6 +23,16 @@ LighthousePolicy = Struct.new(:user, :lighthouse) do
       user.icn.present? && user.participant_id.present?
   end
 
+  def access_vet_status?
+    access = user.icn.present? && user.participant_id.present?
+    unless access
+      Rails.logger.info('Vet Status Lighthouse access denied',
+                        icn_present: user.icn.present?,
+                        participant_id_present: user.participant_id.present?)
+    end
+    access
+  end
+
   alias_method :mobile_access?, :access_update?
   alias_method :rating_info_access?, :access?
 

@@ -17,12 +17,20 @@ module V0
         error = { status: exception.status_code, body: exception.errors.first }
         response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
 
+        if response.status.between?(500, 599)
+          Rails.logger.error("Direct Deposit API error: #{exception.message}", {
+                               error_class: exception.class.to_s,
+                               error_message: exception.message,
+                               user_uuid: @current_user&.uuid,
+                               backtrace: exception.backtrace.first(3).join("\n")
+                             })
+        end
+
         render status: response.status, json: response.body
       end
 
       def show
         response = client.get_payment_info
-
         render json: DirectDepositsSerializer.new(response.body), status: response.status
       end
 

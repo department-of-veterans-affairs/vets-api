@@ -30,6 +30,68 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
       end
     end
+
+    describe '#sorted_subquestions_markup' do
+      context 'when there is only one subquestion' do
+        let(:add_text_calls) do
+          [
+            ["foo\nbar", { question_suffix: 'A', question_text: 'Name' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
+          expect(subject.sorted_subquestions_markup).to eq(
+            "<tr><td style='#{expected_style}'>foo<br/>bar</td><td></td></tr>"
+          )
+        end
+      end
+
+      context 'when there is more than one subquestion' do
+        let(:add_text_calls) do
+          [
+            ["foo\nbar", { question_suffix: 'A', question_text: 'Name' }],
+            ['bar', { question_suffix: 'B', question_text: 'Email' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expect(subject.sorted_subquestions_markup).to eq(
+            [
+              "<tr><td style='width:91'>Name:</td><td>foo<br/>bar</td></tr>",
+              "<tr><td style='width:91'>Email:</td><td>bar</td></tr>"
+            ]
+          )
+        end
+      end
+    end
+  end
+
+  describe PdfFill::ExtrasGeneratorV2::FreeTextQuestion do
+    subject do
+      question = described_class.new('Additional Remarks', add_text_calls.first[1])
+      add_text_calls.each { |call| question.add_text(*call) }
+      question
+    end
+
+    describe '#sorted_subquestions_markup' do
+      let(:add_text_calls) do
+        [
+          ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+        ]
+      end
+
+      it 'renders correctly' do
+        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
+        expect(subject.sorted_subquestions_markup).to eq(
+          [
+            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
+            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+          ]
+        )
+      end
+    end
   end
 
   describe '#populate_section_indices!' do
@@ -187,6 +249,144 @@ describe PdfFill::ExtrasGeneratorV2 do
         subject.add_footer(pdf)
         expect(pdf).not_to have_received(:markup)
       end
+    end
+  end
+
+  describe '#measure_content_heights' do
+    let(:sections) do
+      [
+        {
+          label: 'Section I',
+          question_nums: [1]
+        },
+        {
+          label: 'Section II',
+          question_nums: [2]
+        }
+      ]
+    end
+    let(:question_block1) { instance_double(PdfFill::ExtrasGeneratorV2::Question, section_index: 0) }
+    let(:question_block2) { instance_double(PdfFill::ExtrasGeneratorV2::Question, section_index: 1) }
+    let(:list_block) { instance_double(PdfFill::ExtrasGeneratorV2::ListQuestion, section_index: 0) }
+    let(:generate_blocks) { [question_block1, question_block2, list_block] }
+
+    before do
+      allow(question_block1).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(false)
+      allow(question_block1).to receive(:measure_actual_height).and_return(100)
+      allow(question_block2).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(false)
+      allow(question_block2).to receive(:measure_actual_height).and_return(150)
+      allow(list_block).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(true)
+      allow(list_block).to receive(:measure_component_heights).and_return({ title: 30, items: [50, 60] })
+    end
+
+    it 'creates a hash with heights for each block' do
+      heights = subject.measure_content_heights(generate_blocks)
+      expect(heights).to be_a(Hash)
+      expect(heights.compare_by_identity?).to be(true)
+      expect(heights[:sections][0]).not_to be_nil
+      expect(heights[:sections][1]).not_to be_nil
+      expect(heights[question_block1]).to eq(100)
+      expect(heights[question_block2]).to eq(150)
+      expect(heights[list_block]).to eq({ title: 30, items: [50, 60] })
+    end
+  end
+
+  describe '#handle_regular_question_page_break' do
+    let(:pdf) { instance_double(Prawn::Document) }
+    let(:question_block) { instance_double(PdfFill::ExtrasGeneratorV2::Question) }
+    let(:block_heights) do
+      heights = {}.compare_by_identity
+      heights[question_block] = 200
+      heights[:sections] = { 0 => 20 }
+      heights
+    end
+
+    before do
+      allow(pdf).to receive(:cursor).and_return(250)
+      allow(pdf).to receive(:start_new_page)
+    end
+
+    context 'when content fits on the page' do
+      it 'returns false without starting a new page' do
+        result = subject.handle_regular_question_page_break(pdf, question_block, 0, block_heights)
+        expect(result).to be(false)
+        expect(pdf).not_to have_received(:start_new_page)
+      end
+    end
+
+    context 'when content does not fit on the page' do
+      before do
+        allow(pdf).to receive(:cursor).and_return(200)
+      end
+
+      it 'starts a new page and returns true' do
+        result = subject.handle_regular_question_page_break(pdf, question_block, 0, block_heights)
+        expect(result).to be(true)
+        expect(pdf).to have_received(:start_new_page)
+      end
+    end
+  end
+
+  describe '#handle_list_title_page_break' do
+    let(:pdf) { instance_double(Prawn::Document) }
+    let(:list_block) { instance_double(PdfFill::ExtrasGeneratorV2::ListQuestion) }
+    let(:block_heights) do
+      heights = {}.compare_by_identity
+      heights[list_block] = { title: 30, items: [50, 60] }
+      heights[:sections] = { 0 => 20 }
+      heights
+    end
+
+    before do
+      allow(pdf).to receive(:cursor).and_return(150)
+      allow(pdf).to receive(:start_new_page)
+    end
+
+    context 'when title and first item fit on the page' do
+      it 'returns false without starting a new page' do
+        result = subject.handle_list_title_page_break(pdf, list_block, 0, block_heights)
+        expect(result).to be(false)
+        expect(pdf).not_to have_received(:start_new_page)
+      end
+    end
+
+    context 'when title and first item do not fit on the page' do
+      before do
+        allow(pdf).to receive(:cursor).and_return(80)
+      end
+
+      it 'starts a new page and returns true' do
+        result = subject.handle_list_title_page_break(pdf, list_block, 0, block_heights)
+        expect(result).to be(true)
+        expect(pdf).to have_received(:start_new_page)
+      end
+    end
+  end
+
+  describe '#render_list_items' do
+    let(:pdf) { double('Prawn::Document', bounds: double('Bounds', bottom: 50)) }
+    let(:list_block) { instance_double(PdfFill::ExtrasGeneratorV2::ListQuestion) }
+    let(:item1) { instance_double(PdfFill::ExtrasGeneratorV2::Question) }
+    let(:item2) { instance_double(PdfFill::ExtrasGeneratorV2::Question) }
+    let(:block_heights) do
+      heights = {}.compare_by_identity
+      heights[list_block] = { items: [50, 100] }
+      heights
+    end
+
+    before do
+      allow(list_block).to receive(:items).and_return([item1, item2])
+      allow(list_block).to receive(:render_item)
+      allow(pdf).to receive(:cursor).and_return(75)
+      allow(pdf).to receive(:start_new_page)
+    end
+
+    it 'renders each item and handles page breaks correctly' do
+      subject.render_list_items(pdf, list_block, block_heights)
+
+      expect(list_block).to have_received(:render_item).with(pdf, item1, 1)
+      expect(list_block).to have_received(:render_item).with(pdf, item2, 2)
+      expect(pdf).to have_received(:start_new_page).once
     end
   end
 end

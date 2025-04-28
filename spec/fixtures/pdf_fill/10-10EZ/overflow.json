@@ -2,6 +2,8 @@
   "isMedicaidEligible": true,
   "spouseAddress": {
     "street": "123 Main StZZZZZZZZZZZZZZZZZZ",
+    "street2": "Apt 99",
+    "street3": "Floor 5",
     "city": "Delaware ZZZZZZZZZZZZZZZZZZZZ",
     "postalCode": "32432 ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
     "country": "USA",
@@ -76,6 +78,8 @@
   "mobilePhone": "3462636184",
   "veteranAddress": {
     "street": "88 Mount St ZZZZZZZZZZZZZZZZZ",
+    "street2": "Apt 2",
+    "street3": "Floor 14",
     "city": "Erie ZZZZZZZZZZZZZZ",
     "postalCode": "77388",
     "country": "USA",
@@ -152,6 +156,8 @@
   ],
   "veteranHomeAddress": {
     "street": "19 Main St. ZZZZZZZZZZZZZZZZZ",
+    "street2": "Apt 1",
+    "street3": "Floor 99",
     "city": "Dallas ZZZZZZZZZZZZ",
     "postalCode": "77388",
     "country": "USA",
@@ -175,7 +181,7 @@
   "exposureToShad": true,
   "exposureToWarfareAgents": true,
   "exposureToOther": true,
-  "otherToxicExposure": "Other Toxic Exposure",
-  "toxicExposureStartDate": "1990-08-01",
+  "otherToxicExposure": "Other Toxic Exposure that is a very long list of information so that it overflows.",
+  "toxicExposureStartDate": "1990-XX-XX",
   "toxicExposureEndDate": "1990-09-01"
 }

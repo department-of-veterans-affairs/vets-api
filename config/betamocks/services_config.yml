@@ -89,6 +89,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+      :optional_code_locator: '"countOnly":(true|false)'
   - :method: :post
     :path: "/api/v1/digital-services/financial-status-report/formtopdf"
     :file_path: "debt_management_center/financial_status_reports/create"
@@ -450,16 +451,6 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
-
-  # VSO Search
-  - :method: :post
-    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/#{Settings.evss.versions.common}/getCurrentInfo" %>
-    :file_path: "evss/vso_search/get_current_info"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-      :uid_location: header
-      :uid_locator: 'ssn'
 
 # EVSS Container
 - :name: 'EVSS Container'
@@ -899,7 +890,7 @@
 - :name: "CCRA Referral Service"
   :base_uri: <%= "#{URI(Settings.vaos.ccra.api_url).host}:#{URI(Settings.vaos.ccra.api_url).port}" %>
   :endpoints:
-   
+
     # Get referral list (POST)
     - :method: :post
       :path: "/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList"
@@ -907,7 +898,7 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'icn":"([^"]*)"'
-        
+
     # Get referral details (POST)
     - :method: :post
       :path: "/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"

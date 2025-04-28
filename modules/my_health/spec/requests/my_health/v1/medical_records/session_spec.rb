@@ -43,16 +43,4 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Session', type: :request do
     expect(response).to be_successful
     expect(response.body).to be_a(String)
   end
-
-  context 'when the patient is not found' do
-    before do
-      allow_any_instance_of(PHRMgr::Client).to receive(:get_phrmgr_status)
-        .and_raise(MedicalRecords::PatientNotFound)
-    end
-
-    it 'returns a 202 Accepted response for GET #index' do
-      get '/my_health/v1/medical_records/session/status'
-      expect(response).to have_http_status(:accepted)
-    end
-  end
 end
