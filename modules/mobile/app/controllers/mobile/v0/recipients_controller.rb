@@ -4,7 +4,7 @@ module Mobile
   module V0
     class RecipientsController < MessagingController
       def recipients
-        resource = client.get_triage_teams(@current_user.uuid, use_cache? || true)
+        resource = client.get_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
         resource = resource.sort(params[:sort])
@@ -15,7 +15,7 @@ module Mobile
       end
 
       def all_recipients
-        resource = client.get_all_triage_teams(@current_user.uuid, use_cache? || true)
+        resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
         resource = resource.sort(params[:sort])
