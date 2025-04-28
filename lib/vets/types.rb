@@ -5,6 +5,7 @@
 # Primitive types include:
 #  String, Integer, Float, Date, Time, DateTime, Bool
 
+# If we enable autoloading then it appears that these imports aren't needed
 require 'vets/type/array'
 require 'vets/type/base'
 require 'vets/type/date_time_string'
