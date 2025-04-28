@@ -29,9 +29,57 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     context 'when type is declined' do
       let(:type) { 'declined' }
 
-      it 'returns a hash with the first name' do
-        expected_hash = { 'first_name' => notification.claimant_hash['name']['first'] }
-        expect(described_class::Declined.new(notification).generate).to eq(expected_hash)
+      before do
+        resolution = double('resolution', resolving: double('resolving', declination_reason))
+        allow(notification.power_of_attorney_request).to receive(:resolution).and_return(resolution)
+      end
+
+      context 'with reason DECLINATION_HEALTH_RECORDS_WITHHELD' do
+        let(:declination_reason) { 'DECLINATION_HEALTH_RECORDS_WITHHELD' }
+
+        it 'returns the correct declination text' do
+          expected_hash = {
+            'first_name' => notification.claimant_hash['name']['first'],
+            'declination_text' => 'The reason given was you didn\'t provide access to health records'
+          }
+          expect(described_class::Declined.new(notification).generate).to eq(expected_hash)
+        end
+      end
+
+      context 'with reason DECLINATION_NOT_ACCEPTING_CLIENTS' do
+        let(:declination_reason) { 'DECLINATION_NOT_ACCEPTING_CLIENTS' }
+
+        it 'returns the correct declination text' do
+          expected_hash = {
+            'first_name' => notification.claimant_hash['name']['first'],
+            'declination_text' => 'The reason given was the VSO is not currently accepting new clients'
+          }
+          expect(described_class::Declined.new(notification).generate).to eq(expected_hash)
+        end
+      end
+
+      context 'with reason DECLINATION_OTHER' do
+        let(:declination_reason) { 'DECLINATION_OTHER' }
+
+        it 'returns an empty declination text' do
+          expected_hash = {
+            'first_name' => notification.claimant_hash['name']['first'],
+            'declination_text' => ''
+          }
+          expect(described_class::Declined.new(notification).generate).to eq(expected_hash)
+        end
+      end
+
+      context 'with unknown declination reason' do
+        let(:declination_reason) { 'DECLINATION_SOMETHING_NEW' }
+
+        it 'returns the base text with nil appended' do
+          expected_hash = {
+            'first_name' => notification.claimant_hash['name']['first'],
+            'declination_text' => 'The reason given was '
+          }
+          expect(described_class::Declined.new(notification).generate).to eq(expected_hash)
+        end
       end
     end
 

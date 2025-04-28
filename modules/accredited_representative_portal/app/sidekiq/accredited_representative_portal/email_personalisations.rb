@@ -67,6 +67,29 @@ module AccreditedRepresentativePortal
     end
 
     class Declined < self
+      DECLINATION_REASON_TEXTS = {
+        DECLINATION_HEALTH_RECORDS_WITHHELD: 'you didn\'t provide access to health records',
+        DECLINATION_ADDRESS_CHANGE_WITHHELD: 'you didn\'t allow changes to address',
+        DECLINATION_BOTH_WITHHELD:
+          'you didn\'t allow changes to address or access to health records',
+        DECLINATION_NOT_ACCEPTING_CLIENTS: 'the VSO is not currently accepting new clients',
+      }.freeze
+
+      def generate
+        {
+          'first_name' => first_name,
+          'declination_text' => declination_text.to_s
+        }
+      end
+      private
+        def declination_text
+          return '' if declination_reason == 'DECLINATION_OTHER'
+
+          "The reason given was #{DECLINATION_REASON_TEXTS[declination_reason.to_sym]}"
+        end
+        def declination_reason
+          @notification.power_of_attorney_request.resolution.resolving.declination_reason
+        end
     end
 
     class Expiring < self
