@@ -186,7 +186,10 @@ module EVSS
             'form0781v2' => FORM_ID_0781V2
           }.each do |form_key, form_id|
             form_content = parsed_forms[form_key]
-            process_0781(submission.submitted_claim_id, form_id, form_content) if form_content.present?
+            if form_content.present?
+              ::Rails.logger.info('Performing SubmitForm0781', { submission_id:, form_id: })
+              process_0781(submission.submitted_claim_id, form_id, form_content)
+            end
           end
         end
       rescue => e
@@ -213,15 +216,34 @@ module EVSS
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
         submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
         form_content = form_content.merge({ 'signatureDate' => submission_date })
-        pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
-        stamped_path = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
-                                                                    timestamp: submission_date)
-        PDFUtilities::DatestampPdf.new(stamped_path).run(
-          text: 'VA.gov Submission',
-          x: 510,
-          y: 775,
-          text_only: true
-        )
+        user = OpenStruct.new({ flipper_id: @submission.user_uuid })
+        extras_redesign = Flipper.enabled?(:disability_compensation_0781v2_extras_redesign,
+                                           user) && form_id == FORM_ID_0781V2
+        fill_options = { extras_redesign: }
+        pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id, fill_options)
+
+        # If extras redesign is enabled, the stamp is added during the fill_ancillary_form call as part of the redesign.
+        return pdf_path if extras_redesign
+
+        stamped_path = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.gov Submission', x: 510, y: 775,
+                                                                    text_only: true)
+        if form_id == FORM_ID_0781V2
+          PDFUtilities::DatestampPdf.new(stamped_path).run(
+            text: "Signed electronically and submitted via VA.gov at #{format_timestamp(submission_date)}. " \
+                  'Signee signed with an identity-verified account.',
+            x: 5, y: 5, text_only: true, size: 9
+          )
+        else
+          PDFUtilities::DatestampPdf.new(stamped_path).run(text: 'VA.gov', x: 5, y: 5, timestamp: submission_date)
+        end
+      end
+
+      # Formats the timestamp for the PDF footer
+      def format_timestamp(datetime)
+        return nil if datetime.blank?
+
+        utc_time = datetime.utc
+        "#{utc_time.strftime('%H:%M')} UTC #{utc_time.strftime('%Y-%m-%d')}"
       end
 
       def get_evss_claim_metadata(pdf_path, form_id)

@@ -106,7 +106,9 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
           message: "Exception occurred while submitting Supplemental Claim: #{extra_error_log_message}",
           backtrace: anything
         )
-        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+        expect(Rails.logger).to receive(:error) do |message|
+          expect(message).to include(extra_error_log_message)
+        end
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_995.overall_claim_submission.failure')
 
@@ -125,20 +127,51 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
   end
 
   describe '#create with 4142' do
+    let(:params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
+
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
                                    'DecisionReviews::V1::SupplementalClaimsController#create exception % (SC_V1)'
     end
 
+    context 'when schema validation fails' do
+      let(:invalid_params) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').deep_dup }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
+        allow(Rails.logger).to receive(:error)
+        allow(StatsD).to receive(:increment)
+      end
+
+      it 'logs the error and increments the StatsD metric' do
+        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
+          invalid_params['form4142']['providerFacility'] = nil
+          post('/decision_reviews/v1/supplemental_claims',
+               params: invalid_params.to_json,
+               headers:)
+          expect do
+            DecisionReviews::Form4142Submit.drain
+          end.to raise_error(DecisionReviewV1::Processor::Form4142ValidationError, anything)
+          expect(Rails.logger).to have_received(:error).with('Form 4142 failed validation', anything)
+          expect(StatsD).to have_received(:increment)
+            .with('api.decision_review.process_form4142_submission.fail',
+                  tags: ['error:DecisionReviewV1ProcessorForm4142ValidationError'])
+          expect(StatsD).to have_received(:increment).with('worker.decision_review.form4142_submit.error')
+        end
+      end
+    end
+
     context 'when tracking 4142 is enabled' do
       subject do
         post '/decision_reviews/v1/supplemental_claims',
-             params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+             params: params.to_json,
              headers:
       end
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
       end
 
       it 'creates a supplemental claim and queues and saves a 4142 form when 4142 info is provided' do
@@ -175,7 +208,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                 },
                 'veteranDateOfBirth' => '1809-02-12',
                 'veteranAddress' => { 'addressLine1' => '123  Main St', 'city' => 'New York', 'countryCodeISO2' => 'US',
-                                      'zipCode5' => '30012', 'country' => 'US', 'postalCode' => '30012' },
+                                      'zipCode5' => '30012', 'country' => 'USA', 'postalCode' => '30012',
+                                      'street' => '123  Main St', 'street2' => nil, 'state' => nil },
                 'email' => 'josie@example.com',
                 'veteranPhone' => '5558001111'
               }
@@ -194,6 +228,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     context 'when tracking 4142 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)
       end
 
       it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
@@ -203,7 +238,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
               previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
               expect do
                 post '/decision_reviews/v1/supplemental_claims',
-                     params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+                     params: params.to_json,
                      headers:
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
               expect(response).to be_successful
@@ -232,7 +267,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
             VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
               expect do
                 post '/decision_reviews/v1/supplemental_claims',
-                     params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+                     params: params.to_json,
                      headers:
               end.to change(DecisionReviews::Form4142Submit.jobs, :size).by(1)
               expect do

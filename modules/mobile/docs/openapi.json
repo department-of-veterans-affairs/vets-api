@@ -8173,6 +8173,9 @@
           "408": {
             "$ref": "#/components/responses/408"
           },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
           "500": {
             "$ref": "#/components/responses/500"
           },
@@ -21813,7 +21816,7 @@
                     },
                     "date": {
                       "type": "string",
-                      "example": "2022-15-01"
+                      "example": "2022-01-15T00:00:00.000-06:00"
                     },
                     "paymentMethod": {
                       "type": "string",
@@ -21844,7 +21847,8 @@
             "required": [
               "errors",
               "pagination",
-              "availableYears"
+              "availableYears",
+              "recurringPayment"
             ],
             "properties": {
               "errors": {
@@ -21893,6 +21897,24 @@
                   2016,
                   2015
                 ]
+              },
+              "recurringPayment": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "amount",
+                  "date"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "string",
+                    "example": "$350.00"
+                  },
+                  "date": {
+                    "type": "string",
+                    "example": "2022-01-15T00:00:00.000-06:00"
+                  }
+                }
               }
             }
           }
@@ -23752,6 +23774,41 @@
           }
         }
       },
+      "VetVerificationStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "veteranStatus"
+                ],
+                "properties": {
+                  "veteranStatus": {
+                    "type": "string",
+                    "example": "confirmed"
+                  },
+                  "notConfirmedReason": {
+                    "type": "string",
+                    "example": "PERSON_NOT_FOUND"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "ImmunizationsV1": {
         "type": "object",
         "additionalProperties": false,
@@ -23800,41 +23857,6 @@
                   "totalEntries": {
                     "type": "integer",
                     "example": 15
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "VetVerificationStatus": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "attributes"
-            ],
-            "properties": {
-              "attributes": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "veteranStatus"
-                ],
-                "properties": {
-                  "veteranStatus": {
-                    "type": "string",
-                    "example": "confirmed"
-                  },
-                  "notConfirmedReason": {
-                    "type": "string",
-                    "example": "PERSON_NOT_FOUND"
                   }
                 }
               }

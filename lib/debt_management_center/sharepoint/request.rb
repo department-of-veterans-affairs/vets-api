@@ -170,7 +170,7 @@ module DebtManagementCenter
       def auth_connection
         Faraday.new(url: authentication_url, headers: auth_headers) do |conn|
           conn.request :url_encoded
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.response :raise_custom_error, error_prefix: service_name
           conn.response :json
@@ -182,7 +182,7 @@ module DebtManagementCenter
       def sharepoint_connection
         Faraday.new(url: "https://#{sharepoint_url}", headers: sharepoint_headers) do |conn|
           conn.request :json
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           if Flipper.enabled?(:debts_sharepoint_error_logging)
             conn.response :sharepoint_errors, error_prefix: service_name
@@ -199,7 +199,7 @@ module DebtManagementCenter
         Faraday.new(url: "https://#{sharepoint_url}", headers: sharepoint_headers) do |conn|
           conn.request :multipart
           conn.request :url_encoded
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           if Flipper.enabled?(:debts_sharepoint_error_logging)
             conn.response :sharepoint_pdf_errors, error_prefix: service_name

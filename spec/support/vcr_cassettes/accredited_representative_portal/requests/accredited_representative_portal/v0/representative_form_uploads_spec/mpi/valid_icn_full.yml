@@ -1,0 +1,152 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MPI_URL>/"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPGVudjpFbnZlbG9wZSB4bWxuczpzb2FwZW5jPSJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy9zb2FwL2VuY29kaW5nLyIgeG1sbnM6eHNkPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6ZW52PSJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy9zb2FwL2VudmVsb3BlLyIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSI+CiAgPGVudjpIZWFkZXIvPgogIDxlbnY6Qm9keT4KICAgIDxpZG06UFJQQV9JTjIwMTMwNVVWMDIgeG1sbnM6aWRtPSJodHRwOi8vdmF3dy5vZWQub2l0LnZhLmdvdiIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYeKAkGluc3RhbmNlIiB4c2k6c2NoZW1hTG9jYXRpb249InVybjpobDfigJBvcmc6djMgLi4vLi4vc2NoZW1hL0hMN1YzL05FMjAwOC9tdWx0aWNhY2hlc2NoZW1hcy9QUlBBX0lOMjAxMzA1VVYwMi54c2QiIHhtbG5zPSJ1cm46aGw34oCQb3JnOnYzIiBJVFNWZXJzaW9uPSJYTUxfMS4wIj4KICAgICAgPGlkIHJvb3Q9IjEuMi44NDAuMTE0MzUwLjEuMTMuMC4xLjcuMS4xIiBleHRlbnNpb249IjIwMFZHT1YtNjMwNDZmMmEtMTk5Yy00YWY5LWE1YjAtYzQyZWVjZjc0MjlkIi8+CiAgICAgIDxjcmVhdGlvblRpbWUgdmFsdWU9IjIwMjUwNDAyMTMyMjM1Ii8+CiAgICAgIDx2ZXJzaW9uQ29kZSBjb2RlPSI0LjEiLz4KICAgICAgPGludGVyYWN0aW9uSWQgcm9vdD0iMi4xNi44NDAuMS4xMTM4ODMuMS42IiBleHRlbnNpb249IlBSUEFfSU4yMDEzMDVVVjAyIi8+CiAgICAgIDxwcm9jZXNzaW5nQ29kZSBjb2RlPSJUIi8+CiAgICAgIDxwcm9jZXNzaW5nTW9kZUNvZGUgY29kZT0iVCIvPgogICAgICA8YWNjZXB0QWNrQ29kZSBjb2RlPSJBTCIvPgogICAgICA8cmVjZWl2ZXIgdHlwZUNvZGU9IlJDViI+CiAgICAgICAgPGRldmljZSBjbGFzc0NvZGU9IkRFViIgZGV0ZXJtaW5lckNvZGU9IklOU1RBTkNFIj4KICAgICAgICAgIDxpZCByb290PSIxLjIuODQwLjExNDM1MC4xLjEzLjk5OS4yMzQiIGV4dGVuc2lvbj0iMjAwTSIvPgogICAgICAgIDwvZGV2aWNlPgogICAgICA8L3JlY2VpdmVyPgogICAgICA8c2VuZGVyIHR5cGVDb2RlPSJTTkQiPgogICAgICAgIDxkZXZpY2UgY2xhc3NDb2RlPSJERVYiIGRldGVybWluZXJDb2RlPSJJTlNUQU5DRSI+CiAgICAgICAgICA8aWQgcm9vdD0iMi4xNi44NDAuMS4xMTM4ODMuNC4zNDkiIGV4dGVuc2lvbj0iMjAwVkdPViIvPgogICAgICAgIDwvZGV2aWNlPgogICAgICA8L3NlbmRlcj4KICAgICAgPGNvbnRyb2xBY3RQcm9jZXNzIGNsYXNzQ29kZT0iQ0FDVCIgbW9vZENvZGU9IkVWTiI+CiAgICAgICAgPGNvZGUgY29kZT0iUFJQQV9URTIwMTMwNVVWMDIiIGNvZGVTeXN0ZW09IjIuMTYuODQwLjEuMTEzODgzLjEuNiIvPgogICAgICAgIDxkYXRhRW50ZXJlciB0eXBlQ29kZT0iRU5UIiBjb250ZXh0Q29udHJvbENvZGU9IkFQIj4KICAgICAgICAgIDxhc3NpZ25lZFBlcnNvbiBjbGFzc0NvZGU9IkFTU0lHTkVEIj4KICAgICAgICAgICAgPGlkIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjc3Ny45OTkiIGV4dGVuc2lvbj0iNzk2MTI2ODU5Ii8+CiAgICAgICAgICAgIDxhc3NpZ25lZFBlcnNvbiBjbGFzc0NvZGU9IlBTTiIgZGV0ZXJtaW5lckNvZGU9IklOU1RBTkNFIj4KICAgICAgICAgICAgICA8bmFtZT4KICAgICAgICAgICAgICAgIDxnaXZlbj5IZWN0b3I8L2dpdmVuPgogICAgICAgICAgICAgICAgPGZhbWlseT5BbGxlbjwvZmFtaWx5PgogICAgICAgICAgICAgIDwvbmFtZT4KICAgICAgICAgICAgPC9hc3NpZ25lZFBlcnNvbj4KICAgICAgICAgIDwvYXNzaWduZWRQZXJzb24+CiAgICAgICAgPC9kYXRhRW50ZXJlcj4KICAgICAgICA8cXVlcnlCeVBhcmFtZXRlcj4KICAgICAgICAgIDxxdWVyeUlkIHJvb3Q9IjEuMi44NDAuMTE0MzUwLjEuMTMuMjguMS4xOC41Ljk5OSIgZXh0ZW5zaW9uPSIxODIwNCIvPgogICAgICAgICAgPHN0YXR1c0NvZGUgY29kZT0ibmV3Ii8+CiAgICAgICAgICA8bW9kaWZ5Q29kZSBjb2RlPSJNVkkuQ09NUDEuUk1TIi8+CiAgICAgICAgICA8aW5pdGlhbFF1YW50aXR5IHZhbHVlPSIxIi8+CiAgICAgICAgICA8cGFyYW1ldGVyTGlzdD4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3RCaXJ0aFRpbWU+CiAgICAgICAgICAgICAgPHZhbHVlIHZhbHVlPSIxOTMyMDIwNSIvPgogICAgICAgICAgICAgIDxzZW1hbnRpY3NUZXh0PkRhdGUgb2YgQmlydGg8L3NlbWFudGljc1RleHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdEJpcnRoVGltZT4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3RJZD4KICAgICAgICAgICAgICA8dmFsdWUgcm9vdD0iMi4xNi44NDAuMS4xMTM4ODMuNC4xIiBleHRlbnNpb249Ijc5NjEyNjg1OSIvPgogICAgICAgICAgICAgIDxzZW1hbnRpY3NUZXh0PlNTTjwvc2VtYW50aWNzVGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0SWQ+CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0TmFtZT4KICAgICAgICAgICAgICA8dmFsdWUgdXNlPSJMIj4KICAgICAgICAgICAgICAgIDxnaXZlbj5IZWN0b3I8L2dpdmVuPgogICAgICAgICAgICAgICAgPGZhbWlseT5BbGxlbjwvZmFtaWx5PgogICAgICAgICAgICAgIDwvdmFsdWU+CiAgICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+TGVnYWwgTmFtZTwvc2VtYW50aWNzVGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0TmFtZT4KICAgICAgICAgICAgPG90aGVySURzU2NvcGluZ09yZ2FuaXphdGlvbj4KICAgICAgICAgICAgICA8dmFsdWUgZXh0ZW5zaW9uPSJWQkEiIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjQuMzQ5Ii8+CiAgICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+TVZJLk9SQ0hFU1RSQVRJT048L3NlbWFudGljc1RleHQ+CiAgICAgICAgICAgIDwvb3RoZXJJRHNTY29waW5nT3JnYW5pemF0aW9uPgogICAgICAgICAgPC9wYXJhbWV0ZXJMaXN0PgogICAgICAgIDwvcXVlcnlCeVBhcmFtZXRlcj4KICAgICAgPC9jb250cm9sQWN0UHJvY2Vzcz4KICAgIDwvaWRtOlBSUEFfSU4yMDEzMDVVVjAyPgogIDwvZW52OkJvZHk+CjwvZW52OkVudmVsb3BlPgo=
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - PRPA_IN201305UV02
+      Date:
+      - Wed, 02 Apr 2025 13:22:35 GMT
+      Content-Length:
+      - '3128'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Backside-Transport:
+      - OK OK,OK OK
+      Connection:
+      - Keep-Alive
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Tue, 20 Aug 2019 19:53:14 GMT
+      Content-Type:
+      - text/xml
+      Set-Cookie:
+      - JSESSIONID=phiwlzJiY2YThkYpywDUSco1jzXX5L2ytKU0v2l-mUkzVicz2ai1!1741642591;
+        path=/; HttpOnly
+      X-Global-Transaction-Id:
+      - 4bae058f5d5c4fa906c85472
+    body:
+      encoding: UTF-8
+      string:
+        <?xml version="1.0" encoding="UTF-8"?>
+        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+          <env:Header/>
+          <env:Body>
+            <idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd"
+              xmlns:idm="http://vaww.oed.oit.va.gov"
+              xmlns="urn:hl7-org:v3">
+              <id extension="WSDOC1908201553145951848240311" root="2.16.840.1.113883.4.349"/>
+              <creationTime value="20190820155314"/>
+              <versionCode code="4.1"/>
+              <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
+              <processingCode code="T"/>
+              <processingModeCode code="T"/>
+              <acceptAckCode code="NE"/>
+              <receiver typeCode="RCV">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                  <id extension="200VGOV" root="2.16.840.1.113883.4.349"/>
+                </device>
+              </receiver>
+              <sender typeCode="SND">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                  <id extension="200M" root="2.16.840.1.113883.4.349"/>
+                </device>
+              </sender>
+              <acknowledgement>
+                <typeCode code="AA"/>
+                <targetMessage>
+                  <id extension="200VGOV-28315f85-bc45-4069-9cb4-4ad9280ddfac" root="1.2.840.114350.1.13.0.1.7.1.1"/>
+                </targetMessage>
+              </acknowledgement>
+              <controlActProcess classCode="CACT" moodCode="EVN">
+                <code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/>
+                <subject typeCode="SUBJ">
+                  <registrationEvent classCode="REG" moodCode="EVN">
+                    <id nullFlavor="NA"/>
+                    <statusCode code="active"/>
+                    <subject1 typeCode="SBJ">
+                      <patient classCode="PAT">
+                        <id extension="123498767V234859^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/>
+                        <id extension="796126859^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/>
+                        <id extension="9100792239^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
+                        <id extension="1008714701^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/>
+                        <id root="2.16.840.1.113883.4.349" extension="32383600^PI^200CORP^USVBA^L"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                          <name use="L">
+                            <given>HECTOR</given>
+                            <given>G</given>
+                            <family>ALLEN</family>
+                          </name>
+                          <administrativeGenderCode code="M"/>
+                          <birthTime value="19490304"/>
+                          <addr use="PHYS">
+                            <streetAddressLine>121 A St</streetAddressLine>
+                            <city>Austin</city>
+                            <state>TX</state>
+                            <postalCode>78772</postalCode>
+                            <country>USA</country>
+                          </addr>
+                          <asOtherIDs classCode="SSN">
+                            <id extension="796126859" root="2.16.840.1.113883.4.1"/>
+                            <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
+                              <id root="1.2.840.114350.1.13.99997.2.3412"/>
+                            </scopingOrganization>
+                          </asOtherIDs>
+                        </patientPerson>
+                        <subjectOf1>
+                          <queryMatchObservation classCode="COND" moodCode="EVN">
+                            <code code="IHE_PDQ"/>
+                            <value nullFlavor="NA" xsi:type="INT"/>
+                          </queryMatchObservation>
+                        </subjectOf1>
+                      </patient>
+                    </subject1>
+                    <custodian typeCode="CST">
+                      <assignedEntity classCode="ASSIGNED">
+                        <id root="2.16.840.1.113883.4.349"/>
+                      </assignedEntity>
+                    </custodian>
+                  </registrationEvent>
+                </subject>
+                <queryAck>
+                  <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+                  <queryResponseCode code="OK"/>
+                  <resultCurrentQuantity value="1"/>
+                </queryAck>
+                <queryByParameter>
+                  <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+                  <statusCode code="new"/>
+                  <modifyCode code="MVI.COMP1.RMS"/>
+                  <initialQuantity value="1"/>
+                  <parameterList>
+                    <id extension="123498767V234859^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/>
+                  </parameterList>
+                </queryByParameter>
+              </controlActProcess>
+            </idm:PRPA_IN201306UV02>
+          </env:Body>
+        </env:Envelope>
+    http_version: 
+  recorded_at: Wed, 21 Feb 2018 20:19:01 GMT
+recorded_with: VCR 3.0.3

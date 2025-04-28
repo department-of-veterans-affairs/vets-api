@@ -38,6 +38,11 @@ public/assets/**
 public/disability_compensation_supporting_form/**
 public/hca_attachments/**
 public/preneed_attachments/**
+public/decision_review/**
+public/evss_claim_documents/**
+public/lighthouse_documents/**
+public/submissions/**
+public/remediation/**
 spec/support/uploads/
 
 # Ignore local config

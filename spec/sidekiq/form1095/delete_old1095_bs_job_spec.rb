@@ -12,8 +12,10 @@ RSpec.describe Form1095::DeleteOld1095BsJob, type: :job do
       create(:form1095_b, tax_year: Form1095B.current_tax_year - 3)
       create(:form1095_b, tax_year: Form1095B.current_tax_year - 1)
 
-      expect(Rails.logger).to receive(:info).with('Begin deleting 3 old Form1095B files')
-      expect(Rails.logger).to receive(:info).with(/Finished deleting old Form1095B files in \d+\.\d+ seconds/)
+      expect(Rails.logger).to receive(:info).with('Form1095B Deletion Job: Begin deleting 3 old Form1095B files')
+      expect(Rails.logger).to receive(:info).with(
+        /Form1095B Deletion Job: Finished deleting old Form1095B files in \d+\.\d+ seconds/
+      )
 
       subject.perform
 
@@ -25,8 +27,10 @@ RSpec.describe Form1095::DeleteOld1095BsJob, type: :job do
       older_form = create(:form1095_b, tax_year: Form1095B.current_tax_year - 3)
       old_form = create(:form1095_b, tax_year: Form1095B.current_tax_year - 1)
 
-      expect(Rails.logger).to receive(:info).with('Begin deleting 2 old Form1095B files')
-      expect(Rails.logger).to receive(:info).with(/Finished deleting old Form1095B files in \d+\.\d+ seconds/)
+      expect(Rails.logger).to receive(:info).with('Form1095B Deletion Job: Begin deleting 2 old Form1095B files')
+      expect(Rails.logger).to receive(:info).with(
+        /Form1095B Deletion Job: Finished deleting old Form1095B files in \d+\.\d+ seconds/
+      )
 
       subject.perform(2)
 
@@ -35,7 +39,7 @@ RSpec.describe Form1095::DeleteOld1095BsJob, type: :job do
     end
 
     it 'logs a message and deletes nothing if there are no forms to delete' do
-      expect(Rails.logger).to receive(:info).with('No old Form1095B records to delete')
+      expect(Rails.logger).to receive(:info).with('Form1095B Deletion Job: No old Form1095B records to delete')
 
       subject.perform
 

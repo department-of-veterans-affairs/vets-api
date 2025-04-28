@@ -36,7 +36,7 @@ module Chip
     #
     def connection
       @conn ||= Faraday.new(url:) do |faraday|
-        faraday.use :breakers
+        faraday.use(:breakers, service_name:)
         faraday.request :json
 
         faraday.response :chip_error

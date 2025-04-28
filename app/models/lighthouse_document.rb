@@ -51,7 +51,7 @@ class LighthouseDocument < Common::Base
     'L149' => 'VA Form 21-8940 - Veterans Application for Increased Compensation Based on Un-employability',
     'L159' => 'VA Form 26-4555 - Application in Acquiring Specially Adapted Housing or Special Home Adaptation Grant',
     'L222' => 'VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance',
-    'L228' => 'VA Form 21-0781 - Statement in Support of Claim for PTSD',
+    'L228' => 'VA Form 21-0781 - Statement in Support of Claimed Mental Health Disorder(s) Due to an In-Service Traumatic Event(s)',
     'L229' => 'VA Form 21-0781a - Statement in Support of Claim for PTSD Secondary to Personal Assault',
     'L418' => 'Court papers / documents',
     'L450' => 'STR - Dental - Photocopy',

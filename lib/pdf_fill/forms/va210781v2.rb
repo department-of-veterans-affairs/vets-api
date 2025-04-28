@@ -22,6 +22,7 @@ module PdfFill
             limit: 12, # limit: 28 (with combs removed)
             question_num: 1,
             question_suffix: 'A',
+            question_label: 'First',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. First Name'
           },
           'middleInitial' => {
@@ -29,6 +30,7 @@ module PdfFill
             limit: 1,
             question_num: 1,
             question_suffix: 'B',
+            question_label: 'Middle Initial',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Middle Initial'
           },
           'last' => {
@@ -36,6 +38,7 @@ module PdfFill
             limit: 18, # limit: 45 (with combs removed)
             question_num: 1,
             question_suffix: 'C',
+            question_label: 'Last',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Last Name'
           }
         },
@@ -143,18 +146,28 @@ module PdfFill
         'events' => {
           limit: 6,
           first_key: 'details',
-          question_text: 'EVENT DETAILS',
+          item_label: 'Event',
+          question_text: 'Traumatic event(s) information',
           question_num: 9,
           'details' => {
             key: "F[0].#subform[2].Brief_Description_Of_The_Traumatic_Events[#{ITERATOR}]",
-            limit: 150
+            question_num: 9,
+            question_suffix: 'A',
+            question_text: 'Description',
+            limit: 105
           },
           'location' => {
             key: "F[0].#subform[2].Location_Of_The_Traumatic_Events[#{ITERATOR}]",
+            question_num: 9,
+            question_suffix: 'B',
+            question_text: 'Location',
             limit: 84
           },
           'timing' => {
             key: "F[0].#subform[2].Dates_The_Traumatic_Events_Occured[#{ITERATOR}]",
+            question_num: 9,
+            question_suffix: 'C',
+            question_text: 'Date',
             limit: 75
           },
           'eventOverflow' => {
@@ -529,10 +542,14 @@ module PdfFill
         'treatmentProvidersDetails' => {
           limit: 3,
           first_key: 'facilityInfo',
+          item_label: 'Treatment facility',
           question_text: 'TREATMENT INFORMATION',
           question_num: 13,
           'facilityInfo' => {
             key: "F[0].#subform[5].Name_And_Location_Of_Treatment_Facility[#{ITERATOR}]",
+            question_num: 13,
+            question_suffix: 'C',
+            question_text: 'Facility name',
             limit: 100
           },
           'treatmentMonth' => {
@@ -546,6 +563,11 @@ module PdfFill
           'noDates' => {
             key: "F[0].#subform[5].Check_Box_Do_Not_Have_Date_s[#{ITERATOR}]"
           },
+          'treatmentDate' => {
+            question_num: 13,
+            question_suffix: 'D',
+            question_text: 'Treatment date'
+          },
           'providerOverflow' => {
             key: '',
             question_text: 'TREATMENT INFORMATION',
@@ -557,7 +579,8 @@ module PdfFill
           key: 'F[0].#subform[5].Remarks_If_Any[0]',
           limit: 1940,
           question_num: 14,
-          question_text: 'REMARKS'
+          question_text: 'REMARKS',
+          question_type: 'free_text'
         },
         'additionalInformationOverflow' => {
           key: '',
@@ -611,37 +634,52 @@ module PdfFill
       }.freeze
       # rubocop:enable Layout/LineLength
 
+      QUESTION_KEY = {
+        1 => 'Veteran/Service member\'s name',
+        2 => 'Social security number',
+        3 => 'VA file number',
+        4 => 'Date of birth',
+        5 => 'Veteran\'s service number',
+        6 => 'Telephone number',
+        7 => 'Email address',
+        8 => 'Type of in-service traumatic event(s)',
+        9 => 'Traumatic event(s) information',
+        10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
+        11 => 'Was an official report filed?',
+        12 => 'Possible sources of evidence following the traumatic event(s)',
+        13 => 'Treatment information',
+        14 => 'Remarks',
+        16 => 'Veteran/service member\'s signature'
+      }.freeze
+
       SECTIONS = [
         {
           label: 'Section I: Veteran\'s Identification Information',
-          top_level_keys: %w[
-            veteranFullName vaFileNumber veteranDateOfBirth veteranServiceNumber veteranPhone veteranIntPhone
-            email emailOverflow
-          ]
+          question_nums: (1..7).to_a
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
-          top_level_keys: ['events']
+          question_nums: [8, 9]
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          top_level_keys: %w[behaviors behaviorsDetails reportsDetails evidence]
+          question_nums: [10, 11, 12]
         },
         {
           label: 'Section IV: Treatment Information',
-          top_level_keys: ['treatmentProvidersDetails']
+          question_nums: [13]
         },
         {
           label: 'Section V: Remarks',
-          top_level_keys: %w[additionalInformation additionalInformationOverflow]
+          question_nums: [14]
         },
         {
           label: 'Section VII: Certification and Signature',
-          top_level_keys: %w[signature signatureDate]
+          question_nums: [15]
         }
       ].freeze
 
-      def merge_fields(_options = {})
+      def merge_fields(options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
@@ -653,10 +691,14 @@ module PdfFill
 
         if @form_data['events']&.any?
           process_reports
-          expand_collection('events', :format_event, 'eventOverflow')
+          expand_collection('events', :format_event, 'eventOverflow') unless options[:extras_redesign]
         end
 
-        expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
+        if options[:extras_redesign]
+          process_treatment_dates
+        else
+          expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
+        end
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
@@ -725,6 +767,17 @@ module PdfFill
         reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
       end
 
+      def process_treatment_dates
+        @form_data['treatmentProvidersDetails'].each do |item|
+          item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
+          item['treatmentDate'] = if item['noDates']
+                                    'no response'
+                                  else
+                                    [item['treatmentMonth'], item['treatmentYear'] || '????'].compact.join('-')
+                                  end
+        end
+      end
+
       def merge_reports(event)
         (event['militaryReports'] || {})
           .merge(event['otherReports'] || {})
@@ -756,23 +809,28 @@ module PdfFill
       end
 
       def expand_collection(collection, format_method, overflow_key)
+        limit = KEY[collection].try(:[], :limit) || 0
         collection = @form_data[collection]
         return if collection.blank?
 
         collection.each_with_index do |item, index|
-          format_item_overflow(item, index + 1, format_method, overflow_key)
+          format_item_overflow(item, index + 1, format_method, overflow_key, overflow_only: collection.count > limit)
         end
       end
 
-      def format_item_overflow(item, index, format_method, overflow_key)
-        item_overflow = send(format_method, item, index)
+      # Gathers all visible fields in a list-and-loop item and concatenates them into an overflow field
+      # for the legacy 21-0781v2 overflow page.
+      # If overflow_only is true, the item has been moved from the PDF template to overflow, and the
+      # original fields should be removed so as not to duplicate the concatenated overflow field.
+      def format_item_overflow(item, index, format_method, overflow_key, overflow_only: false)
+        item_overflow = send(format_method, item, index, overflow_only:)
 
         return if item_overflow.blank?
 
         item[overflow_key] = PdfFill::FormValue.new('', item_overflow.compact.join("\n\n"))
       end
 
-      def format_event(event, index)
+      def format_event(event, index, overflow_only: false)
         return if event.blank?
 
         event_overflow = ["Event Number: #{index}"]
@@ -784,20 +842,27 @@ module PdfFill
         event_overflow.push("Event Location: \n\n#{event_location}")
         event_overflow.push("Event Date: \n\n#{event_timing}")
 
+        # Remove these from legacy overflow page to avoid duplication with concatenated field
+        %w[details location timing].each { |key| event[key] = nil } if overflow_only
+
         event_overflow
       end
 
-      def format_provider(provider, index)
+      def format_provider(provider, index, overflow_only: false)
         return if provider.blank?
 
         provider_overflow = ["Treatment Information Number: #{index}"]
         facility_info = provider['facilityInfo']
         month = provider['treatmentMonth'] || 'XX'
         year = provider['treatmentYear'] || 'XXXX'
-        no_date = provider['noDates']
+        no_date = provider['treatmentMonth'].to_s.strip.empty? && provider['treatmentYear'].to_s.strip.empty?
+        provider['noDates'] = no_date
 
         provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
         provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")
+
+        # Remove these from legacy overflow page to avoid duplication with concatenated field
+        %w[facilityInfo treatmentMonth treatmentYear].each { |key| provider[key] = nil } if overflow_only
 
         provider_overflow
       end

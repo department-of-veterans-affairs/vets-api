@@ -64,7 +64,6 @@ module SwaggerSharedComponents
         record_consent: true,
         consent_address_change: true,
         consent_limits: [],
-        claimant:,
         representative: poa_request_representative,
         veteran:
       }
@@ -188,7 +187,6 @@ module SwaggerSharedComponents
         schema: {
           type: :object,
           properties: appointment_conditions_parameter.merge(
-            claimant: claimant_parameter,
             representative: poa_request_rep_parameter,
             veteran: veteran_parameter
           ),

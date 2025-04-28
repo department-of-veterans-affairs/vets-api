@@ -181,6 +181,48 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(new_path).to eq(pdf_path)
       expect(run_count).to eq(3)
     end
+
+    it 'requests specific pdf stamps' do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'VA.GOV',
+        timestamp: claim.created_at,
+        x: 5,
+        y: 5
+      ).and_return(pdf_path)
+
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'FDC Reviewed - VA.gov Submission',
+        timestamp: claim.created_at,
+        x: 400,
+        y: 770,
+        text_only: true
+      ).and_return(pdf_path)
+
+      expect(datestamp_pdf_double).to receive(:run).with(
+        text: 'Application Submitted on va.gov',
+        x: 425,
+        y: 675,
+        text_only: true, # passing as text only because we override how the date is stamped in this instance
+        timestamp: claim.created_at,
+        page_number: 5,
+        size: 9,
+        template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{claim.form_id}.pdf",
+        multistamp: true
+      ).and_return(pdf_path)
+
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+
+      new_path = job.send(:process_document, 'test/path')
+
+      expect(new_path).to eq(pdf_path)
+    end
+
+    it 'successfully stamps the generated pdf' do
+      expect(service).to receive(:valid_document?).and_return(pdf_path)
+      new_path = job.send(:process_document, claim.to_pdf)
+      expect(new_path).to eq(pdf_path)
+    end
     # process_document
   end
 
@@ -245,8 +287,8 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occured',
-        'queue' => nil }
+      { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
     end
 
     before do

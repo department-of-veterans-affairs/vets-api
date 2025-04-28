@@ -58,7 +58,7 @@ module SimpleFormsApi
       end
 
       def form_upload_supported?
-        SimpleFormsApi::FormUploadNotificationEmail::SUPPORTED_FORMS.include?(form_number)
+        SimpleFormsApi::Notification::FormUploadEmail::SUPPORTED_FORMS.include?(form_number)
       end
 
       def form_upload_notification_email

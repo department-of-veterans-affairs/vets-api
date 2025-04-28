@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
-require 'virtual_regional_office/client'
 require 'contention_classification/client'
 
 # pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
@@ -26,7 +25,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       .and_return('fake_access_token')
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, icn: '123498767V234859') }
+  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -36,10 +36,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     let(:saved_claim) { create(:va526ez) }
     let(:submitted_claim_id) { 600_130_094 }
-    let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let(:submission) do
       create(:form526_submission,
-             user_account_id: user_account.id,
+             user_account:,
              user_uuid: user.uuid,
              auth_headers_json: auth_headers.to_json,
              saved_claim_id: saved_claim.id)
@@ -108,6 +107,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :asthma_claim_for_increase,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -125,6 +125,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :without_diagnostic_code,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -145,6 +146,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :als_claim_for_increase,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -168,6 +170,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :als_claim_for_increase_terminally_ill,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -196,6 +199,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         create(:form526_submission,
                :with_mixed_action_disabilities_and_free_text,
                user_uuid: user.uuid,
+               user_account:,
                auth_headers_json: auth_headers.to_json,
                saved_claim_id: saved_claim.id)
       end
@@ -215,6 +219,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             create(:form526_submission,
                    :without_diagnostic_code,
                    user_uuid: user.uuid,
+                   user_account:,
                    auth_headers_json: auth_headers.to_json,
                    saved_claim_id: saved_claim.id)
           end
@@ -297,6 +302,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :with_empty_disabilities,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -351,6 +357,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :non_rrd_with_mas_diagnostic_code,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -397,6 +404,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             create(:form526_submission,
                    :mas_diagnostic_code_with_classification,
                    user_uuid: user.uuid,
+                   user_account:,
                    auth_headers_json: auth_headers.to_json,
                    saved_claim_id: saved_claim.id)
           end
@@ -430,6 +438,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :with_multiple_mas_diagnostic_code,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id)
         end
@@ -451,6 +460,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           create(:form526_submission,
                  :with_everything,
                  user_uuid: user.uuid,
+                 user_account:,
                  auth_headers_json: auth_headers.to_json,
                  saved_claim_id: saved_claim.id,
                  submit_endpoint: 'claims_api')
@@ -561,6 +571,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         create(:form526_submission,
                :with_uploads,
                user_uuid: user.uuid,
+               user_account:,
                auth_headers_json: auth_headers.to_json,
                saved_claim_id: saved_claim.id)
       end

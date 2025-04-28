@@ -7,12 +7,16 @@ module IvcChampva
   module PegaApi
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        'https://bt41mfpkj5.execute-api.us-gov-west-1.amazonaws.com/prod/'
+        Settings.ivc_champva.pega_api.base_path.to_s
+      end
+
+      def service_name
+        'PEGA_API'
       end
 
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           # conn.use :instrumentation, name: 'dhp.fitbit.request.faraday'
 
           # Uncomment this if you want curlggg command equivalent or response output to log

@@ -105,7 +105,14 @@ module EducationForm
           contents = records.map(&:text).join(EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK)
 
           begin
-            writer.write(contents, filename)
+            log_info("Uploading #{contents.size} bytes to region: #{region}") if Settings.hostname.eql?('api.va.gov')
+            bytes_sent = writer.write(contents, filename)
+
+            if bytes_sent.eql?(contents.size) && Settings.hostname.eql?('api.va.gov')
+              log_info("Successfully uploaded #{bytes_sent} bytes to region: #{region}")
+            elsif Settings.hostname.eql?('api.va.gov')
+              log_info("Warning: Uploaded #{bytes_sent} bytes to region: #{region}")
+            end
 
             ## Testing to see if writer is the cause for retry attempt failures
             ## If we get to this message, it's not the writer object

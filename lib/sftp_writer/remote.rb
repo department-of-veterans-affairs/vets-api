@@ -41,8 +41,24 @@ module SFTPWriter
     def write(contents, filename)
       path = File.join([write_path(filename), sanitize(filename)].compact)
       @logger.info("Writing #{path}")
-      mkdir_safe(path)
-      sftp.upload!(StringIO.new(contents), path) if Settings.hostname.eql?('api.va.gov') # only sftp on production
+
+      # only sftp on production. There were repeated issues with test data getting into TIMS
+      # The decision was made to push spool files only on production
+      bytes_sent = 0
+
+      if Settings.hostname.eql?('api.va.gov')
+        mkdir_safe(path)
+        sftp.upload!(StringIO.new(contents), path)
+
+        # get the file size from the remote destination
+        begin
+          bytes_sent = sftp.stat!(path)&.size || 0
+        rescue Net::SFTP::StatusException # This will happen if nothing got sent
+          bytes_sent = 0
+        end
+      end
+
+      bytes_sent
     end
 
     private

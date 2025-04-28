@@ -10,7 +10,8 @@ module V0
     rescue_from ::DebtManagementCenter::DebtsService::DebtNotFound, with: :render_not_found
 
     def index
-      render json: service.get_debts
+      count_only = ActiveModel::Type::Boolean.new.cast(params[:count_only])
+      render json: service.get_debts(count_only:)
     end
 
     def show

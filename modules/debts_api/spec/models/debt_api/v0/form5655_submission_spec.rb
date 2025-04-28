@@ -41,7 +41,6 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.upsert_in_progress_form' do
-    let(:user) { create(:form5655_submission, '') }
     let(:form5655_submission) { create(:debts_api_form5655_submission, user_uuid: 'b2fab2b56af045e1a9e2394347af91ef') }
     let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
@@ -53,7 +52,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
         data = '{"its":"me"}'
         form5655_submission.ipf_data = data
-        form5655_submission.upsert_in_progress_form
+        form5655_submission.upsert_in_progress_form(user_account: form5655_submission.user_account)
         form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
         expect(form&.form_data).to eq(data)
       end
@@ -69,7 +68,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
         expect(form&.form_data).not_to eq(data)
 
         form5655_submission.ipf_data = data
-        form5655_submission.upsert_in_progress_form
+        form5655_submission.upsert_in_progress_form(user_account: form5655_submission.user_account)
         form = InProgressForm.find_by(form_id: '5655', user_uuid: form5655_submission.user_uuid)
         expect(form&.form_data).to eq(data)
       end
@@ -261,7 +260,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           }
 
           expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_in).with(
-            6.hours,
+            24.hours,
             'test2@test1.net',
             'fake_template_id',
             expected_personalization_info,
