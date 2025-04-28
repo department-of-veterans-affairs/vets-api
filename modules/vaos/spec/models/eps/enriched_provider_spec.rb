@@ -25,12 +25,11 @@ describe Eps::EnrichedProvider do
 
     context 'when referral_detail has no phone number' do
       let(:referral_detail) do
-        Ccra::ReferralDetail.new(
-          'Referral' => {
-            'TreatingFacilityInfo' => { 'Phone' => '' },
-            'TreatingProviderInfo' => { 'Telephone' => '' }
-          }
-        )
+        attributes = {
+          'treating_facility_info' => { 'phone' => '' },
+          'treating_provider_info' => { 'telephone' => '' }
+        }
+        Ccra::ReferralDetail.new(attributes)
       end
 
       it 'returns the original provider' do

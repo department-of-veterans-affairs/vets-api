@@ -102,8 +102,8 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
   describe 'GET /vaos/v2/referrals/:id' do
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:icn) { '1012845331V153043' }
-    let(:referral_number) { '5682' }
-    let(:encrypted_uuid) { 'encrypted-5682' }
+    let(:referral_number) { 'VA0000005681' }
+    let(:encrypted_uuid) { 'encrypted-VA0000005681' }
     let(:user) { build(:user, :vaos, :loa3, icn:) }
     let(:referral) { build(:ccra_referral_detail, referral_number:) }
     let(:service_double) { instance_double(Ccra::ReferralService) }
@@ -156,14 +156,13 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         expect(provider).to have_key('name')
         expect(provider).to have_key('location')
 
-        # Check referring facility attributes
-        if response_data['data']['attributes'].key?('referringFacility')
-          facility = response_data['data']['attributes']['referringFacility']
-          expect(facility).to be_a(Hash)
-          expect(facility).to have_key('name')
-          expect(facility).to have_key('code')
-          expect(facility).to have_key('phone')
-        end
+        # Check referring facility attributes - ensure it exists in the response
+        expect(response_data['data']['attributes']).to have_key('referringFacility')
+        facility = response_data['data']['attributes']['referringFacility']
+        expect(facility).to be_a(Hash)
+        expect(facility).to have_key('name')
+        expect(facility).to have_key('code')
+        expect(facility).to have_key('phone')
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end

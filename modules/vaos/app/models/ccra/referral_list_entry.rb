@@ -3,26 +3,30 @@
 module Ccra
   # ReferralListEntry represents the essential referral data from the CCRA ReferralList endpoint.
   class ReferralListEntry
-    attr_reader :category_of_care, :expiration_date
+    attr_reader :category_of_care, :expiration_date, :status, :station_id, :last_update_date_time
     attr_accessor :referral_number, :uuid
 
     ##
     # Initializes a new instance of ReferralListEntry.
     #
     # @param attributes [Hash] A hash containing the referral details.
-    # @option attributes [String] "CategoryOfCare" The type of care for the referral.
-    # @option attributes [String] "ID" The unique identifier for the referral.
-    # @option attributes [String] "StartDate" The start date of the referral.
-    # @option attributes [String] "SEOCNumberOfDays" The number of days the referral is valid.
     def initialize(attributes)
-      @category_of_care = attributes['CategoryOfCare'] || attributes['categoryOfCare']
-      @referral_number = attributes['ID']
+      @category_of_care = attributes['category_of_care']
+      @referral_number = attributes['referral_number'] || attributes['referral_consult_id']
       @uuid = nil # Will be set by controller
+      @status = attributes['status']
+      @station_id = attributes['station_id']
+      @last_update_date_time = attributes['referral_last_update_date_time']
 
-      start_date = parse_date(attributes['StartDate'])
-      days = attributes['SEOCNumberOfDays'].to_i if attributes['SEOCNumberOfDays'].present?
-
-      @expiration_date = start_date + days if start_date && days&.positive?
+      # If referral_expiration_date is directly provided, use it
+      if attributes['referral_expiration_date'].present?
+        @expiration_date = parse_date(attributes['referral_expiration_date'])
+      # Otherwise calculate it from referral_date and days if available
+      elsif attributes['referral_date'].present? && attributes['seoc_number_of_days'].present?
+        start_date = parse_date(attributes['referral_date'])
+        days = attributes['seoc_number_of_days'].to_i
+        @expiration_date = start_date + days if start_date && days&.positive?
+      end
     end
 
     ##

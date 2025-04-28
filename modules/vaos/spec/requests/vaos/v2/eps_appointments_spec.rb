@@ -153,12 +153,6 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
       context 'with provider phone number from referral' do
         let(:provider_phone) { '555-123-4567' }
 
-        let(:expected_response_with_phone) do
-          expected = expected_response.deep_dup
-          expected['data']['attributes']['provider']['phoneNumber'] = provider_phone
-          expected
-        end
-
         it 'includes phone number in provider data when available from referral' do
           VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
