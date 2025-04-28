@@ -72,7 +72,7 @@ module V0
         itf_monitor.track_create_itf_initiated(form.form_id, form.created_at, @current_user.uuid, form.id)
 
         begin
-          Lighthouse::CreateIntentToFileJob.perform_async(form.id, @current_user.icn, @current_user.participant_id)
+          Lighthouse::CreateIntentToFileJob.new.perform(form.id, @current_user.icn, @current_user.participant_id)
         rescue Common::Exceptions::ResourceNotFound
           # prevent false error being reported to user - ICN present but not found by BenefitsClaims
           # todo: handle itf process from frontend

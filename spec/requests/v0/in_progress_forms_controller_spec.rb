@@ -410,8 +410,8 @@ RSpec.describe V0::InProgressFormsController do
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
             latest_form = InProgressForm.last
-            expect(Lighthouse::CreateIntentToFileJob).to have_received(:perform_async).with(latest_form.id, user.icn,
-                                                                                            user.participant_id)
+            expect(itf_job).to have_received(:perform).with(latest_form.id, user.icn, user.participant_id)
+            expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
           end
         end
       end
