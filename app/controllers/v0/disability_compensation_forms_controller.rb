@@ -54,6 +54,13 @@ module V0
       render json: DisabilityContentionSerializer.new(results)
     end
 
+    def add_0781_metadata(form526)
+      if form526['syncModern0781Flow'].present?
+        { sync_modern0781_flow: form526['syncModern0781Flow'],
+          sync_modern0781_flow_answered_online: form526['form0781'].present? }.to_json
+      end
+    end
+
     def submit_all_claim
       temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
                                                        @current_user)
@@ -64,6 +71,9 @@ module V0
       )
 
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
+        saved_claim.metadata = add_0781_metadata(form_content['form526'])
+      end
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process

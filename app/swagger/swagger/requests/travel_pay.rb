@@ -72,13 +72,49 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :appointmentDatetime
+            key :name, :appointmentDateTime
             key :in, :body
-            key :description, 'Appointment claim start time'
+            key :description, 'Appointment local start time'
             key :required, true
             schema do
-              property :appointmentDatetime do
+              property :appointmentDateTime do
                 key :type, :string
+              end
+            end
+          end
+
+          parameter do
+            key :name, :facilityStationNumber
+            key :in, :body
+            key :description, 'Appointment facility ID'
+            key :required, true
+            schema do
+              property :facilityStationNumber do
+                key :type, :string
+              end
+            end
+          end
+
+          parameter do
+            key :name, :appointmentType
+            key :in, :body
+            key :description, 'CompensationAndPensionExamination or Other'
+            key :required, true
+            schema do
+              property :appointmentType do
+                key :type, :string
+              end
+            end
+          end
+
+          parameter do
+            key :name, :isComplete
+            key :in, :body
+            key :description, 'Whether or not appointment is complete'
+            key :required, true
+            schema do
+              property :isComplete do
+                key :type, :boolean
               end
             end
           end

@@ -48,12 +48,12 @@ RSpec.describe FormProfile, type: :model do
   end
   let(:address) do
     {
-      'street' => va_profile_address[:street],
-      'street2' => va_profile_address[:street2],
-      'city' => va_profile_address[:city],
-      'state' => va_profile_address[:state],
-      'country' => va_profile_address[:country],
-      'postal_code' => va_profile_address[:postal_code]
+      'street' => va_profile_address.street,
+      'street2' => va_profile_address.street2,
+      'city' => va_profile_address.city,
+      'state' => va_profile_address.state,
+      'country' => va_profile_address.country,
+      'postal_code' => va_profile_address.postal_code
     }
   end
   let(:veteran_address) do
@@ -712,12 +712,12 @@ RSpec.describe FormProfile, type: :model do
   let(:vfeedback_tool_expected) do
     {
       'address' => {
-        'street' => va_profile_address[:street],
-        'street2' => va_profile_address[:street2],
-        'city' => va_profile_address[:city],
-        'state' => va_profile_address[:state],
+        'street' => va_profile_address.street,
+        'street2' => va_profile_address.street2,
+        'city' => va_profile_address.city,
+        'state' => va_profile_address.state,
         'country' => 'US',
-        'postal_code' => va_profile_address[:postal_code]
+        'postal_code' => va_profile_address.postal_code
       },
       'serviceBranch' => 'Army',
       'fullName' => {
@@ -773,12 +773,12 @@ RSpec.describe FormProfile, type: :model do
             'ssn' => user.ssn.last(4),
             'gender' => user.gender,
             'address' => {
-              'addressLine1' => va_profile_address[:street],
-              'addressLine2' => va_profile_address[:street2],
-              'city' => va_profile_address[:city],
-              'stateCode' => va_profile_address[:state],
-              'countryName' => va_profile_address[:country],
-              'zipCode5' => va_profile_address[:postal_code]
+              'addressLine1' => va_profile_address.street,
+              'addressLine2' => va_profile_address.street2,
+              'city' => va_profile_address.city,
+              'stateCode' => va_profile_address.state,
+              'countryName' => va_profile_address.country,
+              'zipCode5' => va_profile_address.postal_code
             },
             'phone' => {
               'areaCode' => us_phone[0..2],
@@ -995,7 +995,7 @@ RSpec.describe FormProfile, type: :model do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                          allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-          output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
+          output = form_profile.send(:initialize_military_information).attribute_values.transform_keys(&:to_s)
 
           expected_output = initialize_va_profile_prefill_military_information_expected
           expected_output['vic_verified'] = false
@@ -1014,8 +1014,8 @@ RSpec.describe FormProfile, type: :model do
           expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
 
           first_item = actual_guard_reserve_service_history.map(&:attributes).first
-          expect(first_item[:from].to_s).to eq(expected_guard_reserve_service_history.first[:from])
-          expect(first_item[:to].to_s).to eq(expected_guard_reserve_service_history.first[:to])
+          expect(first_item['from'].to_s).to eq(expected_guard_reserve_service_history.first[:from])
+          expect(first_item['to'].to_s).to eq(expected_guard_reserve_service_history.first[:to])
 
           guard_period = actual_latest_guard_reserve_service_period.attributes.transform_keys(&:to_s)
           expect(guard_period['from'].to_s).to eq(expected_latest_guard_reserve_service_period[:from])

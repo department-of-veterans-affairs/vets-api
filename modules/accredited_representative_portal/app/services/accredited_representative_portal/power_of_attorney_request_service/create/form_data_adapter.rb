@@ -31,7 +31,6 @@ module AccreditedRepresentativePortal
 
         def authorizations
           {
-            'recordDisclosure' => @data[:record_consent],
             'recordDisclosureLimitations' => @data[:consent_limits] || [],
             'addressChange' => @data[:consent_address_change]
           }
