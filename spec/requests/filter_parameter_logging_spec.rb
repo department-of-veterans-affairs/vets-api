@@ -5,11 +5,9 @@ require 'stringio'
 
 RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request do
   before do
+    @original_log_level = SemanticLogger.default_level
     @original_logger = Rails.logger
     @log_output = StringIO.new
-
-    # Ensure we remove any existing appenders before adding a new one
-    SemanticLogger.appenders.each { |appender| SemanticLogger.remove_appender(appender) }
 
     # Add StringIO as a new appender for SemanticLogger
     @test_appender = SemanticLogger.add_appender(io: @log_output, formatter: :json)
@@ -25,7 +23,7 @@ RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request d
   end
 
   after do
-    SemanticLogger.default_level = :warn
+    SemanticLogger.default_level = @original_log_level
     SemanticLogger.remove_appender(@test_appender)
     Rails.logger = @original_logger
     Rails.application.reload_routes!
@@ -38,8 +36,6 @@ RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request d
 
     post '/test_params', params: { attachment: file }
     logs = @log_output.string
-
-    puts "DEBUG LOG OUTPUT TEST 1: #{logs}"
 
     expect(logs).to include('"attachment"')
 
@@ -66,8 +62,6 @@ RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request d
     post '/test_params', params: { attachment: file_params }
     logs = @log_output.string
 
-    puts "DEBUG LOG OUTPUT TEST 2: #{logs}"
-
     expect(logs).not_to include('private_file.docx')
     expect(logs).not_to include('sensitive binary content')
 
@@ -88,8 +82,6 @@ RSpec.describe 'Filter Parameter Logging', skip: 'Flakey Spec', type: :request d
 
     post '/test_params', params: sensitive_params
     logs = @log_output.string
-
-    puts "DEBUG LOG OUTPUT 3: #{logs}" # Debugging output
 
     expect(logs).not_to include('123-45-6789') # SSN should be wiped out
     expect(logs).not_to include('johndoe@example.com') # Ensure emails are also wiped
