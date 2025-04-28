@@ -612,6 +612,9 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_compensation_sync_modern0781_flow_metadata:
+    actor_type: user
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
   disability_compensation_0781_stats_job:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
