@@ -12,7 +12,7 @@ module Mobile
           @user = user
         end
 
-        def get_appointments(start_date:, end_date:, include_pending:, include_claims:, pagination_params: {})
+        def get_appointments(start_date:, end_date:, include_pending:, include_claims: false, pagination_params: {})
           statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
 
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
@@ -38,12 +38,8 @@ module Mobile
           {
             clinics: true,
             facilities: true,
-            travel_pay_claims: include_travel_claims? && include_claims
+            travel_pay_claims: include_claims
           }
-        end
-
-        def include_travel_claims?
-          Flipper.enabled?(:travel_pay_smoc_on_mobile, @user)
         end
 
         def appointments_helper

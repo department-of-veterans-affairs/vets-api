@@ -2055,11 +2055,6 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
-  travel_pay_smoc_on_mobile:
-    actor_type: user
-    enable_in_development: true
-    description: >-
-      A switch that toggles availability of travel claim submission in the VAHB mobile app. Only used for API features.
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
