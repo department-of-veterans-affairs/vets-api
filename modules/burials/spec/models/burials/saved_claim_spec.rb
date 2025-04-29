@@ -134,4 +134,14 @@ RSpec.describe Burials::SavedClaim do
       expect(instance.claimaint_first_name).to be_nil
     end
   end
+
+  context 'after create' do
+    it 'tracks pdf overflow' do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
+      allow(StatsD).to receive(:increment)
+      instance.save!
+
+      expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags: ['form_id:21P-530EZ'])
+    end
+  end
 end

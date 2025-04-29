@@ -23,6 +23,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
   before do
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
     allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
@@ -100,6 +101,15 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
             be_within(1.second).of(claim_duration),
             tags: ["form_id:#{saved_claim.form_id}"]
           )
+        end
+      end
+
+      context 'if form_id is not registered with PdfFill::Filler' do
+        it 'skips tracking pdf overflow' do
+          allow(StatsD).to receive(:increment)
+          saved_claim.save!
+
+          expect(StatsD).not_to have_received(:increment)
         end
       end
     end
