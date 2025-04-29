@@ -1458,10 +1458,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    # Secure messaging endpoints have been completely removed from the main app
-    # and moved to the MyHealth engine.
-    # All tests for these endpoints should be in the MyHealth specs.
-
     describe 'bb' do
       include BB::ClientHelpers
 
@@ -3695,7 +3691,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/sign_in/callback')
       subject.untested_mappings.delete('/v0/sign_in/logout')
 
-      # Delete all secure messaging endpoints - this functionality has been moved to MyHealth engine
       subject.untested_mappings.keys.dup.each do |path|
         subject.untested_mappings.delete(path) if path.include?('/v0/messaging/health/')
       end
