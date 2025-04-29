@@ -120,9 +120,18 @@ module BGS
     def send_confirmation_email
       return if user.va_profile_email.blank?
 
+      template_id = Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email
+
+      if Flipper.enabled?(:dependents_separate_confirmation_email)
+        template_id = Settings.vanotify.services.va_gov.template_id.form674_only_confirmation_email
+        if @claim.submittable_686?
+          template_id = Settings.vanotify.services.va_gov.template_id.form686c_674_confirmation_email
+        end
+      end
+
       VANotify::ConfirmationEmail.send(
         email_address: user.va_profile_email,
-        template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
+        template_id:,
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
       )

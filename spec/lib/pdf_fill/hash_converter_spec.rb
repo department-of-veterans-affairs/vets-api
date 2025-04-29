@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
 describe PdfFill::HashConverter do
-  let(:hash_converter) do
+  let(:converter) do
     described_class.new('%m/%d/%Y', extras_generator)
   end
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
@@ -12,24 +12,25 @@ describe PdfFill::HashConverter do
   def verify_extras_text(text, metadata)
     metadata[:overflow] = true unless metadata.key?(:overflow)
     metadata[:item_label] = nil unless metadata.key?(:item_label)
+    metadata[:question_type] = nil unless metadata.key?(:question_type)
     expect(extras_generator).to receive(:add_text).with(text, metadata).once
   end
 
   describe '#set_value' do
     def verify_hash(hash)
-      expect(hash_converter.instance_variable_get(:@pdftk_form)).to eq(
+      expect(converter.instance_variable_get(:@pdftk_form)).to eq(
         hash
       )
     end
 
     def call_set_value(*args)
       final_args = ['bar'] + args
-      hash_converter.set_value(*final_args)
+      converter.set_value(*final_args)
     end
 
     def call_set_custom_value(value, *args)
       final_args = [value] + args
-      hash_converter.set_value(*final_args)
+      converter.set_value(*final_args)
     end
 
     context 'with a dollar value' do
@@ -63,7 +64,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: "See add'l info page")
+        verify_hash(foo: PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       it 'formats date' do
@@ -81,7 +82,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash('foo' => "See add'l info page")
+        verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       it 'does not format string with date' do
@@ -98,7 +99,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash('foo' => "See add'l info page")
+        verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       it 'displays boolean as string' do
@@ -115,7 +116,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: "See add'l info page")
+        verify_hash(foo: PdfFill::HashConverter::EXTRAS_TEXT)
       end
 
       context 'with an index' do
@@ -132,7 +133,7 @@ describe PdfFill::HashConverter do
             0
           )
 
-          verify_hash('foo' => "See add'l info page")
+          verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
         end
       end
     end
@@ -265,7 +266,8 @@ describe PdfFill::HashConverter do
       let(:form_data) do
         {
           veteranFullName: { first: 'Hubert', last: 'Wolfeschlegelsteinhausenbergerdorff' },
-          treatmentProviders: ['Walter Reed, Bethesda MD', 'Silver Oak Recovery Center, Clearwater FL']
+          treatmentProviders: ['Walter Reed, Bethesda MD', 'Silver Oak Recovery Center, Clearwater FL'],
+          additionalRemarks: 'Additional Remarks'
         }
       end
       let(:pdftk_keys) do
@@ -284,6 +286,13 @@ describe PdfFill::HashConverter do
               question_text: 'Last Name'
             }
           },
+          additionalRemarks: {
+            key: 'form1[0].#subform[0].Additional_Remarks[0]',
+            limit: 1,
+            question_num: 3,
+            question_text: 'Additional Remarks',
+            question_type: 'free_text'
+          },
           treatmentProviders: {
             limit: 1,
             item_label: 'Treatment facility',
@@ -300,12 +309,110 @@ describe PdfFill::HashConverter do
                            overflow: false)
         verify_extras_text('Wolfeschlegelsteinhausenbergerdorff',
                            i: nil, question_num: 2, question_text: 'Last Name')
+        verify_extras_text('Additional Remarks',
+                           i: nil, question_num: 3, question_text: 'Additional Remarks', question_type: 'free_text')
         verify_extras_text('Walter Reed, Bethesda MD',
                            i: 0, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         verify_extras_text('Silver Oak Recovery Center, Clearwater FL',
                            i: 1, question_num: 13, question_text: 'Provider', item_label: 'Treatment facility')
         subject.transform_data(form_data:, pdftk_keys:)
       end
+    end
+  end
+
+  describe '#handle_overflow_and_label_all' do
+    subject { described_class.new('%m/%d/%Y', extras_generator) }
+
+    let(:form_data) do
+      [
+        { 'name' => 'Aziz', 'description' => 'A short description' },
+        { 'name' => 'Puku', 'description' => 'A very long description that exceeds the limit' },
+        { 'name' => 'Habibi', 'description' => 'Another description' }
+      ]
+    end
+
+    let(:pdftk_keys) do
+      {
+        'name' => {
+          key: 'form.name',
+          limit: 10,
+          question_num: 1,
+          question_text: 'Name'
+        },
+        'description' => {
+          key: 'form.description',
+          limit: 5,
+          question_num: 2,
+          question_text: 'Description'
+        }
+      }
+    end
+
+    before do
+      allow(extras_generator).to receive(:add_text)
+    end
+
+    it 'processes each item and handles overflow correctly' do
+      subject.handle_overflow_and_label_all(form_data, pdftk_keys)
+
+      # Verify the form data is set correctly
+      # The last item's values should be in the form
+      expect(subject.instance_variable_get(:@pdftk_form)).to eq(
+        'form.name' => 'Habibi',
+        'form.description' => PdfFill::HashConverter::EXTRAS_TEXT
+      )
+
+      # Since from_array_overflow is true, add_text should not be called
+      expect(extras_generator).not_to have_received(:add_text)
+    end
+  end
+
+  describe '#handle_overflow_and_label_first_key' do
+    it 'sets the first key to EXTRAS_TEXT in @pdftk_form' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key1' => { key: 'form_key1' }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
+    end
+
+    it 'does nothing if first_key is not found in pdftk_keys' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key2' => { key: 'form_key2' }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)).to be_empty
+    end
+
+    it 'does nothing if key is not present in key_data' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key1' => { other_data: 'something' }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)).to be_empty
+    end
+
+    it 'sets the first key value to EXTRAS_TEXT even with nested structure' do
+      pdftk_keys = {
+        first_key: 'key1',
+        'key1' => {
+          key: 'form_key1',
+          'nested_key' => { key: 'form_nested_key' }
+        }
+      }
+
+      converter.handle_overflow_and_label_first_key(pdftk_keys)
+
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
     end
   end
 end

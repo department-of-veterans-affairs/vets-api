@@ -559,6 +559,9 @@ features:
   dependents_failure_callback_email:
     actor_type: user
     description: Enables the dependents action needed email callback to be used when an action needed email is triggered
+  dependents_separate_confirmation_email:
+    actor_type: cookie_id
+    description: Enables the dependents confirmation email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -611,6 +614,13 @@ features:
   disability_compensation_sync_modern_0781_flow:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
+    enable_in_development: true
+  disability_compensation_sync_modern0781_flow_metadata:
+    actor_type: user
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
+  disability_compensation_0781_stats_job:
+    actor_type: user
+    description: enables a job to run that will check DB records and report stats as metrics, into Datadog
     enable_in_development: true
   disability_526_send_form526_submitted_email:
     actor_type: user
@@ -1082,6 +1092,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
     enable_in_development: true
+  mhv_secure_messaging_milestone_2_aal:
+    actor_type: user
+    description: Disables/Enables Secure Messaging AAL Milestone 2
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1205,6 +1219,13 @@ features:
     actor_type: user
     description: Enables/disables partial fill content
     enable_in_development: true
+  mhv_milestone_2_changes_enabled:
+    actor_type: user
+    description: Enables MHV Milestone 2 changes
+  mhv_header_links:
+    actor_type: user
+    description: Display My HealtheVet and My VA links in the site header
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
@@ -1259,6 +1280,9 @@ features:
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
+  profile_international_phone_numbers:
+    actor_type: user
+    description: Enables international phone number support on VA.gov profile.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
@@ -1699,10 +1723,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_past_appt_date_range:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for modifying the date range selection on the Past appointments page.
   va_online_scheduling_mhv_route_guards:
     actor_type: user
     enable_in_development: true
@@ -1979,11 +1999,18 @@ features:
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
-    enable_in_development: true
+  income_and_assets_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  income_and_assets_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  income_and_assets_submitted_email_notification:
+    actor_type: user
+    description: Toggle sending of the Submission in Progress email notification
   intent_to_file_synchronous_enabled:
     actor_type: user
     description: Enable ITF synchronous call logic
-    enable_in_development: true
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API

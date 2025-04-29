@@ -30,6 +30,68 @@ describe PdfFill::ExtrasGeneratorV2 do
         end
       end
     end
+
+    describe '#sorted_subquestions_markup' do
+      context 'when there is only one subquestion' do
+        let(:add_text_calls) do
+          [
+            ["foo\nbar", { question_suffix: 'A', question_text: 'Name' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
+          expect(subject.sorted_subquestions_markup).to eq(
+            "<tr><td style='#{expected_style}'>foo<br/>bar</td><td></td></tr>"
+          )
+        end
+      end
+
+      context 'when there is more than one subquestion' do
+        let(:add_text_calls) do
+          [
+            ["foo\nbar", { question_suffix: 'A', question_text: 'Name' }],
+            ['bar', { question_suffix: 'B', question_text: 'Email' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expect(subject.sorted_subquestions_markup).to eq(
+            [
+              "<tr><td style='width:91'>Name:</td><td>foo<br/>bar</td></tr>",
+              "<tr><td style='width:91'>Email:</td><td>bar</td></tr>"
+            ]
+          )
+        end
+      end
+    end
+  end
+
+  describe PdfFill::ExtrasGeneratorV2::FreeTextQuestion do
+    subject do
+      question = described_class.new('Additional Remarks', add_text_calls.first[1])
+      add_text_calls.each { |call| question.add_text(*call) }
+      question
+    end
+
+    describe '#sorted_subquestions_markup' do
+      let(:add_text_calls) do
+        [
+          ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+        ]
+      end
+
+      it 'renders correctly' do
+        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
+        expect(subject.sorted_subquestions_markup).to eq(
+          [
+            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
+            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+          ]
+        )
+      end
+    end
   end
 
   describe '#populate_section_indices!' do
@@ -47,7 +109,9 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     it 'populates section indices correctly' do
-      questions = [1, 9, 42, 7].index_with { |question_num| described_class::Question.new(nil, question_num:) }
+      questions = [1, 9, 42, 7].index_with do |question_num|
+        described_class::Question.new(nil, { question_num: })
+      end
       subject.instance_variable_set(:@questions, questions)
       subject.populate_section_indices!
       indices = subject.instance_variable_get(:@questions).values.map(&:section_index)
@@ -214,7 +278,7 @@ describe PdfFill::ExtrasGeneratorV2 do
       allow(question_block2).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(false)
       allow(question_block2).to receive(:measure_actual_height).and_return(150)
       allow(list_block).to receive(:is_a?).with(PdfFill::ExtrasGeneratorV2::ListQuestion).and_return(true)
-      allow(list_block).to receive(:measure_component_heights).and_return({ title: 30, items: [50, 60] })
+      allow(list_block).to receive(:measure_actual_height).and_return({ title: 30, items: [50, 60] })
     end
 
     it 'creates a hash with heights for each block' do
@@ -315,6 +379,8 @@ describe PdfFill::ExtrasGeneratorV2 do
     before do
       allow(list_block).to receive(:items).and_return([item1, item2])
       allow(list_block).to receive(:render_item)
+      allow(item1).to receive(:should_render?).and_return(true)
+      allow(item2).to receive(:should_render?).and_return(true)
       allow(pdf).to receive(:cursor).and_return(75)
       allow(pdf).to receive(:start_new_page)
     end
@@ -325,6 +391,129 @@ describe PdfFill::ExtrasGeneratorV2 do
       expect(list_block).to have_received(:render_item).with(pdf, item1, 1)
       expect(list_block).to have_received(:render_item).with(pdf, item2, 2)
       expect(pdf).to have_received(:start_new_page).once
+    end
+  end
+
+  describe 'CheckedDescriptionQuestion' do
+    subject { described_class::CheckedDescriptionQuestion.new(question_text, metadata) }
+
+    let(:question_text) { 'Test Question' }
+    let(:pdf_double) { double('PDF', markup: nil) }
+    let(:metadata) { { question_num: 1 } }
+
+    describe '#initialize' do
+      it 'initializes with default values' do
+        expect(subject.description).to be_nil
+        expect(subject.additional_info).to be_nil
+        expect(subject.send(:should_render?)).to be false
+      end
+    end
+
+    describe '#add_text' do
+      context 'when adding Description' do
+        it 'sets the description' do
+          subject.add_text('Test Description', { question_text: 'Description' })
+          expect(subject.description).to eq('Test Description')
+        end
+      end
+
+      context 'when adding Additional Information' do
+        it 'sets the additional_info' do
+          subject.add_text('More Info', { question_text: 'Additional Information' })
+          expect(subject.additional_info).to eq('More Info')
+        end
+      end
+
+      context 'when setting Checked status' do
+        it 'sets checked to true when value is "true"' do
+          subject.add_text('true', { question_text: 'Checked' })
+          expect(subject.send(:should_render?)).to be true
+        end
+
+        it 'sets checked to false when value is not "true"' do
+          subject.add_text('false', { question_text: 'Checked' })
+          expect(subject.send(:should_render?)).to be false
+        end
+      end
+
+      context 'when using question_label instead of question_text' do
+        it 'sets the description using question_label' do
+          subject.add_text('Test Description', { question_label: 'Description' })
+          expect(subject.description).to eq('Test Description')
+        end
+      end
+
+      it 'sets overflow from metadata' do
+        subject.add_text('Test', { overflow: false })
+        expect(subject.instance_variable_get(:@overflow)).to be false
+      end
+
+      it 'defaults overflow to true when not specified' do
+        subject.add_text('Test', {})
+        expect(subject.instance_variable_get(:@overflow)).to be true
+      end
+    end
+
+    describe '#render' do
+      before do
+        allow(pdf_double).to receive(:markup)
+      end
+
+      context 'when not checked' do
+        it 'returns 0 without rendering' do
+          expect(subject.render(pdf_double)).to eq(0)
+          expect(pdf_double).not_to have_received(:markup)
+        end
+      end
+
+      context 'when checked' do
+        before do
+          subject.add_text('true', { question_text: 'Checked' })
+          subject.add_text('Test Description', { question_text: 'Description' })
+        end
+
+        it 'renders the header when not in list format' do
+          subject.render(pdf_double)
+          expect(pdf_double).to have_received(:markup).with('<h3>1. Test Question</h3>')
+        end
+
+        it 'does not render the header in list format' do
+          subject.render(pdf_double, list_format: true)
+          expect(pdf_double).not_to have_received(:markup).with('<h3>1. Test Question</h3>')
+        end
+
+        context 'with additional info' do
+          before do
+            subject.add_text('More Details', { question_text: 'Additional Information' })
+          end
+
+          it 'renders the table with description and additional info' do
+            expected_markup = [
+              '<table>',
+              "<tr><td style='width:91'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:91'>Additional Information:</td><td>More Details</td></tr>",
+              '</table>'
+            ].join
+
+            subject.render(pdf_double)
+            expect(pdf_double).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
+          end
+        end
+
+        context 'without additional info' do
+          it 'renders the table with no response for additional info' do
+            expected_markup = [
+              '<table>',
+              "<tr><td style='width:91'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:91'>Additional Information:</td><td><i>no response</i></td></tr>",
+              '</table>'
+            ].join
+
+            subject.render(pdf_double)
+            expect(pdf_double).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
+          end
+        end
+      end
     end
   end
 end
