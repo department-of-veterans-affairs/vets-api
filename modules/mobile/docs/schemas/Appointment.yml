@@ -257,7 +257,10 @@ properties:
               - claimNumber
               - claimStatus
               - appointmentDateTime
+              - facilityId
               - facilityName
+              - totalCostRequested
+              - reimbursementAmount
               - createdOn
               - modifiedOn
             properties:
@@ -277,10 +280,22 @@ properties:
                 type: string
                 nullable: false
                 example: '2023-02-23T22:22:52.549Z'
+              facilityId: 
+                type: string
+                nullable: false
+                example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
               facilityName: 
                 type: string
                 nullable: false
                 example: 'Tomah VA Medical Center'
+              totalCostRequested:
+                type: float
+                nullable: false
+                example: 4.52
+              reimbursementAmount:
+                type: float
+                nullable: false
+                example: 0
               createdOn:  
                 type: string
                 nullable: false

@@ -379,7 +379,7 @@
             }
           },
           {
-            "description": "Field to include pending appointments. Currently only supports value `pending`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
+            "description": "Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
             "example": "pending",
             "in": "query",
             "name": "include[]",
@@ -391,7 +391,7 @@
             }
           },
           {
-            "description": "Field to include pending appointments. Currently only supports value `pending`. Redundant with field `include[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
+            "description": "Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
             "example": "pending",
             "in": "query",
             "name": "included[]",
@@ -471,7 +471,10 @@
                                 "claimNumber": "TC0000000001",
                                 "claimStatus": "In process",
                                 "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                                 "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": "4.52,",
+                                "reimbursementAmount": "4.52,",
                                 "createdOn": "2023-02-24T22:22:52.549Z",
                                 "modifiedOn": "2023-02-26T22:22:52.549Z"
                               }
@@ -545,7 +548,10 @@
                                 "claimNumber": "TC0000000001",
                                 "claimStatus": "In process",
                                 "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                                 "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": "4.52,",
+                                "reimbursementAmount": "4.52,",
                                 "createdOn": "2023-02-24T22:22:52.549Z",
                                 "modifiedOn": "2023-02-26T22:22:52.549Z"
                               }
@@ -619,7 +625,10 @@
                                 "claimNumber": "TC0000000001",
                                 "claimStatus": "In process",
                                 "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                                 "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": "4.52,",
+                                "reimbursementAmount": "4.52,",
                                 "createdOn": "2023-02-24T22:22:52.549Z",
                                 "modifiedOn": "2023-02-26T22:22:52.549Z"
                               }
@@ -9455,7 +9464,10 @@
                       "claimNumber",
                       "claimStatus",
                       "appointmentDateTime",
+                      "facilityId",
                       "facilityName",
+                      "totalCostRequested",
+                      "reimbursementAmount",
                       "createdOn",
                       "modifiedOn"
                     ],
@@ -9480,10 +9492,25 @@
                         "nullable": false,
                         "example": "2023-02-23T22:22:52.549Z"
                       },
+                      "facilityId": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      },
                       "facilityName": {
                         "type": "string",
                         "nullable": false,
                         "example": "Tomah VA Medical Center"
+                      },
+                      "totalCostRequested": {
+                        "type": "float",
+                        "nullable": false,
+                        "example": 4.52
+                      },
+                      "reimbursementAmount": {
+                        "type": "float",
+                        "nullable": false,
+                        "example": 0
                       },
                       "createdOn": {
                         "type": "string",

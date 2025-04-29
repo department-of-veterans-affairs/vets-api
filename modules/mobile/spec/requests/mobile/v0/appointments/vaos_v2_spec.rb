@@ -239,7 +239,10 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                              'claimNumber' => 'TC0928098230498',
                                              'claimStatus' => 'In process',
                                              'appointmentDateTime' => '2021-09-02T10:00:00Z',
+                                             'facilityId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
                                              'facilityName' => 'Cheyenne VA Medical Center',
+                                             'totalCostRequested' => 4.52,
+                                             'reimbursementAmount' => 0,
                                              'createdOn' => '2024-04-22T21:22:34.465Z',
                                              'modifiedOn' => '2024-04-23T16:44:34.465Z'
                                            }
