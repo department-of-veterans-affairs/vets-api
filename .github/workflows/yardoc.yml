@@ -29,8 +29,8 @@ jobs:
         with:
           fetch-depth: 2
       
-      - name: Fetch origin/main
-        run: git fetch origin main
+      - name: Fetch origin/master
+        run: git fetch origin master
 
       - uses: ruby/setup-ruby@v1
         with:
