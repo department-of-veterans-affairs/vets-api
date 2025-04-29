@@ -40,8 +40,9 @@ module UnifiedHealthData
           req.body = {
             appId: config.app_id,
             appToken: config.app_token,
-            subject: config.subject,
-            userType: config.user_type
+            subject: @user.icn,
+            userType: config.user_type,
+            authParams: config.auth_params
           }.to_json
         end
         response.headers['authorization']
