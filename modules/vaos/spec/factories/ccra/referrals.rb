@@ -9,9 +9,9 @@ FactoryBot.define do
 
     initialize_with do
       attributes = {
-        category_of_care: category_of_care,
+        category_of_care:,
         id: referral_number,
-        start_date: start_date,
+        start_date:,
         seoc_number_of_days: seoc_days
       }
       Ccra::ReferralListEntry.new(attributes)
@@ -40,12 +40,12 @@ FactoryBot.define do
 
     initialize_with do
       attributes = {
-        category_of_care: category_of_care,
-        treating_facility: treating_facility,
-        referral_number: referral_number,
+        category_of_care:,
+        treating_facility:,
+        referral_number:,
         referral_expiration_date: expiration_date,
-        referral_date: referral_date,
-        station_id: station_id,
+        referral_date:,
+        station_id:,
         appointments: has_appointments ? [{ appointment_date: Date.current.to_s }] : [],
         referring_facility_info: {
           facility_name: referring_facility_name,
@@ -62,8 +62,8 @@ FactoryBot.define do
           phone: phone_number
         },
         treating_provider_info: {
-          provider_name: provider_name,
-          provider_npi: provider_npi,
+          provider_name:,
+          provider_npi:,
           telephone: provider_telephone
         }
       }

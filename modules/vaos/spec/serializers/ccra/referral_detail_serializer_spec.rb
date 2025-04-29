@@ -19,13 +19,13 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       let(:referral) do
         attributes = {
-          referral_number: referral_number,
-          category_of_care: category_of_care,
+          referral_number:,
+          category_of_care:,
           referral_expiration_date: expiration_date,
-          treating_facility: treating_facility,
+          treating_facility:,
           treating_provider_info: {
-            provider_name: provider_name,
-            provider_npi: provider_npi,
+            provider_name:,
+            provider_npi:,
             telephone: provider_telephone
           },
           referring_facility_info: {
@@ -91,8 +91,8 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       let(:referral) do
         attributes = {
-          referral_number: referral_number,
-          category_of_care: category_of_care,
+          referral_number:,
+          category_of_care:,
           referral_expiration_date: nil,
           treating_facility: nil,
           treating_provider_info: {}
