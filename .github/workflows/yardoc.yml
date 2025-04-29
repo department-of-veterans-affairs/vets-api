@@ -28,6 +28,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+      
+      - name: Checkout origin/main
+        run: git checkout origin main
 
       - uses: ruby/setup-ruby@v1
         with:
