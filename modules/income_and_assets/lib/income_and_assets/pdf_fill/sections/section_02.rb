@@ -4,7 +4,7 @@ require 'income_and_assets/pdf_fill/section'
 
 module IncomeAndAssets
   module PdfFill
-    # Section II: Claimant Information
+    # Section II: Claimant Informations
     class Section2 < Section
       # Section configuration hash
       KEY = {

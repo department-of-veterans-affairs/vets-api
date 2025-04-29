@@ -29,8 +29,8 @@ jobs:
         with:
           fetch-depth: 2
       
-      - name: Checkout origin/main
-        run: git checkout origin main
+      - name: Fetch origin/main
+        run: git fetch origin main
 
       - uses: ruby/setup-ruby@v1
         with:
