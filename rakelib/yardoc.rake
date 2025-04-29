@@ -5,13 +5,13 @@ task yardoc: :environment do
   require 'rainbow'
   require 'yaml'
 
-  head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
-  base_sha = 'origin/master'
+  # head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
+  # base_sha = 'origin/master'
 
   # git diff the glob list - only want to check the changed files
   globs = ['*.rb']
   globs = globs.map { |g| "'#{g}'" }.join(' ')
-  cmd = "git diff #{base_sha}...#{head_sha} --name-only -- #{globs}"
+  cmd = "git diff HEAD~ --name-only -- #{globs}"
   puts "\n#{cmd}\n"
 
   # filter to only ruby files
