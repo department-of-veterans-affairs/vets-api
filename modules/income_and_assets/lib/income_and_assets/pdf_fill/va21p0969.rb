@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
+require 'income_and_assets/pdf_fill/sections/section_04'
 require 'income_and_assets/pdf_fill/sections/section_05'
 require 'income_and_assets/pdf_fill/sections/section_06'
 require 'income_and_assets/pdf_fill/sections/section_07'
@@ -162,97 +163,12 @@ module IncomeAndAssets
             question_suffix: '(5)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
           }
-        },
-        # 4a
-        'associatedIncome' => {
-          key: 'F[0].Page_6[0].DependentsReceiving4a[0]'
-        },
-        # 4b - 4f
-        'associatedIncomes' => {
-          limit: 5,
-          first_key: 'recipientRelationship',
-          'recipientRelationship' => {
-            key: "F[0].IncomeRecipients4[#{ITERATOR}]"
-          },
-          'recipientRelationshipOverflow' => {
-            question_num: 4,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship4[#{ITERATOR}]",
-            question_num: 4,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'recipientName' => {
-            key: "F[0].NameofIncomeRecipient4[#{ITERATOR}]",
-            question_num: 4,
-            question_suffix: '(2)',
-            question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
-          },
-          'payer' => {
-            key: "F[0].IncomePayer4[#{ITERATOR}]",
-            question_num: 4,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
-          },
-          'incomeType' => {
-            key: "F[0].TypeOfIncome4[#{ITERATOR}]"
-          },
-          'incomeTypeOverflow' => {
-            question_num: 4,
-            question_suffix: '(4)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
-          },
-          'otherIncomeType' => {
-            key: "F[0].OtherIncomeType4[#{ITERATOR}]",
-            question_num: 4,
-            question_suffix: '(4)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
-          },
-          'grossMonthlyIncome' => {
-            'thousands' => {
-              key: "F[0].GrossMonthlyIncome1_4[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].GrossMonthlyIncome2_4[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].GrossMonthlyIncome3_4[#{ITERATOR}]"
-            }
-          },
-          'grossMonthlyIncomeOverflow' => {
-            question_num: 4,
-            question_suffix: '(5)',
-            question_text: 'GROSS MONTHLY INCOME'
-          },
-          'accountValue' => {
-            'millions' => {
-              key: "F[0].ValueOfAccount1_4[#{ITERATOR}]"
-            },
-            'thousands' => {
-              key: "F[0].ValueOfAccount2_4[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].ValueOfAccount3_4[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].ValueOfAccount4_4[#{ITERATOR}]"
-            }
-          },
-          'accountValueOverflow' => {
-            question_num: 4,
-            question_suffix: '(6)',
-            question_text: 'VALUE OF ACCOUNT'
-          }
         }
       }
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section5, Section6, Section7, Section8,
+      SECTIONS = [Section4, Section5, Section6, Section7, Section8,
                   Section9, Section10, Section11,
                   Section12, Section13].freeze
 
@@ -273,7 +189,6 @@ module IncomeAndAssets
         expand_veteran_info
         expand_claimant_info
         expand_unassociated_incomes
-        expand_associated_incomes
 
         # Sections 5, 6, 7, 8, 9, 10, 11, 12, and 13
         SECTIONS.each { |section| section.new.expand(form_data) }
@@ -357,47 +272,6 @@ module IncomeAndAssets
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
           'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'payer' => income['payer']
-        }
-      end
-
-      ##
-      # Expands associated incomes by processing each income entry and setting an indicator
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_associated_incomes
-        associated_incomes = form_data['associatedIncomes']
-        form_data['associatedIncome'] = associated_incomes&.length ? 0 : 1
-        form_data['associatedIncomes'] = associated_incomes&.map do |income|
-          expand_associated_income(income)
-        end
-      end
-
-      ##
-      # Expands an associated income entry by mapping relationships and income types
-      # to predefined constants and formatting financial values.
-      #
-      # @param income [Hash]
-      # @return [Hash]
-      #
-      def expand_associated_income(income)
-        recipient_relationship = income['recipientRelationship']
-        income_type = income['incomeType']
-        gross_monthly_income = income['grossMonthlyIncome']
-        account_value = income['accountValue']
-        {
-          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
-          'recipientRelationshipOverflow' => recipient_relationship,
-          'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
-          'recipientName' => income['recipientName'],
-          'payer' => income['payer'],
-          'incomeType' => IncomeAndAssets::Constants::ACCOUNT_INCOME_TYPES[income_type],
-          'incomeTypeOverflow' => income_type,
-          'otherIncomeType' => income['otherIncomeType'],
-          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => gross_monthly_income,
-          'accountValue' => split_currency_amount_lg(account_value),
-          'accountValueOverflow' => account_value
         }
       end
     end
