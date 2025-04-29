@@ -6,7 +6,7 @@ module RepresentationManagement
 
     NINE_DIGIT_NUMBER = /\A\d{9}\z/
     TEN_DIGIT_NUMBER = /\A\d{10}\z/
-    SERVICE_NUMBER = /^[A-Z]{0,2}\d{5,8}$/
+    SERVICE_NUMBER = /\A[A-Z]{0,2}\d{5,8}\z/
     LIMITATIONS_OF_CONSENT = %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL].freeze
 
     veteran_attrs = %i[
