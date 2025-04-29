@@ -127,9 +127,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           let(:expected_resolved_asc_ids) do
             [resolved_request3.id, resolved_request2.id, resolved_request1.id, poa_request.id]
           end
-          # Expected order: resolved1, resolved2, resolved3, unresolved poa_request (NULLS LAST)
+          # Expected order: resolved1, resolved2, resolved3, unresolved poa_request (NULLS FIRST)
           let(:expected_resolved_desc_ids) do
-            [resolved_request1.id, resolved_request2.id, resolved_request3.id, poa_request.id]
+            [poa_request.id, resolved_request1.id, resolved_request2.id, resolved_request3.id]
           end
 
           it 'sorts by resolved_at in ascending order (NULLS LAST)' do

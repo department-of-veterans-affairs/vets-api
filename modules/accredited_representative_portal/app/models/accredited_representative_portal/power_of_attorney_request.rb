@@ -115,13 +115,14 @@ module AccreditedRepresentativePortal
     scope :sorted_by, lambda { |sort_column, direction|
       direction = direction&.to_s&.downcase
       normalized_order = %w[asc desc].include?(direction) ? direction : 'asc'
+      null_treatment = normalized_order == 'asc' ? 'NULLS LAST' : 'NULLS FIRST'
 
       case sort_column&.to_s
       when 'created_at'
         order(created_at: normalized_order)
       when 'resolved_at'
         left_outer_joins(:resolution)
-          .order(Arel.sql("resolution.created_at #{normalized_order} NULLS LAST"))
+          .order(Arel.sql("resolution.created_at #{normalized_order} #{null_treatment}"))
       else
         raise ArgumentError, "Invalid sort column: #{sort_column}"
       end
