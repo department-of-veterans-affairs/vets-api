@@ -577,8 +577,6 @@ hca:
     region: ~
   timeout: 30
 hostname: 127.0.0.1:3000
-hqva_mobile:
-  url: https://veteran.apps.va.gov
 iam_ssoe:
   client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
   client_id: Mobile_App_API_Server_LOWERS
@@ -699,6 +697,8 @@ lighthouse:
   facilities:
     api_key: fake_key
     url: https://sandbox-api.va.gov
+    hqva_mobile:
+      url: https://veteran.apps.va.gov
     veterans_health:
       url: ~
   letters_generator:

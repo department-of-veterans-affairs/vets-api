@@ -129,7 +129,7 @@ check_in:
     api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
     base_path: dev
     host: ~
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    key_path: modules/vaos/config/rsa/sandbox_rsa
     mock: false
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
@@ -576,8 +576,6 @@ hca:
     region: ~
   timeout: 30
 hostname: www.example.com
-hqva_mobile:
-  url: https://veteran.apps.va.gov
 iam_ssoe:
   client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
   client_id: Mobile_App_API_Server_LOWERS
@@ -698,6 +696,8 @@ lighthouse:
   facilities:
     api_key: fake_key
     url: https://sandbox-api.va.gov
+    hqva_mobile:
+      url: https://veteran.apps.va.gov
     veterans_health:
       url: ~
   letters_generator:
@@ -1638,7 +1638,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    key_path: modules/vaos/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500

@@ -643,14 +643,6 @@
         :uid_location: body
         :uid_locator: 'phone_number":"(.*?)"'
 
-#MAP_APPOINTMENT_SERVICE
-- :name: "MAP_APPOINTMENT_SERVICE"
-  :base_uri: <%= "#{URI(Settings.hqva_mobile.url).host}" %>
-  :endpoints:
-  - :method: :get
-    :path: "/appointments/v1/patients/*/appointments/*"
-    :file_path: "hqva_mobile/appointments/default"
-
 #VAOS Appointments Service
 - :name: "VAOS Appointments"
   :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>

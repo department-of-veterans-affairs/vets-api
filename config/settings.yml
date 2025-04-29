@@ -578,8 +578,6 @@ hca:
     region: us-gov-west-1
   timeout: 30
 hostname: <%= ENV['hostname'] %>
-hqva_mobile:
-  url: <%= ENV['hqva_mobile__url'] %>
 iam_ssoe:
   client_cert_path: <%= ENV['iam_ssoe__client_cert_path'] %>
   client_id: <%= ENV['iam_ssoe__client_id'] %>
@@ -700,6 +698,8 @@ lighthouse:
   facilities:
     api_key: <%= ENV['lighthouse__facilities__api_key'] %>
     url: <%= ENV['lighthouse__facilities__url'] %>
+    hqva_mobile:
+      url: <%= ENV['hqva_mobile__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
   letters_generator:
