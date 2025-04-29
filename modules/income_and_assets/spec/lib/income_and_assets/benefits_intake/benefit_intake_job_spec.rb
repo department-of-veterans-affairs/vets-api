@@ -149,46 +149,51 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
   end
 
   describe 'sidekiq_retries_exhausted block' do
+    let(:exhaustion_msg) do
+      { 'args' => [], 'class' => 'IncomeAndAssets::BenefitIntakeJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
+    end
+
+    before do
+      allow(IncomeAndAssets::Submissions::Monitor).to receive(:new).and_return(monitor)
+    end
+
     context 'when retries are exhausted' do
       it 'logs a distrinct error when no claim_id provided' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_account_uuid: nil, claim_id: nil)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
 
       it 'logs a distrinct error when only claim_id provided' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number,
-                                     user_account_uuid: nil, claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
+          expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number, user_account_uuid: 2,
-                                     claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
+          expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim is not found' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_account_uuid: 2, claim_id: claim.id - 1)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id - 1)
+
+          exhaustion_msg['args'] = [claim.id - 1, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end
