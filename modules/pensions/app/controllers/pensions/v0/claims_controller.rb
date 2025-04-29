@@ -3,6 +3,7 @@
 require 'kafka/concerns/kafka'
 require 'pensions/benefits_intake/pension_benefit_intake_job'
 require 'pensions/monitor'
+require 'bpds/sidekiq/submit_to_bpds_job'
 
 module Pensions
   module V0
@@ -58,7 +59,7 @@ module Pensions
         submit_traceability_to_event_bus(claim) if Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
 
         # Submit to BPDS if the feature is enabled
-        process_and_upload_to_bpds(claim) if Flipper.enabled?(:bpds_service_enabled)
+        process_and_upload_to_bpds(claim)
 
         process_and_upload_to_lighthouse(in_progress_form, claim)
 
@@ -98,18 +99,12 @@ module Pensions
         raise e
       end
 
-      def process_and_upload_to_bpds(in_progress_form, claim)
+      def process_and_upload_to_bpds(claim)
+        return nil unless Flipper.enabled?(:bpds_service_enabled)
+
         # Submit to BPDS
         BPDS::Monitor.new.track_submit_begun(claim.id)
-        bpds_submission = BPDS::Submission.create(
-          saved_claim: claim,
-          form_id: claim.form_id,
-          reference_data: claim.form
-        )
-        BPDS::SubmitToBPDSJob.perform_async(bpds_submission.id)
-      rescue => e
-        monitor.track_process_attachment_error(in_progress_form, claim, current_user)
-        raise e
+        BPDS::Sidekiq::SubmitToBPDSJob.perform_async(claim.id)
       end
 
       # Filters out the parameters to form access.
