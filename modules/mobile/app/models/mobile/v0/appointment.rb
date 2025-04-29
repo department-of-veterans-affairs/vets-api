@@ -81,15 +81,7 @@ module Mobile
           attribute :success, Types::Bool
           attribute :message, Types::String
         end
-        attribute? :claim do
-          attribute :id, Types::String
-          attribute :claimNumber, Types::String
-          attribute :claimStatus, Types::String
-          attribute :appointmentDateTime, Types::DateTime
-          attribute :facilityName, Types::String
-          attribute :createdOn, Types::DateTime
-          attribute :modifiedOn, Types::DateTime
-        end
+        attribute? :claim, TravelPayClaimSummary.optional
       end
 
       # On staging, some upstream services use different facility ids for the same facility.
