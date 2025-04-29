@@ -995,6 +995,8 @@ mhv:
     subject: "Proxy Client"
     user_type: usertype
 mhv_mobile:
+  rx:
+    x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
   x_api_key: fake-x-api-key

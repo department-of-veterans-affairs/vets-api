@@ -226,7 +226,7 @@ module Rx
     def get_headers(headers)
       headers = headers.dup
       if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
-        api_key = @app_token == config.app_token_va_gov ? Settings.mhv.rx.x_api_key : Settings.mhv_mobile.x_api_key
+        api_key = @app_token == config.app_token_va_gov ? Settings.mhv.rx.x_api_key : Settings.mhv_mobile.rx.x_api_key
         headers.merge('x-api-key' => api_key)
       else
         headers
