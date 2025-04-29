@@ -577,43 +577,6 @@ hca:
   timeout: 30
 hostname: www.example.com
 hqva_mobile:
-  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  facilities:
-    ids_path: "/facilities_api/v1/va"
-    url: https://staging-api.va.gov
-  lighthouse:
-    claim_common_id: 0oa9gvwf5mvxcX3zH2p7
-    client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    condition_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token
-    grant_type: client_credentials
-    health_api: health_api
-    health_api_path: "/services/fhir/v0/r4"
-    health_api_scopes:
-      - launch launch/patient
-      - patient/Appointment.read
-      - patient/Location.read
-      - patient/Organization.read
-      - patient/Patient.read
-    health_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7
-    health_token_path: "/oauth2/health/system/v1/token"
-    host: sandbox-api.va.gov
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
-    mock: false
-    pgd_api: pgd_api
-    pgd_api_scopes:
-      - launch launch/patient
-      - patient/Observation.read
-      - patient/Observation.write
-      - patient/Questionnaire.read
-      - patient/Questionnaire.write
-      - patient/QuestionnaireResponse.read
-      - patient/QuestionnaireResponse.write
-    pgd_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7
-    pgd_path: "/services/pgd/v0/r4"
-    pgd_token_path: "/oauth2/pgd/v1/token"
-    redis_session_prefix: healthquest_lighthouse
-    url: https://sandbox-api.va.gov
-  mock: false
   url: https://veteran.apps.va.gov
 iam_ssoe:
   client_cert_path: spec/fixtures/iam_ssoe/oauth.crt

@@ -72,7 +72,6 @@ class SimpleCovHelper
     add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
-    add_group 'HealthQuest', 'modules/health_quest'
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'MyHealth', 'modules/my_health/'
