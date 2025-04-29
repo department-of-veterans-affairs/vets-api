@@ -15,13 +15,13 @@ module Ccra
     # @option attributes [String] "StartDate" The start date of the referral.
     # @option attributes [String] "SEOCNumberOfDays" The number of days the referral is valid.
     def initialize(attributes)
-      @category_of_care = attributes['categoryOfCare']
-      @referral_number = attributes['referralNumber']
+      @category_of_care = attributes[:category_of_care]
+      @referral_number = attributes[:referral_number]
       @uuid = nil # Will be set by controller
-      @status = attributes['status']
-      @station_id = attributes['stationId']
-      @last_update_date_time = attributes['referralLastUpdateDateTime']
-      @expiration_date = parse_date(attributes['referralExpirationDate'])
+      @status = attributes[:status]
+      @station_id = attributes[:station_id]
+      @last_update_date_time = attributes[:referral_last_update_date_time]
+      @expiration_date = parse_date(attributes[:referral_expiration_date])
     end
 
     ##

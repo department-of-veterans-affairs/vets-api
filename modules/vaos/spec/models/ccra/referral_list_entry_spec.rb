@@ -8,12 +8,12 @@ describe Ccra::ReferralListEntry do
 
     let(:valid_attributes) do
       {
-        'categoryOfCare' => 'CARDIOLOGY',
-        'referralNumber' => '5682',
-        'referralExpirationDate' => '2024-05-27',
-        'stationId' => '528A6',
-        'status' => 'AP',
-        'referralLastUpdateDateTime' => '2024-03-28T14:30:00Z'
+        category_of_care: 'CARDIOLOGY',
+        referral_number: '5682',
+        referral_expiration_date: '2024-05-27',
+        station_id: '528A6',
+        status: 'AP',
+        referral_last_update_date_time: '2024-03-28T14:30:00Z'
       }
     end
 
@@ -37,7 +37,7 @@ describe Ccra::ReferralListEntry do
       subject { described_class.new(attributes_with_invalid_date) }
 
       let(:attributes_with_invalid_date) do
-        valid_attributes.merge('referralExpirationDate' => 'invalid-date')
+        valid_attributes.merge(referral_expiration_date: 'invalid-date')
       end
 
       it 'sets expiration_date to nil' do
@@ -49,7 +49,7 @@ describe Ccra::ReferralListEntry do
       subject { described_class.new(attributes_without_expiration) }
 
       let(:attributes_without_expiration) do
-        valid_attributes.except('referralExpirationDate')
+        valid_attributes.except(:referral_expiration_date)
       end
 
       it 'sets expiration_date to nil' do
@@ -62,20 +62,20 @@ describe Ccra::ReferralListEntry do
     let(:referral_data) do
       [
         {
-          'categoryOfCare' => 'CARDIOLOGY',
-          'referralNumber' => '5682',
-          'referralExpirationDate' => '2024-05-27',
-          'stationId' => '528A6',
-          'status' => 'AP',
-          'referralLastUpdateDateTime' => '2024-03-28T14:30:00Z'
+          category_of_care: 'CARDIOLOGY',
+          referral_number: '5682',
+          referral_expiration_date: '2024-05-27',
+          station_id: '528A6',
+          status: 'AP',
+          referral_last_update_date_time: '2024-03-28T14:30:00Z'
         },
         {
-          'categoryOfCare' => 'PODIATRY',
-          'referralNumber' => '5683',
-          'referralExpirationDate' => '2024-08-15',
-          'stationId' => '552',
-          'status' => 'AP',
-          'referralLastUpdateDateTime' => '2024-04-15T09:45:00Z'
+          category_of_care: 'PODIATRY',
+          referral_number: '5683',
+          referral_expiration_date: '2024-08-15',
+          station_id: '552',
+          status: 'AP',
+          referral_last_update_date_time: '2024-04-15T09:45:00Z'
         }
       ]
     end

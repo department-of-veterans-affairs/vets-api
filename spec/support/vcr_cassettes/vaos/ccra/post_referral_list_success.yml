@@ -13,6 +13,8 @@ http_interactions:
       code: 200
       message: OK
     headers:
+      Content-Type:
+      - application/json
       CACHE-CONTROL:
       - no-cache
       CONTENT-ENCODING:
@@ -48,5 +50,5 @@ http_interactions:
         {"categoryOfCare":"PODIATRY","clinicallyIndicatedDate":"2024-04-15","dob":"1953-04-01","firstName":"Judy","icn":"1012845331V153043","referralConsultId":"984_646373","lastName":"MORRISON","referralLastUpdateDateTime":"2024-04-15 10:15:30","middleName":"Snow","patientId":"466","priority":"Routine","referralCategory":"Outpatient","referralNumber":"VA0000005682","seocId":"Podiatry DS_PRCT SEOC 1.0.9","seocNumberOfDays":"90","referralDate":"2024-04-15","stationId":"552","status":"AP","referralExpirationDate":"2024-07-14","sta6":"984"},
         {"categoryOfCare":"OPTOMETRY","clinicallyIndicatedDate":"2024-05-01","dob":"1953-04-01","firstName":"Judy","icn":"1012845331V153043","referralConsultId":"984_646374","lastName":"MORRISON","referralLastUpdateDateTime":"2024-05-01 14:20:00","middleName":"Snow","patientId":"466","priority":"Routine","referralCategory":"Outpatient","referralNumber":"VA0000005683","seocId":"Optometry DS Routine SEOC 1.3.6","seocNumberOfDays":"90","referralDate":"2024-05-01","stationId":"552","status":"BP","referralExpirationDate":"2024-07-30","sta6":"984"}
       ]'
-    http_version: 
-  recorded_at: Tue, 26 Nov 2024 17:05:45 GMT 
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:05:45 GMT
