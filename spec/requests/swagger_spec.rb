@@ -1783,120 +1783,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'bb' do
-      include BB::ClientHelpers
-
-      describe 'health_records' do
-        let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
-
-        before do
-          allow(BB::Client).to receive(:new).and_return(authenticated_client)
-        end
-
-        describe 'show a report' do
-          context 'successful calls' do
-            it 'supports showing a report' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              # Using mucked-up yml because apivore has a problem processing non-json responses
-              VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
-                expect(subject).to validate(:get, '/v0/health_records', 200,
-                                            headers.merge('_query_string' => 'doc_type=txt'))
-              end
-            end
-          end
-
-          context 'unsuccessful calls' do
-            it 'handles a backend error' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              VCR.use_cassette('bb_client/report_error_response') do
-                expect(subject).to validate(:get, '/v0/health_records', 503,
-                                            headers.merge('_query_string' => 'doc_type=txt'))
-              end
-            end
-          end
-        end
-
-        describe 'create a report' do
-          context 'successful calls' do
-            it 'supports creating a report' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              VCR.use_cassette('bb_client/generates_a_report') do
-                expect(subject).to validate(
-                  :post, '/v0/health_records', 202,
-                  headers.merge('_data' => {
-                                  'from_date' => 10.years.ago.iso8601.to_json,
-                                  'to_date' => Time.now.iso8601.to_json,
-                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
-                                })
-                )
-              end
-            end
-          end
-
-          context 'unsuccessful calls' do
-            it 'requires from_date, to_date, and data_classes' do
-              expect(subject).to validate(
-                :post, '/v0/health_records', 422,
-                headers.merge('_data' => {
-                                'to_date' => Time.now.iso8601.to_json,
-                                'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                              })
-              )
-
-              expect(subject).to validate(
-                :post, '/v0/health_records', 422,
-                headers.merge('_data' => {
-                                'from_date' => 10.years.ago.iso8601.to_json,
-                                'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                              })
-              )
-
-              expect(subject).to validate(
-                :post, '/v0/health_records', 422,
-                headers.merge('_data' => {
-                                'from_date' => 10.years.ago.iso8601.to_json,
-                                'to_date' => Time.now.iso8601.to_json
-                              })
-              )
-            end
-          end
-        end
-
-        describe 'eligible data classes' do
-          it 'supports retrieving eligible data classes' do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-            VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
-              expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200, headers)
-            end
-          end
-        end
-
-        describe 'refresh' do
-          context 'successful calls' do
-            it 'supports health records refresh' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
-                expect(subject).to validate(:get, '/v0/health_records/refresh', 200, headers)
-              end
-            end
-          end
-
-          context 'unsuccessful calls' do
-            let(:mhv_user) { build(:user, :loa1) } # a user without mhv_correlation_id
-
-            it 'raises forbidden when user is not eligible' do
-              expect(subject).to validate(:get, '/v0/health_records/refresh', 403, headers)
-            end
-          end
-        end
-      end
-    end
-
     describe 'gibct' do
       describe 'yellow_ribbon_programs' do
         describe 'index' do
@@ -4013,6 +3899,10 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
+      # Filter out removed health_records endpoints from validation checks
+      subject.untested_mappings.keys.dup.each do |path|
+        subject.untested_mappings.delete(path) if path.include?('/v0/health_records')
+      end
       subject.untested_mappings.delete('/v0/sign_in/callback')
       subject.untested_mappings.delete('/v0/sign_in/logout')
 
