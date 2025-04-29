@@ -5,7 +5,7 @@ require 'lighthouse/benefits_intake/metadata'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
-require 'kafka/kafka'
+require 'kafka/concerns/kafka'
 
 module Pensions
   ##

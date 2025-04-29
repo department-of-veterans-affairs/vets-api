@@ -10,9 +10,15 @@ module AskVAApi
 
     def handle_exceptions
       yield
-    rescue ErrorHandler::ServiceError, Crm::ErrorHandler::ServiceError,
-           Common::Exceptions::ValidationErrors, Inquiries::InquiriesCreatorError => e
-      log_and_render_error('service_error', e, :unprocessable_entity)
+    rescue Common::Exceptions::Unauthorized => e
+      log_and_render_error('unauthorized', e, :unauthorized)
+    rescue ErrorHandler::ServiceError,
+           Crm::ErrorHandler::ServiceError,
+           Common::Exceptions::ValidationErrors,
+           Inquiries::InquiriesCreatorError => e
+
+      status = e.message.include?('No Inquiries found') ? :not_found : :unprocessable_entity
+      log_and_render_error('service_error', e, status)
     rescue => e
       log_and_render_error('unexpected_error', e, :internal_server_error)
     end
@@ -28,6 +34,8 @@ module AskVAApi
       LogService.new.call(action) do |span|
         span.set_tag('error', true)
         span.set_tag('error.msg', exception.message)
+        span.set_tag('safe_field.idme_uuid', current_user&.idme_uuid)
+        span.set_tag('safe_field.logingov_uuid', current_user&.logingov_uuid)
         span.set_error(exception)
 
         if safe_fields.present?
