@@ -50,24 +50,26 @@ module VeteranEnrollmentSystem
         504 => Common::Exceptions::GatewayTimeout
       }.freeze
 
-      def initialize(current_user, parsed_form)
+      def initialize(current_user, parsed_form = nil)
         super()
         @current_user = current_user
         @parsed_form = parsed_form
       end
 
+      # @param [String] form_id: the ID of the form that the associations are being updated for (e.g. '10-10EZR')
       def update_associations(form_id)
-        with_monitoring do
-          reordered_associations = reorder_associations(@parsed_form['veteranContacts'])
-          transformed_associations = { 'associations' => transform_associations(reordered_associations) }
+        reconciled_associations = reconcile_associations(@parsed_form['nonPrefill']['veteranContacts'])
+        reordered_associations = reorder_associations(reconciled_associations)
+        transformed_associations = { 'associations' => transform_associations(reordered_associations) }
 
+        with_monitoring do
           response = perform(
             :put,
             "#{config.base_path}#{@current_user.icn}",
             transformed_associations
           )
 
-          handle_ves_response(response, form_id)
+          handle_ves_update_response(response, form_id)
         end
       rescue => e
         Rails.logger.info("#{form_id} update associations failed: #{e.errors}")
@@ -155,7 +157,7 @@ module VeteranEnrollmentSystem
         response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
       end
 
-      def handle_ves_response(response, form_id)
+      def handle_ves_update_response(response, form_id)
         if response.status == 200
           if response.body['messages'].find { |message| message['code'] != 'completed_partial' }
             StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
@@ -178,6 +180,31 @@ module VeteranEnrollmentSystem
             ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
           ).new(errors: message)
         end
+      end
+
+      # We need to reconcile the associations data from VES with the submitted form data in order
+      # to ensure we are sending the correct data to the Associations API in case any updates were made or records were deleted.
+      # @return [Array] the reconciled associations data that will be sent to the Associations API
+      def reconcile_associations
+        ves_snapshot = @parsed_form['nonPrefill']['veteranContacts']
+        submitted_contacts = @parsed_form['veteranContacts']
+        # Create a lookup set of contactTypes in the submitted array. 
+        # We'll use this to find missing objects (e.g. objects that were deleted on the frontend)
+        submitted_contact_types = submitted_contacts.map { |obj| obj['contactType'] }.compact.to_set
+      
+        # Find missing objects based on contactType
+        missing_objects = ves_snapshot.reject do |obj|
+          submitted_contact_types.include?(obj['contactType'])
+        end
+      
+        # Add a deleteIndicator to the missing objects. The user deleted these objects on the frontend, 
+        # so we need to delete them from the Associations API
+        deleted_objects = missing_objects.map do |obj|
+          obj.merge('deleteIndicator' => true)
+        end
+      
+        # Combine submitted array with deleted objects
+        submitted_contacts + deleted_objects
       end
     end
   end

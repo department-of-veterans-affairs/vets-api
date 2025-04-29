@@ -19,3 +19,8 @@ maritalStatus: [ezr_data, maritalStatus]
 dependents: [ezr_data, dependents]
 nonPrefill:
   previousFinancialInfo: [ezr_data, previousFinancialInfo]
+  # Due to the way the frontend ArrayBuilder pattern inherently works, we need to have a snapshot of associations
+  # data prior to the user making any changes on the frontend. We'll then use this snapshot to essentially
+  # check the difference between this data and the data submitted with the form. This will save us from making 
+  # another request to VES to get the latest associations data.
+  veteranContacts: [ezr_data, veteranContacts]
