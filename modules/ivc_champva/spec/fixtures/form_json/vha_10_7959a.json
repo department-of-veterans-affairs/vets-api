@@ -45,7 +45,7 @@
   "claim_is_auto_related": true,
   "claim_is_work_related": true,
   "claim_type": "medical",
-  "has_ohi": false,
+  "has_ohi": true,
   "claims": [
     {
       "medical_upload": {
@@ -95,15 +95,16 @@
     "first": "Veteran",
     "last": "Surname",
     "middle": "B"
-    },
-    "certifier_address": {
-      "country": "USA",
-      "street": "1 First Ln",
-      "city": "Place",
-      "state": "AL",
-      "zip_code": "12345"
-    },
-    "certifier_phone": "5555555555",
-    "certification_date": "08-14-2024",
+  },
+  "certifier_address": {
+    "country": "USA",
+    "street": "1 First Ln",
+    "city": "Place",
+    "state": "AL",
+    "postal_code": "12345",
+    "street_combined": "1 First Ln"
+  },
+  "certifier_phone": "5555555555",
+  "certification_date": "08-14-2024",
   "statement_of_truth_signature": "GI Joe"
 }
