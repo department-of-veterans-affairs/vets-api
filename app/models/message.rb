@@ -86,7 +86,7 @@ class Message < Common::Base
   def initialize(attributes = {})
     # temporarily coerce attachments to Attachment class
     # this will be removed when Message is switched to Vets::Model
-    attributes[:attachments] = attributes[:attachments].map { |a| Attachment.new(a) }
+    attributes[:attachments] = attributes[:attachments].map { |a| Attachment.new(a) } if attributes[:attachments]
 
     super(attributes)
     self.subject = subject ? Nokogiri::HTML.parse(subject) : nil
