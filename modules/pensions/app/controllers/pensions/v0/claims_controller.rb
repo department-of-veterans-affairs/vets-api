@@ -99,6 +99,13 @@ module Pensions
         raise e
       end
 
+      # Processes the given claim and uploads it to the BPDS (Benefits Processing and Delivery System)
+      # if the BPDS service feature is enabled via Flipper.
+      #
+      # @param claim [Claim] The saved claim object to be processed and uploaded.
+      # @return [nil] Returns nil if the BPDS service feature is disabled.
+      #
+      # @note This method triggers a Sidekiq job to handle the submission asynchronously.
       def process_and_upload_to_bpds(claim)
         return nil unless Flipper.enabled?(:bpds_service_enabled)
 
