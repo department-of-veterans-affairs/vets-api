@@ -109,7 +109,9 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           allow(StatsD).to receive(:increment)
           saved_claim.save!
 
-          expect(StatsD).not_to have_received(:increment)
+          expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: ['form_id:SOME_FORM_ID'] })
+          expect(StatsD).not_to have_received(:increment).with('saved_claim.pdf.overflow',
+                                                               { tags: ['form_id:SOME_FORM_ID'] })
         end
       end
     end
