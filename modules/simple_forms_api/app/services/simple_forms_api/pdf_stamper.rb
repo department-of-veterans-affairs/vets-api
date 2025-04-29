@@ -18,9 +18,11 @@ module SimpleFormsApi
     end
 
     def stamp_pdf
+      # debugger
       Rails.logger.info("Starting PDF stamping for: #{stamped_template_path}")
 
       all_form_stamps.each do |desired_stamp|
+        # debugger
         Rails.logger.info("Stamping form with: #{desired_stamp}") if desired_stamp
         stamp_form(desired_stamp)
       end
@@ -55,6 +57,7 @@ module SimpleFormsApi
     end
 
     def stamp_form(desired_stamp)
+      # debugger
       if desired_stamp[:page]
         stamp_specified_page(desired_stamp)
       else
@@ -63,11 +66,13 @@ module SimpleFormsApi
     end
 
     def stamp_specified_page(desired_stamp)
+      # debugger
       page_configuration = get_page_configuration(desired_stamp)
       verified_multistamp(desired_stamp, page_configuration)
     end
 
     def stamp_all_pages(desired_stamp, append_to_stamp: nil)
+      # debugger
       current_file_path = call_datestamp_pdf(desired_stamp[:coords], desired_stamp[:text], append_to_stamp)
       FileUtils.mv(current_file_path, stamped_template_path)
     end

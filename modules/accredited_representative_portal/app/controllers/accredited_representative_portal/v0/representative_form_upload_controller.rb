@@ -10,6 +10,8 @@ module AccreditedRepresentativePortal
 
       def submit
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
+        parsed_form_data = JSON.parse(params.to_json)
+        file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
         send_confirmation_email(params, confirmation_number) if status == 200
@@ -17,6 +19,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_scanned_form
+        # debugger
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
         attachment = PersistentAttachments::VAForm.new
         attachment.form_id = params['form_id']
@@ -124,6 +127,26 @@ module AccreditedRepresentativePortal
         else
           raise Common::Exceptions::RecordNotFound, 'Could not lookup claimant with given information.'
         end
+      end
+
+      def get_file_paths_and_metadata(parsed_form_data)
+        debugger
+        form_id = "vba_#{form_data[:formNumber].gsub('-', '_')}"
+        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
+        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
+
+        file_path = if @current_user
+                      filler.generate(@current_user.loa[:current])
+                    else
+                      filler.generate
+                    end
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
+                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
+
+        form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
+
+        [file_path, metadata, form]
       end
     end
   end

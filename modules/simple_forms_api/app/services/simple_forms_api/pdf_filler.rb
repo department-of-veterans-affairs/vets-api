@@ -18,6 +18,7 @@ module SimpleFormsApi
     end
 
     def generate(current_loa = nil, timestamp: Time.current)
+      # debugger
       generated_form_path, stamped_template_path = prepare_to_generate_pdf
 
       if File.exist? stamped_template_path
