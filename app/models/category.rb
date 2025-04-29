@@ -10,7 +10,7 @@ class Category
     0
   end
 
-  attribute :message_category_type, String, array: true
+  attribute :message_category_type, String, array: true, default: []
 
   # Categories are simply an array and have no id.
   def <=>(other)

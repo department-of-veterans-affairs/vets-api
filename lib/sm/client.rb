@@ -278,7 +278,7 @@ module SM
       path = 'message/category'
 
       json = perform(:get, path, nil, token_headers).body
-      Category.new(json)
+      Category.new(json[:data])
     end
 
     ##
