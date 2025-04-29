@@ -7,6 +7,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
 
   FORM = '28-1900'
+  FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
@@ -216,6 +217,55 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     service = RES::Ch31Form.new(user:, claim: self)
     service.submit
+  end
+
+  def form_matches_schema
+    return unless form_is_string
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
+    clear_cache = false
+
+    schema_errors = validate_schema(schema)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+                         { form_id:, errors: schema_errors })
+      clear_cache = true
+    end
+
+    schema_v2_errors = validate_schema(schema_v2)
+    unless schema_v2_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+                         { form_id:, errors: schema_v2_errors })
+      clear_cache = true
+    end
+
+    validation_errors = validate_form(schema, clear_cache)
+
+    # If only error is about country, try V2 schema
+    if validation_errors.length == 1 && validation_errors.first[:fragment].end_with?('/country')
+      v2_errors = validate_form(schema_v2, false)
+      v2_errors.each do |e|
+        errors.add(e[:fragment], e[:message])
+        e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+      end
+      unless v2_errors.empty?
+        Rails.logger.error('SavedClaim form did not pass validation',
+                           { form_id:, guid:, errors: v2_errors })
+      end
+      return schema_v2_errors.empty? && v2_errors.empty?
+    end
+
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+    unless validation_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: validation_errors })
+    end
+
+    schema_errors.empty? && validation_errors.empty?
   end
 
   # SavedClaims require regional_office to be defined

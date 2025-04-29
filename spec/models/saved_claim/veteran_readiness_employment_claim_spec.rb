@@ -190,4 +190,55 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       subject
     end
   end
+
+  describe '#form_matches_schema' do
+    let(:claim) { build(:veteran_readiness_employment_claim) }
+
+    context 'with valid form data' do
+      it 'passes validation with original schema' do
+        expect(claim).to be_valid
+      end
+    end
+
+    context 'with country validation' do
+      let(:claim_with_full_country) do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress']['country'] = 'United States'  # Full name instead of USA
+        build(:veteran_readiness_employment_claim, form: claim_data.to_json)
+      end
+
+      it 'validates against V2 schema when country is full name' do
+        expect(claim_with_full_country).to be_valid
+      end
+
+      it 'validates against original schema when country is abbreviation' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress']['country'] = 'USA'
+        claim.form = claim_data.to_json
+        expect(claim).to be_valid
+      end
+    end
+
+    context 'with invalid data' do
+      it 'fails validation with multiple errors' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranInformation']['fullName'] = {}  # Missing required fields
+        claim_data['veteranAddress']['country'] = 'Invalid'
+        claim.form = claim_data.to_json
+        
+        expect(claim).not_to be_valid
+        expect(claim.errors.count).to be > 1
+      end
+
+      it 'only tries V2 schema when single country error exists' do
+        claim_data = JSON.parse(claim.form)
+        claim_data['veteranAddress']['country'] = 'Invalid'
+        claim.form = claim_data.to_json
+        
+        expect(claim).not_to be_valid
+        expect(claim.errors.count).to eq(1)
+        expect(claim.errors.first.attribute).to match(/country/)
+      end
+    end
+  end
 end
