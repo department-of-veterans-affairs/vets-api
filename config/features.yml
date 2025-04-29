@@ -617,7 +617,7 @@ features:
     enable_in_development: true
   disability_compensation_sync_modern0781_flow_metadata:
     actor_type: user
-    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions
   disability_compensation_0781_stats_job:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
@@ -1039,10 +1039,6 @@ features:
   mhv_landing_page_personalization:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
-    enable_in_development: true
-  mhv_integration_medical_records_to_phase_1:
-    actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
     enable_in_development: true
   mhv_interstitial_enabled:
     actor_type: user
