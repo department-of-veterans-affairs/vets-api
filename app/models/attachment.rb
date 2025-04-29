@@ -10,4 +10,5 @@ class Attachment
   attribute :message_id, Integer
   attribute :name, String
   attribute :attachment_size, Integer
+  attribute :metadata, Hash, default: {}
 end
