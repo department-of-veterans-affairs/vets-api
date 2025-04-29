@@ -57,17 +57,17 @@ module VeteranEnrollmentSystem
       end
 
       def update_associations(form_id)
-        with_monitoring do
-          reordered_associations = reorder_associations(@parsed_form['veteranContacts'])
-          transformed_associations = { 'associations' => transform_associations(reordered_associations) }
+        reordered_associations = reorder_associations(@parsed_form['veteranContacts'])
+        transformed_associations = { 'associations' => transform_associations(reordered_associations) }
 
+        with_monitoring do
           response = perform(
             :put,
             "#{config.base_path}#{@current_user.icn}",
             transformed_associations
           )
 
-          handle_ves_response(response, form_id)
+          handle_ves_update_response(response, form_id)
         end
       rescue => e
         Rails.logger.info("#{form_id} update associations failed: #{e.errors}")
@@ -155,7 +155,7 @@ module VeteranEnrollmentSystem
         response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
       end
 
-      def handle_ves_response(response, form_id)
+      def handle_ves_update_response(response, form_id)
         if response.status == 200
           if response.body['messages'].find { |message| message['code'] != 'completed_partial' }
             StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
