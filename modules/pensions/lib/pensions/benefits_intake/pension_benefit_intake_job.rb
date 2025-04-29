@@ -154,6 +154,9 @@ module Pensions
       )
 
       @intake_service.valid_document?(document:)
+    rescue => e
+      monitor.track_document_processing_error(@claim, @intake_service, @user_account_uuid, e)
+      raise e
     end
 
     ##
@@ -213,6 +216,9 @@ module Pensions
         @claim.form_id,
         @claim.business_line
       )
+    rescue => e
+      monitor.track_metadata_generation_error(@claim, @intake_service, @user_account_uuid, e)
+      raise e
     end
 
     ##
@@ -237,6 +243,9 @@ module Pensions
       end
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
+    rescue => e
+      monitor.track_submission_polling_error(@claim, @intake_service, @user_account_uuid, e)
+      raise e
     end
 
     ##
