@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, nil) }
+  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
   let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -116,7 +116,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         expect(client_stub).to receive(:submit).once
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
                                                                       dependency_claim.id, encrypted_vet_info,
-                                                                      an_instance_of(String), nil)
+                                                                      an_instance_of(String))
 
         expect { job }.not_to raise_error
       end
