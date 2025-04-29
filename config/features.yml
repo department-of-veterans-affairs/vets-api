@@ -130,10 +130,6 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_download_completed_pdf:
-    actor_type: user
-    description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
-    enable_in_development: true
   hca_performance_alert_enabled:
     actor_type: user
     description: Enables alert notifying users of a potential issue with application performance.
@@ -617,7 +613,7 @@ features:
     enable_in_development: true
   disability_compensation_sync_modern0781_flow_metadata:
     actor_type: user
-    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions
   disability_compensation_0781_stats_job:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
