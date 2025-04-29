@@ -11,12 +11,12 @@ FactoryBot.define do
 
     initialize_with do
       attributes = {
-        'categoryOfCare' => category_of_care,
-        'referralNumber' => referral_number,
-        'referralExpirationDate' => referral_expiration_date,
-        'stationId' => station_id,
-        'status' => status,
-        'referralLastUpdateDateTime' => referral_last_update_date_time
+        category_of_care:,
+        referral_number:,
+        referral_expiration_date:,
+        station_id:,
+        status:,
+        referral_last_update_date_time:
       }
       Ccra::ReferralListEntry.new(attributes)
     end
