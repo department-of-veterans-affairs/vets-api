@@ -1040,6 +1040,9 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
+  mhv_landing_page_show_share_my_health_data_link:
+    actor_type: user
+    description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
@@ -1622,18 +1625,6 @@ features:
   va_online_scheduling_static_landing_page:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
-    enable_in_development: true
-  va_online_scheduling_vaos_service_cc_appointments:
-    actor_type: user
-    description: Toggle for new vaos service cc appointments.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_requests:
-    actor_type: user
-    description: Toggle for new vaos service requests.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_va_appointments:
-    actor_type: user
-    description: Toggle for new vaos service va appointments.
     enable_in_development: true
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
