@@ -5,6 +5,7 @@ require 'pdf_fill/forms/form_helper'
 require 'pdf_fill/hash_converter'
 require 'income_and_assets/constants'
 require 'income_and_assets/helpers'
+require 'income_and_assets/pdf_fill/sections/section_03'
 require 'income_and_assets/pdf_fill/sections/section_04'
 require 'income_and_assets/pdf_fill/sections/section_05'
 require 'income_and_assets/pdf_fill/sections/section_06'
@@ -97,78 +98,12 @@ module IncomeAndAssets
           'useDateReceivedByVA' => {
             key: 'F[0].Page_4[0].DateReceivedByVA[0]'
           }
-        },
-        # 3a
-        'unassociatedIncome' => {
-          key: 'F[0].Page_4[0].DependentsReceiving3a[0]'
-        },
-        # 3b - 3f
-        'unassociatedIncomes' => {
-          limit: 5,
-          first_key: 'recipientRelationship',
-          'recipientRelationship' => {
-            key: "F[0].IncomeRecipients3[#{ITERATOR}]"
-          },
-          'recipientRelationshipOverflow' => {
-            question_num: 3,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'otherRecipientRelationshipType' => {
-            key: "F[0].OtherRelationship3[#{ITERATOR}]",
-            question_num: 3,
-            question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
-          },
-          'recipientName' => {
-            key: "F[0].NameofIncomeRecipient3[#{ITERATOR}]",
-            question_num: 3,
-            question_suffix: '(2)',
-            question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
-          },
-          'incomeType' => {
-            key: "F[0].TypeOfIncome3[#{ITERATOR}]"
-          },
-          'incomeTypeOverflow' => {
-            question_num: 3,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
-          },
-          'otherIncomeType' => {
-            key: "F[0].OtherIncomeType3[#{ITERATOR}]",
-            question_num: 3,
-            question_suffix: '(3)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
-          },
-          'grossMonthlyIncome' => {
-            'thousands' => {
-              key: "F[0].GrossMonthlyIncome1_3[#{ITERATOR}]"
-            },
-            'dollars' => {
-              key: "F[0].GrossMonthlyIncome2_3[#{ITERATOR}]"
-            },
-            'cents' => {
-              key: "F[0].GrossMonthlyIncome3_3[#{ITERATOR}]"
-            }
-          },
-          'grossMonthlyIncomeOverflow' => {
-            question_num: 3,
-            question_suffix: '(4)',
-            question_text: 'GROSS MONTHLY INCOME'
-          },
-          'payer' => {
-            key: "F[0].IncomePayer3[#{ITERATOR}]",
-            question_num: 3,
-            question_suffix: '(5)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
-          }
         }
       }
 
       # NOTE: Adding these over the span of multiple PRs too keep the LOC changed down.
       # Going to add them in reverse order so that the keys maintain the previous ordering
-      SECTIONS = [Section4, Section5, Section6, Section7, Section8,
+      SECTIONS = [Section3, Section4, Section5, Section6, Section7, Section8,
                   Section9, Section10, Section11,
                   Section12, Section13].freeze
 
@@ -188,7 +123,6 @@ module IncomeAndAssets
       def merge_fields(_options = {})
         expand_veteran_info
         expand_claimant_info
-        expand_unassociated_incomes
 
         # Sections 5, 6, 7, 8, 9, 10, 11, 12, and 13
         SECTIONS.each { |section| section.new.expand(form_data) }
@@ -235,44 +169,6 @@ module IncomeAndAssets
             'useDateReceivedByVA' => false
           }
         end
-      end
-
-      ##
-      # Expands the unassociated incomes
-      #
-      # @note Modifies `form_data`
-      #
-      def expand_unassociated_incomes
-        unassociated_incomes = form_data['unassociatedIncomes']
-        form_data['unassociatedIncome'] = unassociated_incomes&.length ? 'YES' : 1
-        form_data['unassociatedIncomes'] = unassociated_incomes&.map do |income|
-          expand_unassociated_income(income)
-        end
-      end
-
-      ##
-      # Expands unassociated income details by mapping relationships and income types
-      # to their respective constants and formatting the gross monthly income.
-      #
-      # @param income [Hash] The income data to be processed.
-      # @return [Hash]
-      #
-      def expand_unassociated_income(income)
-        recipient_relationship = income['recipientRelationship']
-        income_type = income['incomeType']
-        gross_monthly_income = income['grossMonthlyIncome']
-        {
-          'recipientRelationship' => IncomeAndAssets::Constants::RELATIONSHIPS[recipient_relationship],
-          'recipientRelationshipOverflow' => recipient_relationship,
-          'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
-          'recipientName' => income['recipientName'],
-          'incomeType' => IncomeAndAssets::Constants::INCOME_TYPES[income_type],
-          'incomeTypeOverflow' => income_type,
-          'otherIncomeType' => income['otherIncomeType'],
-          'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => gross_monthly_income,
-          'payer' => income['payer']
-        }
       end
     end
   end

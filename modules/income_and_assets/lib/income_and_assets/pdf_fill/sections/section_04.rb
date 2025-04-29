@@ -12,10 +12,11 @@ module IncomeAndAssets
         'associatedIncome' => {
           key: 'F[0].Page_6[0].DependentsReceiving4a[0]'
         },
-        # 4b - 4f
+        # 4b - 4f (only space for five on form)
         'associatedIncomes' => {
           limit: 5,
           first_key: 'recipientRelationship',
+          # Q1
           'recipientRelationship' => {
             key: "F[0].IncomeRecipients4[#{ITERATOR}]"
           },
@@ -30,6 +31,7 @@ module IncomeAndAssets
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
           },
+          # Q2
           'recipientName' => {
             key: "F[0].NameofIncomeRecipient4[#{ITERATOR}]",
             question_num: 4,
@@ -37,12 +39,14 @@ module IncomeAndAssets
             question_text:
               'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
           },
+          # Q3
           'payer' => {
             key: "F[0].IncomePayer4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(3)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
           },
+          # Q4
           'incomeType' => {
             key: "F[0].TypeOfIncome4[#{ITERATOR}]"
           },
@@ -57,6 +61,7 @@ module IncomeAndAssets
             question_suffix: '(4)',
             question_text: 'SPECIFY THE TYPE OF INCOME'
           },
+          # Q5
           'grossMonthlyIncome' => {
             'thousands' => {
               key: "F[0].GrossMonthlyIncome1_4[#{ITERATOR}]"
@@ -73,6 +78,7 @@ module IncomeAndAssets
             question_suffix: '(5)',
             question_text: 'GROSS MONTHLY INCOME'
           },
+          # Q6
           'accountValue' => {
             'millions' => {
               key: "F[0].ValueOfAccount1_4[#{ITERATOR}]"
@@ -115,7 +121,6 @@ module IncomeAndAssets
       # to predefined constants and formatting financial values.
       #
       # @param item [Hash]
-      #
       # @return [Hash]
       #
       def expand_item(item)
