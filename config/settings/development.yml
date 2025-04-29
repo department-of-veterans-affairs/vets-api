@@ -696,9 +696,9 @@ lighthouse:
     use_mocks: false
   facilities:
     api_key: fake_key
-    url: https://sandbox-api.va.gov
     hqva_mobile:
       url: https://veteran.apps.va.gov
+    url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
   letters_generator:
