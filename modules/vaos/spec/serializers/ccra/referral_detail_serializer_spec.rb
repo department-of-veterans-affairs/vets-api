@@ -19,24 +19,24 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       let(:referral) do
         attributes = {
-          'referralNumber' => referral_number,
-          'categoryOfCare' => category_of_care,
-          'referralExpirationDate' => expiration_date,
-          'treatingFacility' => treating_facility,
-          'treatingProviderInfo' => {
-            'providerName' => provider_name,
-            'providerNpi' => provider_npi,
-            'telephone' => provider_telephone
+          referral_number: referral_number,
+          category_of_care: category_of_care,
+          referral_expiration_date: expiration_date,
+          treating_facility: treating_facility,
+          treating_provider_info: {
+            provider_name: provider_name,
+            provider_npi: provider_npi,
+            telephone: provider_telephone
           },
-          'referringFacilityInfo' => {
-            'facilityName' => referring_facility_name,
-            'phone' => referring_facility_phone,
-            'facilityCode' => referring_facility_code,
-            'address' => {
-              'address1' => '801 VASSAR DR NE',
-              'city' => 'ALBUQUERQUE',
-              'state' => 'NM',
-              'zipCode' => '87106'
+          referring_facility_info: {
+            facility_name: referring_facility_name,
+            phone: referring_facility_phone,
+            facility_code: referring_facility_code,
+            address: {
+              address1: '801 VASSAR DR NE',
+              city: 'ALBUQUERQUE',
+              state: 'NM',
+              zip_code: '87106'
             }
           }
         }
@@ -91,11 +91,11 @@ RSpec.describe Ccra::ReferralDetailSerializer do
 
       let(:referral) do
         attributes = {
-          'referralNumber' => referral_number,
-          'categoryOfCare' => category_of_care,
-          'referralExpirationDate' => nil,
-          'treatingFacility' => nil,
-          'treatingProviderInfo' => {}
+          referral_number: referral_number,
+          category_of_care: category_of_care,
+          referral_expiration_date: nil,
+          treating_facility: nil,
+          treating_provider_info: {}
         }
         Ccra::ReferralDetail.new(attributes)
       end

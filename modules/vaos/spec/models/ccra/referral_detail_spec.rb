@@ -20,31 +20,31 @@ describe Ccra::ReferralDetail do
 
     let(:valid_attributes) do
       {
-        'referralExpirationDate' => '2024-05-27',
-        'categoryOfCare' => 'CARDIOLOGY',
-        'treatingFacility' => 'VA Medical Center',
-        'referralNumber' => 'VA0000005681',
-        'referralDate' => '2024-07-24',
-        'stationId' => '528A6',
-        'appointments' => [{ 'appointmentDate' => '2024-08-15' }],
-        'referringFacilityInfo' => {
-          'facilityName' => 'Bath VA Medical Center',
-          'phone' => '555-123-4567',
-          'facilityCode' => '528A6',
-          'address' => {
-            'address1' => '801 VASSAR DR NE',
-            'city' => 'ALBUQUERQUE',
-            'state' => 'NM',
-            'zipCode' => '87106'
+        referral_expiration_date: '2024-05-27',
+        category_of_care: 'CARDIOLOGY',
+        treating_facility: 'VA Medical Center',
+        referral_number: 'VA0000005681',
+        referral_date: '2024-07-24',
+        station_id: '528A6',
+        appointments: [{ appointment_date: '2024-08-15' }],
+        referring_facility_info: {
+          facility_name: 'Bath VA Medical Center',
+          phone: '555-123-4567',
+          facility_code: '528A6',
+          address: {
+            address1: '801 VASSAR DR NE',
+            city: 'ALBUQUERQUE',
+            state: 'NM',
+            zip_code: '87106'
           }
         },
-        'treatingProviderInfo' => {
-          'providerName' => 'Dr. Smith',
-          'providerNpi' => '1659458917',
-          'telephone' => '505-248-4062'
+        treating_provider_info: {
+          provider_name: 'Dr. Smith',
+          provider_npi: '1659458917',
+          telephone: '505-248-4062'
         },
-        'treatingFacilityInfo' => {
-          'phone' => '505-555-1234'
+        treating_facility_info: {
+          phone: '505-555-1234'
         }
       }
     end
@@ -95,9 +95,9 @@ describe Ccra::ReferralDetail do
 
       let(:provider_phone_attributes) do
         {
-          'treatingFacilityInfo' => {},
-          'treatingProviderInfo' => {
-            'telephone' => '123-456-7890'
+          treating_facility_info: {},
+          treating_provider_info: {
+            telephone: '123-456-7890'
           }
         }
       end
@@ -109,19 +109,19 @@ describe Ccra::ReferralDetail do
 
     context 'with appointments array' do
       it 'sets has_appointments to true when appointments are present' do
-        attributes = { 'appointments' => [{ 'appointmentDate' => '2024-08-15' }] }
+        attributes = { appointments: [{ appointment_date: '2024-08-15' }] }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(true)
       end
 
       it 'sets has_appointments to false when appointments is empty array' do
-        attributes = { 'appointments' => [] }
+        attributes = { appointments: [] }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(false)
       end
 
       it 'sets has_appointments to false when appointments is nil' do
-        attributes = { 'appointments' => nil }
+        attributes = { appointments: nil }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(false)
       end

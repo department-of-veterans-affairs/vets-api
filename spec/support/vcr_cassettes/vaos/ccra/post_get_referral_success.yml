@@ -13,6 +13,8 @@ http_interactions:
       code: 200
       message: OK
     headers:
+      Content-Type:
+      - application/json
       CACHE-CONTROL:
       - no-cache
       CONTENT-ENCODING:
@@ -28,5 +30,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"categoryOfCare":"CARDIOLOGY","referralNumber":"VA0000005681","status":"First Appointment Made","appointmentDate":"2024-06-01","clinicallyIndicatedDate":"2024-03-28","episodeId":"5682","appointments":[{"appointmentDate":"2024-06-01","appointmentStatus":"A"}]}'
-    http_version: 
-  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT 
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT

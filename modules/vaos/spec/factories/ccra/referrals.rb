@@ -9,10 +9,10 @@ FactoryBot.define do
 
     initialize_with do
       attributes = {
-        'CategoryOfCare' => category_of_care,
-        'ID' => referral_number,
-        'StartDate' => start_date,
-        'SEOCNumberOfDays' => seoc_days
+        category_of_care: category_of_care,
+        id: referral_number,
+        start_date: start_date,
+        seoc_number_of_days: seoc_days
       }
       Ccra::ReferralListEntry.new(attributes)
     end
@@ -40,31 +40,31 @@ FactoryBot.define do
 
     initialize_with do
       attributes = {
-        'categoryOfCare' => category_of_care,
-        'treatingFacility' => treating_facility,
-        'referralNumber' => referral_number,
-        'referralExpirationDate' => expiration_date,
-        'referralDate' => referral_date,
-        'stationId' => station_id,
-        'appointments' => has_appointments ? [{ 'appointmentDate' => Date.current.to_s }] : [],
-        'referringFacilityInfo' => {
-          'facilityName' => referring_facility_name,
-          'phone' => referring_facility_phone,
-          'facilityCode' => referring_facility_code,
-          'address' => {
-            'address1' => referring_facility_address1,
-            'city' => referring_facility_city,
-            'state' => referring_facility_state,
-            'zipCode' => referring_facility_zip
+        category_of_care: category_of_care,
+        treating_facility: treating_facility,
+        referral_number: referral_number,
+        referral_expiration_date: expiration_date,
+        referral_date: referral_date,
+        station_id: station_id,
+        appointments: has_appointments ? [{ appointment_date: Date.current.to_s }] : [],
+        referring_facility_info: {
+          facility_name: referring_facility_name,
+          phone: referring_facility_phone,
+          facility_code: referring_facility_code,
+          address: {
+            address1: referring_facility_address1,
+            city: referring_facility_city,
+            state: referring_facility_state,
+            zip_code: referring_facility_zip
           }
         },
-        'treatingFacilityInfo' => {
-          'phone' => phone_number
+        treating_facility_info: {
+          phone: phone_number
         },
-        'treatingProviderInfo' => {
-          'providerName' => provider_name,
-          'providerNpi' => provider_npi,
-          'telephone' => provider_telephone
+        treating_provider_info: {
+          provider_name: provider_name,
+          provider_npi: provider_npi,
+          telephone: provider_telephone
         }
       }
       Ccra::ReferralDetail.new(attributes)
