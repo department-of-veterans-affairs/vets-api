@@ -48,14 +48,20 @@ module Vets
 
       def define_getter(name, default)
         define_method(name) do
-          instance_variable_get("@#{name}") || begin
-            return nil unless defined?(default)
+          # check if the attribute is assigned and not nil
+          if instance_variable_defined?("@#{name}")
+            value = instance_variable_get("@#{name}")
+            return value unless value.nil?
+          end
 
-            if default.is_a?(Symbol) && respond_to?(default)
-              send(default)
-            else
-              default
-            end
+          # if value is nil check for a default
+          return nil unless defined?(default)
+
+          # if there's a default, assign the default value
+          if default.is_a?(Symbol) && respond_to?(default)
+            send(default)
+          else
+            default
           end
         end
       end

@@ -138,7 +138,7 @@ module BGS
       end
 
       # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
-      if selectable_options['report_death'] && dependents_app['deaths'].any? do |h|
+      if selectable_options['report_death'] && dependents_app['deaths']&.any? do |h|
            RELATIONSHIPS.include?(h['dependent_type'])
          end
         return set_to_manual_vagov('report_death')
