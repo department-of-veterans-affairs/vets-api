@@ -42,6 +42,9 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  arm_use_datadog_real_user_monitoring:
+    actor_type: user
+    description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -617,7 +620,7 @@ features:
     enable_in_development: true
   disability_compensation_sync_modern0781_flow_metadata:
     actor_type: user
-    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions
   disability_compensation_0781_stats_job:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
