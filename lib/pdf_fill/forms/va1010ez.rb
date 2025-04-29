@@ -7,7 +7,6 @@ require 'pdf_fill/forms/formatters/va1010ez'
 module PdfFill
   module Forms
     class Va1010ez < FormBase
-      FORM_ID = HealthCareApplication::FORM_ID
       OFF = 'Off'
       FORMATTER = PdfFill::Forms::Formatters::Va1010ez
 
