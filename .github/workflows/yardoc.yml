@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 2 # Using HEAD~ in the yardoc rake task, need at least a depth of 2
 
       - uses: ruby/setup-ruby@v1
         with:

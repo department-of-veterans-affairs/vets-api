@@ -5,9 +5,12 @@ task yardoc: :environment do
   require 'rainbow'
   require 'yaml'
 
+<<<<<<< Updated upstream
   head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
   base_sha = 'origin/master'
 
+=======
+>>>>>>> Stashed changes
   # git diff the glob list - only want to check the changed files
   globs = ['*.rb']
   globs = globs.map { |g| "'#{g}'" }.join(' ')
