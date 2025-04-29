@@ -290,7 +290,7 @@ module SM
     def get_message(id)
       path = "message/#{id}/read"
       json = perform(:get, path, nil, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
