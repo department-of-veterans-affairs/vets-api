@@ -62,15 +62,15 @@ module Form1010cg
       rescue => e
         log_exception_to_sentry(e, { claim_id: })
       end
-      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_async, event: :success, start_time:)
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :success, start_time:)
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
-      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_async, event: :failure, start_time:)
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
       self.class.send_failure_email(claim)
     rescue => e
       log_exception_to_sentry(e, { claim_id: })
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
-      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_async, event: :failure, start_time:)
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
 
       raise
     end

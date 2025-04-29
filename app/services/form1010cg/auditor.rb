@@ -11,7 +11,7 @@ module Form1010cg
     METRICS = lambda do
       submission_prefix = "#{STATSD_KEY_PREFIX}.submission"
       process_prefix = "#{STATSD_KEY_PREFIX}.process"
-      process_async_prefix = "#{STATSD_KEY_PREFIX}.process_async"
+      process_job_prefix = "#{STATSD_KEY_PREFIX}.process_job"
 
       OpenStruct.new(
         submission: OpenStruct.new(
@@ -36,9 +36,9 @@ module Form1010cg
           success: "#{process_prefix}.success",
           failure: "#{process_prefix}.failure"
         ),
-        process_async: OpenStruct.new(
-          success: "#{process_async_prefix}.success",
-          failure: "#{process_async_prefix}.failure"
+        process_job: OpenStruct.new(
+          success: "#{process_job_prefix}.success",
+          failure: "#{process_job_prefix}.failure"
         )
       )
     end.call
