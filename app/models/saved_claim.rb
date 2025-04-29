@@ -206,6 +206,9 @@ class SavedClaim < ApplicationRecord
   def pdf_overflow_tracking
     tags = ["form_id:#{form_id}"]
 
+    # TODO: 686C-674 will require special handling
+    return if form_id.start_with? '686C-674'
+
     form_class = PdfFill::Filler::FORM_CLASSES[form_id]
     unless form_class
       return Rails.logger.info("#{self.class} Skipping tracking PDF overflow", form_id:, saved_claim_id: id)
