@@ -247,13 +247,20 @@ module PdfFill
           question_type: 'checked_description',
           question_num: 10,
           label_all: true,
+          format_options: {
+            label_width: 140
+          },
           'description' => {
             key: '',
             limit: 105,
             question_num: 10,
             question_suffix: 'A',
             question_text: 'Description of Behavioral Change',
-            question_label: 'Description'
+            question_label: 'Description',
+            format_options: {
+              bold_value: true,
+              bold_label: true
+            }
           },
           'checked' => {
             key: '',
@@ -278,11 +285,18 @@ module PdfFill
           question_type: 'checked_description',
           question_num: 10,
           override_index: 14,
+          format_options: {
+            label_width: 140
+          },
           'description' => {
             key: '',
             question_num: 10,
             question_suffix: 'C',
-            question_text: 'Description'
+            question_text: 'Description',
+            format_options: {
+              bold_value: true,
+              bold_label: true
+            }
           },
           'checked' => {
             key: '',
@@ -426,6 +440,9 @@ module PdfFill
           item_label: 'Treatment facility',
           question_text: 'TREATMENT INFORMATION',
           question_num: 13,
+          format_options: {
+            label_width: 140
+          },
           'facilityInfo' => {
             key: "F[0].#subform[5].Name_And_Location_Of_Treatment_Facility[#{ITERATOR}]",
             question_num: 13,
@@ -691,7 +708,7 @@ module PdfFill
         additional = { 'additionalInfo' => behaviors_details['unlisted'] }
         if extras_redesign
           additional['checked'] = true
-          additional['description'] = 'Unlisted Additional Behavioral Changes'
+          additional['description'] = 'Additional Behavioral Changes'
           @form_data['additionalBehaviorsDetails'] = [additional]
         else
           @form_data['additionalBehaviorsDetails'] = additional
