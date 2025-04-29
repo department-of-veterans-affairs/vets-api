@@ -6,6 +6,7 @@ module RepresentationManagement
 
     NINE_DIGIT_NUMBER = /\A\d{9}\z/
     TEN_DIGIT_NUMBER = /\A\d{10}\z/
+    SERVICE_NUMBER = /^[A-Z]{0,2}\d{5,8}$/
     LIMITATIONS_OF_CONSENT = %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL].freeze
 
     veteran_attrs = %i[
@@ -73,7 +74,7 @@ module RepresentationManagement
     validates :veteran_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }, if: -> { veteran_phone.present? }
     validates :veteran_service_number,
               length: { is: 9 },
-              format: { with: NINE_DIGIT_NUMBER },
+              format: { with: SERVICE_NUMBER },
               if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
