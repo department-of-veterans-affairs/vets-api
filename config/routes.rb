@@ -212,7 +212,6 @@ Rails.application.routes.draw do
 
     resources :appeals, only: :index
 
-
     scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
