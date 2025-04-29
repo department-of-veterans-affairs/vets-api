@@ -14,6 +14,8 @@ http_interactions:
       code: 200
       message: OK
     headers:
+      CONTENT-TYPE:
+      - application/json
       CACHE-CONTROL:
       - no-cache
       CONTENT-ENCODING:
