@@ -81,7 +81,7 @@ class LighthouseDocument
 
   def to_serializable_hash
     # file_obj is not suitable for serialization
-    to_hash.tap { |h| h.delete :file_obj }
+    attributes.tap { |h| h.delete :file_obj }
   end
 
   # The front-end URL encodes a nil tracked_item_id as the string 'null'
