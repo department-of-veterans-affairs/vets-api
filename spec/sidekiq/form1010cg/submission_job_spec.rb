@@ -145,6 +145,15 @@ RSpec.describe Form1010cg::SubmissionJob do
 
     context 'when there is a standarderror' do
       it 'increments statsd except applications_retried' do
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process_job, event: :failure, start_time: }
+        auditor_double = instance_double(Form1010cg::Auditor)
+        allow(Form1010cg::Auditor).to receive(:new) { auditor_double }
+        expect(auditor_double).to receive(:log_caregiver_request_duration).with(**expected_arguments).twice
+
         allow_any_instance_of(Form1010cg::Service).to receive(
           :process_claim_v2!
         ).and_raise(StandardError)
@@ -165,10 +174,21 @@ RSpec.describe Form1010cg::SubmissionJob do
     end
 
     context 'when the service throws a record parse error' do
+      before do
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+      end
+
       context 'form has email' do
         let(:form) { form_with_email }
 
         it 'rescues the error, increments statsd, and attempts to send failure email' do
+          start_time = Time.current
+          expected_arguments = { context: :process_job, event: :failure, start_time: }
+          expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
+            .with(**expected_arguments)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+
           expect_any_instance_of(Form1010cg::Service).to receive(
             :process_claim_v2!
           ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
@@ -190,6 +210,12 @@ RSpec.describe Form1010cg::SubmissionJob do
 
       context 'form does not have email' do
         it 'rescues the error, increments statsd, and attempts to send failure email' do
+          start_time = Time.current
+          expected_arguments = { context: :process_job, event: :failure, start_time: }
+          expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration)
+            .with(**expected_arguments)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+
           expect_any_instance_of(Form1010cg::Service).to receive(
             :process_claim_v2!
           ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
@@ -217,6 +243,14 @@ RSpec.describe Form1010cg::SubmissionJob do
     end
 
     it 'calls process_claim_v2!' do
+      start_time = Time.current
+      expected_arguments = { context: :process_job, event: :success, start_time: }
+      expect_any_instance_of(Form1010cg::Auditor).to receive(:log_caregiver_request_duration).with(**expected_arguments)
+
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+      allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+
       expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
 
       job.perform(claim.id)
