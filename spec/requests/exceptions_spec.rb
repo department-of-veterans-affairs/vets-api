@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'exceptions', type: :request do
   context 'authorization' do
     it 'renders json for not authorized' do
-      get '/v0/prescriptions'
+      get '/v0/user'
       expect(response).to have_http_status(:unauthorized)
       expect(JSON.parse(response.body)['errors'].first)
         .to eq(
