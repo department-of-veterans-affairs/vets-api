@@ -30,7 +30,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
       let(:type) { 'declined' }
 
       before do
-        resolution = double('resolution', resolving: double('resolving', declination_reason))
+        resolution = double('resolution', resolving: double('resolving', declination_reason:))
         allow(notification.power_of_attorney_request).to receive(:resolution).and_return(resolution)
       end
 
