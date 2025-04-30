@@ -759,7 +759,7 @@ config/form_profile_mappings/686C-674.yml @department-of-veterans-affairs/Disabi
 config/form_profile_mappings/FEEDBACK-TOOL.yml @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 config/form_profile_mappings/FORM-MOCK-AE-DESIGN-PATTERNS.yml @department-of-veterans-affairs/tmf-auth-exp-design-patterns @department-of-veterans-affairs/backend-review-group
 config/form_profile_mappings/MDOT.yml @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
-config/form_profile_mappings/10-7959f-2.yml @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/backend-review-group
+config/form_profile_mappings/10-7959F-2.yml @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/backend-review-group
 config/freshclam.conf @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/health_care_application @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/identity_settings @department-of-veterans-affairs/octo-identity
