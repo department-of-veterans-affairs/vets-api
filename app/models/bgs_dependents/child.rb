@@ -92,7 +92,7 @@ module BGSDependents
       @place_of_birth_country = place_of_birth['country']
       @place_of_birth_state = place_of_birth['state']
       @place_of_birth_city = place_of_birth['city']
-      @reason_marriage_ended =  reason_marriage_ended
+      @reason_marriage_ended = reason_marriage_ended
       @ever_married_ind = marriage_indicator
       @child_income = formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income'])
       @not_self_sufficient = formatted_boolean(@child_info['not_self_sufficient'])
