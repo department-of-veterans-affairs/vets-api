@@ -5,12 +5,6 @@ require 'sm/client'
 
 describe 'sm client' do
   describe 'messages' do
-
-    # Ensure Flipper is mocked before the VCR block - remove this when AWS API GW is fully implemented
-before do
-  allow(Flipper).to receive(:enabled?).with(:mhv_secure_messaging_migrate_to_api_gateway).and_return(false)
-end
-
     before do
       VCR.use_cassette 'sm_client/session' do
         @client ||= begin
