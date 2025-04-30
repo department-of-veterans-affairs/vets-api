@@ -63,18 +63,18 @@ module HCA
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
-        contacts = parse_contacts(response)
 
         ezr_data = financial_info.merge(convert_insurance_hash(response, providers).except!(:providers)).merge(spouse)
 
         if Flipper.enabled?(:ezr_form_prefill_with_providers_and_dependents)
-          ezr_data = financial_info.merge(convert_insurance_hash(response, providers)).merge(
-            dependents.present? ? { dependents: } : {}
-          ).merge(spouse)
+          ezr_data = financial_info.merge(convert_insurance_hash(response, providers))
+          ezr_data[:dependents] = dependents if dependents.present?
+          ezr_data.merge!(spouse)
         end
 
         if Flipper.enabled?(:ezr_prefill_contacts)
-          ezr_data.merge!(contacts.present? ? { veteranContacts: contacts } : {})
+          contacts = parse_contacts(response)
+          ezr_data.merge!({ veteranContacts: contacts }) if contacts.present?
         end
 
         OpenStruct.new(ezr_data)
