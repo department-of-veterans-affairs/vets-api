@@ -14,8 +14,6 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
       form_to_json: '{"form0781": {"foo": "bar"}, "form0781v2": {"baz": "qux"}}'
     )
   end
-  let(:pdf_path) { '/tmp/fake.pdf' }
-  let(:s3_url) { 'https://example.com/fake.pdf' }
   let(:job) { instance_double(SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob) }
   let(:form_json) { { 'form0781' => { 'foo' => 'bar' }, 'form0781v2' => { 'baz' => 'qux' } } }
 
@@ -23,7 +21,7 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
     load File.expand_path('../../lib/tasks/remediate_0781_and_0781v2_forms.rake', __dir__)
     Rake::Task.define_task(:environment)
     allow(SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob).to receive(:new).and_return(job)
-    allow(job).to receive(:perform).and_return([s3_url])
+    allow(job).to receive(:perform)
     allow(Form526Submission).to receive(:find).and_return(submission)
     allow(JSON).to receive(:parse).and_return(form_json)
     allow(StatsD).to receive(:increment)
@@ -38,18 +36,15 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
   end
 
   it 'processes submissions from a list of IDs' do
-    # Capture and verify stdout to avoid issues with string comparisons
     output = capture_stdout do
       Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
     end
 
-    # Check for expected outputs without exact string matching
     expect(output).to include('Processing')
     expect(output).to include('Successfully processed')
   end
 
   it 'handles CSV input files with submission IDs' do
-    # Create a temporary CSV file
     temp_file = Tempfile.new(['test', '.csv'])
     begin
       temp_file.write("submission_id\n123")
@@ -90,7 +85,6 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
   end
 
   it 'skips empty form content' do
-    # Modify form_json to make form0781 empty but keep form0781v2
     empty_json = { 'form0781' => {}, 'form0781v2' => { 'baz' => 'qux' } }
     allow(JSON).to receive(:parse).and_return(empty_json)
 
@@ -99,21 +93,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
       Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
     end
 
-    # Should include form0781v2 but not form0781
     expect(output).to include('form0781v2')
     expect(output).not_to include('Processing 123 with form form0781 (')
-  end
-
-  it 'marks submission as skipped when no URLs are returned' do
-    allow(job).to receive(:perform).and_return([])
-
-    output = capture_stdout do
-      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
-      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
-    end
-
-    expect(output).to include('No URLs returned')
-    expect(output).to include('Skipped')
   end
 
   # Helper method to capture stdout

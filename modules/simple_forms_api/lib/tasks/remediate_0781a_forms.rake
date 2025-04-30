@@ -10,7 +10,7 @@ require_relative '../../app/services/simple_forms_api/form_remediation/jobs/arch
 # This task is specifically for remediating Form 0781A submissions
 # from the dataset of affected claims (0781a_affected_claim_details).
 #
-# Related: https://github.com/department-of-veterans-affairs/va.gov-team/issues/xyz
+# Related: https://github.com/department-of-veterans-affairs/evidence-upload-remediation/issues/31
 # See also the companion task for 0781/0781v2 forms: remediate_0781_and_0781v2_forms.rake
 
 def validate_input!(form526_submission_ids)

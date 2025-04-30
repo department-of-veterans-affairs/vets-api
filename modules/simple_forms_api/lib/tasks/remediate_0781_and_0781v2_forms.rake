@@ -23,7 +23,7 @@ require_relative '../../app/services/simple_forms_api/form_remediation/jobs/arch
 # For submissions before June 24, 2019, only Form 0781 is processed.
 # For submissions on or after that date, both Form 0781 and Form 0781v2 are processed.
 #
-# Related: https://github.com/department-of-veterans-affairs/va.gov-team/issues/xyz
+# Related: https://github.com/department-of-veterans-affairs/evidence-upload-remediation/issues/43
 # See also the companion task for 0781a forms: remediate_0781a_forms.rake
 
 def validate_input!(ids)
@@ -82,20 +82,14 @@ namespace :simple_forms_api do
         puts "[#{idx + 1}/#{submission_ids.size}] Processing #{submission_id} with form #{form_key} (#{form_id})"
 
         config = SimpleFormsApi::FormRemediation::Configuration::Form0781Config.new(form_key:)
-        presigned_urls = job.perform(ids: [submission_id], config:, type: :remediation)
+        job.perform(ids: [submission_id], config:, type: :remediation)
 
-        if presigned_urls&.any?
-          results[:processed] << {
-            submission_id:,
-            form_key:,
-            form_id:,
-            url: presigned_urls.first
-          }
-          puts "[#{idx + 1}/#{submission_ids.size}] Successfully processed: #{submission_id} (#{form_key})"
-        else
-          results[:skipped] << { submission_id:, form_key:, form_id: }
-          puts "[#{idx + 1}/#{submission_ids.size}] No URLs returned, possibly skipped: #{submission_id} (#{form_key})"
-        end
+        results[:processed] << {
+          submission_id:,
+          form_key:,
+          form_id:
+        }
+        puts "[#{idx + 1}/#{submission_ids.size}] Successfully processed: #{submission_id} (#{form_key})"
       end
     rescue ActiveRecord::RecordNotFound
       results[:not_found] << submission_id
@@ -114,9 +108,6 @@ namespace :simple_forms_api do
     puts "Not found: #{results[:not_found].join(', ')}"
     puts "Errored: #{results[:errored].map { |e| "#{e[:submission_id]} (#{e[:error]})" }.join(', ')}"
 
-    puts "\nPresigned URLs:"
-    results[:processed].each { |e| puts "#{e[:submission_id]},#{e[:form_key]},#{e[:form_id]},#{e[:url]}" }
-
     # Emit DataDog metrics
     duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.total', submission_ids.size)
@@ -124,15 +115,8 @@ namespace :simple_forms_api do
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.skipped', results[:skipped].size)
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.not_found', results[:not_found].size)
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.errored', results[:errored].size)
-
-    processed_ids = results[:processed].map { |r| r[:submission_id] }.uniq
-    StatsD.gauge(
-      'tasks.simple_forms_api.remediate_0781_and_0781v2_forms.processed_ids',
-      processed_ids.size,
-      tags: processed_ids.map { |id| "processed_id:#{id}" }
-    )
     StatsD.measure('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.duration', duration)
 
-    puts "\nDone."
+    Rails.logger.info('Task completed.')
   end
 end
