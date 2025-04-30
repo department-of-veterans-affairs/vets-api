@@ -17,10 +17,26 @@ module VAProfile
         @response_body = raw_response&.body
 
         if error?
+          redacted_response_body = @response_body.deep_dup
+          if redacted_response_body['tx_push_input']
+          redacted_response_body['tx_push_input'].except!(
+            'source_system_user',
+            'address_line1',
+            'city_name',
+            'vet360_id',
+            'county',
+            'state_code',
+            'zip_code5',
+            'zip_code4',
+            'county',
+            'country_code_iso3'
+          )
+          end
+
           log_message_to_sentry(
             'VAProfile transaction error',
             :error,
-            { response_body: @response_body },
+            { response_body: redacted_response_body },
             error: :va_profile
           )
         end
