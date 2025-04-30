@@ -62,6 +62,8 @@ module VAProfile
         end
 
         def update_address(address)
+          Rails.logger.info("ContactInformationV2 UPDATE ADDRESS POU: #{address.address_pou}") if log_transaction_id?
+
           address_type =
             if address.address_pou == VAProfile::Models::V3::BaseAddress::RESIDENCE
               'residential'
@@ -69,10 +71,7 @@ module VAProfile
               'mailing'
             end
 
-          if log_transaction_id?
-            Rails.logger.info("ContactInformationV2 ADDRESS TYPE: #{address_type},
-                ADDRESS POU: #{address.address_pou}")
-          end
+          Rails.logger.info("ContactInformationV2 UPDATE ADDRESS TYPE: #{address_type}") if log_transaction_id?
 
           update_model(address, "#{address_type}_address", 'address')
         end
@@ -106,10 +105,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around
         #   an transaction object
         def post_address(address)
-          if log_transaction_id?
-            Rails.logger.info("ContactInformationV2 POST ADDRESS TYPE: #{address_type},
-              ADDRESS POU: #{address.address_pou}")
-          end
+          Rails.logger.info("ContactInformationV2 POST ADDRESS POU: #{address.address_pou}") if log_transaction_id?
 
           post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
         end
@@ -118,10 +114,7 @@ module VAProfile
         # @param address [VAProfile::Models::Address] the address to update
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around a transaction object
         def put_address(address)
-          if log_transaction_id?
-            Rails.logger.info("ContactInformationV2 PUT ADDRESS TYPE: #{address_type},
-              ADDRESS POU: #{address.address_pou}")
-          end
+          Rails.logger.info("ContactInformationV2 PUT ADDRESS POU: #{address.address_pou}") if log_transaction_id?
 
           post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
         end
