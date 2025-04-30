@@ -44,7 +44,6 @@ RSpec.describe V0::DependentsApplicationsController do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
@@ -55,7 +54,6 @@ RSpec.describe V0::DependentsApplicationsController do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end
-        puts response
         expect(response).to have_http_status(:ok)
       end
     end
@@ -64,7 +62,6 @@ RSpec.describe V0::DependentsApplicationsController do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
         allow(VBMS::SubmitDependentsPdfJob).to receive(:perform_sync)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(true)
         allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
@@ -75,7 +72,6 @@ RSpec.describe V0::DependentsApplicationsController do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post(:create, params: test_form)
         end
-        puts response
         expect(response).to have_http_status(:ok)
       end
     end
