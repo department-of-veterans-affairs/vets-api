@@ -18,6 +18,9 @@ jobs:
   yardoc:
     name: Yardoc
 
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+
     runs-on: ubuntu-latest
 
     steps:
