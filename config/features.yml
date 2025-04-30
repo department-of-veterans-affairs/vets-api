@@ -1726,6 +1726,9 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for including future appointments in the patient history retrieval.
+  vba_documents_virus_scan:
+    actor_type: user
+    description: ClamAV virus scanning for Benefits Intake API upload submissions
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
