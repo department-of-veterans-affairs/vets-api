@@ -11,6 +11,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
         personalisation: {}
       }
     end
+
     context 'when :event_bus_gateway_emails_enabled is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).and_call_original
@@ -18,7 +19,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       end
 
       it 'invokes the email-sending job' do
-        expect(EventBusGateway::DecisionLetters::LetterReadyEmailJob).to receive(:perform_async)
+        expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async)
         post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end
@@ -31,7 +32,7 @@ RSpec.describe V0::EventBusGatewayController, type: :controller do
       end
 
       it 'does not invoke the email-sending job' do
-        expect(EventBusGateway::DecisionLetters::LetterReadyEmailJob).to_not receive(:perform_async)
+        expect(EventBusGateway::LetterReadyEmailJob).not_to receive(:perform_async)
         post(:send_email, params:)
         expect(response).to have_http_status(:ok)
       end

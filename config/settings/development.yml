@@ -1535,6 +1535,10 @@ vanotify:
         fsr_streamlined_confirmation_email: fake_template_id
         vha_fsr_confirmation_email: ~
         vha_new_copay_statement_email: fake_template_id
+    event_bus_gateway:
+      api_key: fake_secret
+      template_id:
+        decision_letter_ready_email: fake_template_id
     health_apps_1010:
       api_key: fake_secret
       template_id:

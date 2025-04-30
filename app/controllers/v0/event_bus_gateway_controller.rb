@@ -3,7 +3,7 @@
 module V0
   class EventBusGatewayController < ApplicationController
     service_tag 'event_bus_gateway'
-    
+
     # TEMPORARY FOR INITIAL DEVELOPMENT
     skip_before_action :authenticate, only: :send_email
     EMAIL_PARAMS = %i[
@@ -20,7 +20,7 @@ module V0
     # job to pick up and *that* will send the email.
     def send_email
       if Flipper.enabled?(:event_bus_gateway_emails_enabled)
-        EventBusGateway::DecisionLetters::LetterReadyEmailJob.perform_async(
+        EventBusGateway::LetterReadyEmailJob.perform_async(
           participant_id: send_email_params[:participant_id],
           template_id: send_email_params[:template_id],
           personalisation: send_email_params[:personalisation]
