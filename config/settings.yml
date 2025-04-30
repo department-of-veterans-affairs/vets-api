@@ -992,6 +992,7 @@ mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
     x_api_key: <%= ENV['mhv_mobile__sm__x_api_key'] %>
+  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
   rsa_key: <%= ENV['mobile_lighthouse__rsa_key'] %>
