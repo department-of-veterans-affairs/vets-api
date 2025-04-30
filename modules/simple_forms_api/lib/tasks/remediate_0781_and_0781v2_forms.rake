@@ -85,7 +85,15 @@ namespace :simple_forms_api do
       # Process each form type based on the submission date
       get_form_keys(created_at).each do |form_key, form_id|
         form_content = form_json[form_key]
-        next if form_content.blank?
+        if form_content.blank?
+          results[:skipped] << {
+            submission_id:,
+            form_key:,
+            reason: 'blank_form_content'
+          }
+          puts "[#{idx + 1}/#{submission_ids.size}] Skipped: #{submission_id} (#{form_key}) - blank form content"
+          next
+        end
 
         puts "[#{idx + 1}/#{submission_ids.size}] Processing #{submission_id} with form #{form_key} (#{form_id})"
 
