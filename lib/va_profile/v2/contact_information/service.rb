@@ -69,9 +69,9 @@ module VAProfile
               'mailing'
             end
 
-          if Settings.vsp_environment == 'staging'
-            Rails.logger.info("ContactInformationV2 ADDRESS TYPE: #{address_type}")
-            Rails.logger.info("ContactInformationV2 ADDRESS POU: #{address.address_pou}")
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 ADDRESS TYPE: #{address_type},
+                ADDRESS POU: #{address.address_pou}")
           end
 
           update_model(address, "#{address_type}_address", 'address')
