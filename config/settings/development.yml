@@ -1006,6 +1006,7 @@ mhv_mobile:
   sm:
     app_token: fake-app-token
     x_api_key: fake-x-api-key
+  x_api_key: fake-x-api-key
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
