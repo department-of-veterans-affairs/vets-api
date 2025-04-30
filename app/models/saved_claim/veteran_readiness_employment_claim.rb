@@ -219,6 +219,17 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     service.submit
   end
 
+  def add_errors_from_form_validation(form_errors)
+      form_errors.each do |e|
+        errors.add(e[:fragment], e[:message])
+        e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+      end
+      unless form_errors.empty?
+        Rails.logger.error('SavedClaim form did not pass validation',
+                           { form_id:, guid:, errors: form_errors })
+      end
+  end
+
   def form_matches_schema
     return unless form_is_string
 
@@ -242,27 +253,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     validation_errors = validate_form(schema, clear_cache)
 
-    if validation_errors.length > 0 and validation_errors.all? { |e| e[:fragment].end_with?('/country') }
+    if validation_errors.length.positive? && validation_errors.all? { |e| e[:fragment].end_with?('/country') }
       v2_errors = validate_form(schema_v2, false)
-      v2_errors.each do |e|
-        errors.add(e[:fragment], e[:message])
-        e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
-      end
-      unless v2_errors.empty?
-        Rails.logger.error('SavedClaim form did not pass validation',
-                           { form_id:, guid:, errors: v2_errors })
-      end
+      add_errors_from_form_validation(v2_errors)
       return schema_v2_errors.empty? && v2_errors.empty?
     end
 
-    validation_errors.each do |e|
-      errors.add(e[:fragment], e[:message])
-      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
-    end
-    unless validation_errors.empty?
-      Rails.logger.error('SavedClaim form did not pass validation',
-                         { form_id:, guid:, errors: validation_errors })
-    end
+    add_errors_from_form_validation(validation_errors)
 
     schema_errors.empty? && validation_errors.empty?
   end
