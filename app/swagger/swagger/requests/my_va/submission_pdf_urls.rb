@@ -26,15 +26,16 @@ module Swagger
               key :in, :body
               key :description, 'Submission'
               key :required, true
-  
+
               schema do
                 key :type, :object
                 key :required, [:submission]
-  
+
                 property(:submission) do
                   key :$ref, :SubmissionPdfUrls
                   key :required, %i[
-                    address_pou
+                    form_id
+                    submission_guid
                   ]
                 end
               end
@@ -58,11 +59,11 @@ module Swagger
             submission_guid
           ]
           property :form_id,
-                   type: :string,
-                   example: '21-0845',
+                  type: :string,
+                  example: '21-0845'
           property :submission_guid,
-                   type: :string,
-                   example: '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80',
+                  type: :string,
+                  example: '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80'
         end
       end
     end
