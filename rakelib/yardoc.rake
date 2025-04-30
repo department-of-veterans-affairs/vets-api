@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 desc 'run yardoc against changed files'
-task yardoc: :environment do
+task :yardoc do # rubocop:disable Rails/RakeEnvironment
   require 'rainbow'
   require 'yaml'
 
@@ -14,6 +14,8 @@ task yardoc: :environment do
   globs = globs.map { |g| "'#{g}'" }.join(' ')
   cmd = "git diff #{base_sha}...#{head_sha} --name-only -- #{globs}"
   puts "\n#{cmd}\n"
+
+  puts `#{cmd}`
 
   # filter to only ruby files
   # lots of false positives if yardoc is run on other files
