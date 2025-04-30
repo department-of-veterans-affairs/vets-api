@@ -69,6 +69,11 @@ module VAProfile
               'mailing'
             end
 
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 ADDRESS TYPE: #{address_type},
+                ADDRESS POU: #{address.address_pou}")
+          end
+
           update_model(address, "#{address_type}_address", 'address')
         end
 
@@ -101,6 +106,11 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around
         #   an transaction object
         def post_address(address)
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 POST ADDRESS TYPE: #{address_type},
+              ADDRESS POU: #{address.address_pou}")
+          end
+
           post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
         end
 
@@ -108,6 +118,11 @@ module VAProfile
         # @param address [VAProfile::Models::Address] the address to update
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around a transaction object
         def put_address(address)
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 PUT ADDRESS TYPE: #{address_type},
+              ADDRESS POU: #{address.address_pou}")
+          end
+
           post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
         end
 
