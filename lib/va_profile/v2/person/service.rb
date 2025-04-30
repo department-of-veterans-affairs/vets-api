@@ -25,7 +25,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonTransactionResponse]
         # response wrapper around a transaction object
         #
-        def init_vet360_id(icn = nil)
+        def init_vaprofile_id(icn = nil)
           with_monitoring do
             raw_response = perform(:post, encode_url!(icn), empty_body)
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
