@@ -10,10 +10,10 @@ RSpec.describe EducationForm::Process10203Submissions, form: :education_benefits
   sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
   lines = File.readlines(sidekiq_file).grep(/EducationForm::Process10203Submissions/i)
   cron = lines.first.gsub("  mgr.register('", '').gsub("', 'EducationForm::Process10203Submissions')\n", '')
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
   let(:parsed_schedule) { Fugit.do_parse(cron) }
   let(:user2) { create(:user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
-  let(:no_edipi_user) { create(:user, participant_id: nil) }
+  let(:no_edipi_user) { create(:user, :with_terms_of_use_agreement, idme_uuid: SecureRandom.uuid, participant_id: nil) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
   before do

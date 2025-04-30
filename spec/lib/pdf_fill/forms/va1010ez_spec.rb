@@ -24,9 +24,11 @@ describe PdfFill::Forms::Va1010ez do
   }
 
   describe '#merge_fields' do
+    subject(:merged_fields) { form_class.merge_fields }
+
     it 'merges the right fields' do
-      expect(JSON.parse(form_class.merge_fields.to_json)).to eq(
-        JSON.parse(get_fixture('pdf_fill/10-10EZ/merge_fields').to_json)
+      expect(merged_fields).to eq(
+        get_fixture('pdf_fill/10-10EZ/merge_fields')
       )
     end
 
@@ -46,7 +48,7 @@ describe PdfFill::Forms::Va1010ez do
 
       context 'all fields' do
         it 'displays full name' do
-          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+          expect(merged_fields).to include(
             'veteranFullName' => 'Jones, Indiana, Bill II'
           )
         end
@@ -56,7 +58,7 @@ describe PdfFill::Forms::Va1010ez do
         let(:form_data) { { 'veteranFullName' => veteran_full_name.except('suffix') } }
 
         it 'displays full name' do
-          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+          expect(merged_fields).to include(
             'veteranFullName' => 'Jones, Indiana, Bill'
           )
         end
@@ -66,7 +68,7 @@ describe PdfFill::Forms::Va1010ez do
         let(:form_data) { { 'veteranFullName' => veteran_full_name.except('middle') } }
 
         it 'displays full name' do
-          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+          expect(merged_fields).to include(
             'veteranFullName' => 'Jones, Indiana II'
           )
         end
@@ -76,7 +78,7 @@ describe PdfFill::Forms::Va1010ez do
         let(:form_data) { { 'veteranFullName' => veteran_full_name.except('middle', 'suffix') } }
 
         it 'displays full name' do
-          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+          expect(merged_fields).to include(
             'veteranFullName' => 'Jones, Indiana'
           )
         end
@@ -89,7 +91,7 @@ describe PdfFill::Forms::Va1010ez do
           let(:form_data) { { 'maritalStatus' => status } }
 
           it "merges marital status to #{value}" do
-            expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            expect(merged_fields).to include(
               'maritalStatus' => value
             )
           end
@@ -100,7 +102,7 @@ describe PdfFill::Forms::Va1010ez do
         let(:form_data) { { 'maritalStatus' => 'Unknown' } }
 
         it 'defaults to Off' do
-          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+          expect(merged_fields).to include(
             'maritalStatus' => described_class::OFF
           )
         end
@@ -113,7 +115,7 @@ describe PdfFill::Forms::Va1010ez do
           let(:form_data) { { 'gender' => sex } }
 
           it "merges gender to #{value}" do
-            expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            expect(merged_fields).to include(
               'gender' => value
             )
           end
@@ -128,7 +130,7 @@ describe PdfFill::Forms::Va1010ez do
             .with('Invalid sex value when filling out 10-10EZ pdf.',
                   { type: 'gender', value: form_data['gender'] })
 
-          expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+          expect(merged_fields).to include(
             'gender' => nil
           )
         end
@@ -141,7 +143,7 @@ describe PdfFill::Forms::Va1010ez do
           let(:form_data) { { 'discloseFinancialInformation' => disclose } }
 
           it "merges disclose financial info to #{value}" do
-            expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+            expect(merged_fields).to include(
               'discloseFinancialInformation' => value
             )
           end
@@ -156,7 +158,7 @@ describe PdfFill::Forms::Va1010ez do
             let(:form_data) { { 'vaCompensationType' => status } }
 
             it "merges vaCompensationType to #{value}" do
-              expect(JSON.parse(form_class.merge_fields.to_json)).to include(
+              expect(merged_fields).to include(
                 'vaCompensationType' => value
               )
             end
