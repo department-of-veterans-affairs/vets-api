@@ -43,14 +43,16 @@ end
 namespace :simple_forms_api do
   desc 'Remediate Form 0781/0781V2 submissions via the unified pipeline'
   task :remediate_0781_only_submissions, [:input] => :environment do |_, args|
-    start_time = Time.current
+    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     input = args[:input]
     raise Common::Exceptions::ParameterMissing, 'input' if input.blank?
 
     submission_ids = load_submission_ids(input)
     validate_input!(submission_ids)
 
-    Rails.logger.info("Processing #{submission_ids.size} submissions...")
+    StatsD.increment('tasks.simple_forms_api.remediate_0781_only_submissions.started')
+
+    Rails.logger.info("Processing #{submission_ids.size} submissions for 0781 remediation ...")
 
     results = { processed: [], skipped: [], not_found: [], errored: [] }
     job = SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob.new
@@ -68,13 +70,7 @@ namespace :simple_forms_api do
 
         puts "[#{idx + 1}/#{submission_ids.size}] Processing #{submission_id} with form #{form_key} (#{form_id})"
 
-        # Create a configuration specific to this form type
-        config = SimpleFormsApi::FormRemediation::Configuration::Form0781Config.new(
-          form_key:,
-          form_id:
-        )
-
-        # Process the submission through the unified pipeline
+        config = SimpleFormsApi::FormRemediation::Configuration::Form0781Config.new(form_key:)
         presigned_urls = job.perform(ids: [submission_id], config:, type: :remediation)
 
         if presigned_urls&.any?
@@ -111,7 +107,7 @@ namespace :simple_forms_api do
     results[:processed].each { |e| puts "#{e[:submission_id]},#{e[:form_key]},#{e[:form_id]},#{e[:url]}" }
 
     # Emit DataDog metrics
-    StatsD.increment('tasks.simple_forms_api.remediate_0781_only_submissions.started')
+    duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.total', submission_ids.size)
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.processed', results[:processed].size)
     StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.skipped', results[:skipped].size)
@@ -124,7 +120,7 @@ namespace :simple_forms_api do
       processed_ids.size,
       tags: processed_ids.map { |id| "processed_id:#{id}" }
     )
-    StatsD.measure('tasks.simple_forms_api.remediate_0781_only_submissions.duration', Time.current - start_time)
+    StatsD.measure('tasks.simple_forms_api.remediate_0781_only_submissions.duration', duration)
 
     puts "\nDone."
   end

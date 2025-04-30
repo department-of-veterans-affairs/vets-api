@@ -8,10 +8,24 @@ module SimpleFormsApi
       class Form0781Config < Base
         attr_reader :form_key, :form_id
 
-        def initialize(form_key: 'form0781a', form_id: nil)
+        def initialize(form_key: 'form0781a')
           super()
+          raise ArgumentError, "Unknown form_key: #{form_key}" unless self.class.form_key_to_id.key?(form_key)
+
           @form_key = form_key
-          @form_id = form_id
+          @form_id  = self.class.form_key_to_id[form_key]
+        end
+
+        # Class method to access mapping - loads dependency before accessing constants
+        def self.form_key_to_id
+          # Only require when this method is called, not when the file is loaded
+          require 'evss/disability_compensation_form/submit_form0781'
+
+          {
+            'form0781' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781,
+            'form0781a' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781A,
+            'form0781v2' => EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2
+          }.freeze
         end
 
         def submission_archive_class
@@ -23,11 +37,7 @@ module SimpleFormsApi
         end
 
         def create_remediation_data(id:)
-          remediation_data_class.new(id:, config: self, form_key:, form_id:)
-        end
-
-        def temp_directory_path
-          Rails.root.join("tmp/#{SecureRandom.hex}-archive").to_s
+          remediation_data_class.new(id:, config: self, form_key:)
         end
 
         def s3_settings

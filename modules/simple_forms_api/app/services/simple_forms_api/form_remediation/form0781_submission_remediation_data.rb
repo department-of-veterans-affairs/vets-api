@@ -26,16 +26,15 @@ module SimpleFormsApi
     end
 
     class Form0781SubmissionRemediationData < SubmissionRemediationData
-      attr_reader :form_key, :form_id
+      attr_reader :form_key
 
-      def initialize(id:, config:, form_key: 'form0781a', form_id: nil)
+      def initialize(id:, config:, form_key:)
         @form_key = form_key
-        @form_id = form_id
         super(id:, config:)
       end
 
       def hydrate!
-        form_content = get_form_content
+        form_content = fetch_form_content!
         submitted_claim_id = submission.submitted_claim_id
         submission_date = submission&.created_at
 
@@ -43,10 +42,13 @@ module SimpleFormsApi
           { 'signatureDate' => submission_date&.in_time_zone('Central Time (US & Canada)') }
         )
 
+        # Require when needed during runtime, not during file load
+        require 'evss/disability_compensation_form/submit_form0781' if config.form_id.nil?
+
         @file_path = PdfFill::Filler.fill_ancillary_form(
           form_content,
           submitted_claim_id,
-          form_id || determine_form_id
+          config.form_id
         )
 
         SimpleFormsApi::PdfStamper.new(
@@ -64,21 +66,14 @@ module SimpleFormsApi
 
       attr_reader :config
 
-      def get_form_content
-        JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))[form_key]
-      end
-
-      def determine_form_id
-        case form_key
-        when 'form0781'
-          EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781
-        when 'form0781a'
-          EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781A
-        when 'form0781v2'
-          EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2
-        else
-          raise ArgumentError, "Unknown form_key: #{form_key}"
+      def fetch_form_content!
+        content = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))[form_key]
+        if content.blank?
+          raise Common::Exceptions::RecordNotFound,
+                "No #{form_key} payload for submission ##{submission.id}"
         end
+
+        content
       end
 
       def fetch_submission(id)
