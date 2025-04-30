@@ -220,14 +220,22 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def add_errors_from_form_validation(form_errors)
-      form_errors.each do |e|
-        errors.add(e[:fragment], e[:message])
-        e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
-      end
-      unless form_errors.empty?
-        Rails.logger.error('SavedClaim form did not pass validation',
-                           { form_id:, guid:, errors: form_errors })
-      end
+    form_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+    unless form_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: form_errors })
+    end
+  end
+
+  def log_schema_errors(schema_errors)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+                         { form_id:, errors: schema_errors })
+      true
+    end
   end
 
   def form_matches_schema
@@ -238,23 +246,15 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     clear_cache = false
 
     schema_errors = validate_schema(schema)
-    unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
-                         { form_id:, errors: schema_errors })
-      clear_cache = true
-    end
+    clear_cache = log_schema_errors(schema_errors)
 
     schema_v2_errors = validate_schema(schema_v2)
-    unless schema_v2_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
-                         { form_id:, errors: schema_v2_errors })
-      clear_cache = true
-    end
+    clear_cache_v2 = log_schema_errors(schema_v2_errors)
 
     validation_errors = validate_form(schema, clear_cache)
 
     if validation_errors.length.positive? && validation_errors.all? { |e| e[:fragment].end_with?('/country') }
-      v2_errors = validate_form(schema_v2, false)
+      v2_errors = validate_form(schema_v2, clear_cache_v2)
       add_errors_from_form_validation(v2_errors)
       return schema_v2_errors.empty? && v2_errors.empty?
     end
