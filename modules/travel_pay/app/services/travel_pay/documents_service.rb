@@ -24,7 +24,13 @@ module TravelPay
       @auth_manager.authorize => { veis_token:, btsss_token: }
 
       response = client.get_document_binary(veis_token, btsss_token, params)
-      response.body['data']
+      {
+        body: response.body['data'],
+        disposition: response.headers['Content-Disposition'],
+        type: response.headers['Content-Type'],
+        content_length: response.headers['Content-Length'],
+        filename: response.headers['Content-Disposition'][/filename="(.+?)"/, 1]
+      }
     end
 
     private

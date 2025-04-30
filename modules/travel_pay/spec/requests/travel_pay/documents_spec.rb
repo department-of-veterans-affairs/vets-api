@@ -15,17 +15,17 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
 
   describe 'GET /travel_pay/v0/documents/:id' do
     headers = { 'Authorization' => 'Bearer vagov_token' }
-    filename = 'test.pdf'
+    filename = 'AppealForm.pdf'
 
     context 'when the document is successfully retrieved' do
       it 'returns the document data with correct headers' do
         VCR.use_cassette('travel_pay/documents/success_pdf', match_requests_on: %i[method path]) do
-          get(doc_path, params: { filename: }, headers:)
+          get(doc_path, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response.body).not_to be_empty
           expect(response.headers['Content-Type']).to eq('application/pdf')
-          expect(response.headers['Content-Disposition']).to include("attachment; filename=\"#{filename}\"")
+          expect(response.headers['Content-Disposition']).to include(filename)
           expect(response.headers['Content-Length']).to be_present
         end
       end
@@ -34,7 +34,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
     context 'when the document is not found' do
       it 'returns a 404 error with a proper message' do
         VCR.use_cassette('travel_pay/documents/not_found', match_requests_on: %i[method path]) do
-          get(doc_path('bad-id'), params: { filename: }, headers:)
+          get(doc_path('bad-id'), headers:)
 
           expect(response).to have_http_status(:not_found)
           json = JSON.parse(response.body)
@@ -48,7 +48,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
         VCR.use_cassette('travel_pay/documents/internal_error', match_requests_on: %i[method path]) do
           expect(Rails.logger).to receive(:error).with(/Error downloading document:/)
 
-          get(doc_path('big-bad-error'), params: { filename: }, headers:)
+          get(doc_path('big-bad-error'), headers:)
 
           expect(response).to have_http_status(:internal_server_error)
         end

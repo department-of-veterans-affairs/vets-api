@@ -62,11 +62,6 @@ module TravelPay
       claim_response = client.get_claim_by_id(veis_token, btsss_token, claim_id)
 
       documents = get_document_summaries(veis_token, btsss_token, claim_id)
-      documents = []
-      if include_documents?
-        documents_response = documents_client.get_document_ids(veis_token, btsss_token, claim_id)
-        documents = documents_response.body['data'] if documents_response.body['data']
-      end
 
       claim = claim_response.body['data']
 

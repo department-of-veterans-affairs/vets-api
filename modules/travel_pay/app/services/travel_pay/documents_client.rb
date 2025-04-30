@@ -40,7 +40,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       params.symbolize_keys => { claim_id:, doc_id: }
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
-      log_to_statsd('documents', 'get_document_ids') do
+      log_to_statsd('documents', 'get_document_binary') do
         connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}/documents/#{doc_id}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token

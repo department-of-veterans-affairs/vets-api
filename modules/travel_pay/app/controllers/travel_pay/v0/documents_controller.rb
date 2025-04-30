@@ -6,14 +6,11 @@ module TravelPay
       def show
         document_data = service.download_document(params[:claim_id], params[:id])
 
-        extension = File.extname(params[:filename])
-        content_type = Rack::Mime::MIME_TYPES[extension] || 'application/octet-stream'
-
         send_data(
-          document_data,
-          type: content_type,
-          disposition: "attachment; filename=\"#{params[:filename]}\"",
-          filename: params[:filename]
+          document_data[:body],
+          type: document_data[:type],
+          disposition: document_data[:disposition],
+          filename: document_data[:filename]
         )
       rescue Faraday::ResourceNotFound => e
         handle_resource_not_found_error(e)
