@@ -10,8 +10,8 @@ module MyHealth
 
       def create
         attributes = aal_params.except(:product)
-        resource = aal_client.create_aal(attributes)
-        render json: resource.to_json
+        aal_client.create_aal(attributes)
+        head :no_content
       end
 
       protected

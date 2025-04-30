@@ -36,6 +36,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(true)
 
       aal_client = AAL::MRClient.new(
         session: {
@@ -50,6 +51,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     it 'responds to POST #create' do
+      expect_any_instance_of(AAL::MRClient).to receive(:perform)
       VCR.use_cassette('phr_mgr_client/create_aal_entry') do
         post '/my_health/v1/aal',
              params: {
@@ -63,7 +65,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
              as: :json
       end
 
-      expect(response).to have_http_status(:success)
+      expect(response).to have_http_status(:no_content)
       expect(response.body).to be_a(String)
     end
 
@@ -96,6 +98,22 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
       expect(response).to have_http_status(:bad_request)
       json = JSON.parse(response.body)
       expect(json['errors'].first['detail']).to eq('Unknown product: unknown')
+    end
+
+    it 'skips the HTTP call with the flag off' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(false)
+      expect_any_instance_of(AAL::MRClient).not_to receive(:perform)
+
+      post '/my_health/v1/aal', params: {
+                                  activity_type: 'Allergy',
+                                  performer_type: 'Self',
+                                  detail_value: nil,
+                                  status: 3,
+                                  product: 'mr'
+                                },
+                                as: :json
+
+      expect(response).to have_http_status(:no_content)
     end
   end
 end
