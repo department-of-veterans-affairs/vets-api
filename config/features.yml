@@ -113,6 +113,9 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
+  caregiver_request_duration_monitoring:
+    actor_type: user
+    description: Enables logging of 10-10CG request durations to StatsD
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -1626,18 +1629,6 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
-  va_online_scheduling_vaos_service_cc_appointments:
-    actor_type: user
-    description: Toggle for new vaos service cc appointments.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_requests:
-    actor_type: user
-    description: Toggle for new vaos service requests.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_va_appointments:
-    actor_type: user
-    description: Toggle for new vaos service va appointments.
-    enable_in_development: true
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
@@ -1659,9 +1650,6 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_dependents_submit674:
-    actor_type: user
-    description: Allows submission of 674 without MANUAL_VAGOV flag
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true

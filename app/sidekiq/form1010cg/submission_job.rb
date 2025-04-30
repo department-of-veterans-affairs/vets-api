@@ -52,6 +52,7 @@ module Form1010cg
     end
 
     def perform(claim_id)
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
       claim = SavedClaim::CaregiversAssistanceClaim.find(claim_id)
 
       Form1010cg::Service.new(claim).process_claim_v2!
@@ -61,12 +62,15 @@ module Form1010cg
       rescue => e
         log_exception_to_sentry(e, { claim_id: })
       end
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :success, start_time:)
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
       self.class.send_failure_email(claim)
     rescue => e
       log_exception_to_sentry(e, { claim_id: })
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
+      Form1010cg::Auditor.new.log_caregiver_request_duration(context: :process_job, event: :failure, start_time:)
 
       raise
     end
