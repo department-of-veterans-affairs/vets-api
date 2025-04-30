@@ -999,36 +999,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#account' do
-    context 'when user has an existing Account record' do
-      let(:user) { create(:user, :accountable) }
-
-      it 'returns the users Account record' do
-        account = Account.find_by(idme_uuid: user.uuid)
-
-        expect(user.account).to eq account
-      end
-    end
-
-    context 'when user does not have an existing Account record' do
-      let(:user) { create(:user, :loa3) }
-
-      before do
-        account = Account.find_by(idme_uuid: user.uuid)
-        account.destroy
-      end
-
-      it 'creates and returns the users Account record', :aggregate_failures do
-        account = Account.find_by(idme_uuid: user.uuid)
-        expect(account).to be_nil
-        account = user.account
-
-        expect(account.class).to eq Account
-        expect(account.idme_uuid).to eq user.uuid
-      end
-    end
-  end
-
   describe '#birth_date' do
     let(:user) { subject }
 

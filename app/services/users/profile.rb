@@ -45,7 +45,7 @@ module Users
     end
 
     def fetch_and_serialize_profile
-      scaffold.account = account
+      scaffold.user_account = user_account
       scaffold.profile = profile
       scaffold.vet360_contact_information = vet360_contact_information
       scaffold.va_profile = mpi_profile
@@ -57,10 +57,10 @@ module Users
       scaffold.onboarding = onboarding
     end
 
-    def account
-      { account_uuid: user.account_uuid }
+    def user_account
+      { account_uuid: user.user_account_uuid }
     rescue => e
-      scaffold.errors << Users::ExceptionHandler.new(e, 'Account').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'UserAccount').serialize_error
       nil
     end
 
