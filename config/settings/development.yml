@@ -29,8 +29,6 @@ ask_va_api:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
   prefill: true
-audit_db:
-  url: ~
 authorization_server_scopes_api:
   auth_server:
     url: https://sandbox-api.va.gov/internal/auth/v2/server
@@ -627,13 +625,6 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
-idme:
-  client_cert_path: spec/fixtures/sign_in/oauth.crt
-  client_id: ef7f1237ed3c396e4b4a2b04b608a7b1
-  client_key_path: spec/fixtures/sign_in/oauth.key
-  client_secret: ae657fd2b253d17be7b48ecdb39d7b34
-  oauth_url: https://api.idmelabs.com
-  redirect_uri: http://localhost:3000/v0/sign_in/callback
 ihub:
   appointments:
     mock: true
@@ -812,14 +803,6 @@ locators:
   vha_access_waittime: ~
 lockbox:
   master_key: 0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9
-logingov:
-  client_cert_path: spec/fixtures/sign_in/oauth.crt
-  client_id: https://sqa.eauth.va.gov/isam/sps/saml20sp/saml20
-  client_key_path: spec/fixtures/sign_in/oauth.key
-  logout_redirect_uri: http://localhost:3000/v0/sign_in/logingov_logout_proxy
-  oauth_public_key: spec/fixtures/logingov/logingov_oauth_pub.pem
-  oauth_url: https://idp.int.identitysandbox.gov
-  redirect_uri: http://localhost:3000/v0/sign_in/callback
 mail_automation:
   client_id: va_gov_test
   client_secret: fake_key
@@ -893,20 +876,6 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     vre: ~
-map_services:
-  appointments_client_id: 74b3145e1354555e
-  chatbot_client_id: 2bb9803acfc3
-  check_in_client_id: bc75b71c7e67
-  client_cert_path: spec/fixtures/map/oauth.crt
-  client_key_path: spec/fixtures/map/oauth.key
-  oauth_url: https://veteran.apps-staging.va.gov
-  secure_token_service:
-    mock: true
-  sign_up_service:
-    mock: true
-  sign_up_service_client_id: c7d6e0fc9a39
-  sign_up_service_provisioning_api_key: abcd1234
-  sign_up_service_url: https://cerner.apps-staging.va.gov
 mcp:
   notifications:
     batch_size: 10
@@ -937,14 +906,6 @@ mdot:
 mhv:
   account:
     mock: false
-  account_creation:
-    access_key: some-access-key
-    create_after_login: ~
-    host: https://apigw-intb.aws.myhealth.va.gov
-    mock: true
-    sts:
-      issuer: http://localhost:3000
-      service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
   api_gateway:
     hosts:
       bluebutton: fake-host
@@ -1056,15 +1017,6 @@ modules_appeals_api:
       api_key: ''
     supplemental_claims:
       api_key: ''
-mvi:
-  client_cert_path: config/certs/vetsgov-localhost.crt
-  client_key_path: config/certs/vetsgov-localhost.key
-  mock: true
-  open_timeout: 15
-  pii_logging: false
-  processing_code: T
-  timeout: 30
-  url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
 mvi_hca:
   url: http://example.com
 nod_vanotify_status_callback:
@@ -1263,25 +1215,6 @@ salesforce-gibft:
 saml:
   cert_path: ~
   key_path: ~
-saml_ssoe:
-  callback_url: http://localhost:3000/v1/sessions/callback
-  cert_new_path: ~
-  cert_path: ~
-  certificate: ~
-  certificate_new: ~
-  identity_slack_webhook: ~
-  idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
-  idp_sso_service_binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
-  issuer: https://ssoe-sp-localhost.va.gov
-  key: ~
-  key_path: ~
-  logout_app_key: https://ssoe-sp-dev.va.gov
-  logout_url: https://int.eauth.va.gov/slo/globallogout
-  relay: ~
-  request_signing: false
-  response_encryption: false
-  response_signing: false
-  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
@@ -1308,8 +1241,6 @@ search_typeahead:
 secret_key_base: c1a13acb916e6ebf1d2a93a3924586520508b609e80e048364902cd36ab602c9ec6ddcb47ac66e7903dbc77ae876df5564658a4f786b50497440b0c7dc029361
 sentry:
   dsn: ~
-session_cookie:
-  secure: false
 shrine:
   claims:
     access_key_id: ~
@@ -1338,34 +1269,6 @@ sidekiq:
   github_organization: ~
   github_team: ~
 sidekiq_admin_panel: false
-sign_in:
-  arp_client_id: arp
-  auto_uplevel: true
-  client_redirect_uris:
-    mobile_test: ~
-  cookies_secure: false
-  info_cookie_domain: localhost
-  jwt_encode_key: spec/fixtures/sign_in/privatekey.pem
-  jwt_old_encode_key: spec/fixtures/sign_in/privatekey_old.pem
-  mock_auth_url: http://localhost:3000/mocked_authentication/profiles
-  mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
-  mockdata_sync_api_key: ~
-  sts_client:
-    base_url: http://localhost:3000
-    key_path: spec/fixtures/sign_in/sts_client.pem
-  user_info_clients:
-    - okta_test
-  vamobile_client_id: vamobile
-  vaweb_client_id: vaweb
-  web_origins:
-    - http://localhost:4000
-ssoe_eauth_cookie:
-  domain: localhost
-  name: vagov_saml_request_localhost
-  secure: false
-terms_of_use:
-  current_version: v1
-  enabled_clients: vaweb, mhv, myvahealth
 test_database_url: postgis:///vets-api-test
 test_user_dashboard:
   env: dev

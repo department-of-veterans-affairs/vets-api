@@ -4,15 +4,19 @@ FactoryBot.define do
   factory :ccra_referral_list_entry, class: 'Ccra::ReferralListEntry' do
     category_of_care { 'CARDIOLOGY' }
     referral_number { '5682' }
-    start_date { Date.current.to_s }
-    seoc_days { '60' }
+    referral_expiration_date { (Date.current + 60.days).to_s }
+    station_id { '528A6' }
+    status { 'AP' }
+    referral_last_update_date_time { Time.current.iso8601 }
 
     initialize_with do
       attributes = {
-        'CategoryOfCare' => category_of_care,
-        'ID' => referral_number,
-        'StartDate' => start_date,
-        'SEOCNumberOfDays' => seoc_days
+        category_of_care:,
+        referral_number:,
+        referral_expiration_date:,
+        station_id:,
+        status:,
+        referral_last_update_date_time:
       }
       Ccra::ReferralListEntry.new(attributes)
     end
