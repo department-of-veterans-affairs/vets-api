@@ -30,7 +30,10 @@ jobs:
           fetch-depth: 2
       
       - name: Fetch target branch
-        run: git fetch origin "${GITHUB_BASE_REF}"
+        run: git fetch origin "${GITHUB_BASE_REF}" --depth=1
+
+      - name: Git diff
+        run: git diff origin/"${GITHUB_BASE_REF}"...HEAD --name-only
 
       - uses: ruby/setup-ruby@v1
         with:
