@@ -1,4 +1,5 @@
 name: Yardoc
+
 # check documentation in specified paths
 on: # `on` parses to `true` in ruby
   pull_request:
@@ -7,24 +8,26 @@ on: # `on` parses to `true` in ruby
       - modules/burials/**/*.rb
       - modules/pensions/**/*.rb
       - modules/income_and_assets/**/*.rb
+      
 permissions:
   contents: read
   pull-requests: write
   statuses: write
+
 jobs:
   yardoc:
     name: Yardoc
 
     env:
-      COVERBAND_DISABLE: true
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      COVERBAND_DISABLE_AUTO_START: true
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - uses: ruby/setup-ruby@v1
         with:
