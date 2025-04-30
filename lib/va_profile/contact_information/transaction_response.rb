@@ -16,9 +16,30 @@ module VAProfile
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
 
-        if error?
-          redacted_response_body = @response_body.deep_dup
-          if redacted_response_body['tx_push_input']
+        log_transaction_error if error?
+
+        new(
+          raw_response&.status,
+          transaction: VAProfile::Models::Transaction.build_from(@response_body)
+        )
+      end
+
+      def self.log_transaction_error
+        redacted_response_body = redact_response_body(@response_body)
+
+        log_message_to_sentry(
+          'VAProfile transaction error',
+          :error,
+          { response_body: redacted_response_body },
+          error: :va_profile
+        )
+      end
+
+      def self.redact_response_body(response_body)
+        return unless response_body
+
+        redacted_response_body = response_body.deep_dup
+        if redacted_response_body['tx_push_input']
           redacted_response_body['tx_push_input'].except!(
             'source_system_user',
             'address_line1',
@@ -31,15 +52,9 @@ module VAProfile
             'county',
             'country_code_iso3'
           )
-          end
-
-          log_message_to_sentry(
-            'VAProfile transaction error',
-            :error,
-            { response_body: redacted_response_body },
-            error: :va_profile
-          )
         end
+        redacted_response_body
+      end
 
         new(
           raw_response&.status,
@@ -51,6 +66,7 @@ module VAProfile
         @response_body.try(:[], 'tx_status') == ERROR_STATUS
       end
     end
+
 
     class AddressTransactionResponse < TransactionResponse
       attribute :response_body, String
