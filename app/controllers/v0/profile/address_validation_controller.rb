@@ -19,9 +19,12 @@ module V0
                     VAProfile::Models::ValidationAddress.new(address_params)
                   end
 
-        Rails.logger.info("Staging Address valid: #{address.valid?}") if Settings.vsp_environment == 'staging'
-
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
+
+        if Settings.vsp_environment == 'staging'
+          valid_pou = address.address_pou != 'RESIDENCE/CHOICE'
+          Rails.logger.info("Staging Address valid: #{address.valid?}, Address POU Valid? #{valid_pou}")
+        end
 
         Rails.logger.warn('AddressValidationController#create request completed', sso_logging_info)
 
