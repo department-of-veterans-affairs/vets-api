@@ -325,30 +325,6 @@ RSpec.describe Burials::Monitor do
           monitor.track_submission_exhaustion(msg, nil)
         end
       end
-
-      describe '#track_send_submitted_email_failure' do
-        it 'logs sidekiq job send_submitted_email error' do
-          log = 'Burial 21P-530EZ send_submitted_email failed'
-          payload = {
-            claim_id: claim.id,
-            user_account_uuid: current_user.uuid,
-            benefits_intake_uuid: lh_service.uuid,
-            confirmation_number: claim.confirmation_number,
-            message: monitor_error.message,
-            tags: monitor.tags
-          }
-
-          expect(monitor).to receive(:track_request).with(
-            'warn',
-            log,
-            "#{submission_stats_key}.send_submitted_failed",
-            call_location: anything,
-            **payload
-          )
-
-          monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
-        end
-      end
     end
 
     describe '#track_send_confirmation_email_failure' do

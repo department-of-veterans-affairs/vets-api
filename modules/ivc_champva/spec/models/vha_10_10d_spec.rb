@@ -258,4 +258,15 @@ RSpec.describe IvcChampva::VHA1010d do
       end
     end
   end
+
+  it 'is not past OMB expiration date' do
+    # Update this date string to match the current PDF OMB expiration date:
+    omb_expiration_date = Date.strptime('12312027', '%m%d%Y')
+    error_message = <<~MSG
+      If this test is failing it likely means the form 10-10d PDF has reached
+      OMB expiration date. Please see ivc_champva module README for details on updating the PDF file.
+    MSG
+
+    expect(omb_expiration_date.past?).to be(false), error_message
+  end
 end

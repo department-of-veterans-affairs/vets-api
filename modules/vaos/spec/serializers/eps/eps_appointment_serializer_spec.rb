@@ -52,6 +52,10 @@ RSpec.describe Eps::EpsAppointmentSerializer do
         },
         network_ids: ['sandbox-network-test'],
         phone_number: '1234567890'
+      },
+      referring_facility_details: {
+        name: 'VA Test Facility',
+        phone_number: '555-123-4567'
       }
     )
   end
@@ -102,7 +106,11 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           type_of_care: 'CARDIOLOGY',
           referral_phone_number: '1234567890',
           provider: nil,
-          provider_details: nil
+          provider_details: nil,
+          referring_facility_details: {
+            name: 'VA Test Facility',
+            phone_number: '555-123-4567'
+          }
         )
       end
 
@@ -138,6 +146,10 @@ RSpec.describe Eps::EpsAppointmentSerializer do
               timezone: 'America/New_York'
             },
             network_ids: ['sandbox-network-test']
+          },
+          referring_facility_details: {
+            name: 'VA Test Facility',
+            phone_number: '555-123-4567'
           }
         )
       end
@@ -178,6 +190,10 @@ RSpec.describe Eps::EpsAppointmentSerializer do
               timezone: 'America/New_York'
             },
             network_ids: ['sandbox-network-test'],
+            phone_number: '555-123-4567'
+          },
+          referring_facility_details: {
+            name: 'VA Test Facility',
             phone_number: '555-123-4567'
           }
         )

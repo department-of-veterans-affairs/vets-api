@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 class FormProfiles::VA686c674v2 < FormProfile
   class FormAddress
-    include Virtus.model
+    include Vets::Model
 
     attribute :country_name, String
     attribute :address_line1, String
@@ -15,7 +17,7 @@ class FormProfiles::VA686c674v2 < FormProfile
     attribute :international_postal_code, String
   end
 
-  attribute :form_address
+  attribute :form_address, FormAddress
 
   def prefill
     prefill_form_address
