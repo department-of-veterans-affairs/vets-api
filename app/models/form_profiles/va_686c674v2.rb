@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 class FormProfiles::VA686c674v2 < FormProfile
   class FormAddress
-    include Virtus.model
+    include Vets::Model
 
     attribute :country_name, String
     attribute :address_line1, String
