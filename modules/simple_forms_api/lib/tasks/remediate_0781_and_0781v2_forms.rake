@@ -9,11 +9,22 @@ require 'simple_forms_api/form_remediation/configuration/form_0781_config'
 require_relative '../../app/services/simple_forms_api/form_remediation/jobs/archive_batch_processing_job'
 
 # Usage:
-#   bundle exec rails simple_forms_api:remediate_0781_only_submissions[submission_ids_csv_path]
+#   bundle exec rails simple_forms_api:remediate_0781_and_0781v2_forms[submission_ids_csv_path]
 #   (CSV must have a header row with 'submission_id')
 #
 # Or pass a comma/space-separated list of IDs:
-#   bundle exec rails simple_forms_api:remediate_0781_only_submissions[123 456 789]
+#   bundle exec rails simple_forms_api:remediate_0781_and_0781v2_forms[123 456 789]
+#
+# Description:
+# This task remediates both Form 0781 and Form 0781v2 submissions from the broader dataset
+# of affected claims (21-0781_submissions_20241017b). The task automatically handles structural
+# differences in form layout based on submission date.
+#
+# For submissions before June 24, 2019, only Form 0781 is processed.
+# For submissions on or after that date, both Form 0781 and Form 0781v2 are processed.
+#
+# Related: https://github.com/department-of-veterans-affairs/va.gov-team/issues/xyz
+# See also the companion task for 0781a forms: remediate_0781a_forms.rake
 
 def validate_input!(ids)
   raise Common::Exceptions::ParameterMissing, 'submission_ids' unless ids&.any?
@@ -41,8 +52,8 @@ def get_form_keys(date)
 end
 
 namespace :simple_forms_api do
-  desc 'Remediate Form 0781/0781V2 submissions via the unified pipeline'
-  task :remediate_0781_only_submissions, [:input] => :environment do |_, args|
+  desc 'Remediate Form 0781 and 0781v2 submissions via the unified pipeline, with date-based form handling'
+  task :remediate_0781_and_0781v2_forms, [:input] => :environment do |_, args|
     start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     input = args[:input]
     raise Common::Exceptions::ParameterMissing, 'input' if input.blank?
@@ -50,9 +61,9 @@ namespace :simple_forms_api do
     submission_ids = load_submission_ids(input)
     validate_input!(submission_ids)
 
-    StatsD.increment('tasks.simple_forms_api.remediate_0781_only_submissions.started')
+    StatsD.increment('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.started')
 
-    Rails.logger.info("Processing #{submission_ids.size} submissions for 0781 remediation ...")
+    Rails.logger.info("Processing #{submission_ids.size} submissions for 0781/0781v2 remediation ...")
 
     results = { processed: [], skipped: [], not_found: [], errored: [] }
     job = SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob.new
@@ -108,19 +119,19 @@ namespace :simple_forms_api do
 
     # Emit DataDog metrics
     duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
-    StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.total', submission_ids.size)
-    StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.processed', results[:processed].size)
-    StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.skipped', results[:skipped].size)
-    StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.not_found', results[:not_found].size)
-    StatsD.gauge('tasks.simple_forms_api.remediate_0781_only_submissions.errored', results[:errored].size)
+    StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.total', submission_ids.size)
+    StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.processed', results[:processed].size)
+    StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.skipped', results[:skipped].size)
+    StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.not_found', results[:not_found].size)
+    StatsD.gauge('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.errored', results[:errored].size)
 
     processed_ids = results[:processed].map { |r| r[:submission_id] }.uniq
     StatsD.gauge(
-      'tasks.simple_forms_api.remediate_0781_only_submissions.processed_ids',
+      'tasks.simple_forms_api.remediate_0781_and_0781v2_forms.processed_ids',
       processed_ids.size,
       tags: processed_ids.map { |id| "processed_id:#{id}" }
     )
-    StatsD.measure('tasks.simple_forms_api.remediate_0781_only_submissions.duration', duration)
+    StatsD.measure('tasks.simple_forms_api.remediate_0781_and_0781v2_forms.duration', duration)
 
     puts "\nDone."
   end

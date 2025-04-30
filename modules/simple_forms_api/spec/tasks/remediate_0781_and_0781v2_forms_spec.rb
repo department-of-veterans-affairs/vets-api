@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'rake'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task do
+RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task do
   let(:submission) do
     instance_double(
       Form526Submission,
@@ -20,7 +20,7 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
   let(:form_json) { { 'form0781' => { 'foo' => 'bar' }, 'form0781v2' => { 'baz' => 'qux' } } }
 
   before do
-    load File.expand_path('../../lib/tasks/remediate_0781_only_submissions.rake', __dir__)
+    load File.expand_path('../../lib/tasks/remediate_0781_and_0781v2_forms.rake', __dir__)
     Rake::Task.define_task(:environment)
     allow(SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob).to receive(:new).and_return(job)
     allow(job).to receive(:perform).and_return([s3_url])
@@ -34,13 +34,13 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
 
   after do
     # Always re-enable the task after a test
-    Rake::Task['simple_forms_api:remediate_0781_only_submissions'].reenable
+    Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
   end
 
   it 'processes submissions from a list of IDs' do
     # Capture and verify stdout to avoid issues with string comparisons
     output = capture_stdout do
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].invoke('123')
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
     end
 
     # Check for expected outputs without exact string matching
@@ -56,8 +56,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
       temp_file.close
 
       output = capture_stdout do
-        Rake::Task['simple_forms_api:remediate_0781_only_submissions'].reenable
-        Rake::Task['simple_forms_api:remediate_0781_only_submissions'].invoke(temp_file.path)
+        Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
+        Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke(temp_file.path)
       end
 
       expect(output).to include('Processing')
@@ -70,8 +70,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
     allow(Form526Submission).to receive(:find).and_raise(ActiveRecord::RecordNotFound)
 
     output = capture_stdout do
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].reenable
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].invoke('999')
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('999')
     end
 
     expect(output).to include('Not found')
@@ -82,8 +82,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
     allow(Rails.logger).to receive(:error)
 
     output = capture_stdout do
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].reenable
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].invoke('999')
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('999')
     end
 
     expect(output).to include('Error')
@@ -95,8 +95,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
     allow(JSON).to receive(:parse).and_return(empty_json)
 
     output = capture_stdout do
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].reenable
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].invoke('123')
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
     end
 
     # Should include form0781v2 but not form0781
@@ -108,8 +108,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_only_submissions', type: :task d
     allow(job).to receive(:perform).and_return([])
 
     output = capture_stdout do
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].reenable
-      Rake::Task['simple_forms_api:remediate_0781_only_submissions'].invoke('123')
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
     end
 
     expect(output).to include('No URLs returned')
