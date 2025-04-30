@@ -80,12 +80,6 @@ RSpec.describe Users::Profile do
       end
     end
 
-    describe '#account' do
-      it 'includes account uuid' do
-        expect(subject.account[:account_uuid]).to eq(user.account_uuid)
-      end
-    end
-
     describe '#profile' do
       # --- positive tests ---
       context 'idme user' do

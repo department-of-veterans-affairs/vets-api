@@ -88,7 +88,7 @@ module HealthQuest
       # @return [String]
       #
       def session_id
-        @build_session_id ||= "#{lighthouse_prefix}_#{api}_#{account_uuid}"
+        @build_session_id ||= "#{lighthouse_prefix}_#{api}_#{user_account_uuid}"
       end
 
       private
@@ -97,8 +97,8 @@ module HealthQuest
         Settings.hqva_mobile.lighthouse.redis_session_prefix
       end
 
-      def account_uuid
-        user&.account_uuid
+      def user_account_uuid
+        user&.user_account_uuid
       end
     end
   end
