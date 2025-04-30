@@ -41,27 +41,19 @@ module VAProfile
           return unless response_body
 
           redacted_response_body = response_body.deep_dup
-          if redacted_response_body['tx_push_input']
-            redacted_response_body['tx_push_input'].except!(
-              'source_system_user',
-              'address_line1',
-              'city_name',
-              'vet360_id',
-              'county',
-              'state_code',
-              'zip_code5',
-              'zip_code4',
-              'county',
-              'country_code_iso3'
-            )
-          end
-          redacted_response_body
-        end
-
-          new(
-            raw_response&.status,
-            transaction: VAProfile::Models::Transaction.build_from(@response_body)
+          redacted_response_body['tx_push_input']&.except!(
+            'source_system_user',
+            'address_line1',
+            'city_name',
+            'vet360_id',
+            'county',
+            'state_code',
+            'zip_code5',
+            'zip_code4',
+            'county',
+            'country_code_iso3'
           )
+          redacted_response_body
         end
 
         def self.error?
