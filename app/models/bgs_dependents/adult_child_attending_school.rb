@@ -46,6 +46,7 @@ module BGSDependents
       @first = @full_name['first']
       @middle = @full_name['middle']
       @last = @full_name['last']
+      @suffix = @full_name['suffix']
     end
 
     # Sets a hash with AdultChildAttendingSchool attributes

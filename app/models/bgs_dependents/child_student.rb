@@ -83,11 +83,11 @@ module BGSDependents
     end
 
     def assign_attributes(data)
-      @student_address_marriage_tuition = data.dig('student_address_marriage_tuition')
-      @student_earnings_from_school_year = data.dig('student_earnings_from_school_year')
-      @student_networth_information = data.dig('student_networth_information')
-      @student_expected_earnings_next_year = data.dig('student_expected_earnings_next_year')
-      @student_information = data.dig('student_information')
+      @student_address_marriage_tuition = data['student_address_marriage_tuition']
+      @student_earnings_from_school_year = data['student_earnings_from_school_year']
+      @student_networth_information = data['student_networth_information']
+      @student_expected_earnings_next_year = data['student_expected_earnings_next_year']
+      @student_information = data['student_information']
     end
   end
 end

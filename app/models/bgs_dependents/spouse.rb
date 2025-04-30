@@ -71,6 +71,7 @@ module BGSDependents
       @first = @spouse_information['full_name']['first']
       @middle = @spouse_information['full_name']['middle']
       @last = @spouse_information['full_name']['last']
+      @suffix = @spouse_information['full_name']['suffix']
       @va_file_number = @spouse_information['va_file_number'] if spouse_is_veteran == 'Y'
     end
 

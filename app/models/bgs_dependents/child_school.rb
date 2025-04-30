@@ -95,10 +95,10 @@ module BGSDependents
     private
 
     def assign_attributes(data)
-      @last_term_school_information = data.dig('last_term_school_information')
-      @school_information = data.dig('school_information')
-      @program_information = data.dig('program_information')
-      @current_term_dates = data.dig('current_term_dates')
+      @last_term_school_information = data['last_term_school_information']
+      @school_information = data['school_information']
+      @program_information = data['program_information']
+      @current_term_dates = data['current_term_dates']
     end
   end
 end
