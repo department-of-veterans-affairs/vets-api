@@ -333,7 +333,7 @@ GEM
     config (5.5.2)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.5.0)
+    connection_pool (2.5.3)
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -1058,7 +1058,7 @@ GEM
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
-    shoulda-matchers (6.4.0)
+    shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
     shrine (3.6.0)
       content_disposition (~> 1.0)
