@@ -243,7 +243,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
     schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
-    clear_cache = false
 
     schema_errors = validate_schema(schema)
     clear_cache = log_schema_errors(schema_errors)
