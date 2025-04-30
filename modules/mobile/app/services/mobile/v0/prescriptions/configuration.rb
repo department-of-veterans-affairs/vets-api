@@ -25,6 +25,13 @@ module Mobile
         def app_token
           Settings.mhv_mobile.rx.app_token
         end
+
+        ##
+        # @return [String] API GW key set in `settings.yml` via credstash
+        #
+        def x_api_key
+          Settings.mhv_mobile.rx.x_api_key
+        end
       end
     end
   end
