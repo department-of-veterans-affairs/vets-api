@@ -476,6 +476,14 @@ form526_export:
     bucket: ~
     region: ~
     secret_access_key: ~
+form_10282:
+  sftp:
+    host: ~
+    key_data: ~
+    pass: ~
+    port: ~
+    relative_path: ~
+    user: ~
 form_10_10cg:
   carma:
     mulesoft:
