@@ -18,15 +18,8 @@ module MyHealth
     end
 
     def build_aal_client
-      # Pull from the Controller's 'product' function first, then from 'params'
-      effective_product =
-        if respond_to?(:product, true) && product.present?
-          product
-        elsif params[:product].present?
-          params[:product].to_sym
-        else
-          raise Common::Exceptions::ParameterMissing, 'product'
-        end
+      effective_product = product
+      raise(Common::Exceptions::ParameterMissing, 'product') if effective_product.blank?
 
       # Pick the right subclass based on the product.
       client_class = case effective_product
@@ -54,6 +47,10 @@ module MyHealth
 
     def authenticate_aal_client
       aal_client.authenticate
+    end
+
+    def product
+      params[:product]&.to_sym
     end
   end
 end

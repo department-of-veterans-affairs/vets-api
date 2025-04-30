@@ -32,11 +32,13 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     let(:mhv_account_type) { 'Premium' }
     let(:valid_params) do
       {
-        activity_type: 'Allergy',
-        action: 'View',
-        performer_type: 'Self',
-        detail_value: nil,
-        status: 1,
+        aal: {
+          activity_type: 'Allergy',
+          action: 'View',
+          performer_type: 'Self',
+          detail_value: nil,
+          status: 1
+        },
         product: 'mr'
       }
     end
@@ -68,7 +70,8 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     it 'fails on form validation' do
-      invalid_params = valid_params.merge(status: 3)
+      invalid_params = valid_params.dup
+      invalid_params[:aal] = invalid_params[:aal].merge(status: 3)
 
       post '/my_health/v1/aal', params: invalid_params, as: :json
 
@@ -77,7 +80,10 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     it 'fails if product is missing' do
-      post '/my_health/v1/aal'
+      invalid_params = valid_params.dup
+      invalid_params.delete(:product)
+
+      post '/my_health/v1/aal', params: invalid_params, as: :json
 
       expect(response).to have_http_status(:bad_request)
       json = JSON.parse(response.body)

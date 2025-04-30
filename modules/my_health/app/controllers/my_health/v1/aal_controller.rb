@@ -15,19 +15,16 @@ module MyHealth
       protected
 
       def aal_params
-        params.permit(
+        aal = params.require(:aal).permit(
           :activity_type,
           :action,
           :completion_time,
           :performer_type,
           :detail_value,
-          :status,
-          :product
+          :status
         )
-      end
-
-      def product
-        params[:product]&.to_sym
+        aal[:product] = params[:product]
+        aal
       end
     end
   end

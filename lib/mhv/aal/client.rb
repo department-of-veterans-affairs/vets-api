@@ -11,6 +11,8 @@ module AAL
   # Core class responsible for MHV Account Activity Log API interface operations
   #
   class Client < Common::Client::Base
+    include Common::Client::Concerns::MHVSessionBasedClient
+
     def create_aal(attributes)
       attributes[:user_profile_id] = session.user_id.to_s
       form = AAL::CreateAALForm.new(attributes)
