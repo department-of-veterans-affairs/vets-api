@@ -5,14 +5,12 @@ require 'rails_helper'
 RSpec.describe Ccra::ReferralListSerializer do
   describe 'serialization' do
     context 'with a list of referrals' do
-      # These values should calculate to May 27, 2024
       let(:cardiology_referral) do
         ref = build(
           :ccra_referral_list_entry,
           referral_number: '5682',
           category_of_care: 'CARDIOLOGY',
-          start_date: '2024-03-28',
-          seoc_days: '60'
+          referral_expiration_date: '2024-05-27'
         )
         ref.uuid = 'encrypted-5682'
         ref
@@ -22,8 +20,7 @@ RSpec.describe Ccra::ReferralListSerializer do
           :ccra_referral_list_entry,
           referral_number: '5683',
           category_of_care: 'PODIATRY',
-          start_date: '2024-03-28',
-          seoc_days: '60'
+          referral_expiration_date: '2024-05-27'
         )
         ref.uuid = 'encrypted-5683'
         ref
@@ -33,8 +30,7 @@ RSpec.describe Ccra::ReferralListSerializer do
           :ccra_referral_list_entry,
           referral_number: '5684',
           category_of_care: 'OPTOMETRY',
-          start_date: '2024-03-28',
-          seoc_days: '60'
+          referral_expiration_date: '2024-05-27'
         )
         ref.uuid = 'encrypted-5684'
         ref
