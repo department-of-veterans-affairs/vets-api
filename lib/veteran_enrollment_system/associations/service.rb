@@ -32,6 +32,28 @@ module VeteranEnrollmentSystem
         deleteIndicator
       ].freeze
 
+      NAME_MAPPINGS = [
+        %i[first givenName],
+        %i[middle middleName],
+        %i[last familyName],
+        %i[suffix suffix]
+      ].freeze
+
+      ADDRESS_MAPPINGS = [
+        %i[street line1],
+        %i[street2 line2],
+        %i[street3 line3],
+        %i[city city],
+        %i[country country]
+      ].freeze
+
+      ROLE_MAPPINGS = [
+        %i[Primary Next of Kin PRIMARY_NEXT_OF_KIN],
+        %i[Other Next of Kin OTHER_NEXT_OF_KIN],
+        %i[Emergency Contact EMERGENCY_CONTACT],
+        %i[Other emergency contact OTHER_EMERGENCY_CONTACT]
+      ].freeze
+
       UPDATED_STATUSES = %w[
         INSERTED
         UPDATED
@@ -54,6 +76,13 @@ module VeteranEnrollmentSystem
         super()
         @current_user = current_user
         @parsed_form = parsed_form
+      end
+
+      def get_associations
+        with_monitoring do
+          response = perform(:get, "#{config.base_path}#{@current_user.icn}")
+          response.body
+        end
       end
 
       # @param [String] form_id: the ID of the form that the associations are being updated for (e.g. '10-10EZR')
@@ -111,6 +140,23 @@ module VeteranEnrollmentSystem
         associations.map { |association| transform_association(association) }
       end
 
+      # Transform the VES Associations API data to match the EZR veteranContacts schema
+      def transform_ves_association(association)
+        transformed_association = Common::HashHelpers.deep_compact(
+          {
+            fullName: {},
+            relationship: association['relationType'],
+            contactType: association['role'],
+            primaryPhone: association['primaryPhone'].gsub(/[()\-]/, ''),
+            address: get_address_from_association(association)
+          }
+        )
+      end
+
+      def transform_ves_associations(associations)
+        associations.map { |association| transform_ves_association(association) }
+      end
+
       # Transform non-nested fields to match the Associations API schema
       def transform_flat_fields(association, transformed_association)
         FLAT_FIELDS.each do |field|
@@ -157,6 +203,10 @@ module VeteranEnrollmentSystem
         response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
       end
 
+      def handle_ves_get_reponse(response, form_id)
+        
+      end
+
       def handle_ves_update_response(response, form_id)
         if response.status == 200
           if response.body['messages'].find { |message| message['code'] != 'completed_partial' }
@@ -182,29 +232,77 @@ module VeteranEnrollmentSystem
         end
       end
 
+      def get_address_from_association(association)
+        address = {}
+        fill_address_mappings_from_association(address, association)
+        fill_address_region_from_association(address, association)
+        address
+      end
+
+      def fill_address_mappings_from_association(address, association)
+        ADDRESS_MAPPINGS.each do |address_map|
+          address[address_map.first] = association[address_map.last]
+        end
+      end
+
+      def fill_address_region_from_association(address, association)
+        case address[:country]
+        when 'MEX'
+          fill_mexico_address_from_association(address, association)
+        when 'USA'
+          fill_usa_address_from_association(address, association)
+        else
+          fill_other_address_from_association(address, association)
+        end
+      end
+
+      def fill_mexico_address_from_association(address, association)
+        address['state'] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address['state']]
+        address['postalCode'] = association['address']['postalCode']
+      end
+
+      def fill_usa_address_from_association(address, association)
+        address['state'] = association['address']['state']
+        zip_code = association['address']['zipCode']
+        zip_plus4 = association['address']['zipPlus4']
+        address['postalCode'] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
+      end
+
+      def fill_other_address_from_association(address, association)
+        address['state'] = association['address']['provinceCode']
+        address['postalCode'] = association['address']['postalCode']
+      end
+
+      def fill_contact_full_name_from_association(contact, association)
+        NAME_MAPPINGS.each do |mapping|
+          contact[:fullName][mapping.first] = association['fullName'][mapping.last]
+        end
+      end
+
       # We need to reconcile the associations data from VES with the submitted form data in order
       # to ensure we are sending the correct data to the Associations API in case any updates were made or records were deleted.
       # @return [Array] the reconciled associations data that will be sent to the Associations API
       def reconcile_associations
-        ves_snapshot = @parsed_form['nonPrefill']['veteranContacts']
-        submitted_contacts = @parsed_form['veteranContacts']
+        ves_associations = get_associations(@current_user.icn)
+
+        form_associations = @parsed_form['veteranContacts']
         # Create a lookup set of contactTypes in the submitted array. 
         # We'll use this to find missing objects (e.g. objects that were deleted on the frontend)
-        submitted_contact_types = submitted_contacts.map { |obj| obj['contactType'] }.compact.to_set
+        submitted_contact_types = form_associations.map { |obj| obj['contactType'] }.compact.to_set
       
-        # Find missing objects based on contactType
-        missing_objects = ves_snapshot.reject do |obj|
+        # Find missing associations based on contactType
+        missing_associations = ves_associations.reject do |obj|
           submitted_contact_types.include?(obj['contactType'])
         end
       
         # Add a deleteIndicator to the missing objects. The user deleted these objects on the frontend, 
         # so we need to delete them from the Associations API
-        deleted_objects = missing_objects.map do |obj|
+        associations_to_delete = missing_associations.map do |obj|
           obj.merge('deleteIndicator' => true)
         end
       
         # Combine submitted array with deleted objects
-        submitted_contacts + deleted_objects
+        form_associations + associations_to_delete
       end
     end
   end
