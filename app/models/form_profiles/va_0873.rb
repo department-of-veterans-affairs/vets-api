@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'va_profile/demographics/service'
+require 'vets/model'
 
 module VA0873
   FORM_ID = '0873'
 
   class FormPersonalInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :first, String
     attribute :middle, String
@@ -18,7 +19,7 @@ module VA0873
   end
 
   class FormAvaProfile
-    include Virtus.model
+    include Vets::Model
 
     attribute :school_facility_code, String
     attribute :school_name, String

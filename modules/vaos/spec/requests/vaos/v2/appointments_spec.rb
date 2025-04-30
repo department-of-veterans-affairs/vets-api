@@ -428,7 +428,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(data.size).to eq(16)
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
               expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
-              expect(data[0]['attributes']['friendlyName']).to eq('service_name')
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -810,7 +809,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'updates the service name, physical location, friendly name, and location' do
+        it 'updates the service name, physical location, and location' do
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
@@ -823,7 +822,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             data = json_body_for(response)['attributes']
             expect(data['serviceName']).to eq('Service Name')
             expect(data['physicalLocation']).to eq('Physical Location')
-            expect(data['friendlyName']).to eq('Service Name')
             expect(data['location']).to eq(expected_facility)
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
@@ -987,7 +985,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         context 'when clinic and location_id are present' do
-          it 'updates the service name, physical location, friendly name, and location' do
+          it 'updates the service name, physical location, and location' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
             stub_facilities
@@ -998,7 +996,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = json_body_for(response)['attributes']
               expect(data['serviceName']).to eq('Service Name')
               expect(data['physicalLocation']).to eq('Physical Location')
-              expect(data['friendlyName']).to eq('Service Name')
               expect(data['location']).to eq(expected_facility)
             end
           end
