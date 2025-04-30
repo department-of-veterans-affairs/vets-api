@@ -1721,10 +1721,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_online_scheduling_display_past_cancelled_appointments:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for displaying past cancelled appointments.
   va_online_scheduling_patient_history_future_appts:
     actor_type: user
     enable_in_development: true
