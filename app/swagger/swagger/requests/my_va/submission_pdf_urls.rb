@@ -22,22 +22,11 @@ module Swagger
             key :produces, ['application/json']
 
             parameter do
-              key :name, :submission
               key :in, :body
-              key :description, 'Submission'
+              key :description, 'Submission PDF URL request'
               key :required, true
-
               schema do
-                key :type, :object
-                key :required, [:submission]
-
-                property(:submission) do
-                  key :$ref, :SubmissionPdfUrls
-                  key :required, %i[
-                    form_id
-                    submission_guid
-                  ]
-                end
+                key :$ref, :SubmissionPdfUrls
               end
             end
 
