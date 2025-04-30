@@ -73,7 +73,6 @@ module RepresentationManagement
 
     validates :veteran_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }, if: -> { veteran_phone.present? }
     validates :veteran_service_number,
-              length: { is: 9 },
               format: { with: SERVICE_NUMBER },
               if: -> { veteran_service_number.present? }
 
