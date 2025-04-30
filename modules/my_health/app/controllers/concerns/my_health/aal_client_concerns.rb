@@ -20,7 +20,7 @@ module MyHealth
     def build_aal_client
       # Pull from the Controller's 'product' function first, then from 'params'
       effective_product =
-        if respond_to?(:product) && product.present?
+        if respond_to?(:product, true) && product.present?
           product
         elsif params[:product].present?
           params[:product].to_sym
