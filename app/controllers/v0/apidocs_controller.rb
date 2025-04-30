@@ -166,6 +166,7 @@ module V0
       Swagger::Requests::MviUsers,
       Swagger::Requests::OnsiteNotifications,
       Swagger::Requests::MyVA::SubmissionStatuses,
+      Swagger::Requests::MyVA::SubmissionPdfUrls,
       Swagger::Requests::IncomeAndAssetsClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
