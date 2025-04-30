@@ -78,7 +78,7 @@ module AAL
     end
 
     def x_api_key
-      Settings.mhv.sm.mhv_sm_x_api_key
+      Settings.mhv.sm.x_api_key
     end
   end
 end

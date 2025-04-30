@@ -13,11 +13,9 @@ module AAL
   class Client < Common::Client::Base
     def create_aal(attributes)
       attributes[:user_profile_id] = session.user_id.to_s
-      form = BB::CreateAALForm.new(attributes)
+      form = AAL::CreateAALForm.new(attributes)
 
-      if Flipper.enabled?(:mhv_medical_records_enable_aal_integration)
-        perform(:post, 'usermgmt/activity', form.params, token_headers)
-      end
+      perform(:post, 'usermgmt/activity', form.params, token_headers) if Flipper.enabled?(:mhv_enable_aal_integration)
     end
 
     private

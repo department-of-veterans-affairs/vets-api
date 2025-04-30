@@ -6,9 +6,6 @@ require 'support/mr_client_helpers'
 require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'MyHealth::V1::AALController', type: :request do
-  include MedicalRecords::ClientHelpers
-  include SchemaMatchers
-
   context 'Unauthorized user' do
     context 'with no MHV Correlation ID' do
       let(:user_id) { '21207668' }
@@ -45,7 +42,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(true)
 
       aal_client = AAL::MRClient.new(
@@ -96,7 +93,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     it 'skips the HTTP call with the flag off' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:mhv_enable_aal_integration).and_return(false)
       expect_any_instance_of(AAL::MRClient).not_to receive(:perform)
 
       post '/my_health/v1/aal', params: valid_params, as: :json

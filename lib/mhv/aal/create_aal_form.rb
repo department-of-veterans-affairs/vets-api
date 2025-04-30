@@ -3,7 +3,7 @@
 require 'common/models/form'
 require 'common/exceptions'
 
-module BB
+module AAL
   class CreateAALForm < Common::Form
     include SentryLogging
 

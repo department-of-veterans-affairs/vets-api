@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_MR_HOST>/mhvapi/v1/usermgmt/activity"
+    uri: "<MHV_MR_HOST>/v1/usermgmt/activity"
     body:
       encoding: UTF-8
       string: '{"userProfileId":21207668,"activityType":"Allergy","action":"create","completionTime":"Wed,
