@@ -26,6 +26,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       
       - name: Fetch target branch
         run: git fetch origin master
