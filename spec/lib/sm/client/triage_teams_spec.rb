@@ -5,7 +5,6 @@ require 'sm/client'
 
 describe 'sm client' do
   describe 'triage_teams' do
-
     subject(:client) { @client }
     before do
       VCR.use_cassette 'sm_client/session' do
