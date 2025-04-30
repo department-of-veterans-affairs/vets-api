@@ -6,7 +6,7 @@ task yardoc: :environment do
   require 'yaml'
 
   head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
-  base_sha = "origin/#{ENV.fetch('GITHUB_BASE_REF')}"
+  base_sha = 'origin/master'
 
   # git diff the glob list - only want to check the changed files
   globs = ['*.rb']
