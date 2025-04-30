@@ -68,7 +68,11 @@ module SimpleFormsApi
       def hydrate_submission_data
         raise "No #{config.id_type} was provided" unless id
 
-        built_submission = config.remediation_data_class.new(id:, config:).hydrate!
+        built_submission = if config.respond_to?(:create_remediation_data)
+                             config.create_remediation_data(id:).hydrate!
+                           else
+                             config.remediation_data_class.new(id:, config:).hydrate!
+                           end
 
         initialize_data(
           attachments: built_submission.attachments,
