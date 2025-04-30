@@ -191,7 +191,7 @@ describe Rx::Client do
 
         it 'adds x-api-key to headers' do
           result = client.send(:get_headers, headers)
-          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'test-api-key')
+          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'fake-x-api-key')
         end
       end
 
