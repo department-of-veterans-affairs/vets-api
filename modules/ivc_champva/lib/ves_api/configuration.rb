@@ -7,7 +7,7 @@ module IvcChampva
   module VesApi
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        'https://dev.ves.va.gov/ves-vfmp-app-svc'
+        'https://dev02.ves.va.gov/ves-vfmp-app-svc'
       end
 
       def service_name
