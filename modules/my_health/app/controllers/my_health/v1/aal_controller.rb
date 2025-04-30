@@ -6,8 +6,6 @@ module MyHealth
       include MyHealth::AALClientConcerns
       service_tag 'mhv-aal'
 
-      # skip_before_action :authenticate
-
       def create
         attributes = aal_params.except(:product)
         aal_client.create_aal(attributes)
