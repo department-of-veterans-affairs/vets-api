@@ -41,7 +41,11 @@ module BGSDependents
       @birth_date = @source['birth_date']
       @was_married = @is_v2 ? @source['was_married'] : @dependents_application['student_address_marriage_tuition']['was_married'] # rubocop:disable Layout/LineLength
       @dependent_income = @is_v2 ? @source['student_income'] : @source['dependent_income']
-      self.attributes = described_class_attribute_hash
+      @ever_married_ind = formatted_boolean(@was_married)
+      @dependent_income = formatted_boolean(@dependent_income)
+      @first = @full_name['first']
+      @middle = @full_name['middle']
+      @last = @full_name['last']
     end
 
     # Sets a hash with AdultChildAttendingSchool attributes
@@ -58,19 +62,6 @@ module BGSDependents
     #
     def address
       @is_v2 ? @source['address'] : @dependents_application['student_address_marriage_tuition']['address']
-    end
-
-    private
-
-    def described_class_attribute_hash
-      # we will raise an error here if not #valid? when we merge in exception PR
-
-      {
-        ssn: @ssn,
-        birth_date: @birth_date,
-        ever_married_ind: formatted_boolean(@was_married),
-        dependent_income: formatted_boolean(@dependent_income)
-      }.merge(@full_name)
     end
   end
 end

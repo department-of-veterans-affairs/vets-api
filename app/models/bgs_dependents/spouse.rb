@@ -47,7 +47,7 @@ module BGSDependents
       @spouse_information = @dependents_application['spouse_information']
       @is_v2 = v2?
 
-      self.attributes = spouse_attributes
+      assign_attributes
     end
 
     # Sets a hash with spouse attributes
@@ -60,23 +60,18 @@ module BGSDependents
 
     private
 
-    # Sets a hash with spouse attributes
-    #
-    # @return [Hash] spouse info including name and address info
-    #
-    def spouse_attributes
-      spouse_info = {
-        ssn: @spouse_information['ssn'],
-        birth_date: @spouse_information['birth_date'],
-        ever_married_ind: 'Y',
-        martl_status_type_cd: marital_status,
-        vet_ind: spouse_is_veteran,
-        address: spouse_address,
-        spouse_income: formatted_boolean(@dependents_application['does_live_with_spouse']['spouse_income'])
-      }.merge(@spouse_information['full_name'])
-      spouse_info.merge!({ va_file_number: @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
-
-      spouse_info
+    def assign_attributes
+      @ssn = @spouse_information['ssn']
+      @birth_date = @spouse_information['birth_date']
+      @ever_married_ind = 'Y'
+      @martl_status_type_cd = marital_status
+      @vet_ind = spouse_is_veteran
+      @address = spouse_address
+      @spouse_income = formatted_boolean(@dependents_application['does_live_with_spouse']['spouse_income'])
+      @first = @spouse_information['full_name']['first']
+      @middle = @spouse_information['full_name']['middle']
+      @last = @spouse_information['full_name']['last']
+      @va_file_number = @spouse_information['va_file_number'] if spouse_is_veteran == 'Y'
     end
 
     def lives_with_vet

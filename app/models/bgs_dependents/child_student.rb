@@ -14,7 +14,8 @@ module BGSDependents
       @dependents_application = dependents_application
       @is_v2 = v2?
       @student = student
-      self.attributes = @is_v2 ? student : dependents_application
+
+      assign_attributes(@is_v2 ? student : dependents_application)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -79,6 +80,14 @@ module BGSDependents
 
     def convert_boolean(bool)
       bool == true ? 'Y' : 'N'
+    end
+
+    def assign_attributes(data)
+      @student_address_marriage_tuition = data.dig('student_address_marriage_tuition')
+      @student_earnings_from_school_year = data.dig('student_earnings_from_school_year')
+      @student_networth_information = data.dig('student_networth_information')
+      @student_expected_earnings_next_year = data.dig('student_expected_earnings_next_year')
+      @student_information = data.dig('student_information')
     end
   end
 end
