@@ -18,16 +18,24 @@ module MyHealth
     end
 
     def build_aal_client
-      raise ActionController::ParameterMissing, 'product' if params[:product].blank?
+      # Pull from the Controller's 'product' function first, then from 'params'
+      effective_product =
+        if respond_to?(:product) && product.present?
+          product
+        elsif params[:product].present?
+          params[:product].to_sym
+        else
+          raise Common::Exceptions::ParameterMissing, 'product'
+        end
 
       # Pick the right subclass based on the product.
-      client_class = case product
+      client_class = case effective_product
                      when :mr then AAL::MRClient
                      when :rx then AAL::RXClient
                      when :sm then AAL::SMClient
                      else
                        raise Common::Exceptions::BadRequest,
-                             detail: "Unknown product: #{product || params[:product]}"
+                             detail: "Unknown product: #{effective_product}"
                      end
 
       client_class.new(session: aal_client_session)
