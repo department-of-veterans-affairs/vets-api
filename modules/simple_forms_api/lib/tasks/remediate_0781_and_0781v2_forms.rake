@@ -7,13 +7,21 @@ require 'common/exceptions/parameter_missing'
 require 'statsd-instrument'
 require 'simple_forms_api/form_remediation/configuration/form_0781_config'
 require_relative '../../app/services/simple_forms_api/form_remediation/jobs/archive_batch_processing_job'
+require_relative 'dev/remediation_stubs' if Rails.env.development?
 
 # Usage:
-#   bundle exec rails simple_forms_api:remediate_0781_and_0781v2_forms[submission_ids_csv_path]
-#   (CSV must have a header row with 'submission_id')
+#   Production:
+#     bundle exec rails simple_forms_api:remediate_0781_and_0781v2_forms[submission_ids_csv_path]
+#     (CSV must have a header row with 'submission_id')
 #
-# Or pass a comma/space-separated list of IDs:
-#   bundle exec rails simple_forms_api:remediate_0781_and_0781v2_forms[123 456 789]
+#   Or pass a comma/space-separated list of IDs:
+#     bundle exec rails simple_forms_api:remediate_0781_and_0781v2_forms[123 456 789]
+#
+#   Local Development:
+#     1. Ensure you have a Form526Submission in your local database:
+#        - Your local seeds should include Form526Submission.find(1)
+#        - Or create one manually in rails console
+#     2. Run: bundle exec rails "simple_forms_api:remediate_0781_and_0781v2_forms[1]"
 #
 # Description:
 # This task remediates both Form 0781 and Form 0781v2 submissions from the broader dataset
@@ -24,8 +32,6 @@ require_relative '../../app/services/simple_forms_api/form_remediation/jobs/arch
 # For submissions on or after that date, both Form 0781 and Form 0781v2 are processed.
 #
 # Related: https://github.com/department-of-veterans-affairs/evidence-upload-remediation/issues/43
-# See also the companion task for 0781a forms: remediate_0781a_forms.rake
-
 def validate_input!(ids)
   raise Common::Exceptions::ParameterMissing, 'submission_ids' unless ids&.any?
 end
@@ -54,6 +60,8 @@ end
 namespace :simple_forms_api do
   desc 'Remediate Form 0781 and 0781v2 submissions via the unified pipeline, with date-based form handling'
   task :remediate_0781_and_0781v2_forms, [:input] => :environment do |_, args|
+    SimpleFormsApi::Dev::RemediationStubs.apply if Rails.env.development?
+
     start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     input = args[:input]
     raise Common::Exceptions::ParameterMissing, 'input' if input.blank?
