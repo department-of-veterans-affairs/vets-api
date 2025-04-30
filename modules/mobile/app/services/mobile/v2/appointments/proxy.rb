@@ -15,10 +15,16 @@ module Mobile
         def get_appointments(start_date:, end_date:, include_pending:, include_claims: false, pagination_params: {})
           statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
 
+          include_params = {
+            clinics: true,
+            facilities: true,
+            travel_pay_claims: include_claims
+          }
+
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
           # or the upstream service does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
-                                                                   pagination_params, include_params(include_claims))
+                                                                   pagination_params, include_params)
 
           appointments = response[:data]
 
@@ -33,14 +39,6 @@ module Mobile
         end
 
         private
-
-        def include_params(include_claims)
-          {
-            clinics: true,
-            facilities: true,
-            travel_pay_claims: include_claims
-          }
-        end
 
         def appointments_helper
           Mobile::AppointmentsHelper.new(@user)
