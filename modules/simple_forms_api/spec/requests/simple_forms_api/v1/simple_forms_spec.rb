@@ -43,11 +43,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#submit' do
-    before do
-      skip('TODO: Note to fix these tests for the team that manages them')
-    end
-
-    context 'submitting to Lighthouse Benefits Intake API' do
+    context 'submitting to Lighthouse Benefits Intake API',
+            skip: 'flakey specs reported https://dsva.slack.com/archives/C044AGZFG2W/p1745933769157079' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
