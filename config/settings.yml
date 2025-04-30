@@ -949,7 +949,7 @@ mhv:
     user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
   rx:
-      x_api_key: <%= ENV['mhv_mobile__rx__x_api_key'] %>
+    x_api_key: <%= ENV['mhv_mobile__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
   x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
