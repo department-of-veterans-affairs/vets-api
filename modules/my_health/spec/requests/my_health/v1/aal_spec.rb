@@ -9,7 +9,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 
-  context 'Unuthorized User' do
+  context 'Unauthorized user' do
     context 'with no MHV Correlation ID' do
       let(:user_id) { '21207668' }
       let(:current_user) { build(:user) }
@@ -33,6 +33,16 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     let(:user_id) { '21207668' }
     let(:current_user) { build(:user, :mhv, mhv_account_type:) }
     let(:mhv_account_type) { 'Premium' }
+    let(:valid_params) do
+      {
+        activity_type: 'Allergy',
+        action: 'View',
+        performer_type: 'Self',
+        detail_value: nil,
+        status: 1,
+        product: 'mr'
+      }
+    end
 
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
@@ -42,7 +52,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
         session: {
           user_id:,
           expires_at: 1.hour.from_now,
-          token: 'ENC(MA0ECJh1RjEgZFMhAgEQCInE+QaILWiZuYg7kVN8DWTKmiHzcxZzWIDoY2YHQjuWHzusYY4LEb9y)'
+          token: '<SESSION_TOKEN>'
         }
       )
 
@@ -53,16 +63,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     it 'responds to POST #create' do
       expect_any_instance_of(AAL::MRClient).to receive(:perform)
       VCR.use_cassette('phr_mgr_client/create_aal_entry') do
-        post '/my_health/v1/aal',
-             params: {
-               activity_type: 'Allergy',
-               action: 'View',
-               performer_type: 'Self',
-               detail_value: nil,
-               status: 1,
-               product: 'mr'
-             },
-             as: :json
+        post '/my_health/v1/aal', params: valid_params, as: :json
       end
 
       expect(response).to have_http_status(:no_content)
@@ -70,15 +71,9 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
     end
 
     it 'fails on form validation' do
-      post '/my_health/v1/aal',
-           params: {
-             activity_type: 'Allergy',
-             performer_type: 'Self',
-             detail_value: nil,
-             status: 3,
-             product: 'mr'
-           },
-           as: :json
+      invalid_params = valid_params.merge(status: 3)
+
+      post '/my_health/v1/aal', params: invalid_params, as: :json
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.body).to be_a(String)
@@ -104,14 +99,7 @@ RSpec.describe 'MyHealth::V1::AALController', type: :request do
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_enable_aal_integration).and_return(false)
       expect_any_instance_of(AAL::MRClient).not_to receive(:perform)
 
-      post '/my_health/v1/aal', params: {
-                                  activity_type: 'Allergy',
-                                  performer_type: 'Self',
-                                  detail_value: nil,
-                                  status: 3,
-                                  product: 'mr'
-                                },
-                                as: :json
+      post '/my_health/v1/aal', params: valid_params, as: :json
 
       expect(response).to have_http_status(:no_content)
     end
