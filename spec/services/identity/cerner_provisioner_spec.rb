@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TermsOfUse::Provisioner do
+RSpec.describe Identity::CernerProvisioner do
   subject(:provisioner) { described_class.new(icn:) }
 
   let(:icn) { '123456789' }
@@ -20,7 +20,7 @@ RSpec.describe TermsOfUse::Provisioner do
       let(:icn) { nil }
 
       it 'is not valid' do
-        expect { provisioner }.to raise_error(TermsOfUse::Errors::ProvisionerError)
+        expect { provisioner }.to raise_error(Identity::Errors::CernerProvisionerError)
           .with_message('Validation failed: Icn can\'t be blank')
       end
     end
@@ -51,13 +51,13 @@ RSpec.describe TermsOfUse::Provisioner do
 
       context 'and account is not cerner provisionable' do
         let(:cerner_provisioned) { false }
-        let(:expected_log) { '[TermsOfUse] [Provisioner] update_provisioning error' }
+        let(:expected_log) { '[Identity] [CernerProvisioner] update_provisioning error' }
         let(:service_response) { { agreement_signed:, cerner_provisioned: } }
 
         before { allow(Rails.logger).to receive(:error) }
 
         it 'raises and logs an error' do
-          expect { provisioner.perform }.to raise_error(TermsOfUse::Errors::ProvisionerError)
+          expect { provisioner.perform }.to raise_error(Identity::Errors::CernerProvisionerError)
           expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response })
         end
       end
@@ -72,7 +72,7 @@ RSpec.describe TermsOfUse::Provisioner do
     end
 
     context 'when agreement is not signed' do
-      let(:expected_log) { '[TermsOfUse] [Provisioner] update_provisioning error' }
+      let(:expected_log) { '[Identity] [CernerProvisioner] update_provisioning error' }
       let(:service_response) { { agreement_signed: false } }
 
       before do
@@ -81,13 +81,13 @@ RSpec.describe TermsOfUse::Provisioner do
       end
 
       it 'raises and logs an error' do
-        expect { provisioner.perform }.to raise_error(TermsOfUse::Errors::ProvisionerError)
+        expect { provisioner.perform }.to raise_error(Identity::Errors::CernerProvisionerError)
         expect(Rails.logger).to have_received(:error).with(expected_log, { icn:, response: service_response })
       end
     end
 
     context 'when a client error is raised' do
-      let(:expected_log) { "[TermsOfUse] [Provisioner] Error: #{expected_error_message}" }
+      let(:expected_log) { "[Identity] [CernerProvisioner] Error: #{expected_error_message}" }
       let(:expected_error_message) { 'Failed to provision' }
 
       before do
@@ -97,7 +97,7 @@ RSpec.describe TermsOfUse::Provisioner do
 
       it 'logs the error and raises a ProvisionerError' do
         expect(Rails.logger).to receive(:error).with(expected_log, { icn: })
-        expect { provisioner.perform }.to raise_error(TermsOfUse::Errors::ProvisionerError)
+        expect { provisioner.perform }.to raise_error(Identity::Errors::CernerProvisionerError)
       end
     end
   end
