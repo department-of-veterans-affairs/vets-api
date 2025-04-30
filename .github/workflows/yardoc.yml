@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Fetch target branch
-        run: git fetch origin "${GITHUB_BASE_REF}" --depth=1
+        run: git fetch origin "${GITHUB_BASE_REF}" --depth=2
 
       - uses: ruby/setup-ruby@v1
         with:
