@@ -7,21 +7,6 @@ require 'claims_api/vbms_uploader'
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }
   let(:user_object) { create(:evss_user, :loa3) }
-  let(:new_address_hash) do
-    {
-      newAddress: {
-        isForeign: false,
-        isMilitary: nil,
-        countryName: 'USA',
-        addressLine1: '1019 Robin Cir',
-        addressLine2: nil,
-        addressLine3: nil,
-        city: 'Arroyo Grande',
-        province: 'CA',
-        internationalPostalCode: '93420'
-      }
-    }
-  end
   let(:user_struct) do
     OpenStruct.new(
       edipi: user_object.edipi,
@@ -192,52 +177,34 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#form_matches_schema' do
-    let(:claim) { build(:veteran_readiness_employment_claim) }
+    ['USA', 'United States'].each do |country_format|
+      context "with #{country_format} format" do
+        let(:claim) { build(:veteran_readiness_employment_claim, country_format: country_format) }
 
-    context 'with valid form data' do
-      it 'passes validation with original schema' do
-        expect(claim).to be_valid
-      end
-    end
+        describe 'country validation' do
+          it 'accepts valid country format' do
+            expect(claim).to be_valid
+          end
 
-    context 'with country validation' do
-      let(:claim_with_full_country) do
-        claim_data = JSON.parse(claim.form)
-        claim_data['veteranAddress']['country'] = 'United States'  # Full name instead of USA
-        build(:veteran_readiness_employment_claim, form: claim_data.to_json)
-      end
+          it 'rejects invalid country format' do
+            claim_data = JSON.parse(claim.form)
+            claim_data['veteranAddress']['country'] = 'Invalid'
+            claim_data['newAddress']['country'] = 'Invalid'
+            claim.form = claim_data.to_json
 
-      it 'validates against V2 schema when country is full name' do
-        expect(claim_with_full_country).to be_valid
-      end
+            expect(claim).not_to be_valid
+            expect(claim.errors.attribute_names).to contain_exactly(:"/veteranAddress/country", :"/newAddress/country")
+          end
 
-      it 'validates against original schema when country is abbreviation' do
-        claim_data = JSON.parse(claim.form)
-        claim_data['veteranAddress']['country'] = 'USA'
-        claim.form = claim_data.to_json
-        expect(claim).to be_valid
-      end
-    end
+          it 'validates other fields independently of country format' do
+            claim_data = JSON.parse(claim.form)
+            claim_data['veteranInformation']['fullName'] = {}  # Invalid name
+            claim.form = claim_data.to_json
 
-    context 'with invalid data' do
-      it 'fails validation with multiple errors' do
-        claim_data = JSON.parse(claim.form)
-        claim_data['veteranInformation']['fullName'] = {}  # Missing required fields
-        claim_data['veteranAddress']['country'] = 'Invalid'
-        claim.form = claim_data.to_json
-        
-        expect(claim).not_to be_valid
-        expect(claim.errors.count).to be > 1
-      end
-
-      it 'only tries V2 schema when single country error exists' do
-        claim_data = JSON.parse(claim.form)
-        claim_data['veteranAddress']['country'] = 'Invalid'
-        claim.form = claim_data.to_json
-        
-        expect(claim).not_to be_valid
-        expect(claim.errors.count).to eq(1)
-        expect(claim.errors.first.attribute).to match(/country/)
+            expect(claim).not_to be_valid
+            expect(claim.errors.attribute_names).to include(:"/veteranInformation/fullName")
+          end
+        end
       end
     end
   end

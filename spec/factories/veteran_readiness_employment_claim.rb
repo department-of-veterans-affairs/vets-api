@@ -6,6 +6,7 @@ FactoryBot.define do
 
     transient do
       regional_office { '317 - St. Petersburg' }
+      country_format { 'USA' }
     end
 
     form {
@@ -20,14 +21,14 @@ FactoryBot.define do
         'yearsOfEducation' => '17',
         'isMoving' => true,
         'newAddress' => {
-          'country' => 'USA',
+          'country' => country_format,
           'street' => '1019 Robin Cir',
           'city' => 'Arroyo Grande',
           'state' => 'CA',
           'postalCode' => '93420'
         },
         'veteranAddress' => {
-          'country' => 'USA',
+          'country' => country_format,
           'street' => '9417 Princess Palm',
           'city' => 'Tampa',
           'state' => 'FL',
