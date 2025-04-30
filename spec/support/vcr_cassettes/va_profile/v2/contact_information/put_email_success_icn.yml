@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/emails
+    method: put
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.000Z","effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"emailAddressText":"person43@example.com","emailId":318927,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.000Z","effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":null}}'
     headers:
       User-Agent:
       - Vets.gov Agent
@@ -21,17 +21,17 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
+      code: 200
       message: ''
     headers:
       X-Oneagent-Js-Injection:
       - 'true'
       - 'true'
       Server-Timing:
-      - dtRpid;desc="-1095093543", dtSInfo;desc="0"
-      - dtRpid;desc="2025554968", dtSInfo;desc="0"
+      - dtRpid;desc="2044359540", dtSInfo;desc="0"
+      - dtRpid;desc="405414556", dtSInfo;desc="0"
       Vaprofiletxauditid:
-      - f163ae96-593c-478f-9376-ef4fabf29ba0
+      - a0ae31f7-c625-49bc-ab87-9b4abadbe059
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
@@ -48,7 +48,7 @@ http_interactions:
       - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
       Date:
-      - Thu, 12 Sep 2024 22:26:38 GMT
+      - Thu, 12 Sep 2024 21:22:55 GMT
       Referrer-Policy:
       - no-referrer
       Content-Type:
@@ -59,7 +59,6 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"EMAIL200","key":"emailId.Null","text":"must be
-        null","severity":"ERROR"}],"txAuditId":"58496b2b-7319-49bd-b46a-57772bb74fa5","status":"REJECTED"}'
-  recorded_at: Thu, 12 Sep 2024 22:26:38 GMT
+      string: '{"txAuditId":"c3c712ea-0cfb-484b-b81e-22f11ee0dcaf","status":"RECEIVED"}'
+  recorded_at: Thu, 12 Sep 2024 21:22:56 GMT
 recorded_with: VCR 6.3.1
