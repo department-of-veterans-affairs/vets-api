@@ -29,6 +29,9 @@ development: &defaults
   rx_store:
     namespace: rx-service
     each_ttl: 1200
+  rx_store_mobile:
+    namespace: rx-service-mobile
+    each_ttl: 1200
   chip:
     namespace: chip
     each_ttl: 870

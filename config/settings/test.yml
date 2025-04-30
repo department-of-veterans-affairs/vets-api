@@ -972,8 +972,7 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   rx:
-    app_token: fake-app-token
-    app_token_va_gov: ~
+    app_token: ~
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
@@ -995,6 +994,9 @@ mhv:
     subject: "Proxy Client"
     user_type: usertype
 mhv_mobile:
+  rx:
+    app_token: fake-app-token
+    x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
   x_api_key: fake-x-api-key
