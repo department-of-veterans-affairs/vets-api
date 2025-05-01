@@ -362,7 +362,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.string "power_of_attorney_holder_type", null: false
     t.string "accredited_individual_registration_number"
     t.string "power_of_attorney_holder_poa_code"
+    t.datetime "redacted_at"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["redacted_at"], name: "index_ar_power_of_attorney_requests_on_redacted_at"
   end
 
   create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
