@@ -42,6 +42,8 @@ module VAProfile
         redacted_response_body['tx_push_input']&.except!(
           'source_system_user',
           'address_line1',
+          'address_line2',
+          'address_line3',
           'city_name',
           'vet360_id',
           'county',
