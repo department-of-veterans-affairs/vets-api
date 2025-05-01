@@ -52,7 +52,10 @@ module VAProfile
           'zip_code4',
           'county',
           'phone_number',
-          'country_code_iso3'
+          'country_code_iso3',
+          'email_address_text',
+          'city_name',
+          'county_name'
         )
         redacted_response_body
       end
