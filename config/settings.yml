@@ -107,11 +107,6 @@ check_in:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800
-  chip_api:
-    base_path: <%= ENV['check_in__chip_api__base_path'] %>
-    tmp_api_id: <%= ENV['check_in__chip_api__tmp_api_id'] %>
-    tmp_api_user: <%= ENV['check_in__chip_api__tmp_api_user'] %>
-    tmp_api_username: <%= ENV['check_in__chip_api__tmp_api_username'] %>
   chip_api_v2:
     base_path: <%= ENV['check_in__chip_api_v2__base_path'] %>
     host: <%= ENV['check_in__chip_api_v2__host'] %>
@@ -477,6 +472,14 @@ form526_export:
     bucket: <%= ENV['form526_export__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
+form_10282:
+  sftp:
+    host: <%= ENV['form_10282__sftp__host'] %>
+    key_data: <%= ENV['form_10282__sftp__key_data'] %>
+    pass: <%= ENV['form_10282__sftp__pass'] %>
+    port: <%= ENV['form_10282__sftp__port'] %>
+    relative_path: <%= ENV['form_10282__sftp__relative_path'] %>
+    user: <%= ENV['form_10282__sftp__user'] %>
 form_10_10cg:
   carma:
     mulesoft:
@@ -936,9 +939,11 @@ mhv:
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
+    base_path: <%= ENV['mhv__sm__base_path'] %>
+    gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
     host: <%= ENV['mhv__sm__host'] %>
-    mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+    x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
     app_token: <%= ENV['mhv__uhd__app_token'] %>
@@ -950,6 +955,7 @@ mhv:
 mhv_mobile:
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
+    x_api_key: <%= ENV['mhv_mobile__sm__x_api_key'] %>
   x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
