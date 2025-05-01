@@ -171,7 +171,6 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
-    resources :evss_claims_async, only: %i[index show]
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
