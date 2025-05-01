@@ -62,7 +62,7 @@ jobs:
       - name: Create git tag if on master
         if: github.ref == 'refs/heads/master'
         run: |
-          git tag ${{ steps.version.outputs.version }}
+          git tag -a ${{ steps.version.outputs.version }} -m "Release version ${{ steps.version.outputs.version }}"
           git push origin ${{ steps.version.outputs.version }}
 
       - name: Login to ECR
