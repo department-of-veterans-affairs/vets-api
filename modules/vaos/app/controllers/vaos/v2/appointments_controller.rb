@@ -16,6 +16,8 @@ module VAOS
       APPT_SHOW_VPG = "GET '/vpg/v1/patients/<icn>/appointments/<id>'"
       APPT_CREATE_VAOS = "POST '/vaos/v1/patients/<icn>/appointments'"
       APPT_CREATE_VPG = "POST '/vpg/v1/patients/<icn>/appointments'"
+      SUBMIT_REFERRAL_STATSD_KEY = 'api.vaos.submit_referral_appointment.success'
+      SUBMIT_REFERRAL_FAILURE_STATSD_KEY = 'api.vaos.submit_referral_appointment.failure'
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
@@ -81,6 +83,12 @@ module VAOS
 
         slots = fetch_provider_slots(cached_referral_data, provider.id)
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
+
+        unless draft&.id
+          StatsD.increment(SUBMIT_REFERRAL_FAILURE_STATSD_KEY)
+          return render(json: appt_creation_failed_error, status: :unprocessable_entity)
+        end
+
         drive_time = fetch_drive_times(provider)
 
         response_data = build_draft_response(draft, provider, slots, drive_time)
@@ -109,9 +117,14 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        render json: appt_creation_failed_error, status: :unprocessable_entity unless appointment&.id
+        unless appointment&.id
+          StatsD.increment(SUBMIT_REFERRAL_FAILURE_STATSD_KEY)
+          render json: appt_creation_failed_error, status: :unprocessable_entity and return
+        end
+
         Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
                           "Response: #{appointment.inspect}")
+        StatsD.increment(SUBMIT_REFERRAL_STATSD_KEY)
         render json: { data: { id: appointment.id } }, status: :created
       end
 
