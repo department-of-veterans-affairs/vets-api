@@ -57,12 +57,14 @@ module AccreditedRepresentativePortal
           add_redactable_resolution_data(r.resolution)
         end
       end
+      # This request is now eligible for redaction attempt because the data check was removed
       let!(:expired_request_no_data) do
         create(:power_of_attorney_request, :with_expiration,
                :with_form_submission).tap do |r|
           ensure_no_redactable_data(r)
         end
       end
+      # This request is now eligible for redaction attempt because the data check was removed
       let!(:stale_request_no_data) do
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
                resolution_created_at: 61.days.ago).tap do |r|
@@ -88,12 +90,13 @@ module AccreditedRepresentativePortal
         job.perform
       end
 
-      it 'redacts only eligible requests and logs the results' do
+      # Updated to reflect that requests without data are now also redacted
+      it 'redacts eligible requests and logs the results' do
         allow(Rails.logger).to receive(:info).with(a_string_matching(/Redacting PowerOfAttorneyRequest/))
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:info).with(a_string_matching(/Starting job/)).ordered
-        # Fixed line length:
-        log_matcher = a_string_matching(/Finished job. Redacted 2 requests. Encountered 0 errors./)
+        # Updated log count from 2 to 4
+        log_matcher = a_string_matching(/Finished job. Redacted 4 requests. Encountered 0 errors./)
         expect(Rails.logger).to receive(:info).with(log_matcher).ordered
 
         job.perform
@@ -101,15 +104,18 @@ module AccreditedRepresentativePortal
         # ----- Verification of Side Effects -----
         expect(expired_request_with_data.reload.redacted_at).to be_present
         expect(stale_request_with_data.reload.redacted_at).to be_present
-        expect(expired_request_no_data.reload.redacted_at).to be_nil
-        expect(stale_request_no_data.reload.redacted_at).to be_nil
+        # These two are now redacted because the data check was removed from ID fetching
+        expect(expired_request_no_data.reload.redacted_at).to be_present
+        expect(stale_request_no_data.reload.redacted_at).to be_present
+        # These remain unchanged
         expect(recent_request.reload.redacted_at).to be_nil
         expect(unresolved_request.reload.redacted_at).to be_nil
         original_redacted_timestamp = stale_but_redacted_request.redacted_at
         expect(stale_but_redacted_request.reload.redacted_at).to eq(original_redacted_timestamp)
       end
 
-      it 'calls #attempt_redaction only for eligible requests' do
+      # Updated to reflect that requests without data are now also attempted
+      it 'calls #attempt_redaction for all eligible requests (regardless of data presence)' do
         attempted_requests = []
         original_method = job.method(:attempt_redaction)
 
@@ -124,9 +130,12 @@ module AccreditedRepresentativePortal
 
         attempted_request_ids = attempted_requests.map(&:id)
 
+        # Now includes requests without data that meet the time/status criteria
         expect(attempted_request_ids).to contain_exactly(
           expired_request_with_data.id,
-          stale_request_with_data.id
+          stale_request_with_data.id,
+          expired_request_no_data.id,
+          stale_request_no_data.id
         )
       end
     end
@@ -145,12 +154,14 @@ module AccreditedRepresentativePortal
           add_redactable_resolution_data(r.resolution)
         end
       end
+      # This request is now eligible because the data check was removed from ID fetching
       let!(:expired_request_no_data) do
         create(:power_of_attorney_request, :with_expiration,
                :with_form_submission).tap do |r|
           ensure_no_redactable_data(r)
         end
       end
+      # This request is now eligible because the data check was removed from ID fetching
       let!(:stale_request_no_data) do
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
                resolution_created_at: 61.days.ago).tap do |r|
@@ -168,13 +179,18 @@ module AccreditedRepresentativePortal
         end
       end
 
-      it 'returns requests meeting all criteria (expired/stale, unredacted, with redactable data)' do
+      # Updated description and expectations
+      it 'returns requests meeting criteria (expired/stale, unredacted), regardless of redactable data' do
         eligible_requests = job.send(:eligible_requests_for_redaction)
-        expect(eligible_requests).to contain_exactly(expired_request_with_data, stale_request_with_data)
-        expect(eligible_requests.size).to eq(2)
-        expect(eligible_requests).not_to include(
+        # Now includes the requests without specific data fields populated
+        expect(eligible_requests).to contain_exactly(
+          expired_request_with_data,
+          stale_request_with_data,
           expired_request_no_data,
-          stale_request_no_data,
+          stale_request_no_data
+        )
+        expect(eligible_requests.size).to eq(4)
+        expect(eligible_requests).not_to include(
           recent_request,
           unresolved_request,
           stale_but_redacted_request
@@ -187,13 +203,14 @@ module AccreditedRepresentativePortal
       let!(:expired_request_with_data) do
         create(:power_of_attorney_request, :with_expiration,
                :with_form_submission).tap do |r|
-          add_redactable_resolution_data(r.resolution)
+          add_redactable_resolution_data(r.resolution) # Add some data
         end
       end
+      # This request is now included because the data check was removed
       let!(:expired_request_no_data) do
         create(:power_of_attorney_request, :with_expiration,
                :with_form_submission).tap do |r|
-          ensure_no_redactable_data(r)
+          ensure_no_redactable_data(r) # Ensure no specific data
         end
       end
       let!(:expired_no_submission) { create(:power_of_attorney_request, :with_expiration) }
@@ -209,8 +226,12 @@ module AccreditedRepresentativePortal
         end
       end
 
-      it 'returns the ids of unredacted, expired requests with redactable data' do
-        expect(job.send(:expired_request_ids)).to contain_exactly(expired_request_with_data.id)
+      # Updated description and expectations
+      it 'returns the ids of unredacted, expired requests (regardless of redactable data)' do
+        expect(job.send(:expired_request_ids)).to contain_exactly(
+          expired_request_with_data.id,
+          expired_request_no_data.id
+        )
       end
     end
 
@@ -219,19 +240,20 @@ module AccreditedRepresentativePortal
       let!(:stale_accepted_with_data) do
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
                resolution_created_at: 61.days.ago).tap do |r|
-          add_redactable_submission_data(r.power_of_attorney_form_submission)
+          add_redactable_submission_data(r.power_of_attorney_form_submission) # Add some data
         end
       end
       let!(:stale_declined_with_data) do
         create(:power_of_attorney_request, :with_declination, :with_form_submission,
                resolution_created_at: 61.days.ago).tap do |r|
-          add_redactable_resolution_data(r.resolution)
+          add_redactable_resolution_data(r.resolution) # Add some data
         end
       end
+      # This request is now included because the data check was removed
       let!(:stale_accepted_no_data) do
         create(:power_of_attorney_request, :with_acceptance, :with_form_submission,
                resolution_created_at: 61.days.ago).tap do |r|
-          ensure_no_redactable_data(r)
+          ensure_no_redactable_data(r) # Ensure no specific data
         end
       end
       let!(:recent_accepted_request) do
@@ -254,13 +276,20 @@ module AccreditedRepresentativePortal
         end
       end
 
-      it 'returns the ids of stale, processed (non-expired), unredacted requests *with redactable data*' do
+      # Updated description and expectations
+      it 'returns the ids of stale, processed (non-expired), unredacted requests (regardless of redactable data)' do
+        # Now includes stale_accepted_no_data.id
         expect(job.send(:stale_processed_request_ids)).to contain_exactly(
           stale_accepted_with_data.id,
-          stale_declined_with_data.id
+          stale_declined_with_data.id,
+          stale_accepted_no_data.id
         )
       end
     end
+
+    # No changes needed for the following contexts as they test behavior downstream
+    # of the ID fetching, and that downstream behavior (redaction attempt, logging)
+    # hasn't fundamentally changed its process, only the scope of inputs it receives.
 
     describe '#process_requests' do
       let(:job) { described_class.new }
@@ -295,22 +324,28 @@ module AccreditedRepresentativePortal
 
     describe '#redact_request' do
       let(:job) { described_class.new }
+      # Use let! to ensure associations are created before tests run
+      let!(:request) { create(:power_of_attorney_request, :with_declination, :with_form_submission) }
+      # Define associations based on the created request
       let!(:form) { request.power_of_attorney_form }
       let!(:submission) { request.power_of_attorney_form_submission }
       let!(:resolution) { request.resolution }
-      let!(:request) { create(:power_of_attorney_request, :with_declination, :with_form_submission) }
 
       # Setup: Ensure some data exists to verify nullification
       before do
+        # Ensure the associations actually exist before trying to update them
+        raise 'Setup error: Submission not created' unless submission
+        raise 'Setup error: Resolution not created' unless resolution
+
         # Disable validation skip check: Directly setting ciphertext for test setup.
         # rubocop:disable Rails/SkipsModelValidations
-        request.resolution&.update_column(:reason_ciphertext, 'encrypted_reason')
-        request.power_of_attorney_form_submission&.update_columns(
+        resolution.update_column(:reason_ciphertext, 'encrypted_reason')
+        submission.update_columns(
           service_response_ciphertext: 'encrypted_response',
           error_message_ciphertext: 'encrypted_error'
         )
         # rubocop:enable Rails/SkipsModelValidations
-        request.reload # Ensure associations are loaded for variables below
+        request.reload # Ensure changes are reflected if needed later
       end
 
       it 'redacts the request within a transaction' do
@@ -325,17 +360,16 @@ module AccreditedRepresentativePortal
       end
 
       # Test form deletion only if the factory trait reliably creates one
-      if defined?(PowerOfAttorneyForm) && PowerOfAttorneyForm.try(:table_exists?) # Basic check
-        it 'destroys the associated form if present' do
-          if form.present? # Only run expectation if form was created
-            expect do
-              job.send(:redact_request, request)
-            end.to change { AccreditedRepresentativePortal::PowerOfAttorneyForm.exists?(form.id) }.from(true).to(false)
-          else
-            # If form isn't created by factory, ensure no error is raised
-            expect { job.send(:redact_request, request) }.not_to raise_error
-            skip("Skipping form destruction check as factory didn't create a form for this request.")
-          end
+      # No change needed here conceptually
+      it 'destroys the associated form if present' do
+        if form.present? # Only run expectation if form was created
+          expect do
+            job.send(:redact_request, request)
+          end.to change { AccreditedRepresentativePortal::PowerOfAttorneyForm.exists?(form.id) }.from(true).to(false)
+        else
+          # If form isn't created by factory, ensure no error is raised
+          expect { job.send(:redact_request, request) }.not_to raise_error
+          skip("Skipping form destruction check as factory didn't create a form for this request.")
         end
       end
 
