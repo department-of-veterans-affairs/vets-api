@@ -12,7 +12,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
 
   let(:user_id) { '21207668' }
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
+  let(:current_user) { build(:user, :mhv) }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(true)
@@ -23,7 +23,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
         icn: '1000000000V000000',
         patient_id: '11382904',
         expires_at: 1.hour.from_now,
-        token: 'ENC(MA0ECJh1RjEgZFMhAgEQCInE+QaILWiZuYg8kVN8DWfIkyTzdhd0XoP+zfs8R2nfXGJ+KEBTLhp8)'
+        token: '<SESSION_TOKEN>'
       }
     )
 
@@ -32,9 +32,49 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
     sign_in_as(current_user)
   end
 
-  context 'Premium User' do
-    let(:mhv_account_type) { 'Premium' }
+  context 'Unauthorized user' do
+    context 'with no MHV Correlation ID' do
+      let(:invalid_user) { build(:user) }
 
+      before do
+        sign_in_as(invalid_user)
+      end
+
+      it 'returns 403 Forbidden when mhv_correlation_id is missing' do
+        sign_in_as(invalid_user)
+
+        get '/my_health/v1/medical_records/self_entered'
+
+        expect(invalid_user.icn).not_to be_nil
+        expect(invalid_user.mhv_correlation_id).to be_nil
+        expect(response).to have_http_status(:forbidden)
+        json = JSON.parse(response.body)
+        expect(json['errors'].first['detail']).to eq('You do not have access to self-entered information')
+      end
+    end
+
+    context 'with no ICN' do
+      let(:invalid_user) { build(:user, :mhv, icn: nil) }
+
+      before do
+        sign_in_as(invalid_user)
+      end
+
+      it 'returns 403 Forbidden when icn is missing' do
+        sign_in_as(invalid_user)
+
+        get '/my_health/v1/medical_records/self_entered'
+
+        expect(invalid_user.icn).to be_nil
+        expect(invalid_user.mhv_correlation_id).not_to be_nil
+        expect(response).to have_http_status(:forbidden)
+        json = JSON.parse(response.body)
+        expect(json['errors'].first['detail']).to eq('You do not have access to self-entered information')
+      end
+    end
+  end
+
+  context 'Authorized user' do
     before do
       VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                           match_requests_on: %i[method sm_user_ignoring_path_param])
@@ -54,10 +94,10 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::SelfEntered', type: :request do
 
       json = JSON.parse(response.body)
       expect(json['responses'].size).to eq 15 # There should be 15 successful API responses
-      expect(json['errors'].size).to eq 0 # There should be 15 successful API responses
+      expect(json['errors'].size).to eq 0
     end
 
-    context 'when some of the downstream calls error out' do
+    context 'when some of the upstream calls error out' do
       before do
         # stub those two service methods to raise:
         allow_any_instance_of(BBInternal::Client)

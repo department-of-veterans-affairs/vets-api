@@ -220,6 +220,7 @@ RSpec.describe V0::InProgressFormsController do
           )
           get v0_in_progress_form_url('MDOT'), params: nil
           expect(response).to have_http_status(:ok)
+          VCR.eject_cassette
         end
       end
 

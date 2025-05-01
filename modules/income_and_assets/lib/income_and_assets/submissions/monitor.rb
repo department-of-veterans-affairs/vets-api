@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+require 'income_and_assets/notification_email'
+
 module IncomeAndAssets
   ##
   # IncomeAndAssets sidekiq monitor functions for Rails logging and StatsD
@@ -8,9 +11,17 @@ module IncomeAndAssets
     ##
     # Monitor functions for Rails logging and StatsD
     #
-    class Monitor
+    class Monitor < ::ZeroSilentFailures::Monitor
       # statsd key for sidekiq
       SUBMISSION_STATS_KEY = 'worker.lighthouse.income_and_assets_intake_job'
+
+      attr_reader :tags
+
+      def initialize
+        super('income-and-assets')
+
+        @tags = ['form_id:21P-0969']
+      end
 
       ##
       # log Sidkiq job started
@@ -98,13 +109,49 @@ module IncomeAndAssets
       # @param claim [IncomeAndAssets::SavedClaim]
       #
       def track_submission_exhaustion(msg, claim = nil)
-        StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-        Rails.logger.error('IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!', {
-                             claim_id: msg['args'].first,
-                             confirmation_number: claim&.confirmation_number,
-                             message: msg,
-                             user_account_uuid: msg['args'].length <= 1 ? nil : msg['args'][1]
-                           })
+        user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
+        additional_context = {
+          confirmation_number: claim&.confirmation_number,
+          user_account_uuid:,
+          form_id: claim&.form_id,
+          claim_id: msg['args'].first,
+          message: msg,
+          tags:
+        }
+        call_location = caller_locations.first
+
+        if claim
+          # silent failure tracking in email callback
+          IncomeAndAssets::NotificationEmail.new(claim.id).deliver(:error)
+        else
+          log_silent_failure(additional_context, user_account_uuid, call_location:)
+        end
+
+        track_request('error', 'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
+                      "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)
+      end
+
+      ##
+      # Tracks the failure to send a Submission in Progress email for a claim.
+      # @see IncomeAndAssets::BenefitIntakeJob
+      #
+      # @param claim [IncomeAndAssets::SavedClaim]
+      # @param lighthouse_service [LighthouseService]
+      # @param e [Exception]
+      #
+      def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
+        additional_context = {
+          confirmation_number: claim&.confirmation_number,
+          user_account_uuid:,
+          claim_id: claim&.id,
+          benefits_intake_uuid: lighthouse_service&.uuid,
+          message: e&.message,
+          tags:
+        }
+
+        track_request('warn', 'IncomeAndAssets::BenefitIntakeJob send_submitted_email failed',
+                      "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
+                      call_location: caller_locations.first, **additional_context)
       end
 
       ##
