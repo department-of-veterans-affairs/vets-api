@@ -14,7 +14,7 @@ module AAL
   class Configuration < Common::Client::Configuration::REST
     def base_path
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
-        "#{Settings.mhv.api_gateway.hosts.bluebutton}/v1/"
+        "#{Settings.mhv.api_gateway.hosts.usermgmt}/v1/"
       else
         "#{Settings.mhv.medical_records.host}/mhvapi/v1/"
       end
