@@ -43,6 +43,15 @@ module VeteranEnrollmentSystem
         NOT_DELETED_NO_MATCHING_ASSOCIATION
       ].freeze
 
+      # We need to sort the associations in order to comply with the business logic
+      # of the Associations API mentioned at the top of this file
+      VES_ROLE_ORDER = {
+        'Other Next of Kin' => 0,
+        'Other emergency contact' => 1,
+        'Primary Next of Kin' => 2,
+        'Emergency Contact' => 3
+      }.freeze
+
       ERROR_MAP = {
         400 => Common::Exceptions::BadRequest,
         404 => Common::Exceptions::ResourceNotFound,
@@ -81,14 +90,7 @@ module VeteranEnrollmentSystem
       # We need to sort the associations in order to comply with the business logic
       # of the Associations API mentioned at the top of this file
       def reorder_associations(associations)
-        contact_type_order = {
-          'Other Next of Kin' => 0,
-          'Other emergency contact' => 1,
-          'Primary Next of Kin' => 2,
-          'Emergency Contact' => 3
-        }
-
-        associations.sort_by { |assoc| contact_type_order[assoc['contactType']] }
+        associations.sort_by { |assoc| VES_ROLE_ORDER[assoc['contactType']] }
       end
 
       def transform_association(association)
