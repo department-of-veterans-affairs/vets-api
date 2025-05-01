@@ -58,7 +58,7 @@ class Swagger::V1::Requests::IvcChampvaForms
 
       parameter do
         key :name, :case_id
-        key :description, 'PEGA System UUID'
+        key :description, 'PEGA system identifier'
         key :in, :body
         key :required, true
 
