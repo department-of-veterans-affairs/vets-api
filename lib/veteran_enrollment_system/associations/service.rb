@@ -78,11 +78,21 @@ module VeteranEnrollmentSystem
         @parsed_form = parsed_form
       end
 
-      def get_associations
+      def get_associations(form_id)
         with_monitoring do
-          response = perform(:get, "#{config.base_path}#{@current_user.icn}")
-          response.body
+          response = perform(:get, "#{config.base_path}#{@current_user.icn}", nil)
+
+          if response.status == 200
+            response.body
+          else
+            raise_custom_error(response)
+          end
         end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_associations.failed")
+        Rails.logger.info("#{form_id} retrieve associations failed: #{e.errors}")
+
+        raise e
       end
 
       # @param [String] form_id: the ID of the form that the associations are being updated for (e.g. '10-10EZR')
@@ -101,8 +111,8 @@ module VeteranEnrollmentSystem
           handle_ves_update_response(response, form_id)
         end
       rescue => e
-        Rails.logger.info("#{form_id} update associations failed: #{e.errors}")
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
+        Rails.logger.info("#{form_id} update associations failed: #{e.errors}")
 
         raise e
       end
@@ -175,8 +185,8 @@ module VeteranEnrollmentSystem
       end
 
       def set_response(
-        status: 'success',
-        message: 'All associations were updated successfully',
+        status:,
+        message:,
         **optional_fields
       )
         {
@@ -203,10 +213,6 @@ module VeteranEnrollmentSystem
         response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
       end
 
-      def handle_ves_get_reponse(response, form_id)
-        
-      end
-
       def handle_ves_update_response(response, form_id)
         if response.status == 200
           if response.body['messages'].find { |message| message['code'] != 'completed_partial' }
@@ -224,11 +230,7 @@ module VeteranEnrollmentSystem
             set_partial_success_response(response)
           end
         else
-          message = response.body['messages']&.pluck('description')&.join(', ') || response.body
-          # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
-          raise (
-            ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
-          ).new(errors: message)
+          raise_custom_error(response)
         end
       end
 
@@ -280,29 +282,35 @@ module VeteranEnrollmentSystem
       end
 
       # We need to reconcile the associations data from VES with the submitted form data in order
-      # to ensure we are sending the correct data to the Associations API in case any updates were made or records were deleted.
+      # to ensure we are sending the correct data to the Associations API in case any updates were made or records
+      # were deleted.
       # @return [Array] the reconciled associations data that will be sent to the Associations API
       def reconcile_associations
         ves_associations = get_associations(@current_user.icn)
 
         form_associations = @parsed_form['veteranContacts']
-        # Create a lookup set of contactTypes in the submitted array. 
+        # Create a lookup set of contactTypes in the submitted array.
         # We'll use this to find missing objects (e.g. objects that were deleted on the frontend)
-        submitted_contact_types = form_associations.map { |obj| obj['contactType'] }.compact.to_set
-      
+        submitted_contact_types = form_associations.pluck('contactType').compact.to_set
         # Find missing associations based on contactType
         missing_associations = ves_associations.reject do |obj|
           submitted_contact_types.include?(obj['contactType'])
         end
-      
-        # Add a deleteIndicator to the missing objects. The user deleted these objects on the frontend, 
+        # Add a deleteIndicator to the missing objects. The user deleted these objects on the frontend,
         # so we need to delete them from the Associations API
         associations_to_delete = missing_associations.map do |obj|
           obj.merge('deleteIndicator' => true)
         end
-      
         # Combine submitted array with deleted objects
         form_associations + associations_to_delete
+      end
+
+      def raise_custom_error(response)
+        message = response.body['messages']&.pluck('description')&.join(', ') || response.body
+        # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
+        raise (
+          ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
+        ).new(errors: message)
       end
     end
   end

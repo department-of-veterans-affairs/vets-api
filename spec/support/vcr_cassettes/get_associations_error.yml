@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://localhost:4430/ves-associate-gateway-svc/associations/person/1012829228V42403
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Thu, 01 May 2025 17:06:05 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '13'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="168323264"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"description":"No record found for a person with the
+        specified ICN","code":"VES_101"}],"retryable":false}'
+  recorded_at: Thu, 01 May 2025 17:06:05 GMT
+recorded_with: VCR 6.3.1

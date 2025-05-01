@@ -125,6 +125,16 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     )
   end
 
+  describe '#get_associations' do
+    it 'returns the associations' do
+      VCR.use_cassette('example4', :record => :once) do
+        response = described_class.new(current_user).get_associations('10-10EZR')
+        debugger
+        expect(response).to be_a(Object)
+      end
+    end
+  end
+
   # In the VES Associations API, insert, update, and delete are all handled by the same endpoint
   describe '#update_associations' do
     before do
