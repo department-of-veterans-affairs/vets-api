@@ -18,7 +18,7 @@ module VAProfile
         STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.person".freeze
         configuration VAProfile::V2::ContactInformation::Configuration
 
-        # Initializes a vet360_id for a user that does not have one. Can be used when a current user
+        # Initializes a VAProfile_ID for a user that does not have one. Can be used when a current user
         # is present, or through a rake task when no user is present (through passing in their ICN).
         # This is an asynchronous process for VAProfile, so it returns VAProfile transaction information.
         #
@@ -34,6 +34,8 @@ module VAProfile
           handle_error(e)
         end
 
+        private
+
         def encode_url!(icn)
           encoded_icn_with_aaid = url_encode(build_icn_with_aaid!(icn))
 
@@ -48,14 +50,6 @@ module VAProfile
           else
             raise 'User does not have a valid ICN with an Assigning Authority ID'
           end
-        end
-
-        private
-
-        # @see https://ruby-doc.org/stdlib-2.3.0/libdoc/erb/rdoc/ERB/Util.html
-        #
-        def icn_with_aaid
-          "#{@user.icn}^NI^200M^USVHA" if @user.icn
         end
 
         def empty_body

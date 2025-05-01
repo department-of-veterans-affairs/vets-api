@@ -306,12 +306,13 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         'sets error for file part size exceeding 100MB' => :valid_parts_attachment }.each_pair do |_k, v|
         it 'sets error for file part size exceeding 100MB' do
           allow(VBADocuments::MultipartParser).to receive(:parse) { send v }
-          allow(File).to receive(:size).and_return(100_000_001)
+          allow(File).to receive(:size).and_return(101.megabytes)
 
           described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')
           expect(updated.code).to eq('DOC106')
+          expect(updated.detail).to eq('Maximum document size exceeded. Limit is 100 MB per document.')
         end
       end
     end
@@ -561,7 +562,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     context 'document is base64 encoded' do
       it 'sets document base64_encoded metadata to true' do
-        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(true)
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded_file?).and_return(true)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'content' => valid_doc }
         }
@@ -573,7 +574,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     context 'document is not base64 encoded' do
       it 'sets document base64_encoded metadata to false' do
-        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(false)
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded_file?).and_return(false)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'content' => valid_doc }
         }

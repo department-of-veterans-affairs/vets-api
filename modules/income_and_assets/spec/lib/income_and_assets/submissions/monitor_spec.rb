@@ -92,20 +92,55 @@ RSpec.describe IncomeAndAssets::Submissions::Monitor do
 
     describe '#track_submission_exhaustion' do
       it 'logs sidekiq job exhaustion' do
+        notification = double(IncomeAndAssets::NotificationEmail)
         msg = { 'args' => [claim.id, current_user.user_account_uuid] }
 
         log = 'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!'
         payload = {
-          claim_id: claim.id,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
-          message: msg
+          form_id: claim.form_id,
+          claim_id: claim.id, # pulled from msg.args
+          message: msg,
+          tags: monitor.tags
         }
 
-        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-        expect(Rails.logger).to receive(:error).with(log, payload)
+        expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+        expect(notification).to receive(:deliver).with(:error)
+
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{submission_stats_key}.exhausted",
+          call_location: anything,
+          **payload
+        )
 
         monitor.track_submission_exhaustion(msg, claim)
+      end
+    end
+
+    describe '#track_send_submitted_email_failure' do
+      it 'logs sidekiq job send_submitted_email error' do
+        log = 'IncomeAndAssets::BenefitIntakeJob send_submitted_email failed'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          message: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'warn',
+          log,
+          "#{submission_stats_key}.send_submitted_failed",
+          call_location: anything,
+          **payload
+        )
+
+        monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
       end
     end
 

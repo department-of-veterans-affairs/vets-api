@@ -84,6 +84,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Log a snapshot of everything in a full failure type state
   mgr.register('5 * * * *', 'Form526FailureStateSnapshotJob')
 
+  # Send metrics to datadog related to 526 submission 0781 in-progress forms and submission
+  mgr.register('0 3 * * *', 'Form0781StateSnapshotJob')
+
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
 
