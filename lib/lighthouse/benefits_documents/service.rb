@@ -50,7 +50,7 @@ module BenefitsDocuments
 
     private
 
-    def submit_document(file, file_params, lighthouse_client_id = nil)
+    def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength
       user_icn = @user.icn
       document_data = build_lh_doc(file, file_params)
       claim_id = file_params[:claimId] || file_params[:claim_id]
