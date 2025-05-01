@@ -107,11 +107,6 @@ check_in:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800
-  chip_api:
-    base_path: <%= ENV['check_in__chip_api__base_path'] %>
-    tmp_api_id: <%= ENV['check_in__chip_api__tmp_api_id'] %>
-    tmp_api_user: <%= ENV['check_in__chip_api__tmp_api_user'] %>
-    tmp_api_username: <%= ENV['check_in__chip_api__tmp_api_username'] %>
   chip_api_v2:
     base_path: <%= ENV['check_in__chip_api_v2__base_path'] %>
     host: <%= ENV['check_in__chip_api_v2__host'] %>
