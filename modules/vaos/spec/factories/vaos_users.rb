@@ -27,7 +27,7 @@ FactoryBot.modify do
       end
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
-      after(:build) do |_user, _t|
+      after(:build) do |user, _t|
         stub_mpi(
           build(
             :mpi_profile,
@@ -55,7 +55,7 @@ FactoryBot.modify do
           )
         )
         # build UserVerification & UserAccount records
-        verification = create(:idme_user_verification, idme_uuid: _user.idme_uuid)
+        create(:idme_user_verification, idme_uuid: user.idme_uuid)
       end
     end
 
@@ -84,7 +84,7 @@ FactoryBot.modify do
       end
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
-      after(:build) do |_user, _t|
+      after(:build) do |user, _t|
         stub_mpi(
           build(
             :mpi_profile,
@@ -112,7 +112,7 @@ FactoryBot.modify do
           )
         )
         # build UserVerification & UserAccount records
-        verification = create(:idme_user_verification, idme_uuid: _user.idme_uuid)
+        create(:idme_user_verification, idme_uuid: user.idme_uuid)
       end
     end
   end
