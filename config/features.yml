@@ -192,6 +192,9 @@ features:
   ezr_associations_api_enabled:
     actor_type: user
     description: Enables VES's Associations REST API
+  ezr_prefill_contacts:
+    actor_type: user
+    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   cerner_override_653:
     actor_type: user
