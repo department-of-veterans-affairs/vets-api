@@ -226,7 +226,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
         redacted_response_body = described_class.redact_response_body(body)
 
         expect(described_class).to receive(:log_message_to_sentry).with(
-          'VAProfile transaction error',
+          'VAProfile contact info transaction error',
           :error,
           { response_body: redacted_response_body },
           error: :va_profile

@@ -28,7 +28,7 @@ module VAProfile
         redacted_response_body = redact_response_body(@response_body)
 
         log_message_to_sentry(
-          'VAProfile transaction error',
+          'VAProfile contact info transaction error',
           :error,
           { response_body: redacted_response_body },
           error: :va_profile
