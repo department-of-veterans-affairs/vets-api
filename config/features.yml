@@ -1052,13 +1052,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_transitional_medical_records_landing_page:
-    actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
-  mhv_integration_medical_records_to_phase_1:
-    actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
-    enable_in_development: true
   mhv_interstitial_enabled:
     actor_type: user
     descriptiom: Enables interstitial for upcoming mhv deprecation
