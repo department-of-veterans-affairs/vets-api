@@ -1049,6 +1049,9 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_supply_reordering_enabled:
+    actor_type: user
+    description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_transitional_medical_records_landing_page:
     actor_type: user
     description: Enables the transitional Medical Records page at /my-health/records
