@@ -641,8 +641,13 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
-  ves_api:
-    api_key: fake_api_key
+ivc_champva_ves_api:
+  api_key: fake_api_key
+  app_id: ~
+  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  base_path: dev02.ves.va.gov
+  mock: false
+  subject: "Proxy Client"
 ivc_forms:
   form_status_job:
     enabled: ~
