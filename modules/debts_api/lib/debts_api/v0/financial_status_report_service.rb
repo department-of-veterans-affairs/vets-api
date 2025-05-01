@@ -185,7 +185,8 @@ module DebtsApi
     def send_vha_confirmation_email(_status, options)
       return if options['email'].blank?
 
-      DebtManagementCenter::VANotifyEmailJob.perform_async(
+      DebtManagementCenter::VANotifyEmailJob.perform_in(
+        5.minutes,
         options['email'],
         options['template_id'],
         options['email_personalization_info'],
