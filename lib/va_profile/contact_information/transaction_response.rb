@@ -16,19 +16,45 @@ module VAProfile
       def self.from(raw_response = nil)
         @response_body = raw_response&.body
 
-        if error?
-          log_message_to_sentry(
-            'VAProfile transaction error',
-            :error,
-            { response_body: @response_body },
-            error: :va_profile
-          )
-        end
+        log_transaction_error if error?
 
         new(
           raw_response&.status,
           transaction: VAProfile::Models::Transaction.build_from(@response_body)
         )
+      end
+
+      def self.log_transaction_error
+        redacted_response_body = redact_response_body(@response_body)
+
+        log_message_to_sentry(
+          'VAProfile contact info transaction error',
+          :error,
+          { response_body: redacted_response_body },
+          error: :va_profile
+        )
+      end
+
+      def self.redact_response_body(response_body)
+        return unless response_body
+
+        redacted_response_body = response_body.deep_dup
+        redacted_response_body['tx_push_input']&.except!(
+          'source_system_user',
+          'address_line1',
+          'address_line2',
+          'address_line3',
+          'city_name',
+          'vet360_id',
+          'county',
+          'state_code',
+          'zip_code5',
+          'zip_code4',
+          'county',
+          'phone_number',
+          'country_code_iso3'
+        )
+        redacted_response_body
       end
 
       def self.error?
