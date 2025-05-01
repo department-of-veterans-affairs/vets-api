@@ -540,7 +540,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       sign_in
     end
 
-    let(:valid_file) { fixture_file_upload('doctors-note.gif') }
+    let(:valid_file) { fixture_file_upload('doctors-note.pdf') }
     let(:invalid_file) { fixture_file_upload('too_large.pdf') }
 
     it 'renders the attachment as json when the document is valid' do
@@ -595,7 +595,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?).and_return(false)
 
-      data = { form_id: '40-0247', file: valid_file }
+      data = { form_id: '40-0247', file: invalid_file }
 
       expect do
         post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data

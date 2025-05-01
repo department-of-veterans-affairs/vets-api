@@ -1169,6 +1169,10 @@ features:
     actor_type: user
     description: Enables/disables use of the unified API call self-entered information
     enable_in_development: true
+  mhv_medical_records_milestone_two:
+    actor_type: user
+    description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
@@ -2165,5 +2169,8 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
+  form_10282_sftp_upload:
+    actor_type: user
+    description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
   only_use_direct_deposit_email_template:
     description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates
