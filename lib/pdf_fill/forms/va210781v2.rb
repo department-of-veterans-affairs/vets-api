@@ -367,60 +367,70 @@ module PdfFill
             question_num: 12,
             question_label: 'A rape crisis center or center for domestic abuse',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].A_Rape_Crisis_Center_Or_Center_For_Domestic_Abuse[0]'
           },
           'counseling' => {
             question_num: 12,
             question_label: 'A counseling facility or health clinic',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].A_Counseling_Facility_Or_Health_Clinic[0]'
           },
           'family' => {
             question_num: 12,
             question_label: 'Family members or roommates',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].Family_Member_Or_Roomates[0]'
           },
           'faculty' => {
             question_num: 12,
             question_label: 'A faculty member',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].A_Faculty_Member[0]'
           },
           'police' => {
             question_num: 12,
             question_label: 'Civilian police reports',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].Civilian_Police_Reports[0]'
           },
           'physicians' => {
             question_num: 12,
             question_label: 'Medical reports from civilian physicians or caregivers who treated you immediately following the incident or sometime later',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].Medical_Reports_From_Civilian_Physicians_Or_Caregivers_Who_Treated_You_Immediately_Following_The_Incident_Or_Sometime_Later[0]'
           },
           'clergy' => {
             question_num: 12,
             question_label: 'A chaplain or clergy',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].A_Chaplain_Or_Clergy[0]'
           },
           'service' => {
             question_num: 12,
             question_label: 'Fellow service member(s)',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].Fellow_Service_Members[0]'
           },
           'personal' => {
             question_num: 12,
             question_label: 'Personal diaries or journals',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].Personal_Diaries_Or_Journals[0]'
           },
           'none' => {
             question_num: 12,
             question_label: 'None',
             question_type: 'checklist_group',
+            checked_values: ['1'],
             key: 'F[0].#subform[4].No_Evidence[0]'
           },
           'other' => {

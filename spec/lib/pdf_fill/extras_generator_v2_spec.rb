@@ -68,8 +68,10 @@ describe PdfFill::ExtrasGeneratorV2 do
       context 'when the question is a checklist group' do
         let(:add_text_calls) do
           [
-            [1, { question_label: 'Item 1', question_type: 'checklist_group' }],
-            [0, { question_label: 'None' }],
+            [1, { question_label: 'Item 1', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 2', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 3', question_type: 'checklist_group', checked_values: ['0'] }],
+            [2, { question_label: 'None' }],
             ['Miscellaneous details', { question_label: 'Other', question_type: 'checklist_group' }]
           ]
         end
@@ -78,6 +80,8 @@ describe PdfFill::ExtrasGeneratorV2 do
           expect(subject.sorted_subquestions_markup).to eq(
             [
               '<tr><td><ul><li>Item 1</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Item 3</li></ul></td></tr>',
               '',
               '<tr><td><ul><li>Other: Miscellaneous details</li></ul></td></tr>'
             ]

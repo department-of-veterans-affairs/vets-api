@@ -58,12 +58,13 @@ module PdfFill
       def checklist_group_markup
         sorted_subquestions.map do |subq|
           meta = subq[:metadata]
-          if [0, false, nil].include?(subq[:value]) || meta[:question_type] != 'checklist_group'
+          checked = meta[:checked_values]&.include?(subq[:value].to_s) # nil if checked_values are absent
+          if meta[:question_type] != 'checklist_group' || checked == false
             ''
           else
-            value = subq[:metadata][:question_label]
-            value = "#{value}: #{subq[:value]}" unless [1, true].include?(subq[:value])
-            "<tr><td><ul><li>#{value}</li></ul></td></tr>"
+            text = subq[:metadata][:question_label]
+            text = "#{text}: #{subq[:value]}" unless checked == true
+            "<tr><td><ul><li>#{text}</li></ul></td></tr>"
           end
         end
       end
