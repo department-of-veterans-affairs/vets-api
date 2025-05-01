@@ -74,6 +74,7 @@ class Message
   attribute :attachment3_id, Integer
   attribute :attachment4_id, Integer
   attribute :suggested_name_display, String
+  attribute :metadata, Hash
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, ActionDispatch::Http::UploadedFile, array: true
@@ -87,11 +88,11 @@ class Message
   alias attachment? attachment
 
   def subject=(data)
-    @subject = data ? Nokogiri::HTML.parse(data).at('p')&.text : nil
+    @subject = data ? Nokogiri::HTML.parse(data).text : nil
   end
 
   def body=(data)
-    @body = data ? Nokogiri::HTML.parse(data).at('p')&.text : nil
+    @body = data ? Nokogiri::HTML.parse(data).text : nil
   end
 
   ##

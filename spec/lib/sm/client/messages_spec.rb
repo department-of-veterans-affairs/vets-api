@@ -39,8 +39,8 @@ describe 'sm client' do
 
     it 'gets a message with id', :vcr do
       message = client.get_message(existing_message_id)
-      expect(message.attributes[:id]).to eq(existing_message_id)
-      expect(message.attributes[:subject].strip).to eq('Quote test: “test”')
+      expect(message.id).to eq(existing_message_id)
+      expect(message.subject).to eq('Quote test: “test”')
     end
 
     it 'gets a message thread', :vcr do
@@ -70,10 +70,10 @@ describe 'sm client' do
       let(:attachment_type)       { 'image/jpg' }
       let(:uploads) do
         [
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', attachment_type)
+          ActionDispatch::Http::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type),
+          ActionDispatch::Http::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', attachment_type),
+          ActionDispatch::Http::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', attachment_type),
+          ActionDispatch::Http::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', attachment_type)
         ]
       end
       let(:params) { @params }

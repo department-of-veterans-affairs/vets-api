@@ -78,7 +78,7 @@ module SM
     # @return [Sting] json response
     #
     def post_signature(params)
-      request_body = MessagingSignature.new(params).to_h
+      request_body = MessagingSignature.new(params).to_json
       perform(:post, 'preferences/signature', request_body, token_headers).body
     end
     # @!endgroup
@@ -241,7 +241,7 @@ module SM
       validate_draft(args)
 
       json = perform(:post, 'message/draft', args, token_headers).body
-      draft = MessageDraft.new(json)
+      draft = MessageDraft.new(json[:data])
       draft.body = draft.original_attributes[:body]
       draft
     end
@@ -261,8 +261,7 @@ module SM
       json = perform(:post, "message/#{id}/replydraft", args, token_headers).body
       json[:data][:has_message] = true
 
-      draft = MessageDraft.new(json)
-      draft.body = draft.original_attributes[:body]
+      draft = MessageDraft.new(json[:data])
       draft.as_reply
     end
     # @!endgroup
@@ -290,7 +289,7 @@ module SM
     def get_message(id)
       path = "message/#{id}/read"
       json = perform(:get, path, nil, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -343,7 +342,7 @@ module SM
       validate_create_context(args)
 
       json = perform(:post, 'message', args.to_h, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -358,7 +357,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -373,7 +372,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -387,7 +386,7 @@ module SM
       validate_reply_context(args)
 
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
