@@ -5,6 +5,7 @@ FactoryBot.modify do
     trait :vaos do
       authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
       uuid { '3071ca1783954ec19170f3c4bdfd0c95' }
+      idme_uuid { SecureRandom.uuid }
       last_signed_in { Time.now.utc }
       mhv_last_signed_in { Time.now.utc }
       email { 'judy.morrison@id.me' }
@@ -53,12 +54,15 @@ FactoryBot.modify do
             ssn: '796061976'
           )
         )
+        # build UserVerification & UserAccount records
+        verification = create(:idme_user_verification, idme_uuid: _user.idme_uuid)
       end
     end
 
     trait :jac do
       authn_context { 'http://idmanagement.gov/ns/assurance/loa/1/vets' }
       uuid { '3071ca1783954ec19170f3c4bdfd0c95' }
+      idme_uuid { SecureRandom.uuid }
       last_signed_in { Time.now.utc }
       mhv_last_signed_in { Time.now.utc }
       email { 'jacqueline.morgan@id.me' }
@@ -107,6 +111,8 @@ FactoryBot.modify do
             ssn: '796061976'
           )
         )
+        # build UserVerification & UserAccount records
+        verification = create(:idme_user_verification, idme_uuid: _user.idme_uuid)
       end
     end
   end
