@@ -168,6 +168,55 @@ describe PdfFill::Forms::Va210781v2 do
             'Local Police Department, Springfield, IL, USA'
           )
         end
+
+        context 'when police location details overflow the text field' do
+          let(:event_with_police_report) do
+            {
+              'events' => [
+                {
+                  'otherReports' => {
+                    'police' => true
+                  },
+                  'agency' => 'Local Police Department',
+                  'city' => 'Springfield',
+                  'state' => 'IL',
+                  'country' => 'USA'
+                },
+                {
+                  'otherReports' => {
+                    'police' => true
+                  },
+                  'agency' => 'Local Police Department',
+                  'township' => 'Lower Alloways Creek Township',
+                  'state' => 'NJ',
+                  'country' => 'USA'
+                }
+              ]
+            }
+          end
+
+          it 'fills in the police report overflow data structure correctly' do
+            new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+            new_form_class.send(:process_reports)
+
+            expect(new_form_class.instance_variable_get(:@form_data)['policeReportOverflow']).to eq(
+              [
+                {
+                  'agency' => 'Local Police Department',
+                  'city' => 'Springfield',
+                  'state' => 'IL',
+                  'country' => 'USA'
+                },
+                {
+                  'agency' => 'Local Police Department',
+                  'township' => 'Lower Alloways Creek Township',
+                  'state' => 'NJ',
+                  'country' => 'USA'
+                }
+              ]
+            )
+          end
+        end
       end
 
       context 'when an unlistedReport is provided' do

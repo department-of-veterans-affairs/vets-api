@@ -320,15 +320,31 @@ module PdfFill
           key: 'F[0].#subform[4].Report_No[0]'
         },
         'restrictedReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Restricted military incident report',
+          question_type: 'checklist_group',
+          checked_values: ['0'],
           key: 'F[0].#subform[4].Restricted[0]'
         },
         'unrestrictedReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Unrestricted military incident report',
+          question_type: 'checklist_group',
+          checked_values: ['1'],
           key: 'F[0].#subform[4].Unrestricted[0]'
         },
         'neitherReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Military incident report (Neither restricted nor unrestricted)',
+          question_type: 'checklist_group',
+          checked_values: ['2'],
           key: 'F[0].#subform[4].Neither[0]'
         },
         'policeReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Police report',
+          question_type: 'checklist_group',
+          checked_values: ['3'],
           key: 'F[0].#subform[4].Police[0]'
         },
         'otherReport' => { # question_num: 11
@@ -353,6 +369,8 @@ module PdfFill
             limit: 194,
             question_num: 11,
             question_suffix: 'B',
+            question_label: 'Other',
+            question_type: 'checklist_group',
             question_text: 'Other Report'
           },
           'otherOverflow' => {
@@ -360,6 +378,30 @@ module PdfFill
             question_num: 11,
             question_suffix: 'B',
             question_text: 'Other Report'
+          }
+        },
+        'policeReportOverflow' => { # question 11.5 (number hidden) only when reportsDetails.police overflows
+          limit: 0,
+          item_label: 'Location',
+          'agency' => {
+            question_suffix: 'A',
+            question_num: 11.5,
+            question_text: 'Agency'
+          },
+          'city' => {
+            question_suffix: 'B',
+            question_num: 11.5,
+            question_text: 'City'
+          },
+          'state' => {
+            question_suffix: 'C',
+            question_num: 11.5,
+            question_text: 'State/Province'
+          },
+          'country' => {
+            question_suffix: 'D',
+            question_num: 11.5,
+            question_text: 'Country'
           }
         },
         'evidence' => { # question_num: 12
@@ -587,6 +629,7 @@ module PdfFill
         9 => 'Traumatic event(s) information',
         10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
         11 => 'Was an official report filed?',
+        11.5 => 'Police report location(s)',
         12 => 'Possible sources of evidence following the traumatic event(s)',
         13 => 'Treatment information',
         14 => 'Remarks',
@@ -604,7 +647,7 @@ module PdfFill
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: [10, 11, 12]
+          question_nums: [10, 11, 11.5, 12]
         },
         {
           label: 'Section IV: Treatment Information',
@@ -710,8 +753,21 @@ module PdfFill
         @form_data['reportFiled'] = report_filed ? 0 : nil
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
 
-        reports_details['police'] = police_reports.join('; ') unless police_reports.empty?
+        process_police_reports(police_reports)
         reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
+      end
+
+      def process_police_reports(police_reports)
+        return if police_reports.empty?
+
+        joined_report = police_reports.join('; ')
+        @form_data['reportsDetails']['police'] = joined_report
+        return if joined_report.length <= (KEY['reportsDetails']['police'][:limit] || 0)
+
+        police_events = @form_data['events'].filter { |event| event.dig('otherReports', 'police') }
+        @form_data['policeReportOverflow'] = police_events.map do |event|
+          event.slice(*%w[agency city state township country])
+        end
       end
 
       def process_treatment_dates
