@@ -64,7 +64,7 @@ module AAL
 
   class RXConfiguration < Configuration
     def app_token
-      Settings.mhv.rx.app_token_va_gov
+      Settings.mhv.rx.app_token
     end
 
     def x_api_key
