@@ -77,7 +77,7 @@ module Mobile
       def fetch_appointments
         appointments, failures = appointments_cache_interface.fetch_appointments(
           user: @current_user, start_date: validated_params[:start_date], end_date: validated_params[:end_date],
-          fetch_cache: validated_params[:use_cache]
+          fetch_cache: validated_params[:use_cache], include_claims: include_claims?
         )
 
         appointments.filter! { |appt| appt.is_pending == false } unless include_pending?
@@ -116,6 +116,11 @@ module Mobile
 
       def include_pending?
         validated_params[:include]&.include?('pending') || validated_params[:included]&.include?('pending')
+      end
+
+      def include_claims?
+        validated_params[:include]&.include?('travel_pay_claims') ||
+          validated_params[:included]&.include?('travel_pay_claims')
       end
 
       def upcoming_appointments_count(appointments)

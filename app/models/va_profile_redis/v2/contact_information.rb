@@ -150,6 +150,10 @@ module VAProfileRedis
 
       private
 
+      def verified_user?
+        @user&.icn.present?
+      end
+
       def value_for(key)
         value = response&.person&.send(key)
 
@@ -174,10 +178,6 @@ module VAProfileRedis
 
       def contact_info_service
         @service ||= VAProfile::V2::ContactInformation::Service.new @user
-      end
-
-      def verified_user?
-        @user.icn.present?
       end
     end
   end
