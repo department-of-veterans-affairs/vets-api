@@ -43,7 +43,7 @@ module V0
           sanitized_response = sanitize_data(response.to_h)
           sanitized_params = sanitize_data(params)
           log_message_to_sentry(
-            'mpi missing data bug',
+            'mpi is missing data bug:',
             :info,
             {
               response: sanitized_response,
