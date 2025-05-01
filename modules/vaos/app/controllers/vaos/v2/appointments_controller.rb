@@ -8,6 +8,8 @@ module VAOS
       before_action :authorize_with_facilities
 
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
+      APPOINTMENT_CREATION_SUCCESS_STATSD_KEY = 'api.vaos.appointment_creation.success'
+      APPOINTMENT_CREATION_FAILURE_STATSD_KEY = 'api.vaos.appointment_creation.failure'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -16,8 +18,6 @@ module VAOS
       APPT_SHOW_VPG = "GET '/vpg/v1/patients/<icn>/appointments/<id>'"
       APPT_CREATE_VAOS = "POST '/vaos/v1/patients/<icn>/appointments'"
       APPT_CREATE_VPG = "POST '/vpg/v1/patients/<icn>/appointments'"
-      SUBMIT_REFERRAL_STATSD_KEY = 'api.vaos.submit_referral_appointment.success'
-      SUBMIT_REFERRAL_FAILURE_STATSD_KEY = 'api.vaos.submit_referral_appointment.failure'
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
@@ -85,7 +85,7 @@ module VAOS
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
 
         unless draft&.id
-          StatsD.increment(SUBMIT_REFERRAL_FAILURE_STATSD_KEY)
+          StatsD.increment(APPOINTMENT_CREATION_FAILURE_STATSD_KEY)
           return render(json: appt_creation_failed_error, status: :unprocessable_entity)
         end
 
@@ -94,6 +94,7 @@ module VAOS
         response_data = build_draft_response(draft, provider, slots, drive_time)
         Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
                           "Response: #{response_data.inspect}")
+        StatsD.increment(APPOINTMENT_CREATION_SUCCESS_STATSD_KEY)
         render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
 
@@ -118,13 +119,13 @@ module VAOS
         )
 
         unless appointment&.id
-          StatsD.increment(SUBMIT_REFERRAL_FAILURE_STATSD_KEY)
+          StatsD.increment(APPOINTMENT_CREATION_FAILURE_STATSD_KEY)
           render json: appt_creation_failed_error, status: :unprocessable_entity and return
         end
 
         Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
                           "Response: #{appointment.inspect}")
-        StatsD.increment(SUBMIT_REFERRAL_STATSD_KEY)
+        StatsD.increment(APPOINTMENT_CREATION_SUCCESS_STATSD_KEY)
         render json: { data: { id: appointment.id } }, status: :created
       end
 
