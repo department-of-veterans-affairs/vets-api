@@ -38,7 +38,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
-    allow(mock_s3_client).to receive(:upload).and_return(pdf_url)
+    allow(mock_s3_client).to receive(:upload).and_return(true)
     allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
   end
 
