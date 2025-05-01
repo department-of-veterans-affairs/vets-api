@@ -238,6 +238,33 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
+  describe '#log_caregiver_request_duration' do
+    context 'when :caregiver_request_duration_monitoring is enabled' do
+      it 'records the duration of an event given its start time' do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_request_duration_monitoring).and_return(true)
+
+        start_time = Time.current
+        expected_duration = 3
+        expect(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time + expected_duration }
+        expected_context = { context: :process, event: :success, start_time: }
+
+        expect { subject.log_caregiver_request_duration(**expected_context) }
+          .to trigger_statsd_measure('api.form1010cg.process.success.duration', value: expected_duration)
+      end
+    end
+
+    context 'when :caregiver_request_duration_monitoring is disabled' do
+      it 'does not call StatsD' do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_request_duration_monitoring).and_return(false)
+
+        expect(StatsD).not_to receive(:measure)
+
+        expected_context = { context: nil, event: nil, start_time: nil }
+        subject.log_caregiver_request_duration(**expected_context)
+      end
+    end
+  end
+
   describe '#record' do
     describe 'acts as proxy' do
       context 'for :submission_attempt' do
