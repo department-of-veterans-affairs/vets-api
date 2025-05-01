@@ -117,5 +117,14 @@ FactoryBot.define do
     trait :with_dependent_claimant do
       association :power_of_attorney_form, :with_dependent_claimant, strategy: :build
     end
+
+    trait :fully_redacted do
+      redacted_at { 1.hour.ago }
+
+      after(:create) do |request, _evaluator|
+        request.power_of_attorney_form&.delete
+        request.reload
+      end
+    end
   end
 end
