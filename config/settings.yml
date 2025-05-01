@@ -79,10 +79,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
-bip:
-  claims:
-    mock: <%= ENV['bip__claims__mock'] %>
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
