@@ -2,9 +2,15 @@
 
 require 'map/sign_up/service'
 
-module TermsOfUse
-  class Provisioner
+module Identity
+  class CernerProvisioner
     include ActiveModel::Validations
+
+    COOKIE_NAME = 'CERNER_CONSENT'
+    COOKIE_VALUE = 'ACCEPTED'
+    COOKIE_PATH = '/'
+    COOKIE_EXPIRATION = 2.minutes
+    COOKIE_DOMAIN = '.va.gov'
 
     attr_reader :icn
 
@@ -16,23 +22,23 @@ module TermsOfUse
       validate!
     rescue ActiveModel::ValidationError => e
       log_provisioner_error(e)
-      raise Errors::ProvisionerError, e.message
+      raise Errors::CernerProvisionerError, e.message
     end
 
     def perform
       response = update_provisioning
 
       if response[:agreement_signed].blank?
-        Rails.logger.error('[TermsOfUse] [Provisioner] update_provisioning error', { icn:, response: })
-        raise(Errors::ProvisionerError, 'Agreement not accepted')
+        Rails.logger.error('[Identity] [CernerProvisioner] update_provisioning error', { icn:, response: })
+        raise(Errors::CernerProvisionerError, 'Agreement not accepted')
       end
       if response[:cerner_provisioned].blank?
-        Rails.logger.error('[TermsOfUse] [Provisioner] update_provisioning error', { icn:, response: })
-        raise(Errors::ProvisionerError, 'Account not Provisioned')
+        Rails.logger.error('[Identity] [CernerProvisioner] update_provisioning error', { icn:, response: })
+        raise(Errors::CernerProvisionerError, 'Account not Provisioned')
       end
     rescue Common::Client::Errors::ClientError => e
       log_provisioner_error(e)
-      raise Errors::ProvisionerError, e.message
+      raise Errors::CernerProvisionerError, e.message
     end
 
     private
@@ -42,7 +48,7 @@ module TermsOfUse
     end
 
     def log_provisioner_error(error)
-      Rails.logger.error("[TermsOfUse] [Provisioner] Error: #{error.message}", { icn: })
+      Rails.logger.error("[Identity] [CernerProvisioner] Error: #{error.message}", { icn: })
     end
 
     def mpi_profile
