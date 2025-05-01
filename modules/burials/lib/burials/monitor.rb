@@ -10,9 +10,10 @@ module Burials
   class Monitor < ::ZeroSilentFailures::Monitor
     # statsd key for api
     CLAIM_STATS_KEY = 'api.burial_claim'
-
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'app.burial.submit_benefits_intake_claim'
+    # prefix for error message
+    MESSAGE_PREFIX = "#{name} #{Burials::FORM_ID}".freeze
 
     attr_reader :tags
 
@@ -31,14 +32,14 @@ module Burials
     # @param e [ActiveRecord::RecordNotFound]
     #
     def track_show404(confirmation_number, current_user, e)
-      additional_context = {
-        confirmation_number:,
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} submission not found",
+        CLAIM_STATS_KEY,
         user_account_uuid: current_user&.user_account_uuid,
-        message: e&.message,
-        tags:
-      }
-      track_request('error', '21P-530EZ submission not found', CLAIM_STATS_KEY,
-                    call_location: caller_locations.first, **additional_context)
+        confirmation_number:,
+        message: e&.message
+      )
     end
 
     ##
@@ -50,14 +51,15 @@ module Burials
     # @param e [Error]
     #
     def track_show_error(confirmation_number, current_user, e)
-      additional_context = {
-        confirmation_number:,
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} fetching submission failed",
+        CLAIM_STATS_KEY,
+        claim: nil,
         user_account_uuid: current_user&.user_account_uuid,
-        message: e&.message,
-        tags:
-      }
-      track_request('error', '21P-530EZ fetching submission failed', CLAIM_STATS_KEY,
-                    call_location: caller_locations.first, **additional_context)
+        confirmation_number:,
+        message: e&.message
+      )
     end
 
     ##
@@ -68,15 +70,13 @@ module Burials
     # @param current_user [User]
     #
     def track_create_attempt(claim, current_user)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
-        user_account_uuid: current_user&.user_account_uuid,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        tags:
-      }
-      track_request('info', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
-                    call_location: caller_locations.first, **additional_context)
+      submit_event(
+        'info',
+        "#{MESSAGE_PREFIX} submission to Sidekiq begun",
+        "#{CLAIM_STATS_KEY}.attempt",
+        claim:,
+        user_account_uuid: current_user&.user_account_uuid
+      )
     end
 
     ##
@@ -87,17 +87,15 @@ module Burials
     # @param claim [SavedClaim::Burial]
     # @param current_user [User]
     def track_create_validation_error(in_progress_form, claim, current_user)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} submission validation error",
+        "#{CLAIM_STATS_KEY}.validation_error",
+        claim:,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        errors: claim&.errors&.errors,
-        tags:
-      }
-      track_request('error', '21P-530EZ submission validation error', "#{CLAIM_STATS_KEY}.validation_error",
-                    call_location: caller_locations.first, **additional_context)
+        errors: claim&.errors&.errors
+      )
     end
 
     ##
@@ -110,18 +108,16 @@ module Burials
     # @param e [Error]
     #
     def track_create_error(in_progress_form, claim, current_user, e = nil)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} submission to Sidekiq failed",
+        "#{CLAIM_STATS_KEY}.failure",
+        claim:,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
         errors: claim&.errors&.errors,
-        message: e&.message,
-        tags:
-      }
-      track_request('error', '21P-530EZ submission to Sidekiq failed', "#{CLAIM_STATS_KEY}.failure",
-                    call_location: caller_locations.first, **additional_context)
+        message: e&.message
+      )
     end
 
     ##
@@ -133,17 +129,14 @@ module Burials
     # @param current_user [User]
     #
     def track_create_success(in_progress_form, claim, current_user)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'info',
+        "#{MESSAGE_PREFIX} submission to Sidekiq success",
+        "#{CLAIM_STATS_KEY}.success",
+        claim:,
         user_account_uuid: current_user&.user_account_uuid,
-        in_progress_form_id: in_progress_form&.id,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        errors: claim&.errors&.errors,
-        tags:
-      }
-      track_request('info', '21P-530EZ submission to Sidekiq success', "#{CLAIM_STATS_KEY}.success",
-                    call_location: caller_locations.first, **additional_context)
+        in_progress_form_id: in_progress_form&.id
+      )
     end
 
     ##
@@ -155,17 +148,15 @@ module Burials
     # @param current_user [User]
     #
     def track_process_attachment_error(in_progress_form, claim, current_user)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} process attachment error",
+        "#{CLAIM_STATS_KEY}.process_attachment_error",
+        claim:,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        errors: claim&.errors&.errors,
-        tags:
-      }
-      track_request('error', '21P-530EZ process attachment error', "#{CLAIM_STATS_KEY}.process_attachment_error",
-                    call_location: caller_locations.first, **additional_context)
+        errors: claim&.errors&.errors
+      )
     end
 
     # log Sidkiq job started
@@ -175,16 +166,14 @@ module Burials
     # @param lighthouse_service [BenefitsIntake::Service]
     # @param user_account_uuid [UUID]
     def track_submission_begun(claim, lighthouse_service, user_account_uuid)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'info',
+        "#{MESSAGE_PREFIX} submission to LH begun",
+        "#{SUBMISSION_STATS_KEY}.begun",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        benefits_intake_uuid: lighthouse_service&.uuid,
-        tags:
-      }
-      track_request('info', 'Burial 21P-530EZ submission to LH begun',
-                    "#{SUBMISSION_STATS_KEY}.begun", call_location: caller_locations.first, **additional_context)
+        benefits_intake_uuid: lighthouse_service&.uuid
+      )
     end
 
     # log Sidkiq job Lighthouse submission attempted
@@ -195,18 +184,16 @@ module Burials
     # @param user_account_uuid [UUID]
     # @param upload [Hash] lighthouse upload data
     def track_submission_attempted(claim, lighthouse_service, user_account_uuid, upload)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'info',
+        "#{MESSAGE_PREFIX} submission to LH attempted",
+        "#{SUBMISSION_STATS_KEY}.attempt",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         file: upload[:file],
-        attachments: upload[:attachments],
-        tags:
-      }
-      track_request('info', 'Burial 21P-530EZ submission to LH attempted',
-                    "#{SUBMISSION_STATS_KEY}.attempt", call_location: caller_locations.first, **additional_context)
+        attachments: upload[:attachments]
+      )
     end
 
     # log Sidkiq job completed
@@ -217,16 +204,14 @@ module Burials
     # @param user_account_uuid [UUID]
     #
     def track_submission_success(claim, lighthouse_service, user_account_uuid)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'info',
+        "#{MESSAGE_PREFIX} submission to LH succeeded",
+        "#{SUBMISSION_STATS_KEY}.success",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        benefits_intake_uuid: lighthouse_service&.uuid,
-        tags:
-      }
-      track_request('info', 'Burial 21P-530EZ submission to LH succeeded',
-                    "#{SUBMISSION_STATS_KEY}.success", call_location: caller_locations.first, **additional_context)
+        benefits_intake_uuid: lighthouse_service&.uuid
+      )
     end
 
     # log Sidkiq job failed, automatic retry
@@ -238,17 +223,15 @@ module Burials
     # @param e [Error]
     #
     def track_submission_retry(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'warn',
+        "#{MESSAGE_PREFIX} submission to LH failed, retrying",
+        "#{SUBMISSION_STATS_KEY}.failure",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message,
-        tags:
-      }
-      track_request('warn', 'Burial 21P-530EZ submission to LH failed, retrying',
-                    "#{SUBMISSION_STATS_KEY}.failure", call_location: caller_locations.first, **additional_context)
+        message: e&.message
+      )
     end
 
     ##
@@ -260,100 +243,44 @@ module Burials
     #
     def track_submission_exhaustion(msg, claim = nil)
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
-        user_account_uuid:,
-        claim_id: msg['args'].first,
-        form_id: claim&.form_id,
-        message: msg,
-        tags:
-      }
-      call_location = caller_locations.first
 
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} submission to LH exhausted!",
+        "#{SUBMISSION_STATS_KEY}.exhausted",
+        claim: claim || msg['args'].first,
+        user_account_uuid:,
+        message: msg
+      )
+
+      handle_exhaustion_notification(claim, user_account_uuid, msg)
+    end
+
+    ##
+    # Handles notification logic for exhausted submissions
+    #
+    # @param claim [SavedClaim::Burial]
+    # @param user_account_uuid [UUID]
+    # @param msg [Hash]
+    #
+    def handle_exhaustion_notification(claim, user_account_uuid, msg)
       if claim
         # silent failure tracking in email callback
         Burials::NotificationEmail.new(claim.id).deliver(:error)
       else
-        log_silent_failure(additional_context, user_account_uuid, call_location:)
+        log_silent_failure(
+          {
+            confirmation_number: nil,
+            user_account_uuid:,
+            claim_id: msg['args'].first,
+            form_id: nil,
+            message: msg,
+            tags:
+          },
+          user_account_uuid,
+          call_location: caller_locations.first
+        )
       end
-
-      track_request('error', 'Burial 21P-530EZ submission to LH exhausted!',
-                    "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)
-    end
-
-    ##
-    # Log document processing failures
-    # @see Burials::BenefitsIntake::SubmitClaimJob
-    #
-    # @param claim [Burials::SavedClaim]
-    # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_account_uuid [UUID]
-    # @param e [Error]
-    #
-    def track_document_processing_error(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
-        user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message,
-        tags:
-      }
-
-      track_request('error', 'Burial 21P-530EZ process document failure',
-                    "#{SUBMISSION_STATS_KEY}.process_document_failure",
-                    call_location: caller_locations.first, **additional_context)
-    end
-
-    ##
-    # Log metadata generation failures
-    # @see Burials::BenefitsIntake::SubmitClaimJob
-    #
-    # @param claim [Burials::SavedClaim]
-    # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_account_uuid [UUID]
-    # @param e [Error]
-    #
-    def track_metadata_generation_error(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
-        user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message,
-        tags:
-      }
-
-      track_request('error', 'Burial 21P-530EZ generate metadata failure',
-                    "#{SUBMISSION_STATS_KEY}.generate_metadata_failure",
-                    call_location: caller_locations.first, **additional_context)
-    end
-
-    ##
-    # Log submission polling failures
-    # @see Burials::BenefitsIntake::SubmitClaimJob
-    #
-    # @param claim [Burials::SavedClaim]
-    # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_account_uuid [UUID]
-    # @param e [Error]
-    #
-    def track_submission_polling_error(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
-        user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
-        benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message,
-        tags:
-      }
-
-      track_request('error', 'Burial 21P-530EZ submission polling failure',
-                    "#{SUBMISSION_STATS_KEY}.submission_polling_failure",
-                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -362,22 +289,19 @@ module Burials
     #
     # @param claim [Burials::SavedClaim]
     # @param lighthouse_service [LighthouseService]
+    # @param user_account_uuid [UUID]
     # @param e [Exception]
     #
     def track_send_confirmation_email_failure(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'warn',
+        "#{MESSAGE_PREFIX} send_confirmation_email failed",
+        "#{SUBMISSION_STATS_KEY}.send_confirmation_failed",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message,
-        tags:
-      }
-
-      track_request('warn', 'Burial 21P-530EZ send_confirmation_email failed',
-                    "#{SUBMISSION_STATS_KEY}.send_confirmation_failed",
-                    call_location: caller_locations.first, **additional_context)
+        message: e&.message
+      )
     end
 
     ##
@@ -386,22 +310,19 @@ module Burials
     #
     # @param claim [Burials::SavedClaim]
     # @param lighthouse_service [LighthouseService]
+    # @param user_account_uuid [UUID]
     # @param e [Exception]
     #
     def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'warn',
+        "#{MESSAGE_PREFIX} send_submitted_email failed",
+        "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message,
-        tags:
-      }
-
-      track_request('warn', 'Burial 21P-530EZ send_submitted_email failed',
-                    "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
-                    call_location: caller_locations.first, **additional_context)
+        message: e&.message
+      )
     end
 
     # log Sidkiq job cleanup error occurred, this can occur post success or failure
@@ -413,18 +334,49 @@ module Burials
     # @param e [Error]
     #
     def track_file_cleanup_error(claim, lighthouse_service, user_account_uuid, e)
-      additional_context = {
-        confirmation_number: claim&.confirmation_number,
+      submit_event(
+        'error',
+        "#{MESSAGE_PREFIX} cleanup failed",
+        "#{SUBMISSION_STATS_KEY}.cleanup_failed",
+        claim:,
         user_account_uuid:,
-        claim_id: claim&.id,
-        form_id: claim&.form_id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        error: e&.message,
-        tags:
+        error: e&.message
+      )
+    end
+
+    private
+
+    ##
+    # Submits an event for tracking with standardized payload structure
+    #
+    # @param level [String] The severity level of the event (e.g., 'error', 'info', 'warn')
+    # @param message [String] The message describing the event
+    # @param stats_key [String] The key used for stats tracking
+    # @param options [Hash] Additional options for the event
+    #   @option options [SavedClaim::Burial, Integer, nil] :claim The claim object or claim ID
+    #   @option options [String, nil] :user_account_uuid The UUID of the user account
+    #   @option options [Hash] :**additional_context Additional context for the event
+    #
+    def submit_event(level, message, stats_key, options = {})
+      claim = options[:claim]
+      user_account_uuid = options[:user_account_uuid]
+      additional_context = options.except(:claim, :user_account_uuid)
+
+      claim_id = claim.is_a?(Integer) ? claim : claim&.id
+      confirmation_number = claim.is_a?(Integer) ? nil : claim&.confirmation_number
+      form_id = claim.is_a?(Integer) ? nil : claim&.form_id
+
+      payload = {
+        confirmation_number:,
+        user_account_uuid:,
+        claim_id:,
+        form_id:,
+        tags:,
+        **additional_context
       }
-      track_request('error', 'Burial 21P-530EZ cleanup failed',
-                    "#{SUBMISSION_STATS_KEY}.cleanup_failed",
-                    call_location: caller_locations.first, **additional_context)
+
+      track_request(level, message, stats_key, call_location: caller_locations.first, **payload)
     end
   end
 end

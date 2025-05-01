@@ -9,6 +9,7 @@ RSpec.describe Burials::Monitor do
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
+  let(:message_prefix) { "Burials::Monitor #{Burials::FORM_ID}" }
 
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
@@ -16,10 +17,12 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_show404' do
       it 'logs a not found error' do
-        log = '21P-530EZ submission not found'
+        log = "#{message_prefix} submission not found"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
+          claim_id: nil,
+          form_id: nil,
           message: monitor_error.message,
           tags: monitor.tags
         }
@@ -37,10 +40,12 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_show_error' do
       it 'logs a submission failed error' do
-        log = '21P-530EZ fetching submission failed'
+        log = "#{message_prefix} fetching submission failed"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
+          claim_id: nil,
+          form_id: nil,
           message: monitor_error.message,
           tags: monitor.tags
         }
@@ -58,7 +63,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_create_attempt' do
       it 'logs sidekiq started' do
-        log = '21P-530EZ submission to Sidekiq begun'
+        log = "#{message_prefix} submission to Sidekiq begun"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
@@ -80,7 +85,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_create_validation_error' do
       it 'logs create failed' do
-        log = '21P-530EZ submission validation error'
+        log = "#{message_prefix} submission validation error"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
@@ -104,7 +109,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_create_error' do
       it 'logs sidekiq failed' do
-        log = '21P-530EZ submission to Sidekiq failed'
+        log = "#{message_prefix} submission to Sidekiq failed"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
@@ -129,14 +134,13 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_create_success' do
       it 'logs sidekiq success' do
-        log = '21P-530EZ submission to Sidekiq success'
+        log = "#{message_prefix} submission to Sidekiq success"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           claim_id: claim.id,
           form_id: claim.form_id,
-          errors: [],
           tags: monitor.tags
         }
 
@@ -153,7 +157,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_process_attachment_error' do
       it 'logs process attachment failed' do
-        log = '21P-530EZ process attachment error'
+        log = "#{message_prefix} process attachment error"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
@@ -177,7 +181,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_submission_begun' do
       it 'logs sidekiq job started' do
-        log = 'Burial 21P-530EZ submission to LH begun'
+        log = "#{message_prefix} submission to LH begun"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -206,7 +210,7 @@ RSpec.describe Burials::Monitor do
           attachments: %w[pdf-attachment1 pdf-attachment2]
         }
 
-        log = 'Burial 21P-530EZ submission to LH attempted'
+        log = "#{message_prefix} submission to LH attempted"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -232,7 +236,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_submission_success' do
       it 'logs sidekiq job successful' do
-        log = 'Burial 21P-530EZ submission to LH succeeded'
+        log = "#{message_prefix} submission to LH succeeded"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -256,7 +260,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_submission_retry' do
       it 'logs sidekiq job failure and retry' do
-        log = 'Burial 21P-530EZ submission to LH failed, retrying'
+        log = "#{message_prefix} submission to LH failed, retrying"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -286,7 +290,7 @@ RSpec.describe Burials::Monitor do
 
           msg = { 'args' => [claim.id, current_user.uuid] }
 
-          log = 'Burial 21P-530EZ submission to LH exhausted!'
+          log = "#{message_prefix} submission to LH exhausted!"
           payload = {
             confirmation_number: claim.confirmation_number,
             user_account_uuid: current_user.uuid,
@@ -315,7 +319,7 @@ RSpec.describe Burials::Monitor do
         it 'logs sidekiq job exhaustion' do
           msg = { 'args' => [claim.id, current_user.uuid] }
 
-          log = 'Burial 21P-530EZ submission to LH exhausted!'
+          log = "#{message_prefix} submission to LH exhausted!"
           payload = {
             confirmation_number: nil,
             user_account_uuid: current_user.uuid,
@@ -341,84 +345,9 @@ RSpec.describe Burials::Monitor do
       end
     end
 
-    describe '#track_document_processing_error' do
-      it 'Log document processing failure' do
-        log = 'Burial 21P-530EZ process document failure'
-        payload = {
-          claim_id: claim.id,
-          form_id: claim.form_id,
-          benefits_intake_uuid: lh_service.uuid,
-          confirmation_number: claim.confirmation_number,
-          user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
-          tags: monitor.tags
-        }
-
-        expect(monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.process_document_failure",
-          call_location: anything,
-          **payload
-        )
-
-        monitor.track_document_processing_error(claim, lh_service, current_user.uuid, monitor_error)
-      end
-    end
-
-    describe '#track_metadata_generation_error' do
-      it 'Log metadata generation failures' do
-        log = 'Burial 21P-530EZ generate metadata failure'
-        payload = {
-          claim_id: claim.id,
-          form_id: claim.form_id,
-          benefits_intake_uuid: lh_service.uuid,
-          confirmation_number: claim.confirmation_number,
-          user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
-          tags: monitor.tags
-        }
-
-        expect(monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.generate_metadata_failure",
-          call_location: anything,
-          **payload
-        )
-
-        monitor.track_metadata_generation_error(claim, lh_service, current_user.uuid, monitor_error)
-      end
-    end
-
-    describe '#track_submission_polling_error' do
-      it 'Log submission polling failures' do
-        log = 'Burial 21P-530EZ submission polling failure'
-        payload = {
-          claim_id: claim.id,
-          form_id: claim.form_id,
-          benefits_intake_uuid: lh_service.uuid,
-          confirmation_number: claim.confirmation_number,
-          user_account_uuid: current_user.uuid,
-          message: monitor_error.message,
-          tags: monitor.tags
-        }
-
-        expect(monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.submission_polling_failure",
-          call_location: anything,
-          **payload
-        )
-
-        monitor.track_submission_polling_error(claim, lh_service, current_user.uuid, monitor_error)
-      end
-    end
-
     describe '#track_send_confirmation_email_failure' do
       it 'logs sidekiq job send_confirmation_email error' do
-        log = 'Burial 21P-530EZ send_confirmation_email failed'
+        log = "#{message_prefix} send_confirmation_email failed"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -443,7 +372,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_send_submitted_email_failure' do
       it 'logs sidekiq job send_submitted_email error' do
-        log = 'Burial 21P-530EZ send_submitted_email failed'
+        log = "#{message_prefix} send_submitted_email failed"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -468,7 +397,7 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_file_cleanup_error' do
       it 'logs sidekiq job ensure file cleanup error' do
-        log = 'Burial 21P-530EZ cleanup failed'
+        log = "#{message_prefix} cleanup failed"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
