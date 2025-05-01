@@ -24,23 +24,23 @@ module VeteranEnrollmentSystem
 
       # Associations API field names that are not nested
       FLAT_FIELDS = %w[
-        role
-        relationType
-        primaryPhone
         alternatePhone
-        lastUpdateDate
         deleteIndicator
+        lastUpdateDate
+        primaryPhone
+        relationType
+        role
       ].freeze
 
       UPDATED_STATUSES = %w[
+        DELETED
         INSERTED
         UPDATED
-        DELETED
       ].freeze
 
       NON_UPDATED_STATUSES = %w[
-        NOT_DELETED_NO_MATCHING_ASSOCIATION
         NO_CHANGES
+        NOT_DELETED_NO_MATCHING_ASSOCIATION
       ].freeze
 
       ERROR_MAP = {
@@ -70,7 +70,7 @@ module VeteranEnrollmentSystem
           handle_ves_update_response(response, form_id)
         end
       rescue => e
-        Rails.logger.info("#{form_id} update associations failed: #{e.errors}")
+        Rails.logger.error("#{form_id} update associations failed: #{e.errors}")
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
 
         raise e
@@ -126,6 +126,14 @@ module VeteranEnrollmentSystem
         end
       end
 
+      def updated_associations(response)
+        response.body['data']['associations'].select { |assoc| UPDATED_STATUSES.include?(assoc['status']) }
+      end
+
+      def non_updated_associations(response)
+        response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
+      end
+
       def set_response(
         status: 'success',
         message: 'All associations were updated successfully',
@@ -147,36 +155,36 @@ module VeteranEnrollmentSystem
         )
       end
 
-      def updated_associations(response)
-        response.body['data']['associations'].select { |assoc| UPDATED_STATUSES.include?(assoc['status']) }
-      end
+      def set_ves_update_success_response(response, form_id)
+        if response.body['messages'].find { |message| message['code'] == 'completed_partial' }
+          StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.partial_success")
+          Rails.logger.info(
+            "The following #{form_id} associations could not be updated: " \
+            "#{non_updated_associations(response).pluck('role').join(', ')}"
+          )
 
-      def non_updated_associations(response)
-        response.body['data']['associations'].select { |assoc| NON_UPDATED_STATUSES.include?(assoc['status']) }
-      end
-
-      def handle_ves_update_response(response, form_id)
-        if response.status == 200
-          if response.body['messages'].find { |message| message['code'] != 'completed_partial' }
-            StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
-            Rails.logger.info("#{form_id} associations updated successfully")
-
-            set_response
-          else
-            StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.partial_success")
-            Rails.logger.info(
-              "The following #{form_id} associations could not be updated: " \
-              "#{non_updated_associations(response).pluck('role').join(', ')}"
-            )
-
-            set_partial_success_response(response)
-          end
+          set_partial_success_response(response)
         else
-          message = response.body['messages']&.pluck('description')&.join(', ') || response.body
+          StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
+          Rails.logger.info("#{form_id} associations updated successfully")
+
+          set_response
+        end
+      end
+
+      def raise_error(response)
+        message = response.body['messages']&.pluck('description')&.join(', ') || response.body
           # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
           raise (
             ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
           ).new(errors: message)
+      end
+
+      def handle_ves_update_response(response, form_id)
+        if response.status == 200
+          set_ves_update_success_response(response, form_id)
+        else
+          raise_error(response)
         end
       end
     end

@@ -129,6 +129,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
   describe '#update_associations' do
     before do
       allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
       allow(StatsD).to receive(:increment)
     end
 
@@ -256,7 +257,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
             )
-            expect(Rails.logger).to have_received(:info).with(
+            expect(Rails.logger).to have_received(:error).with(
               "10-10EZR update associations failed: #{failure_message}"
             )
           end
