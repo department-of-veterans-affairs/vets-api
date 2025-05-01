@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module BGSDependents
-  class Base < Common::Base
-    include ActiveModel::Validations
+  class Base
+    include Vets::Model
     MILITARY_POST_OFFICE_TYPE_CODES = %w[APO DPO FPO].freeze
 
     # Gets the person's address based on the lives with veteran flag
