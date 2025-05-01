@@ -10,8 +10,8 @@ class MessageThreadDetails < Message
   attribute :has_attachments, Bool, default: false
   (1..4).each do |i|
     attribute :"attachment#{i}_id", Integer
-    %i[name size mime_type].each do |attr|
-      attribute :"attachment#{i}_#{attr}", String
-    end
+    attribute :"attachment#{i}_name", String
+    attribute :"attachment#{i}_size", Integer
+    attribute :"attachment#{i}_mime_type", String
   end
 end
