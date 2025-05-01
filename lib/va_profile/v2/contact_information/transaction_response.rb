@@ -50,6 +50,7 @@ module VAProfile
             'state_code',
             'zip_code5',
             'zip_code4',
+            'phone_number',
             'county',
             'country_code_iso3'
           )

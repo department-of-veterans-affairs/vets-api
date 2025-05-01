@@ -49,6 +49,7 @@ module VAProfile
           'zip_code5',
           'zip_code4',
           'county',
+          'phone_number',
           'country_code_iso3'
         )
         redacted_response_body
