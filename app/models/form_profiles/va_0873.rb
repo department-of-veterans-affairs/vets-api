@@ -74,7 +74,7 @@ class FormProfiles::VA0873 < FormProfile
 
   # Retrieves the preferred name for the user
   def preferred_name
-    VAProfile::Demographics::Service.new(user).get_demographics.demographics.&preferred_name.&text
+    VAProfile::Demographics::Service.new(user).get_demographics.demographics&.preferred_name&.text
   rescue => e
     handle_exception(e, :preferred_name)
   end
