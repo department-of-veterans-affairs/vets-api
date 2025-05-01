@@ -125,8 +125,10 @@ class LighthouseDocument < Common::Base
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
+    Rails.logger.info("Document for claim #{claim_id} is encrypted") if metadata.encrypted?
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
+    Rails.logger.info("MetadataReadError: Document for claim #{claim_id}") if metadata.encrypted?
     log_exception_to_sentry(e, nil, nil, 'warn')
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))

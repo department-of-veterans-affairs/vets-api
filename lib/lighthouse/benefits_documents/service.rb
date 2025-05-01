@@ -60,6 +60,13 @@ module BenefitsDocuments
               ArgumentError.new('Claim id is required')
       end
 
+      Rails.logger.info('claim_id', claim_id:)
+      Rails.logger.info('document_type', document_type:)
+      Rails.logger.info('file_name present?', file&.original_filename.present?)
+      Rails.logger.info('file extension', file&.original_filename&.split('.')&.last)
+      Rails.logger.info('file content type', file&.content_type)
+      Rails.logger.info('participant_id present?', @user.participant_id.present?)
+
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
