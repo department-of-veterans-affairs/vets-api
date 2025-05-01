@@ -69,7 +69,8 @@ module V0
           :zip_code5,
           :zip_code4,
           :phone_number,
-          :country_code_iso3
+          :country_code_iso3,
+          :preferred_name
         )
       end
     end
