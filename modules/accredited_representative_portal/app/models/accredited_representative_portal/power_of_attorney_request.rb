@@ -100,15 +100,10 @@ module AccreditedRepresentativePortal
       )
     end
 
-    scope :unredacted, lambda {
-      where(redacted_at: nil)
-        .joins(:power_of_attorney_form)
-    }
-    scope :redacted, lambda {
-      where.not(redacted_at: nil)
-           .where.missing(:power_of_attorney_form)
-    }
-    scope :marked_redacted, -> { where.not(redacted_at: nil) }
+    # We're using just the timestamp for convenience and speed. Direct queries
+    # against the redacted fields will always be authoritative
+    scope :unredacted, -> { where(redacted_at: nil) }
+    scope :redacted, -> { where.not(redacted_at: nil) }
 
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
