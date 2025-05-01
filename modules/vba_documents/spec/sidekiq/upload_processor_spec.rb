@@ -562,7 +562,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     context 'document is base64 encoded' do
       it 'sets document base64_encoded metadata to true' do
-        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(true)
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded_file?).and_return(true)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'content' => valid_doc }
         }
@@ -574,7 +574,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     context 'document is not base64 encoded' do
       it 'sets document base64_encoded metadata to false' do
-        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(false)
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded_file?).and_return(false)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'content' => valid_doc }
         }

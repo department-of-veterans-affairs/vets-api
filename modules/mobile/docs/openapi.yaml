@@ -157,7 +157,7 @@ paths:
           name: sort
           schema:
             type: string
-        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
           example: pending
           in: query
           name: include[]
@@ -165,7 +165,7 @@ paths:
             type: array
             items:
               type: string
-        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `include[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
           example: pending
           in: query
           name: included[]
