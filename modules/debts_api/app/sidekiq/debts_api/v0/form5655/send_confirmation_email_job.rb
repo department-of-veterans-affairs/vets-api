@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'debts_api/v0/financial_status_report_service'
 
 module DebtsApi
@@ -28,7 +30,7 @@ module DebtsApi
     end
 
     def submissions(user_uuid)
-      DebtsApi::V0::Form5655Submission.where(user_uuid: user_uuid, state: 'in_progress')
+      DebtsApi::V0::Form5655Submission.where(user_uuid:, state: 'in_progress')
     end
   end
 end
