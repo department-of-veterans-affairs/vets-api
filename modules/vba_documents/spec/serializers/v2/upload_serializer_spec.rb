@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../shared_examples_upload_serializer'
 
-describe VBADocuments::V2::UploadSerializer, type: :serializer do
+describe VBADocuments::V2::UploadSerializer, skip: 'v2 will never be launched in vets-api', type: :serializer do
   subject { serialize(upload_submission, serializer_class: described_class) }
 
   before do

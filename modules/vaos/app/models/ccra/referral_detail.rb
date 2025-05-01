@@ -14,29 +14,28 @@ module Ccra
     # Initializes a new instance of ReferralDetail.
     #
     # @param attributes [Hash] A hash containing the referral details from the CCRA response.
-    # @option attributes [Hash] "Referral" The main referral data container.
+    # @option attributes [Hash] :referral The main referral data container.
     def initialize(attributes)
-      referral = attributes['Referral']
-      return if referral.blank?
+      return if attributes.blank?
 
-      @expiration_date = referral['ReferralExpirationDate']
-      @category_of_care = referral['CategoryOfCare']
-      @treating_facility = referral['TreatingFacility']
-      @referral_number = referral['ReferralNumber']
-      @referral_date = referral['ReferralDate']
-      @station_id = referral['StationID']
+      @expiration_date = attributes[:referral_expiration_date]
+      @category_of_care = attributes[:category_of_care]
+      @treating_facility = attributes[:treating_facility]
+      @referral_number = attributes[:referral_number]
+      @referral_date = attributes[:referral_date]
+      @station_id = attributes[:station_id]
       @uuid = nil # Will be set by controller
-      @has_appointments = parse_boolean(referral['APPTYesNo1'])
+      @has_appointments = attributes[:appointments].present?
 
       # Get phone number from treating facility or provider info
-      treating_facility_info = referral['TreatingFacilityInfo']
-      treating_provider_info = referral['TreatingProviderInfo']
+      treating_facility_info = attributes[:treating_facility_info]
+      treating_provider_info = attributes[:treating_provider_info]
 
-      @phone_number = treating_facility_info&.dig('Phone').presence || treating_provider_info&.dig('Telephone').presence
+      @phone_number = treating_facility_info&.dig(:phone).presence || treating_provider_info&.dig(:telephone).presence
 
       # Parse provider and facility info
-      parse_referring_facility_info(referral['ReferringFacilityInfo']) if referral['ReferringFacilityInfo'].present?
-      parse_treating_provider_info(treating_provider_info) if treating_provider_info.present?
+      parse_referring_facility_info(attributes[:referring_facility_info])
+      parse_treating_provider_info(treating_provider_info)
     end
 
     private
@@ -47,17 +46,17 @@ module Ccra
     def parse_referring_facility_info(facility_info)
       return if facility_info.blank?
 
-      @referring_facility_name = facility_info['FacilityName']
-      @referring_facility_phone = facility_info['Phone']
-      @referring_facility_code = facility_info['FacilityCode']
+      @referring_facility_name = facility_info[:facility_name]
+      @referring_facility_phone = facility_info[:phone]
+      @referring_facility_code = facility_info[:facility_code]
 
       # Parse address information
-      if facility_info['Address'].present?
+      if facility_info[:address].present?
         @referring_facility_address = {
-          street1: facility_info['Address']['Address1'],
-          city: facility_info['Address']['City'],
-          state: facility_info['Address']['State'],
-          zip: facility_info['Address']['ZipCode']
+          street1: facility_info[:address][:address1],
+          city: facility_info[:address][:city],
+          state: facility_info[:address][:state],
+          zip: facility_info[:address][:zip_code]
         }
       end
     end
@@ -68,9 +67,9 @@ module Ccra
     def parse_treating_provider_info(provider_info)
       return if provider_info.blank?
 
-      @provider_name = provider_info['ProviderName']
-      @provider_npi = provider_info['ProviderNPI']
-      @provider_telephone = provider_info['Telephone']
+      @provider_name = provider_info[:provider_name]
+      @provider_npi = provider_info[:provider_npi]
+      @provider_telephone = provider_info[:telephone]
     end
 
     # Converts Y/N/yes/no to boolean value
