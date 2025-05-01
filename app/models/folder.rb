@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'vets/model'
+require 'common/models/base'
 
 # Folder model
-class Folder
-  include Vets::Model
+class Folder < Common::Base
+  include ActiveModel::Validations
   include RedisCaching
 
   redis_config REDIS_CONFIG[:secure_messaging_store]
@@ -13,7 +13,7 @@ class Folder
   attribute :name, String
   attribute :count, Integer
   attribute :unread_count, Integer
-  attribute :system_folder, Bool, default: false
+  attribute :system_folder, Boolean
 
   validates :name, presence: true, folder_name_convention: true, length: { maximum: 50 }
 
