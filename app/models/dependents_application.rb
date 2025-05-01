@@ -269,5 +269,4 @@ class DependentsApplication < Common::RedisStore
   def user_can_access_evss
     errors.add(:user, 'must have evss access') unless user.authorize(:evss, :access?)
   end
-
 end
