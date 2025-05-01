@@ -42,7 +42,7 @@ module IvcChampva
       def headers(transaction_uuid, acting_user)
         {
           :content_type => 'application/json',
-          'apiKey' => Settings.ivc_champva.ves_api.api_key.to_s,
+          'apiKey' => Settings.ivc_champva_ves_api.api_key.to_s,
           'transactionUUId' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }
