@@ -32,6 +32,7 @@ module DebtsApi
     VBA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
     VHA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_fsr_confirmation_email
     STREAMLINED_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_streamlined_confirmation_email
+    IN_PROGRESS_TEMPLATE_ID = Settings.vanotify.services.dmc.template_id.fsr_step_1_submission_in_progress_email
     DEDUCTION_CODES = {
       '30' => 'Disability compensation and pension debt',
       '41' => 'Chapter 34 education debt',
@@ -63,6 +64,16 @@ module DebtsApi
     # @return [Hash]
     #
     def submit_financial_status_report(form)
+      if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
+        SendConfirmationEmailJob(
+          {
+            'email' => @user.email,
+            'first_name' => @user.first_name,
+            'user_uuid' => @user.uuid,
+            'template_id' => IN_PROGRESS_TEMPLATE_ID
+          }
+        )
+      end
       with_monitoring_and_error_handling do
         form_builder = DebtsApi::V0::FsrFormBuilder.new(form, @file_number, @user)
         submit_combined_fsr(form_builder)
@@ -127,7 +138,9 @@ module DebtsApi
       fsr_response = DebtsApi::V0::FinancialStatusReportResponse.new(response.body)
       raise FailedFormToPdfResponse unless response.success?
 
-      send_confirmation_email(VBA_CONFIRMATION_TEMPLATE)
+      unless Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
+        send_confirmation_email(VBA_CONFIRMATION_TEMPLATE)
+      end
 
       update_filenet_id(fsr_response)
 

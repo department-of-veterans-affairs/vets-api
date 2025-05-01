@@ -412,6 +412,10 @@ features:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
     enable_in_development: true
+  fsr_zero_silent_errors_in_progress_email:
+    actor_type: user
+    description: Enables sending an email to the veteran when FSR form is in progress
+    enable_in_development: true
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API

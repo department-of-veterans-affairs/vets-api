@@ -527,9 +527,11 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         email_personalization_info,
         { id_type: 'email', failure_mailer: false }
       )
-      service.send_vha_confirmation_email('ok',
-                                          { 'email' => email,
-                                            'email_personalization_info' => email_personalization_info })
+      unless Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
+        service.send_vha_confirmation_email('ok',
+                                            { 'email' => email,
+                                              'email_personalization_info' => email_personalization_info })
+      end
     end
   end
 end
