@@ -47,7 +47,9 @@ module V0
             :info,
             {
               response: sanitized_response,
-              params: sanitized_params
+              params: sanitized_params,
+              gender: response.gender,
+              birth_date: response.birth_date
             },
             profile: 'pciu_profile'
           )
@@ -67,8 +69,7 @@ module V0
           :zip_code5,
           :zip_code4,
           :phone_number,
-          :country_code_iso3,
-          :birth_date
+          :country_code_iso3
         )
       end
     end
