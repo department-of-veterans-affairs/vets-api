@@ -37,6 +37,8 @@ require 'vets/model'
 #   @return [Boolean]
 # @!attribute is_trackable
 #   @return [Boolean]
+# @!attribute metadata
+#   @return [Hash]
 #
 class Prescription
   include Vets::Model
@@ -60,6 +62,7 @@ class Prescription
   attribute :is_refillable, Bool, filterable: %w[eq not_eq]
   attribute :is_trackable, Bool, filterable: %w[eq not_eq]
   attribute :cmop_division_phone, String
+  attribute :metadata, Hash, default: -> { {} }
 
   default_sort_by prescription_id: :asc
 

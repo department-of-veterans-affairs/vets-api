@@ -2,13 +2,6 @@
 
 require 'vets/model'
 
-class PrescriptionRefillRecord
-  include Vets::Model
-
-  attribute :refill_date, Vets::Type::UTCTime
-  attribute :dispensed_date, Vets::Type::UTCTime
-end
-
 class PrescriptionDetails < Prescription
   attribute :cmop_division_phone, String
   attribute :in_cerner_transition, Bool
@@ -32,7 +25,7 @@ class PrescriptionDetails < Prescription
   attribute :indication_for_use_flag, String
   attribute :category, String
   attribute :tracking_list, Hash, array: true
-  attribute :rx_rf_records, PrescriptionRefillRecord, array: true
+  attribute :rx_rf_records, Hash, array: true
   attribute :tracking, Bool
   attribute :orderable_item, String
   attribute :sorted_dispensed_date, Date
@@ -43,10 +36,7 @@ class PrescriptionDetails < Prescription
   attribute :grouped_medications, String, array: true
 
   def rx_rf_records=(records)
-    refill_data = records&.dig(0, 1)
-    return unless refill_data
-
-    @rx_rf_records = refill_data.map { |r| PrescriptionRefillRecord.new(r) }
+    @rx_rf_records = records&.dig(0, 1)
   end
 
   def tracking_list=(records)
@@ -54,9 +44,7 @@ class PrescriptionDetails < Prescription
   end
 
   def sorted_dispensed_date
-    return @sorted_dispensed_date if defined?(@sorted_dispensed_date)
-
-    refill_dates = rx_rf_records&.map { |r| r.dispensed_date&.to_date }&.compact
+    refill_dates = rx_rf_records&.map { |r| r[:dispensed_date]&.to_date }&.compact
     last_refill_date = refill_dates&.max
 
     @sorted_dispensed_date = last_refill_date || dispensed_date&.to_date
