@@ -169,7 +169,7 @@ chip:
   api_gtwy_id: 2dcdrrn5zc
   base_path: dev
   mobile_app:
-    password: "12345"
+    password: '12345'
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
     username: testuser
   mock: true
@@ -229,7 +229,7 @@ claims_api:
 clamav:
   host: 0.0.0.0
   mock: true
-  port: "33100"
+  port: '33100'
 coe:
   prefill: true
 connected_apps_api:
@@ -294,20 +294,20 @@ dgi:
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
     vets:
       mock: false
-      url: ""
+      url: ''
 dhp:
   fitbit:
-    client_id: ""
-    client_secret: ""
-    code_challenge: ""
-    code_verifier: ""
+    client_id: ''
+    client_secret: ''
+    code_challenge: ''
+    code_verifier: ''
     redirect_uri: http://localhost:3000/dhp_connected_devices/fitbit-callback
     scope: heartrate activity nutrition sleep
   mock: false
   s3:
-    aws_access_key_id: ""
-    aws_secret_access_key: ""
-    bucket: ""
+    aws_access_key_id: ''
+    aws_secret_access_key: ''
+    bucket: ''
     region: us-gov-west-1
 directory:
   apikey: fake_apikey
@@ -661,9 +661,9 @@ kafka_producer:
   aws_region: "us-gov-west-1"
   aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
   broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
-  sasl_mechanisms: "GSSAPI"
+  sasl_mechanisms: 'GSSAPI'
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
-  security_protocol: "plaintext"
+  security_protocol: 'plaintext'
   test_topic_name: submission_trace_mock_test
   topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
@@ -820,7 +820,7 @@ maintenance:
     secret_access_key: ~
   pagerduty_api_token: FAKE
   pagerduty_api_url: https://api.pagerduty.com
-  service_query_prefix: "External: "
+  service_query_prefix: 'External: '
   services:
     1010ez: ~
     1010ezr: ~
@@ -1007,22 +1007,22 @@ modules_appeals_api:
     uploads_enabled: false
   schema_dir: config/schemas
   slack:
-    api_key: ""
-    appeals_channel_id: ""
+    api_key: ''
+    appeals_channel_id: ''
   status_simulation_enabled: false
   token_validation:
     appeals_status:
-      api_key: ""
+      api_key: ''
     contestable_issues:
-      api_key: ""
+      api_key: ''
     higher_level_reviews:
-      api_key: ""
+      api_key: ''
     legacy_appeals:
-      api_key: ""
+      api_key: ''
     notice_of_disagreements:
-      api_key: ""
+      api_key: ''
     supplemental_claims:
-      api_key: ""
+      api_key: ''
 mvi_hca:
   url: http://example.com
 nod_vanotify_status_callback:
@@ -1618,10 +1618,10 @@ vba_documents:
     enabled: false
     region: region
   slack:
-    api_key: ""
-    channel_id: ""
+    api_key: ''
+    channel_id: ''
     daily_notification_hour: 7
-    default_alert_email: ""
+    default_alert_email: ''
     enabled: false
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
