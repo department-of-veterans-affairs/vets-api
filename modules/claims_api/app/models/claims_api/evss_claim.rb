@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module ClaimsApi
   class EVSSClaim
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     #############################
     # This mapping exists on the front end here:

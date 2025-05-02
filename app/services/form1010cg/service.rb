@@ -55,6 +55,7 @@ module Form1010cg
     end
 
     def process_claim_v2!
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
       payload = CARMA::Models::Submission.from_claim(claim, build_metadata).to_request_payload
 
       claim_pdf_path, poa_attachment_path = self.class.collect_attachments(claim)
@@ -63,7 +64,9 @@ module Form1010cg
       [claim_pdf_path, poa_attachment_path].each { |p| File.delete(p) if p.present? }
 
       CARMA::Client::MuleSoftClient.new.create_submission_v2(payload)
+      self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :success, start_time:)
     rescue => e
+      self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :failure, start_time:)
       log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
       raise e
     end

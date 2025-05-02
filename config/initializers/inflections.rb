@@ -2,6 +2,7 @@
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'AAID'
+  inflect.acronym 'AAL' # MHV Account Activity Log
   inflect.acronym 'AWS'
   inflect.acronym 'BB'
   inflect.acronym 'BGS'

@@ -20,33 +20,31 @@ describe Ccra::ReferralDetail do
 
     let(:valid_attributes) do
       {
-        'Referral' => {
-          'ReferralExpirationDate' => '2024-05-27',
-          'CategoryOfCare' => 'CARDIOLOGY',
-          'TreatingFacility' => 'VA Medical Center',
-          'ReferralNumber' => 'VA0000005681',
-          'ReferralDate' => '2024-07-24',
-          'StationID' => '528A6',
-          'APPTYesNo1' => 'Y',
-          'ReferringFacilityInfo' => {
-            'FacilityName' => 'Bath VA Medical Center',
-            'Phone' => '555-123-4567',
-            'FacilityCode' => '528A6',
-            'Address' => {
-              'Address1' => '801 VASSAR DR NE',
-              'City' => 'ALBUQUERQUE',
-              'State' => 'NM',
-              'ZipCode' => '87106'
-            }
-          },
-          'TreatingProviderInfo' => {
-            'ProviderName' => 'Dr. Smith',
-            'ProviderNPI' => '1659458917',
-            'Telephone' => '505-248-4062'
-          },
-          'TreatingFacilityInfo' => {
-            'Phone' => '505-555-1234'
+        referral_expiration_date: '2024-05-27',
+        category_of_care: 'CARDIOLOGY',
+        treating_facility: 'VA Medical Center',
+        referral_number: 'VA0000005681',
+        referral_date: '2024-07-24',
+        station_id: '528A6',
+        appointments: [{ appointment_date: '2024-08-15' }],
+        referring_facility_info: {
+          facility_name: 'Bath VA Medical Center',
+          phone: '555-123-4567',
+          facility_code: '528A6',
+          address: {
+            address1: '801 VASSAR DR NE',
+            city: 'ALBUQUERQUE',
+            state: 'NM',
+            zip_code: '87106'
           }
+        },
+        treating_provider_info: {
+          provider_name: 'Dr. Smith',
+          provider_npi: '1659458917',
+          telephone: '505-248-4062'
+        },
+        treating_facility_info: {
+          phone: '505-555-1234'
         }
       }
     end
@@ -80,14 +78,14 @@ describe Ccra::ReferralDetail do
       expect(subject.referring_facility_address[:zip]).to eq('87106')
     end
 
-    context 'with missing Referral key' do
+    context 'with empty attributes' do
       subject { described_class.new({}) }
 
       include_examples 'has nil attributes'
     end
 
-    context 'with nil Referral value' do
-      subject { described_class.new({ 'Referral' => nil }) }
+    context 'with nil attributes' do
+      subject { described_class.new(nil) }
 
       include_examples 'has nil attributes'
     end
@@ -97,11 +95,9 @@ describe Ccra::ReferralDetail do
 
       let(:provider_phone_attributes) do
         {
-          'Referral' => {
-            'TreatingFacilityInfo' => {},
-            'TreatingProviderInfo' => {
-              'Telephone' => '123-456-7890'
-            }
+          treating_facility_info: {},
+          treating_provider_info: {
+            telephone: '123-456-7890'
           }
         }
       end
@@ -111,35 +107,23 @@ describe Ccra::ReferralDetail do
       end
     end
 
-    context 'with APPTYesNo1 values' do
-      it 'parses Y as true' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'Y' } }
+    context 'with appointments array' do
+      it 'sets has_appointments to true when appointments are present' do
+        attributes = { appointments: [{ appointment_date: '2024-08-15' }] }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(true)
       end
 
-      it 'parses N as false' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'N' } }
+      it 'sets has_appointments to false when appointments is empty array' do
+        attributes = { appointments: [] }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(false)
       end
 
-      it 'handles nil value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => nil } }
+      it 'sets has_appointments to false when appointments is nil' do
+        attributes = { appointments: nil }
         detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
-      end
-
-      it 'handles blank value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => '' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
-      end
-
-      it 'handles invalid value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'X' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
+        expect(detail.has_appointments).to be(false)
       end
     end
   end
