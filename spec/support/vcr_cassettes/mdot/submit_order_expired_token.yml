@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <MDOT_URL>/supplies
+    body:
+      encoding: UTF-8
+      string: '{"veteranFullName":{"first":"Greg","middle":"A","last":"Anderson"},"veteranAddress":{"street":"101 Example Street","street2":"Apt 2","city":"Kansas City","state":"MO","country":"USA","postalCode":"64117"},"order":[{"productId":"1"},{"productId":"4"}],"additionalRequests":""}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      VaApiKey:
+      - abcd1234abcd1234abcd1234
+  response:
+    status:
+      code: 200
+      message: Bad Gateway
+    headers:
+      Date:
+      - Fri, 22 Nov 2019 22:51:55 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '117'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: 'Expried Token  Expried Token'
+    http_version:
+  recorded_at: Fri, 22 Nov 2019 22:51:55 GMT
+recorded_with: VCR 3.0.3

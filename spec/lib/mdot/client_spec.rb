@@ -425,5 +425,17 @@ describe MDOT::Client, type: :mdot_helpers do
         end
       end
     end
+
+    context 'with "Expried Token" in the response body' do
+      it 'does something' do
+        options = { match_requests_on: %i[method uri] }
+        VCR.use_cassettes([ { name: 'mdot/get_supplies_200', options: }, { name: 'mdot/submit_order_expired_token', options: }], ) do
+          set_expired_mdot_token_for(user)
+          res = subject.submit_order(valid_order)
+          binding.pry
+
+        end
+      end
+    end
   end
 end
