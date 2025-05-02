@@ -70,7 +70,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         # Verify first referral entry structure
         first_referral = response_data['data'].first
-        expect(first_referral['id']).to eq(referral_consult_id)
+        expect(first_referral['id']).to eq(encrypted_referral_consult_id)
         expect(first_referral['type']).to eq('referrals')
         expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(first_referral['attributes']['referralNumber']).to eq('5682')

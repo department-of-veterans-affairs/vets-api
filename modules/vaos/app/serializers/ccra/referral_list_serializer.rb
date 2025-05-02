@@ -7,7 +7,7 @@ module Ccra
     include JSONAPI::Serializer
 
     set_key_transform :camel_lower
-    set_id :referral_consult_id
+    set_id :uuid
     set_type :referrals
 
     attribute :category_of_care
