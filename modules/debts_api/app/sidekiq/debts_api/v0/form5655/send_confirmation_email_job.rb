@@ -6,6 +6,8 @@ module DebtsApi
   class V0::Form5655::SendConfirmationEmailJob
     include Sidekiq::Job
 
+    sidekiq_options retry: 5
+
     sidekiq_retries_exhausted do |job, ex|
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       user_uuid = job['args'][0]['user_uuid']
