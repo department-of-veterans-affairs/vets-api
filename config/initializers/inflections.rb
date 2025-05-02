@@ -37,7 +37,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SM'
   inflect.acronym 'SSOe'
   inflect.acronym 'SSO'
-  inflect.acronym 'UTC'
   inflect.acronym 'VAOS'
   inflect.acronym 'VAR' # an older term for what is now VAOS
   inflect.acronym 'VA'
