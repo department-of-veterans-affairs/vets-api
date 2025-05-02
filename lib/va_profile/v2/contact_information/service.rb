@@ -130,6 +130,9 @@ module VAProfile
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 Address Transaction Status changes: #{changes}")
+          end
           send_contact_change_notification(transaction_status, changes)
 
           transaction_status
