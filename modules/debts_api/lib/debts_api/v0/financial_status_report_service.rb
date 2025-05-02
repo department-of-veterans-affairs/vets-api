@@ -65,7 +65,8 @@ module DebtsApi
     #
     def submit_financial_status_report(form)
       if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
-        SendConfirmationEmailJob(
+        SendConfirmationEmailJob.perform_in(
+          5.minutes,
           {
             'email' => @user.email,
             'first_name' => @user.first_name,
@@ -185,8 +186,7 @@ module DebtsApi
     def send_vha_confirmation_email(_status, options)
       return if options['email'].blank?
 
-      DebtManagementCenter::VANotifyEmailJob.perform_in(
-        5.minutes,
+      DebtManagementCenter::VANotifyEmailJob.perform_async(
         options['email'],
         options['template_id'],
         options['email_personalization_info'],
