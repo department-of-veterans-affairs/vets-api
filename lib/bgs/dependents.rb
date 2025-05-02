@@ -25,7 +25,7 @@ module BGS
 
     # rubocop:disable Metrics/MethodLength
     def report_deaths
-      @dependents_application['deaths'].each do |death_info|
+      @dependents_application['deaths']&.each do |death_info|
         death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
 

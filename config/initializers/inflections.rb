@@ -2,16 +2,19 @@
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'AAID'
+  inflect.acronym 'AAL' # MHV Account Activity Log
   inflect.acronym 'AWS'
   inflect.acronym 'BB'
   inflect.acronym 'BGS'
   inflect.acronym 'BID'
+  inflect.acronym 'BPDS'
   inflect.acronym 'CARMA'
   inflect.acronym 'CC'
   inflect.acronym 'DOD'
   inflect.acronym 'DGI' # Digital GI
   inflect.acronym 'EVSS'
   inflect.acronym 'FHIR'
+  inflect.acronym 'GCLAWS' # General Counsel Automated Workload System
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'HCA'

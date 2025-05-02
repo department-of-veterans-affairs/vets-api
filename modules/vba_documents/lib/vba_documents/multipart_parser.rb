@@ -1,32 +1,29 @@
 # frozen_string_literal: true
 
 require 'vba_documents/upload_error'
+require 'common/file_helpers'
+require 'common/virus_scan'
 
 module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
-    CARRIAGE_RETURN = "\r"
     BASE64_PREFIX = 'data:multipart/form-data;base64,'
 
-    def self.parse(infile)
-      if base64_encoded?(infile)
-        create_file_from_base64(infile)
-      else
-        parse_file(infile)
-      end
+    def self.parse(file_path)
+      file_path = decode_base64_file(file_path) if base64_encoded_file?(file_path)
+
+      validate_virus_free(file_path) if Flipper.enabled?(:vba_documents_virus_scan)
+
+      parse_file(file_path)
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def self.parse_file(infile)
+    def self.parse_file(file_path)
       parts = {}
-      begin
-        input = if infile.is_a? String
-                  File.open(infile, 'rb')
-                else
-                  infile
-                end
+
+      File.open(file_path, 'rb') do |input|
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
         separator = consume_first_line(lines)
+
         loop do
           headers = consume_headers(lines, separator)
           partname = get_partname(headers)
@@ -35,12 +32,10 @@ module VBADocuments
           parts[partname] = body
           break unless moreparts
         end
-      ensure
-        input.close
       end
+
       parts
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.consume_first_line(lines)
       lines.next[0].chomp(LINE_BREAK)
@@ -49,28 +44,14 @@ module VBADocuments
       raise
     end
 
-    def self.base64_encoded?(infile)
-      if infile.is_a? StringIO
-        content = infile.read
-        infile.rewind
-      else
-        content = File.read(infile)
-      end
-      content.start_with?(BASE64_PREFIX)
+    def self.base64_encoded_file?(file_path)
+      File.read(file_path).start_with?(BASE64_PREFIX)
     end
 
-    def self.create_file_from_base64(infile)
+    def self.decode_base64_file(original_file_path)
       Rails.logger.info("#{self} starting to decode Base64 submission contents")
 
-      if infile.is_a? String
-        contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
-      else
-        # We are a stringio and are in memory.
-        content = infile.read
-        infile.rewind
-        contents = content.sub %r{data:((multipart)/.{3,}),}, ''
-      end
-
+      contents = `sed -r 's/data:multipart\\/.{3,},//g' #{original_file_path.shellescape}`
       decoded_data = Base64.decode64(contents)
 
       Rails.logger.info("#{self} finished decoding Base64 submission contents")
@@ -81,7 +62,17 @@ module VBADocuments
 
       Rails.logger.info("#{self} finished writing Base64-decoded file")
 
-      parse(decoded_file)
+      decoded_file.path
+    end
+
+    def self.validate_virus_free(file_path)
+      temp_path = Common::FileHelpers.generate_clamav_temp_file(file_path)
+      file_safe = Common::VirusScan.scan(temp_path)
+      Common::FileHelpers.delete_file_if_exists(temp_path)
+
+      raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected in submission') unless file_safe
+
+      true
     end
 
     def self.get_partname(headers)
@@ -145,7 +136,7 @@ module VBADocuments
           end
           linechomp = line.chomp(LINE_BREAK)
           case linechomp
-          when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
+          when "#{separator}--"
             return tf.string, false
           when separator
             return tf.string, true
@@ -166,7 +157,7 @@ module VBADocuments
         end
         linechomp = line.chomp(LINE_BREAK)
         case linechomp
-        when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
+        when "#{separator}--"
           tf.rewind
           return tf, false
         when separator
