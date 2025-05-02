@@ -11,7 +11,7 @@ module BGSDependents
     def initialize(proc_id, user)
       @proc_id = proc_id
       @user = user
-      self.attributes = user_veteran_attributes
+      assign_attributes
     end
 
     def formatted_params(payload)
@@ -64,14 +64,12 @@ module BGSDependents
 
     private
 
-    def user_veteran_attributes
-      {
-        participant_id: @user.participant_id,
-        ssn: @user.ssn,
-        first_name: @user.first_name,
-        middle_name: @user.middle_name,
-        last_name: @user.last_name
-      }
+    def assign_attributes
+      @participant_id = @user.participant_id
+      @ssn = @user.ssn
+      @first_name = @user.first_name
+      @middle_name = @user.middle_name
+      @last_name = @user.last_name
     end
 
     def marital_status(dependents_application)

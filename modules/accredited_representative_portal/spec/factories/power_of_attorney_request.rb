@@ -9,6 +9,7 @@ FactoryBot.define do
       poa_code { Faker::Alphanumeric.alphanumeric(number: 3) }
       accredited_individual { nil }
       resolution_created_at { nil }
+      accredited_organization { nil }
     end
 
     power_of_attorney_holder_type { 'veteran_service_organization' }

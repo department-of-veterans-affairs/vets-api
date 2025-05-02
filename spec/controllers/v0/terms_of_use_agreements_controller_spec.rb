@@ -383,13 +383,13 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       let(:user) { build(:user, :loa3, mpi_profile:) }
       let(:terms_of_use_agreement) { build(:terms_of_use_agreement, response: 'accepted') }
       let(:acceptor) { instance_double(TermsOfUse::Acceptor, perform!: terms_of_use_agreement) }
-      let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: true) }
+      let(:provisioner) { instance_double(Identity::CernerProvisioner, perform: true) }
 
       before do
         Timecop.freeze(Time.zone.now.floor)
         sign_in(user)
         allow(TermsOfUse::Acceptor).to receive(:new).and_return(acceptor)
-        allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+        allow(Identity::CernerProvisioner).to receive(:new).and_return(provisioner)
       end
 
       after { Timecop.return }
@@ -409,7 +409,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       end
 
       context 'when the provisioning is not successful' do
-        let(:expected_error) { TermsOfUse::Errors::ProvisionerError }
+        let(:expected_error) { Identity::Errors::CernerProvisionerError }
 
         before do
           allow(provisioner).to receive(:perform).and_raise(expected_error)
@@ -472,12 +472,12 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       let(:mpi_profile) { build(:mpi_profile) }
       let(:user) { build(:user, :loa3, mpi_profile:) }
       let(:provisioned) { true }
-      let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
+      let(:provisioner) { instance_double(Identity::CernerProvisioner, perform: provisioned) }
 
       before do
         Timecop.freeze(Time.zone.now.floor)
         sign_in(user)
-        allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+        allow(Identity::CernerProvisioner).to receive(:new).and_return(provisioner)
       end
 
       after { Timecop.return }
@@ -489,11 +489,11 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       context 'when the provisioning raises an error' do
         let(:expected_status) { :unprocessable_entity }
         let(:expected_log) do
-          '[TermsOfUseAgreementsController] update_provisioning error: TermsOfUse::Errors::ProvisionerError'
+          '[TermsOfUseAgreementsController] update_provisioning error: Identity::Errors::CernerProvisionerError'
         end
 
         before do
-          allow(provisioner).to receive(:perform).and_raise(TermsOfUse::Errors::ProvisionerError)
+          allow(provisioner).to receive(:perform).and_raise(Identity::Errors::CernerProvisionerError)
         end
 
         it_behaves_like 'unsuccessful provisioning'

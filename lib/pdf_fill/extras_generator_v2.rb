@@ -6,6 +6,7 @@ module PdfFill
     SUBHEADER_FONT_SIZE = 10.5
     FOOTER_FONT_SIZE = 9
     HEADER_FOOTER_BOUNDS_HEIGHT = 20
+    LABEL_WIDTH = 91
     FREE_TEXT_QUESTION_WIDTH = 404
 
     class Question
@@ -30,18 +31,63 @@ module PdfFill
         end
       end
 
+      def format_value(value, format_options)
+        value = value.to_s.gsub("\n", '<br/>')
+        value = "<i>#{value}</i>" if value == 'no response'
+        value = "<b>#{value}</b>" if format_options[:bold_value]
+        value
+      end
+
+      def format_label(label, format_options)
+        label = "<b>#{label}</b>" if format_options[:bold_label]
+        label
+      end
+
+      def checklist_group?
+        @subquestions.any? { |subq| subq[:metadata][:question_type] == 'checklist_group' }
+      end
+
       def sorted_subquestions_markup
+        if checklist_group?
+          checklist_group_markup
+        else
+          tabular_subquestions_markup
+        end
+      end
+
+      def checklist_group_markup
+        sorted_subquestions.map do |subq|
+          meta = subq[:metadata]
+          checked = meta[:checked_values]&.include?(subq[:value].to_s) # nil if checked_values are absent
+          if meta[:question_type] != 'checklist_group' || checked == false
+            ''
+          else
+            text = subq[:metadata][:question_label]
+            text = "#{text}: #{subq[:value]}" unless checked == true
+            "<tr><td><ul><li>#{text}</li></ul></td></tr>"
+          end
+        end
+      end
+
+      def tabular_subquestions_markup
         if @subquestions.size == 1
-          value = @subquestions.first[:value].to_s.gsub("\n", '<br/>')
-          value = "<i>#{value}</i>" if value == 'no response'
-          "<tr><td style='width:#{FREE_TEXT_QUESTION_WIDTH}'>#{value}</td><td></td></tr>"
+          subq = @subquestions.first
+          format_options = subq[:metadata][:format_options] || {}
+          value = format_value(subq[:value], format_options)
+          width = format_options[:question_width] || FREE_TEXT_QUESTION_WIDTH
+
+          "<tr><td style='width:#{width}'>#{value}</td><td></td></tr>"
         else
           sorted_subquestions.map do |subq|
             metadata = subq[:metadata]
+            format_options = metadata[:format_options] || {}
+
             label = metadata[:question_label].presence || metadata[:question_text]
-            value = subq[:value].to_s.gsub("\n", '<br/>')
-            value = "<i>#{value}</i>" if value == 'no response'
-            "<tr><td style='width:91'>#{label}:</td><td>#{value}</td></tr>"
+            label = format_label(label, format_options)
+            value = format_value(subq[:value], format_options)
+            width = format_options[:label_width] || LABEL_WIDTH
+
+            "<tr><td style='width:#{width}'>#{label}:</td><td>#{value}</td></tr>"
           end
         end
       end
@@ -74,9 +120,18 @@ module PdfFill
     class FreeTextQuestion < Question
       def sorted_subquestions_markup
         @subquestions.map do |subq|
-          value = subq[:value].to_s.gsub("\n", '</p><p>')
-          value = "<i>#{value}</i>" if value == 'no response'
-          "<tr><td style='width:#{FREE_TEXT_QUESTION_WIDTH}'><p>#{value}</p></td><td></td></tr>"
+          format_options = subq[:metadata][:format_options] || {}
+          value = subq[:value].to_s
+
+          if value == 'no response'
+            value = "<i>#{value}</i>"
+          else
+            value = "<p>#{value}</p>".gsub("\n", '</p><p>')
+            value = value.gsub('<p>', '<p><b>').gsub('</p>', '</b></p>') if format_options[:bold_value]
+          end
+
+          width = format_options[:question_width] || FREE_TEXT_QUESTION_WIDTH
+          "<tr><td style='width:#{width}'>#{value}</td><td></td></tr>"
         end
       end
     end
@@ -93,12 +148,12 @@ module PdfFill
 
       def add_text(value, metadata)
         question = metadata[:question_label] || metadata[:question_text]
-
+        format_options = metadata[:format_options] || {}
         case question
         when 'Description'
-          @description = value
+          @description = { value:, format_options: }
         when 'Additional Information'
-          @additional_info = value
+          @additional_info = { value:, format_options: }
         when 'Checked'
           @checked = value == 'true'
         end
@@ -109,15 +164,35 @@ module PdfFill
         @checked
       end
 
+      def format_row(label_text, value, format_options)
+        label = format_options[:bold_label] ? "<b>#{label_text}:</b>" : "#{label_text}:"
+
+        if value.blank?
+          value = '<i>no response</i>'
+        elsif format_options[:bold_value]
+          value = "<b>#{value}</b>"
+        end
+
+        width = format_options[:label_width] || LABEL_WIDTH
+        "<tr><td style='width:#{width}'>#{label}</td><td>#{value}</td></tr>"
+      end
+
       def render(pdf, list_format: false)
         return 0 unless should_render?
 
         pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
-        info = @additional_info.presence || '<i>no response</i>'
+
+        desc_options = @description&.dig(:format_options) || {}
+        info_options = @additional_info&.dig(:format_options) || {}
+
+        rows = [
+          format_row('Description', @description&.dig(:value), desc_options),
+          format_row('Additional Information', @additional_info&.dig(:value), info_options)
+        ]
+
         pdf.markup([
           '<table>',
-          "<tr><td style='width:91'><b>Description:</b></td><td><b>#{@description}</b></td></tr>",
-          "<tr><td style='width:91'>Additional Information:</td><td>#{info}</td></tr>",
+          rows,
           '</table>'
         ].flatten.join, text: { margin_bottom: 10 })
       end
@@ -130,6 +205,7 @@ module PdfFill
         super
         @item_label = metadata[:item_label]
         @items = []
+        @format_options = metadata[:format_options] || {}
       end
 
       def add_text(value, metadata)
@@ -163,8 +239,10 @@ module PdfFill
 
       # Render the label for a list item
       def render_item_label(pdf, index)
+        item_label = "<i>#{@item_label} #{index}</i>"
+        item_label = "<b>#{item_label}</b>" if @format_options[:bold_item_label]
         pdf.markup(
-          "<table><tr><th><i>#{@item_label} #{index}</i></th></tr></table>",
+          "<table><tr><th>#{item_label}</th></tr></table>",
           table: {
             cell: {
               borders: [:bottom],
@@ -461,7 +539,8 @@ module PdfFill
         'SourceSansPro' => {
           normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Regular.ttf'),
           bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-Bold.ttf'),
-          italic: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-It.ttf')
+          italic: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-It.ttf'),
+          bold_italic: Rails.root.join('lib', 'pdf_fill', 'fonts', 'SourceSans3-BoldItalic.ttf')
         }
       )
     end

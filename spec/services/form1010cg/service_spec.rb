@@ -529,6 +529,15 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'submits to mulesoft' do
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :success, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
+
         subject
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
       end
@@ -565,6 +574,15 @@ RSpec.describe Form1010cg::Service do
                   form: '10-10CG',
                   claim_guid: claim_with_mpi_veteran.guid
                 })
+
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :failure, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
 
         expect { subject }.to raise_error(exception)
       end
