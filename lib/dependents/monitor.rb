@@ -81,13 +81,13 @@ module Dependents
     end
 
     def track_send_received_email_success(claim_id, user_account_uuid = nil)
-      track_send_email("'Received' email success for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.success",
-                       claim_id, user_account_uuid)
+      track_send_email_success("'Received' email success for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.success",
+                               claim_id, user_account_uuid)
     end
 
     def track_send_received_email_failure(claim_id, e, user_account_uuid = nil)
-      track_send_email("'Received' email failure for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
-                       claim_id, e, user_account_uuid)
+      track_send_email_failure("'Received' email failure for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
+                               claim_id, e, user_account_uuid)
     end
   end
 end
