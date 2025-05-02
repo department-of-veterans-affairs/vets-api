@@ -36,7 +36,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     context 'The :combined_financial_status_report flipper is turned on' do
       before do
         Flipper.enable(:combined_financial_status_report)
-        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
       it 'submits combined fsr' do
@@ -54,7 +54,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     context 'The :combined_financial_status_report flipper is turned off' do
       before do
         Flipper.disable(:combined_financial_status_report)
-        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
       it 'ignores flipper and uses combined fsr' do
@@ -72,7 +72,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     context 'The :fsr_zero_silent_errors_in_progress_email flipper is turned on' do
       before do
         Flipper.disable(:combined_financial_status_report)
-        Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
       end
 
       it 'fires the confirmation email' do
@@ -138,7 +138,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'with valid form data' do
       before do
-        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
       it 'accepts the submission' do
@@ -173,7 +173,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
       it 'does not send a confirmation email' do
         allow(Settings).to receive(:vsp_environment).and_return('production')
-        Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user_data)
@@ -561,7 +561,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   describe '#send_vha_confirmation_email' do
     context 'fsr_zero_silent_errors_in_progress_email is disabled' do
       before do
-        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
       it 'creates a va notify job' do
@@ -586,7 +586,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'fsr_zero_silent_errors_in_progress_email is enabled' do
       before do
-        Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
       end
 
       it 'creates a va notify job' do
