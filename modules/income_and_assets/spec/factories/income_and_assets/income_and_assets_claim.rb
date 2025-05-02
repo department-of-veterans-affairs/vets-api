@@ -10,6 +10,11 @@ FactoryBot.define do
           middle: 'Edmund',
           last: 'Doe'
         },
+        claimantFullName: {
+          first: 'Derrick',
+          middle: 'A',
+          last: 'Stewart'
+        },
         veteranSocialSecurityNumber: '333224444',
         statementOfTruthCertified: true,
         statementOfTruthSignature: 'John Edmund Doe'

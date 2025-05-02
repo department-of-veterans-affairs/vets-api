@@ -42,6 +42,9 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  arm_use_datadog_real_user_monitoring:
+    actor_type: user
+    description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
@@ -113,6 +116,9 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
+  caregiver_request_duration_monitoring:
+    actor_type: user
+    description: Enables logging of 10-10CG request durations to StatsD
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -186,6 +192,9 @@ features:
   ezr_associations_api_enabled:
     actor_type: user
     description: Enables VES's Associations REST API
+  ezr_prefill_contacts:
+    actor_type: user
+    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   cerner_override_653:
     actor_type: user
@@ -617,7 +626,7 @@ features:
     enable_in_development: true
   disability_compensation_sync_modern0781_flow_metadata:
     actor_type: user
-    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions 
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions
   disability_compensation_0781_stats_job:
     actor_type: user
     description: enables a job to run that will check DB records and report stats as metrics, into Datadog
@@ -1043,13 +1052,9 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
-  mhv_transitional_medical_records_landing_page:
+  mhv_supply_reordering_enabled:
     actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
-  mhv_integration_medical_records_to_phase_1:
-    actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
-    enable_in_development: true
+    description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_interstitial_enabled:
     actor_type: user
     descriptiom: Enables interstitial for upcoming mhv deprecation
@@ -1087,6 +1092,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
     enable_in_development: true
+  mhv_secure_messaging_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
@@ -1163,6 +1171,10 @@ features:
     actor_type: user
     description: Enables/disables use of the unified API call self-entered information
     enable_in_development: true
+  mhv_medical_records_milestone_two:
+    actor_type: user
+    description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
@@ -1190,6 +1202,10 @@ features:
   mhv_medications_migrate_to_api_gateway:
     actor_type: user
     description: Enables/disables medications migration to the new API Gateway endpoints
+    enable_in_development: true
+  mhv_enable_aal_integration:
+    actor_type: user
+    description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
@@ -1626,18 +1642,6 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
-  va_online_scheduling_vaos_service_cc_appointments:
-    actor_type: user
-    description: Toggle for new vaos service cc appointments.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_requests:
-    actor_type: user
-    description: Toggle for new vaos service requests.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_va_appointments:
-    actor_type: user
-    description: Toggle for new vaos service va appointments.
-    enable_in_development: true
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
@@ -1659,9 +1663,6 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_dependents_submit674:
-    actor_type: user
-    description: Allows submission of 674 without MANUAL_VAGOV flag
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -1738,6 +1739,9 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for including future appointments in the patient history retrieval.
+  vba_documents_virus_scan:
+    actor_type: user
+    description: ClamAV virus scanning for Benefits Intake API upload submissions
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -2171,5 +2175,8 @@ features:
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
+  form_10282_sftp_upload:
+    actor_type: user
+    description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
   only_use_direct_deposit_email_template:
     description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates

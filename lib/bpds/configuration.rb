@@ -33,7 +33,8 @@ module BPDS
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options,
+                                       ssl: { verify: Settings.bpds&.ssl || false }) do |faraday|
         faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 

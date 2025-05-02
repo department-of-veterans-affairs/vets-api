@@ -28,8 +28,6 @@ ask_va_api:
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     veis_api_path: eis/vagov.lob.ava/api
   prefill: true
-audit_db:
-  url: ~
 authorization_server_scopes_api:
   auth_server:
     url: https://sandbox-api.va.gov/internal/auth/v2/server
@@ -108,11 +106,6 @@ check_in:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800
-  chip_api:
-    base_path: ~
-    tmp_api_id: ~
-    tmp_api_user: ~
-    tmp_api_username: ~
   chip_api_v2:
     base_path: dev
     host: ~
@@ -175,7 +168,7 @@ chip:
   api_gtwy_id: fake_gtwy_id
   base_path: dev
   mobile_app:
-    password: '12345'
+    password: "12345"
     tenant_id: 12345678-aaaa-bbbb-cccc-269c51a7d380
     username: testuser
   mock: true
@@ -235,7 +228,7 @@ claims_api:
 clamav:
   host: 0.0.0.0
   mock: true
-  port: '33100'
+  port: "33100"
 coe:
   prefill: true
 connected_apps_api:
@@ -300,20 +293,20 @@ dgi:
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
     vets:
       mock: false
-      url: ''
+      url: ""
 dhp:
   fitbit:
-    client_id: ''
-    client_secret: ''
-    code_challenge: ''
-    code_verifier: ''
+    client_id: ""
+    client_secret: ""
+    code_challenge: ""
+    code_verifier: ""
     redirect_uri: http://localhost:3000/dhp_connected_devices/fitbit-callback
     scope: heartrate activity nutrition sleep
   mock: false
   s3:
-    aws_access_key_id: ''
-    aws_secret_access_key: ''
-    bucket: ''
+    aws_access_key_id: ""
+    aws_secret_access_key: ""
+    bucket: ""
     region: us-gov-west-1
 directory:
   apikey: "<fake_api_key>"
@@ -477,6 +470,14 @@ form526_export:
     bucket: ~
     region: ~
     secret_access_key: ~
+form_10282:
+  sftp:
+    host: ~
+    key_data: ~
+    pass: ~
+    port: ~
+    relative_path: form_10282
+    user: ~
 form_10_10cg:
   carma:
     mulesoft:
@@ -621,13 +622,6 @@ iam_ssoe:
   client_key_path: spec/fixtures/iam_ssoe/oauth.key
   oauth_url: https://int.fed.eauth.va.gov:444
   timeout: 20
-idme:
-  client_cert_path: spec/fixtures/sign_in/oauth.crt
-  client_id: ef7f1237ed3c396e4b4a2b04b608a7b1
-  client_key_path: spec/fixtures/sign_in/oauth.key
-  client_secret: ae657fd2b253d17be7b48ecdb39d7b34
-  oauth_url: https://api.idmelabs.com
-  redirect_uri: http://localhost:3000/v0/sign_in/callback
 ihub:
   appointments:
     mock: true
@@ -659,11 +653,11 @@ ivc_forms:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
-  aws_role_arn: 'arn:aws:iam::123456789012:role/role-name' # this is an example
-  broker_urls: ['localhost:19092'] # for local Kafka cluster in Docker
-  sasl_mechanisms: 'GSSAPI'
+  aws_role_arn: "arn:aws:iam::123456789012:role/role-name" # this is an example
+  broker_urls: ["localhost:19092"] # for local Kafka cluster in Docker
+  sasl_mechanisms: "GSSAPI"
   schema_registry_url: "http://localhost:8081" # for local Schema Registry in Docker
-  security_protocol: 'plaintext'
+  security_protocol: "plaintext"
   test_topic_name: submission_trace_mock_test
   topic_name: submission_trace_form_status_change_test
 kms_key_id: ~
@@ -806,14 +800,6 @@ locators:
   vha_access_waittime: ~
 lockbox:
   master_key: 0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9
-logingov:
-  client_cert_path: spec/fixtures/sign_in/oauth.crt
-  client_id: https://sqa.eauth.va.gov/isam/sps/saml20sp/saml20
-  client_key_path: spec/fixtures/sign_in/oauth.key
-  logout_redirect_uri: http://localhost:3000/v0/sign_in/logingov_logout_proxy
-  oauth_public_key: spec/fixtures/logingov/logingov_oauth_pub.pem
-  oauth_url: https://idp.int.identitysandbox.gov
-  redirect_uri: http://localhost:3000/v0/sign_in/callback
 mail_automation:
   client_id: va_gov_test
   client_secret: fake_key
@@ -828,7 +814,7 @@ maintenance:
     secret_access_key: ~
   pagerduty_api_token: FAKE
   pagerduty_api_url: https://api.pagerduty.com
-  service_query_prefix: 'External: '
+  service_query_prefix: "External: "
   services:
     1010ez: ~
     1010ezr: ~
@@ -887,20 +873,6 @@ maintenance:
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
     vre: ~
-map_services:
-  appointments_client_id: 74b3145e1354555e
-  chatbot_client_id: 2bb9803acfc3
-  check_in_client_id: bc75b71c7e67
-  client_cert_path: spec/fixtures/map/oauth.crt
-  client_key_path: spec/fixtures/map/oauth.key
-  oauth_url: https://veteran.apps-staging.va.gov
-  secure_token_service:
-    mock: true
-  sign_up_service:
-    mock: true
-  sign_up_service_client_id: c7d6e0fc9a39
-  sign_up_service_provisioning_api_key: abcd1234
-  sign_up_service_url: https://cerner.apps-staging.va.gov
 mcp:
   notifications:
     batch_size: 100
@@ -931,14 +903,6 @@ mdot:
 mhv:
   account:
     mock: false
-  account_creation:
-    access_key: some-access-key
-    create_after_login: ~
-    host: https://apigw-intb.aws.myhealth.va.gov
-    mock: true
-    sts:
-      issuer: http://localhost:3000
-      service_account_id: c34b86f2130ff3cd4b1d309bc09d8740
   api_gateway:
     hosts:
       bluebutton: http://example.org
@@ -981,9 +945,11 @@ mhv:
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
+    base_path: mhv-sm-api/patient/v1/
+    gw_base_path: v1/sm/patient/
     host: https://mhv-api.example.com
-    mhv_sm_x_api_key: ~
     mock: true
+    x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
     app_token: faketoken
@@ -998,6 +964,7 @@ mhv_mobile:
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
+    x_api_key: fake-x-api-key
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
@@ -1034,31 +1001,22 @@ modules_appeals_api:
     uploads_enabled: false
   schema_dir: config/schemas
   slack:
-    api_key: ''
-    appeals_channel_id: ''
+    api_key: ""
+    appeals_channel_id: ""
   status_simulation_enabled: false
   token_validation:
     appeals_status:
-      api_key: ''
+      api_key: ""
     contestable_issues:
-      api_key: ''
+      api_key: ""
     higher_level_reviews:
-      api_key: ''
+      api_key: ""
     legacy_appeals:
-      api_key: ''
+      api_key: ""
     notice_of_disagreements:
-      api_key: ''
+      api_key: ""
     supplemental_claims:
-      api_key: ''
-mvi:
-  client_cert_path: "/fake/client/cert/path"
-  client_key_path: "/fake/client/key/path"
-  mock: false
-  open_timeout: 15
-  pii_logging: false
-  processing_code: T
-  timeout: 30
-  url: http://www.example.com/
+      api_key: ""
 mvi_hca:
   url: http://example.com
 nod_vanotify_status_callback:
@@ -1257,25 +1215,6 @@ salesforce-gibft:
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
-saml_ssoe:
-  callback_url: http://localhost:3000/v1/sessions/callback
-  cert_new_path: ~
-  cert_path: spec/support/certificates/ruby-saml.crt
-  certificate: ~
-  certificate_new: ~
-  identity_slack_webhook: ~
-  idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
-  idp_sso_service_binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
-  issuer: https://ssoe-sp-localhost.va.gov
-  key: ~
-  key_path: spec/support/certificates/ruby-saml.key
-  logout_app_key: https://ssoe-sp-dev.va.gov
-  logout_url: https://int.eauth.va.gov/slo/globallogout
-  relay: ~
-  request_signing: false
-  response_encryption: false
-  response_signing: false
-  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
@@ -1302,8 +1241,6 @@ search_typeahead:
 secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
 sentry:
   dsn: ~
-session_cookie:
-  secure: false
 shrine:
   claims:
     access_key_id: ~
@@ -1332,34 +1269,6 @@ sidekiq:
   github_organization: organization
   github_team: 0
 sidekiq_admin_panel: false
-sign_in:
-  arp_client_id: arp
-  auto_uplevel: true
-  client_redirect_uris:
-    mobile_test: ~
-  cookies_secure: false
-  info_cookie_domain: localhost
-  jwt_encode_key: spec/fixtures/sign_in/privatekey.pem
-  jwt_old_encode_key: spec/fixtures/sign_in/privatekey_old.pem
-  mock_auth_url: http://localhost:3000/mocked_authentication/profiles
-  mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
-  mockdata_sync_api_key: ~
-  sts_client:
-    base_url: http://localhost:3000
-    key_path: spec/fixtures/sign_in/sts_client.pem
-  user_info_clients:
-    - okta_test
-  vamobile_client_id: vamobile
-  vaweb_client_id: vaweb
-  web_origins:
-    - http://localhost:4000
-ssoe_eauth_cookie:
-  domain: localhost
-  name: vagov_saml_request_localhost
-  secure: false
-terms_of_use:
-  current_version: v1
-  enabled_clients: vaweb, mhv, myvahealth
 test_database_url: postgis:///vets-api-test
 test_user_dashboard:
   env: staging
@@ -1370,7 +1279,7 @@ token_validation:
   url: https://dev-api.va.gov/internal/auth
 travel_pay:
   base_url: https://btsss.gov
-  client_number: '12345'
+  client_number: "12345"
   mock: false
   service_name: BTSSS-API
   sts:
@@ -1703,10 +1612,10 @@ vba_documents:
     enabled: false
     region: region
   slack:
-    api_key: ''
-    channel_id: ''
+    api_key: ""
+    channel_id: ""
     daily_notification_hour: 7
-    default_alert_email: ''
+    default_alert_email: ""
     enabled: false
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
