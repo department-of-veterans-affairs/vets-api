@@ -50,6 +50,7 @@
       "location": "Fort Belvior, VA",
       "timing": "June 2007",
       "militaryReports": {
+        "pre2005": true,
         "restricted": true
       }
     },

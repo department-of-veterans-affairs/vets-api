@@ -335,7 +335,7 @@ module PdfFill
         },
         'neitherReport' => { # question_num: 11
           question_num: 11,
-          question_label: 'Military incident report (Neither restricted nor unrestricted)',
+          question_label: 'Military incident report (unspecified restriction)',
           question_type: 'checklist_group',
           checked_values: ['2'],
           key: 'F[0].#subform[4].Neither[0]'
@@ -442,7 +442,7 @@ module PdfFill
           },
           'physicians' => {
             question_num: 12,
-            question_label: 'Medical reports from civilian physicians or caregivers who treated you immediately following the incident or sometime later',
+            question_label: 'Medical reports from civilian physicians or caregivers',
             question_type: 'checklist_group',
             checked_values: ['1'],
             key: 'F[0].#subform[4].Medical_Reports_From_Civilian_Physicians_Or_Caregivers_Who_Treated_You_Immediately_Following_The_Incident_Or_Sometime_Later[0]'
