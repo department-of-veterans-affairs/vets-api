@@ -13,7 +13,7 @@ module VANotify
     def perform(form_id)
       @in_progress_form = InProgressForm.find(form_id)
       return unless enabled?
-      return if veteran.first_name.blank? || in_progress_form.user_account_id.blank?
+      return if veteran.first_name.blank? || veteran.icn.blank?
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
