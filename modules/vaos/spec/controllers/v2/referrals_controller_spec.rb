@@ -168,7 +168,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
       end
 
       it 'throws unauthorized exception' do
-        get "/vaos/v2/referrals/#{encrypted_uuid}"
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
 
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)).to eq(resp)
@@ -177,23 +177,23 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
     context 'when called with authorization' do
       let(:user) { build(:user, :vaos, :loa3, icn:) }
-      let(:referral_detail) { build(:ccra_referral_detail, referral_number:) }
+      let(:referral_detail) { build(:ccra_referral_detail, referral_consult_id:, referral_number:) }
 
       before do
         sign_in_as(user)
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-          .with(referral_number, icn)
+          .with(referral_consult_id, icn)
           .and_return(referral_detail)
       end
 
       it 'returns a referral detail in JSON:API format' do
-        get "/vaos/v2/referrals/#{encrypted_uuid}"
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
 
         expect(response).to have_http_status(:ok)
 
         response_data = JSON.parse(response.body)
         expect(response_data).to have_key('data')
-        expect(response_data['data']['id']).to eq(encrypted_uuid)
+        expect(response_data['data']['id']).to eq(encrypted_referral_consult_id)
         expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(response_data['data']['attributes']['provider']['name']).to eq('Dr. Smith')
@@ -201,22 +201,6 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
         expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
-      end
-
-      context 'with a custom mode parameter' do
-        let(:custom_mode) { 'A' }
-
-        before do
-          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-            .with(referral_number, icn)
-            .and_return(referral_detail)
-        end
-
-        it 'passes the correct mode to the service' do
-          get "/vaos/v2/referrals/#{encrypted_uuid}", params: { mode: custom_mode }
-
-          expect(response).to have_http_status(:ok)
-        end
       end
     end
   end
