@@ -130,6 +130,9 @@ module VAProfile
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
           changes = transaction_status.changed_field
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 Address Transaction Status changes: #{changes}")
+          end
           send_contact_change_notification(transaction_status, changes)
 
           transaction_status
@@ -301,7 +304,15 @@ module VAProfile
           with_monitoring do
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
             # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
+            if path == 'addresses' && log_transaction_id?
+              Rails.logger.info("ContactInformationV2 METHOD: #{method}, POST OR PUT JSON: #{model.in_json_v2},
+                ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path},
+                CREATED AT: #{model.created_at}, UPDATED AT: #{model.updated_at}")
+            end
             raw_response = perform(method, request_path, model.in_json_v2)
+            if path == 'addresses' && log_transaction_id?
+              Rails.logger.info("ContactInformation RAW RESPONSE: #{raw_response}")
+            end
             response_class.from(raw_response)
           end
         rescue => e
