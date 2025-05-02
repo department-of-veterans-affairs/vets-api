@@ -1203,6 +1203,10 @@ features:
     actor_type: user
     description: Toggles testing memoization medications client
     enable_in_development: true
+  mhv_enable_aal_integration:
+    actor_type: user
+    description: Enables/disables integration with MHV's AAL-creation endpoint
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
