@@ -249,8 +249,12 @@ module VAProfile
 
         def update_model(model, attr, method_name)
           contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 UPDATE MODEL VAProfileRedis Contact Info : #{contact_info}")
+          end
           model.id = contact_info.public_send(attr)&.id
           verb = model.id.present? ? 'put' : 'post'
+
           public_send("#{verb}_#{method_name}", model)
         end
 
@@ -306,8 +310,12 @@ module VAProfile
             # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
             if path == 'addresses' && log_transaction_id?
               Rails.logger.info("ContactInformationV2 METHOD: #{method}, POST OR PUT JSON: #{model.in_json_v2},
-                ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path},
-                CREATED AT: #{model.created_at}, UPDATED AT: #{model.updated_at}")
+                ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path}")
+              if Flipper.enabled?(:override_address_pou) && model.address_pou == ('RESIDENCE' || 'RESIDENCE/CHOICE')
+                # OVEERRIDE ADDRESS_POU
+                model.address_pou = 'RESIDENCE/CHOICE'
+                Rails.logger.info("ContactInformationV2 OVERRIDE ADDRESS POU JSON: #{model.in_json_v2}")
+              end
             end
             raw_response = perform(method, request_path, model.in_json_v2)
             if path == 'addresses' && log_transaction_id?
