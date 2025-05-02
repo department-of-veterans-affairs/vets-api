@@ -9,6 +9,7 @@ require 'debts_api/v0/financial_status_report_downloader'
 require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
+require 'debts_api/v0/form5655/send_confirmation_email_job'
 require 'pdf_fill/filler'
 require 'sidekiq'
 require 'json'
@@ -65,7 +66,7 @@ module DebtsApi
     #
     def submit_financial_status_report(form)
       if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
-        SendConfirmationEmailJob.perform_in(
+        DebtsApi::V0::Form5655::SendConfirmationEmailJob.perform_in(
           5.minutes,
           {
             'email' => @user.email,
@@ -184,6 +185,7 @@ module DebtsApi
     end
 
     def send_vha_confirmation_email(_status, options)
+      return if Flipper.enabled?(:fsr_zero_silent_errors_in_progress_email)
       return if options['email'].blank?
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(

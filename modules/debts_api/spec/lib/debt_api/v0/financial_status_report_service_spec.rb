@@ -33,15 +33,17 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
-    context 'The flipper is turned on' do
+    context 'The :combined_financial_status_report flipper is turned on' do
       before do
         Flipper.enable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { false }
       end
 
       it 'submits combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in)
             expect(service).to receive(:submit_combined_fsr)
             service.submit_financial_status_report(combined_form_data)
           end
@@ -49,15 +51,43 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    context 'The flipper is turned off' do
+    context 'The :combined_financial_status_report flipper is turned off' do
       before do
         Flipper.disable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { false }
       end
 
       it 'ignores flipper and uses combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in)
+            expect(service).to receive(:submit_combined_fsr)
+            service.submit_financial_status_report(combined_form_data)
+          end
+        end
+      end
+    end
+
+    context 'The :fsr_zero_silent_errors_in_progress_email flipper is turned on' do
+      before do
+        Flipper.disable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { true }
+      end
+
+      it 'fires the confirmation email' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
+              5.minutes,
+              {
+                "email" => user.email,
+                "first_name" => user.first_name,
+                "template_id" => "fake_template_id",
+                "user_uuid" => user.uuid
+              }
+            )
             expect(service).to receive(:submit_combined_fsr)
             service.submit_financial_status_report(combined_form_data)
           end
@@ -107,6 +137,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:mock_success_response) { double('FaradayResponse', status: 201, success?: true, body: valid_form_data) }
 
     context 'with valid form data' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { false }
+      end
+
       it 'accepts the submission' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
@@ -132,6 +166,18 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
               },
               { id_type: 'email' }
             )
+            service.submit_vba_fsr(valid_form_data)
+          end
+        end
+      end
+
+      it 'does not send a confirmation email' do
+        allow(Settings).to receive(:vsp_environment).and_return('production')
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { true }
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user_data)
+            expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
             service.submit_vba_fsr(valid_form_data)
           end
         end
@@ -513,23 +559,48 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   end
 
   describe '#send_vha_confirmation_email' do
-    it 'creates a va notify job' do
-      email = 'foo@bar.com'
-      email_personalization_info = {
-        'name' => 'Joe',
-        'time' => '48 hours',
-        'date' => Time.zone.now.strftime('%m/%d/%Y')
-      }
-      service = described_class.new
-      expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
-        email,
-        described_class::VHA_CONFIRMATION_TEMPLATE,
-        email_personalization_info,
-        { id_type: 'email', failure_mailer: false }
-      )
-      service.send_vha_confirmation_email('ok',
-                                          { 'email' => email,
-                                            'email_personalization_info' => email_personalization_info })
+    context 'fsr_zero_silent_errors_in_progress_email is disabled' do
+      before do
+        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
+      end
+
+      it 'creates a va notify job' do
+        email = 'foo@bar.com'
+        email_personalization_info = {
+          'name' => 'Joe',
+          'time' => '48 hours',
+          'date' => Time.zone.now.strftime('%m/%d/%Y')
+        }
+        service = described_class.new
+        expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+          email,
+          described_class::VHA_CONFIRMATION_TEMPLATE,
+          email_personalization_info,
+          { id_type: 'email', failure_mailer: false }
+        )
+        service.send_vha_confirmation_email('ok',
+                                            { 'email' => email,
+                                              'email_personalization_info' => email_personalization_info })
+      end
+    end
+
+    context 'fsr_zero_silent_errors_in_progress_email is enabled' do
+      before do
+        Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
+      end
+      it 'creates a va notify job' do
+        email = 'foo@bar.com'
+        email_personalization_info = {
+          'name' => 'Joe',
+          'time' => '48 hours',
+          'date' => Time.zone.now.strftime('%m/%d/%Y')
+        }
+        service = described_class.new
+        expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
+        service.send_vha_confirmation_email('ok',
+                                            { 'email' => email,
+                                              'email_personalization_info' => email_personalization_info })
+      end
     end
   end
 end
