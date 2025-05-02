@@ -47,28 +47,37 @@ module Dependents
     end
 
     def track_unknown_claim_type(claim_id, e)
-      metric = "#{EMAIL_STATS_KEY}.unkown_type"
+      metric = "#{EMAIL_STATS_KEY}.unknown_type"
       payload = { statsd: metric, service:, claim_id:, e: }
 
       StatsD.increment(metric, tags: ["service:#{service}"])
       Rails.logger.error("Unknown Dependents form type for claim #{claim_id}", payload)
     end
 
-    def track_send_email(message, metric, *additional_context)
-      payload = { statsd: metric, service:, additional_context: }
+    def track_send_email_success(message, metric, claim_id, user_account_id = nil)
+      payload = { statsd: metric, service:, claim_id:, user_account_id: }
+
+      StatsD.increment(metric, tags: ["service:#{service}"])
+      Rails.logger.info(message, payload)
+    end
+
+    def track_send_email_error(message, metric, claim_id, e, user_account_uuid = nil)
+      payload = { statsd: metric, service:, claim_id:, e:, user_account_uuid: }
 
       StatsD.increment(metric, tags: ["service:#{service}"])
       Rails.logger.error(message, payload)
     end
 
     def track_send_submitted_email_success(claim_id, user_account_uuid = nil)
-      track_send_email("'Submitted' email success for claim #{claim_id}", "#{EMAIL_STATS_KEY}.submitted.success",
-                       claim_id, user_account_uuid)
+      track_send_email_success("'Submitted' email success for claim #{claim_id}",
+                               "#{EMAIL_STATS_KEY}.submitted.success",
+                               claim_id, user_account_uuid)
     end
 
     def track_send_submitted_email_failure(claim_id, e, user_account_uuid = nil)
-      track_send_email("'Submitted' email failure for claim #{claim_id}", "#{EMAIL_STATS_KEY}.submitted.failure",
-                       claim_id, e, user_account_uuid)
+      track_send_email_error("'Submitted' email failure for claim #{claim_id}",
+                             "#{EMAIL_STATS_KEY}.submitted.failure",
+                             claim_id, e, user_account_uuid)
     end
 
     def track_send_received_email_success(claim_id, user_account_uuid = nil)
