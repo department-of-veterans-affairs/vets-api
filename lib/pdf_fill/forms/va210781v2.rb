@@ -386,20 +386,28 @@ module PdfFill
           'agency' => {
             question_suffix: 'A',
             question_num: 11.5,
-            question_text: 'Agency'
+            question_text: 'Agency',
+            format_options: {
+              label_width: 140
+            }
           },
           'city' => {
             question_suffix: 'B',
             question_num: 11.5,
             question_text: 'City'
           },
-          'state' => {
+          'township' => {
             question_suffix: 'C',
             question_num: 11.5,
-            question_text: 'State/Province'
+            question_text: 'Township'
+          },
+          'state' => {
+            question_suffix: 'D',
+            question_num: 11.5,
+            question_text: 'State/Province/Region'
           },
           'country' => {
-            question_suffix: 'D',
+            question_suffix: 'E',
             question_num: 11.5,
             question_text: 'Country'
           }
@@ -807,7 +815,7 @@ module PdfFill
         additional = { 'additionalInfo' => behaviors_details['unlisted'] }
         if extras_redesign
           additional['checked'] = true
-          additional['description'] = 'Additional Behavioral Changes'
+          additional['description'] = 'Additional behavioral changes'
           @form_data['additionalBehaviorsDetails'] = [additional]
         else
           @form_data['additionalBehaviorsDetails'] = additional

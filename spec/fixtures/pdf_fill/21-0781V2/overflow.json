@@ -26,7 +26,7 @@
         "police": true
       },
       "agency": "SVI",
-      "city": "Dallas",
+      "city": "Dalworthington Gardens",
       "state": "TX",
       "township": "",
       "country": "USA"
@@ -39,9 +39,9 @@
         "police": true
       },
       "agency": "Local Police Department",
-      "city": "Bonadelle Ranchos-Madera Ranchos",
-      "state": "CA",
-      "township": "",
+      "city": "",
+      "state": "NJ",
+      "township": "Lower Alloways Creek Township",
       "country": "USA",
       "unlistedReport": "After Action Report (AAR)"
     },
