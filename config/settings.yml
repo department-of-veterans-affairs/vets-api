@@ -929,7 +929,6 @@ mhv:
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
-    app_token_va_gov: <%= ENV['mhv__rx__app_token_va_gov'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
@@ -953,10 +952,12 @@ mhv:
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
+  rx:
+    app_token: <%= ENV['mhv_mobile__rx__app_token'] %>
+    x_api_key: <%= ENV['mhv_mobile__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
     x_api_key: <%= ENV['mhv_mobile__sm__x_api_key'] %>
-  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
   rsa_key: <%= ENV['mobile_lighthouse__rsa_key'] %>
