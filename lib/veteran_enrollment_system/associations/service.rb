@@ -176,10 +176,10 @@ module VeteranEnrollmentSystem
 
       def raise_error(response)
         message = response.body['messages']&.pluck('description')&.join(', ') || response.body
-          # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
-          raise (
-            ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
-          ).new(errors: message)
+        # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
+        raise (
+          ERROR_MAP[response.status] || Common::Exceptions::BackendServiceException
+        ).new(errors: message)
       end
 
       def handle_ves_update_response(response, form_id)
