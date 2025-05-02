@@ -23,6 +23,9 @@ module PdfFill
     def add_text(value, metadata)
       return unless metadata.fetch(:overflow, true)
 
+      question_num = metadata[:question_num] || 0
+      return unless question_num.to_i == question_num
+
       unless text?
         @generate_blocks << {
           metadata: {},
