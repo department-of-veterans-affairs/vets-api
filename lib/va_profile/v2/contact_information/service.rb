@@ -303,7 +303,8 @@ module VAProfile
             # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
             if path == 'addresses' && log_transaction_id?
               Rails.logger.info("ContactInformationV2 METHOD: #{method}, POST OR PUT JSON: #{model.in_json_v2},
-                ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path}")
+                ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path},
+                CREATED AT: #{model.created_at}, UPDATED AT: #{model.updated_at}")
             end
             raw_response = perform(method, request_path, model.in_json_v2)
             if path == 'addresses' && log_transaction_id?
