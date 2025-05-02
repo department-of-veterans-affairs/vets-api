@@ -92,12 +92,12 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def mark_declined!(creator, reason, declination_reason)
+    def mark_declined!(creator, declination_reason, other_reason_text)
       PowerOfAttorneyRequestDecision.create_declination!(
         creator:,
         power_of_attorney_request: self,
-        reason:,
-        declination_reason:
+        declination_reason:,
+        other_reason_text:
       )
     end
 

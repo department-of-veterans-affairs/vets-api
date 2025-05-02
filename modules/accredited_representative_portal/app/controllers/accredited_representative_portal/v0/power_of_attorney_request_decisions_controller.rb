@@ -17,15 +17,15 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        reason = decision_params[:reason]
         declination_reason = decision_params[:declination_reason]
+        other_reason_text = decision_params[:other_reason_text]  
 
         case decision_params[:type]
         when 'acceptance'
-          PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason).call
+          PowerOfAttorneyRequestService::Accept.new(@poa_request, creator).call
           render json: {}, status: :ok
         when 'declination'
-          @poa_request.mark_declined!(creator, reason, declination_reason)
+          @poa_request.mark_declined!(creator, declination_reason, other_reason_text)
           send_declination_email(@poa_request)
 
           Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
@@ -43,7 +43,7 @@ module AccreditedRepresentativePortal
       private
 
       def decision_params
-        params.require(:decision).permit(:type, :declination_reason)
+        params.require(:decision).permit(:type, :declination_reason, :other_reason_text)
       end
 
       def creator
