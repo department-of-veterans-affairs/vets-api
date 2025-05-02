@@ -69,7 +69,9 @@ RSpec.describe DebtsApi::V0::Form5655::SendConfirmationEmailJob, type: :worker d
       it 'raises an error and logs the message' do
         allow(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).and_raise(StandardError, 'Test error')
 
-        expect(Rails.logger).to receive(:error).with('DebtsApi::SendConfirmationEmailJob - Error sending email: Test error')
+        expect(Rails.logger).to receive(:error).with(
+          'DebtsApi::SendConfirmationEmailJob - Error sending email: Test error'
+        )
 
         expect { described_class.new.perform(job_params) }.to raise_error(StandardError, 'Test error')
       end

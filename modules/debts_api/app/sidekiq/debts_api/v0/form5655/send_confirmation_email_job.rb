@@ -30,7 +30,7 @@ module DebtsApi
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         args['email'], args['template_id'], email_personalization_info(args, form_submissions), { id_type: 'email' }
       )
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("DebtsApi::SendConfirmationEmailJob - Error sending email: #{e.message}")
       raise e
     end
