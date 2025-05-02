@@ -1430,6 +1430,21 @@ vanotify:
         claim_submission_failure_text: ~
         claim_submission_success_text: cie_fake_success_template_id
         claim_submission_timeout_text: cie_fake_timeout_template_id
+    dependents:
+      api_key: fake_secret
+      email:
+        received674:
+          template_id: fake_received674
+        received686:
+          template_id: fake_received686
+        received686c674:
+          template_id: fake_received686c674
+        submitted674:
+          template_id: fake_submitted674
+        submitted686:
+          template_id: fake_submitted686
+        submitted686c674:
+          template_id: fake_submitted686c674
     dmc:
       api_key: fake_secret
       template_id:
