@@ -192,6 +192,9 @@ features:
   ezr_associations_api_enabled:
     actor_type: user
     description: Enables VES's Associations REST API
+  ezr_prefill_contacts:
+    actor_type: user
+    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   cerner_override_653:
     actor_type: user
@@ -1049,13 +1052,9 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
-  mhv_transitional_medical_records_landing_page:
+  mhv_supply_reordering_enabled:
     actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
-  mhv_integration_medical_records_to_phase_1:
-    actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
-    enable_in_development: true
+    description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_interstitial_enabled:
     actor_type: user
     descriptiom: Enables interstitial for upcoming mhv deprecation
@@ -1093,6 +1092,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
     enable_in_development: true
+  mhv_secure_messaging_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
@@ -1200,6 +1202,10 @@ features:
   mhv_medications_client_test:
     actor_type: user
     description: Toggles testing memoization medications client
+    enable_in_development: true
+  mhv_enable_aal_integration:
+    actor_type: user
+    description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
