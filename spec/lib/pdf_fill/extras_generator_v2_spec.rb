@@ -15,6 +15,39 @@ describe PdfFill::ExtrasGeneratorV2 do
       question
     end
 
+    describe '#format_value' do
+      it 'applies formatting based on format options' do
+        question = described_class.new('Test', { question_num: 1 })
+
+        # Test normal value
+        expect(question.format_value('Hello', {})).to eq('Hello')
+
+        # Test newlines converted to <br/>
+        expect(question.format_value("Hello\nWorld", {})).to eq('Hello<br/>World')
+
+        # Test 'no response' italicized
+        expect(question.format_value('no response', {})).to eq('<i>no response</i>')
+
+        # Test bold value
+        expect(question.format_value('Hello', { bold_value: true })).to eq('<b>Hello</b>')
+
+        # Test combination of newlines and bold
+        expect(question.format_value("Hello\nWorld", { bold_value: true })).to eq('<b>Hello<br/>World</b>')
+      end
+    end
+
+    describe '#format_label' do
+      it 'applies bold formatting when specified' do
+        question = described_class.new('Test', { question_num: 1 })
+
+        # Test normal label
+        expect(question.format_label('Name', {})).to eq('Name')
+
+        # Test bold label
+        expect(question.format_label('Name', { bold_label: true })).to eq('<b>Name</b>')
+      end
+    end
+
     describe '#sorted_subquestions' do
       let(:add_text_calls) do
         [
@@ -32,6 +65,30 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     describe '#sorted_subquestions_markup' do
+      context 'when the question is a checklist group' do
+        let(:add_text_calls) do
+          [
+            [1, { question_label: 'Item 1', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 2', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 3', question_type: 'checklist_group', checked_values: ['0'] }],
+            [2, { question_label: 'None' }],
+            ['Miscellaneous details', { question_label: 'Other', question_type: 'checklist_group' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expect(subject.sorted_subquestions_markup).to eq(
+            [
+              '<tr><td><ul><li>Item 1</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Item 3</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Other: Miscellaneous details</li></ul></td></tr>'
+            ]
+          )
+        end
+      end
+
       context 'when there is only one subquestion' do
         let(:add_text_calls) do
           [
@@ -44,6 +101,22 @@ describe PdfFill::ExtrasGeneratorV2 do
           expect(subject.sorted_subquestions_markup).to eq(
             "<tr><td style='#{expected_style}'>foo<br/>bar</td><td></td></tr>"
           )
+        end
+
+        context 'with format options' do
+          let(:add_text_calls) do
+            [
+              ["foo\nbar",
+               { question_suffix: 'A', question_text: 'Name',
+                 format_options: { bold_value: true, question_width: 300 } }]
+            ]
+          end
+
+          it 'applies format options correctly' do
+            expect(subject.sorted_subquestions_markup).to eq(
+              "<tr><td style='width:300'><b>foo<br/>bar</b></td><td></td></tr>"
+            )
+          end
         end
       end
 
@@ -62,6 +135,25 @@ describe PdfFill::ExtrasGeneratorV2 do
               "<tr><td style='width:91'>Email:</td><td>bar</td></tr>"
             ]
           )
+        end
+
+        context 'with format options' do
+          let(:add_text_calls) do
+            [
+              ["foo\nbar",
+               { question_suffix: 'A', question_text: 'Name', format_options: { bold_label: true, label_width: 120 } }],
+              ['bar', { question_suffix: 'B', question_text: 'Email', format_options: { bold_value: true } }]
+            ]
+          end
+
+          it 'applies format options correctly to each subquestion' do
+            expect(subject.sorted_subquestions_markup).to eq(
+              [
+                "<tr><td style='width:120'><b>Name</b>:</td><td>foo<br/>bar</td></tr>",
+                "<tr><td style='width:91'>Email:</td><td><b>bar</b></td></tr>"
+              ]
+            )
+          end
         end
       end
     end
@@ -413,14 +505,16 @@ describe PdfFill::ExtrasGeneratorV2 do
       context 'when adding Description' do
         it 'sets the description' do
           subject.add_text('Test Description', { question_text: 'Description' })
-          expect(subject.description).to eq('Test Description')
+          expect(subject.description[:value]).to eq('Test Description')
+          expect(subject.description[:format_options]).to eq({})
         end
       end
 
       context 'when adding Additional Information' do
         it 'sets the additional_info' do
           subject.add_text('More Info', { question_text: 'Additional Information' })
-          expect(subject.additional_info).to eq('More Info')
+          expect(subject.additional_info[:value]).to eq('More Info')
+          expect(subject.additional_info[:format_options]).to eq({})
         end
       end
 
@@ -439,7 +533,8 @@ describe PdfFill::ExtrasGeneratorV2 do
       context 'when using question_label instead of question_text' do
         it 'sets the description using question_label' do
           subject.add_text('Test Description', { question_label: 'Description' })
-          expect(subject.description).to eq('Test Description')
+          expect(subject.description[:value]).to eq('Test Description')
+          expect(subject.description[:format_options]).to eq({})
         end
       end
 
@@ -490,8 +585,29 @@ describe PdfFill::ExtrasGeneratorV2 do
           it 'renders the table with description and additional info' do
             expected_markup = [
               '<table>',
-              "<tr><td style='width:91'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:91'>Description:</td><td>Test Description</td></tr>",
               "<tr><td style='width:91'>Additional Information:</td><td>More Details</td></tr>",
+              '</table>'
+            ].join
+
+            subject.render(pdf_double)
+            expect(pdf_double).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
+          end
+
+          it 'renders with format options when specified' do
+            subject.add_text('Test Description', {
+                               question_text: 'Description',
+                               format_options: { bold_label: true, bold_value: true, label_width: 120 }
+                             })
+            subject.add_text('More Details', {
+                               question_text: 'Additional Information',
+                               format_options: { bold_label: true, label_width: 120 }
+                             })
+
+            expected_markup = [
+              '<table>',
+              "<tr><td style='width:120'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:120'><b>Additional Information:</b></td><td>More Details</td></tr>",
               '</table>'
             ].join
 
@@ -504,7 +620,7 @@ describe PdfFill::ExtrasGeneratorV2 do
           it 'renders the table with no response for additional info' do
             expected_markup = [
               '<table>',
-              "<tr><td style='width:91'><b>Description:</b></td><td><b>Test Description</b></td></tr>",
+              "<tr><td style='width:91'>Description:</td><td>Test Description</td></tr>",
               "<tr><td style='width:91'>Additional Information:</td><td><i>no response</i></td></tr>",
               '</table>'
             ].join
@@ -513,6 +629,140 @@ describe PdfFill::ExtrasGeneratorV2 do
             expect(pdf_double).to have_received(:markup).with(expected_markup, text: { margin_bottom: 10 })
           end
         end
+      end
+    end
+
+    describe '#format_row' do
+      it 'formats row with default styling' do
+        row = subject.format_row('Name', 'John Doe', {})
+        expect(row).to eq("<tr><td style='width:91'>Name:</td><td>John Doe</td></tr>")
+      end
+
+      it 'formats row with custom label width' do
+        row = subject.format_row('Name', 'John Doe', { label_width: 150 })
+        expect(row).to eq("<tr><td style='width:150'>Name:</td><td>John Doe</td></tr>")
+      end
+
+      it 'formats row with bold label' do
+        row = subject.format_row('Name', 'John Doe', { bold_label: true })
+        expect(row).to eq("<tr><td style='width:91'><b>Name:</b></td><td>John Doe</td></tr>")
+      end
+
+      it 'formats row with bold value' do
+        row = subject.format_row('Name', 'John Doe', { bold_value: true })
+        expect(row).to eq("<tr><td style='width:91'>Name:</td><td><b>John Doe</b></td></tr>")
+      end
+
+      it 'formats empty value as "no response" in italics' do
+        row = subject.format_row('Name', '', {})
+        expect(row).to eq("<tr><td style='width:91'>Name:</td><td><i>no response</i></td></tr>")
+
+        row = subject.format_row('Name', nil, {})
+        expect(row).to eq("<tr><td style='width:91'>Name:</td><td><i>no response</i></td></tr>")
+      end
+
+      it 'combines multiple format options' do
+        row = subject.format_row('Name', 'John Doe', { bold_label: true, bold_value: true, label_width: 120 })
+        expect(row).to eq("<tr><td style='width:120'><b>Name:</b></td><td><b>John Doe</b></td></tr>")
+      end
+    end
+  end
+
+  describe PdfFill::ExtrasGeneratorV2::ListQuestion do
+    subject do
+      question = described_class.new('List Question', metadata)
+      question
+    end
+
+    let(:metadata) do
+      {
+        question_num: 9,
+        item_label: 'Item',
+        format_options: { bold_item_label: true, label_width: 120 }
+      }
+    end
+
+    let(:pdf) { double('PDF') }
+
+    before do
+      allow(pdf).to receive(:markup)
+    end
+
+    describe '#render_item_label' do
+      it 'renders item label with bold formatting when specified' do
+        subject.render_item_label(pdf, 1)
+
+        expect(pdf).to have_received(:markup).with(
+          '<table><tr><th><b><i>Item 1</i></b></th></tr></table>',
+          {
+            table: {
+              cell: {
+                borders: [:bottom],
+                border_width: 1,
+                padding: [5, 0, 3.5, 0]
+              }
+            },
+            text: { margin_bottom: -2 }
+          }
+        )
+      end
+
+      it 'uses regular italic formatting when bold_item_label is false' do
+        # Create a new question with bold_item_label: false
+        question = described_class.new('List Question', {
+                                         question_num: 9,
+                                         item_label: 'Item',
+                                         format_options: { bold_item_label: false }
+                                       })
+
+        question.render_item_label(pdf, 1)
+
+        expect(pdf).to have_received(:markup).with(
+          '<table><tr><th><i>Item 1</i></th></tr></table>',
+          {
+            table: {
+              cell: {
+                borders: [:bottom],
+                border_width: 1,
+                padding: [5, 0, 3.5, 0]
+              }
+            },
+            text: { margin_bottom: -2 }
+          }
+        )
+      end
+    end
+
+    describe '#initialize' do
+      it 'captures format_options from metadata' do
+        expect(subject.instance_variable_get(:@format_options)).to eq(
+          { bold_item_label: true, label_width: 120 }
+        )
+      end
+
+      it 'defaults format_options to empty hash if not provided' do
+        question = described_class.new('List Question', { question_num: 9, item_label: 'Item' })
+        expect(question.instance_variable_get(:@format_options)).to eq({})
+      end
+    end
+
+    describe '#add_text' do
+      let(:item_metadata) do
+        {
+          i: 0,
+          question_text: 'Description',
+          format_options: { bold_value: true }
+        }
+      end
+
+      it 'passes format_options to created items' do
+        subject.add_text('Test Value', item_metadata)
+
+        # The item should receive the format_options from the metadata
+        item = subject.items.first
+        added_value = item.instance_variable_get(:@subquestions).first
+
+        expect(added_value[:metadata][:format_options]).to eq({ bold_value: true })
       end
     end
   end

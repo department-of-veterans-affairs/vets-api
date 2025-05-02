@@ -8,18 +8,20 @@ describe Ccra::ReferralListEntry do
 
     let(:valid_attributes) do
       {
-        'CategoryOfCare' => 'CARDIOLOGY',
-        'ID' => '5682',
-        'StartDate' => '2024-03-28',
-        'SEOCNumberOfDays' => '60'
+        category_of_care: 'CARDIOLOGY',
+        referral_number: '5682',
+        referral_expiration_date: '2024-05-27',
+        station_id: '528A6',
+        status: 'AP',
+        referral_last_update_date_time: '2024-03-28T14:30:00Z'
       }
     end
 
-    it 'sets category_of_care from CategoryOfCare' do
+    it 'sets category_of_care from categoryOfCare' do
       expect(subject.category_of_care).to eq('CARDIOLOGY')
     end
 
-    it 'sets referral_number from ID' do
+    it 'sets referral_number from referralNumber' do
       expect(subject.referral_number).to eq('5682')
     end
 
@@ -27,40 +29,15 @@ describe Ccra::ReferralListEntry do
       expect(subject.uuid).to be_nil
     end
 
-    it 'calculates expiration_date from StartDate and SEOCNumberOfDays' do
-      expected_date = Date.parse('2024-03-28') + 60.days
-      expect(subject.expiration_date).to eq(expected_date)
+    it 'sets expiration_date directly from referralExpirationDate' do
+      expect(subject.expiration_date).to eq(Date.parse('2024-05-27'))
     end
 
-    context 'with missing StartDate' do
-      subject { described_class.new(attributes_without_start_date) }
-
-      let(:attributes_without_start_date) do
-        valid_attributes.except('StartDate')
-      end
-
-      it 'sets expiration_date to nil' do
-        expect(subject.expiration_date).to be_nil
-      end
-    end
-
-    context 'with missing SEOCNumberOfDays' do
-      subject { described_class.new(attributes_without_days) }
-
-      let(:attributes_without_days) do
-        valid_attributes.except('SEOCNumberOfDays')
-      end
-
-      it 'sets expiration_date to nil' do
-        expect(subject.expiration_date).to be_nil
-      end
-    end
-
-    context 'with invalid StartDate' do
+    context 'with invalid referralExpirationDate' do
       subject { described_class.new(attributes_with_invalid_date) }
 
       let(:attributes_with_invalid_date) do
-        valid_attributes.merge('StartDate' => 'invalid-date')
+        valid_attributes.merge(referral_expiration_date: 'invalid-date')
       end
 
       it 'sets expiration_date to nil' do
@@ -68,11 +45,11 @@ describe Ccra::ReferralListEntry do
       end
     end
 
-    context 'with zero SEOCNumberOfDays' do
-      subject { described_class.new(attributes_with_zero_days) }
+    context 'with missing referralExpirationDate' do
+      subject { described_class.new(attributes_without_expiration) }
 
-      let(:attributes_with_zero_days) do
-        valid_attributes.merge('SEOCNumberOfDays' => '0')
+      let(:attributes_without_expiration) do
+        valid_attributes.except(:referral_expiration_date)
       end
 
       it 'sets expiration_date to nil' do
@@ -85,16 +62,20 @@ describe Ccra::ReferralListEntry do
     let(:referral_data) do
       [
         {
-          'CategoryOfCare' => 'CARDIOLOGY',
-          'ID' => '5682',
-          'StartDate' => '2024-03-28',
-          'SEOCNumberOfDays' => '60'
+          category_of_care: 'CARDIOLOGY',
+          referral_number: '5682',
+          referral_expiration_date: '2024-05-27',
+          station_id: '528A6',
+          status: 'AP',
+          referral_last_update_date_time: '2024-03-28T14:30:00Z'
         },
         {
-          'CategoryOfCare' => 'PODIATRY',
-          'ID' => '5683',
-          'StartDate' => '2024-04-15',
-          'SEOCNumberOfDays' => '90'
+          category_of_care: 'PODIATRY',
+          referral_number: '5683',
+          referral_expiration_date: '2024-08-15',
+          station_id: '552',
+          status: 'AP',
+          referral_last_update_date_time: '2024-04-15T09:45:00Z'
         }
       ]
     end
@@ -111,9 +92,11 @@ describe Ccra::ReferralListEntry do
       expect(result[0].category_of_care).to eq('CARDIOLOGY')
       expect(result[0].referral_number).to eq('5682')
       expect(result[0].uuid).to be_nil
+      expect(result[0].expiration_date).to eq(Date.parse('2024-05-27'))
       expect(result[1].category_of_care).to eq('PODIATRY')
       expect(result[1].referral_number).to eq('5683')
       expect(result[1].uuid).to be_nil
+      expect(result[1].expiration_date).to eq(Date.parse('2024-08-15'))
     end
 
     context 'with nil input' do
