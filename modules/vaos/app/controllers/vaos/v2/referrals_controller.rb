@@ -27,7 +27,7 @@ module VAOS
       # Decrypts the UUID to retrieve the referral consult ID
       def show
         # Decrypt the referral UUID from the request parameters
-        decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_consult_id)
+        decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_uuid)
 
         response = referral_service.get_referral(
           decrypted_id,
@@ -35,7 +35,7 @@ module VAOS
         )
 
         # Add uuid to the detailed response
-        response.uuid = referral_consult_id
+        response.uuid = referral_uuid
 
         render json: Ccra::ReferralDetailSerializer.new(response)
       end
@@ -55,9 +55,9 @@ module VAOS
         end
       end
 
-      # The encrypted referral consult ID from request parameters
-      # @return [String] the referral consult ID
-      def referral_consult_id
+      # The encrypted referral UUID from request parameters
+      # @return [String] the referral UUID
+      def referral_uuid
         params.require(:id)
       end
 
