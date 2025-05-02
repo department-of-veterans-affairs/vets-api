@@ -14,8 +14,14 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
-    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_consult_id).and_return(encrypted_referral_consult_id)
-    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_referral_consult_id).and_return(referral_consult_id)
+    allow(VAOS::ReferralEncryptionService)
+      .to receive(:encrypt)
+      .with(referral_consult_id)
+      .and_return(encrypted_referral_consult_id)
+    allow(VAOS::ReferralEncryptionService)
+      .to receive(:decrypt)
+      .with(encrypted_referral_consult_id)
+      .and_return(referral_consult_id)
   end
 
   describe 'GET index' do
