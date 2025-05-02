@@ -588,6 +588,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       before do
         Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
       end
+
       it 'creates a va notify job' do
         email = 'foo@bar.com'
         email_personalization_info = {
