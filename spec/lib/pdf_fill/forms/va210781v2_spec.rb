@@ -195,26 +195,37 @@ describe PdfFill::Forms::Va210781v2 do
             }
           end
 
-          it 'fills in the police report overflow data structure correctly' do
-            new_form_class.instance_variable_set(:@form_data, event_with_police_report)
-            new_form_class.send(:process_reports)
+          context 'when using the legacy overflow generator' do
+            it 'does not populate the police report overflow data structure' do
+              new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+              new_form_class.send(:process_reports)
 
-            expect(new_form_class.instance_variable_get(:@form_data)['policeReportOverflow']).to eq(
-              [
-                {
-                  'agency' => 'Local Police Department',
-                  'city' => 'Springfield',
-                  'state' => 'IL',
-                  'country' => 'USA'
-                },
-                {
-                  'agency' => 'Local Police Department',
-                  'township' => 'Lower Alloways Creek Township',
-                  'state' => 'NJ',
-                  'country' => 'USA'
-                }
-              ]
-            )
+              expect(new_form_class.instance_variable_get(:@form_data)).not_to have_key('policeReportOverflow')
+            end
+          end
+
+          context 'when using the redesigned overflow generator' do
+            it 'fills in the police report overflow data structure correctly' do
+              new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+              new_form_class.send(:process_reports, extras_redesign: true)
+
+              expect(new_form_class.instance_variable_get(:@form_data)['policeReportOverflow']).to eq(
+                [
+                  {
+                    'agency' => 'Local Police Department',
+                    'city' => 'Springfield',
+                    'state' => 'IL',
+                    'country' => 'USA'
+                  },
+                  {
+                    'agency' => 'Local Police Department',
+                    'township' => 'Lower Alloways Creek Township',
+                    'state' => 'NJ',
+                    'country' => 'USA'
+                  }
+                ]
+              )
+            end
           end
         end
       end

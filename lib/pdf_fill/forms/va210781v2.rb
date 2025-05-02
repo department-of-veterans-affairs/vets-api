@@ -674,7 +674,7 @@ module PdfFill
         set_option_indicator
 
         if @form_data['events']&.any?
-          process_reports
+          process_reports(extras_redesign: options[:extras_redesign])
           expand_collection('events', :format_event, 'eventOverflow') unless options[:extras_redesign]
         end
 
@@ -727,7 +727,7 @@ module PdfFill
         @form_data['noTreatment'] = not_treated ? 1 : 0
       end
 
-      def process_reports
+      def process_reports(extras_redesign: false)
         report_filed = false
         no_report = false
         police_reports = []
@@ -753,16 +753,16 @@ module PdfFill
         @form_data['reportFiled'] = report_filed ? 0 : nil
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
 
-        process_police_reports(police_reports)
+        process_police_reports(police_reports, extras_redesign)
         reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
       end
 
-      def process_police_reports(police_reports)
+      def process_police_reports(police_reports, extras_redesign)
         return if police_reports.empty?
 
         joined_report = police_reports.join('; ')
         @form_data['reportsDetails']['police'] = joined_report
-        return if joined_report.length <= (KEY['reportsDetails']['police'][:limit] || 0)
+        return if joined_report.length <= (KEY['reportsDetails']['police'][:limit] || 0) || !extras_redesign
 
         police_events = @form_data['events'].filter { |event| event.dig('otherReports', 'police') }
         @form_data['policeReportOverflow'] = police_events.map do |event|
