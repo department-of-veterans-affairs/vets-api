@@ -1421,17 +1421,17 @@ vanotify:
       api_key: <%= ENV['vanotify__services__dependents__api_key'] %>
       email:
         received674:
-          template_id: <%= ENV['vanotify__services__dependents__template_id__received674'] %>
+          template_id: <%= ENV['vanotify__services__dependents__email__received674__template_id'] %>
         received686:
-          template_id: <%= ENV['vanotify__services__dependents__template_id__received686'] %>
+          template_id: <%= ENV['vanotify__services__dependents__received686__template_id'] %>
         received686c674:
-          template_id: <%= ENV['vanotify__services__dependents__template_id__received686c674'] %>
+          template_id: <%= ENV['vanotify__services__dependents__received686c674__template_id'] %>
         submitted674:
-            template_id: <%= ENV['vanotify__services__dependents__template_id__submitted674'] %>
+            template_id: <%= ENV['vanotify__services__dependents__submitted674__template_id'] %>
         submitted686:
-          template_id: <%= ENV['vanotify__services__dependents__template_id__submitted686'] %>
+          template_id: <%= ENV['vanotify__services__dependents__submitted686__template_id'] %>
         submitted686c674:
-          template_id: <%= ENV['vanotify__services__dependents__template_id__submitted686c674'] %>
+          template_id: <%= ENV['vanotify__services__dependents__submitted686c674__template_id'] %>
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
