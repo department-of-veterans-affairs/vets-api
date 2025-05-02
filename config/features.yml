@@ -1199,10 +1199,6 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
-  mhv_medications_client_test:
-    actor_type: user
-    description: Toggles testing memoization medications client
-    enable_in_development: true
   mhv_enable_aal_integration:
     actor_type: user
     description: Enables/disables integration with MHV's AAL-creation endpoint
