@@ -2105,6 +2105,10 @@ features:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
     enable_in_development: true
+  override_address_pou:
+    actor_type: user
+    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
+    enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id
     description: Used to show yellow ribbon table in Comparison Tool
