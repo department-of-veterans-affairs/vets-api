@@ -5,7 +5,8 @@ require 'rails_helper'
 RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:referral_number) { '5682' }
-  let(:encrypted_uuid) { 'encrypted-5682' }
+  let(:referral_consult_id) { '984_646372' }
+  let(:encrypted_referral_consult_id) { 'encrypted-984_646372' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:referral_statuses) { "'AP','AC','I'" }
   let(:icn) { '1012845331V153043' }
@@ -13,8 +14,8 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
-    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_number).and_return(encrypted_uuid)
-    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_number)
+    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_consult_id).and_return(encrypted_referral_consult_id)
+    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_referral_consult_id).and_return(referral_consult_id)
   end
 
   describe 'GET index' do
@@ -63,10 +64,11 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         # Verify first referral entry structure
         first_referral = response_data['data'].first
-        expect(first_referral['id']).to eq('encrypted-5682')
+        expect(first_referral['id']).to eq(referral_consult_id)
         expect(first_referral['type']).to eq('referrals')
         expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(first_referral['attributes']['referralNumber']).to eq('5682')
+        expect(first_referral['attributes']['referralConsultId']).to eq(referral_consult_id)
         expect(first_referral['attributes']['expirationDate']).to eq((Date.current + 60.days).strftime('%Y-%m-%d'))
       end
 
@@ -198,6 +200,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
         expect(response_data['data']['attributes']['referringFacility']['name']).to be_present
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
+        expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
       end
 
       context 'with a custom mode parameter' do

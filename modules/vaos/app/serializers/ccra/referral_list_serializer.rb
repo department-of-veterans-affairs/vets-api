@@ -7,11 +7,12 @@ module Ccra
     include JSONAPI::Serializer
 
     set_key_transform :camel_lower
-    set_id :uuid
+    set_id :referral_consult_id
     set_type :referrals
 
     attribute :category_of_care
     attribute :referral_number
+    attribute :referral_consult_id
     attribute :uuid
 
     # Include the expiration date formatted as YYYY-MM-DD
