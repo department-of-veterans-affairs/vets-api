@@ -6806,6 +6806,73 @@
         "summary": "/v0/translations/download"
       }
     },
+    "/v0/travel-pay/claims": {
+      "post": {
+        "description": "Submit a mileage-only travel claim.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TravelPaySubmitMileageOnlyClaim"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaimSummary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims"
+      }
+    },
     "/v0/user": {
       "get": {
         "description": "Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.\n",
@@ -22665,6 +22732,116 @@
           "debug": {
             "type": "boolean",
             "description": "Flag to switch between sandbox and non-sandbox app sid. *Lower envs only*"
+          }
+        }
+      },
+      "TravelPaySubmitMileageOnlyClaim": {
+        "description": "Submit a mileage only claim for travel pay reimbursement.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appointmentDateTime",
+          "facilityStationNumber",
+          "appointmentType",
+          "isComplete"
+        ],
+        "properties": {
+          "appointmentDateTime": {
+            "type": "string",
+            "description": "The date and time of the appointment in ISO 8601 format.",
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityStationNumber": {
+            "type": "string",
+            "description": "The station number of the VA facility where the appointment is registered.",
+            "example": "983GC"
+          },
+          "appointmentType": {
+            "type": "string",
+            "description": "The type of appointment.",
+            "enum": [
+              "CompensationAndPension",
+              "Other"
+            ],
+            "example": "CompensationAndPension"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Indicates whether the appointment is complete.",
+            "example": true
+          },
+          "appointmentName": {
+            "type": "string",
+            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
+            "example": "Primary care appointment with Dr. Smith"
+          }
+        }
+      },
+      "TravelPayClaimSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claimNumber",
+          "claimStatus",
+          "appointmentDateTime",
+          "facilityId",
+          "facilityName",
+          "totalCostRequested",
+          "reimbursementAmount",
+          "createdOn",
+          "modifiedOn"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": false,
+            "example": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53"
+          },
+          "claimNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "TC00000000001"
+          },
+          "claimStatus": {
+            "type": "string",
+            "nullable": false,
+            "example": "In process"
+          },
+          "appointmentDateTime": {
+            "type": "string",
+            "nullable": false,
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityId": {
+            "type": "string",
+            "nullable": true,
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "facilityName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Tomah VA Medical Center"
+          },
+          "totalCostRequested": {
+            "type": "float",
+            "nullable": false,
+            "example": 4.52
+          },
+          "reimbursementAmount": {
+            "type": "float",
+            "nullable": true,
+            "example": 0
+          },
+          "createdOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2023-02-24T22:22:52.549Z"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2023-02-26T22:22:52.549Z"
           }
         }
       },

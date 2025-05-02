@@ -32,19 +32,6 @@ module Mobile
           Rails.logger.info(message: "Mobile-SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
 
-          # serialized_claim = TravelPayClaimSummarySerializer.new({
-          #                                                          id: submitted_claim['claimId'],
-          #                                                          claimNumber: '',
-          #                                                          claimStatus: submitted_claim['status'],
-          #                                                          appointmentDateTime: validated_params[:appointment_date_time],
-          #                                                          facilityId: validated_params[:facility_station_number],
-          #                                                          facilityName: '',
-          #                                                          totalCostRequested: nil,
-          #                                                          reimbursementAmount: nil,
-          #                                                          createdOn: submitted_claim[:createdOn],
-          #                                                          modifiedOn: submitted_claim[:modifiedOn]
-          #                                                        })
-
           Rails.logger.info(message: 'Mobile-SMOC transaction END')
         rescue ArgumentError => e
           raise Common::Exceptions::BadRequest, detail: e.message
@@ -59,14 +46,9 @@ module Mobile
                                                            appointmentDateTime: validated_params[:appointment_date_time],
                                                            facilityId: validated_params[:facility_station_number],
                                                            facilityName: '',
-                                                           totalCostRequested: nil,
-                                                           reimbursementAmount: nil,
                                                            createdOn: submitted_claim[:createdOn],
                                                            modifiedOn: submitted_claim[:modifiedOn]
                                                          })
-
-        # TODO: need to run through serializer ??
-        # render json: { data: serialized_claim }, status: :created
       end
 
       private
