@@ -12,6 +12,6 @@ Rails.autoloaders.each do |autoloader|
     # inflection.acronym "UTC" to `config/initializers/inflections.rb`
     # See more:
     #  https://guides.rubyonrails.org/autoloading_and_reloading_constants.html#customizing-inflections
-    "utc_time" => "UTCTime",
+    'utc_time' => 'UTCTime'
   )
 end
