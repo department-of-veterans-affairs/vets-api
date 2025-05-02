@@ -36,7 +36,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     context 'The :combined_financial_status_report flipper is turned on' do
       before do
         Flipper.enable(:combined_financial_status_report)
-        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { false }
+        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
       end
 
       it 'submits combined fsr' do
@@ -54,7 +54,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     context 'The :combined_financial_status_report flipper is turned off' do
       before do
         Flipper.disable(:combined_financial_status_report)
-        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { false }
+        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
       end
 
       it 'ignores flipper and uses combined fsr' do
@@ -72,7 +72,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     context 'The :fsr_zero_silent_errors_in_progress_email flipper is turned on' do
       before do
         Flipper.disable(:combined_financial_status_report)
-        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { true }
+        Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
       end
 
       it 'fires the confirmation email' do
@@ -82,10 +82,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
             expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
               5.minutes,
               {
-                "email" => user.email,
-                "first_name" => user.first_name,
-                "template_id" => "fake_template_id",
-                "user_uuid" => user.uuid
+                'email' => user.email,
+                'first_name' => user.first_name,
+                'template_id' => 'fake_template_id',
+                'user_uuid' => user.uuid
               }
             )
             expect(service).to receive(:submit_combined_fsr)
@@ -138,7 +138,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'with valid form data' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { false }
+        Flipper.disable(:fsr_zero_silent_errors_in_progress_email)
       end
 
       it 'accepts the submission' do
@@ -173,7 +173,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
       it 'does not send a confirmation email' do
         allow(Settings).to receive(:vsp_environment).and_return('production')
-        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email) { true }
+        Flipper.enable(:fsr_zero_silent_errors_in_progress_email)
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user_data)
