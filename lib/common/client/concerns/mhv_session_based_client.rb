@@ -80,8 +80,7 @@ module Common
         end
 
         def auth_headers
-          config.base_request_headers.merge('appToken' => config.app_token,
-                                            'mhvCorrelationId' => session.user_id.to_s)
+          config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => session.user_id.to_s)
         end
       end
     end

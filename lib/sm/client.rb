@@ -533,29 +533,6 @@ module SM
 
     private
 
-    def auth_headers
-      headers = config.base_request_headers.merge(
-        'appToken' => config.app_token,
-        'mhvCorrelationId' => session.user_id.to_s
-      )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
-    end
-
-    def token_headers
-      headers = config.base_request_headers.merge(
-        'Token' => session.token
-      )
-      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
-        headers.merge('x-api-key' => config.x_api_key)
-      else
-        headers
-      end
-    end
-
     def reply_draft?(id)
       get_message_history(id).data.present?
     end
