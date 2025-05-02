@@ -38,6 +38,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
@@ -1101,6 +1102,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       before do
         allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
       end
 
       context 'successful calls' do
@@ -1472,6 +1474,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       before do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
       end
 
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
