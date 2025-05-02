@@ -17,11 +17,6 @@ module AccreditedRepresentativePortal
 
     belongs_to :creator, class_name: 'UserAccount'
 
-    belongs_to :power_of_attorney_request,
-           class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
-           inverse_of: :decisions,
-           optional: true
-
     validates :type, inclusion: { in: Types::ALL }
 
     class << self
