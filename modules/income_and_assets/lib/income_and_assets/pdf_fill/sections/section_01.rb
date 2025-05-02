@@ -6,31 +6,50 @@ module IncomeAndAssets
   module PdfFill
     # Section I: Veteran Informations
     class Section1 < Section
-      # Section configuration hash
+      # Section configuration hash with overflow metadata
       KEY = {
-        # 1a
+        # 1a: Veteran full name
         'veteranFullName' => {
-          # form allows up to 39 characters but validation limits to 30,
-          # so no overflow is needed
           'first' => {
-            key: 'F[0].Page_4[0].VeteransName.First[0]'
+            key: 'F[0].Page_4[0].VeteransName.First[0]',
+            limit: 30,
+            question_num: 1,
+            question_suffix: 'A',
+            question_text: 'Veterans name – first',
+            question_label: 'First'
           },
           'middle' => {
-            key: 'F[0].Page_4[0].VeteransName.MI[0]'
+            key: 'F[0].Page_4[0].VeteransName.MI[0]',
+            limit: 1,
+            question_num: 1,
+            question_suffix: 'B',
+            question_text: 'Veterans name – middle initial',
+            question_label: 'MI'
           },
-          # form allows up to 34 characters but validation limits to 30,
-          # so no overflow is needed
           'last' => {
-            key: 'F[0].Page_4[0].VeteransName.Last[0]'
+            key: 'F[0].Page_4[0].VeteransName.Last[0]',
+            limit: 30,
+            question_num: 1,
+            question_suffix: 'C',
+            question_text: 'Veterans name – last',
+            question_label: 'Last'
           }
         },
-        # 1b
+        # 1b: Veteran SSN
         'veteranSocialSecurityNumber' => {
-          key: 'F[0].Page_4[0].VeteransSSN[0]'
+          key: 'F[0].Page_4[0].VeteransSSN[0]',
+          limit: 9,
+          question_num: 2,
+          question_text: 'Veterans social security number',
+          question_label: 'SSN'
         },
-        # 1c
+        # 1c: VA file number
         'vaFileNumber' => {
-          key: 'F[0].Page_4[0].VeteransFileNumber[0]'
+          key: 'F[0].Page_4[0].VeteransFileNumber[0]',
+          limit: 20,
+          question_num: 3,
+          question_text: 'Veterans file number',
+          question_label: 'File number'
         }
       }.freeze
 
