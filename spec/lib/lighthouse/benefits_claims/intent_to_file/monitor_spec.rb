@@ -7,10 +7,10 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
   let(:monitor) { described_class.new }
   let(:itf_stats_key) { described_class::STATSD_KEY_PREFIX }
   let(:claim) { create(:pensions_saved_claim) }
-  let(:ipf) { create(:in_progress_form) }
+  let(:ipf) { create(:in_progress_form, user_account: current_user.user_account) }
 
   context 'with all params supplied' do
-    let(:current_user) { create(:user) }
+    let(:current_user) { create(:user, :with_terms_of_use_agreement) }
     let(:monitor_error) { create(:monitor_error) }
 
     describe '#track_create_itf_initiated' do
