@@ -97,6 +97,38 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
     expect(output).not_to include('Processing 123 with form form0781 (')
   end
 
+  context 'with pre-2019-06-24 submission date' do
+    let(:pre_2019_submission) do
+      instance_double(
+        Form526Submission,
+        id: '123',
+        created_at: Time.zone.local(2019, 6, 23, 12, 0, 0),
+        submitted_claim_id: 'abc'
+      )
+    end
+
+    before do
+      allow(Form526Submission).to receive(:find).with('123').and_return(pre_2019_submission)
+      allow(pre_2019_submission).to receive(:form_to_json).with('form0781').and_return('{"incidents":[{"foo":"bar"}]}')
+      allow(job).to receive(:perform)
+
+      # Clear any previous invocations
+      Rake::Task.clear
+      Rake.application.rake_require 'tasks/remediate_0781_and_0781v2_forms'
+      Rake::Task.define_task(:environment)
+    end
+
+    it 'processes only form0781 exactly once' do
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
+
+      expect(job).to have_received(:perform).once.with(
+        ids: ['123'],
+        config: instance_of(SimpleFormsApi::FormRemediation::Configuration::Form0781Config),
+        type: :remediation
+      )
+    end
+  end
+
   # Helper method to capture stdout
   def capture_stdout
     original_stdout = $stdout
