@@ -90,17 +90,29 @@ module Vye
       #
       #     ldpm <=	dlc	<		abd	<=	rd	<		aed  no pending verification
       #      3/31   4/1     4/1     4/15    6/15
+      log_and_puts "*** processing awards current date is #{today}"
       awards.each_with_index do |award, idx|
         # cur_award_ind is passed in from the feed, we do not determine it.
+        log_and_puts "processing award #{idx + 1} of #{awards.size} ***"
         @award = award
         @award_begin_date = award.award_begin_date
         @award_end_date = award.award_end_date
 
+        log_and_puts "abd: #{award_begin_date} aed: #{award_end_date} dlc: #{previous_certification_date}"
+
         # open certificates are not eligible for verification
         next if flag_open_cert(idx, awards.size - 1)
 
+        # this helps to see what's going on with the order of the relevant dates
+        puts_the_order_of_the_criteria_dates
+
         # past awards have already been paid. Do not create a pending verification
-        next if award_end_date <= previous_certification_date
+        if award_end_date <= previous_certification_date
+          log_and_puts '  this is a past award, award_end_date <= previous_certification_date. Skipping'
+          next
+        else
+          log_and_puts '  this is not a past award, award_end_date > previous_certification_date. Continuing'
+        end
 
         # no pending verfications for future awards
         next if eval_future_award
@@ -128,7 +140,11 @@ module Vye
                 act_beg_is_abd_and_act_end_is_ldpm ||
                 act_beg_is_abd_and_act_end_is_aed
 
-        push_enrollment(trace) if trace
+        if trace
+          push_enrollment(trace)
+        else
+          log_and_puts '  *** award has no pending verification ***'
+        end
       end
 
       @enrollments
@@ -155,40 +171,77 @@ module Vye
     # We do not make pending verifications for awards if the award_end_date is blank (nil)
     # Determine this and return true/false
     def flag_open_cert(idx, last_idx)
-      return true if award_begin_date.blank?
-      return false if award_end_date.present?
-      return true if idx.eql?(last_idx) && award_end_date.blank?
+      if award_begin_date.blank?
+        log_and_puts '  award_begin_date is nil - award is open'
+        return true
+      end
+
+      if award_end_date.present?
+        log_and_puts '  award_end_date is present, award is not open'
+        return false
+      end
+
+      if idx.eql?(last_idx) && award_end_date.blank?
+        log_and_puts '  award end date is missing and this is the last award in the list, award is open'
+        return true
+      end
 
       # Award end date is missing and this is not the last award in the list
       # the award end date is implied to be the next award's begin date - 1 day.
+      log_and_puts '  next award begin date - 1 day to award end date, award is not open'
       next_award = awards[idx + 1]
       @award_end_date = (next_award.award_begin_date - 1.day)
 
       false
     end
 
+    def puts_the_order_of_the_criteria_dates
+      log_and_puts 'sorting the criteria dates'
+
+      dates = {
+        previous_certification_date:, last_day_of_previous_month:,
+        award_begin_date:, award_end_date:, run_date: today
+      }
+
+      sort_keys_by_date_ascending(dates).each { |key, value| printf "#{key}: #{value} | " }
+    end
+
+    def sort_keys_by_date_ascending(date_hash)
+      date_hash.sort_by { |_, date| date }.to_h
+    end
+
     def eval_future_award
-      return true if award_begin_date.present? && award_begin_date > today
+      log_and_puts 'evaluating future award'
+      if award_begin_date.present? && award_begin_date > today
+        log_and_puts "  1 run date #{today} < award begin date #{award_begin_date}, future award"
+        return true
+      end
 
       # last day of the month is an exception. We can have an award date after the end of the month
       # in which case we will certify up to the end of the month. Don't consider it a future award.
-      return false if end_of_month.eql?(today)
+      if end_of_month.eql?(today)
+        log_and_puts "  run date #{today} is the end of month #{end_of_month}, not a future award"
+        return false
+      end
 
       if previous_certification_date > last_day_of_previous_month &&
          award_begin_date <= last_day_of_previous_month &&
          today < award_end_date
+        log_and_puts '  2 awd beg dt <= ldpm < last cert dt < today < awd end dt, future award'
         return true
       end
 
       if previous_certification_date <= last_day_of_previous_month &&
          last_day_of_previous_month < award_begin_date && award_begin_date <= today &&
          today < award_end_date
+        log_and_puts '  3 last cert dt <= ldpm < awd beg dt <= today < awd end dt, future award'
         return true
       end
 
       if last_day_of_previous_month < award_begin_date &&
          award_begin_date <= previous_certification_date && previous_certification_date < today &&
          today < award_end_date
+        log_and_puts '  4 ldpm < awd beg dt <= last cert dt < today < awd end dt, future award'
         return true
       end
 
@@ -196,16 +249,29 @@ module Vye
          previous_certification_date < award_begin_date &&
          award_begin_date <= today &&
          today < award_end_date
+        log_and_puts '  5 ldpm < last cert dt < awd beg dt <= today < awd end dt, future award'
         return true
       end
 
+      log_and_puts '  6 not future award - continuing'
       false
     end
 
     def eval_case_eom
-      return nil unless today.eql?(end_of_month)
-      return nil unless today.between?(award_begin_date, award_end_date)
+      log_and_puts 'evaluating case_eom'
 
+      # today is the last day of the month if it passes this check
+      unless today.eql?(end_of_month)
+        log_and_puts "  1 #{today} is not the last day of month - not case_eom"
+        return nil
+      end
+
+      unless today.between?(award_begin_date, award_end_date)
+        log_and_puts '  2 award beg date >= today or award end date < today - not case_eom'
+        return nil
+      end
+
+      log_and_puts '  we are doing eom processing'
       :case_eom
     end
 
@@ -216,6 +282,8 @@ module Vye
     end
 
     def push_enrollment(trace)
+      log_and_puts "pushing enrollment for #{trace}"
+
       award_id = @award.id
       number_hours = @award.number_hours
       monthly_rate = @award.monthly_rate
@@ -247,11 +315,16 @@ module Vye
           payment_date:, act_begin:, act_end:, trace:
         )
       )
+
+      log_and_puts "attributes: #{@enrollments.last.attributes}"
     end
 
     def act_beg_is_abd_and_act_end_is_aed
+      log_and_puts 'evaluating act_beg_is_aed_and_act_end_is_aed - cases 5, 6, 8, 9 & 10'
+
       if previous_certification_date < award_begin_date && award_begin_date < award_end_date &&
          award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
+        log_and_puts '  dlc <   *abd  < aed*  <= ldpm <  rd : case5'
         return :case5
       end
 
@@ -259,62 +332,87 @@ module Vye
          ((award_begin_date <= last_day_of_previous_month && last_day_of_previous_month <  award_end_date) ||
           (award_begin_date <  last_day_of_previous_month && last_day_of_previous_month <= award_end_date)) &&
          award_end_date <= today
+        log_and_puts '  dlc <   *abd  <= ldpm <= aed*  <= rd : case6'
         return :case6
       end
 
       if previous_certification_date < last_day_of_previous_month && last_day_of_previous_month <= award_begin_date &&
          award_begin_date < award_end_date && award_end_date <= today
+        log_and_puts '  dlc <   ldpm <=  *abd <  aed* <=  rd : case8'
         return :case8
       end
 
       if last_day_of_previous_month < award_begin_date && award_begin_date <= previous_certification_date &&
          previous_certification_date < award_end_date && award_end_date <= today
+        log_and_puts '  ldpm <	abd	<=	*dlc < 	aed*	<=	rd : case9'
         return :case9
       end
 
       if last_day_of_previous_month <= previous_certification_date && previous_certification_date < award_begin_date &&
          award_begin_date < award_end_date && award_end_date <= today
+        log_and_puts '  ldpm <= dlc	<		*abd	<	aed*	<=	rd : case10'
         return :case10
       end
 
+      log_and_puts '  not case 5, 6, 8, 9 or 10'
       nil
     end
 
     def act_beg_is_dlc_and_act_end_is_aed
+      log_and_puts 'evaluating act_beg_is_dlc_and_act_end_is_aed - cases 1, 2 & 4'
       if award_begin_date <= previous_certification_date && previous_certification_date < award_end_date &&
          award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
+        log_and_puts '  abd <=  *dlc  <  aed*  <  ldpm <  rd : case1'
         return :case1
       end
 
       if award_begin_date <= previous_certification_date && previous_certification_date < last_day_of_previous_month &&
          last_day_of_previous_month <= award_end_date && award_end_date <= today
+        log_and_puts '  abd <=  *dlc  <  ldpm <=  aed* <=  rd : case2'
         return :case2
       end
 
       if award_begin_date <= last_day_of_previous_month && last_day_of_previous_month <= previous_certification_date &&
          previous_certification_date < award_end_date && award_end_date <= today
+        log_and_puts '  abd <=  *ldpm < dlc  <  aed* <=  rd : case4'
         return :case4
       end
 
+      log_and_puts '  not case 1, 2 or 4'
       nil
     end
 
     def act_beg_is_dlc_and_act_end_is_ldpm
+      log_and_puts 'evaluating act_beg_is_dlc_and_act_end_is_ldpm - case 3'
       if award_begin_date <= previous_certification_date && previous_certification_date < last_day_of_previous_month &&
          last_day_of_previous_month < today && today < award_end_date
+        log_and_puts '  abd <=  *dlc  <  ldpm* <  rd  <   aed : case3'
         return :case3
       end
 
+      log_and_puts '  not case 3'
       nil
     end
 
     def act_beg_is_abd_and_act_end_is_ldpm
+      log_and_puts 'evaluating act_beg_is_abd_and_act_end_is_ldpm - case 7'
       if previous_certification_date < award_begin_date && award_begin_date <= last_day_of_previous_month &&
          last_day_of_previous_month < today && today < award_end_date
+        log_and_puts '  dlc <   *abd  <= ldpm* <  rd   <  aed : case7'
         return :case7
       end
 
+      log_and_puts '  not case 7'
       nil
     end
+  end
+
+  def log_and_puts(msg)
+    Rails.logger.info("Vye::NeedsEnrollmentVerification: #{msg}")
+
+    # rubocop:disable Rails/Output
+    # We only want to see this in development for debugging
+    puts "Vye::NeedsEnrollmentVerification: #{msg}" if Rails.env.development?
+    # rubocop:enable Rails/Output
   end
 end
