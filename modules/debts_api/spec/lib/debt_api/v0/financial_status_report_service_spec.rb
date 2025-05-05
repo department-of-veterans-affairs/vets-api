@@ -35,7 +35,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'The :combined_financial_status_report flipper is turned on' do
       before do
-        Flipper.enable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:combined_financial_status_report).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
@@ -53,7 +53,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'The :combined_financial_status_report flipper is turned off' do
       before do
-        Flipper.disable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:combined_financial_status_report).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
@@ -71,7 +71,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'The :fsr_zero_silent_errors_in_progress_email flipper is turned on' do
       before do
-        Flipper.disable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:combined_financial_status_report).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
       end
 
