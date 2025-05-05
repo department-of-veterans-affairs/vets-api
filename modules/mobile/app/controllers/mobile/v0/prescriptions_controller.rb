@@ -34,8 +34,7 @@ module Mobile
       private
 
       def client
-        Rails.logger.info('Client is being set for VAHB')
-        @client ||= Rx::Client.new(
+        @client ||= Mobile::V0::Prescriptions::Client.new(
           session: { user_id: @current_user.mhv_correlation_id }, upstream_request: request
         ).authenticate
       end

@@ -7,6 +7,7 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
   let(:user) do
     build(:user,
           :loa3,
+          :with_terms_of_use_agreement,
           mhv_correlation_id: 'some-mhv_correlation_id',
           birls_id: 'some-birls_id',
           participant_id: 'some-participant_id',

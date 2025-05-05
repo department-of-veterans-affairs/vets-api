@@ -19,7 +19,7 @@ module Rx
 
     def auth_headers
       Rails.logger.info('Rx request is coming from VA.gov web')
-      get_headers(config.base_request_headers.merge('appToken' => config.app_token_va_gov,
+      get_headers(config.base_request_headers.merge('appToken' => config.app_token,
                                                     'mhvCorrelationId' => session.user_id.to_s))
     end
 

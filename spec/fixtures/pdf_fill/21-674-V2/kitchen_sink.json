@@ -62,7 +62,8 @@
           },
           "name": "Quest for Knowledge Trade programs"
         },
-        "was_married": false,
+        "was_married": true,
+        "marriage_date": "2023-07-04",
         "view:program_examples": {},
         "address": {
           "view:military_base_description": {},
@@ -100,19 +101,6 @@
         },
         "ssn": "111111111",
         "birth_date": "1991-04-19"
-      }
-    ],
-    "child_marriage": [
-      {
-        "dependent_income": false,
-        "date_married": "2020-01-01",
-        "full_name": {
-          "first": "Child",
-          "middle": "C",
-          "last": "Doe"
-        },
-        "ssn": "222222222",
-        "birth_date": "2001-03-12"
       }
     ]
   }
