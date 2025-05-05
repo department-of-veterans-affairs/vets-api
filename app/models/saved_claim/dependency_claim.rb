@@ -2,6 +2,8 @@
 
 require 'claims_api/vbms_uploader'
 require 'pdf_utilities/datestamp_pdf'
+require 'dependents/monitor'
+require 'dependents/notification_email'
 
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
@@ -32,6 +34,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     report_child18_or_older_is_not_attending_school
     add_spouse
   ].freeze
+
+  FORM686 = '21-686c'
+  FORM674 = '21-674'
+  FORM_COMBO = '686c-674'
 
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
@@ -192,6 +198,57 @@ class SavedClaim::DependencyClaim < CentralMailClaim
         )
       end
     end
+  end
+
+  ##
+  # Determine if claim is a 686, 674, both, or unknown
+  #
+  def claim_form_type
+    return FORM_COMBO if submittable_686? && submittable_674?
+    return FORM686 if submittable_686?
+
+    FORM674 if submittable_674?
+  rescue => e
+    Dependents::Monitor.new.track_unknown_claim_type(id, e)
+    nil
+  end
+
+  ##
+  # VANotify job to send Submitted/in-Progress email to veteran
+  #
+  def send_submitted_email(user = nil)
+    @monitor = Dependents::Monitor.new
+    type = claim_form_type
+    if type == FORM686
+      Dependents::NotificationEmail.new(id, user).deliver(:submitted686)
+    elsif type == FORM674
+      Dependents::NotificationEmail.new(id, user).deliver(:submitted674)
+    else
+      # Combo or unknown form types use combo email
+      Dependents::NotificationEmail.new(id, user).deliver(:submitted686c674)
+    end
+    @monitor.track_send_submitted_email_success(id, user&.user_account_uuid)
+  rescue => e
+    @monitor.track_send_submitted_email_failure(id, e, user&.user_account_uuid)
+  end
+
+  ##
+  # VANotify job to send Received/Confirmation email to veteran
+  #
+  def send_received_email(user = nil)
+    @monitor = Dependents::Monitor.new
+    type = claim_form_type
+    if type == FORM686
+      Dependents::NotificationEmail.new(id, user).deliver(:received686)
+    elsif type == FORM674
+      Dependents::NotificationEmail.new(id, user).deliver(:received674)
+    else
+      # Combo or unknown form types use combo email
+      Dependents::NotificationEmail.new(id, user).deliver(:received686c674)
+    end
+    @monitor.track_send_received_email_success(id, user&.user_account_uuid)
+  rescue => e
+    @monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
   end
 
   private
