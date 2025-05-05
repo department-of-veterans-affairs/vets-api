@@ -782,12 +782,15 @@ module PdfFill
       end
 
       def process_treatment_dates
-        @form_data['treatmentProvidersDetails'].each do |item|
+        @form_data['treatmentProvidersDetails']&.each do |item|
           item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
           item['treatmentDate'] = if item['noDates']
                                     'no response'
                                   else
-                                    [item['treatmentMonth'], item['treatmentYear'] || '????'].compact.join('-')
+                                    [
+                                      item['treatmentMonth'],
+                                      item['treatmentYear'].presence || '????'
+                                    ].compact_blank.join('-')
                                   end
         end
       end
