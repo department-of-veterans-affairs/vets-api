@@ -165,7 +165,7 @@ gem 'swagger-blocks'
 # POSIX systems should have this already, so we're not going to bring it in on other platforms
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'utf8-cleaner'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', ref: 'f945c79335ca205428e8ebaf45461203db0698c5'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'warden-github'
 gem 'waterdrop'
