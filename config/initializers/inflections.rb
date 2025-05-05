@@ -18,8 +18,10 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'HCA'
+  inflect.acronym 'HTTP'
   inflect.acronym 'IAM'
   inflect.acronym 'IHub'
+  inflect.acronym 'ISO8601'
   inflect.acronym 'LCPE' # Licenses, Certifications, Prep Courses & Exams
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV' # My HealtheVet
