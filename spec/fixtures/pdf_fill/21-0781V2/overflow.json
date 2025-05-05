@@ -26,7 +26,7 @@
         "police": true
       },
       "agency": "SVI",
-      "city": "Dallas",
+      "city": "Dalworthington Gardens",
       "state": "TX",
       "township": "",
       "country": "USA"
@@ -35,13 +35,22 @@
       "details": "Mugged",
       "location": "Back alley in Big Town, USA",
       "timing": "June 2007",
-      "unlistedReport": "incident report"
+      "otherReports": {
+        "police": true
+      },
+      "agency": "Local Police Department",
+      "city": "",
+      "state": "NJ",
+      "township": "Lower Alloways Creek Township",
+      "country": "USA",
+      "unlistedReport": "After Action Report (AAR)"
     },
     {
       "details": "I would be minding my own business and this other soldier would use his rank to force me to do push ups and sit ups and other stuff even when we were off duty.\nIf I refused the next day would be worse during work hours and he would like to the chain of command that I had done something wrong. He would harass and belittle me. I tried to tell someone but nobody cared, I would just get in more trouble.",
       "location": "Fort Belvior, VA",
       "timing": "June 2007",
       "militaryReports": {
+        "pre2005": true,
         "restricted": true
       }
     },

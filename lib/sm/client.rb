@@ -278,7 +278,7 @@ module SM
       path = 'message/category'
 
       json = perform(:get, path, nil, token_headers).body
-      Category.new(json)
+      Category.new(json[:data])
     end
 
     ##
@@ -290,7 +290,7 @@ module SM
     def get_message(id)
       path = "message/#{id}/read"
       json = perform(:get, path, nil, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -343,7 +343,7 @@ module SM
       validate_create_context(args)
 
       json = perform(:post, 'message', args.to_h, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -358,7 +358,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -373,7 +373,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -387,7 +387,7 @@ module SM
       validate_reply_context(args)
 
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
