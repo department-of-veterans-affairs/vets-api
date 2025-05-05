@@ -13,7 +13,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_0781_to_lighthouse',
                                               instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:form526_send_0781_failure_notification).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_compensation_0781v2_extras_redesign,
                                               anything).and_return(false)
   end

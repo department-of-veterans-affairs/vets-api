@@ -17,6 +17,7 @@ require 'pdf_fill/filler'
 
 class SavedClaim < ApplicationRecord
   include SetGuid
+  include RetriableConcern
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
@@ -82,18 +83,18 @@ class SavedClaim < ApplicationRecord
     errors.add(:form, :invalid_format, message: 'must be a json string') unless form_is_string
   end
 
-  def form_matches_schema
+  def form_matches_schema(with_retry: false)
     return unless form_is_string
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
 
-    schema_errors = validate_schema(schema)
+    schema_errors = validate_schema(schema, with_retry)
     unless schema_errors.empty?
       Rails.logger.error('SavedClaim schema failed validation.',
                          { form_id:, errors: schema_errors })
     end
 
-    validation_errors = validate_form(schema)
+    validation_errors = validate_form(schema, with_retry)
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
       e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
@@ -156,15 +157,27 @@ class SavedClaim < ApplicationRecord
 
   private
 
-  def validate_schema(schema)
-    errors = JSONSchemer.validate_schema(schema).to_a
+  def validate_schema(schema, should_retry)
+    errors = if should_retry
+               with_retries("#{form_id} schema validation") do
+                 JSONSchemer.validate_schema(schema).to_a
+               end
+             else
+               JSONSchemer.validate_schema(schema).to_a
+             end
     return [] if errors.empty?
 
     reformatted_schemer_errors(errors)
   end
 
-  def validate_form(schema)
-    errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
+  def validate_form(schema, should_retry)
+    errors = if should_retry
+               with_retries("#{form_id} form validation") do
+                 JSONSchemer.schema(schema).validate(parsed_form).to_a
+               end
+             else
+               JSONSchemer.schema(schema).validate(parsed_form).to_a
+             end
     return [] if errors.empty?
 
     reformatted_schemer_errors(errors)

@@ -25,7 +25,6 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
-    allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
 
   describe 'associations' do
@@ -39,6 +38,16 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
       it 'returns true' do
         expect(saved_claim.validate).to be(true)
       end
+
+      context 'when with_retry is true' do
+        # rubocop:disable RSpec/SubjectStub
+        it 'uses with_retries for schema and form validation' do
+          expect(saved_claim).to receive(:with_retries).with("#{saved_claim.form_id} schema validation").and_yield
+          expect(saved_claim).to receive(:with_retries).with("#{saved_claim.form_id} form validation").and_yield
+          expect(saved_claim.form_matches_schema(with_retry: true)).to be(true)
+        end
+        # rubocop:enable RSpec/SubjectStub
+      end
     end
 
     context 'validation errors' do
@@ -46,7 +55,6 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
       context 'when validate_schema returns errors' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
           allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
         end
 
