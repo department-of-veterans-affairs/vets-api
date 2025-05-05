@@ -77,7 +77,7 @@ module PdfFill
 
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :checked_values).merge(
           i:, overflow:, item_label:, question_type:, format_options:
         )
       )

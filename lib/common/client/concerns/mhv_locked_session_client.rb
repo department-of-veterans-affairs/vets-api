@@ -37,7 +37,7 @@ module Common
         # @return [MhvFhirSessionClient] instance of `self`
         #
         def authenticate
-          raise 'ICN is required for session creation' unless user_key
+          raise 'A user_key is required for session creation' unless user_key
 
           iteration = 0
 
