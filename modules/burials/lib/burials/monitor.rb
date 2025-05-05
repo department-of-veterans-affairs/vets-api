@@ -5,7 +5,14 @@ require 'zero_silent_failures/monitor'
 
 module Burials
   ##
-  # Monitor functions for Rails logging and StatsD
+  # Monitor class for tracking claim submission events
+  #
+  # This class provides methods for tracking various events during the burial claim
+  # submission process, including successes, failures, and retries.
+  #
+  # @example Tracking a submission success
+  #   monitor = Burials::Monitor.new
+  #   monitor.track_submission_success(claim, service, user_uuid)
   #
   class Monitor < ::ZeroSilentFailures::Monitor
     # statsd key for api
