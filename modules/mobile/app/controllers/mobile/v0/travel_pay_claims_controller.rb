@@ -21,13 +21,12 @@ module Mobile
       def create
         begin
           Rails.logger.info(message: 'Mobile-SMOC transaction START')
-
-          appt_id = get_appt_or_raise
+          appt_id = get_appt_or_raise(params)
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "Mobile-SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
           expense_service.add_expense({ 'claim_id' => claim_id,
-                                        'appt_date' => validated_params[:appointment_date_time] })
+                                        'appt_date' => params['appointment_date_time'] })
 
           Rails.logger.info(message: "Mobile-SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
@@ -38,17 +37,19 @@ module Mobile
         rescue Faraday::ClientError, Faraday::ServerError => e
           raise Common::Exceptions::InternalServerError, exception: e
         end
-
-        render json: TravelPayClaimSummarySerializer.new({
-                                                           id: submitted_claim['claimId'],
-                                                           claimNumber: '',
-                                                           claimStatus: submitted_claim['status'],
-                                                           appointmentDateTime: validated_params[:appointment_date_time],
-                                                           facilityId: validated_params[:facility_station_number],
-                                                           facilityName: '',
-                                                           createdOn: submitted_claim[:createdOn],
-                                                           modifiedOn: submitted_claim[:modifiedOn]
-                                                         })
+        claim = Mobile::V0::TravelPayClaimSummary.new({
+                                                        id: submitted_claim['claimId'],
+                                                        claimNumber: '',
+                                                        claimStatus: submitted_claim['status'].underscore.humanize,
+                                                        appointmentDateTime: params['appointment_date_time'],
+                                                        facilityId: params['facility_station_number'],
+                                                        facilityName: '',
+                                                        totalCostRequested: 0,
+                                                        reimbursementAmount: 0,
+                                                        createdOn: submitted_claim['createdOn'],
+                                                        modifiedOn: submitted_claim['modifiedOn']
+                                                      })
+        render json: TravelPayClaimSummarySerializer.new(claim), status: :created
       end
 
       private
@@ -72,10 +73,10 @@ module Mobile
         end
       end
 
-      def get_appt_or_raise
-        appt_not_found_msg = "No appointment found for #{validated_params[:appointment_date_time]}"
-        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{validated_params[:appointment_date_time]}")
-        appt = appts_service.find_or_create_appointment(validated_params)
+      def get_appt_or_raise(params)
+        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
+        appt = appts_service.find_or_create_appointment(params)
 
         if appt[:data].nil?
           Rails.logger.error(message: appt_not_found_msg)
@@ -94,7 +95,7 @@ module Mobile
 
       def auth_manager
         # TODO: find the mobile client number
-        @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.mobile_client_number, @current_user)
+        @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
       end
 
       def claims_service
