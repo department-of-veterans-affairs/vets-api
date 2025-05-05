@@ -19,10 +19,7 @@ RSpec.describe Vets::Collection do
       end
 
       def self.filterable_attributes
-        {
-          'name' => %w[match eq],
-          'age' => %w[eq gteq lteq]
-        }.with_indifferent_access
+        { name: %w[match eq], age: %w[eq lteq gteq] }.with_indifferent_access
       end
     end
   end

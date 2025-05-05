@@ -9,6 +9,7 @@ require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
 require 'vets/collections/finder'
 require 'vets/collections/pagination'
+require 'vets/collections/cacheable'
 
 # This will be a replacement for Common::Collection
 module Vets
@@ -16,12 +17,15 @@ module Vets
     DEFAULT_PER_PAGE = 10
     DEFAULT_MAX_PER_PAGE = 100
 
+    include Vets::Collections::Cacheable
+
     attr_accessor :records, :metadata
 
-    def initialize(records, metadata: {})
+    def initialize(records, metadata: {}, cache_key: nil)
       records = Array.wrap(records)
       @model_class = records.empty? ? nil : records.first.class
       @metadata = metadata
+      @cache_key = cache_key
 
       unless records.all? { |record| record.is_a?(@model_class) }
         raise ArgumentError, "All records must be instances of #{@model_class}"
