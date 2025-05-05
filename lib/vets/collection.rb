@@ -52,13 +52,6 @@ module Vets
       new(records)
     end
 
-    def self.from_hashes(records, model_class, metadata: {}, error: {})
-      raise ArgumentError, 'Expected an array of hashes' unless records.all? { |r| r.is_a?(Hash) }
-
-      records = records.map { |record| model_class.new(**record) }
-      new(records, model_class, metadata:, error:)
-    end
-
     # reviously sort on Common::Collection
     def order(clauses = {})
       validate_sort_clauses(clauses)

@@ -54,21 +54,6 @@ RSpec.describe Vets::Collection do
     end
   end
 
-  describe '.from_hashes' do
-    it 'creates a collection from an WillPaginate::Collection' do
-      hashes = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]
-      collection = described_class.from_hashes(dummy_class, hashes)
-      expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
-    end
-
-    it 'raises an error if not a WillPaginate::Collection' do
-      hashes = [{ name: 'Alice', age: 30 }, 'invalid']
-
-      expect { described_class.from_hashes(dummy_class, hashes) }
-        .to raise_error(ArgumentError, 'Expected an array of hashes')
-    end
-  end
-
   describe '.will_paginate' do
     it 'creates a collection from an array of hashes' do
       record1 = dummy_class.new(name: 'Bob', age: 25)

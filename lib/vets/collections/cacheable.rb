@@ -45,7 +45,8 @@ module Vets
         private
 
         def build_and_cache(results, klass, metadata, errors, caching)
-          collection = new(results, klass, metadata:, errors:, cache_key: caching[:caching_key])
+          cache_key = caching[:caching_key]
+          collection = new(results, klass, metadata:, errors:, cache_key:)
           cache(collection.serialize, cache_key, caching[:ttl])
           collection
         end
