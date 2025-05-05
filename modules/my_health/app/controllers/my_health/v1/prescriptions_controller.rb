@@ -15,8 +15,9 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
+        raw_data = resource.data.dup
         resource.data = resource_data_modifications(resource)
-        filter_count = set_filter_metadata(resource.data, collection_resource.data)
+        filter_count = set_filter_metadata(resource.data, raw_data)
         if params[:filter].present?
           resource = if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
                        filter_renewals(resource)

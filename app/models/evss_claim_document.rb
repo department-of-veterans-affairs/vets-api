@@ -141,8 +141,11 @@ class EVSSClaimDocument < Common::Base
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
+    Rails.logger.info("Document for claim #{evss_claim_id} is encrypted") if metadata.encrypted?
+
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
+    Rails.logger.info("MetadataReadError: Document for claim #{evss_claim_id}")
     log_exception_to_sentry(e, nil, nil, 'warn')
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))

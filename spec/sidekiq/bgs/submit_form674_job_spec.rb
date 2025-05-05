@@ -40,8 +40,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       participant_id: vet_info['veteran_information']['participant_id'],
       icn: vet_info['veteran_information']['icn'],
       uuid: vet_info['veteran_information']['uuid'],
-      common_name: vet_info['veteran_information']['common_name'],
-      auto674: nil
+      common_name: vet_info['veteran_information']['common_name']
     )
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
@@ -78,11 +77,17 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           .and_return(user_struct)
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user.va_profile_email,
-          '686c_674_confirmation_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
+          'fake_received686c674',
+          { 'confirmation_number' => dependency_claim.confirmation_number,
+            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'VeteranFacingServices::NotificationCallback::SavedClaim',
+            callback_metadata: { email_template_id: 'fake_received686c674',
+                                 email_type: :received686c674,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim.id,
+                                 service_name: 'dependents' } }
         )
 
         subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
@@ -151,11 +156,17 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           .and_return(user_struct)
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user.va_profile_email,
-          '674_confirmation_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
+          'fake_received674',
+          { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
+            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'VeteranFacingServices::NotificationCallback::SavedClaim',
+            callback_metadata: { email_template_id: 'fake_received674',
+                                 email_type: :received674,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim_674_only.id,
+                                 service_name: 'dependents' } }
         )
 
         subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)
