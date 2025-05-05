@@ -20,7 +20,7 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
       session: {
         user_id: 11_375_034,
         expires_at: 1.hour.from_now,
-        token: 'ENC(MA0ECJh1RjEgZFMhAgEQC4nF/gSOKGSZuYg7kVN8DWTOniDwcBB7XYB2mboEA0Zz2uSiW7tpAgiQ)'
+        token: '<SESSION_TOKEN>'
       }
     )
 
@@ -38,15 +38,40 @@ RSpec.describe 'MyHealth::V1::HealthRecordsController', type: :request do
       VCR.eject_cassette
     end
 
-    it 'responds to POST #optin' do
-      VCR.use_cassette('mr_client/post_opt_in') do
-        post '/my_health/v1/health_records/sharing/optin'
+    describe 'responds to POST #optin' do
+      it 'successfully' do
+        VCR.use_cassette('mr_client/post_opt_in') do
+          post '/my_health/v1/health_records/sharing/optin'
+        end
+
+        expect(response).to be_successful
       end
 
-      puts "response: #{response.inspect}"
+      it 'with an error' do
+        VCR.use_cassette('mr_client/post_opt_in_error') do
+          post '/my_health/v1/health_records/sharing/optin'
+        end
 
-      expect(response).to be_successful
-      expect(response.body).to be_a(String)
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    describe 'responds to POST #optout' do
+      it 'successfully' do
+        VCR.use_cassette('mr_client/post_opt_out') do
+          post '/my_health/v1/health_records/sharing/optout'
+        end
+
+        expect(response).to be_successful
+      end
+
+      it 'with an error' do
+        VCR.use_cassette('mr_client/post_opt_out_error') do
+          post '/my_health/v1/health_records/sharing/optout'
+        end
+
+        expect(response).to have_http_status(:bad_request)
+      end
     end
   end
 end
