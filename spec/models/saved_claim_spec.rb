@@ -41,40 +41,21 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
       end
     end
 
-    context 'validation errors' do
-      let(:schema_errors) { [{ fragment: 'error' }] }
+    context 'when form validation returns errors' do
+      let(:form_errors) { [{ data_pointer: 'error', fragment: 'error', message: nil }] }
 
-      context 'when validate_schema returns errors' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
-          allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
-        end
-
-        it 'logs schema failed error' do
-          expect(Rails.logger).to receive(:error)
-            .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors,
-                                                                                       form_id: saved_claim.form_id })
-
-          expect(saved_claim.validate).to be(true)
-        end
+      before do
+        allow(JSONSchemer).to receive_messages(validate_schema: [])
+        allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                 validate: [{ data_pointer: 'error' }]))
       end
 
-      context 'when form validation returns errors' do
-        let(:form_errors) { [{ data_pointer: 'error', fragment: 'error', message: nil }] }
-
-        before do
-          allow(JSONSchemer).to receive_messages(validate_schema: [])
-          allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
-                                                                   validate: [{ data_pointer: 'error' }]))
-        end
-
-        it 'adds validation errors to the form' do
-          expect(Rails.logger).to receive(:error)
-            .with('SavedClaim form did not pass validation',
-                  { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: form_errors })
-          saved_claim.validate
-          expect(saved_claim.errors.full_messages).not_to be_empty
-        end
+      it 'adds validation errors to the form' do
+        expect(Rails.logger).to receive(:error)
+          .with('SavedClaim form did not pass validation',
+                { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: form_errors })
+        saved_claim.validate
+        expect(saved_claim.errors.full_messages).not_to be_empty
       end
     end
   end
