@@ -18,7 +18,7 @@ module Mobile
       # This might solve the cache issue with the appointments!!
       after_action :clear_appointments_cache, only: %i[create]
 
-      def create
+      def create # rubocop:disable Metrics/MethodLength
         begin
           Rails.logger.info(message: 'Mobile-SMOC transaction START')
           appt_id = get_appt_or_raise(params)

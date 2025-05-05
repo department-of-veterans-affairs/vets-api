@@ -22781,13 +22781,9 @@
         "additionalProperties": false,
         "required": [
           "id",
-          "claimNumber",
           "claimStatus",
           "appointmentDateTime",
           "facilityId",
-          "facilityName",
-          "totalCostRequested",
-          "reimbursementAmount",
           "createdOn",
           "modifiedOn"
         ],
