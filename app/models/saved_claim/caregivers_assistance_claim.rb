@@ -36,7 +36,7 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   end
 
   def form_matches_schema
-    super unless Flipper.enabled?(:caregiver_retry_form_validation)
+    super(with_retry: true) unless Flipper.enabled?(:caregiver_retry_form_validation)
 
     return unless form_is_string
 
