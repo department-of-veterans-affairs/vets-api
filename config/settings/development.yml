@@ -641,8 +641,12 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
-  ves_api:
-    api_key: fake_api_key
+ivc_champva_ves_api:
+  api_key: fake_api_key
+  app_id: ~
+  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  mock: false
+  subject: "Proxy Client"
 ivc_forms:
   form_status_job:
     enabled: ~
@@ -942,8 +946,7 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   rx:
-    app_token: fake-app-token
-    app_token_va_gov: ~
+    app_token: ~
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
@@ -953,9 +956,11 @@ mhv:
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
+    base_path: mhv-sm-api/patient/v1/
+    gw_base_path: v1/sm/patient/
     host: https://mhv-api.example.com
-    mhv_sm_x_api_key: ~
     mock: true
+    x_api_key: fake-x-api-key
   uhd:
     app_id: 1000
     app_token: faketoken
@@ -965,9 +970,12 @@ mhv:
     subject: "Proxy Client"
     user_type: usertype
 mhv_mobile:
+  rx:
+    app_token: fake-app-token
+    x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
-  x_api_key: fake-x-api-key
+    x_api_key: fake-x-api-key
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
@@ -1433,6 +1441,21 @@ vanotify:
         claim_submission_failure_text: ~
         claim_submission_success_text: fake_template_id
         claim_submission_timeout_text: ~
+    dependents:
+      api_key: fake_secret
+      email:
+        received674: 
+          template_id: fake_received674
+        received686: 
+          template_id: fake_received686
+        received686c674: 
+          template_id: fake_received686c674
+        submitted674:
+          template_id: fake_submitted674
+        submitted686:
+          template_id: fake_submitted686
+        submitted686c674:
+          template_id: fake_submitted686c674
     dmc:
       api_key: fake_secret
       template_id:
@@ -1686,8 +1709,9 @@ veteran_enrollment_system:
     api_key: ~
   ee_summary:
     api_key: ~
-  host: https://sqa.ves.va.gov
+  host: https://localhost
   open_timeout: 10
+  port: 4430
   timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: ~
