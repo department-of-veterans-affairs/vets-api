@@ -605,21 +605,24 @@ module PdfFill
             limit: 2,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 2 digit month.'
+            question_text: 'DATE SIGNED. Enter 2 digit month.',
+            hide_from_overflow: true
           },
           'day' => {
             key: 'F[0].#subform[5].Date_Signed_Day[0]',
             limit: 2,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 2 digit day.'
+            question_text: 'DATE SIGNED. Enter 2 digit day.',
+            hide_from_overflow: true
           },
           'year' => {
             key: 'F[0].#subform[5].Date_Signed_Year[0]',
             limit: 4,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 4 digit Year.'
+            question_text: 'DATE SIGNED. Enter 4 digit Year.',
+            hide_from_overflow: true
           }
         }
       }.freeze
