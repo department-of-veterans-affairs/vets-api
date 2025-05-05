@@ -845,6 +845,7 @@ docs/deployment/information.md @department-of-veterans-affairs/va-api-engineers 
 docs/HISTORY.md @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 docs/index.md @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 docs/modules @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+docs/setup @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 docs/setup/betamocks.md @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 docs/setup/binstubs.md @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 docs/setup/docker.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
