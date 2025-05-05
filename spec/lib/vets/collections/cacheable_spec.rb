@@ -42,17 +42,13 @@ RSpec.describe Vets::Collections::Cacheable do
   let(:record) { dummy_model.new(id: 1) }
   let(:cache_key) { 'test_key' }
   let(:redis_namespace) do
-    Redis::Namespace.new("common_collection_#{SecureRandom.hex(4)}", redis: Redis.new)
+    Redis::Namespace.new("common_collection_#{SecureRandom.hex(4)}", redis: $redis)
   end
   let(:instance_with_cache) { dummy_collection_class.new([record], dummy_model, cache_key: cache_key) }
   let(:instance_without_cache) { dummy_collection_class.new([record], dummy_model) }
 
   before do
     allow(Redis::Namespace).to receive(:new).and_return(redis_namespace)
-  end
-
-  after do
-    redis_namespace.redis.flushdb
   end
 
   describe '.redis_namespace' do
