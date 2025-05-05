@@ -49,6 +49,7 @@ bin/local-traefik --port 8081 --version 2.8.7
              - url: "http://host.docker.internal:3000"
    ```
 
+   > **Note for Linux users:** The `host.docker.internal` hostname is not natively supported on Linux. To enable this functionality, you may need to configure your Docker setup to use the host network mode or create a custom bridge network. Refer to the [Docker documentation](https://docs.docker.com/network/) for more details.
 2. **Start Traefik** — Runs the official Traefik image with flags to load the dynamic config:
 
    ```bash
