@@ -83,7 +83,9 @@ module VAProfile
           return :address unless response_body['tx_output']
 
           address_pou = response_body['tx_output'][0]['address_pou']
-
+          if Settings.vsp_environment == 'staging'
+            Rails.logger.info("AddressTransactionResponse CHANGED FIELD ADDRESS POU: #{address_pou}")
+          end
           case address_pou
           when VAProfile::Models::V3::BaseAddress::RESIDENCE
             :residence_address

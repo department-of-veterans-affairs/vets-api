@@ -730,24 +730,23 @@ module PdfFill
             }
           }, # end of student information
           'child_marriage' => {
-            limit: 4,
             first_key: 'month',
             'month' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[0]',
               limit: 2,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             },
             'day' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[0]',
               limit: 2,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             },
             'year' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[0]',
               limit: 4,
               question_num: 7,
               question_suffix: 'B',
@@ -839,6 +838,8 @@ module PdfFill
             last_term_school_information = school_information['last_term_school_information']
 
             student_information['birth_date'] = split_date(student_information['birth_date'])
+            marriage_date = student_information['marriage_date']
+            @form_data['dependents_application']['child_marriage'] = split_date(marriage_date)
 
             if last_term_school_information.present?
               last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
@@ -868,14 +869,6 @@ module PdfFill
             child['birth_date'] = split_date(child['birth_date'])
             child['date_child_left_school'] =
               split_date(child['date_child_left_school'])
-          end
-        end
-
-        child_marriages = @form_data['dependents_application']['child_marriage']
-        if child_marriages.present?
-          child_marriages.each do |child_marriage|
-            child_marriage['date_married'] =
-              split_date(child_marriage['date_married'])
           end
         end
       end
