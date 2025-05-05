@@ -9,7 +9,7 @@ RSpec.describe Burials::Monitor do
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
-  let(:message_prefix) { "Burials::Monitor #{Burials::FORM_ID}" }
+  let(:message_prefix) { "#{described_class} #{Burials::FORM_ID}" }
 
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
@@ -28,7 +28,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           claim_stats_key,
           call_location: anything,
@@ -51,7 +51,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           claim_stats_key,
           call_location: anything,
@@ -73,7 +73,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{claim_stats_key}.attempt",
           call_location: anything,
@@ -97,7 +97,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{claim_stats_key}.validation_error",
           call_location: anything,
@@ -122,7 +122,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{claim_stats_key}.failure",
           call_location: anything,
@@ -145,7 +145,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{claim_stats_key}.success",
           call_location: anything,
@@ -169,7 +169,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{claim_stats_key}.process_attachment_error",
           call_location: anything,
@@ -192,7 +192,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{submission_stats_key}.begun",
           call_location: anything,
@@ -223,7 +223,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{submission_stats_key}.attempt",
           call_location: anything,
@@ -247,7 +247,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{submission_stats_key}.success",
           call_location: anything,
@@ -272,7 +272,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'warn',
+          :warn,
           log,
           "#{submission_stats_key}.failure",
           call_location: anything,
@@ -304,7 +304,7 @@ RSpec.describe Burials::Monitor do
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(
-            'error',
+            :error,
             log,
             "#{submission_stats_key}.exhausted",
             call_location: anything,
@@ -330,10 +330,10 @@ RSpec.describe Burials::Monitor do
           }
 
           expect(Burials::NotificationEmail).not_to receive(:new)
-          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+          expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
-            'error',
+            :error,
             log,
             "#{submission_stats_key}.exhausted",
             call_location: anything,
@@ -359,7 +359,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'warn',
+          :warn,
           log,
           "#{submission_stats_key}.send_confirmation_failed",
           call_location: anything,
@@ -384,7 +384,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'warn',
+          :warn,
           log,
           "#{submission_stats_key}.send_submitted_failed",
           call_location: anything,
@@ -409,7 +409,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{submission_stats_key}.cleanup_failed",
           call_location: anything,
