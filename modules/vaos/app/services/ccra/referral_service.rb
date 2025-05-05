@@ -25,7 +25,8 @@ module Ccra
 
         # Log the response body for debugging purposes, will remove upon completion of staging testing
         body_preview = response.body.is_a?(String) ? response.body : response.body.inspect
-        Rails.logger.info("CCRA Referral List - Headers: #{response.response_headers}")
+        Rails.logger.info("CCRA Referral List - Req headers: #{req_headers}")
+        Rails.logger.info("CCRA Referral List - Params: #{params}")
         Rails.logger.info("CCRA Referral List - Content-Type: #{response.response_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
@@ -55,7 +56,8 @@ module Ccra
 
         # Log the response body for debugging purposes, will remove upon completion of staging testing
         body_preview = response.body.is_a?(String) ? response.body[0..100] : response.body.inspect[0..100]
-        Rails.logger.info("CCRA Referral Detail - Headers: #{response.response_headers}")
+        Rails.logger.info("CCRA Referral Detail - Req headers: #{req_headers}")
+        Rails.logger.info("CCRA Referral Detail - Params: #{params}")
         Rails.logger.info("CCRA Referral Detail - Content-Type: #{response.request_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
