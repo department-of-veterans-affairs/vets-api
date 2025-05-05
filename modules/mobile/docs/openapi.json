@@ -6824,8 +6824,7 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22825,7 +22824,7 @@
           },
           "totalCostRequested": {
             "type": "float",
-            "nullable": false,
+            "nullable": true,
             "example": 4.52
           },
           "reimbursementAmount": {

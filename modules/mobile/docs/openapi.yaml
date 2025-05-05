@@ -3875,8 +3875,7 @@ paths:
             schema:
               $ref: ./schemas/TravelPaySubmitMileageOnlyClaim.yml
       responses:
-        '200':
-          description: OK
+        '201':
           content:
             application/json:
               schema:
