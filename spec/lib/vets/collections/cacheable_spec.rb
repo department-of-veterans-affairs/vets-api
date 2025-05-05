@@ -30,6 +30,7 @@ RSpec.describe Vets::Collections::Cacheable do
       def initialize(records, _klass, metadata: {}, errors: {}, cache_key: nil)
         @records = records
         @metadata = metadata
+        @errors = errors
         @cache_key = cache_key
       end
 
@@ -44,7 +45,7 @@ RSpec.describe Vets::Collections::Cacheable do
   let(:redis_namespace) do
     Redis::Namespace.new("common_collection_#{SecureRandom.hex(4)}", redis: $redis)
   end
-  let(:instance_with_cache) { dummy_collection_class.new([record], dummy_model, cache_key: cache_key) }
+  let(:instance_with_cache) { dummy_collection_class.new([record], dummy_model, cache_key:) }
   let(:instance_without_cache) { dummy_collection_class.new([record], dummy_model) }
 
   before do
@@ -53,13 +54,13 @@ RSpec.describe Vets::Collections::Cacheable do
 
   describe '.redis_namespace' do
     it 'has the correct namespace' do
-      expect(dummy_collection_class.redis_namespace.namespace).to include("common_collection_")
+      expect(dummy_collection_class.redis_namespace.namespace).to include('common_collection_')
     end
   end
 
   describe '.fetch' do
     it 'builds and caches when key is missing' do
-      result = dummy_collection_class.fetch(dummy_model, cache_key: cache_key) do
+      result = dummy_collection_class.fetch(dummy_model, cache_key:) do
         { data: [record], metadata: {} }
       end
 
@@ -68,9 +69,9 @@ RSpec.describe Vets::Collections::Cacheable do
     end
 
     it 'raises ArgumentError without a block' do
-      expect {
-        dummy_collection_class.fetch(dummy_model, cache_key: cache_key)
-      }.to raise_error(ArgumentError, 'No block given')
+      expect do
+        dummy_collection_class.fetch(dummy_model, cache_key:)
+      end.to raise_error(ArgumentError, 'No block given')
     end
   end
 
@@ -142,11 +143,11 @@ RSpec.describe Vets::Collections::Cacheable do
 
   describe '#cached?' do
     it 'returns true when cache_key is present' do
-      expect(instance_with_cache.cached?).to eq(true)
+      expect(instance_with_cache.cached?).to be(true)
     end
 
     it 'returns false when cache_key is nil' do
-      expect(instance_without_cache.cached?).to eq(false)
+      expect(instance_without_cache.cached?).to be(false)
     end
   end
 end
