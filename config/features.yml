@@ -192,6 +192,9 @@ features:
   ezr_associations_api_enabled:
     actor_type: user
     description: Enables VES's Associations REST API
+  ezr_prefill_contacts:
+    actor_type: user
+    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   cerner_override_653:
     actor_type: user
@@ -1049,13 +1052,9 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
-  mhv_transitional_medical_records_landing_page:
+  mhv_supply_reordering_enabled:
     actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
-  mhv_integration_medical_records_to_phase_1:
-    actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
-    enable_in_development: true
+    description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_interstitial_enabled:
     actor_type: user
     descriptiom: Enables interstitial for upcoming mhv deprecation
@@ -1093,6 +1092,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
     enable_in_development: true
+  mhv_secure_messaging_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
@@ -1197,9 +1199,9 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
-  mhv_medications_client_test:
+  mhv_enable_aal_integration:
     actor_type: user
-    description: Toggles testing memoization medications client
+    description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
@@ -1917,6 +1919,9 @@ features:
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
+  virtual_agent_use_sts_authentication:
+    actor_type: user
+    description: Use STS authentication for the virtual agent chatbot application
   virtual_agent_voice:
     actor_type: user
     description: Enable the voice feature of the VA Chatbot
@@ -1993,6 +1998,14 @@ features:
   pension_kafka_event_bus_submission_enabled:
     actor_type: user
     description: Enable the EventBusSubmissionJob for Kafka
+  pension_itf_enabled:
+    actor_type: user
+    description: Enable the Intent to File for Pension
+    enable_in_development: true
+  pension_itf_show_alert:
+    actor_type: user
+    description: Show the alert on frontend for the Intent to File for Pension
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2095,6 +2108,10 @@ features:
   remove_pciu:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
+    enable_in_development: true
+  override_address_pou:
+    actor_type: user
+    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
     enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id

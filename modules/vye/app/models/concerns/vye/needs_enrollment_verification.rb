@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# This is included from UserInfo
-
 module Vye
   module NeedsEnrollmentVerification
     def enrollments
@@ -9,126 +7,22 @@ module Vye
       return @enrollments if defined?(@enrollments)
 
       setup
-
-      # notes on rules for pending verifications
-      # award beg date = abd
-      # award end date = aed
-      # date last cert = dlc
-      # last day prior month = ldpm
-      # run date = rd
-      # aed is always >= dlc
-      # abd is always <  rd
-      # abd is always <  aed
-      # dlc is always <  rd or blank
-      #                                           act  act
-      #                                           beg  end
-      #  1) abd <=  dlc  <  aed  <  ldpm <  rd   [dlc, aed - 1 day]
-      #     2/28    3/1     3/30    3/31    4/5   3/1  3/29
-      #     3/1     3/1     3/2     3/31    4/5   3/1  3/1
-      #     3/1     3/1     3/30    3/31    4/5   3/1  3/29
-      #
-      #  2) abd <=  dlc  <  ldpm <= aed <=  rd   [dlc, aed - 1 day] **
-      #     2/28    3/1     3/31    3/31    4/15  3/1  3/30
-      #     2/28    3/1     3/31    4/1     4/15  3/1  3/31
-      #     2/28    3/1     3/31    4/3     4/15  3/1  4/2
-      #     3/1     3/1     3/31    3/31    4/15  3/1  3/30
-      #     3/1     3/1     3/31    4/3     4/15  3/1  4/2
-      #     3/1     3/15    3/31    4/3     4/15  3/15 4/2
-      #     3/1     3/30    3/31    4/15    4/15  3/30 4/14
-      #
-      #  3) abd <=  dlc  <  ldpm <  rd  <   aed  [dlc, ldpm]
-      #     2/28    3/1     3/31    4/2     4/15  3/1  3/31
-      #     3/1     3/1     3/31    4/2     4/15  3/1  3/31
-      #     3/1     3/30    3/31    4/2     4/15  3/30 3/31
-      #
-      #  4) abd <=  ldpm <= dlc  <  aed <=  rd   [dlc, aed - 1 day] **
-      #     3/30    3/31    3/31    4/1    4/15   3/31 3/31
-      #     3/31    3/31    3/31    4/1    4/15   3/31 3/31
-      #     3/31    3/31    3/31    4/2    4/15   3/31 4/1
-      #     3/31    3/31    3/31    4/15   4/15   3/31 4/14
-      #     3/31    3/31    4/1     4/2    4/15   4/1  4/1
-      #     3/31    3/31    4/1     4/15   4/15   4/1  4/14
-      #
-      #     abd <=  ldpm <= dlc  <  rd  <   aed  no pending verification
-      #                     4/2     4/15    4/30
-      #
-      #  5) dlc <   abd  <  aed  <  ldpm <  rd   [abd, aed - 1 day]
-      #     3/1     3/2     3/30    3/31    4/15  3/2  3/29
-      #
-      #  6) dlc <   abd  <  ldpm <= aed  <= rd   [abd, aed - 1 day] or
-      #     dlc <   abd  <= ldpm <  aed  <= rd   [abd, aed - 1 day]
-      #     3/1     3/30    3/31    3/31    4/15  3/30 3/31
-      #     3/1     3/2     3/31    4/1     4/15  3/2  3/31
-      #     3/1     3/31    3/31    4/1     4/15  3/31 3/31
-      #     3/1     3/31    3/31    4/1     4/15  3/31 3/31
-      #     3/1     3/31    3/31    4/2     4/15  3/31 4/1
-      #     3/1     3/31    3/31    4/15    4/15  3/31 4/14
-      #
-      #  7) dlc <   abd  <= ldpm <  rd   <  aed  [abd, ldpm]
-      #     3/1     3/2     3/31    4/2     4/3   3/2  3/31
-      #     3/1     3/30    3/31    4/2     4/3   3/30 3/31
-      #     3/1     3/31    3/31    4/2     4/3   3/31 3/31
-      #
-      #  8) dlc <   ldpm <  abd <   aed <=  rd   [abd, aed - 1 day]
-      #     3/30    3/31    4/1     4/2     4/15  4/1  4/1
-      #     3/30    3/31    4/1     4/15    4/15  4/1  4/14
-      #
-      #     dlc <   ldpm <  abd     rd      aed  no pending verification **
-      #     3/1     3/31    4/2    4/15    6/15
-      #
-      #  9) ldpm <	abd	<=	dlc < 	aed	<=	rd   [dlc, aed - 1 day]
-      #     3/31    4/1     4/1     4/3     4/15  4/1  4/2
-      #     3/31    4/1     4/2     4/3     4/15  4/2  4/2
-      #     3/31    4/1     4/2     4/15    4/15  4/2  4/14
-      #
-      #     ldpm <	abd	<=	dlc	<	  rd	<		aed  no pending verification
-      #     3/31    4/1     4/1     4/14    4/15
-      #
-      # 10) ldpm <= dlc	<		abd	< 	aed	<=	rd   [abd, aed - 1 day]
-      #     3/31    3/31    4/2     4/3     4/15  4/2  4/2
-      #     3/31    4/1     4/2     4/15    4/15  4/2  4/14
-      #
-      #     ldpm <=	dlc	<		abd	<=	rd	<		aed  no pending verification
-      #      3/31   4/1     4/1     4/15    6/15
-      awards.each_with_index do |award, idx|
-        # cur_award_ind is passed in from the feed, we do not determine it.
+      awards.each do |award|
         @award = award
-        @award_begin_date = award.award_begin_date
-        @award_end_date = award.award_end_date
 
-        # open certificates are not eligible for verification
-        next if flag_open_cert(idx, awards.size - 1)
+        eval_case_eom
 
-        # past awards have already been paid. Do not create a pending verification
-        next if award_end_date <= previous_certification_date
-
-        # no pending verfications for future awards
-        next if eval_future_award
-
-        # --------------------------------------------------------------------------------
-        # Original cases and what the act_begin & act_end should be for each case
-        # --------------------------------------------------------------------------------
-        # 01 abd  <= dlc  <  aed  <= ldpm <  rd		dlc, aed minus 1 day
-        # 02 abd  <= dlc  <  ldpm <  aed  <= rd		dlc, aed minus 1 day
-        # 04 abd  <= ldpm <  dlc  <  aed  <= rd   dlc, aed minus 1 day
-        # --------------------------------------------------------------------------------
-        # 05 dlc   < abd  < aed  <= ldpm <  rd		abd, aed minus 1 day or aed if abd = aed
-        # 06 dlc   < abd  <= ldpm < aed  <= rd		abd, aed minus 1 day
-        # 08 dlc  <= ldpm <  abd  < aed  <= rd		abd, aed minus 1 day or aed if abd = aed
-        # 09 dlc  <= ldpm <  abd  <= rd   = aed	  abd, aed minus 1 day or aed if abd = aed
-        # 10 ldpm  < dlc  <= abd  <  aed  <= rd  	abd, aed minus 1 day or aed if abd = aed
-        # --------------------------------------------------------------------------------
-        # 03 abd  <= dlc  <  ldpm <  rd   <  aed  dlc, ldpm
-        # --------------------------------------------------------------------------------
-        # 07 dlc   < abd  <= ldpm <  rd   <  aed	abd, ldpm
-        # --------------------------------------------------------------------------------
-        trace = eval_case_eom ||
-                act_beg_is_dlc_and_act_end_is_ldpm ||
-                act_beg_is_dlc_and_act_end_is_aed  ||
-                act_beg_is_abd_and_act_end_is_ldpm ||
-                act_beg_is_abd_and_act_end_is_aed
-
-        push_enrollment(trace) if trace
+        next if flag_open_cert
+        next if eval_case1a
+        next if eval_case1b
+        next if eval_case2
+        next if eval_case3
+        next if eval_case4
+        next if eval_case5
+        next if eval_case6
+        next if eval_case7
+        next if eval_case8
+        next if eval_case9
       end
 
       @enrollments
@@ -138,183 +32,325 @@ module Vye
 
     private
 
-    attr_accessor :award, :award_begin_date, :award_end_date
-    attr_reader :today, :last_day_of_previous_month, :end_of_month, :previous_certification_date
+    attr_accessor :award
+    attr_reader :today
 
-    def setup
-      @today ||= Time.zone.today
-      @last_day_of_previous_month ||= @today.beginning_of_month - 1.day
-      @end_of_month ||= @today.end_of_month
-
-      # if the user has never certified, i.e. the first time, it will be nil. Set it
-      # to the beginning of ruby time for comparison purposes
-      @previous_certification_date = date_last_certified || Date.new(-4712, 1, 1)
-      @enrollments = []
-    end
-
-    # We do not make pending verifications for awards if the award_end_date is blank (nil)
-    # Determine this and return true/false
-    def flag_open_cert(idx, last_idx)
-      return true if award_begin_date.blank?
-      return false if award_end_date.present?
-      return true if idx.eql?(last_idx) && award_end_date.blank?
-
-      # Award end date is missing and this is not the last award in the list
-      # the award end date is implied to be the next award's begin date - 1 day.
-      next_award = awards[idx + 1]
-      @award_end_date = (next_award.award_begin_date - 1.day)
-
-      false
-    end
-
-    def eval_future_award
-      return true if award_begin_date.present? && award_begin_date > today
-
-      # last day of the month is an exception. We can have an award date after the end of the month
-      # in which case we will certify up to the end of the month. Don't consider it a future award.
-      return false if end_of_month.eql?(today)
-
-      if previous_certification_date > last_day_of_previous_month &&
-         award_begin_date <= last_day_of_previous_month &&
-         today < award_end_date
-        return true
-      end
-
-      if previous_certification_date <= last_day_of_previous_month &&
-         last_day_of_previous_month < award_begin_date && award_begin_date <= today &&
-         today < award_end_date
-        return true
-      end
-
-      if last_day_of_previous_month < award_begin_date &&
-         award_begin_date <= previous_certification_date && previous_certification_date < today &&
-         today < award_end_date
-        return true
-      end
-
-      if last_day_of_previous_month < previous_certification_date &&
-         previous_certification_date < award_begin_date &&
-         award_begin_date <= today &&
-         today < award_end_date
-        return true
-      end
-
-      false
-    end
-
-    def eval_case_eom
-      return nil unless today.eql?(end_of_month)
-      return nil unless today.between?(award_begin_date, award_end_date)
-
-      :case_eom
+    def last_day_of_previous_month
+      today.beginning_of_month - 1.day
     end
 
     def aed_minus1
-      return nil if award_end_date.blank?
+      return nil if @award.award_end_date.blank?
 
-      award_end_date - 1.day
+      @award.award_end_date - 1.day
     end
 
-    def push_enrollment(trace)
-      award_id = @award.id
-      number_hours = @award.number_hours
-      monthly_rate = @award.monthly_rate
-      payment_date = @award.payment_date
+    def current_rec_ended?
+      @award.award_ind_current? && aed_before_today?
+    end
 
-      act_begin =
-        case trace
-        when :case5, :case6, :case7, :case8, :case10
-          award_begin_date
-        when :case_eom
-          [award_begin_date, previous_certification_date].max
-        else previous_certification_date
-        end
+    def are_dates_the_same(date1, date2)
+      return false if date1.blank? && date2.blank?
 
-      act_end =
-        case trace
-        when :case1, :case2, :case4, :case5, :case6, :case8, :case9, :case10
-          aed_minus1
-        when :case_eom
-          award_begin_date < award_end_date && award_end_date.eql?(today) ? aed_minus1 : today
-        else last_day_of_previous_month
-        end
+      date1 == date2
+    end
 
+    # date_last_certified is before award_begin_date
+    def dlc_before_abd? = in_order?(first: date_last_certified, second: @award.award_begin_date)
+
+    # date_last_certified is before last day of previous month
+    def dlc_before_ldpm? = in_order?(first: date_last_certified, second: last_day_of_previous_month)
+
+    # last day of previous month is before award_begin_date
+    def ldpm_before_abd? = in_order?(first: last_day_of_previous_month, second: @award.award_begin_date)
+
+    # last day of previous month is before award_end_date
+    def ldpm_before_aed? = in_order?(first: last_day_of_previous_month, second: @award.award_end_date)
+
+    # award_begin_date is before today
+    def abd_before_today? = in_order?(first: @award.award_begin_date, second: today)
+
+    # award_end_date is before today
+    def aed_before_today? = in_order?(first: @award.award_end_date, second: today)
+
+    def in_order?(first:, second:)
+      return false if first.blank? || second.blank?
+
+      first < second
+    end
+
+    def last_day_of_month?
+      today == today.end_of_month
+    end
+
+    def setup
+      @today = Time.zone.today
+      @enrollments = []
+      @supress_future_award = false
+      clear_cert_variables
+    end
+
+    def clear_cert_variables
+      @open_cert = false
+      @open_cert_award_id = nil
+      @open_cert_credit_hours = nil
+      @open_cert_monthly_rate = nil
+      @open_cert_payment_date = nil
+    end
+
+    def push_enrollment(**attributes)
       user_info = self
 
       @enrollments.push(
-        Verification.build(
-          user_profile:, user_info:, award_id:, number_hours:, monthly_rate:,
-          payment_date:, act_begin:, act_end:, trace:
-        )
+        Verification.build(user_profile:, user_info:, **attributes)
       )
+
+      true
     end
 
-    def act_beg_is_abd_and_act_end_is_aed
-      if previous_certification_date < award_begin_date && award_begin_date < award_end_date &&
-         award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
-        return :case5
-      end
+    def eval_case_eom
+      return unless last_day_of_month?
+      return unless abd_before_today? && !aed_before_today?
 
-      if previous_certification_date < award_begin_date &&
-         ((award_begin_date <= last_day_of_previous_month && last_day_of_previous_month <  award_end_date) ||
-          (award_begin_date <  last_day_of_previous_month && last_day_of_previous_month <= award_end_date)) &&
-         award_end_date <= today
-        return :case6
-      end
+      act_begin =
+        if dlc_before_abd? && dlc_before_ldpm?
+          @award.award_begin_date
+        else
+          date_last_certified
+        end
 
-      if previous_certification_date < last_day_of_previous_month && last_day_of_previous_month <= award_begin_date &&
-         award_begin_date < award_end_date && award_end_date <= today
-        return :case8
-      end
+      push_enrollment(
+        award_id: @award.id,
+        act_begin:,
+        act_end: today,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case_eom
+      )
 
-      if last_day_of_previous_month < award_begin_date && award_begin_date <= previous_certification_date &&
-         previous_certification_date < award_end_date && award_end_date <= today
-        return :case9
-      end
-
-      if last_day_of_previous_month <= previous_certification_date && previous_certification_date < award_begin_date &&
-         award_begin_date < award_end_date && award_end_date <= today
-        return :case10
-      end
-
-      nil
+      true
     end
 
-    def act_beg_is_dlc_and_act_end_is_aed
-      if award_begin_date <= previous_certification_date && previous_certification_date < award_end_date &&
-         award_end_date < last_day_of_previous_month && last_day_of_previous_month < today
-        return :case1
-      end
+    def flag_open_cert
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_current?
+      return if @award.award_end_date.present?
 
-      if award_begin_date <= previous_certification_date && previous_certification_date < last_day_of_previous_month &&
-         last_day_of_previous_month <= award_end_date && award_end_date <= today
-        return :case2
-      end
+      @open_cert = true
+      @open_cert_award_id = @award.id
+      @open_cert_credit_hours = @award.number_hours
+      @open_cert_monthly_rate = @award.monthly_rate
+      @open_cert_payment_date = @award.payment_date
 
-      if award_begin_date <= last_day_of_previous_month && last_day_of_previous_month <= previous_certification_date &&
-         previous_certification_date < award_end_date && award_end_date <= today
-        return :case4
-      end
-
-      nil
+      true
     end
 
-    def act_beg_is_dlc_and_act_end_is_ldpm
-      if award_begin_date <= previous_certification_date && previous_certification_date < last_day_of_previous_month &&
-         last_day_of_previous_month < today && today < award_end_date
-        return :case3
-      end
+    def eval_case1a
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_current?
+      return if @award.award_end_date.blank?
+      return if are_dates_the_same(@award.award_end_date, date_last_certified)
+      return unless current_rec_ended?
+      return unless ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
-      nil
+      @supress_future_award = true
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: date_last_certified,
+        act_end: last_day_of_previous_month,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case1a
+      )
+
+      true
     end
 
-    def act_beg_is_abd_and_act_end_is_ldpm
-      if previous_certification_date < award_begin_date && award_begin_date <= last_day_of_previous_month &&
-         last_day_of_previous_month < today && today < award_end_date
-        return :case7
-      end
+    def eval_case1b
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_current?
+      return if @award.award_end_date.blank?
+      return if are_dates_the_same(@award.award_end_date, date_last_certified)
+      return unless current_rec_ended?
+      return if ldpm_before_aed? && are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
-      nil
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: date_last_certified,
+        act_end: aed_minus1,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case1b
+      )
+
+      true
+    end
+
+    def eval_case2
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_current?
+      return if @award.award_end_date.blank?
+      return if are_dates_the_same(@award.award_end_date, date_last_certified)
+      return if current_rec_ended?
+      return unless ldpm_before_aed? && !ldpm_before_abd?
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: date_last_certified,
+        act_end: last_day_of_previous_month,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case2
+      )
+
+      true
+    end
+
+    def eval_case3
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_current?
+      return if @award.award_end_date.blank?
+      return if are_dates_the_same(@award.award_end_date, date_last_certified)
+      return if current_rec_ended?
+      return if ldpm_before_aed? && !ldpm_before_abd?
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: date_last_certified,
+        act_end: aed_minus1,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case3
+      )
+
+      true
+    end
+
+    def eval_case4
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_future? && !@supress_future_award
+      return unless @open_cert
+      return unless ldpm_before_abd?
+
+      push_enrollment(
+        award_id: @open_cert_award_id,
+        act_begin: date_last_certified,
+        act_end: last_day_of_previous_month,
+        number_hours: @open_cert_credit_hours,
+        monthly_rate: @open_cert_monthly_rate,
+        payment_date: @open_cert_payment_date,
+        trace: :case4
+      )
+      clear_cert_variables
+
+      true
+    end
+
+    def eval_case5
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_future? && !@supress_future_award
+      return unless @open_cert
+      return if ldpm_before_abd?
+      return unless ldpm_before_aed?
+
+      push_enrollment(
+        award_id: @open_cert_award_id,
+        act_begin: date_last_certified,
+        act_end: aed_minus1,
+        number_hours: @open_cert_credit_hours,
+        monthly_rate: @open_cert_monthly_rate,
+        payment_date: @open_cert_payment_date,
+        trace: :case5
+      )
+      clear_cert_variables
+
+      true
+    end
+
+    def eval_case6
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_future? && !@supress_future_award
+      return if @open_cert
+      return if ldpm_before_abd?
+      return if date_last_certified.present?
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: @award.award_begin_date,
+        act_end: last_day_of_previous_month,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case6
+      )
+
+      true
+    end
+
+    def eval_case7
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_future? && !@supress_future_award
+      return if @open_cert
+      return if ldpm_before_abd?
+      return if date_last_certified.blank?
+      return unless ldpm_before_aed?
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: @award.award_begin_date,
+        act_end: last_day_of_previous_month,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case7
+      )
+
+      true
+    end
+
+    def eval_case8
+      return unless dlc_before_ldpm? || date_last_certified.blank?
+      return unless @award.award_ind_future? && !@supress_future_award
+      return if @open_cert
+      return if ldpm_before_abd?
+      return if date_last_certified.blank?
+      return if ldpm_before_aed?
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: @award.award_begin_date,
+        act_end: aed_minus1,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case8
+      )
+
+      true
+    end
+
+    def eval_case9
+      return if dlc_before_ldpm? || date_last_certified.blank?
+      return unless aed_before_today?
+      return unless are_dates_the_same(@award.award_begin_date, @award.award_end_date)
+
+      push_enrollment(
+        award_id: @award.id,
+        act_begin: date_last_certified,
+        act_end: aed_minus1,
+        number_hours: @award.number_hours,
+        monthly_rate: @award.monthly_rate,
+        payment_date: @award.payment_date,
+        trace: :case9
+      )
+
+      true
     end
   end
 end

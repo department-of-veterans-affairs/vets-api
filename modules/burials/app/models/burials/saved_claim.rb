@@ -102,7 +102,7 @@ module Burials
     # Utility function to retrieve claimant first name from form
     #
     # @return [String]
-    def claimaint_first_name
+    def claimant_first_name
       parsed_form.dig('claimantFullName', 'first')
     end
 

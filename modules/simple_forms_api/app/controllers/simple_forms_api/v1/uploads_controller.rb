@@ -57,7 +57,7 @@ module SimpleFormsApi
           attachment.file = params['file']
           file_path = params['file'].tempfile.path
           # Validate the document using BenefitsIntakeService
-          if %w[40-0247 40-10007].include?(params[:form_id])
+          if %w[40-0247 40-10007].include?(params[:form_id]) && File.extname(file_path).downcase == '.pdf'
             begin
               service = BenefitsIntakeService::Service.new
               service.valid_document?(document: file_path)
