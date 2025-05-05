@@ -27,14 +27,14 @@ RSpec.describe Vets::Collections::Cacheable do
 
       attr_reader :records, :metadata, :cache_key
 
-      def initialize(_klass, records:, metadata: {}, cache_key: nil)
+      def initialize(records, _klass, metadata: {}, errors: {}, cache_key: nil)
         @records = records
         @metadata = metadata
         @cache_key = cache_key
       end
 
       def serialize
-        Oj.dump({ records: @records.map { |r| { id: r.id } }, metadata: @metadata })
+        Oj.dump({ data: @records.map { |r| { id: r.id } }, metadata: @metadata })
       end
     end
   end
@@ -44,8 +44,8 @@ RSpec.describe Vets::Collections::Cacheable do
   let(:redis_namespace) do
     Redis::Namespace.new("common_collection_#{SecureRandom.hex(4)}", redis: Redis.new)
   end
-  let(:instance_with_cache) { dummy_collection_class.new(dummy_model, records: [record], cache_key: cache_key) }
-  let(:instance_without_cache) { dummy_collection_class.new(dummy_model, records: [record]) }
+  let(:instance_with_cache) { dummy_collection_class.new([record], dummy_model, cache_key: cache_key) }
+  let(:instance_without_cache) { dummy_collection_class.new([record], dummy_model) }
 
   before do
     allow(Redis::Namespace).to receive(:new).and_return(redis_namespace)
@@ -64,7 +64,7 @@ RSpec.describe Vets::Collections::Cacheable do
   describe '.fetch' do
     it 'builds and caches when key is missing' do
       result = dummy_collection_class.fetch(dummy_model, cache_key: cache_key) do
-        { records: [record], metadata: {} }
+        { data: [record], metadata: {} }
       end
 
       expect(result.records.first.id).to eq(1)
