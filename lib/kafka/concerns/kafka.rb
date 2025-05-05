@@ -36,7 +36,7 @@ module Kafka
   # @param hash [Hash] Hash to be searched
   # @return [Hash] Redacted Hash
   def self.redact_icn(hash)
-    return hash unless hash.is_a?(Hash)
+    return hash unless Rails.env.production? || hash.is_a?(Hash)
 
     stack = [hash]
 
