@@ -95,7 +95,16 @@ module Logging
           message: msg
         )
 
-        handle_exhaustion_notification(claim, user_account_uuid, msg)
+        if claim
+          # silent failure tracking in email callback
+          notification_email_class.new(claim.id).deliver(:error)
+        else
+          log_silent_failure(
+            { user_account_uuid:, claim_id: msg['args'].first, message: msg, tags: },
+            user_account_uuid,
+            call_location:
+          )
+        end
       end
 
       ##
@@ -155,33 +164,6 @@ module Logging
           benefits_intake_uuid: lighthouse_service&.uuid,
           error: e&.message
         )
-      end
-
-      private
-
-      ##
-      # Handles notification logic for exhausted submissions
-      #
-      # @param claim [SavedClaim]
-      # @param user_account_uuid [UUID]
-      # @param msg [Hash]
-      #
-      def handle_exhaustion_notification(claim, user_account_uuid, msg)
-        if claim
-          # silent failure tracking in email callback
-          notification_email_class.new(claim.id).deliver(:error)
-        else
-          log_silent_failure(
-            {
-              user_account_uuid:,
-              claim_id: msg['args'].first,
-              message: msg,
-              tags:
-            },
-            user_account_uuid,
-            call_location: caller_locations.second
-          )
-        end
       end
     end
   end

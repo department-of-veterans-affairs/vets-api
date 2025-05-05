@@ -55,9 +55,9 @@ module Logging
       user_account_uuid = options[:user_account_uuid]
       additional_context = options.except(:claim, :user_account_uuid)
 
-      claim_id = claim&.respond_to?(:id) ? claim.id : claim
-      confirmation_number = claim&.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
-      form_id = claim&.respond_to?(:form_id) ? claim.form_id : nil
+      claim_id = claim.respond_to?(:id) ? claim.id : claim
+      confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
+      form_id = claim.respond_to?(:form_id) ? claim.form_id : nil
 
       payload = {
         confirmation_number:,
