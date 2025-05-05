@@ -86,16 +86,14 @@ class SavedClaim < ApplicationRecord
     return unless form_is_string
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    clear_cache = false
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+      Rails.logger.error('SavedClaim schema failed validation.',
                          { form_id:, errors: schema_errors })
-      clear_cache = true
     end
 
-    validation_errors = validate_form(schema, clear_cache)
+    validation_errors = validate_form(schema)
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
       e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
@@ -165,7 +163,7 @@ class SavedClaim < ApplicationRecord
     reformatted_schemer_errors(errors)
   end
 
-  def validate_form(schema, _clear_cache)
+  def validate_form(schema)
     errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
     return [] if errors.empty?
 
