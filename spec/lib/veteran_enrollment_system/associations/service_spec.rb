@@ -124,13 +124,58 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       gender: 'F'
     )
   end
+  let(:current_user_with_invalid_icn) do
+    create(
+      :evss_user,
+      :loa3,
+      icn: '1012829228V42403'
+    )
+  end
 
   describe '#get_associations' do
-    it 'returns the associations' do
-      VCR.use_cassette('example4', :record => :once) do
-        response = described_class.new(current_user).get_associations('10-10EZR')
-        debugger
-        expect(response).to be_a(Object)
+    before do
+      allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when a 200 response status is returned' do
+      it 'returns an array of associations', run_at: 'Thu, 01 May 2025 17:03:17 GMT' do
+        VCR.use_cassette(
+          'veteran_enrollment_system/associations/get_associations_maximum',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          response = described_class.new(current_user, form).get_associations('10-10EZR')
+
+          expect(response).to be_a(Array)
+          expect(response).to eq(
+            get_fixture('veteran_enrollment_system/associations/associations_maximum')
+          )
+        end
+      end
+    end
+
+    context 'when any status other than 200 is returned' do
+      it 'increments StatsD, logs a failure message, and raises an exception',
+         run_at: 'Thu, 01 May 2025 17:06:05 GMT' do
+        VCR.use_cassette(
+          'veteran_enrollment_system/associations/get_associations_error',
+          { match_requests_on: %i[method uri body], erb: true }
+        ) do
+          failure_message = 'No record found for a person with the specified ICN'
+
+          expect do
+            described_class.new(current_user_with_invalid_icn, form).get_associations('10-10EZR')
+          end.to raise_error(
+            an_instance_of(Common::Exceptions::ResourceNotFound)
+          )
+          expect(StatsD).to have_received(:increment).with(
+            'api.veteran_enrollment_system.associations.get_associations.failed'
+          )
+          expect(Rails.logger).to have_received(:error).with(
+            "10-10EZR retrieve associations failed: #{failure_message}"
+          )
+        end
       end
     end
   end
@@ -272,6 +317,14 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             )
           end
         end
+      end
+    end
+
+    describe '#form1010_ezr_reconcile_associations' do
+      it 'adds back deleted associations with a deleteIndicator and ' \
+         'returns associations data in the correct VES format' do
+          
+         end
       end
     end
   end

@@ -1,0 +1,23 @@
+[
+  {
+    "role": "PRIMARY_NEXT_OF_KIN",
+    "relationType": "SON",
+    "name": {
+      "givenName": "FIRSTNOKA",
+      "middleName": "MIDDLENOKA",
+      "familyName": "LASTNOKA",
+      "suffix": "JR."
+    },
+    "address": {
+      "line1": "476 Test Ave",
+      "city": "Dulles",
+      "state": "VA",
+      "zipCode": "20101",
+      "zipPlus4": "0101",
+      "country": "USA"
+    },
+    "primaryPhone": "1239131234",
+    "alternatePhone": "7254551234",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  }
+]
