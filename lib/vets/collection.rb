@@ -74,7 +74,7 @@ module Vets
     # previously find_by on Common::Collection
     def where(conditions = {})
       results = Vets::Collections::Finder.new(data: @records).all(conditions)
-      Vets::Collection.new(results, metadata: { filter: conditions })
+      Vets::Collection.new(results, metadata: { filter: conditions }, errors:)
     end
 
     # previously find_first_by on Common::Collection
@@ -89,7 +89,7 @@ module Vets
         total_entries: @records.size,
         data: @records
       )
-      Vets::Collection.new(pagination.data, metadata: pagination.metadata)
+      Vets::Collection.new(pagination.data, metadata: pagination.metadata, errors:)
     end
 
     def serialize
