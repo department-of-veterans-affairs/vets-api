@@ -102,7 +102,7 @@ module Logging
           log_silent_failure(
             { user_account_uuid:, claim_id: msg['args'].first, message: msg, tags: },
             user_account_uuid,
-            call_location:
+            call_location: caller_locations.second
           )
         end
       end
