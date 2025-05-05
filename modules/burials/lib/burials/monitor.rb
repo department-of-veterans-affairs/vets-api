@@ -31,26 +31,44 @@ module Burials
 
     private
 
+    ##
+    # Module application name used for logging
+    # @return [String]
     def service_name
       'burial-application'
     end
 
+    ##
+    # Stats key for DD
+    # @return [String]
     def claim_stats_key
       CLAIM_STATS_KEY
     end
 
+    ##
+    # Stats key for Sidekiq DD logging
+    # @return [String]
     def submission_stats_key
       SUBMISSION_STATS_KEY
     end
 
+    ##
+    # Class name for log messages
+    # @return [String]
     def name
       self.class.name
     end
 
+    ##
+    # Form ID for the burial application
+    # @return [String]
     def form_id
       Burials::FORM_ID
     end
 
+    ##
+    # Class name for notification email
+    # @return [Class]
     def notification_email_class
       Burials::NotificationEmail
     end
