@@ -16,11 +16,6 @@ module Burials
   #   monitor.track_submission_success(claim, service, user_uuid)
   #
   class Monitor < ::Logging::BaseMonitor
-    # statsd key for api
-    CLAIM_STATS_KEY = 'api.burial_claim'
-    # statsd key for sidekiq
-    SUBMISSION_STATS_KEY = 'app.burial.submit_benefits_intake_claim'
-
     attr_reader :tags
 
     def initialize
@@ -36,11 +31,11 @@ module Burials
     end
 
     def claim_stats_key
-      CLAIM_STATS_KEY
+      'api.burial_claim'
     end
 
     def submission_stats_key
-      SUBMISSION_STATS_KEY
+      'app.burial.submit_benefits_intake_claim'
     end
 
     def name
