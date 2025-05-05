@@ -1422,6 +1422,21 @@ vanotify:
         claim_submission_failure_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_failure_text'] %>
         claim_submission_success_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_success_text'] %>
         claim_submission_timeout_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_timeout_text'] %>
+    dependents:
+      api_key: <%= ENV['vanotify__services__dependents__api_key'] %>
+      email:
+        received674:
+          template_id: <%= ENV['vanotify__services__dependents__email__received674__template_id'] %>
+        received686:
+          template_id: <%= ENV['vanotify__services__dependents__email__received686__template_id'] %>
+        received686c674:
+          template_id: <%= ENV['vanotify__services__dependents__email__received686c674__template_id'] %>
+        submitted674:
+            template_id: <%= ENV['vanotify__services__dependents__email__submitted674__template_id'] %>
+        submitted686:
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted686__template_id'] %>
+        submitted686c674:
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted686c674__template_id'] %>
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
