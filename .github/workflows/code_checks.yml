@@ -158,9 +158,9 @@ jobs:
       
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
-          name: Test Artifacts
+          name: Test Artifacts (tmp folder)
           path: tmp
           if-no-files-found: ignore
 
