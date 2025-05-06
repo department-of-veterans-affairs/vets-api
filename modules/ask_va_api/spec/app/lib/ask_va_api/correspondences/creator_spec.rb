@@ -7,7 +7,7 @@ module AskVAApi
     RSpec.describe Creator do
       subject(:creator) { described_class.new(icn:, params:, inquiry_id: '123', service: nil) }
 
-      let(:params) { { reply: 'this is a corespondence message', files: [{ file_name: nil, file_content: nil }] } }
+      let(:params) { { reply: 'this is a correspondence message', files: [{ file_name: nil, file_content: nil }] } }
       let(:icn) { '123' }
 
       describe '#call' do
