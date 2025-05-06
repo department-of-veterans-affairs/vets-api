@@ -251,6 +251,33 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#submit_champva_app_merged' do
+    fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                   'vha_10_10d_extended.json')
+    data = JSON.parse(fixture_path.read)
+
+    it 'uploads a PDF file to S3' do
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      record = IvcChampvaForm.first
+
+      expect(record.first_name).to eq('Veteran')
+      expect(record.last_name).to eq('Surname')
+      expect(record.form_uuid).to be_present
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe 'stored ves data is encrypted' do
     it 'ves_request_data is encrypted' do
       # This is the only part of the test we actually need
