@@ -27,6 +27,8 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
+  has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
+  has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
   has_many :claim_va_notifications, dependent: :destroy
 
   belongs_to :user_account, optional: true
@@ -203,13 +205,22 @@ class SavedClaim < ApplicationRecord
 
   def pdf_overflow_tracking
     tags = ["form_id:#{form_id}"]
+
+    # TODO: 686C-674 will require special handling
+    return if form_id.start_with? '686C-674'
+
+    form_class = PdfFill::Filler::FORM_CLASSES[form_id]
+    unless form_class
+      return Rails.logger.info("#{self.class} Skipping tracking PDF overflow", form_id:, saved_claim_id: id)
+    end
+
     filename = to_pdf
 
     # @see PdfFill::Filler
     # https://github.com/department-of-veterans-affairs/vets-api/blob/96510bd1d17b9e5c95fb6c09d74e53f66b0a25be/lib/pdf_fill/filler.rb#L88
     StatsD.increment('saved_claim.pdf.overflow', tags:) if filename.end_with?('_final.pdf')
   rescue => e
-    Rails.logger.error("#{self.class} Error tracking PDF overflow", form_id:, saved_claim_id: id, error: e)
+    Rails.logger.warn("#{self.class} Error tracking PDF overflow", form_id:, saved_claim_id: id, error: e)
   ensure
     Common::FileHelpers.delete_file_if_exists(filename)
   end

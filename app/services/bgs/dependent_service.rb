@@ -28,8 +28,6 @@ module BGS
       @icn = user.icn
       @participant_id = user.participant_id
       @va_profile_email = user.va_profile_email
-      # use for new auto 674 flipper testing
-      @auto674 = Flipper.enabled?(:va_dependents_submit674, user)
     end
 
     def get_dependents
@@ -88,17 +86,18 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cJob.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info, @auto674
+          uuid, icn, claim.id, encrypted_vet_info
         )
       else
         BGS::SubmitForm674Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info, nil, @auto674
+          uuid, icn, claim.id, encrypted_vet_info
         )
       end
     end
 
     def submit_to_central_service(claim:)
       vet_info = JSON.parse(claim.form)['dependents_application']
+      vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
       user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
@@ -116,7 +115,8 @@ module BGS
     end
 
     def get_form_hash_686c
-      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+      # include ssn in call to BGS for mocks
+      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
       @file_number = bgs_person[:file_nbr]
       # BGS's file number is supposed to be an eight or nine-digit string, and
       # our code is built upon the assumption that this is the case. However,

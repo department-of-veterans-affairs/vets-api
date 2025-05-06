@@ -84,6 +84,14 @@ describe PdfFill::Forms::Formatters::Va1010ez do
       end
     end
 
+    context 'date is YYYY-XX-XX format' do
+      let(:date_string) { '1977-XX-XX' }
+
+      it 'formats date' do
+        expect(format_date).to eq '1977'
+      end
+    end
+
     context 'date string has white space' do
       let(:date_string) { ' 1977-12-XX ' }
 

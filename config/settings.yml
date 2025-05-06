@@ -17,7 +17,7 @@ argocd:
     api_key: <%= ENV['argocd__slack__api_key'] %>
 ask_va_api:
   crm_api:
-    auth_url: https://login.microsoftonline.us
+    auth_url: <%= ENV['ask_va_api__crm_api__auth_url'] %>
     base_url: <%= ENV['ask_va_api__crm_api__base_url'] %>
     client_id: <%= ENV['ask_va_api__crm_api__client_id'] %>
     client_secret: <%= ENV['ask_va_api__crm_api__client_secret'] %>
@@ -29,8 +29,6 @@ ask_va_api:
     tenant_id: <%= ENV['ask_va_api__crm_api__tenant_id'] %>
     veis_api_path: eis/vagov.lob.ava/api
   prefill: true
-audit_db:
-  url: <%= ENV['audit_db__url'] %>
 authorization_server_scopes_api:
   auth_server:
     url: <%= ENV['authorization_server_scopes_api__auth_server__url'] %>
@@ -109,11 +107,6 @@ check_in:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800
-  chip_api:
-    base_path: <%= ENV['check_in__chip_api__base_path'] %>
-    tmp_api_id: <%= ENV['check_in__chip_api__tmp_api_id'] %>
-    tmp_api_user: <%= ENV['check_in__chip_api__tmp_api_user'] %>
-    tmp_api_username: <%= ENV['check_in__chip_api__tmp_api_username'] %>
   chip_api_v2:
     base_path: <%= ENV['check_in__chip_api_v2__base_path'] %>
     host: <%= ENV['check_in__chip_api_v2__host'] %>
@@ -453,6 +446,10 @@ flipper:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['flipper__github_team'] %>
   mute_logs: <%= ENV['flipper__mute_logs'] %>
+form0781_remediation:
+  aws:
+    bucket: <%= ENV['evidence_remediation__aws__bucket'] %>
+    region: us-gov-west-1
 form1095_b:
   s3:
     aws_access_key_id: <%= ENV['form1095_b__s3__aws_access_key_id'] %>
@@ -475,6 +472,14 @@ form526_export:
     bucket: <%= ENV['form526_export__aws__bucket'] %>
     region: us-gov-west-1
     secret_access_key: <%= ENV['form526_export__aws__secret_access_key'] %>
+form_10282:
+  sftp:
+    host: <%= ENV['form_10282__sftp__host'] %>
+    key_path: <%= ENV['form_10282__sftp__key_path'] %>
+    pass: <%= ENV['form_10282__sftp__pass'] %>
+    port: <%= ENV['form_10282__sftp__port'] %>
+    relative_path: <%= ENV['form_10282__sftp__relative_path'] %>
+    user: <%= ENV['form_10282__sftp__user'] %>
 form_10_10cg:
   carma:
     mulesoft:
@@ -565,10 +570,6 @@ hca:
     pass: <%= ENV['hca__ee__pass'] %>
     user: HCASvcUsr
   endpoint: <%= ENV['hca__endpoint'] %>
-  enrollment_system:
-    ee_summary:
-      api_key: ~
-      host: ~
   future_discharge_testing: <%= ENV['hca__future_discharge_testing'] %>
   prefill: true
   s3:
@@ -628,13 +629,6 @@ iam_ssoe:
   client_key_path: <%= ENV['iam_ssoe__client_key_path'] %>
   oauth_url: <%= ENV['iam_ssoe__oauth_url'] %>
   timeout: 20
-idme:
-  client_cert_path: <%= ENV['idme__client_cert_path'] %>
-  client_id: <%= ENV['idme__client_id'] %>
-  client_key_path: <%= ENV['idme__client_key_path'] %>
-  client_secret: <%= ENV['idme__client_secret'] %>
-  oauth_url: <%= ENV['idme__oauth_url'] %>
-  redirect_uri: <%= ENV['idme__redirect_uri'] %>
 ihub:
   appointments:
     mock: <%= ENV['ihub__appointments__mock'] %>
@@ -648,8 +642,12 @@ ivc_champva:
     api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
     base_path: <%= ENV['ivc_champva__pega_api__base_path'] %>
   prefill: true
-  ves_api:
-    api_key: fake_api_key
+ivc_champva_ves_api:
+  api_key: <%= ENV['ivc_champva_ves_api__api_key'] %>
+  app_id: <%= ENV['ivc_champva_ves_api__app_id'] %>
+  host: <%= ENV['ivc_champva_ves_api__host'] %>
+  mock: false
+  subject: "Proxy Client"
 ivc_forms:
   form_status_job:
     enabled: <%= ENV['ivc_forms__form_status_job__enabled'] %>
@@ -804,14 +802,6 @@ locators:
   vha_access_waittime: <%= ENV['locators__vha_access_waittime'] %>
 lockbox:
   master_key: <%= ENV['lockbox__master_key'] %>
-logingov:
-  client_cert_path: <%= ENV['logingov__client_cert_path'] %>
-  client_id: <%= ENV['logingov__client_id'] %>
-  client_key_path: <%= ENV['logingov__client_key_path'] %>
-  logout_redirect_uri: <%= ENV['logingov__logout_redirect_uri'] %>
-  oauth_public_key: <%= ENV['logingov__oauth_public_key'] %>
-  oauth_url: <%= ENV['logingov__oauth_url'] %>
-  redirect_uri: <%= ENV['logingov__redirect_uri'] %>
 mail_automation:
   client_id: <%= ENV['mail_automation__client_id'] %>
   client_secret: <%= ENV['mail_automation__client_secret'] %>
@@ -885,20 +875,6 @@ maintenance:
     vetext_vaccine: <%= ENV['maintenance__services__vetext_vaccine'] %>
     vic: <%= ENV['maintenance__services__vic'] %>
     vre: <%= ENV['maintenance__services__vre'] %>
-map_services:
-  appointments_client_id: <%= ENV['map_services__appointments_client_id'] %>
-  chatbot_client_id: 2bb9803acfc3
-  check_in_client_id: bc75b71c7e67
-  client_cert_path: <%= ENV['map_services__client_cert_path'] %>
-  client_key_path: <%= ENV['map_services__client_key_path'] %>
-  oauth_url: <%= ENV['map_services__oauth_url'] %>
-  secure_token_service:
-    mock: <%= ENV['map_services__secure_token_service__mock'] %>
-  sign_up_service:
-    mock: <%= ENV['map_services__sign_up_service__mock'] %>
-  sign_up_service_client_id: c7d6e0fc9a39
-  sign_up_service_provisioning_api_key: <%= ENV['map_services__sign_up_service_provisioning_api_key'] %>
-  sign_up_service_url: <%= ENV['map_services__sign_up_service_url'] %>
 mcp:
   notifications:
     batch_size: 10
@@ -929,14 +905,6 @@ mdot:
 mhv:
   account:
     mock: <%= ENV['mhv__account__mock'] %>
-  account_creation:
-    access_key: <%= ENV['mhv__account_creation__access_key'] %>
-    create_after_login: <%= ENV['mhv__account_creation__create_after_login'] %>
-    host: <%= ENV['mhv__account_creation__host'] %>
-    mock: <%= ENV['mhv__account_creation__mock'] %>
-    sts:
-      issuer: <%= ENV['mhv__account_creation__sts__issuer'] %>
-      service_account_id: <%= ENV['mhv__account_creation__sts__service_account_id'] %>
   api_gateway:
     hosts:
       bluebutton: <%= ENV['mhv__api_gateway__hosts__bluebutton'] %>
@@ -965,7 +933,6 @@ mhv:
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
-    app_token_va_gov: <%= ENV['mhv__rx__app_token_va_gov'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
@@ -975,21 +942,26 @@ mhv:
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
+    base_path: <%= ENV['mhv__sm__base_path'] %>
+    gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
     host: <%= ENV['mhv__sm__host'] %>
-    mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+    x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
-    app_token: <%= ENV['mhv__uhd__app_token'] %>
+    app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
     host: <%= ENV['mhv__uhd__host'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
+  rx:
+    app_token: <%= ENV['mhv_mobile__rx__app_token'] %>
+    x_api_key: <%= ENV['mhv_mobile__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
-  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
+    x_api_key: <%= ENV['mhv_mobile__sm__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
   rsa_key: <%= ENV['mobile_lighthouse__rsa_key'] %>
@@ -1042,15 +1014,6 @@ modules_appeals_api:
       api_key: <%= ENV['modules_appeals_api__token_validation__notice_of_disagreements__api_key'] %>
     supplemental_claims:
       api_key: <%= ENV['modules_appeals_api__token_validation__supplemental_claims__api_key'] %>
-mvi:
-  client_cert_path: <%= ENV['mvi__client_cert_path'] %>
-  client_key_path: "/etc/pki/tls/private/vetsgov-mvi.key"
-  mock: <%= ENV['mvi__mock'] %>
-  open_timeout: 15
-  pii_logging: <%= ENV['mvi__pii_logging'] %>
-  processing_code: <%= ENV['mvi__processing_code'] %>
-  timeout: 30
-  url: <%= ENV['mvi__url'] %>
 mvi_hca:
   url: http://example.com
 nod_vanotify_status_callback:
@@ -1244,25 +1207,6 @@ salesforce-gibft:
 saml:
   cert_path: ~
   key_path: ~
-saml_ssoe:
-  callback_url: <%= ENV['saml_ssoe__callback_url'] %>
-  cert_new_path: <%= ENV['saml_ssoe__cert_new_path'] %>
-  cert_path: <%= ENV['saml_ssoe__cert_path'] %>
-  certificate: <%= ENV['saml_ssoe__certificate'] %>
-  certificate_new: <%= ENV['saml_ssoe__certificate_new'] %>
-  identity_slack_webhook: <%= ENV['saml_ssoe__identity_slack_webhook'] %>
-  idp_metadata_file: <%= ENV['saml_ssoe__idp_metadata_file'] %>
-  idp_sso_service_binding: urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST
-  issuer: <%= ENV['saml_ssoe__issuer'] %>
-  key: <%= ENV['saml_ssoe__key'] %>
-  key_path: <%= ENV['saml_ssoe__key_path'] %>
-  logout_app_key: <%= ENV['saml_ssoe__logout_app_key'] %>
-  logout_url: <%= ENV['saml_ssoe__logout_url'] %>
-  relay: <%= ENV['saml_ssoe__relay'] %>
-  request_signing: <%= ENV['saml_ssoe__request_signing'] %>
-  response_encryption: <%= ENV['saml_ssoe__response_encryption'] %>
-  response_signing: <%= ENV['saml_ssoe__response_signing'] %>
-  tou_decline_logout_app_key: <%= ENV['saml_ssoe__tou_decline_logout_app_key'] %>
 schema_contract:
   appointments_index: modules/vaos/app/schemas/appointments_index.json
   test_index: spec/fixtures/schema_contract/test_schema.json
@@ -1289,8 +1233,6 @@ search_typeahead:
 secret_key_base: <%= ENV['secret_key_base'] %>
 sentry:
   dsn: <%= ENV['sentry__dsn'] %>
-session_cookie:
-  secure: true
 shrine:
   claims:
     access_key_id: <%= ENV['shrine__claims__access_key_id'] %>
@@ -1319,32 +1261,6 @@ sidekiq:
   github_organization: department-of-veterans-affairs
   github_team: <%= ENV['sidekiq__github_team'] %>
 sidekiq_admin_panel: <%= ENV['sidekiq_admin_panel'] %>
-sign_in:
-  arp_client_id: <%= ENV['sign_in__arp_client_id'] %>
-  auto_uplevel: true
-  client_redirect_uris:
-    mobile_test: <%= ENV['sign_in__client_redirect_uris__mobile_test'] %>
-  cookies_secure: <%= ENV['sign_in__cookies_secure'] %>
-  info_cookie_domain: <%= ENV['sign_in__info_cookie_domain'] %>
-  jwt_encode_key: <%= ENV['sign_in__jwt_encode_key'] %>
-  jwt_old_encode_key: <%= ENV['sign_in__jwt_old_encode_key'] %>
-  mock_auth_url: <%= ENV['sign_in__mock_auth_url'] %>
-  mock_redirect_uri: <%= ENV['sign_in__mock_redirect_uri'] %>
-  mockdata_sync_api_key: <%= ENV['sign_in__mockdata_sync_api_key'] %>
-  sts_client:
-    base_url: <%= ENV['sign_in__sts_client__base_url'] %>
-    key_path: <%= ENV['sign_in__sts_client__key_path'] %>
-  user_info_clients: <%= ENV['sign_in__user_info_clients'] %>
-  vamobile_client_id: <%= ENV['sign_in__vamobile_client_id'] %>
-  vaweb_client_id: vaweb
-  web_origins: <%= ENV['sign_in__web_origins'] %>
-ssoe_eauth_cookie:
-  domain: <%= ENV['ssoe_eauth_cookie__domain'] %>
-  name: <%= ENV['ssoe_eauth_cookie__name'] %>
-  secure: <%= ENV['ssoe_eauth_cookie__secure'] %>
-terms_of_use:
-  current_version: v1
-  enabled_clients: <%= ENV['terms_of_use__enabled_clients'] %>
 test_database_url: <%= ENV['test_database_url'] %>
 test_user_dashboard:
   env: <%= ENV['test_user_dashboard__env'] %>
@@ -1432,18 +1348,30 @@ vanotify:
     ivc_forms: <%= ENV['vanotify__service_callback_tokens__ivc_forms'] %>
     va_gov: <%= ENV['vanotify__service_callback_tokens__va_gov'] %>
   services:
+    21p_0969: &vanotify_services_income_and_assets
+      api_key: <%= ENV['vanotify__services__21p_0969__api_key'] %>
+      email:
+        error:
+          flipper_id: income_and_assets_error_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__error__template_id'] %>
+        received:
+          flipper_id: income_and_assets_received_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__received__template_id'] %>
+        submitted:
+          flipper_id: income_and_assets_submitted_email_notification
+          template_id: <%= ENV['vanotify__services__21p_0969__email__submitted__template_id'] %>
     21p_527ez: &vanotify_services_pension
       api_key: <%= ENV['vanotify__services__21p_527ez__api_key'] %>
       email:
         confirmation:
-          flipper_id: <%= ENV['vanotify__services__21p_527ez__email__confirmation__flipper_id'] %>
+          flipper_id: false
           template_id: <%= ENV['vanotify__services__21p_527ez__email__confirmation__template_id'] %>
         error:
           flipper_id: pension_error_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__error__template_id'] %>
         received:
           flipper_id: pension_received_email_notification
-          template_id: 54140052-af03-4d2b-9903-cd33f21dc422
+          template_id: <%= ENV['vanotify__services__21p_527ez__email__received__template_id'] %>
         submitted:
           flipper_id: pension_submitted_email_notification
           template_id: <%= ENV['vanotify__services__21p_527ez__email__submitted__template_id'] %>
@@ -1451,7 +1379,7 @@ vanotify:
       api_key: <%= ENV['vanotify__services__21p_530ez__api_key'] %>
       email:
         confirmation:
-          flipper_id: <%= ENV['vanotify__services__21p_530ez__email__confirmation__flipper_id'] %>
+          flipper_id: false
           template_id: <%= ENV['vanotify__services__21p_530ez__email__confirmation__template_id'] %>
         error:
           flipper_id: burial_error_email_notification
@@ -1494,6 +1422,21 @@ vanotify:
         claim_submission_failure_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_failure_text'] %>
         claim_submission_success_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_success_text'] %>
         claim_submission_timeout_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_timeout_text'] %>
+    dependents:
+      api_key: <%= ENV['vanotify__services__dependents__api_key'] %>
+      email:
+        received674:
+          template_id: <%= ENV['vanotify__services__dependents__email__received674__template_id'] %>
+        received686:
+          template_id: <%= ENV['vanotify__services__dependents__email__received686__template_id'] %>
+        received686c674:
+          template_id: <%= ENV['vanotify__services__dependents__email__received686c674__template_id'] %>
+        submitted674:
+            template_id: <%= ENV['vanotify__services__dependents__email__submitted674__template_id'] %>
+        submitted686:
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted686__template_id'] %>
+        submitted686c674:
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted686c674__template_id'] %>
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
@@ -1508,6 +1451,7 @@ vanotify:
         form1010_cg_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_cg_failure_email'] %>
         form1010_ez_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ez_failure_email'] %>
         form1010_ezr_failure_email: <%= ENV['vanotify__services__health_apps_1010__template_id__form1010_ezr_failure_email'] %>
+    income_and_assets: *vanotify_services_income_and_assets
     ivc_champva:
       api_key: <%= ENV['vanotify__services__ivc_champva__api_key'] %>
       failure_email_threshold_days: 7
@@ -1619,7 +1563,10 @@ vanotify:
         form526ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form526ez_reminder_email'] %>
         form5490_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form5490_confirmation_email'] %>
         form5495_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form5495_confirmation_email'] %>
+        form674_only_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form674_only_confirmation_email'] %>
+        form686c_674_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form686c_674_confirmation_email'] %>
         form686c_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form686c_confirmation_email'] %>
+        form686c_only_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form686c_only_confirmation_email'] %>
         form686c_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form686c_reminder_email'] %>
         form_upload_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form_upload_confirmation_email'] %>
         form_upload_error_email: <%= ENV['vanotify__services__va_gov__template_id__form_upload_error_email'] %>
@@ -1633,8 +1580,8 @@ vanotify:
     bearer_token: <%= ENV['vanotify__status_callback__bearer_token'] %>
 vaos:
   ccra:
-    api_url: https://api.ccra.placeholder.va.local
-    base_path: csp/healthshare/ccraint/rest
+    api_url: <%= ENV['va_mobile__url'] %>
+    base_path: vaos/v1/patients
     mock: <%= ENV['vaos__ccra__mock'] %>
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
@@ -1642,7 +1589,7 @@ vaos:
     audience_claim_url: https://login.wellhive.com/oauth2/default/v1/token
     base_path: care-navigation/v1
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    client_id: fake_client_id
+    client_id: <%= ENV['vaos__eps__client_id'] %>
     grant_type: client_credentials
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
@@ -1736,6 +1683,15 @@ vet360:
     enabled: true
     mock: <%= ENV['vet360__veteran_status__mock'] %>
     timeout: 30
+veteran_enrollment_system:
+  associations:
+    api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
+  ee_summary:
+    api_key: ~
+  host: <%= ENV['veteran_enrollment_system__host'] %>
+  open_timeout: 10
+  port: <%= ENV['veteran_enrollment_system__port'] %>
+  timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>
 veteran_readiness_and_employment:

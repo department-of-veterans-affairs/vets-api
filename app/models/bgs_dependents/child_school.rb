@@ -12,7 +12,8 @@ module BGSDependents
       @vnp_participant_id = vnp_participant_id
       @student = student
       @is_v2 = v2?
-      self.attributes = @is_v2 ? student : dependents_application
+
+      assign_attributes(@is_v2 ? student : dependents_application)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -90,5 +91,14 @@ module BGSDependents
       }
     end
     # rubocop:enable Metrics/MethodLength
+
+    private
+
+    def assign_attributes(data)
+      @last_term_school_information = data['last_term_school_information']
+      @school_information = data['school_information']
+      @program_information = data['program_information']
+      @current_term_dates = data['current_term_dates']
+    end
   end
 end
