@@ -45,10 +45,6 @@ module IvcChampva
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
       end
 
-      def applicants_with_ohi(applicants)
-        applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
-      end
-
       # This method handles generating OHI forms for all appropriate applicants
       # when a user submits a 10-10d/10-7959c merged form.
       def submit_champva_app_merged
@@ -240,6 +236,10 @@ module IvcChampva
       end
 
       private
+
+      def applicants_with_ohi(applicants)
+        applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
+      end
 
       def generate_ohi_form(applicant, form_data)
         # Create applicant-specific form data
@@ -489,7 +489,6 @@ module IvcChampva
         attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
-      # Start here to generate OHI
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
