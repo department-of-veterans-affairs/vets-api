@@ -55,22 +55,19 @@ module Mobile
       private
 
       def validated_params
-        @validated_params ||= begin
-          appointment_date_time = params[:appointment_date_time] # probably like parse date to check it's valid
-          facility_station_number = params[:facility_station_number]
-          appointment_type = params[:appointment_type] || 'Other'
-          is_complete = params[:is_complete] || false
-          # This is optional but will fail if passed an empty string
-          appointment_name = params[:appointment_name] || nil
+        smoc_params = {
+          appointment_date_time: params['appointment_date_time'],
+          facility_station_number: params['facility_station_number'],
+          appointment_type: params['appointment_type'] || 'Other',
+          is_complete: params['is_complete'] || false
+        }
 
-          Mobile::V0::Contracts::TravelPaySmoc.new.call(
-            appointment_date_time,
-            facility_station_number,
-            appointment_type,
-            is_complete,
-            appointment_name
-          )
+        if params['appointment_name'].present? && !params['appointment_name'].empty?
+          smoc_params[:appointment_name] =
+            params['appointment_name']
         end
+
+        @validated_params ||= Mobile::V0::Contracts::TravelPaySmoc.new.call(smoc_params)
       end
 
       def get_appt_or_raise(params)
@@ -94,8 +91,7 @@ module Mobile
       end
 
       def auth_manager
-        # TODO: find the mobile client number
-        @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
+        @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.mobile_client_number, @current_user)
       end
 
       def claims_service
