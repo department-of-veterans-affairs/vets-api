@@ -73,7 +73,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
             'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
             'first_name' => 'WESLEY' },
           'fake_secret',
-          { callback_klass: 'VeteranFacingServices::NotificationCallback::SavedClaim',
+          { callback_klass: 'Dependents::NotificationCallback',
             callback_metadata: { email_template_id: 'fake_received686',
                                  email_type: :received686,
                                  form_id: '686C-674',
