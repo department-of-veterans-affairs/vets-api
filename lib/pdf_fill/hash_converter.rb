@@ -64,6 +64,7 @@ module PdfFill
     def add_to_extras(key_data, v, i, overflow: true, array_key_data: nil)
       return if v.blank? || key_data.nil?
       return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
+      return if key_data[:hide_from_overflow]
 
       i = array_key_data.try(:[], :override_index) || i
       i = nil if key_data[:skip_index]

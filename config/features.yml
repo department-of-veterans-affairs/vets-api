@@ -1062,10 +1062,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_interstitial_enabled:
-    actor_type: user
-    descriptiom: Enables interstitial for upcoming mhv deprecation
-    enable_in_development: false
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
