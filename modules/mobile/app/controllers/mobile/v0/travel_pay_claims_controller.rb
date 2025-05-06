@@ -11,7 +11,7 @@ module Mobile
       def create # rubocop:disable Metrics/MethodLength
         begin
           Rails.logger.info(message: 'Mobile-SMOC transaction START')
-          appt_id = get_appt_or_raise(params)
+          appt_id = get_appt_or_raise
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "Mobile-SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
@@ -51,7 +51,6 @@ module Mobile
           appointment_type: params['appointment_type'] || 'Other',
           is_complete: params['is_complete'] || false
         }
-
         if params['appointment_name'].present? && !params['appointment_name'].empty?
           smoc_params[:appointment_name] =
             params['appointment_name']
@@ -60,10 +59,20 @@ module Mobile
         @validated_params ||= Mobile::V0::Contracts::TravelPaySmoc.new.call(smoc_params)
       end
 
-      def get_appt_or_raise(params)
-        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
-        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
-        appt = appts_service.find_or_create_appointment(params)
+      def get_appt_or_raise
+        appt_params = {
+          'appointment_date_time' => validated_params[:appointment_date_time],
+          'facility_station_number' => validated_params[:facility_station_number],
+          'appointment_type' => validated_params[:appointment_type],
+          'is_complete' => validated_params[:is_complete]
+        }
+        if validated_params[:appointment_name].present?
+          appt_params['appointment_name'] =
+            validated_params[:appointment_name]
+        end
+        appt_not_found_msg = "No appointment found for #{appt_params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{appt_params['appointment_date_time']}")
+        appt = appts_service.find_or_create_appointment(appt_params)
 
         if appt[:data].nil?
           Rails.logger.error(message: appt_not_found_msg)
