@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 desc 'run yardoc against changed files'
-task yardoc: :environment do
+task :yardoc do # rubocop:disable Rails/RakeEnvironment
   require 'rainbow'
   require 'yaml'
 

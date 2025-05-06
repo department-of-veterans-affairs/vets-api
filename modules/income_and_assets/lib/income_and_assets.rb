@@ -16,6 +16,11 @@ module IncomeAndAssets
   module V0
   end
 
+  # BenefitsIntake
+  # @see lib/lighthouse/benefits_intake
+  module BenefitsIntake
+  end
+
   # PdfFill
   # @see lib/pdf_fill
   module PdfFill

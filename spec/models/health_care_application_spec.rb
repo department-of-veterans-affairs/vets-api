@@ -598,7 +598,7 @@ RSpec.describe HealthCareApplication, type: :model do
             user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id
           |
           expect(user_identifier).to eq({ 'icn' => user.icn, 'edipi' => user.edipi })
-          expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
+          expect(HCA::SubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
           expect(health_care_application_id).to eq(1)
           expect(google_analytics_client_id).to be_nil
         end
