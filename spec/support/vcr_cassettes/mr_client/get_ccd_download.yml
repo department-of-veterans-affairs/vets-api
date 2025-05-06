@@ -1,0 +1,1214 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/v1/bluebutton/healthsummary/2025-05-06T09:26:08.000-0400/fileFormat/XML/ccdType/XML"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/xml
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 06 May 2025 14:00:31 GMT
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '95723'
+      X-Amzn-Requestid:
+      - b32488b8-3afd-4366-a631-0af26ffea1c9
+      Content-Disposition:
+      - attachment; filename=mhv_VA_CCD_IPOACEVEDA_20250506_0926.xml
+      X-Amzn-Remapped-Content-Length:
+      - '95723'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - KJhf9FITvHMFT4w=
+      Cache-Control:
+      - no-cache
+      Expires:
+      - "-1"
+      X-Amzn-Remapped-Date:
+      - Tue, 06 May 2025 14:00:31 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n<?xml-stylesheet
+        type=\"text/xsl\" href=\"cda.xsl\"?>\n<ClinicalDocument xmlns=\"urn:hl7-org:v3\"
+        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:hl7-org:v3
+        CDA.xsd\"><!--\n        *****************************************************\n
+        \       C-CDA R2.1 CONTINUITY OF CARE DOCUMENT (CCD) JHIE 4.11\n        *****************************************************\n\t\t\t--><realmCode
+        code=\"US\" /><typeId root=\"2.16.840.1.113883.1.3\" extension=\"POCD_HD000040\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.1.1\" extension=\"2015-08-01\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.1.2\" extension=\"2015-08-01\"
+        /><!-- CCD Document Identifer, id=VA OID, extension=system-generated --><id
+        extension=\"6e661f34-2a7f-11f0-908d-06269a7b925d\" root=\"2.16.840.1.113883.4.349\"
+        /><!--CCD Document Code--><code code=\"34133-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Summary of episode note\" /><!-- CCD
+        Document Title --><title>VA Continuity of Care Document (CCD)</title><!--
+        1.01 DOCUMENT TIMESTAMP, REQUIRED --><effectiveTime value=\"20250506082608\"
+        /><!--CCD Confidentiality Code, REQUIRED --><confidentialityCode code=\"N\"
+        codeSystem=\"2.16.840.1.113883.5.25\" codeSystemName=\"ConfidentialityCode\"
+        /><!--CCD DOCUMENT LANGUAGE, REQUIRED--><languageCode code=\"en-US\" /><versionNumber
+        value=\"2\" /><recordTarget><patientRole><!--1.02 PERSON ID, REQUIRED, id=VA
+        OID, extension=GUID--><id root=\"2.16.840.1.113883.4.349\" extension=\"1012740022V620959\"
+        /><!-- 1.03 PERSON ADDRESS-HOME PERMANENT, REQUIRED --><addr use=\"HP\"><streetAddressLine>8779
+        Hillcrest Rd</streetAddressLine><city>Kansas City</city><state>MO</state><postalCode>64138-2700</postalCode></addr><!--1.04
+        PERSON PHONE/EMAIL/URL, REQUIRED--><telecom use=\"HP\" value=\"tel:(879)898-9898\"
+        /><telecom use=\"WP\" value=\"tel:(999)9999999\" /><telecom use=\"MC\" value=\"tel:(937)597-8080\"
+        /><telecom value=\"mailto:chelsea.choi@oracle.com\" /><patient><!--1.05 PERSON
+        NAME LEGAL, REQUIRED--><name use=\"L\"><family>IPOACEVEDA</family><given>VANCE</given><given>MALCOM</given></name><!--1.05
+        PERSON NAME Alias Name, Optional--><!-- 1.06 GENDER, REQUIRED, HL7 Administrative
+        Gender --><administrativeGenderCode codeSystem=\"2.16.840.1.113883.5.1\" codeSystemName=\"AdministrativeGenderCode\"
+        code=\"M\" displayName=\"Male\"><originalText>M</originalText></administrativeGenderCode><!--1.07
+        PERSON DATE OF BIRTH, REQUIRED--><birthTime value=\"19341225000000\" /><!--1.08
+        MARITAL STATUS, Optional-R2--><maritalStatusCode code=\"M\" displayName=\"Married\"
+        codeSystem=\"2.16.840.1.113883.5.2\" codeSystemName=\"MaritalStatusCode\"><originalText>Married</originalText><!--1.08
+        MARITAL STATUS, Optional-R2--></maritalStatusCode><!-- 1.09 RELIGIOUS AFFILIATION,
+        Optional, Removed b/c data not yet available via VA VIstA RPCs --><religiousAffiliationCode
+        nullFlavor=\"UNK\"><originalText>Baptist</originalText></religiousAffiliationCode><!--1.10
+        RACE, Optional--><raceCode nullFlavor=\"NA\"><originalText>Declined to Answer</originalText></raceCode><!--1.11
+        ETHNICITY, Optional--><ethnicGroupCode code=\"2186-5\" displayName=\"Not Hispanic
+        or Latino\" codeSystem=\"2.16.840.1.113883.6.238\" codeSystemName=\"Race &amp;
+        Ethnicity - CDC\"><originalText>Not Hispanic or Latino</originalText></ethnicGroupCode><!--**********************************************************
+        LANGUAGE SPOKEN CONTENT MODULE, R2 **********************************************************--><!--2.01
+        LANGUAGE, REQUIRED, languageCode ISO 639-1--><languageCommunication><languageCode
+        code=\"en\" /><modeCode code=\"ESP\" displayName=\"Expressed spoken\" codeSystem=\"2.16.840.1.113883.5.60\"
+        codeSystemName=\"LanguageAbilityMode\" /><proficiencyLevelCode nullFlavor=\"NA\"
+        /><preferenceInd value=\"false\" /></languageCommunication></patient></patientRole></recordTarget><!--\n
+        \       **********************************************************************
+        INFORMATION SOURCE CONTENT MODULE, REQUIRED **********************************************************************\n\t\t\t--><!--AUTHOR
+        SECTION (REQUIRED) OF INFORMATION SOURCE CONTENT MODULE --><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!--10.01 AUTHOR TIME (=Document
+        Creation Date), REQUIRED --><time value=\"20250506082608\" /><assignedAuthor><!--10.02
+        AUTHOR ID (VA OID) (authorOID), REQUIIRED --><id nullFlavor=\"NA\" /><code
+        nullFlavor=\"UNK\" /><addr nullFlavor=\"UNK\" /><!--Assigned Author Telecom
+        Required, but VA VistA data not yet available --><telecom nullFlavor=\"NA\"
+        /><!--\n            10.02 AUTHOR NAME REQUIRED assignedPerson/Author Name
+        REQUIRED but provided as representedOrganization\n\t\t\t\t\t--><assignedPerson><name>Department
+        of Veterans Affairs (VA)</name></assignedPerson><!--10.02 AUTHOR NAME REQUIRED
+        as representedOrganization --><representedOrganization><!--\n              10.02
+        AUTHORING DEVICE ORGANIZATION OID (VA OID) (deviceOrgOID), REQUIRED\n\t\t\t\t\t\t--><id
+        root=\"2.16.840.1.113883.4.349\" /><!--10.02 AUTHORING DEVICE ORGANIZATION
+        NAME (deviceOrgName), REQUIRED --><name>Department of Veterans Affairs (VA)</name><!--Assigned
+        Author Telecom Required, but VA VistA data not yet available--><telecom nullFlavor=\"NA\"
+        /><!--Assigned Author Address Required, but VA VistA data not yet available
+        --><addr use=\"WP\"><streetAddressLine>810 Vermont Avenue, NW</streetAddressLine><city>Washington</city><state>DC</state><postalCode>20420</postalCode><country>US</country></addr></representedOrganization></assignedAuthor></author><!--\n
+        \       *******************************************************************************************
+        INFORMANT SECTION (AS AN ORGANIZATION), Optional *******************************************************************************************\n\t\t\t--><informant><assignedEntity><id
+        nullFlavor=\"NI\" /><addr nullFlavor=\"NA\" /><telecom nullFlavor=\"NA\" /><assignedPerson><!--Name
+        Required for informant/assignedEntity/assignedPerson --><name>Department of
+        Veterans Affairs (VA)</name></assignedPerson></assignedEntity></informant><!--\n
+        \       *********************************************************************************
+        CUSTODIAN AS AN ORGANIZATION, REQUIRED **********************************************************************************\n\t\t\t--><custodian><assignedCustodian><representedCustodianOrganization><!--CUSTODIAN
+        OID (VA OID)--><id root=\"2.16.840.1.113883.4.349\" /><!--CUSTODIAN NAME--><name>Department
+        of Veterans Affairs (VA)</name><!--Telecom Required for representedOrganization,
+        but VA VistA data not yet available --><telecom nullFlavor=\"NA\" /><addr><streetAddressLine>810
+        Vermont Avenue NW</streetAddressLine><city>Washington</city><state>DC</state><postalCode>20420</postalCode><country>US</country></addr></representedCustodianOrganization></assignedCustodian></custodian><!--\n
+        \       ***************************************************************************
+        LEGAL AUTHENTICATOR (AS AN ORGANIZATION), Optional ***************************************************************************\n\t\t\t--><legalAuthenticator><!--TIME
+        OF AUTHENTICATION --><time value=\"20250506082608\" /><signatureCode code=\"S\"
+        /><assignedEntity><id nullFlavor=\"NI\" /><code nullFlavor=\"NI\" /><addr><streetAddressLine>810
+        Vermont Avenue NW</streetAddressLine><city>Washington</city><state>DC</state><postalCode>20420</postalCode><country>US</country></addr><telecom
+        nullFlavor=\"NA\" /><assignedPerson><name>Department of Veterans Affairs (VA)</name></assignedPerson><representedOrganization><!--
+        LEGAL AUTHENTICATOR OID (VA) --><id root=\"2.16.840.1.113883.4.349\" /><name>Department
+        of Veterans Affairs (VA)</name><addr><streetAddressLine>810 Vermont Avenue
+        NW</streetAddressLine><city>Washington</city><state>DC</state><postalCode>20420</postalCode><country>US</country></addr></representedOrganization></assignedEntity></legalAuthenticator><!--\n
+        \       ********************************************************************
+        SUPPORT INFORMATION CONTENT MODULE, Optional ********************************************************************\n\t\t\t--><participant
+        typeCode=\"IND\"><!-- 3.01 DATE, REQUIRED --><!--\n        3.01 DATE date
+        as nullFlavor b/c data not yet available via VA VistA RPCs\n      --><time
+        nullFlavor=\"UNK\" /><!-- 3.02 CONTACT TYPE, REQUIRED, classCode value determined
+        by VistA value in contactType --><associatedEntity classCode=\"NOK\"><code
+        codeSystem=\"2.16.840.1.113883.5.111\" codeSystemName=\"RoleCode\" nullFlavor=\"UNK\"><originalText>UNRELATED
+        FRIEND/OTHER</originalText></code><!-- 3.04 CONTACT Addresss, Home Permanent,
+        Optional-R2 --><addr use=\"HP\"><streetAddressLine>2938743 TEST DR</streetAddressLine><city>DAYTON</city><state>OH</state><postalCode>45401</postalCode><country>United
+        States</country></addr><!--\n          3.05 CONTACT PHONE/EMAIL/URL, Optional-R2,
+        Removed b/c data not yet\n          available via VA VistA RPCs\n        --><telecom
+        use=\"HP\" value=\"tel:1722122111\" /><associatedPerson><!-- 3.06 CONTACT
+        NAME, REQUIRED --><name><family>IPOACEVEDA</family><given>VANCE</given></name></associatedPerson></associatedEntity></participant><participant
+        typeCode=\"IND\"><!-- 3.01 DATE, REQUIRED --><!--\n        3.01 DATE date
+        as nullFlavor b/c data not yet available via VA VistA RPCs\n      --><time
+        nullFlavor=\"UNK\" /><!-- 3.02 CONTACT TYPE, REQUIRED, classCode value determined
+        by VistA value in contactType --><associatedEntity classCode=\"ECON\"><code
+        codeSystem=\"2.16.840.1.113883.5.111\" codeSystemName=\"RoleCode\" nullFlavor=\"UNK\"><originalText>UNRELATED
+        FRIEND/OTHER</originalText></code><!-- 3.04 CONTACT Addresss, Home Permanent,
+        Optional-R2 --><addr use=\"HP\"><country>United States</country></addr><!--\n
+        \         3.05 CONTACT PHONE/EMAIL/URL, Optional-R2, Removed b/c data not
+        yet\n          available via VA VistA RPCs\n        --><telecom nullFlavor=\"NI\"
+        /><associatedPerson><!-- 3.06 CONTACT NAME, REQUIRED --><name><family>IPOACEVEDA</family><given>EMERGENCY</given></name></associatedPerson></associatedEntity></participant><!--\n
+        \       *******************************************************************************
+        DOCUMENTATION OF MODULE - QUERY META DATA, Optional *******************************************************************************\n\t\t\t--><documentationOf><serviceEvent
+        classCode=\"PCPR\"><effectiveTime><low value=\"19341225000000\" /><high value=\"20250506082608\"
+        /></effectiveTime><performer typeCode=\"PRF\"><!-- ****** PRIMARY HEALTHCARE
+        PROVIDER MODULE, Optional ********* --><!-- 4.02 PROVIDER ROLE CODED, optional
+        --><templateId root=\"2.16.840.1.113883.10.20.6.2.1\" extension=\"2014-06-09\"
+        /><functionCode code=\"PCP\" codeSystem=\"2.16.840.1.113883.5.88\" codeSystemName=\"ParticipationFunction\"
+        displayName=\"PRIMARY CARE PROVIDER\"><originalText>Primary Care Provider</originalText></functionCode><assignedEntity><!--
+        Provider ID from Problems Module (7.05Treating Provider ID) --><id nullFlavor=\"NI\"
+        /><!--4.04 PROVIDER TYPE, optional, NUCC --><code code=\"2080P0204X\" codeSystem=\"2.16.840.1.113883.6.101\"
+        codeSystemName=\"NUCC\" displayName=\"Allopathic &amp; Osteopathic Physicians\"
+        /><!-- Address Required for assignedEntity --><addr use=\"WP\"><state>WV</state></addr><!--
+        Telecom Required for iassignedEntity, but VA VistA data not yet available
+        --><telecom nullFlavor=\"NA\" /><!-- 4.07-PROVIDER NAME, REQUIRED --><assignedPerson><name>STOESZ,
+        DOREEN</name></assignedPerson><representedOrganization><!-- INFORMATION SOURCE
+        FOR FACILITY ID=VA OID, EXT= VAMC TREATING FACILITY NBR --><id root=\"2.16.840.1.113883.4.349\"
+        extension=\"451\" /><!--INFORMATION SOURCE NAME, name=VAMC TREATING FACILITY
+        NAME --><name>IPOTEST 1</name><!-- Telecom Required for representedOrganization,
+        but VA VistA data not yet available --><telecom nullFlavor=\"UNK\" /><!--
+        Address Required for representedOrganization, but VA VistA data not yet available
+        --><addr nullFlavor=\"UNK\" /></representedOrganization></assignedEntity></performer></serviceEvent></documentationOf><!--********************************************************
+        CDA BODY ******************************************************** --><component><structuredBody><!--Insurance
+        Providers --><component><!--\n              **********************************************************************************
+        INSURANCE PROVIDERS (PAYERS) SECTION, Optional **********************************************************************************\n\t\t\t\t\t\t--><section
+        nullFlavor=\"NI\"><templateId root=\"2.16.840.1.113883.10.20.22.2.18\" extension=\"2015-08-01\"
+        /><code code=\"48768-6\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"
+        displayName=\"Payment sources\" /><title>Insurance Providers: All on record
+        at VA</title><text>No Data Provided for This Section</text></section></component><component><!--
+        ******************************************************** ADVANCED DIRECTIVE
+        SECTION, REQUIRED ********************************************************
+        --><section nullFlavor=\"NI\"><!-- C-CDA Advanced Directive Section Template
+        Entries REQUIRED --><templateId root=\"2.16.840.1.113883.10.20.22.2.21.1\"
+        extension=\"2015-08-01\" /><templateId root=\"2.16.840.1.113883.10.20.22.2.21\"
+        /><code code=\"42348-3\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"
+        displayName=\"Advance Directives\" /><title>Advance Directives: All on record
+        at VA</title><!--ADVANCED DIRECTIVES NARRATIVE BLOCK --><text>No Data Provided
+        for This Section</text></section></component><component><!-- *************************************************************
+        ALLERGY/DRUG SECTION SECTION, REQUIRED *************************************************************
+        --><section nullFlavor=\"NI\"><!--ALLERGY/DRUG Section Template Entries REQUIRED
+        --><templateId root=\"2.16.840.1.113883.10.20.22.2.6.1\" extension=\"2015-08-01\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.2.6\" /><code code=\"48765-2\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Allergies
+        and/or Adverse Reactions\" /><title>Allergies and Adverse Reactions (ADRs):
+        All on record at VA</title><!-- ALLERGIES NARRATIVE BLOCK --><text>No Data
+        Provided for This Section</text></section></component><component><!-- ********************************************************
+        ENCOUNTER SECTION, Optional ********************************************************
+        --><section><templateId root=\"2.16.840.1.113883.10.20.22.2.22.1\" extension=\"2015-08-01\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.2.22\" /><code code=\"46240-8\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Hospitalizations
+        and Outpatient Visits\" /><title>Encounters: Outpatient Encounters with Notes</title><text><paragraph><content
+        ID=\"encounterTime\">\n                        This section contains a list
+        of completed VA Outpatient Encounters for the patient and a list of Encounter
+        Notes for the patient. The data comes from all VA treatment facilities. Consult
+        Notes, History &amp; Physical Notes, and Discharge Summaries are provided
+        separately, in subsequent sections.\n\t\t\t\t\t\t\t\t\t\t\t</content></paragraph><paragraph><content
+        styleCode=\"Bold\">Outpatient Encounters with Notes</content></paragraph><paragraph>\n
+        \                     This section includes a list of VA Outpatient Encounters
+        from the last 18 months and includes a maximum of the 10 most recent encounters.
+        Follow-up visits related to the VA Encounter are not included. The data comes
+        from all VA treatment facilities. Outpatient Encounters and Encounter Notes
+        from the new VA electronic health record are not included.\n\t\t\t\t\t\t\t\t\t\t</paragraph><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_1\"><td>Mar 20, 2025 12:00 PM</td><td><content ID=\"endEncounterType1\"
+        /></td><td><content ID=\"endEncounterDescription1\">EYE TELE SCREENING</content></td><td><content
+        ID=\"endReason1\" /></td><td><content ID=\"endProvider1\" /></td><td><content
+        ID=\"endSource1\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime1-1\">Mar
+        20, 2025 12:00 PM</content></td><td><content ID=\"anNoteEncounterDescription1-1\">NUTRITION
+        EDUCATION NOTE:<br /> LOCAL TITLE: NUTRITION CLASS - SATP EDUCATION CONSULT
+        REPORT    <br />STANDARD TITLE: NUTRITION EDUCATION NOTE                        <br
+        />DATE OF NOTE: MAR 20, 2025@12:00     ENTRY DATE: MAR 20, 2025@14:59:45      <br
+        />      AUTHOR: NORCROSS,LARRY W     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br />sdddddd<br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 03/20/2025<br />                    by:
+        LARRY W NORCROSS<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider1-1\">NORCROSS,LARRY W</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_2\"><td>Apr 25, 2024 07:01 PM</td><td><content ID=\"endEncounterType2\"
+        /></td><td><content ID=\"endEncounterDescription2\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason2\" /></td><td><content ID=\"endProvider2\" /></td><td><content
+        ID=\"endSource2\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime2-1\">Apr
+        25, 2024 07:01 PM</content></td><td><content ID=\"anNoteEncounterDescription2-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 25, 2024@19:01:09  ENTRY DATE: APR 25, 2024@19:01:09      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/25/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider2-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_3\"><td>Apr 23, 2024 08:24 PM</td><td><content ID=\"endEncounterType3\"
+        /></td><td><content ID=\"endEncounterDescription3\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason3\" /></td><td><content ID=\"endProvider3\" /></td><td><content
+        ID=\"endSource3\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime3-1\">Apr
+        23, 2024 08:24 PM</content></td><td><content ID=\"anNoteEncounterDescription3-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 23, 2024@20:24:21  ENTRY DATE: APR 23, 2024@20:24:21      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/23/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider3-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_4\"><td>Apr 23, 2024 08:23 PM</td><td><content ID=\"endEncounterType4\"
+        /></td><td><content ID=\"endEncounterDescription4\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason4\" /></td><td><content ID=\"endProvider4\" /></td><td><content
+        ID=\"endSource4\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime4-1\">Apr
+        23, 2024 08:23 PM</content></td><td><content ID=\"anNoteEncounterDescription4-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 23, 2024@20:23:23  ENTRY DATE: APR 23, 2024@20:23:23      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/23/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider4-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_5\"><td>Apr 10, 2024 08:09 PM</td><td><content ID=\"endEncounterType5\"
+        /></td><td><content ID=\"endEncounterDescription5\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason5\" /></td><td><content ID=\"endProvider5\" /></td><td><content
+        ID=\"endSource5\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime5-1\">Apr
+        10, 2024 08:09 PM</content></td><td><content ID=\"anNoteEncounterDescription5-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 10, 2024@20:09:55  ENTRY DATE: APR 10, 2024@20:09:55      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/10/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider5-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_6\"><td>Apr 10, 2024 07:59 PM</td><td><content ID=\"endEncounterType6\"
+        /></td><td><content ID=\"endEncounterDescription6\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason6\" /></td><td><content ID=\"endProvider6\" /></td><td><content
+        ID=\"endSource6\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime6-1\">Apr
+        10, 2024 07:59 PM</content></td><td><content ID=\"anNoteEncounterDescription6-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 10, 2024@19:59:22  ENTRY DATE: APR 10, 2024@19:59:22      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/10/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider6-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_7\"><td>Apr 08, 2024 09:45 PM</td><td><content ID=\"endEncounterType7\"
+        /></td><td><content ID=\"endEncounterDescription7\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason7\" /></td><td><content ID=\"endProvider7\" /></td><td><content
+        ID=\"endSource7\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime7-1\">Apr
+        08, 2024 09:45 PM</content></td><td><content ID=\"anNoteEncounterDescription7-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 08, 2024@21:45:59  ENTRY DATE: APR 08, 2024@21:45:59      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/08/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider7-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_8\"><td>Apr 08, 2024 09:34 PM</td><td><content ID=\"endEncounterType8\"
+        /></td><td><content ID=\"endEncounterDescription8\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason8\" /></td><td><content ID=\"endProvider8\" /></td><td><content
+        ID=\"endSource8\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime8-1\">Apr
+        08, 2024 09:34 PM</content></td><td><content ID=\"anNoteEncounterDescription8-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 08, 2024@21:34:09  ENTRY DATE: APR 08, 2024@21:34:09      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/08/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider8-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_9\"><td>Apr 08, 2024 08:55 PM</td><td><content ID=\"endEncounterType9\"
+        /></td><td><content ID=\"endEncounterDescription9\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason9\" /></td><td><content ID=\"endProvider9\" /></td><td><content
+        ID=\"endSource9\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime9-1\">Apr
+        08, 2024 08:55 PM</content></td><td><content ID=\"anNoteEncounterDescription9-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 08, 2024@20:55:31  ENTRY DATE: APR 08, 2024@20:55:31      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/08/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider9-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><content
+        styleCode=\"Bold\">Encounter</content><!-- VA Encounter Business Rules for
+        Medical Content --><table><thead><tr><th>Date/Time</th><th>Encounter Type</th><th>Encounter
+        Description</th><th>Reason</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr
+        ID=\"ENCOUNTERROW_10\"><td>Apr 08, 2024 08:46 PM</td><td><content ID=\"endEncounterType10\"
+        /></td><td><content ID=\"endEncounterDescription10\">ONCOLOGY/TUMOR</content></td><td><content
+        ID=\"endReason10\" /></td><td><content ID=\"endProvider10\" /></td><td><content
+        ID=\"endSource10\">IPOTEST 1</content></td></tr></tbody><tbody><tr><td /><td
+        colspan=\"5\"><content styleCode=\"Bold\">Encounter Notes</content><!-- Start
+        Associated Notes Narrative--><paragraph>\n                                    The
+        included Outpatient Encounter Notes are available thirty-six (36) hours after
+        completion and include a maximum of the 5 most recent notes associated with
+        the Outpatient Encounter. The data comes from all VA treatment facilities.
+        Note that Compensation &amp; Pension Notes are available 30 days after completion.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</paragraph><list><item><table><thead><tr><th>Date/Time</th><th>Encounter
+        Note</th><th>Provider</th></tr></thead><tbody><tr><td><content ID=\"anNoteDateTime10-1\">Apr
+        08, 2024 08:46 PM</content></td><td><content ID=\"anNoteEncounterDescription10-1\">HEMATOLOGY
+        AND ONCOLOGY NOTE:<br /> LOCAL TITLE: NURSING ONCOLOGY NOTE                              <br
+        />STANDARD TITLE: HEMATOLOGY AND ONCOLOGY NOTE                    <br />DATE
+        OF NOTE: APR 08, 2024@20:46:52  ENTRY DATE: APR 08, 2024@20:46:52      <br
+        />      AUTHOR: CVIX,PRECONCUSER     EXP COSIGNER:                           <br
+        />     URGENCY:                            STATUS: COMPLETED                     <br
+        /><br />   VistA Imaging - Scanned Document<br /><br />Your test results from
+        Foundation Medicine are available to view.<br />Be sure to have VistA Imaging
+        open before attempting to access the lab<br />results PDF.<br /><br />Open
+        the lab results PDF by clicking the note title name or the<br />blue image
+        icon in the left navigation window.<br /><br />Assay Type: FoundationOneLiquidDx<br
+        />Diagnosis: Lung squamous cell carcinoma (SCC)<br />Assignees: User, Vistaapix;
+        User, Vistaapix<br /><br />***<br /><br />Need help? Contact NPOP Service
+        at VANPOPServiceGroup@va.gov<br /><br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 04/08/2024<br />                    by:
+        PRECONCUSER CVIX<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"anNoteProvider10-1\">CVIX,PRECONCUSER</content></td></tr></tbody></table></item></list></td></tr></tbody></table><!--
+        CDA Observation Text as a Reference tag --><content ID=\"encNote-1\" revised=\"delete\">IHE
+        Encounter Template Text not used by VA</content></text><!-- C-CDA R2.1 Section
+        Time Range, Optional --><entry typeCode=\"DRIV\"><observation classCode=\"OBS\"
+        moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.201\" extension=\"2016-06-01\"
+        /><code code=\"82607-3\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"Section
+        Date and Time Range\" /><text><reference value=\"#encounterTime\" /></text><statusCode
+        code=\"completed\" /><value xsi:type=\"IVL_TS\"><low value=\"20231106082608\"
+        /><high value=\"20250506082608\" /></value></observation></entry><entry typeCode=\"DRIV\"><encounter
+        classCode=\"ENC\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.49\"
+        extension=\"2015-08-01\" /><templateId root=\"2.16.840.1.113883.10.20.22.4.49\"
+        /><id nullFlavor=\"NI\" /><!-- 16.02 ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\"
+        codeSystemName=\"CPT-4\" nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT
+        TYPE. R2 --><originalText><reference value=\"#endEncounterType1\" /></originalText></code><text><reference
+        value=\"#ENCOUNTERROW_1\" /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED
+        --><effectiveTime xsi:type=\"IVL_TS\"><low value=\"20250320120000\" /></effectiveTime><!--16.06
+        - ADMISSION SOURCE, Optional, Not Yet Available from VA VistA --><!--16.11
+        - FACILITY LOCATION, Optional --><participant typeCode=\"LOC\"><!--16.20 -
+        IN FACILITY LOCATION DURATION, Optional --><time><!--16.12 - ARRIVAL DATE/TIME,
+        Optional --><low value=\"20250320120000\" /><!-- 16.12 - DEPARTURE DATE/TIME,
+        Optional --><high value=\"20250320120000\" /></time><participantRole classCode=\"SDLOC\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.32\" /><code nullFlavor=\"NI\" /><addr
+        nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\" /><playingEntity classCode=\"PLC\"><name>IPOTEST
+        1</name></playingEntity></participantRole></participant><!-- Encounter Reason
+        for Visit --><entryRelationship typeCode=\"RSON\"><observation classCode=\"OBS\"
+        moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\" extension=\"2014-06-09\"
+        /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit Code, REQUIRED, SNOMED
+        CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\" /><!--
+        16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason1\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason1\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11488-4\" displayName=\"Consultation Note\"
+        /></code><text><reference value=\"#anNoteEncounterDescription1-1\" /></text><statusCode
+        code=\"completed\" /><!-- Clinically relevant time of the note --><effectiveTime
+        value=\"20250320120000\" /><author><templateId root=\"2.16.840.1.113883.10.20.22.4.119\"
+        /><!-- Time note was actually written --><time value=\"20250320120000\" /><assignedAuthor><id
+        nullFlavor=\"NI\" /><assignedPerson><name>NORCROSS,LARRY W</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType2\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_2\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240425190109\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240425190109\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240425190109\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason2\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason2\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription2-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240425190109\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240425190109\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType3\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_3\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240423202421\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240423202421\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240423202421\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason3\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason3\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription3-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240423202421\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240423202421\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType4\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_4\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240423202323\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240423202323\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240423202323\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason4\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason4\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription4-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240423202323\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240423202323\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType5\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_5\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240410200955\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240410200955\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240410200955\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason5\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason5\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription5-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240410200955\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240410200955\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType6\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_6\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240410195922\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240410195922\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240410195922\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason6\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason6\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription6-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240410195922\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240410195922\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType7\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_7\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240408214559\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240408214559\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240408214559\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason7\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason7\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription7-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240408214559\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240408214559\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType8\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_8\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240408213409\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240408213409\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240408213409\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason8\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason8\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription8-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240408213409\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240408213409\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType9\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_9\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240408205531\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240408205531\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240408205531\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason9\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason9\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription9-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240408205531\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240408205531\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry><entry
+        typeCode=\"DRIV\"><encounter classCode=\"ENC\" moodCode=\"EVN\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.49\" /><id nullFlavor=\"NI\" /><!-- 16.02
+        ENCOUNTER TYPE. R2, CPT-4 --><code codeSystem=\"2.16.840.1.113883.6.12\" codeSystemName=\"CPT-4\"
+        nullFlavor=\"NI\"><!-- 16.03 ENCOUNTER FREE TEXT TYPE. R2 --><originalText><reference
+        value=\"#endEncounterType10\" /></originalText></code><text><reference value=\"#ENCOUNTERROW_10\"
+        /></text><!-- 16.04 ENCOUNTER DATE/TIME, REQUIRED --><effectiveTime xsi:type=\"IVL_TS\"><low
+        value=\"20240408204652\" /></effectiveTime><!--16.06 - ADMISSION SOURCE, Optional,
+        Not Yet Available from VA VistA --><!--16.11 - FACILITY LOCATION, Optional
+        --><participant typeCode=\"LOC\"><!--16.20 - IN FACILITY LOCATION DURATION,
+        Optional --><time><!--16.12 - ARRIVAL DATE/TIME, Optional --><low value=\"20240408204652\"
+        /><!-- 16.12 - DEPARTURE DATE/TIME, Optional --><high value=\"20240408204652\"
+        /></time><participantRole classCode=\"SDLOC\"><templateId root=\"2.16.840.1.113883.10.20.22.4.32\"
+        /><code nullFlavor=\"NI\" /><addr nullFlavor=\"UNK\" /><telecom nullFlavor=\"UNK\"
+        /><playingEntity classCode=\"PLC\"><name>IPOTEST 1</name></playingEntity></participantRole></participant><!--
+        Encounter Reason for Visit --><entryRelationship typeCode=\"RSON\"><observation
+        classCode=\"OBS\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.19\"
+        extension=\"2014-06-09\" /><id nullFlavor=\"NI\" /><!-- CCD Reason for Visit
+        Code, REQUIRED, SNOMED CT --><code code=\"ASSERTION\" codeSystem=\"2.16.840.1.113883.5.4\"
+        /><!-- 16.13 REASON FOR VISIT TEXT, Optional --><!-- Is this for only outpatient?
+        --><statusCode code=\"completed\" /><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason10\" /></originalText></value></observation></entryRelationship><!--
+        CCD ENCOUNTER DIAGNOSIS, Optional --><entryRelationship typeCode=\"REFR\"><act
+        classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.80\"
+        extension=\"2015-08-01\" /><code code=\"29308-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"DIAGNOSIS\" /><statusCode code=\"active\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /></effectiveTime><!-- CCD ENCOUNTER
+        DIAGNOSIS PROBLEM CODE, REQURIED, SNOMED CT --><entryRelationship typeCode=\"SUBJ\"
+        inversionInd=\"false\"><observation classCode=\"OBS\" moodCode=\"EVN\" negationInd=\"false\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.4\" extension=\"2015-08-01\" /><!-- Problem
+        Observation --><id nullFlavor=\"UNK\" /><code nullFlavor=\"UNK\"><originalText>Encounter
+        Diagnosis Type Not Available</originalText></code><statusCode code=\"completed\"
+        /><effectiveTime><low nullFlavor=\"UNK\" /><high nullFlavor=\"UNK\" /></effectiveTime><!--
+        CCD ENCOUNTER DIAGNOSIS PROBLEM CODE, REQUIRED, SNOMED CT --><value xsi:type=\"CD\"><originalText><reference
+        value=\"#endReason10\" /></originalText></value></observation></entryRelationship></act></entryRelationship><!--\n
+        \                         16.09 DISCHARGE DISPOSITION CODE, Optional, Not
+        provided by VA\n                          b/c data not yet available via VA
+        VistA RPCs\n\t\t\t\t\t\t\t\t\t\t\t\t\t--><!-- Associated Encounter Notes --><entryRelationship
+        typeCode=\"COMP\"><!-- CCD Results Organizer = VA Associated Encounter Notes
+        , REQUIRED --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" code=\"11506-3\" displayName=\"Subsequent Evaluation
+        Note\" /></code><text><reference value=\"#anNoteEncounterDescription10-1\"
+        /></text><statusCode code=\"completed\" /><!-- Clinically relevant time of
+        the note --><effectiveTime value=\"20240408204652\" /><author><templateId
+        root=\"2.16.840.1.113883.10.20.22.4.119\" /><!-- Time note was actually written
+        --><time value=\"20240408204652\" /><assignedAuthor><id nullFlavor=\"NI\"
+        /><assignedPerson><name>CVIX,PRECONCUSER</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name><addr
+        nullFlavor=\"UNK\" /></representedOrganization></assignedAuthor></author></act></entryRelationship></encounter></entry></section></component><!--
+        ********************************************* FUNCTIONAL STATUS, OMIT from
+        SES ************************************* --><component><section nullFlavor=\"NI\"><templateId
+        root=\"2.16.840.1.113883.10.20.22.2.14\" extension=\"2014-06-09\" /><code
+        code=\"47420-5\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"
+        displayName=\"Functional Status\" /><title>Functional Status: Functional Independence
+        Measurement (FIM) Scores</title><text>No Data Provided for This Section</text></section></component><component><!--
+        **************************************************************** MEDICATIONS
+        (RX & Non-RX) SECTION, REQUIRED ****************************************************************
+        --><section nullFlavor=\"NI\"><!-- C-CDA Medications Section Template Entries
+        REQUIRED --><templateId root=\"2.16.840.1.113883.10.20.22.2.1.1\" extension=\"2014-06-09\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.2.1\" /><code code=\"10160-0\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"History
+        of medication use\" /><title>Medications: VA Dispensed and Non-VA Documented
+        (Obtained Outside VA)</title><!-- MEDICATIONS NARRATIVE BLOCK --><text>No
+        Data Provided for This Section</text></section></component><!-- Immunizations
+        section --><component><!-- ********************************************************
+        IMMUNIZATIONS SECTION, Optional ********************************************************
+        --><section nullFlavor=\"NI\"><!-- CCD Immunization Section Entries REQUIRED
+        --><templateId root=\"2.16.840.1.113883.10.20.22.2.2.1\" extension=\"2015-08-01\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.2.2\" /><code code=\"11369-6\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Immunization\"
+        /><title>Immunizations: All on record at VA</title><text>No Data Provided
+        for This Section</text></section></component><!-- Procedures section --><component><!--
+        ******************************************************** PROCEDURES SECTION
+        ******************************************************** --><section nullFlavor=\"NI\"><!--
+        CCD Procedures Section Entries REQUIRED --><templateId root=\"2.16.840.1.113883.10.20.22.2.7.1\"
+        extension=\"2014-06-09\" /><code code=\"47519-4\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"History of procedures\" /><title>Procedures:
+        Surgical Procedures with Notes</title><!-- PROCEDURE NARRATIVE BLOCK --><text>No
+        Data Provided for This Section</text></section></component><component><!--
+        ******************************************************** PLAN OF CARE SECTION,
+        Optional ******************************************************** --><section
+        nullFlavor=\"NI\"><!-- CCD Plan of Care Section Entries --><templateId root=\"2.16.840.1.113883.10.20.22.2.10\"
+        extension=\"2014-06-09\" /><code code=\"18776-5\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Plan of care note\" /><title>Plan of
+        Treatment: Future Appointments and Active/Pending Orders</title><text>No Data
+        Provided for This Section</text></section></component><component><!-- ********************************************************
+        PROBLEM/CONDITION SECTION, REQUIRED ********************************************************
+        --><section nullFlavor=\"NI\"><!-- C-CDA Problem Section Template. Entries
+        REQUIRED --><templateId root=\"2.16.840.1.113883.10.20.22.2.5.1\" extension=\"2015-08-01\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.2.5\" /><code code=\"11450-4\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Problem
+        List\" /><title>Problems (Conditions): All on record at VA</title><!-- PROBLEMS
+        NARRATIVE BLOCK --><text>No Data Provided for This Section</text></section></component><component><!--
+        ******************************************************** RESULTS SECTION,
+        REQUIRED ******************************************************** --><section
+        nullFlavor=\"NI\"><!-- CCD Results Section Entries REQUIRED --><templateId
+        root=\"2.16.840.1.113883.10.20.22.2.3.1\" extension=\"2015-08-01\" /><templateId
+        root=\"2.16.840.1.113883.10.20.22.2.3\" /><code code=\"30954-2\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Relevant diagnostic tests and/or laboratory
+        data\" /><title>Results: Chemistry and Hematology</title><text>No Data Provided
+        for This Section</text></section></component><component><!-- ********************************************************
+        SOCIAL HISTORY SECTION, Optional ********************************************************
+        --><section nullFlavor=\"NI\"><!-- CCD Social History Section Entries --><templateId
+        root=\"2.16.840.1.113883.10.20.22.2.17\" extension=\"2015-08-01\" /><code
+        code=\"29762-2\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"
+        displayName=\"Social History\" /><title>Social History: All on record at VA</title><text>No
+        Data Provided for This Section</text></section></component><component><!--
+        ******************************************************** VITAL SIGNS SECTION,
+        REQUIRED ******************************************************** --><section
+        nullFlavor=\"NI\"><!-- C-CDA CCD VITAL SIGNS Section Template Entries REQUIRED
+        --><templateId root=\"2.16.840.1.113883.10.20.22.2.4.1\" extension=\"2015-08-01\"
+        /><templateId root=\"2.16.840.1.113883.10.20.22.2.4\" /><code code=\"8716-3\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Vital
+        Signs\" /><title>Vital Signs</title><!-- VITAL SIGNS NARRATIVE BLOCK, REQUIRED
+        --><text>No Data Provided for This Section</text></section></component><!--
+        ************************* STANDALONE NOTE SECTIONS BELOW *************** --><component><!--Consultation
+        Notes --><section><templateId root=\"2.16.840.1.113883.10.20.22.2.65\" extension=\"2016-11-01\"
+        /><code code=\"11488-4\" codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\"
+        displayName=\"Consultation Note\" /><title>Consult Notes</title><text><!--
+        Start Consult Notes Narrative --><paragraph><content styleCode=\"Bold\">Consult
+        Notes</content></paragraph><!-- Consult notes begin --><paragraph>\n                      The
+        included Consult Notes are from the last 18 months, are available thirty-six
+        (36) hours after completion, and include a maximum of the 5 most recent notes.
+        The data comes from all VA treatment facilities. Note that Compensation &amp;
+        Pension Notes are available 30 days after completion. Consult Notes (including
+        Compensation and Pension exam notes) from the new VA electronic health record
+        are not included.\n\t\t\t\t\t\t\t\t\t\t</paragraph><table><thead><tr><th>Date/Time</th><th>Consult
+        Note with Text</th><th>Provider</th><th>Source</th></tr></thead><tbody><tr><td><content
+        ID=\"noteDateTime1\">Mar 20, 2025 12:00 PM</content></td><td><content ID=\"noteEncounterDescription1\">EDUCATION:<br
+        /> LOCAL TITLE: NUTRITION CLASS - SATP EDUCATION CONSULT REPORT    <br />STANDARD
+        TITLE: NUTRITION EDUCATION NOTE                        <br />DATE OF NOTE:
+        MAR 20, 2025@12:00     ENTRY DATE: MAR 20, 2025@14:59:45      <br />      AUTHOR:
+        NORCROSS,LARRY W     EXP COSIGNER:                           <br />     URGENCY:
+        \                           STATUS: COMPLETED                     <br /><br
+        />   VistA Imaging - Scanned Document<br />sdddddd<br /> <br />                           ***
+        SCANNED DOCUMENT ***<br />                            SIGNATURE NOT REQUIRED<br
+        /> <br /> <br />  Electronically Filed: 03/20/2025<br />                    by:
+        LARRY W NORCROSS<br />                        <br /> <br /><br /><br /></content></td><td><content
+        ID=\"noteProvider1\">NORCROSS,LARRY W</content></td><td><content ID=\"noteSource1\">IPOTEST
+        1</content></td></tr></tbody></table><!-- Condensed Consult notes begin title
+        only --><!-- Stop Consult Notes Narrative --></text><entry><!--Note Activity
+        Entry --><act classCode=\"ACT\" moodCode=\"EVN\"><templateId root=\"2.16.840.1.113883.10.20.22.4.202\"
+        extension=\"2016-11-01\" /><code code=\"34109-9\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Note\"><translation code=\"11488-4\"
+        codeSystem=\"2.16.840.1.113883.6.1\" codeSystemName=\"LOINC\" displayName=\"Consultation
+        Note\" /></code><text><reference value=\"#noteEncounterDescription1\" /></text><statusCode
+        code=\"completed\" /><!--Clinically relevant time of the note --><effectiveTime
+        value=\"20250320120000\" /><author><templateId root=\"2.16.840.1.113883.10.20.22.4.119\"
+        /><!--Time note was actually written--><time value=\"20250320120000\" /><assignedAuthor><id
+        nullFlavor=\"NI\" /><assignedPerson><name>NORCROSS,LARRY W</name></assignedPerson><representedOrganization><id
+        root=\"2.16.840.1.113883.4.349\" extension=\"451\" /><name>IPOTEST 1</name></representedOrganization></assignedAuthor></author></act></entry></section></component><component><!--History
+        and Physical Notes--><section nullFlavor=\"NI\"><templateId root=\"2.16.840.1.113883.10.20.22.2.65\"
+        extension=\"2016-11-01\" /><code code=\"34117-2\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"HandP Note\" /><title>History and Physical
+        Notes</title><text>No Data Provided for This Section</text></section></component><component><!--
+        Discharge Summaries Section --><section nullFlavor=\"NI\"><templateId root=\"2.16.840.1.113883.10.20.22.2.65\"
+        extension=\"2016-11-01\" /><code code=\"18842-5\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Discharge Note\" /><title>Discharge
+        Summaries</title><text>No Data Provided for This Section</text></section></component><component><!--Radiology
+        Studies--><section nullFlavor=\"NI\"><templateId root=\"2.16.840.1.113883.10.20.22.2.65\"
+        extension=\"2016-11-01\" /><code code=\"18726-0\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Radiology Reports\" /><title>Radiology
+        Reports</title><text>No Data Provided for This Section</text></section></component><component><!--Pathology
+        Studies--><section nullFlavor=\"NI\"><templateId root=\"2.16.840.1.113883.10.20.22.2.65\"
+        extension=\"2016-11-01\" /><code code=\"27898-6\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Pathology Reports\" /><title>Pathology
+        Reports</title><text>No Data Provided for This Section</text></section></component><component><!--
+        Clinical Procedure Notes --><section nullFlavor=\"NI\"><templateId root=\"2.16.840.1.113883.10.20.22.2.65\"
+        extension=\"2016-11-01\" /><code code=\"28570-0\" codeSystem=\"2.16.840.1.113883.6.1\"
+        codeSystemName=\"LOINC\" displayName=\"Procedure Note\" /><title>Clinical
+        Procedure Notes</title><text>No Data Provided for This Section</text></section></component></structuredBody></component></ClinicalDocument>\n"
+  recorded_at: Tue, 06 May 2025 14:00:31 GMT
+- request:
+    method: post
+    uri: "<MHV_MR_HOST>/v1/usermgmt/activity"
+    body:
+      encoding: UTF-8
+      string: '{"userProfileId":11375034,"activityType":"Download","action":"Download
+        My VA Health Summary","completionTime":"Tue, 06 May 2025 14:00:31 GMT","performerType":"Self","detailValue":null,"status":1}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Date:
+      - Tue, 06 May 2025 14:00:32 GMT
+      Content-Type:
+      - application/json
+      X-Amzn-Requestid:
+      - e0ac4072-c80b-4c61-a1b9-3491274614e1
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - KJhgDEF8PHMFoXA=
+      X-Amzn-Remapped-Date:
+      - Tue, 06 May 2025 14:00:32 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Tue, 06 May 2025 14:00:32 GMT
+recorded_with: VCR 6.3.1
