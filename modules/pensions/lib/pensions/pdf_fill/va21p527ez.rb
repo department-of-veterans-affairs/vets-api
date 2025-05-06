@@ -5,6 +5,8 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+require_relative 'constants'
+
 # rubocop:disable Metrics/ClassLength
 module Pensions
   module PdfFill
@@ -22,42 +24,6 @@ module Pensions
 
       # The Index Iterator Key
       ITERATOR = ::PdfFill::HashConverter::ITERATOR
-
-      # The Recipients Type
-      RECIPIENTS = {
-        'VETERAN' => 0,
-        'SPOUSE' => 1,
-        'DEPENDENT' => 2
-      }.freeze
-
-      # The Income Types
-      INCOME_TYPES = {
-        'SOCIAL_SECURITY' => 0,
-        'INTEREST_DIVIDEND' => 1,
-        'CIVIL_SERVICE' => 2,
-        'PENSION_RETIREMENT' => 3,
-        'OTHER' => 4
-      }.freeze
-
-      # Medical Care Types
-      CARE_TYPES = {
-        'CARE_FACILITY' => 0,
-        'IN_HOME_CARE_PROVIDER' => 1
-      }.freeze
-
-      # The Payment Frequency
-      PAYMENT_FREQUENCY = {
-        'ONCE_MONTH' => 0,
-        'ONCE_YEAR' => 1,
-        'ONE_TIME' => 2
-      }.freeze
-
-      # The reason for marital separation
-      REASONS_FOR_SEPARATION = {
-        'DEATH' => 0,
-        'DIVORCE' => 1,
-        'OTHER' => 2
-      }.freeze
 
       # The PDF Keys
       KEY = {
@@ -1495,7 +1461,7 @@ module Pensions
                            'dateOfMarriage' => split_date(marriage['dateOfMarriage']),
                            'dateOfSeparation' => split_date(marriage['dateOfSeparation']),
                            'dateRangeOfMarriageOverflow' => build_date_range_string(marriage_date_range),
-                           'reasonForSeparation' => REASONS_FOR_SEPARATION[reason_for_separation],
+                           'reasonForSeparation' => Constants::REASONS_FOR_SEPARATION[reason_for_separation],
                            'reasonForSeparationOverflow' => reason_for_separation.humanize })
         end
       end
@@ -1618,9 +1584,9 @@ module Pensions
       def merge_income_sources(income_sources)
         income_sources&.map do |income_source|
           income_source_hash = {
-            'receiver' => RECIPIENTS[income_source['receiver']],
+            'receiver' => Constants::RECIPIENTS[income_source['receiver']],
             'receiverOverflow' => income_source['receiver']&.humanize,
-            'typeOfIncome' => INCOME_TYPES[income_source['typeOfIncome']],
+            'typeOfIncome' => Constants::INCOME_TYPES[income_source['typeOfIncome']],
             'typeOfIncomeOverflow' => income_source['typeOfIncome']&.humanize,
             'amount' => split_currency_amount(income_source['amount']),
             'amountOverflow' => number_to_currency(income_source['amount'])
@@ -1651,9 +1617,9 @@ module Pensions
       # Expand a care expense data hash.
       def care_expense_to_hash(care_expense)
         {
-          'recipients' => RECIPIENTS[care_expense['recipients']],
+          'recipients' => Constants::RECIPIENTS[care_expense['recipients']],
           'recipientsOverflow' => care_expense['recipients']&.humanize,
-          'careType' => CARE_TYPES[care_expense['careType']],
+          'careType' => Constants::CARE_TYPES[care_expense['careType']],
           'careTypeOverflow' => care_expense['careType']&.humanize,
           'ratePerHour' => split_currency_amount(care_expense['ratePerHour']),
           'ratePerHourOverflow' => number_to_currency(care_expense['ratePerHour']),
@@ -1664,7 +1630,7 @@ module Pensions
           },
           'careDateRangeOverflow' => build_date_range_string(care_expense['careDateRange']),
           'noCareEndDate' => to_checkbox_on_off(care_expense['noCareEndDate']),
-          'paymentFrequency' => PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
+          'paymentFrequency' => Constants::PAYMENT_FREQUENCY[care_expense['paymentFrequency']],
           'paymentFrequencyOverflow' => care_expense['paymentFrequency'],
           'paymentAmount' => split_currency_amount(care_expense['paymentAmount']),
           'paymentAmountOverflow' => number_to_currency(care_expense['paymentAmount'])
@@ -1675,11 +1641,11 @@ module Pensions
       def merge_medical_expenses(medical_expenses)
         medical_expenses&.map do |medical_expense|
           medical_expense.merge({
-                                  'recipients' => RECIPIENTS[medical_expense['recipients']],
+                                  'recipients' => Constants::RECIPIENTS[medical_expense['recipients']],
                                   'recipientsOverflow' => medical_expense['recipients']&.humanize,
                                   'paymentDate' => split_date(medical_expense['paymentDate']),
                                   'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
-                                  'paymentFrequency' => PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
+                                  'paymentFrequency' => Constants::PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
                                   'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
                                   'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
                                   'paymentAmountOverflow' => number_to_currency(
