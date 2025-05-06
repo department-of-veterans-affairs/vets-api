@@ -5,7 +5,7 @@ module Mobile
     module Contracts
       class TravelPaySmoc < Base
         params do
-          required(:appointment_date_time).filled(:date_time)
+          required(:appointment_date_time).filled(:string)
           required(:facility_station_number).filled(:string)
           required(:appointment_type).filled(:string)
           required(:is_complete).filled(:bool)
