@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
-require_relative '../../../../rails_helper'
+require_relative '../../../rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
+RSpec.describe AccreditedRepresentativePortal::V0::ClaimantController, type: :request do
   before do
     login_as(test_user)
     travel_to(time)
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
     allow(Flipper).to receive(:enabled?).with(
       :accredited_representative_portal_search,
       instance_of(AccreditedRepresentativePortal::RepresentativeUser)
     ).and_return(feature_flag_state)
   end
 
-  let!(:poa_code) { 'x23' }
+  let!(:poa_code) { '067' }
   let!(:other_poa_code) { 'z99' }
 
   let!(:test_user) do
@@ -47,19 +48,19 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:time_plus_one_day) { '2024-12-22T04:45:37.000Z' }
   let(:feature_flag_state) { true }
 
-  describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
+  describe 'GET /accredited_representative_portal/v0/claimant/search' do
     context 'when feature flag is off' do
       let(:feature_flag_state) { false }
 
       it 'returns 403 error' do
-        post('/accredited_representative_portal/v0/claimant/power_of_attorney_requests')
+        post('/accredited_representative_portal/v0/claimant/search')
         expect(response).to have_http_status(:forbidden)
       end
     end
 
     context 'when providing incomplete search params' do
       it 'returns a 400 error' do
-        post('/accredited_representative_portal/v0/claimant/power_of_attorney_requests', params: {
+        post('/accredited_representative_portal/v0/claimant/search', params: {
                first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: ''
              })
         expect(response).to have_http_status(:bad_request)
@@ -67,15 +68,20 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     end
 
     context 'when providing complete search params' do
-      it 'returns only matching power of attorney requests' do
+      it 'returns only matching claimant' do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
-          post('/accredited_representative_portal/v0/claimant/power_of_attorney_requests', params: {
-                 first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: '666-66-6666'
-               })
+          VCR.use_cassette(
+            'accredited_representative_portal/requests/accredited_representative_portal/v0/claimant_request_spec/' \
+            'lighthouse/benefits_claims/200_response'
+          ) do
+            post('/accredited_representative_portal/v0/claimant/search', params: {
+                   first_name: 'John', last_name: 'Smith', dob: '1980-01-01', ssn: '666-66-6666'
+                 })
+          end
         end
         parsed_response = JSON.parse(response.body)
         expect(response).to have_http_status(:ok)
-        expect(parsed_response.map { |poa| poa['id'] }).to eq([poa_request.id])
+        expect(parsed_response.dig('data', 'poaRequests').map { |poa| poa['id'] }).to eq([poa_request.id])
       end
     end
   end
