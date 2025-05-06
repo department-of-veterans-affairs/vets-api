@@ -32,17 +32,31 @@ module DebtsApi
     # @submission_id {Form5655Submission} - FSR submission record
     #
     def perform(submission_id)
-      form_submission = DebtsApi::V0::Form5655Submission.find(submission_id)
-      sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
+      # Use advisory lock to prevent multiple workers from uploading the same FSR
+      DebtsApi::V0::Form5655Submission.with_advisory_lock("sharepoint-#{submission_id}", timeout_seconds: 15) do
+        form_submission = DebtsApi::V0::Form5655Submission.find(submission_id)
 
-      Rails.logger.info('5655 Form Uploading to SharePoint API', submission_id:)
+        # Skip if already in final state
+        if form_submission.submitted?
+          Rails.logger.info('Skipping already submitted FSR', submission_id:)
+          return
+        end
 
-      sharepoint_request.upload(
-        form_contents: form_submission.form,
-        form_submission:,
-        station_id: form_submission.form['facilityNum']
-      )
-      StatsD.increment("#{STATS_KEY}.success")
+        sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
+        Rails.logger.info('5655 Form Uploading to SharePoint API', submission_id:)
+
+        begin
+          sharepoint_request.upload(
+            form_contents: form_submission.form,
+            form_submission:,
+            station_id: form_submission.form['facilityNum']
+          )
+          StatsD.increment("#{STATS_KEY}.success")
+        rescue => e
+          Rails.logger.error("SharePoint submission failed: #{e.message}", submission_id:)
+          raise e
+        end
+      end
     end
   end
 end
