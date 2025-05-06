@@ -565,9 +565,12 @@ features:
   dependents_failure_callback_email:
     actor_type: user
     description: Enables the dependents action needed email callback to be used when an action needed email is triggered
+  dependents_submitted_email:
+    actor_type: cookie_id
+    description: Enables the dependents submitted email
   dependents_separate_confirmation_email:
     actor_type: cookie_id
-    description: Enables the dependents confirmation email to be differentiated by form
+    description: Enables the dependents confirmation/received email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -1052,10 +1055,6 @@ features:
   mhv_supply_reordering_enabled:
     actor_type: user
     description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
-  mhv_interstitial_enabled:
-    actor_type: user
-    descriptiom: Enables interstitial for upcoming mhv deprecation
-    enable_in_development: false
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
