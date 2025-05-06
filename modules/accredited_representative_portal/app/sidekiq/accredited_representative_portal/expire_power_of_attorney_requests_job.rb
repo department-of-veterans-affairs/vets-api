@@ -61,7 +61,9 @@ module AccreditedRepresentativePortal
     def expire_request(request)
       log_request_expiration(request)
 
-      PowerOfAttorneyRequestExpiration.create_expiration!(
+      expiration = PowerOfAttorneyRequestExpiration.new
+      PowerOfAttorneyRequestResolution.create_with_resolving!(
+        resolving: expiration,
         power_of_attorney_request: request
       )
     end
