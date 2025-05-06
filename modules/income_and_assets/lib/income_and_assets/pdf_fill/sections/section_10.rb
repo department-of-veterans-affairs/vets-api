@@ -67,7 +67,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         assets = form_data['unreportedAssets']
-        form_data['unreportedAsset'] = assets&.length ? 'YES' : 'NO'
+        form_data['unreportedAsset'] = assets&.length ? 0 : 1
         form_data['unreportedAssets'] = assets&.map { |item| expand_item(item) }
       end
 
