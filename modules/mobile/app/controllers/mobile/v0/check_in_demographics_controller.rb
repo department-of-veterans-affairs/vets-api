@@ -18,7 +18,7 @@ module Mobile
       def update
         response = chip_service.update_demographics(patient_dfn:, station_no: params[:location_id],
                                                     demographic_confirmations:)
-        parsed_response = JSON.parse(response.body, symbolize_names: true)[:data][:attributes]
+        parsed_response = Mobile::V0::Adapters::CheckInUpdateDemographics.new.parse(response)
 
         render json: Mobile::V0::CheckInUpdateDemographicsSerializer.new(parsed_response)
       end

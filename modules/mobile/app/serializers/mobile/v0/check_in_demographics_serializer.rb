@@ -6,8 +6,8 @@ module Mobile
   module V0
     class CheckInDemographicsSerializer
       include JSONAPI::Serializer
-      set_type :checkInDemographics
 
+      set_type :checkInDemographics
       attributes :insuranceVerificationNeeded,
                  :needsConfirmation,
                  :mailingAddress,
