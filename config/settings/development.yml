@@ -1291,6 +1291,7 @@ token_validation:
 travel_pay:
   base_url: ~
   client_number: ~
+  mobile_client_number: ~
   mock: true
   service_name: BTSSS-API
   sts:
