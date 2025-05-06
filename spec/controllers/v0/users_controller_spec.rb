@@ -57,6 +57,7 @@ RSpec.describe V0::UsersController, type: :controller do
     before do
       sign_in_as(user)
       Flipper.disable(:profile_user_claims)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(true)
       create(:user_verification, idme_uuid: user.idme_uuid)
     end
 

@@ -54,6 +54,16 @@ module MHVAC
 
     def nonauth_headers
       config.base_request_headers.merge('appToken' => config.app_token)
+      get_headers(config.base_request_headers)
+    end
+
+    def get_headers(headers)
+      headers = headers.dup
+      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
+      else
+        headers
+      end
     end
   end
 end

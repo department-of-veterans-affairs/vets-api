@@ -11,6 +11,7 @@ describe UserEligibility::Client do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(true)
     end
 
     context 'when user ID and ICN are valid' do
