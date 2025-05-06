@@ -11,7 +11,6 @@
 # AllowedMethods: enums
 Lint/ConstantDefinitionInBlock:
   Exclude:
-    - 'app/policies/legacy_mhv_messaging_policy.rb'
     - 'app/policies/mhv_health_records_policy.rb'
     - 'app/policies/mhv_medical_records_policy.rb'
     - 'app/policies/mhv_prescriptions_policy.rb'
