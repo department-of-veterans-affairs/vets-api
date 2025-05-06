@@ -1645,7 +1645,8 @@ module Pensions
                                   'recipientsOverflow' => medical_expense['recipients']&.humanize,
                                   'paymentDate' => split_date(medical_expense['paymentDate']),
                                   'paymentDateOverflow' => to_date_string(medical_expense['paymentDate']),
-                                  'paymentFrequency' => Constants::PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
+                                  'paymentFrequency' =>
+                                    Constants::PAYMENT_FREQUENCY[medical_expense['paymentFrequency']],
                                   'paymentFrequencyOverflow' => medical_expense['paymentFrequency'],
                                   'paymentAmount' => split_currency_amount(medical_expense['paymentAmount']),
                                   'paymentAmountOverflow' => number_to_currency(
