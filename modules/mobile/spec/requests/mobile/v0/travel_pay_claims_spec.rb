@@ -15,6 +15,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
     it 'returns a successfully submitted claim response' do
       allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
         .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+      expect(Mobile::V0::Appointment).to receive(:clear_cache).once
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         params = { 'appointment_date_time' => '2024-01-01T16:45:34.465',
