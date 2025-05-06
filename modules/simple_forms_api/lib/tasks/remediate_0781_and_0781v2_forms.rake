@@ -141,6 +141,10 @@ namespace :simple_forms_api do
           # Already processed in modules/simple_forms_api/lib/tasks/remediate_0781a_forms.rake
         }.each do |form_key, form_id|
           form_content = nested_json[form_key]
+
+          # Fallback for June 2019 cutover edge-cases: treat flat payloads (incidents at root) as form0781 content
+          form_content = nested_json if form_key == 'form0781' && form_content.blank? && nested_json.key?('incidents')
+
           context = ProcessingContext.new(
             job:,
             results:,

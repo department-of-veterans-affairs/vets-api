@@ -18,6 +18,8 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
   let(:form_json) { { 'form0781' => { 'foo' => 'bar' }, 'form0781v2' => { 'baz' => 'qux' } } }
 
   before do
+    Rake::Task.clear
+    stub_const('ProcessingContext', Class.new) if defined?(ProcessingContext)
     load File.expand_path('../../lib/tasks/remediate_0781_and_0781v2_forms.rake', __dir__)
     Rake::Task.define_task(:environment)
     allow(SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob).to receive(:new).and_return(job)
@@ -31,7 +33,6 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
   end
 
   after do
-    # Always re-enable the task after a test
     Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
   end
 
@@ -112,14 +113,34 @@ RSpec.describe 'simple_forms_api:remediate_0781_and_0781v2_forms', type: :task d
       allow(pre_2019_submission).to receive(:form_to_json).with('form0781').and_return('{"incidents":[{"foo":"bar"}]}')
       allow(job).to receive(:perform)
 
-      # Clear any previous invocations
       Rake::Task.clear
-      Rake.application.rake_require 'tasks/remediate_0781_and_0781v2_forms'
+      stub_const('ProcessingContext', Class.new) if defined?(ProcessingContext)
+      load File.expand_path('../../lib/tasks/remediate_0781_and_0781v2_forms.rake', __dir__)
       Rake::Task.define_task(:environment)
     end
 
     it 'processes only form0781 exactly once' do
       Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123')
+
+      expect(job).to have_received(:perform).once.with(
+        ids: ['123'],
+        config: instance_of(SimpleFormsApi::FormRemediation::Configuration::Form0781Config),
+        type: :remediation
+      )
+    end
+  end
+
+  context 'with post-2019 submission using flat JSON payload' do
+    let(:flat_payload) { { 'incidents' => [{ 'foo' => 'bar' }] } }
+
+    before do
+      allow(Form526Submission).to receive(:find).with('123').and_return(submission)
+      allow(JSON).to receive(:parse).and_return(flat_payload)
+      Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].reenable
+    end
+
+    it 'falls back to flat structure and processes only form0781' do
+      capture_stdout { Rake::Task['simple_forms_api:remediate_0781_and_0781v2_forms'].invoke('123') }
 
       expect(job).to have_received(:perform).once.with(
         ids: ['123'],
