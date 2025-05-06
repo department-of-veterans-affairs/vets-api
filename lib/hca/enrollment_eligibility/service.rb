@@ -420,7 +420,8 @@ module HCA
 
         Date.parse(date_str).to_s
       rescue Date::Error => e
-        log_exception_to_sentry(e)
+        Rails.logger.error('[HCA] - DateError', { exception: e, date_str: })
+
         PersonalInformationLog.create!(
           data: date_str,
           error_class: 'Form1010Ezr DateError'
