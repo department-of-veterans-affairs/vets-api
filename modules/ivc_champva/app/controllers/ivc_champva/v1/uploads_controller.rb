@@ -209,14 +209,6 @@ module IvcChampva
         file.tempfile = tmpf
       end
 
-      # form_id
-      # password
-      # file
-
-      #
-      # attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
-      # attachment.save
-      # render json: PersistentAttachmentSerializer.new(attachment)
       def submit_supporting_documents
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
