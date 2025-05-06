@@ -1412,6 +1412,7 @@ vanotify:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
       template_id:
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
+        decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
     burials: *vanotify_services_burial
     check_in:
       api_key: <%= ENV['vanotify__services__check_in__api_key'] %>
@@ -1445,10 +1446,6 @@ vanotify:
         fsr_streamlined_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_streamlined_confirmation_email'] %>
         vha_fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__vha_fsr_confirmation_email'] %>
         vha_new_copay_statement_email: <%= ENV['vanotify__services__dmc__template_id__vha_new_copay_statement_email'] %>
-    event_bus_gateway:
-      api_key: <%= ENV['vanotify__services__event_bus_gateway__api_key'] %>
-      template_id:
-        decision_letter_ready_email: <%= ENV['vanotify__services__event_bus_gateway__template_id__decision_letter_ready_email'] %>
     health_apps_1010:
       api_key: <%= ENV['vanotify__services__health_apps_1010__api_key'] %>
       template_id:
