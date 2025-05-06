@@ -119,6 +119,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
       context 'validation errors' do
         it 'calls the parent method when the toggle is off' do
+          expect(claim).to receive(:with_retries).with('CaregiversAssistanceClaim form validation').and_yield
           allow(claim).to receive(:form_matches_schema).and_call_original
 
           claim.validate

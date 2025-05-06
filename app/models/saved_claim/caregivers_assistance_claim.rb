@@ -4,6 +4,7 @@ require 'pdf_fill/filler'
 
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   include FormValidation
+  include RetriableConcern
 
   FORM = '10-10CG'
 
@@ -36,7 +37,11 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   end
 
   def form_matches_schema
-    super unless Flipper.enabled?(:caregiver_retry_form_validation)
+    unless Flipper.enabled?(:caregiver_retry_form_validation)
+      with_retries('CaregiversAssistanceClaim form validation') do
+        super
+      end
+    end
 
     return unless form_is_string
 
