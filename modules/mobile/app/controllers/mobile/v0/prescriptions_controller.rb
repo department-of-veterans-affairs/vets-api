@@ -8,7 +8,8 @@ module Mobile
       before_action { authorize :mhv_prescriptions, :access? }
 
       def index
-        resource = client.get_history_rxs
+        resource = client.get_all_rxs
+        resource.data = resource_data_modifications(resource)
         resource = resource.find_by(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
@@ -33,7 +34,7 @@ module Mobile
       private
 
       def client
-        @client ||= Rx::Client.new(
+        @client ||= Mobile::V0::Prescriptions::Client.new(
           session: { user_id: @current_user.mhv_correlation_id }, upstream_request: request
         ).authenticate
       end
@@ -80,6 +81,40 @@ module Mobile
         raise Common::Exceptions::InvalidFieldValue.new('ids', ids) unless ids.is_a? Array
 
         ids.map(&:to_i)
+      end
+
+      def resource_data_modifications(resource)
+        # Remove Partial Fill (PF) and/or Pending Pescriptions (PD)
+        display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
+        resource.data = if params[:filter].blank? && display_pending_meds
+                          resource.data.reject { |item| item.prescription_source.equal? 'PF' }
+                        else
+                          # TODO: remove this line when PF and PD are allowed on the app
+                          resource.data = remove_pf_pd(resource.data)
+                        end
+
+        # Remove Non-VA (NV) medications
+        # TODO: Update once active Non-VA meds have been whitelisted for the app
+        resource.data = resource.data.reject { |item| item[:prescription_source] == 'NV' }
+
+        # Remove discontinued/expired medications that are older than 180 days
+        resource.data = remove_old_meds(resource.data)
+
+        resource.data.each do |r|
+          r[:prescription_name] = r[:orderable_item] if r[:prescription_name].nil?
+        end
+      end
+
+      def remove_pf_pd(data)
+        sources_to_remove_from_data = %w[PF PD]
+        data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
+      end
+
+      def remove_old_meds(data)
+        status_with_date_limit = %w[discontinued expired]
+        data.reject do |item|
+          status_with_date_limit.include?(item.refill_status) && item.expiration_date < 180.days.ago
+        end
       end
     end
   end

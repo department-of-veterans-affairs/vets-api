@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 desc 'run yardoc against changed files'
-task yardoc: :environment do
+task :yardoc do # rubocop:disable Rails/RakeEnvironment
   require 'rainbow'
   require 'yaml'
 
   head_sha = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
-  base_sha = 'origin/master'
+  # GITHUB_BASE_REF points to the target branch for the pull request
+  base_sha = "origin/#{ENV.fetch('GITHUB_BASE_REF', 'master')}"
 
   # git diff the glob list - only want to check the changed files
   globs = ['*.rb']

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module IncomeAndAssets
   ##
   # IncomeAndAssets api monitor functions for Rails logging and StatsD
@@ -8,9 +10,17 @@ module IncomeAndAssets
     ##
     # Monitor functions for Rails logging and StatsD
     #
-    class Monitor
+    class Monitor < ::ZeroSilentFailures::Monitor
       # statsd key for api
       CLAIM_STATS_KEY = 'api.income_and_assets'
+
+      attr_reader :tags
+
+      def initialize
+        super('income-and-assets')
+
+        @tags = ['form_id:21P-0969']
+      end
 
       ##
       # log GET 404 from controller

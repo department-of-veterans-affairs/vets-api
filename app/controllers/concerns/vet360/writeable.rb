@@ -8,9 +8,9 @@ module Vet360
   module Writeable
     extend ActiveSupport::Concern
 
-    PROFILE_AUDIT_LOG_TYPES = { email: 'update_email_address',
-                                address: 'update_mailing_address',
-                                telephone: 'update_phone_number' }.freeze
+    PROFILE_AUDIT_LOG_TYPES = { email: :update_email_address,
+                                address: :update_mailing_address,
+                                telephone: :update_phone_number }.with_indifferent_access.freeze
 
     # For the passed VAProfile model type and params, it:
     #   - builds and validates a VAProfile models
@@ -26,8 +26,11 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
+      if Settings.vsp_environment == 'staging'
+        Rails.logger.info("ContactInformationV2 #{type} #{http_verb} Request Initiated")
+      end
       response = write_valid_record!(http_verb, type, record)
-      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES.keys.include?(type)
+      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES[type].present?
       render_new_transaction!(type, response)
     end
 
@@ -56,7 +59,7 @@ module Vet360
     end
 
     def create_user_audit_log(type)
-      UserAudit.logger.success(event: PROFILE_AUDIT_LOG_TYPES[type].to_sym,
+      UserAudit.logger.success(event: PROFILE_AUDIT_LOG_TYPES[type],
                                user_verification: @current_user.user_verification)
     end
 
