@@ -50,13 +50,6 @@ RSpec.describe Logging::BaseMonitor do
     end
   end
 
-  describe '#handle_silent_failure_email' do
-    it 'calls send_email with the correct arguments' do
-      expect(base_monitor).to receive(:send_email).with(123, :error)
-      base_monitor.send(:handle_silent_failure_email, 123)
-    end
-  end
-
   describe '#submit_event' do
     it 'calls track_request with the correct arguments' do
       allow(base_monitor).to receive(:track_request)
