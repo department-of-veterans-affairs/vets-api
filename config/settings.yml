@@ -862,7 +862,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
-    travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
+    travel_pay: PO9X8XN
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
