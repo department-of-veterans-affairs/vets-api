@@ -7,9 +7,9 @@ module VAOS
     class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
       before_action :authorize_with_facilities
 
-      STATSD_KEY = 'api.vaos.va_mobile.response.partial'
-      APPOINTMENT_CREATION_SUCCESS_STATSD_KEY = 'api.vaos.appointment_creation.success'
-      APPOINTMENT_CREATION_FAILURE_STATSD_KEY = 'api.vaos.appointment_creation.failure'
+      PARTIAL_RESPONSE_METRIC = 'api.vaos.va_mobile.response.partial'
+      APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
+      APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -38,8 +38,8 @@ module VAOS
         if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
           render json: { data: serialized, meta: appointments[:meta] }, status: :ok
         else
-          StatsDMetric.new(key: STATSD_KEY).save
-          StatsD.increment(STATSD_KEY, tags: ["failures:#{appointments[:meta][:failures]}"])
+          StatsDMetric.new(key: PARTIAL_RESPONSE_METRIC).save
+          StatsD.increment(PARTIAL_RESPONSE_METRIC, tags: ["failures:#{appointments[:meta][:failures]}"])
           render json: { data: serialized, meta: appointments[:meta] }, status: :multi_status
         end
       end
@@ -85,7 +85,7 @@ module VAOS
         draft = eps_appointment_service.create_draft_appointment(referral_id:)
 
         unless draft&.id
-          StatsD.increment(APPOINTMENT_CREATION_FAILURE_STATSD_KEY)
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
           return render(json: appt_creation_failed_error, status: :unprocessable_entity)
         end
 
@@ -94,7 +94,7 @@ module VAOS
         response_data = build_draft_response(draft, provider, slots, drive_time)
         Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
                           "Response: #{response_data.inspect}")
-        StatsD.increment(APPOINTMENT_CREATION_SUCCESS_STATSD_KEY)
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
 
@@ -119,13 +119,13 @@ module VAOS
         )
 
         unless appointment&.id
-          StatsD.increment(APPOINTMENT_CREATION_FAILURE_STATSD_KEY)
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
           render json: appt_creation_failed_error, status: :unprocessable_entity and return
         end
 
         Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
                           "Response: #{appointment.inspect}")
-        StatsD.increment(APPOINTMENT_CREATION_SUCCESS_STATSD_KEY)
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
       end
 
@@ -577,7 +577,7 @@ module VAOS
       # @see Redis::BaseError
       def handle_redis_error(error)
         Rails.logger.error("Redis error: #{error.message}")
-        StatsD.increment("#{STATSD_KEY}.redis_error")
+        StatsD.increment("#{PARTIAL_RESPONSE_METRIC}.redis_error")
         render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
                status: :bad_gateway
       end
