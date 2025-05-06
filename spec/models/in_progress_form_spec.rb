@@ -70,6 +70,20 @@ RSpec.describe InProgressForm, type: :model do
         in_progress_form.save
         expect(in_progress_form.metadata['expiresAt']).to eq(1_622_505_600)
       end
+  
+      it 'does not update expires_at on save' do
+        disability_form = create(:in_progress_form, form_id: '21-526EZ')
+        disability_prev_time = disability_form.expires_at        
+        disability_form.save
+        expect(disability_prev_time == disability_form.expires_at).to be(true)
+        
+        default_form = create(:in_progress_form)
+        default_prev_time = default_form.expires_at
+        default_form.save
+        expect(default_prev_time == default_form.expires_at).to be(false)
+
+      end
+
     end
 
     context 'when the form is 5655' do
