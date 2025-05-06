@@ -9,30 +9,10 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
-
-require 'bgs_service/local_bgs_refactored'
+require 'bgs_service/find_definition'
 
 module ClaimsApi
   class LocalBGS
-    CACHED_SERVICES = %w[
-      ClaimantServiceBean/ClaimantWebService
-      EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
-      IntentToFileWebServiceBean/IntentToFileWebService
-      OrgWebServiceBean/OrgWebService
-      PersonWebServiceBean/PersonWebService
-      StandardDataWebServiceBean/StandardDataWebService
-      TrackedItemService/TrackedItemService
-      VDC/VeteranRepresentativeService
-      VDC/ManageRepresentativeService
-      VnpAtchmsWebServiceBean/VnpAtchmsService
-      VnpPersonWebServiceBean/VnpPersonService
-      VnpProcFormWebServiceBean/VnpProcFormService
-      VnpProcWebServiceBeanV2/VnpProcServiceV2
-      VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
-      VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
-      VnpPtcpntWebServiceBean/VnpPtcpntService
-    ].freeze
-
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -74,7 +54,7 @@ module ClaimsApi
       path = URI.parse(url).path
       host = URI.parse(url).host
       port = URI.parse(url).port
-      matcher = proc do |request_env|
+      matcher = proc do |_breakers_service, request_env, _request_service_name|
         request_env.url.host == host &&
           request_env.url.port == port &&
           request_env.url.path =~ /^#{path}/
@@ -95,141 +75,6 @@ module ClaimsApi
       wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
       wsdl.status
     end
-
-    def find_poa_by_participant_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
-                   key: 'return')
-    end
-
-    def find_by_ssn(ssn)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ssn />
-      EOXML
-
-      { ssn: }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'PersonWebServiceBean/PersonWebService', action: 'findPersonBySSN', body:,
-                   key: 'PersonDTO')
-    end
-
-    def find_poa_history_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
-                   key: 'PoaHistory')
-    end
-
-    def find_benefit_claims_status_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
-                   action: 'findBenefitClaimsStatusByPtcpntId', body:)
-    end
-
-    def claims_count(id)
-      find_benefit_claims_status_by_ptcpnt_id(id).count
-    rescue ::Common::Exceptions::ResourceNotFound
-      0
-    end
-
-    def find_benefit_claim_details_by_benefit_claim_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <bnftClaimId />
-      EOXML
-
-      { bnftClaimId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
-                   action: 'findBenefitClaimDetailsByBnftClaimId', body:)
-    end
-
-    def insert_intent_to_file(options)
-      request_body = construct_itf_body(options)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <intentToFileDTO>
-        </intentToFileDTO>
-      EOXML
-
-      request_body.each do |k, z|
-        node = Nokogiri::XML::Node.new k.to_s, body
-        node.content = z.to_s
-        opt = body.at('intentToFileDTO')
-        node.parent = opt
-      end
-      make_request(endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService', action: 'insertIntentToFile',
-                   body:, key: 'IntentToFileDTO')
-    end
-
-    def find_tracked_items(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <claimId />
-      EOXML
-
-      { claimId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'TrackedItemService/TrackedItemService', action: 'findTrackedItems', body:,
-                   key: 'BenefitClaim')
-    end
-
-    def find_intent_to_file_by_ptcpnt_id_itf_type_cd(id, type)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId></ptcpntId><itfTypeCd></itfTypeCd>
-      EOXML
-
-      ptcpnt_id = body.at 'ptcpntId'
-      ptcpnt_id.content = id.to_s
-      itf_type_cd = body.at 'itfTypeCd'
-      itf_type_cd.content = type.to_s
-
-      response =
-        make_request(
-          endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService',
-          action: 'findIntentToFileByPtcpntIdItfTypeCd',
-          body:
-        )
-
-      Array.wrap(response[:intent_to_file_dto])
-    end
-
-    # BEGIN: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
-    def update_from_remote(id)
-      bgs_claim = find_benefit_claim_details_by_benefit_claim_id(id)
-      transform_bgs_claim_to_evss(bgs_claim)
-    end
-
-    def all(id)
-      claims = find_benefit_claims_status_by_ptcpnt_id(id)
-      return [] if claims.count < 1 || claims[:benefit_claims_dto].blank?
-
-      transform_bgs_claims_to_evss(claims)
-    end
-    # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
 
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
@@ -291,17 +136,18 @@ module ClaimsApi
 
       body.dig(*keys).to_h.tap do |value|
         if transform
-          value.deep_transform_keys! do |key|
-            key.underscore.to_sym
+          value.deep_transform_keys! do |k|
+            k.underscore.to_sym
           end
         end
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true, use_mocks: false) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
+          f.response :betamocks if use_mocks?(use_mocks)
           f.adapter Faraday.default_adapter
         end
       end
@@ -325,7 +171,7 @@ module ClaimsApi
                               detail: "local BGS Faraday Timeout: #{e.message}")
         raise ::Common::Exceptions::BadGateway
       end
-      soap_error_handler.handle_errors(response) if response
+      soap_error_handler.handle_errors(response) if response.status != 200
 
       log_duration(event: 'parsed_response', key:) do
         parsed_response = parse_response(response, action:, key:)
@@ -334,22 +180,16 @@ module ClaimsApi
     end
 
     def namespace(connection, endpoint)
-      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:lighthouse_claims_api_hardcode_wsdl)
-        begin
-          ClaimsApi::LocalBGSRefactored::FindDefinition
-            .for_service(endpoint)
-            .bean.namespaces.target
-        rescue => e
-          unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
-            ClaimsApi::Logger.log('local_bgs', level: :error,
-                                               detail: "local BGS FindDefinition Error: #{e.message}")
-          end
-
-          fetch_namespace(connection, endpoint)
-        end
-      else
-        fetch_namespace(connection, endpoint)
+      ClaimsApi::FindDefinition
+        .for_service(endpoint)
+        .bean.namespaces.target
+    rescue => e
+      unless e.is_a? ClaimsApi::FindDefinition::NotDefinedError
+        ClaimsApi::Logger.log('local_bgs', level: :error,
+                                           detail: "local BGS FindDefinition Error: #{e.message}")
       end
+
+      fetch_namespace(connection, endpoint)
     end
 
     def fetch_namespace(connection, endpoint)
@@ -357,19 +197,6 @@ module ClaimsApi
         connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
       end
       Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace').to_s
-    end
-
-    def construct_itf_body(options)
-      request_body = {
-        itfTypeCd: options[:intent_to_file_type_code],
-        ptcpntVetId: options[:participant_vet_id],
-        rcvdDt: options[:received_date],
-        signtrInd: options[:signature_indicated],
-        submtrApplcnTypeCd: options[:submitter_application_icn_type_code]
-      }
-      request_body[:ptcpntClmantId] = options[:participant_claimant_id] if options.key?(:participant_claimant_id)
-      request_body[:clmantSsn] = options[:claimant_ssn] if options.key?(:claimant_ssn)
-      request_body
     end
 
     def log_duration(event: 'default', **extra_params)
@@ -463,6 +290,10 @@ module ClaimsApi
       result = Hash.from_xml(response.body).dig(*keys)
 
       result.is_a?(Array) ? result : result.to_h
+    end
+
+    def use_mocks?(use_mocks)
+      use_mocks && Settings.claims_api.bgs.mock_responses
     end
   end
 end

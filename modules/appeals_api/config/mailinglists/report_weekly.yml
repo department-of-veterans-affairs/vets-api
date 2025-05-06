@@ -1,20 +1,20 @@
 common:
-   - michael.hobson@adhocteam.us
-   - michel.mcdonald@adhocteam.us
-   - kristen.brown@adhocteam.us
-   - matt.kelly@adhocteam.us
-   - gia.antoniades@adhocteam.us
+  - michael.hobson@adhocteam.us
+  - michel.mcdonald@adhocteam.us
+  - kristen.brown@adhocteam.us
+  - matt.kelly@adhocteam.us
+  - gia.antoniades@adhocteam.us
 development:
 staging:
 sandbox:
 production:
-  - matthew.self2@va.gov
+  - cory.sohrakoff@va.gov
+  - drew.fisher@adhocteam.us
+  - jacob.worrell@va.gov
   - janet.coutinho@va.gov
   - john.gosnell@va.gov
-  - cory.sohrakoff@va.gov
-  - jacob.worrell@va.gov
-  - zachary.goldfine@va.gov
+  - matthew.self2@va.gov
   - premal.shah@va.gov
   - steve.albers@va.gov
-  - eugene.lynch@coforma.io
-  - drew.fisher@adhocteam.us
+  - zachary.goldfine@va.gov
+

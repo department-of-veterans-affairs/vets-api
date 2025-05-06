@@ -1,0 +1,13 @@
+---
+sign_in:
+  event_type: sign_in
+  details: Sign in on VA.gov
+update_mailing_address:
+  event_type: profile
+  details: Update mailing address
+update_phone_number:
+  event_type: profile
+  details: Update phone number
+update_email_address:
+  event_type: profile
+  details: Update email address

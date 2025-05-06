@@ -9,8 +9,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures
 
   let(:test_caller) { { 'caller' => 'tester' } }
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
   let(:missing_first) { get_fixture('missing_first_metadata.json').read }
   let(:missing_last) { get_fixture('missing_last_metadata.json').read }
@@ -83,11 +83,29 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(bucket).to receive(:object).and_return(obj)
     allow(obj).to receive(:exists?).and_return(true)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
+
+    # Stub BGS(part of ICN lookup)
+    people_double = double
+    allow(people_double).to receive(:find_by_ssn).and_return({ first_nm: 'JOE', last_nm: 'SMITH',
+                                                               ssn_nbr: '555-55-5555',
+                                                               brthdy_dt: Date.parse('1970-01-01') })
+    bgs_double = instance_double(BGS::Services)
+    allow(bgs_double).to receive(:people).and_return(people_double)
+    allow(BGS::Services).to receive(:new).and_return(bgs_double)
+
+    # Stub MPI(part of ICN lookup)
+    profile_double = double
+    allow(profile_double).to receive(:icn).and_return('2112')
+    mpi_result = double
+    allow(mpi_result).to receive(:profile).and_return(profile_double)
+    mpi_double = instance_double(MPI::Service)
+    allow(mpi_double).to receive(:find_profile_by_attributes).and_return(mpi_result)
+    allow(MPI::Service).to receive(:new).and_return(mpi_double)
   end
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
-    let(:v2_upload) { FactoryBot.create(:upload_submission, :status_uploaded, :version_2) }
+    let(:upload) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+    let(:v2_upload) { create(:upload_submission, :status_uploaded, :version_2) }
 
     context 'duplicates' do
       before(:context) do
@@ -130,7 +148,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
         responses = []
         temp_files.each do |tf|
-          responses << File.open(tf.path, &:read)
+          responses << File.read(tf.path)
         end
         expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
         expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
@@ -195,6 +213,29 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
+    it 'parses and uploads a valid multipart payload when ICN lookup throws exception' do
+      allow(BGS::Services).to receive(:new).and_raise('Worst day ever')
+      expect(Rails.logger).to receive(:error).with(
+        "Benefits Intake UploadProcessor find_icn failed. Guid: #{upload.guid}, Exception: Worst day ever"
+      )
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+      described_class.new.perform(upload.guid, test_caller)
+      expect(capture_body).to be_a(Hash)
+      expect(capture_body).to have_key('metadata')
+      expect(capture_body).to have_key('document')
+      metadata = JSON.parse(capture_body['metadata'])
+      expect(metadata['uuid']).to eq(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('received')
+    end
+
     it 'parses and uploads a valid multipart payload with attachments' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
       allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -209,12 +250,39 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
       expect(capture_body).to have_key('attachment1')
+
+      # metadata is json that is sent to EMMS as part of our submission to them
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
       expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
+      expect(metadata['ICN']).to eq('2112')
+
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
+
+      # confirm UploadSubmission Db record has the icn stored in the metadata field
+      expect(updated.metadata['icn']).to eq('2112')
+    end
+
+    it 'trims leading\trailing whitespace from consumer supplied fileNumber metadata part' do
+      md = JSON.parse(valid_metadata)
+      md['fileNumber'] = '  012345678  '
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc, 'attachment1' => valid_doc }
+      }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+
+      described_class.new.perform(upload.guid, test_caller)
+      metadata = JSON.parse(capture_body['metadata'])
+      # leading\trailing whitespace should have been removed
+      expect(metadata['fileNumber']).to eq(metadata['fileNumber']&.strip)
     end
 
     context 'when payload is empty' do
@@ -238,12 +306,13 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         'sets error for file part size exceeding 100MB' => :valid_parts_attachment }.each_pair do |_k, v|
         it 'sets error for file part size exceeding 100MB' do
           allow(VBADocuments::MultipartParser).to receive(:parse) { send v }
-          allow(File).to receive(:size).and_return(100_000_001)
+          allow(File).to receive(:size).and_return(101.megabytes)
 
           described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')
           expect(updated.code).to eq('DOC106')
+          expect(updated.detail).to eq('Maximum document size exceeded. Limit is 100 MB per document.')
         end
       end
     end
@@ -493,7 +562,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     context 'document is base64 encoded' do
       it 'sets document base64_encoded metadata to true' do
-        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(true)
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded_file?).and_return(true)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'content' => valid_doc }
         }
@@ -505,7 +574,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     context 'document is not base64 encoded' do
       it 'sets document base64_encoded metadata to false' do
-        allow(VBADocuments::MultipartParser).to receive(:base64_encoded?).and_return(false)
+        allow(VBADocuments::MultipartParser).to receive(:base64_encoded_file?).and_return(false)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'content' => valid_doc }
         }
@@ -776,8 +845,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
         it 'does not update the upload\'s status' do
           expect(upload.status).to eql('uploaded')
-          expect(upload.code).to be(nil)
-          expect(upload.detail).to be(nil)
+          expect(upload.code).to be_nil
+          expect(upload.detail).to be_nil
         end
       end
 

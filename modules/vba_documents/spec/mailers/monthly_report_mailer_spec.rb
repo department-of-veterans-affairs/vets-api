@@ -14,7 +14,7 @@ RSpec.describe VBADocuments::MonthlyReportMailer, type: [:mailer] do
       12.times do |i|
         reporting_date = (i + 1).months.ago
         prior_twelve_months_stats <<
-          FactoryBot.build(:monthly_stat, month: reporting_date.month, year: reporting_date.year)
+          build(:monthly_stat, month: reporting_date.month, year: reporting_date.year)
       end
 
       expect(VBADocuments::Deployment).to receive(:environment).and_return('prod')

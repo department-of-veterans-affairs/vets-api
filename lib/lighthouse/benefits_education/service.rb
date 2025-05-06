@@ -15,13 +15,6 @@ module BenefitsEducation
 
     STATSD_KEY_PREFIX = 'api.benefits_education'
 
-    OPERATING_ZONE = 'Eastern Time (US & Canada)'
-    OPERATING_HOURS = {
-      start: 6,
-      end: 22,
-      saturday_end: 19
-    }.freeze
-
     ##
     # @parameter [String] icn: icn of the Veteran requesting education benefits information
     # @return [BenefitsEducation::Service] a new instance of the service
@@ -65,51 +58,5 @@ module BenefitsEducation
         endpoint
       )
     end
-
-    ##
-    # @return [Boolean] Is the current time within the system's scheduled uptime
-    #
-    def self.within_scheduled_uptime?
-      current_time = get_current_time
-      if current_time.saturday?
-        (OPERATING_HOURS[:start]...OPERATING_HOURS[:saturday_end]).cover?(current_time.hour)
-      else
-        (OPERATING_HOURS[:start]...OPERATING_HOURS[:end]).cover?(current_time.hour)
-      end
-    end
-
-    ##
-    # @return [Integer] The number of seconds until scheduled system downtime begins
-    #
-    def self.seconds_until_downtime
-      if within_scheduled_uptime?
-        current_time = get_current_time
-        end_hour = current_time.saturday? ? OPERATING_HOURS[:saturday_end] : OPERATING_HOURS[:end]
-        tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
-        service_end_time = tz.parse("#{tz.today} #{end_hour}:00:00")
-        service_end_time - current_time
-      else
-        0
-      end
-    end
-
-    ##
-    # @return [String] Next earliest date and time that the service will be available
-    #
-    def self.retry_after_time
-      current_time = get_current_time
-      tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
-      service_start_time = tz.parse("#{tz.today} 0#{OPERATING_HOURS[:start]}:00:00")
-
-      return service_start_time.httpdate if current_time.hour < OPERATING_HOURS[:start]
-
-      service_start_time.tomorrow.httpdate
-    end
-
-    def self.get_current_time
-      Time.now.in_time_zone(OPERATING_ZONE)
-    end
-
-    private_class_method :get_current_time
   end
 end

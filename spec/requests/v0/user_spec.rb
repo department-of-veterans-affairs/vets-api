@@ -11,6 +11,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
+    let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
@@ -18,8 +19,11 @@ RSpec.describe 'V0::User', type: :request do
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
-        get v0_user_url, params: nil, headers: v0_user_request_headers
+      VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                       match_requests_on: %i[method sm_user_ignoring_path_param]) do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+          get v0_user_url, params: nil, headers: v0_user_request_headers
+        end
       end
     end
 
@@ -27,7 +31,6 @@ RSpec.describe 'V0::User', type: :request do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
-        create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
         assert_response :success
         expect(response).to match_response_schema('user_loa3')
       end
@@ -131,7 +134,8 @@ RSpec.describe 'V0::User', type: :request do
     end
 
     context 'with missing MHV accounts' do
-      let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_correlation_id: nil) }
+      let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_credential_uuid: nil) }
+      let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.idme_uuid) }
 
       before do
         sign_in_as(mhv_user)
@@ -158,7 +162,8 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person',
+            :skip_va_profile_user, :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -254,6 +259,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:edipi) { '1005127153' }
 
     before do
+      create(:user_verification, idme_uuid: user.idme_uuid)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         sign_in_as(user)
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -359,7 +365,7 @@ RSpec.describe 'V0::User', type: :request do
             .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to be(false)
           Timecop.freeze(now)
 
           # sufficient time has elapsed that new requests are made, resulting in success
@@ -369,7 +375,7 @@ RSpec.describe 'V0::User', type: :request do
             .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
           expect(response).to have_http_status(:ok)
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to be(true)
           Timecop.return
         end
       end
@@ -399,7 +405,7 @@ RSpec.describe 'V0::User', type: :request do
   end
 
   def stub_mpi_external_request(file)
-    stub_request(:post, Settings.mvi.url)
+    stub_request(:post, IdentitySettings.mvi.url)
       .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: file)
   end
 end

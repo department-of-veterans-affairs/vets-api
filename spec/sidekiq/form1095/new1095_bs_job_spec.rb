@@ -51,49 +51,95 @@ RSpec.describe Form1095::New1095BsJob, type: :job do
       allow(object).to receive(:get).and_return(nil)
     end
 
-    it 'saves valid form from S3 file' do
-      allow(objects).to receive(:collect).and_return(file_names1)
-      allow(Tempfile).to receive(:new).and_return(tempfile1)
+    context 'when file is for a past tax year' do
+      it 'does not save data and deletes the file' do
+        allow(objects).to receive(:collect).and_return(file_names1)
+        allow(Tempfile).to receive(:new).and_return(tempfile1)
 
-      expect(Rails.logger).not_to receive(:error)
-      expect(Rails.logger).not_to receive(:warn)
+        expect(Rails.logger).not_to receive(:error)
+        expect(Rails.logger).not_to receive(:warn)
+        expect(bucket).to receive(:delete_objects)
 
-      subject.perform
+        expect { subject.perform }.not_to change(Form1095B, :count).from(0)
+      end
     end
 
-    it 'saves multiple forms from a file' do
-      allow(objects).to receive(:collect).and_return(file_names2)
-      allow(Tempfile).to receive(:new).and_return(tempfile2)
-
-      expect(Rails.logger).not_to receive(:error)
-      expect(Rails.logger).not_to receive(:warn)
-
-      subject.perform
-    end
-
-    it 'does not save invalid forms from S3 file' do
-      allow(objects).to receive(:collect).and_return(file_names3)
-      allow(Tempfile).to receive(:new).and_return(tempfile3)
-
-      expect(Rails.logger).to receive(:error).at_least(:once)
-
-      subject.perform
-    end
-
-    context 'saves form corrections from a corrected file' do
+    context 'when file is for the current tax year or later' do
       before do
-        create :form1095_b, tax_year: 2020, veteran_icn: '23456789098765437'
-        create :form1095_b, tax_year: 2020, veteran_icn: '23456789098765464'
-
-        allow(objects).to receive(:collect).and_return(file_names4)
-        allow(Tempfile).to receive(:new).and_return(tempfile4)
+        time = Time.utc(2021, 9, 21, 0, 0, 0)
+        Timecop.freeze(time)
       end
 
-      it 'updates forms without errors' do
+      after { Timecop.return }
+
+      it 'saves valid form from S3 file' do
+        allow(objects).to receive(:collect).and_return(file_names1)
+        allow(Tempfile).to receive(:new).and_return(tempfile1)
+
         expect(Rails.logger).not_to receive(:error)
         expect(Rails.logger).not_to receive(:warn)
 
-        subject.perform
+        expect { subject.perform }.to change(Form1095B, :count).from(0).to(1)
+      end
+
+      it 'saves multiple forms from a file' do
+        allow(objects).to receive(:collect).and_return(file_names2)
+        allow(Tempfile).to receive(:new).and_return(tempfile2)
+
+        expect(Rails.logger).not_to receive(:error)
+        expect(Rails.logger).not_to receive(:warn)
+
+        expect { subject.perform }.to change(Form1095B, :count).from(0).to(8)
+      end
+
+      context 'when user data is missing icn' do
+        it 'does not log errors or save form but does deletes file' do
+          allow(objects).to receive(:collect).and_return(file_names3)
+          allow(Tempfile).to receive(:new).and_return(tempfile3)
+
+          expect(Rails.logger).not_to receive(:error)
+          expect(Rails.logger).not_to receive(:warn)
+          expect(bucket).to receive(:delete_objects)
+
+          expect { subject.perform }.not_to change(Form1095B, :count).from(0)
+        end
+      end
+
+      context 'when error is encountered processing the file' do
+        it 'raises an error and does not delete file' do
+          allow(objects).to receive(:collect).and_return(file_names3)
+          allow(Tempfile).to receive(:new).and_return(tempfile3)
+          allow(tempfile3).to receive(:each_line).and_raise(RuntimeError, 'Bad file')
+
+          expect(Rails.logger).to receive(:error).once.with('Form1095B Creation Job Error: Error processing file: ' \
+                                                            "#{file_names3.first}, on line 0; Bad file")
+          expect(Rails.logger).to receive(:error).once.with(
+            "Form1095B Creation Job Error: failed to save 0 forms from file: #{file_names3.first}; " \
+            'successfully saved 0 forms'
+          )
+          expect(bucket).not_to receive(:delete_objects)
+
+          expect { subject.perform }.not_to change(Form1095B, :count).from(0)
+        end
+      end
+
+      context 'saves form corrections from a corrected file' do
+        let!(:form1) { create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765437') }
+        let!(:form2) { create(:form1095_b, tax_year: 2020, veteran_icn: '23456789098765464') }
+
+        before do
+          allow(objects).to receive(:collect).and_return(file_names4)
+          allow(Tempfile).to receive(:new).and_return(tempfile4)
+        end
+
+        it 'updates forms without errors' do
+          expect(Rails.logger).not_to receive(:error)
+          expect(Rails.logger).not_to receive(:warn)
+
+          expect do
+            subject.perform
+          end.to change { [form1.reload.form_data, form2.reload.form_data] }
+        end
       end
     end
   end

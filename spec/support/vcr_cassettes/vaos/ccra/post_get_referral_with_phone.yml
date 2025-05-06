@@ -1,0 +1,35 @@
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/care-nav-patient-casey/referrals/12345"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer fake-access-token
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      CONTENT-TYPE:
+      - application/json
+      CACHE-CONTROL:
+      - no-cache
+      CONTENT-ENCODING:
+      - gzip
+      CONTENT-LENGTH:
+      - '3195'
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:06:42 GMT
+    body:
+      encoding: UTF-8
+      string: '{"categoryOfCare":"CARDIOLOGY","referralNumber":"12345","status":"First Appointment Made","appointmentDate":"2024-06-01","clinicallyIndicatedDate":"2024-03-28","episodeId":"5682","treatingFacilityInfo":{"phone":"555-123-4567"},"appointments":[{"appointmentDate":"2024-06-01","appointmentStatus":"A"}], "referringFacilityInfo":{"phone":"555-123-0000", "facilityName":"Test Referring Facility"}}'
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT

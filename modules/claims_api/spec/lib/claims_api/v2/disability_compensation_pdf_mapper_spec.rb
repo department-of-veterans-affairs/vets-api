@@ -29,7 +29,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       )
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
@@ -150,11 +150,11 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
         state = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:state]
         expect(number_and_street).to eq('1234 Couch Street Unit 4 Room 1')
-        expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Portland')
+        expect(apartment_or_unit_number).to be_nil
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('41726-1234')
-        expect(state).to eq('OR')
+        expect(zip).to eq('12345-1234')
+        expect(state).to eq('NY')
       end
 
       it 'maps the other veteran info' do
@@ -175,10 +175,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(ssn).to eq('796-11-1863')
         expect(name).to eq({ lastName: 'lincoln', middleInitial: 'L', firstName: 'abraham' })
         expect(birth_date).to eq({ month: '02', day: '12', year: '1809' })
-        expect(current_va_employee).to eq(false)
+        expect(current_va_employee).to be(false)
         expect(va_file_number).to eq(birls_file_number)
         expect(email).to eq('valid@somedomain.com')
-        expect(agree_to_email).to eq(true)
+        expect(agree_to_email).to be(true)
         expect(telephone).to eq('555-555-5555')
         expect(international_telephone).to eq('44-20-1234-5678')
       end
@@ -207,7 +207,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
-        expect(actual).to eq(nil)
+        expect(actual).to be_nil
       end
 
       context 'international address' do
@@ -242,11 +242,11 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(end_date).to eq({ month: '12', day: '04', year: '2023' })
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
-        expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Atlanta')
+        expect(apartment_or_unit_number).to be_nil
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('42220-9897')
-        expect(state).to eq('GA')
+        expect(zip).to eq('12345-9897')
+        expect(state).to eq('NY')
       end
     end
 
@@ -322,7 +322,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
-        expect(actual).to eq(nil)
+        expect(actual).to be_nil
       end
     end
 
@@ -376,7 +376,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         herb_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService]
-        expect(herb_exp_data).to eq(nil)
+        expect(herb_exp_data).to be_nil
       end
 
       it 'maps herbicide correctly when dates are not included' do
@@ -387,7 +387,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         toxic_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
         herb_service_dates = toxic_exp_data[:herbicideHazardService][:serviceDates]
 
-        expect(herb_service_dates).to eq(nil)
+        expect(herb_service_dates).to be_nil
       end
 
       it 'maps additional exposures correctly when nothing is included' do
@@ -395,7 +395,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         add_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures]
-        expect(add_exp_data).to eq(nil)
+        expect(add_exp_data).to be_nil
       end
 
       it 'maps additional exposures correctly when dates are not included' do
@@ -406,7 +406,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         toxic_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
         additional_exposure_dates = toxic_exp_data[:additionalHazardExposures][:exposureDates]
 
-        expect(additional_exposure_dates).to eq(nil)
+        expect(additional_exposure_dates).to be_nil
       end
 
       context "526 section 4, herbicideHazardService.servedInHerbicideHazardLocations exposures can answer 'NO'" do
@@ -434,7 +434,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:gulfWarHazardService]).to eq(nil)
+          expect(exposure_info[:gulfWarHazardService]).to be_nil
         end
       end
 
@@ -449,7 +449,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:herbicideHazardService]).to eq(nil)
+          expect(exposure_info[:herbicideHazardService]).to be_nil
         end
       end
 
@@ -464,7 +464,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:additionalHazardExposures]).to eq(nil)
+          expect(exposure_info[:additionalHazardExposures]).to be_nil
         end
       end
 
@@ -479,7 +479,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:multipleExposures]).to eq(nil)
+          expect(exposure_info[:multipleExposures]).to be_nil
         end
 
         it 'maps the attributes correctly when ony both dates are null' do
@@ -492,7 +492,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
           expect(exposure_info[:multipleExposures][0][:exposureLocation]).to eq('Guam')
           expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
-          expect(exposure_info[:multipleExposures][0][:exposureDates]).to eq(nil)
+          expect(exposure_info[:multipleExposures][0][:exposureDates]).to be_nil
         end
       end
 
@@ -508,7 +508,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           expect(exposure_info[:multipleExposures][0][:hazardExposedTo]).to eq('RADIATION')
           expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:month]).to eq('12')
           expect(exposure_info[:multipleExposures][0][:exposureDates][:start][:year]).to eq('2012')
-          expect(exposure_info[:multipleExposures][0][:exposureDates][:end]).to eq(nil)
+          expect(exposure_info[:multipleExposures][0][:exposureDates][:end]).to be_nil
         end
       end
 
@@ -520,7 +520,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:gulfWarHazardService][:servedInGulfWarHazardLocations]).to eq(nil)
+          expect(exposure_info[:gulfWarHazardService][:servedInGulfWarHazardLocations]).to be_nil
         end
       end
 
@@ -532,7 +532,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           mapper.map_claim
 
           exposure_info = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
-          expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to eq(nil)
+          expect(exposure_info[:herbicideHazardService][:servedInHerbicideHazardLocations]).to be_nil
         end
       end
     end
@@ -600,7 +600,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         treatment_details = tx_center_data[0][:treatmentDetails]
 
         expect(start_date).to eq({ month: '03', year: '2009' })
-        expect(no_date).to eq(false)
+        expect(no_date).to be(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
 
@@ -630,8 +630,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         start_date = tx_center_data[0][:dateOfTreatment]
         no_date = tx_center_data[0][:doNotHaveDate]
 
-        expect(start_date).to eq(nil)
-        expect(no_date).to eq(true)
+        expect(start_date).to be_nil
+        expect(no_date).to be(true)
       end
     end
 
@@ -672,8 +672,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(component).to eq('ACTIVE')
         expect(recent_start).to eq({ month: '11', day: '14', year: '2008' })
         expect(recent_end).to eq({ month: '10', day: '30', year: '2023' })
-        expect(addtl_start).to eq(nil)
-        expect(addtl_end).to eq(nil)
+        expect(addtl_start).to be_nil
+        expect(addtl_end).to be_nil
         expect(last_sep).to eq('Aberdeen Proving Ground')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
@@ -692,7 +692,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
         expect(fed_act).to eq({ month: '10', day: '01', year: '2023' })
-        expect(fed_sep).to eq({ month: '10', day: '31', year: '2024' })
+        expect(fed_sep).to eq({ month: '10', day: '31', year: '2025' })
         expect(served_after_nine_eleven).to eq('NO')
       end
 
@@ -702,7 +702,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
-        expect(actual).to eq(nil)
+        expect(actual).to be_nil
       end
 
       it 'maps service info correctly when a phone number has a dash' do
@@ -721,7 +721,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         actual = pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard]
-        expect(actual).to eq(nil)
+        expect(actual).to be_nil
       end
     end
 
@@ -734,7 +734,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         receiving_mil_retired_pay = service_pay_data[:receivingMilitaryRetiredPay]
         branch_of_service = service_pay_data[:militaryRetiredPay][:branchOfService][:branch]
 
-        expect(favor_mil_retired_pay).to eq(false)
+        expect(favor_mil_retired_pay).to be(false)
         expect(receiving_mil_retired_pay).to eq('YES')
         expect(branch_of_service).to eq('Army')
       end
@@ -756,7 +756,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(account_number).to eq('ABCDEF')
         expect(routing_number).to eq('123123123')
         expect(financial_institution_name).to eq('Chase')
-        expect(no_account).to eq(false)
+        expect(no_account).to be(false)
       end
     end
 

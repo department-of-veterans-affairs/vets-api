@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 describe AppealsApi::CentralMailUpdater do
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:appeal_1) { create(:notice_of_disagreement) }
   let(:appeal_2) { create(:notice_of_disagreement) }
   let(:central_mail_response) do
@@ -17,6 +17,11 @@ describe AppealsApi::CentralMailUpdater do
   before do
     allow(CentralMail::Service).to receive(:new) { client_stub }
     allow(client_stub).to receive(:status).and_return(faraday_response)
+  end
+
+  after do
+    client_stub { nil }
+    faraday_response { nil }
   end
 
   context 'uses different statuses/attributes matching for nod and hlr' do

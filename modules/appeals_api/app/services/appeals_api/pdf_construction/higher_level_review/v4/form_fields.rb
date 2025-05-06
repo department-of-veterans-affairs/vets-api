@@ -18,7 +18,7 @@ module AppealsApi
             veteran_insurance_policy_number: 'form1[0].#subform[2].VA_Insurance_Policy_Number_If_Applicable[0]',
             veteran_state_code: 'form1[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]',
             veteran_country_code: 'form1[0].#subform[2].CurrentMailingAddress_Country[0]',
-            veteran_homeless: 'form1[0].#subform[2].ClaimantType[0]',
+            veteran_homeless: 'form1[0].#subform[2].I_Am_Experiencing_Or_At_Risk_Of_Homelessness[0]',
             veteran_phone_area_code: 'form1[0].#subform[2].Telephone_Number_Area_Code[0]',
             veteran_phone_prefix: 'form1[0].#subform[2].Telephone_Middle_Three_Numbers[0]',
             veteran_phone_line_number: 'form1[0].#subform[2].Telephone_Last_Four_Numbers[0]',

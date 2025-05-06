@@ -47,16 +47,16 @@ module ClaimsApi
             # Item 19
             "#{base_form}.I_Authorize[1]": data['recordConsent'] == true ? 1 : 0,
             # Item 20
-            "#{base_form}.Drug_Abuse[0]": data['consentLimits'].present? && data['consentLimits'].include?('DRUG_ABUSE') ? 1 : 0,
-            "#{base_form}.Alcoholism_Or_Alcohol_Abuse[0]": data['consentLimits'].present? && data['consentLimits'].include?('ALCOHOLISM') ? 1 : 0,
-            "#{base_form}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": data['consentLimits'].present? && data['consentLimits'].include?('HIV') ? 1 : 0,
-            "#{base_form}.sicklecellanemia[0]": data['consentLimits'].present? && data['consentLimits'].include?('SICKLE_CELL') ? 1 : 0,
+            "#{base_form}.Drug_Abuse[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'DRUG_ABUSE'),
+            "#{base_form}.Alcoholism_Or_Alcohol_Abuse[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'ALCOHOLISM'),
+            "#{base_form}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'HIV'),
+            "#{base_form}.sicklecellanemia[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'SICKLE_CELL'),
             # Item 21
             "#{base_form}.I_Authorize[0]": data['consentAddressChange'] == true ? 1 : 0,
             # Item 22B
-            "#{base_form}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
+            "#{base_form}.Date_Signed[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form),
             # Item 23B
-            "#{base_form}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
+            "#{base_form}.Date_Signed[1]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
 
@@ -87,7 +87,7 @@ module ClaimsApi
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipCode'),
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipCodeSuffix'),
             # Item 8
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": handle_country_code(data.dig('veteran', 'phone')),
             # Item 9
             "#{base_form}.EmailAddress_Optional[0]": data.dig('veteran', 'email'),
 
@@ -105,9 +105,9 @@ module ClaimsApi
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipCode'),
             "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipCodeSuffix'),
             # Item 12
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": handle_country_code(data.dig('claimant', 'phone')),
             # Item 13
-            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email'),
+            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email')&.downcase,
             # Item 14
             "#{base_form}.Relationship_To_Veteran[0]": data.dig('claimant', 'relationship'),
 
@@ -121,7 +121,7 @@ module ClaimsApi
             # Item 17
             "#{base_form}.Email_Address[0]": data.dig('serviceOrganization', 'email'),
             # Item 18
-            "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(Time.zone.now.to_date, format: :va_form)
+            "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
         # rubocop:enable Metrics/MethodLength

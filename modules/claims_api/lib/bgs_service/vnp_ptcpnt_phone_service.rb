@@ -5,6 +5,10 @@ module ClaimsApi
     # vnpPtcpntPhoneCreate - This service is used to create VONAPP participant phone information
     DEFAULT_TYPE = 'Daytime' # Daytime and Nighttime are the allowed values
 
+    def bean_name
+      'VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService'
+    end
+
     def vnp_ptcpnt_phone_create(options)
       request_body = construct_body(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML

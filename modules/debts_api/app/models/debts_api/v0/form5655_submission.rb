@@ -6,7 +6,11 @@ module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
-    enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
+    SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = Settings.vanotify.services.dmc.template_id.fsr_failed_email
+    FORM_ID = '5655'
+    ZSF_DD_TAG_SERVICE = 'debt-resolution'
+    ZSF_DD_TAG_FUNCTION = 'register_failure'
+    enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true
@@ -73,7 +77,7 @@ module DebtsApi
         submission.submitted!
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
-        submission.failed!
+        submission.register_failure("VHA set completed state: #{status.failure_info}")
         StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
@@ -81,10 +85,47 @@ module DebtsApi
 
     def register_failure(message)
       failed!
+      if message.blank?
+        message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+      end
       update(error_message: message)
-      Rails.logger.error('Form5655Submission failed', message)
+      Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+      begin
+        send_failed_form_email unless message.match?(/sharepoint/i)
+      rescue => e
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
+        Rails.logger.error("Failed to send failed form email: #{e.message}")
+      end
+    end
+
+    def send_failed_form_email
+      if Flipper.enabled?(:debts_silent_failure_mailer)
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
+        submission_email = ipf_form['personal_data']['email_address'].downcase
+
+        jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
+          24.hours,
+          submission_email,
+          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
+          failure_email_personalization_info,
+          { id_type: 'email', failure_mailer: true }
+        )
+
+        Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
+      end
+    end
+
+    def failure_email_personalization_info
+      name_info = ipf_form['personal_data']['veteran_full_name']
+
+      {
+        'first_name' => name_info['first'],
+        'date_submitted' => Time.zone.now.strftime('%m/%d/%Y'),
+        'updated_at' => updated_at,
+        'confirmation_number' => id
+      }
     end
 
     def register_success
@@ -97,9 +138,9 @@ module DebtsApi
       public_metadata.dig('streamlined', 'value') == true
     end
 
-    def upsert_in_progress_form
+    def upsert_in_progress_form(user_account:)
       form = InProgressForm.find_or_initialize_by(form_id: '5655', user_uuid:)
-      form.user_account = user_account_from_uuid(user_uuid)
+      form.user_account = user_account
       form.real_user_uuid = user_uuid
 
       form.update!(form_data: ipf_data, metadata: fresh_metadata)
@@ -121,13 +162,6 @@ module DebtsApi
         'lastUpdated' => Time.now.to_i,
         'inProgressFormId' => '5655'
       }
-    end
-
-    def user_account_from_uuid(user_uuid)
-      UserVerification.where(idme_uuid: user_uuid)
-                      .or(UserVerification.where(logingov_uuid: user_uuid))
-                      .or(UserVerification.where(backing_idme_uuid: user_uuid))
-                      .last&.user_account
     end
   end
 end

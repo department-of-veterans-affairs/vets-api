@@ -10,6 +10,7 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
     allow(LogService).to receive(:new).and_return(logger)
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
+    allow(span).to receive(:set_error)
     allow(Rails.logger).to receive(:error)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
   end
@@ -115,27 +116,29 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
     end
   end
 
-  describe 'GET #categories' do
-    let(:categories_path) { '/ask_va_api/v0/categories' }
+  describe 'GET #contents' do
+    let(:contents_path) { '/ask_va_api/v0/contents' }
     let(:expected_hash) do
       { 'id' => '75524deb-d864-eb11-bb24-000d3a579c45',
-        'type' => 'categories',
+        'type' => 'contents',
         'attributes' =>
-         { 'name' => 'Education (Ch.30, 33, 35, 1606, etc. & Work Study)',
+         { 'name' => 'Education benefits and work study',
            'allow_attachments' => true,
            'description' => nil,
-           'display_name' => 'Education (Ch.30, 33, 35, 1606, etc. & Work Study)',
+           'display_name' => 'Education benefits and work study',
            'parent_id' => nil,
            'rank_order' => 1,
-           'requires_authentication' => true } }
+           'requires_authentication' => true,
+           'topic_type' => 'Category',
+           'contact_preferences' => ['Email'] } }
     end
 
     context 'when successful' do
       before do
-        get categories_path, params: { user_mock_data: true }
+        get contents_path, params: { user_mock_data: true, type: 'category' }
       end
 
-      it 'returns categories data' do
+      it 'returns contents data' do
         expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_hash))
         expect(response).to have_http_status(:ok)
       end
@@ -148,143 +151,11 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
         allow_any_instance_of(Crm::CacheData)
           .to receive(:call)
           .and_raise(StandardError)
-        get categories_path
+        get contents_path, params: { type: 'category' }
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
                       'StandardError: StandardError'
-    end
-  end
-
-  describe 'GET #Topics' do
-    let(:category) do
-      AskVAApi::Categories::Entity.new({ Id: '60524deb-d864-eb11-bb24-000d3a579c45' })
-    end
-    let(:expected_response) do
-      { 'id' => 'a72a8586-e764-eb11-bb23-000d3a579c3f', 'type' => 'topics',
-        'attributes' => { 'name' => 'Board Appeals', 'allow_attachments' => false, 'description' => nil,
-                          'display_name' => 'Board Appeals', 'parent_id' => '60524deb-d864-eb11-bb24-000d3a579c45',
-                          'rank_order' => 0, 'requires_authentication' => false } }
-    end
-    let(:topics_path) { "/ask_va_api/v0/categories/#{category.id}/topics" }
-
-    context 'when successful' do
-      before { get topics_path, params: { user_mock_data: true } }
-
-      it 'returns topics data' do
-        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'when an error occurs' do
-      let(:error_message) { 'service error' }
-
-      before do
-        allow_any_instance_of(Crm::CacheData)
-          .to receive(:call)
-          .and_raise(StandardError)
-        get topics_path
-      end
-
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'StandardError: StandardError'
-    end
-  end
-
-  describe 'GET #SubTopics' do
-    let(:topic) do
-      AskVAApi::Topics::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
-    end
-    let(:expected_response) do
-      { 'id' => '7b2dbcee-eb64-eb11-bb23-000d3a579b83', 'type' => 'sub_topics',
-        'attributes' => { 'name' => 'Accessing a webpage on VA.gov', 'allow_attachments' => false,
-                          'description' => nil, 'display_name' => 'Accessing a webpage on VA.gov',
-                          'parent_id' => 'f0ba9562-e864-eb11-bb23-000d3a579c44', 'rank_order' => 0,
-                          'requires_authentication' => false } }
-    end
-    let(:subtopics_path) { "/ask_va_api/v0/topics/#{topic.id}/subtopics" }
-
-    context 'when successful' do
-      before { get subtopics_path, params: { user_mock_data: true } }
-
-      it 'returns subtopics data' do
-        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'when an error occurs' do
-      let(:error_message) { 'service error' }
-
-      before do
-        allow_any_instance_of(AskVAApi::SubTopics::Retriever)
-          .to receive(:call)
-          .and_raise(StandardError, 'standard error')
-        get subtopics_path, params: { mock: true }
-      end
-
-      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
-                      'standard error'
-    end
-  end
-
-  describe 'GET #optionset' do
-    let(:optionset) do
-      AskVAApi::Optionset::Entity.new({ Id: 'f0ba9562-e864-eb11-bb23-000d3a579c44' })
-    end
-    let(:expected_response) do
-      {
-        'id' => '722310000',
-        'type' => 'optionsets',
-        'attributes' => {
-          'name' => 'Air Force'
-        }
-      }
-    end
-    let(:optionset_path) { '/ask_va_api/v0/optionset' }
-
-    context 'when successful' do
-      before { get optionset_path, params: { user_mock_data: true, name: 'branchofservice' } }
-
-      it 'returns optionset data' do
-        expect(JSON.parse(response.body)['data']).to include(a_hash_including(expected_response))
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'when an error occurs' do
-      let(:body) do
-        '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
-          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
-          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
-          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred":' \
-          'true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
-          ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
-          ' iris_suffix, iris_veteranrelationship, iris_branchofservice, iris_country, iris_province,' \
-          ' iris_responsetype, iris_dependentrelationship, statuscode, iris_messagetype","MessageId":' \
-          '"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
-      end
-      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
-      before do
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint: 'optionset', payload: { name: 'iris_branchofservic' }).and_return(failure)
-        get optionset_path, params: { user_mock_data: nil, name: 'branchofservic' }
-      end
-
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Crm::CacheDataError: Crm::ApiServiceError: Invalid response format: {"Data":null,"Message":' \
-                      '"Data Validation: Invalid OptionSet Name iris_branchofservic, ' \
-                      'valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
-                      ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship,' \
-                      ' iris_branchofservice, iris_country, iris_province, iris_responsetype,' \
-                      ' iris_dependentrelationship, statuscode, iris_messagetype","ExceptionOccurred"' \
-                      ':true,"ExceptionMessage":"Data Validation: Invalid OptionSet Name iris_branchofservic,' \
-                      ' valid values are iris_inquiryabout, iris_inquirysource, iris_inquirytype,' \
-                      ' iris_levelofauthentication, iris_suffix, iris_veteranrelationship, iris_branchofservice,' \
-                      ' iris_country, iris_province, iris_responsetype, iris_dependentrelationship, statuscode,' \
-                      ' iris_messagetype","MessageId":"6dfa81bd-f04a-4f39-88c5-1422d88ed3ff"}'
     end
   end
 

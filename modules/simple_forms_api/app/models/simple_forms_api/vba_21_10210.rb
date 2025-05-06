@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA2110210
-    include Virtus.model(nullify_blank: true)
+  class VBA2110210 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_10210'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def metadata
       {
@@ -23,6 +16,26 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      if data['claim_ownership'] == 'self' && @data['claimant_type'] == 'veteran'
+        data.dig('veteran_full_name', 'first')
+      elsif data['claim_ownership'] == 'self' && @data['claimant_type'] == 'non-veteran'
+        data.dig('claimant_full_name', 'first')
+      elsif data['claim_ownership'] == 'third-party'
+        data.dig('witness_full_name', 'first')
+      end
+    end
+
+    def notification_email_address
+      if data['claim_ownership'] == 'self' && @data['claimant_type'] == 'veteran'
+        data['veteran_email']
+      elsif data['claim_ownership'] == 'self' && @data['claimant_type'] == 'non-veteran'
+        data['claimant_email']
+      elsif data['claim_ownership'] == 'third-party'
+        data['witness_email']
+      end
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran_mailing_address', 'country') == 'USA'
     end
@@ -34,19 +47,19 @@ module SimpleFormsApi
     end
 
     def desired_stamps
-      [{ coords: [50, 160], text: data['statement_of_truth_signature'], page: 2 }]
+      [{ coords: [50, 195], text: data['statement_of_truth_signature'], page: 2 }]
     end
 
     def submission_date_stamps(timestamp = Time.current)
       [
         {
-          coords: [460, 710],
+          coords: [452, 690],
           text: 'Application Submitted:',
           page: 0,
           font_size: 12
         },
         {
-          coords: [460, 690],
+          coords: [452, 670],
           text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 0,
           font_size: 12

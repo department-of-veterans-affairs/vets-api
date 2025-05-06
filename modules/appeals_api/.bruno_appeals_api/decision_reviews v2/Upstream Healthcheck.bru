@@ -1,0 +1,15 @@
+meta {
+  name: Upstream Healthcheck
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_uri}}/services/appeals/v2/decision_reviews/upstream_healthcheck
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

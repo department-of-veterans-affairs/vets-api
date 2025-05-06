@@ -12,7 +12,7 @@ describe BB::GenerateReportRequestForm do
   end
 
   let(:bb_client) do
-    VCR.use_cassette 'bb_client/session', record: :new_episodes do
+    VCR.use_cassette 'bb_client/session' do
       client = BB::Client.new(session: { user_id: '12210827' })
       client.authenticate
       client
@@ -24,7 +24,10 @@ describe BB::GenerateReportRequestForm do
 
   let(:attributes) { {} }
 
-  before { allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes) }
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+    allow(subject).to receive(:eligible_data_classes).and_return(eligible_data_classes)
+  end
 
   context 'with null attributes' do
     it 'responds to params' do
@@ -54,7 +57,7 @@ describe BB::GenerateReportRequestForm do
     end
 
     # This spec can be added again in the future if desired, but for now leave as MHV error
-    xit 'returns valid false with errors' do
+    it 'returns valid false with errors', skip: 'MHV error' do
       expect(subject).not_to be_valid
       expect(subject.errors.full_messages)
         .to eq(['From date must be before to date'])

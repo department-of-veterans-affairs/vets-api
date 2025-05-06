@@ -3,18 +3,12 @@
 require_relative 'boot'
 
 require 'rails'
-# Pick the frameworks you want:
 require 'active_model/railtie'
-# require "active_job/railtie"
 require 'active_record/railtie'
 require 'active_storage/engine'
 require 'action_controller/railtie'
 require 'action_mailer/railtie'
-# require "action_mailbox/engine"
-# require "action_text/engine"
-# require "action_view/railtie"
-# require "action_cable/engine"
-# require "sprockets/railtie"
+require_relative '../lib/identity/config/railtie'
 require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/source_app_middleware'
 require_relative '../lib/statsd_middleware'
@@ -49,9 +43,6 @@ module VetsAPI
     # 7.0
     config.action_controller.raise_on_open_redirects = false
 
-    # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and
-    # from Rails 7.1 will use the default Ruby implementation.
-    config.active_support.remove_deprecated_time_with_zone_name = false
     # RAILS 7 CONFIG END
 
     # Only loads a smaller set of middleware suitable for API only apps.
@@ -68,11 +59,14 @@ module VetsAPI
     config.middleware.insert_before 0, Rack::Cors, logger: -> { Rails.logger } do
       allow do
         regex = Regexp.new(Settings.web_origin_regex)
-        origins { |source, _env| Settings.web_origin.split(',').include?(source) || source.match?(regex) }
+        web_origins = Settings.web_origin.split(',') + Array(IdentitySettings.sign_in.web_origins)
+
+        origins { |source, _env| web_origins.include?(source) || source.match?(regex) }
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,
                       expose: %w[
+                        Timing-Allow-Origin
                         X-RateLimit-Limit
                         X-RateLimit-Remaining
                         X-RateLimit-Reset
@@ -128,7 +122,7 @@ module VetsAPI
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',
-                                   secure: Settings.session_cookie.secure,
+                                   secure: IdentitySettings.session_cookie.secure,
                                    http_only: true
 
     # These files do not contain auto-loaded ruby classes,

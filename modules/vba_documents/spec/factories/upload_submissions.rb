@@ -30,7 +30,7 @@ FactoryBot.define do
     end
 
     trait :version_2 do
-      metadata { { 'version': 2 } }
+      metadata { { version: 2 } }
     end
 
     trait :status_uploaded do
@@ -53,7 +53,7 @@ FactoryBot.define do
 
     trait :status_final_success do
       status { 'success' }
-      metadata { { 'final_success_status': Time.now.utc } }
+      metadata { { final_success_status: Time.now.utc } }
     end
 
     trait :skip_record_status_change_callback do

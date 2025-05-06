@@ -14,8 +14,9 @@ module MebApi
           configuration MebApi::DGI::Submission::Configuration
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-          def submit_claim(params, response_data, form_type = 'toe')
+          def submit_claim(params, response_data)
             unmasked_params = update_dd_params(params, response_data)
+            form_type = params['@type']
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
@@ -28,27 +29,44 @@ module MebApi
           private
 
           def end_point(form_type)
-            "claimType/#{form_type}/claimsubmission".dup
+            "claimType/#{dgi_url(form_type)}/claimsubmission".dup
+          end
+
+          def dgi_url(form_type)
+            if form_type == 'Chapter35Submission'
+              'Chapter35'
+            else
+              'toe'
+            end
           end
 
           def request_headers
             {
-              "Content-Type": 'application/json',
+              'Content-Type': 'application/json',
               Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}".dup
             }
           end
 
           def format_params(params)
             camelized_keys = camelize_keys_for_java_service(params.except(:form_id))
-            modified_keys = camelized_keys['toeClaimant']&.merge(
-              personCriteria: { ssn: @user.ssn }.stringify_keys)
+            if params['@type'] == 'ToeSubmission'
+              modified_keys = camelized_keys['toeClaimant']&.merge(
+                personCriteria: { ssn: @user.ssn }.stringify_keys
+              )
 
-            camelized_keys['toeClaimant'] = modified_keys
+              camelized_keys['toeClaimant'] = modified_keys
+            else
+              modified_keys = camelized_keys['claimant']&.merge(
+                personCriteria: { ssn: @user.ssn }.stringify_keys
+              )
+
+              camelized_keys['claimant'] = modified_keys
+            end
             camelized_keys
           end
 
           def update_dd_params(params, dd_params)
-            check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number).include?('*')
+            check_masking = params.dig(:form, :direct_deposit, :direct_deposit_account_number)&.include?('*')
             if check_masking && !Flipper.enabled?(:toe_light_house_dgi_direct_deposit, @current_user)
               params[:form][:direct_deposit][:direct_deposit_account_number] = dd_params[:dposit_acnt_nbr]&.dup
               params[:form][:direct_deposit][:direct_deposit_routing_number] = dd_params[:routng_trnsit_nbr]&.dup

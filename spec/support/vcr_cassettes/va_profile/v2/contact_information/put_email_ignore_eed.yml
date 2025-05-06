@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/emails
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":8087,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2024-08-27T18:51:06.012Z","vet360Id":"11111","effectiveStartDate":null}}'
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":8087,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.012Z","effectiveStartDate":null}}'
     headers:
       User-Agent:
       - Vets.gov Agent

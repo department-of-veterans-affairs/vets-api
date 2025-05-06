@@ -6,11 +6,11 @@ RSpec.describe Preneeds::Cemetery do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :cemetery }
+    let(:params) { attributes_for(:cemetery) }
     let(:other) { described_class.new(attributes_for(:cemetery)) }
 
     it 'populates attributes' do
-      expect(described_class.attribute_set.map(&:name)).to contain_exactly(:name, :num, :cemetery_type)
+      expect(described_class.attribute_set).to contain_exactly(:name, :num, :cemetery_type)
       expect(subject.name).to eq(params[:name])
       expect(subject.num).to eq(params[:num])
       expect(subject.cemetery_type).to eq(params[:cemetery_type])

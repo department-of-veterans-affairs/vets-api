@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/vso_search/service'
 require 'sentry_logging'
 
 module EducationForm
@@ -23,8 +22,6 @@ module EducationForm
         }
       ).order('education_benefits_claims.created_at')
     )
-      return false unless evss_is_healthy?
-
       init_count = records.filter do |r|
         r.education_stem_automated_decision.automated_decision_state == EducationStemAutomatedDecision::INIT
       end.count
@@ -42,10 +39,6 @@ module EducationForm
 
     private
 
-    def evss_is_healthy?
-      Settings.evss.mock_claims || EVSS::VSOSearch::Service.service_is_up?
-    end
-
     # Group the submissions by user_uuid
     def group_user_uuid(records)
       records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid }
@@ -61,8 +54,7 @@ module EducationForm
         claim_ids = submissions.map(&:id).join(', ')
         log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
 
-        # only check EVSS if poa wasn't set on submit
-        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(auth_headers)
+        poa = submissions.last.education_stem_automated_decision.poa
 
         if submissions.count > 1
           check_previous_submissions(submissions, poa)
@@ -70,27 +62,6 @@ module EducationForm
           process_submission(submissions.first, poa)
         end
       end
-    end
-
-    # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(auth_headers)
-      # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-      return nil if Flipper.enabled?(:stem_automated_decision)
-
-      if auth_headers.nil? ||
-         !auth_headers.key?('va_eauth_dodedipnid') ||
-         auth_headers['va_eauth_dodedipnid'] == ''
-
-        return nil
-      end
-
-      vsosearch_service = EVSS::VSOSearch::Service.new(nil, auth_headers)
-      vsosearch_service.get_current_info(auth_headers)['userPoaInfoAvailable']
-    rescue => e
-      log_exception_to_sentry(
-        Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}")
-      )
-      nil
     end
 
     # Ignore already processed either by CreateDailySpoolFiles or this job
@@ -151,13 +122,12 @@ module EducationForm
     def process_submission(submission, user_has_poa)
       remaining_entitlement = submission.education_stem_automated_decision&.remaining_entitlement
       # This code will be updated once QA and additional evaluation is completed
-      status = if Settings.vsp_environment == 'production' && more_than_six_months?(remaining_entitlement)
-                 EducationStemAutomatedDecision::PROCESSED
-               elsif more_than_six_months?(remaining_entitlement)
+      status = if Settings.vsp_environment != 'production' && more_than_six_months?(remaining_entitlement)
                  EducationStemAutomatedDecision::DENIED
                else
                  EducationStemAutomatedDecision::PROCESSED
                end
+
       update_automated_decision(submission, status, user_has_poa)
     end
 
@@ -171,7 +141,7 @@ module EducationForm
     def remaining_entitlement_days(remaining_entitlement)
       months = remaining_entitlement.months
       days = remaining_entitlement.days
-      months * 30 + days
+      (months * 30) + days
     end
 
     # Inverse of less than six months check performed in SavedClaim::EducationBenefits::VA10203
@@ -184,7 +154,7 @@ module EducationForm
     def inform_on_error(claim, error = nil)
       region = EducationFacility.facility_for(region: :eastern)
       StatsD.increment("worker.education_benefits_claim.failed_formatting.#{region}.22-#{claim.form_type}")
-      exception = if error&.present?
+      exception = if error.present?
                     FormattingError.new("Could not format #{claim.confirmation_number}.\n\n#{error}")
                   else
                     FormattingError.new("Could not format #{claim.confirmation_number}")

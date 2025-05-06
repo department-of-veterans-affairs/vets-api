@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'va_profile/models/preferred_name'
 
-RSpec.describe 'V0::Profile::PreferredNames' do
+RSpec.describe 'V0::Profile::PreferredNames', feature: :personal_info,
+                                              team_owner: :vfs_authenticated_experience_backend,
+                                              type: :request do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }
@@ -41,6 +43,17 @@ RSpec.describe 'V0::Profile::PreferredNames' do
           expect(json['text']).to eq(preferred_name.text)
           expect(json['source_system_user']).to eq('123498767V234859')
           expect(json['source_date']).to eq('2022-04-08T15:09:23.000Z')
+        end
+      end
+
+      it 'invalidates the cache for the mpi-profile-response' do
+        preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+        VCR.use_cassette('va_profile/demographics/post_preferred_name_success') do
+          expect_any_instance_of(User).to receive(:invalidate_mpi_cache)
+          put('/v0/profile/preferred_names', params: preferred_name.to_json, headers:)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('va_profile/preferred_name_response')
         end
       end
     end

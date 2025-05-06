@@ -7,6 +7,7 @@ RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
 
   before do
     Flipper.enable('va_online_scheduling')
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -21,8 +22,9 @@ RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
 
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_eligibility)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         context 'patient appointment meta data' do
@@ -41,8 +43,8 @@ RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_eligibility)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility).and_return(true)
         end
 
         context 'patient appointment meta data' do

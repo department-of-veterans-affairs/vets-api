@@ -16,11 +16,13 @@
   "applicant_address": {
     "country": "USA",
     "street": "456 Street Circle",
+    "street_combined": "456 Street Circle",
     "city": "Anyburg",
     "state": "AK",
     "postal_code": "12323"
   },
   "has_other_health_insurance": true,
+  "applicant_email": "applicant@email.gov",
   "applicant_phone": "3331233456",
   "applicant_medicare_status": true,
   "applicant_medicare_part_a_carrier": "Test A Carrier",

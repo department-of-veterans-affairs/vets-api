@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe VBADocuments::UploadStatusBatch, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let!(:upload) { FactoryBot.create(:upload_submission, :status_received) }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let!(:upload) { create(:upload_submission, :status_received) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:in_process_element) do
     [{ uuid: 'ignored',
        status: 'In Process',

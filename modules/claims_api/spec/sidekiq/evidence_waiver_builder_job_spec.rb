@@ -9,7 +9,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
     Sidekiq::Job.clear_all
   end
 
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
 
   describe 'when an errored job has a 48 hour time limitation' do
     it 'expires in 48 hours' do
@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
     it "provides the method definition for sidekiq 'retry_monitoring.rb'" do
       res = described_class.new.retry_limits_for_notification
       expect(res).to eq([11])
-      expect(described_class.new.respond_to?(:retry_limits_for_notification)).to eq(true)
+      expect(described_class.new.respond_to?(:retry_limits_for_notification)).to be(true)
     end
   end
 
@@ -42,6 +42,30 @@ RSpec.describe ClaimsApi::EvidenceWaiverBuilderJob, type: :job do
           error: error_msg
         )
       end
+    end
+  end
+
+  context 'when the claims_api_ews_uploads_bd_refactor BD refactor feature flag is enabled' do
+    before do
+      Flipper.enable(:claims_api_ews_uploads_bd_refactor)
+    end
+
+    it 'calls the Benefits Documents upload_document instead of upload' do
+      expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
+      subject.new.perform(ews.id)
+    end
+  end
+
+  context 'when the claims_api_ews_uploads_bd_refactor BD refactor feature flag is disabled' do
+    before do
+      Flipper.disable(:claims_api_ews_uploads_bd_refactor)
+    end
+
+    it 'calls the Benefits Documents upload_document instead of upload' do
+      expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
+      expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload_document)
+      subject.new.perform(ews.id)
     end
   end
 end

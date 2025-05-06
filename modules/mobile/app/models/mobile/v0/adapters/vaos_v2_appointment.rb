@@ -118,10 +118,16 @@ module Mobile
             service_category_name: appointment.dig(:service_category, 0, :text)
           }
 
+          if appointment[:travelPayClaim]
+            adapted_appointment[:travelPayClaim] =
+              appointment[:travelPayClaim].deep_symbolize_keys
+          end
+
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
 
           Mobile::V0::Appointment.new(adapted_appointment)
         end
+
         # rubocop:enable Metrics/MethodLength
 
         private
@@ -184,16 +190,18 @@ module Mobile
         end
 
         def timezone
-          @timezone ||= begin
-            time_zone = appointment.dig(:location, :time_zone, :time_zone_id)
-            return time_zone if time_zone
+          @timezone ||= get_timezone
+        end
 
-            return nil unless facility_id
+        def get_timezone
+          time_zone = appointment.dig(:location, :time_zone, :time_zone_id)
+          return time_zone if time_zone
 
-            # not always correct if clinic is different time zone than parent
-            facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
-            facility ? facility[:time_zone] : nil
-          end
+          return nil unless facility_id
+
+          # not always correct if clinic is different time zone than parent
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id[0..2]}"]
+          facility ? facility[:time_zone] : nil
         end
 
         def cancel_id
@@ -268,26 +276,34 @@ module Mobile
         end
 
         def appointment_type
-          case appointment[:kind]
-          when 'phone', 'clinic'
-            APPOINTMENT_TYPES[:va]
-          when 'cc'
+          case appointment[:type]
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_appointment],
+            VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_request]
             APPOINTMENT_TYPES[:cc]
-          when 'telehealth'
-            return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
+            convert_va_appointment_type
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:request]
+            APPOINTMENT_TYPES[:va]
+          else
+            appointment[:type]
+          end
+        end
 
-            vvs_kind = appointment.dig(:telehealth, :vvs_kind)
-            if VIDEO_CODE.include?(vvs_kind)
-              if appointment.dig(:extension, :patient_has_mobile_gfe)
-                APPOINTMENT_TYPES[:va_video_connect_gfe]
-              else
-                APPOINTMENT_TYPES[:va_video_connect_home]
-              end
-            elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
-              APPOINTMENT_TYPES[:va_video_connect_onsite]
+        def convert_va_appointment_type
+          return appointment[:type] unless appointment[:kind] == 'telehealth'
+          return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+
+          vvs_kind = appointment.dig(:telehealth, :vvs_kind)
+          if VIDEO_CODE.include?(vvs_kind)
+            if appointment.dig(:extension, :patient_has_mobile_gfe)
+              APPOINTMENT_TYPES[:va_video_connect_gfe]
             else
-              APPOINTMENT_TYPES[:va]
+              APPOINTMENT_TYPES[:va_video_connect_home]
             end
+          elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
+            APPOINTMENT_TYPES[:va_video_connect_onsite]
+          else
+            APPOINTMENT_TYPES[:va]
           end
         end
 

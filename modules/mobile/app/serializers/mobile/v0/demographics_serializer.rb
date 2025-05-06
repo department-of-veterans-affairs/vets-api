@@ -9,7 +9,7 @@ module Mobile
       attributes :gender_identity, :preferred_name
       def initialize(user_id, demographics)
         resource = DemographicsStruct.new(id: user_id,
-                                          gender_identity: demographics.demographics&.gender_identity&.code,
+                                          gender_identity: nil,
                                           preferred_name: demographics.demographics&.preferred_name&.text)
 
         super(resource)

@@ -2,12 +2,12 @@
 FIRST
 MIDDLE
 LAST
-111223333
-111223333
+444433322
+223334444
 V1995
 
 SCHOOL NAME
-Chapter30
+CH35
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074
@@ -20,7 +20,7 @@ FOR VETERANS, SERVICEPERSONS, DEPENDENTS & MEMBERS OF THE SELECTED RESERVE
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333    VA File Number: c12345678
+SSN: 223334444    VA File Number: c12345679
 
 Sex: F  Date of Birth: 1970-01-01
 
@@ -41,14 +41,25 @@ Direct Deposit: Start or Update EFT
 Type of Account: checking
 Routing/Transit #: 123456789   Account #: 88888888888
 
+                 DEA, CH35 SPONSOR/SERVICE MEMBER INFORMATION
+                 --------------------------------------------
+
+Name:   John Smith
+
+SSN:   444433322
+
+VA File Number: c12345679
+
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
 Benefit Most Recently Received: Transfer Of Entitlement
 
+Do you wish to request a 'Rudisill' review?: No
+
 Select Another Benefit: Yes
 
-Benefit Being Applied For: Chapter30
+Benefit Being Applied For: Chapter35
 
 Type of Education or Training: Prep Course For Lo C
 Education or Career Goal: bachelor's degree

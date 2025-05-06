@@ -69,7 +69,7 @@
   "F[0].Page_1[0].Field8[1]": "<%= form.data.dig('application', 'claimant', 'desired_cemetery') ? form.data.dig('application', 'claimant', 'desired_cemetery') + " " +form.find_cemetery_by_id(form.data.dig('application', 'claimant', 'desired_cemetery')) : ''%>",
   "F[0].Page_1[0].Field8[2]": "<%= (form.data.dig('application', 'claimant', 'email')|| '') %>",
   "F[0].#subform[1].Field11[0]": "<%= form.data.dig('Field1')%>",
-  "F[0].#subform[1].Field30[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m/%d/%Y') %>",
+  "F[0].#subform[1].Field30[0]": "<%= form&.signature_date&.strftime('%m/%d/%Y') %>",
   "F[0].#subform[1].Field12[0]": "<%= (form.data.dig('application', 'applicant', 'applicant_relationship_to_claimant')) == 'Self' ? 1 : 0%>",
   "F[0].#subform[1].Field12[1]": "<%= (form.data.dig('application', 'applicant', 'applicant_relationship_to_claimant')) == 'Authorized Agent/Rep' ? 1 : 0%>",
   "F[0].#subform[1].Field11[1]": "<%= [form.data.dig('application', 'applicant', 'name', 'last'), form.data.dig('application', 'applicant', 'name', 'first')].compact.reject(&:empty?).join(', ')%>",

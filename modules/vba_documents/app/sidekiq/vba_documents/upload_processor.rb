@@ -36,7 +36,7 @@ module VBADocuments
         end
       end
 
-      response&.success? ? true : false
+      response&.success? || false
     end
 
     private
@@ -48,10 +48,16 @@ module VBADocuments
 
       begin
         @upload.update(metadata: @upload.metadata.merge(original_file_metadata(tempfile)))
-
         validate_payload_size(tempfile)
 
+        # parse out multipart consumer supplied file into individual parts
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
+
+        # Attempt to use consumer supplied file number field to look up the claiments ICN
+        # asap for tracking consumer's impacted
+        icn = find_icn(parts)
+        @upload.update(metadata: @upload.metadata.merge({ 'icn' => icn })) if icn.present?
+
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         @upload.update(uploaded_pdf: inspector.pdf_data)
 
@@ -84,10 +90,44 @@ module VBADocuments
     def original_file_metadata(tempfile)
       {
         'size' => tempfile.size,
-        'base64_encoded' => VBADocuments::MultipartParser.base64_encoded?(tempfile.path),
+        'base64_encoded' => VBADocuments::MultipartParser.base64_encoded_file?(tempfile.path),
         'sha256_checksum' => Digest::SHA256.file(tempfile).hexdigest,
         'md5_checksum' => Digest::MD5.file(tempfile).hexdigest
       }
+    end
+
+    def find_icn(parts)
+      file_number = read_original_metadata_file_number(parts)
+
+      return if file_number.blank?
+
+      bgss = BGS::Services.new(external_uid: file_number, external_key: file_number)
+
+      # File Number is ssn, file number, or participant id.  Call BGS to get the veterans birthdate
+      # rubocop:disable Rails/DynamicFindBy
+      bgs_vet = bgss.people.find_by_ssn(file_number) ||
+                bgss.people.find_by_file_number(file_number) ||
+                bgss.people.find_person_by_ptcpnt_id(file_number)
+      # rubocop:enable Rails/DynamicFindBy
+
+      return nil if bgs_vet.blank? || bgs_vet[:brthdy_dt].blank? || bgs_vet[:ssn_nbr].blank?
+
+      # Go after ICN in MPI
+      mpi = MPI::Service.new
+      r = mpi.find_profile_by_attributes(first_name: bgs_vet[:first_nm].to_s,
+                                         last_name: bgs_vet[:last_nm].to_s,
+                                         ssn: bgs_vet[:ssn_nbr].to_s,
+                                         birth_date: bgs_vet[:brthdy_dt].strftime('%Y-%m-%d'))
+      return nil if r.blank? || r.profile.blank?
+
+      r.profile.icn
+
+    # at this point ICN is not required when submitting to EMMS, so have wide
+    # exception handling, log and move on, any errors trying to get ICN should not stop us from submitting
+    rescue => e
+      Rails.logger.error("Benefits Intake UploadProcessor find_icn failed. Guid: #{@upload.guid}, " \
+                         "Exception: #{e.message}")
+      nil
     end
 
     def validate_payload_size(tempfile)

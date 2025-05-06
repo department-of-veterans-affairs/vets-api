@@ -117,6 +117,10 @@ module MedicalCopays
       end
 
       def get_copay_response
+        if Flipper.enabled?(:debts_copay_logging)
+          Rails.logger.info("MedicalCopays::VBS::Service#get_copay_response request data: #{@user.uuid}")
+        end
+
         request.post("#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash)
       end
 
@@ -125,8 +129,11 @@ module MedicalCopays
         Rails.cache.read(cache_key)
       end
 
-      def send_statement_notifications(statements_json_byte)
-        CopayNotifications::ParseNewStatementsJob.perform_async(statements_json_byte)
+      def send_statement_notifications(_statements_json_byte)
+        # Commenting for now since we are causingissues in production
+        # when the child job runs: "NewStatementNotificationJob"
+        # CopayNotifications::ParseNewStatementsJob.perform_async(statements_json_byte)
+        true
       end
 
       def settings

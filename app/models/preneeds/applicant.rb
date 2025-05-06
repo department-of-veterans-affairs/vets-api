@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models an Applicant from a {Preneeds::BurialForm} form
   #

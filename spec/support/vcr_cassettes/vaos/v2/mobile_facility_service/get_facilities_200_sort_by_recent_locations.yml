@@ -1,0 +1,549 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=983,983GB,983GC,983GD&pageSize=0&schedulable=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Jun 2023 15:44:07 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3477'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.21.1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 4d56ca5
+      X-Vamf-Timestamp:
+      - '2023-06-16T18:31:57+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '12'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [ {
+            "id" : "983GD",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_health_facility",
+            "name" : "Loveland VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 40.412647,
+            "long" : -105.003815,
+            "website" : "https://www.cheyenne.va.gov/locations/Loveland.asp",
+            "phone" : {
+              "main" : "970-962-4900"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "5200 Hahns Peak Drive" ],
+              "city" : "Loveland",
+              "state" : "CO",
+              "postalCode" : "80538-8852"
+            },
+            "healthService" : [ "Audiology", "EmergencyCare", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Podiatry", "PrimaryCare", "SpecialtyCare", "WomensHealth" ]
+          }, {
+            "id" : "983GC",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Fort Collins VA Clinic",
+            "classification" : "Multi-Specialty CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 40.553875,
+            "long" : -105.08795,
+            "website" : "https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp",
+            "phone" : {
+              "main" : "970-224-1550"
+            },
+            "physicalAddress" : {
+              "line" : [ "2509 Research Boulevard" ],
+              "city" : "Fort Collins",
+              "state" : "CO",
+              "postalCode" : "80526-8108"
+            },
+            "healthService" : [ "Audiology", "EmergencyCare", "MentalHealthCare", "PrimaryCare", "SpecialtyCare" ]
+          }, {
+            "id" : "983GB",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Sidney VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 41.142464,
+            "long" : -102.97669,
+            "website" : "https://www.cheyenne.va.gov/locations/Sidney_VA_MSOC.asp",
+            "phone" : {
+              "main" : "308-254-6085"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "1116 10th Avenue" ],
+              "city" : "Sidney",
+              "state" : "NE",
+              "postalCode" : "69162-2001"
+            },
+            "healthService" : [ "EmergencyCare", "MentalHealthCare", "PrimaryCare" ]
+          }, {
+            "id" : "983",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Cheyenne VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone" : {
+              "timeZoneId" : "America/Denver"
+            },
+            "lat" : 39.744507,
+            "long" : -104.830956,
+            "website" : "https://www.denver.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "307-778-7550",
+              "fax" : "307-778-7381",
+              "pharmacy" : "866-420-6337",
+              "afterHours" : "307-778-7550",
+              "patientAdvocate" : "307-778-7550 x7517",
+              "mentalHealthClinic" : "307-778-7349",
+              "enrollmentCoordinator" : "307-778-7550 x7579"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "2360 East Pershing Boulevard" ],
+              "city" : "Cheyenne",
+              "state" : "WY",
+              "postalCode" : "82001-5356"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            }
+          } ]
+        }
+  recorded_at: Thu, 22 Jun 2023 15:44:07 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments?end=2023-08-30T23:59:59Z&pageSize=0&start=2022-08-31T13:00:00Z&statuses=booked,fulfilled,arrived
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 395474ff-90b4-414f-a8b4-a8cfae2ec14a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Aug 2023 22:51:37 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '3082'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"174471","identifier":[{"system":"Appointment/","value":"413938333130303430"}],"kind":"clinic","status":"booked","serviceType":"covid","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","clinic":"1038","start":"2023-05-31T14:15:00Z","end":"2023-05-31T14:30:00Z","created":"2023-05-30T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"174258","identifier":[{"system":"Appointment/","value":"413938333130303533"}],"kind":"clinic","status":"booked","serviceType":"amputation","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"SERVICE
+        CONNECTED","display":"SERVICE CONNECTED"}],"text":"SERVICE CONNECTED"}],"patientIcn":"1012845331V153043","locationId":"983GC","clinic":"1081","start":"2023-05-31T15:00:00Z","end":"2023-05-31T15:30:00Z","created":"2023-06-01T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"174361","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"918e0a09-a3e5-4cdf-9518-ae41aaaebb45"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-06T14:05:00Z","end":"2023-06-06T14:25:00Z","minutesDuration":20,"comment":"Test
+        @ 6/5","cancellable":true,"patientInstruction":"Medication Review\n\n- As
+        part of your video visit, your provider wants to review all the medications,
+        vitamins, herbs, and supplements you are taking. Your provider will want to
+        know about these items even if you get them from a local store, another provider,
+        or another VA clinic.\n - Please have available during the visit information
+        about all the medications, vitamins, herbs and supplements you are taking
+        to your video visit.\n - Informing your provider about all these will help
+        you get the best and safest care possible.\n\nRemember, it is your medications,
+        your life, so play it safe by reviewing all your medications with your health
+        care team.","telehealth":{"url":"https://pexip.mapsandbox.net/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424649@pexip.mapsandbox.net&pin=321753&aid=918e0a09-a3e5-4cdf-9518-ae41aaaebb45#","group":true,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"174555","identifier":[{"system":"Appointment/","value":"413938333130303438"}],"kind":"clinic","status":"booked","serviceType":"covid","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","clinic":"1038","start":"2023-06-08T18:45:00Z","end":"2023-06-08T19:00:00Z","created":"2023-05-31T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"174472","identifier":[{"system":"Appointment/","value":"413938333130303437"}],"kind":"clinic","status":"booked","serviceType":"covid","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","clinic":"1038","start":"2023-06-09T15:15:00Z","end":"2023-06-09T15:30:00Z","created":"2023-05-31T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"174265","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"e5ff150c-1b5c-49d5-a41e-f96c14f13070"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647363"}],"name":{"family":"NADEAU","given":["MARCY"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-09T18:30:00Z","end":"2023-06-09T18:50:00Z","minutesDuration":20,"cancellable":true,"patientInstruction":"","telehealth":{"url":"https://pexip.mapsandbox.net/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424662@pexip.mapsandbox.net&pin=544394&aid=e5ff150c-1b5c-49d5-a41e-f96c14f13070#","group":false,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"176153","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"aab8d55e-cd9f-4812-a307-87c76c4116cf"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-14T17:45:00Z","end":"2023-06-14T18:05:00Z","minutesDuration":20,"comment":"test
+        SSN email","cancellable":true,"patientInstruction":"Resources Mailed to Patient\n\nVA
+        has mailed resources to you in support of your upcoming video visit.\n\nIf
+        you do not receive the information or for any questions or concerns, please
+        contact your VA Facility or VA Clinical Team.\nNOTE: VA Facility text links
+        to : https://www.va.gov/find-locations/","telehealth":{"url":"https://dev.care2.va.gov/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424765@dev.care2.va.gov&pin=110698&aid=aab8d55e-cd9f-4812-a307-87c76c4116cf#","group":false,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"176602","identifier":[{"system":"Appointment/","value":"413938333130323731"},{"system":"Appointment/","value":"413938333130323732"}],"kind":"clinic","status":"booked","serviceType":"outpatientMentalHealth","serviceCategory":[],"reasonCode":{"text":"call
+        from iss 3.15.2023"},"patientIcn":"1012845331V153043","locationId":"983","clinic":"1049","start":"2023-06-16T16:00:00Z","end":"2023-06-16T17:00:00Z","created":"2023-06-16T00:00:00Z","cancellable":false,"extension":{"ccLocation":{"address":{}},"vistaStatus":["CANCELLED
+        BY CLINIC","NO ACTION TAKEN"]}},{"id":"177102","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"d0d08719-b931-429a-beaf-ed5685c4a1df"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-21T03:00:00Z","end":"2023-06-21T04:00:00Z","minutesDuration":60,"comment":"Test","cancellable":true,"patientInstruction":"","telehealth":{"url":"https://dev.care2.va.gov/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424804@dev.care2.va.gov&pin=874005&aid=d0d08719-b931-429a-beaf-ed5685c4a1df#","group":true,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"177302","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"f65e942b-0a7d-4360-8266-5047dcd5f76d"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-21T18:10:00Z","end":"2023-06-21T18:30:00Z","minutesDuration":20,"comment":"testing
+        VVS appointments_ Single","cancellable":true,"patientInstruction":"Medication
+        Review\n\n- As part of your video visit, your provider wants to review all
+        the medications, vitamins, herbs, and supplements you are taking. Your provider
+        will want to know about these items even if you get them from a local store,
+        another provider, or another VA clinic.\n - Please have available during the
+        visit information about all the medications, vitamins, herbs and supplements
+        you are taking to your video visit.\n - Informing your provider about all
+        these will help you get the best and safest care possible.\n\nRemember, it
+        is your medications, your life, so play it safe by reviewing all your medications
+        with your health care team.","telehealth":{"url":"https://pexip.mapsandbox.net/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424810@pexip.mapsandbox.net&pin=264743&aid=f65e942b-0a7d-4360-8266-5047dcd5f76d#","group":false,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"177353","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"6cb4c4c8-a7fa-4003-8f95-8234651e5fbe"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-21T20:30:00Z","end":"2023-06-21T20:50:00Z","minutesDuration":20,"comment":"Testing
+        individual appointment _Aarathi","cancellable":true,"patientInstruction":"Medication
+        Review\n\n- As part of your video visit, your provider wants to review all
+        the medications, vitamins, herbs, and supplements you are taking. Your provider
+        will want to know about these items even if you get them from a local store,
+        another provider, or another VA clinic.\n - Please have available during the
+        visit information about all the medications, vitamins, herbs and supplements
+        you are taking to your video visit.\n - Informing your provider about all
+        these will help you get the best and safest care possible.\n\nRemember, it
+        is your medications, your life, so play it safe by reviewing all your medications
+        with your health care team.","telehealth":{"url":"https://dev.care2.va.gov/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424823@dev.care2.va.gov&pin=939962&aid=6cb4c4c8-a7fa-4003-8f95-8234651e5fbe#","group":false,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"177303","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"5e5ba3be-bcc7-4c6a-94f1-7c580e3746cf"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-22T13:10:00Z","end":"2023-06-22T13:30:00Z","minutesDuration":20,"comment":"Testing
+        Group Appointments - Aarathi","cancellable":true,"patientInstruction":"Medication
+        Review\n\n- As part of your video visit, your provider wants to review all
+        the medications, vitamins, herbs, and supplements you are taking. Your provider
+        will want to know about these items even if you get them from a local store,
+        another provider, or another VA clinic.\n - Please have available during the
+        visit information about all the medications, vitamins, herbs and supplements
+        you are taking to your video visit.\n - Informing your provider about all
+        these will help you get the best and safest care possible.\n\nRemember, it
+        is your medications, your life, so play it safe by reviewing all your medications
+        with your health care team.","telehealth":{"url":"https://pexip.mapsandbox.net/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424814@pexip.mapsandbox.net&pin=581744&aid=5e5ba3be-bcc7-4c6a-94f1-7c580e3746cf#","group":true,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"176203","identifier":[{"system":"Appointment/","value":"413938333130323536"}],"kind":"clinic","status":"booked","serviceType":"covid","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","clinic":"1038","start":"2023-06-22T15:00:00Z","end":"2023-06-22T15:15:00Z","created":"2023-06-14T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"177402","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"9b85aa2c-0589-4afd-bb1f-7f23af56e212"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-06-22T20:00:00Z","end":"2023-06-22T20:30:00Z","minutesDuration":30,"comment":"Testing
+        ATLAS Appointment - Aarathi","cancellable":true,"patientInstruction":"Message
+        Sent in MyHealtheVet\n\nSign-in to My HealtheVet Secure Messaging  https://www.myhealth.va.gov/
+        to view resources sent from your VA health care team to support your video
+        visit.\n\nTo use the Secure Messaging feature, you must have registered on
+        MyHealtheVet as a VA Patient and have a Premium account","telehealth":{"url":"https://dev.care2.va.gov/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424818@dev.care2.va.gov&pin=289158&aid=9b85aa2c-0589-4afd-bb1f-7f23af56e212#","atlas":{"siteCode":"VFW-VA-20151-07","confirmationCode":"272438","address":{"streetAddress":"AFS
+        CHANTILLY WALMART","city":" CHANTILLY ","state":"VA","zipCode":"20105","country":"USA","latitutde":38.91753,"longitude":7.0,"additionalDetails":""}},"group":false,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"177202","identifier":[{"system":"Appointment/","value":"413938333130333435"}],"kind":"telehealth","status":"booked","serviceType":"audiology","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"reasonCode":{"text":"reasonCode:MEDICALISSUE|comments:test"},"patientIcn":"1012845331V153043","locationId":"983","clinic":"1020","start":"2023-06-29T17:00:00Z","end":"2023-06-29T18:00:00Z","created":"2023-06-21T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"177455","identifier":[{"system":"Appointment/","value":"413938333130333730"}],"kind":"clinic","status":"booked","serviceType":"covid","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"983","clinic":"1038","start":"2023-06-30T14:15:00Z","end":"2023-06-30T14:30:00Z","created":"2023-06-22T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"177155","identifier":[{"system":"Appointment/","value":"413938333130333635"}],"kind":"telehealth","status":"booked","serviceType":"audiology","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"reasonCode":{"text":"testing
+        Paul"},"patientIcn":"1012845331V153043","locationId":"983","clinic":"1020","start":"2023-07-01T14:00:00Z","end":"2023-07-01T15:00:00Z","created":"2023-06-21T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"179302","identifier":[{"system":"Appointment/","value":"413938333130363934"}],"kind":"telehealth","status":"booked","serviceType":"audiology","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"reasonCode":{"text":"testing
+        Paul"},"patientIcn":"1012845331V153043","locationId":"983","clinic":"1020","start":"2023-07-21T14:00:00Z","end":"2023-07-21T15:00:00Z","created":"2023-07-20T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"176104","identifier":[{"system":"Appointment/","value":"413938333130323538"}],"kind":"telehealth","status":"booked","serviceType":"audiology","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"reasonCode":{"text":"reasonCode:ROUTINEVISIT|comments:test"},"patientIcn":"1012845331V153043","locationId":"983","clinic":"1020","start":"2023-07-27T17:00:00Z","end":"2023-07-27T18:00:00Z","created":"2023-06-14T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}},{"id":"176152","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vvs/id","value":"bff282d0-f776-4052-8213-57dc35a47202"}],"kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983GC","practitioners":[{"identifier":[{"system":"dfn-983","value":"520647710"}],"name":{"family":"Poldass","given":["Aarathi"]},"practiceName":"Cheyenne
+        WY VAMC"}],"start":"2023-08-16T17:40:00Z","end":"2023-08-16T18:00:00Z","minutesDuration":20,"comment":"test","cancellable":true,"patientInstruction":"Message
+        Sent in MyHealtheVet\n\nSign-in to My HealtheVet Secure Messaging  https://www.myhealth.va.gov/
+        to view resources sent from your VA health care team to support your video
+        visit.\n\nTo use the Secure Messaging feature, you must have registered on
+        MyHealtheVet as a VA Patient and have a Premium account","telehealth":{"url":"https://dev.care2.va.gov/vvc-app/?join=1&media=1&escalate=1&userType=guest&conference=VAC000424766@dev.care2.va.gov&pin=959986&aid=bff282d0-f776-4052-8213-57dc35a47202#","group":false,"vvsKind":"ADHOC"},"extension":{"ccLocation":{"address":{}},"vistaStatus":[],"patientHasMobileGfe":false}},{"id":"183905","identifier":[{"system":"Appointment/","value":"4139383435373733"}],"kind":"telehealth","status":"booked","serviceType":"outpatientMentalHealth","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"patientIcn":"1012845331V153043","locationId":"984GA","clinic":"4275","start":"2023-08-25T16:30:00Z","end":"2023-08-25T17:00:00Z","created":"2023-08-24T00:00:00Z","cancellable":true,"extension":{"ccLocation":{"address":{}},"vistaStatus":["NO
+        ACTION TAKEN"]}}]}'
+  recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 395474ff-90b4-414f-a8b4-a8cfae2ec14a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Aug 2023 22:51:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1172'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '1'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983",
+          "vistaSite" : "983",
+          "vastParent" : "983",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone" : {
+            "timeZoneId" : "America/Denver"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 395474ff-90b4-414f-a8b4-a8cfae2ec14a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Aug 2023 22:51:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '666'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '1'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983GC",
+          "vistaSite" : "983",
+          "vastParent" : "983",
+          "type" : "va_facilities",
+          "name" : "Fort Collins VA Clinic",
+          "classification" : "Multi-Specialty CBOC",
+          "timezone" : {
+            "timeZoneId" : "America/Denver"
+          },
+          "lat" : 40.553875,
+          "long" : -105.08795,
+          "website" : "https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp",
+          "phone" : {
+            "main" : "970-224-1550"
+          },
+          "physicalAddress" : {
+            "line" : [ "2509 Research Boulevard" ],
+            "city" : "Fort Collins",
+            "state" : "CO",
+            "postalCode" : "80526-8108"
+          },
+          "healthService" : [ "Audiology", "EmergencyCare", "MentalHealthCare", "PrimaryCare", "SpecialtyCare" ]
+        }
+  recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984GA
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 395474ff-90b4-414f-a8b4-a8cfae2ec14a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Aug 2023 22:51:37 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '688'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '1'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "984GA",
+          "vistaSite" : "984",
+          "vastParent" : "984",
+          "type" : "va_health_facility",
+          "name" : "Middletown VA Clinic",
+          "classification" : "Multi-Specialty CBOC",
+          "timezone" : {
+            "timeZoneId" : "America/New_York"
+          },
+          "lat" : 39.50603,
+          "long" : -84.316475,
+          "website" : "https://www.dayton.va.gov/locations/midtwn_cboc.asp",
+          "phone" : {
+            "main" : "513-423-8387"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "4337 North Union Road" ],
+            "city" : "Middletown",
+            "state" : "OH",
+            "postalCode" : "45005-5211"
+          },
+          "healthService" : [ "Audiology", "MentalHealthCare", "Optometry", "Podiatry", "PrimaryCare", "SpecialtyCare" ]
+        }
+  recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
+recorded_with: VCR 6.1.0

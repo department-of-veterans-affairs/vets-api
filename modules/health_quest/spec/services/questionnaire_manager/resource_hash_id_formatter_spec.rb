@@ -13,7 +13,7 @@ describe HealthQuest::QuestionnaireManager::ResourceHashIdFormatter do
 
   describe 'attributes' do
     it 'responds to resource_array' do
-      expect(subject.build([]).respond_to?(:resource_array)).to eq(true)
+      expect(subject.build([]).respond_to?(:resource_array)).to be(true)
     end
   end
 

@@ -12,6 +12,9 @@ module ClaimsApi
     has_kms_key
     has_encrypted :auth_headers, :form_data, :source_data, key: :kms_key, **lockbox_options
 
+    has_many :processes, as: :processable, dependent: :destroy
+    has_one :power_of_attorney_request, dependent: :nullify
+
     PENDING = 'pending'
     SUBMITTED = 'submitted'
     UPLOADED = 'uploaded'
@@ -21,12 +24,10 @@ module ClaimsApi
     ALL_STATUSES = [PENDING, SUBMITTED, UPLOADED, UPDATED, ERRORED].freeze
 
     before_save :set_md5
+    before_save :set_header_hash
 
-    def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
-      primary_identifier = {}
-      primary_identifier[:id] = id if id.present?
-      primary_identifier[:header_md5] = header_md5 if header_md5.present?
-      primary_identifier[:md5] = md5 if md5.present?
+    def self.find_using_identifier_and_source(primary_identifier, source_name)
+      # md5 deprecated 3/26/2025 due to security: https://github.com/department-of-veterans-affairs/vets-api/security/code-scanning/852
       # it's possible to have duplicate POAs, so be sure to return the most recently created match
       poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
       poas = poas.select { |poa| poa.source_data['name'] == source_name }
@@ -66,6 +67,51 @@ module ClaimsApi
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 
+    def set_header_hash
+      headers = auth_headers.except('va_eauth_authenticationauthority',
+                                    'va_eauth_service_transaction_id',
+                                    'va_eauth_issueinstant',
+                                    'Authorization')
+      headers['status'] = status
+      self.header_hash = Digest::SHA256.hexdigest headers.to_json
+    end
+
+    def processes
+      @processes ||= ClaimsApi::Process.where(processable: self)
+                                       .in_order_of(:step_type, ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+    end
+
+    def steps
+      ClaimsApi::Process::VALID_POA_STEP_TYPES.each do |step_type|
+        unless processes.any? { |p| p.step_type == step_type }
+          index = ClaimsApi::Process::VALID_POA_STEP_TYPES.index(step_type)
+          processes.insert(index, ClaimsApi::Process.new(step_type:, step_status: 'NOT_STARTED', processable: self))
+        end
+      end
+
+      processes.map do |p|
+        {
+          type: p.step_type,
+          status: p.step_status,
+          completed_at: p.completed_at,
+          next_step: p.next_step
+        }
+      end
+    end
+
+    def errors
+      processes.map do |p|
+        error_message = p.error_messages.last
+        next unless error_message
+
+        {
+          title: error_message['title'],
+          detail: error_message['detail'],
+          code: p.step_type
+        }
+      end.compact
+    end
+
     def uploader
       @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
     end
@@ -86,9 +132,7 @@ module ClaimsApi
 
     def create_signature_image(signature_type)
       path = "/tmp/#{signature_type}_#{id}_signature.png"
-      File.open(path, 'wb') do |f|
-        f.write(Base64.decode64(form_data.dig('signatures', signature_type)))
-      end
+      File.binwrite(path, Base64.decode64(form_data.dig('signatures', signature_type)))
       signature_image_paths[signature_type] = path
     end
 

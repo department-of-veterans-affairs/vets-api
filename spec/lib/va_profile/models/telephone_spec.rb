@@ -10,7 +10,7 @@ describe VAProfile::Models::Telephone do
     context 'with no phone number' do
       it 'returns nil' do
         telephone.phone_number = nil
-        expect(telephone.formatted_phone).to eq(nil)
+        expect(telephone.formatted_phone).to be_nil
       end
     end
 
@@ -24,6 +24,14 @@ describe VAProfile::Models::Telephone do
       it 'returns number with extension' do
         telephone.extension = '123'
         expect(telephone.formatted_phone).to eq('(303) 555-1234 Ext. 123')
+      end
+    end
+
+    context 'with an international country code' do
+      it 'returns the formatted international phone number' do
+        telephone.is_international = true
+        telephone.country_code = '44'
+        expect(telephone.formatted_phone).to eq('+44 5551234')
       end
     end
   end
@@ -54,10 +62,10 @@ describe VAProfile::Models::Telephone do
         expect(phone).to be_valid
       end
 
-      it 'is not valid when set to true' do
+      it 'is valid when set to true' do
         phone = build(:telephone, is_international: true)
 
-        expect(phone).not_to be_valid
+        expect(phone).to be_valid
       end
 
       it 'is not valid when nil' do
@@ -68,8 +76,8 @@ describe VAProfile::Models::Telephone do
     end
 
     context 'country_code' do
-      it 'is valid when set to "1" or 1', :aggregate_failures do
-        valid_country_codes = ['1', 1]
+      it 'is valid when set to a 1- to 3-digit number or numeric string', :aggregate_failures do
+        valid_country_codes = ['1', 1, '44', 964]
 
         valid_country_codes.each do |valid_country_code|
           phone = build(:telephone, country_code: valid_country_code)
@@ -78,8 +86,18 @@ describe VAProfile::Models::Telephone do
         end
       end
 
-      it 'is not valid when set to anything other than "1"', :aggregate_failures do
-        invalid_country_codes = %w[2 15 abc 01]
+      it 'is not valid when includes non-numeric characters', :aggregate_failures do
+        invalid_country_codes = %w[abc ## +123]
+
+        invalid_country_codes.each do |invalid_country_code|
+          phone = build(:telephone, country_code: invalid_country_code)
+
+          expect(phone).not_to be_valid
+        end
+      end
+
+      it 'is not valid when starts with 0 or is longer than 3 digits', :aggregate_failures do
+        invalid_country_codes = %w[01 9641 55555]
 
         invalid_country_codes.each do |invalid_country_code|
           phone = build(:telephone, country_code: invalid_country_code)

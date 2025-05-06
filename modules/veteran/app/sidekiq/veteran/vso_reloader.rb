@@ -89,6 +89,8 @@ module Veteran
       last_name, first_name, middle_initial = vso['Representative']
                                               .match(/(.*?), (.*?)(?: (.{0,1})[a-zA-Z]*)?$/).captures
 
+      last_name = last_name.strip
+
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
                                                                    first_name:,
                                                                    last_name:)

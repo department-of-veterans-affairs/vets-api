@@ -12,7 +12,7 @@ jobs:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
           bundler-cache: true
 
       - name: Run Danger
-        run: bundle exec danger --head=${{ github.sha }} --base=${{ github.event.pull_request.base.sha }} --verbose
+        run: bundle exec danger --verbose
 
       - name: Add Danger Label
         uses: actions-ecosystem/action-remove-labels@v1

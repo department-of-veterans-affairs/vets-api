@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
+require 'bgs/power_of_attorney_verifier'
 
 RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -17,12 +18,12 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
 
   describe 'PowerOfAttorney' do
     before do
-      Veteran::Service::Representative.create!(representative_id: '12345', poa_codes: [individual_poa_code],
-                                               first_name: 'Abraham', last_name: 'Lincoln')
-      Veteran::Service::Representative.create!(representative_id: '67890', poa_codes: [organization_poa_code],
-                                               first_name: 'George', last_name: 'Washington')
-      Veteran::Service::Organization.create!(poa: organization_poa_code,
-                                             name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
+      create(:veteran_representative, representative_id: '12345', poa_codes: [individual_poa_code],
+                                      first_name: 'Abraham', last_name: 'Lincoln')
+      create(:veteran_representative, representative_id: '67890', poa_codes: [organization_poa_code],
+                                      first_name: 'George', last_name: 'Washington')
+      create(:veteran_organization, poa: organization_poa_code,
+                                    name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
     end
 
     describe 'show' do
@@ -42,46 +43,42 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
             end
 
             context 'when the current poa is not associated with an organization' do
-              context 'when multiple representatives share the poa code' do
-                context 'when there is one unique representative_id' do
-                  before do
-                    create(:representative, representative_id: '12345', first_name: 'Bob', last_name: 'Law',
-                                            poa_codes: ['ABC'], phone: '123-456-7890')
-                    create(:representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
-                                            poa_codes: ['ABC'], phone: '321-654-0987')
-                  end
+              context 'when there is one unique representative_id' do
+                before do
+                  create(:veteran_representative, representative_id: '12345', first_name: 'Robert', last_name: 'Lawlaw',
+                                                  poa_codes: ['ABC'], phone: '321-654-0987', created_at: Time.zone.now)
+                end
 
-                  it 'returns the most recently created representative' do
-                    mock_ccg(scopes) do |auth_header|
-                      allow(BGS::PowerOfAttorneyVerifier)
-                        .to receive(:new)
-                        .and_return(OpenStruct.new(current_poa_code: 'ABC'))
+                it 'returns the most recently created representative' do
+                  mock_ccg(scopes) do |auth_header|
+                    allow(BGS::PowerOfAttorneyVerifier)
+                      .to receive(:new)
+                      .and_return(OpenStruct.new(current_poa_code: 'ABC'))
 
-                      expected_response = {
-                        'data' => {
-                          'type' => 'individual',
-                          'attributes' => {
-                            'code' => 'ABC',
-                            'name' => 'Robert Lawlaw',
-                            'phoneNumber' => '321-654-0987'
-                          }
+                    expected_response = {
+                      'data' => {
+                        'type' => 'individual',
+                        'attributes' => {
+                          'code' => 'ABC',
+                          'name' => 'Robert Lawlaw',
+                          'phoneNumber' => '321-654-0987'
                         }
                       }
+                    }
 
-                      get get_poa_path, headers: auth_header
+                    get get_poa_path, headers: auth_header
 
-                      response_body = JSON.parse(response.body)
+                    response_body = JSON.parse(response.body)
 
-                      expect(response).to have_http_status(:ok)
-                      expect(response_body).to eq(expected_response)
-                    end
+                    expect(response).to have_http_status(:ok)
+                    expect(response_body).to eq(expected_response)
                   end
                 end
 
                 context 'when there are multiple unique representative_ids' do
                   before do
-                    create(:representative, representative_id: '67890', poa_codes: ['EDF'])
-                    create(:representative, representative_id: '54321', poa_codes: ['EDF'])
+                    create(:veteran_representative, representative_id: '67890', poa_codes: ['EDF'])
+                    create(:veteran_representative, representative_id: '54321', poa_codes: ['EDF'])
                   end
 
                   it 'returns a meaningful 422' do
@@ -121,7 +118,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request
     describe 'status' do
       it 'returns the status of a POA' do
         mock_ccg(scopes) do |auth_header|
-          poa = create(:power_of_attorney, auth_headers: auth_header)
+          poa = create(:power_of_attorney, :submitted, auth_headers: auth_header)
 
           get "#{get_poa_path}/#{poa.id}", params: nil, headers: auth_header
           json = JSON.parse(response.body)

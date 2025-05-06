@@ -34,6 +34,6 @@
   "F[0].Page_2[0].FaxNumber[0]": "<%= %>",
   "F[0].Page_2[0].Remarks[0]": "<%= form.data['additional_information'] %>",
   "F[0].Page_2[0].SignatureField1[0]": "<%= form.data.dig('preparer_name', 'first') || '' %> <%= form.data.dig('preparer_name', 'middle') || '' %> <%= form.data.dig('preparer_name', 'last') || '' %>",
-  "F[0].Page_2[0].DateSigned[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m/%d/%Y') %>",
+  "F[0].Page_2[0].DateSigned[0]": "<%= form&.signature_date&.strftime('%m/%d/%Y') %>",
   "F[0]": "<%= form.data.dig('F') %>"
 }

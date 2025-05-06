@@ -1,0 +1,136 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/vpg/v1/patients/1012845331V153043/relationships?clinicalService=primaryCare&location=100
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - 06054f2f-fec7-4ee1-be71-6d9e381f063a
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 23 Aug 2024 14:46:54 GMT
+        Content-Type:
+          - application/json
+        Access-Control-Allow-Headers:
+          - x-vamf-jwt
+        Access-Control-Allow-Origin:
+          - "*"
+        Access-Control-Allow-Methods:
+          - GET,OPTIONS
+        Access-Control-Max-Age:
+          - '3600'
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "data": {
+              "patientIcn": "1012781163V209546",
+              "relationships": [
+                {
+                  "provider": {
+                    "cernerId": "Practitioner/1",
+                    "name": "House, Gregory, M.D."
+                  },
+                  "location": {
+                    "vhaFacilityId": "653",
+                    "name": "653 ROS OR VA"
+                  },
+                  "clinic": null,
+                  "serviceType": null,
+                  "lastSeen": "2024-02-22T21:20:52.661Z"
+                },
+                {
+                  "provider": {
+                    "cernerId": "Practitioner/1",
+                    "name": "House, Gregory, M.D."
+                  },
+                  "location": {
+                    "vhaFacilityId": "653",
+                    "name": "653 ROS OR VA"
+                  },
+                  "clinic": null,
+                  "serviceType": {
+                    "coding": {
+                      "system": "http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type",
+                      "code": "primaryCare",
+                      "display": "Primary Care"
+                    },
+                    "text": "Primary Care"
+                  },
+                  "lastSeen": "2024-08-22T21:20:52.661Z"
+                },
+                {
+                  "provider": {
+                    "cernerId": "Practitioner/1",
+                    "name": "House, Gregory, M.D."
+                  },
+                  "location": {
+                    "vhaFacilityId": "653GB",
+                    "name": "653GB BRK OR VA"
+                  },
+                  "clinic": "null",
+                  "serviceType": {
+                    "coding": {
+                      "system": "http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type",
+                      "code": "optometry",
+                      "display": "Optometry"
+                    },
+                    "text": "Optometry"
+                  },
+                  "lastSeen": "2023-08-22T21:20:52.661Z"
+                },
+                {
+                  "provider": {
+                    "cernerId": "Practitioner/2",
+                    "name": "Cuddy, Lisa, M.D."
+                  },
+                  "location": {
+                    "vhaFacilityId": "653GA",
+                    "name": "653GA NBD OR VA"
+                  },
+                  "clinic": null,
+                  "serviceType": {
+                    "coding": {
+                      "system": "http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type",
+                      "code": "audiology",
+                      "display": "Audiology"
+                    },
+                    "text": "Audiology"
+                  },
+                  "lastSeen": "2024-08-22T21:20:52.661Z"
+                }
+              ]
+            },
+            "failures": [
+              {
+                "system":"CFA",
+                "id":"id-string",
+                "status":"status-string",
+                "code":0,
+                "traceId":"traceId-string",
+                "message":"Failed to fetch relationships from CFA",
+                "detail":"detail-string"
+              }
+            ]
+          }
+    recorded_at: Fri, 23 Aug 2024 14:46:55 GMT
+recorded_with: VCR 6.2.0

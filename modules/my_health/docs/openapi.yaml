@@ -63,6 +63,93 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/allergies/{id}
+  /v1/medical_records/bbmi_notification/status:
+    get:
+      description: Show the current user's preference setting for BBMI email notifications.
+      operationId: bbmi_notification_status
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flag:
+                    type: boolean
+                    description: Indicates whether the BBMI email preference is enabled (`true`) or disabled (`false`).
+                example:
+                  flag: true
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/bbmi_notification/status
+  /v1/medical_records/ccd/generate:
+    get:
+      description: Generate a Continuity of Care Document for a patient to later download.
+      operationId: generate_ccd
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/MedicalRecordsCcdGenerateStatus.yml
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/ccd/generate
+  /v1/medical_records/ccd/download:
+    get:
+      description: Download the Continuity of Care Document specified by the date parameter.
+      operationId: download_ccd
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Date of the desired study, as pulled verbatim from the generate endpoint response
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                type: object
+                description: >
+                  The returned document is an XML file representing the patient's Continuity of Care Document.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/ccd/download
   /v1/medical_records/clinical_notes:
     get:
       description: List patient clinical notes
@@ -171,6 +258,211 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/conditions/{id}
+  /v1/medical_records/imaging:
+    get:
+      description: Get a list of MHV radiology reports from CVIX for the current user. These results do not include VIA reports.
+      operationId: list_imaging_studies
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/MedicalRecordsImagingStudyList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/imaging
+  /v1/medical_records/imaging/status:
+    get:
+      description: Get the statuses of all available CVIX study jobs for the current user.
+      operationId: list_study_job_statuses
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/MedicalRecordsStudyJobStatus.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/imaging
+  /v1/medical_records/imaging/{studyId}/dicom:
+    get:
+      description: Returns a ZIP file containing DICOM images for the specified study.
+      operationId: download_dicom
+      parameters:
+        - name: studyId
+          in: path
+          required: true
+          description: Unique identifier for the imaging study
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/imaging/{studyId}/dicom
+  /v1/medical_records/imaging/{studyId}/images/{seriesId}/{imageId}:
+    get:
+      description: Returns a JPG image for the provided study, series, and image.
+      operationId: download_image
+      parameters:
+        - name: studyId
+          in: path
+          required: true
+          description: Unique identifier for the imaging study
+          schema:
+            type: string
+        - name: seriesId
+          in: path
+          required: true
+          description: Study-scoped identifier for the image series
+          schema:
+            type: string
+        - name: imageId
+          in: path
+          required: true
+          description: Study-scoped identifier for the image within the series
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/imaging/{studyId}/images/{seriesId}/{imageId}
+  /v1/medical_records/imaging/{studyId}/request:
+    get:
+      description: Request that MHV download an imaging study from CVIX. This will initiate the transfer of the images into MHV for later retrieval from vets-api as DICOM or JPGs.
+      operationId: request_study
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/MedicalRecordsStudyJobStatus.yml
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not Found
+      summary: /v1/medical_records/imaging/{studyId}/request
+  /v1/medical_records/imaging/{studyId}/images:
+    get:
+      description: Get a list of images for the provided CVIX radiology study
+      operationId: list_images
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Filename representing an image in a specific series.
+                example:
+                  - "Series 01 - Image 01.jpg"
+                  - "Series 02 - Image 01.jpg"
+                  - "Series 03 - Image 01.jpg"
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not Found
+      summary: /v1/medical_records/imaging/{studyId}/images
   /v1/medical_records/labs_and_tests:
     get:
       description: >
@@ -203,11 +495,10 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
       summary: /v1/medical_records/labs_and_tests
-  /v1/medical_records/labs_and_tests/diagrep/{id}:
+  /v1/medical_records/labs_and_tests/{id}:
     get:
       description: |
-        Get a patient labs and tests record of type DiagnosticReport. This is for Chemistry/Hematology,
-        Microbiology, and Pathology results.
+        Get a patient labs and tests record of type DiagnosticReport.
       operationId: get_labs_and_tests_diagrep
       responses:
         "200":
@@ -219,33 +510,6 @@ paths:
                   FHIR DiagnosticReport. The schemas can be found at
                   <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
                   <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Forbidden
-      summary: /v1/medical_records/labs_and_tests/diagrep/{id}
-  /v1/medical_records/labs_and_tests/docref/{id}:
-    get:
-      description: |
-        Get a patient labs and tests record of type DocumentReference. This is for EKG and Radiolody results.
-      operationId: get_labs_and_tests_docref
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                type: object
-                description: >
-                  FHIR DocumentReference. The schema can be found at
                   <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
                   <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
@@ -261,7 +525,213 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Forbidden
-      summary: /v1/medical_records/labs_and_tests/docref/{id}
+      summary: /v1/medical_records/labs_and_tests/{id}
+  /v1/medical_records/military_service:
+    get:
+      description: Get the current user's military service
+      operationId: get_military_service
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+                description: A long string containing the user's military service report
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/military_service
+  /v1/medical_records/patient:
+    get:
+      description: Get the current user's patient account information, including a list of treatment facilities.
+      operationId: get_patient
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  The returned object is a 
+                  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/patient
+  /v1/medical_records/patient/demographic:
+    get:
+      description: Get the current user's self-entered demographic information.
+      operationId: get_patient_demographic
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  The returned object is a 
+                  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/patient/demographic
+  /v1/medical_records/radiology:
+    get:
+      description: Get the current user's non-FHIR-ized list of radiology reports from VIA (through MHV).
+      operationId: get_mhv_radiology
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/MedicalRecordsPhrRadiologyList.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/radiology
+/v1/medical_records/self_entered:
+  get:
+    description: Get the current user's self-entered information.
+    operationId: get_patient
+    responses:
+      "200":
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                responses:
+                  type: array
+                  description: |
+                    A list of self-entered health information objects. Each object will be a self-entered type, such as:
+                    - <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-getcare-api/blob/development/mhv-getcare-portal-api/src/main/java/gov/va/med/mhv/getcare/common/dto/HealthInsuranceDTO.java'>HealthInsuranceDTO</a>
+                    - <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-health-history-api/blob/development/mhv-health-history-portal-api/src/main/java/gov/va/med/mhv/health/dto/MilitaryHistoryDTO.java'>MilitaryHistoryDTO</a>
+                    - <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-health-history-api/blob/development/mhv-health-history-portal-api/src/main/java/gov/va/med/mhv/health/dto/ImmunizationDTO.java'>ImmunizationDTO</a>
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      source_date:
+                        type: string
+                        format: date
+                      note:
+                        type: string
+                errors:
+                  type: array
+                  description: |
+                    An array of errors encountered while retrieving the records, if any.
+                    Each object may include a code and a human-readable message.
+                  items:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              required:
+                - responses
+                - errors
+        description: OK
+      "401":
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/Errors.yml
+        description: Unauthorized
+      "403":
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/Errors.yml
+        description: Forbidden
+    summary: /v1/medical_records/self_entered
+  /v1/medical_records/session:
+    get:
+      description: Creates a session to the upstream MHV APIs. Note that any MR API call will do this as well. This endpoint ONLY creates a session.
+      operationId: post_session
+      responses:
+        "204":
+          description: No Content
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/session
+  /v1/medical_records/session/status:
+    get:
+      description: Returns the PHR Refresh status for the current user.
+      operationId: get_session_status
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/MedicalRecordsPatientExtractStatus.yml
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/session/status
   /v1/medical_records/vaccines:
     get:
       description: List patient vaccines
@@ -346,7 +816,7 @@ paths:
   /v1/medical_records/vitals/{id}:
     get:
       description: Get a patient vital record
-      operationId: get_vaccine
+      operationId: get_vitals
       responses:
         "200":
           content:
@@ -881,32 +1351,6 @@ paths:
       summary: /v1/messaging/messages/categories
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
-  /v1/messaging/messages/signature:
-    get:
-      description: Gets user message signature preferences
-      operationId: get_signature
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/SecureMessageSignature.yml
-          description: OK
-        "401":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Unauthorized
-        "403":
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/messages/signature
-      parameters:
-        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -1312,6 +1756,64 @@ paths:
                 $ref: ./schemas/Errors.yml
           description: Not authorized for access to secure messages
       summary: /v1/messaging/preferences/recipients
+  /v1/messaging/preferences/signature:
+    get:
+      description: Gets user message signature preferences
+      operationId: get_signature
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageSignature.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
+    post:
+      description: Update user message signature preferences
+      operationId: update_signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/SecureMessageSignatureUpdateRequest.yml
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageSignature.yml
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/prescriptions:
     get:
       description: List medications.

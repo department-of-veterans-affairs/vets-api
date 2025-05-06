@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA214138
-    include Virtus.model(nullify_blank: true)
+  class VBA214138 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_4138'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def desired_stamps
       [{
@@ -38,18 +31,26 @@ module SimpleFormsApi
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('full_name', 'first'),
-        'veteranLastName' => @data.dig('full_name', 'last'),
-        'fileNumber' => @data.dig('id_number', 'va_file_number').presence || @data.dig('id_number', 'ssn'),
-        'zipCode' => @data.dig('mailing_address', 'postal_code'),
+        'veteranFirstName' => notification_first_name,
+        'veteranLastName' => data.dig('full_name', 'last'),
+        'fileNumber' => data.dig('id_number', 'va_file_number').presence || data.dig('id_number', 'ssn'),
+        'zipCode' => data.dig('mailing_address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
-        'docType' => @data['form_number'],
+        'docType' => data['form_number'],
         'businessLine' => 'CMP'
       }
     end
 
+    def notification_first_name
+      data.dig('full_name', 'first')
+    end
+
+    def notification_email_address
+      data['email_address']
+    end
+
     def zip_code_is_us_based
-      @data.dig('mailing_address', 'country') == 'USA'
+      data.dig('mailing_address', 'country') == 'USA'
     end
 
     def track_user_identity(confirmation_number); end

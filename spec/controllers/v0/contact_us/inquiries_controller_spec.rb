@@ -14,7 +14,7 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
     end
 
     context 'when signed in' do
-      let(:user) { FactoryBot.build(:user) }
+      let(:user) { build(:user) }
 
       before do
         sign_in_as(user)
@@ -49,6 +49,10 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
   describe '#create' do
     def send_create
       post(:create, params: { ask: { form: } })
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?).and_call_original
     end
 
     context 'when Flipper :get_help_ask_form is' do

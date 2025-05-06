@@ -15,6 +15,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
@@ -40,6 +41,15 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
 
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
+
+    before do
+      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                          match_requests_on: %i[method sm_user_ignoring_path_param])
+    end
+
+    after do
+      VCR.eject_cassette
+    end
 
     context 'not a va patient' do
       before { get '/my_health/v1/medical_records/vaccines' }
@@ -74,9 +84,9 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vaccines', type: :request do
     context 'when the patient is not found' do
       before do
         allow_any_instance_of(MedicalRecords::Client).to receive(:list_vaccines)
-          .and_raise(MedicalRecords::PatientNotFound)
+          .and_return(:patient_not_found)
         allow_any_instance_of(MedicalRecords::Client).to receive(:get_vaccine)
-          .and_raise(MedicalRecords::PatientNotFound)
+          .and_return(:patient_not_found)
       end
 
       it 'returns a 202 Accepted response for GET #index' do

@@ -108,7 +108,7 @@
               "example": "DOMESTIC"
             },
             "state": {
-              "description": "State Veteran resides in.",
+              "description": "State or province Veteran resides in.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
@@ -250,7 +250,7 @@
               "type": "string"
             },
             "state": {
-              "description": "New state Veteran resides in.",
+              "description": "New state or province Veteran resides in.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
@@ -334,12 +334,12 @@
                     "areaCode": {
                       "description": "Area code of Point of Contact.",
                       "type": "string",
-                      "example": "123"
+                      "example": "555"
                     },
                     "phoneNumber": {
                       "description": "Primary phone of Point of Contact.",
                       "type": "string",
-                      "example": "1231234"
+                      "example": "5555555"
                     }
                   }
                 }
@@ -467,13 +467,13 @@
                 "example": "1980-02-05"
               },
               "activeDutyEndDate": {
-                "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                 "type": "string",
                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "1990-01-02"
               },
               "separationLocationCode": {
-                "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
+                "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                 "type": "string",
                 "example": "98283"
               }
@@ -549,10 +549,12 @@
               "required": ["areaCode", "phoneNumber"],
               "properties": {
                 "areaCode": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "555"
                 },
                 "phoneNumber": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "5555555"
                 }
               }
             },

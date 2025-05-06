@@ -5,68 +5,111 @@ require 'common/client/base'
 module ClaimsApi
   module Slack
     class FailedSubmissionsMessenger
-      # rubocop:disable Metrics/ParameterLists
-      def initialize(claims, poa, itf, ews, from, to, env)
-        @errored_claims = claims
-        @errored_poa = poa
-        @errored_itf = itf
-        @errored_ews = ews
-        @to = to
-        @from = from
-        @environment = env
+      def initialize(options = {})
+        @errored_disability_claims = options[:errored_disability_claims] # Array of id
+        @errored_va_gov_claims = options[:errored_va_gov_claims] # Array of [id, transaction_id]
+        @errored_poa = options[:errored_poa] # Array of id
+        @errored_itf = options[:errored_itf] # Array of id
+        @errored_ews = options[:errored_ews] # Array of id
+        @from = options[:from]
+        @to = options[:to]
+        @environment = options[:environment]
       end
-      # rubocop:enable Metrics/ParameterLists
 
       def notify!
-        slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                               channel: '#api-benefits-claims-alerts',
-                                               username: 'Failed Submissions Messenger')
+        notifier = ClaimsApi::Slack::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                                channel: '#api-benefits-claims-alerts',
+                                                username: 'Failed Submissions Messenger')
 
-        notification_message = build_notification_message
-
-        slack_client.notify(notification_message)
+        notifier.notify('fallback text', blocks: build_blocks)
       end
 
       private
 
-      def build_notification_message
-        message = ''.dup
-        message << message_heading
-        message << build_submission_information(@errored_claims, 'Disability Compensation')
-        message << build_submission_information(@errored_poa, 'Power of Attorney')
-        message << build_submission_information(@errored_itf, 'Intent to File')
-        message << build_submission_information(@errored_ews, 'Evidence Waiver')
-        message
+      def build_blocks
+        blocks = []
+        blocks << message_heading
+        title_to_errors = {
+          'Disability Compensation' => @errored_disability_claims,
+          'Va Gov Disability Compensation' => @errored_va_gov_claims,
+          'Power of Attorney' => @errored_poa,
+          'Intent to File' => @errored_itf,
+          'Evidence Waiver' => @errored_ews
+        }
+
+        title_to_errors.each do |title, errors|
+          blocks << build_error_blocks(title, errors)
+        end
+
+        blocks.compact.flatten
       end
 
       def message_heading
-        heading = ''.dup
-        heading << build_heading_message
-        heading
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: "*ERRORED SUBMISSIONS*\n\n#{@from} – #{@to}\nThe following submissions have encountered errors " \
+                  "in *#{@environment}*:"
+          }
+        }
       end
 
-      def build_heading_message
-        heading_message = ''.dup
-        heading_text = "*ERRORED SUBMISSIONS* \n\n#{@from} - #{@to} \nThe following submissions have encountered " \
-                       "errors in *#{@environment}*. \n\n"
-        heading_message << heading_text
-        heading_message
-      end
+      def build_error_blocks(title, errors)
+        return nil if errors.nil? || errors.count.zero?
 
-      def build_submission_information(errored_submissions, submission_type)
-        return '' if errored_submissions.count.zero?
+        blocks = [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: "*#{title} Errors*\nTotal: #{errors.count}"
+            }
+          }
+        ]
 
-        errored_submission_message = ''.dup
-        if submission_type == 'Intent to File'
-          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n\n"
-        else
-          errored_submission_message << "*#{submission_type} Errors* \nTotal: #{errored_submissions.count} \n```"
-          errored_submissions.each do |submission_id|
-            errored_submission_message << "#{submission_id} \n"
-          end
-          errored_submission_message << "```  \n\n"
+        return blocks if title == 'Intent to File'
+
+        errors.each_slice(5) do |errors_slice|
+          blocks << build_error_block(title, errors_slice)
         end
-        errored_submission_message
+
+        blocks
+      end
+
+      def build_error_block(title, errors)
+        text = if title == 'Va Gov Disability Compensation'
+                 errors.map { |eid, tid| "CID: #{link_value(eid)} / TID: #{link_value(tid)}" }.join("\n")
+               else
+                 errors.join("\n")
+               end
+
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: "```#{text}```"
+          }
+        }
+      end
+
+      def link_value(id)
+        return 'N/A' if id.blank?
+
+        time_stamps = datadog_timestamps
+
+        "<https://vagov.ddog-gov.com/logs?query='#{id}'&agg_m=count&agg_m_source=base&agg_t=count&cols=" \
+          'host%2Cservice&fromUser=true&messageDisplay=inline&refresh_mode=sliding&storage=hot&stream_sort=' \
+          "desc&viz=stream&from_ts=#{time_stamps[0]}&to_ts=#{time_stamps[1]}&live=true|#{id}>"
+      end
+
+      # set the range to go back 3 days.  Link is based on an ID so any additional range should
+      # not add additional noise, but this covers the weekend for Monday morning links
+      def datadog_timestamps
+        current = Time.now.to_i * 1000 # Data dog uses milliseconds
+        three_days_ago = current - 259_200_000 # Three days ago
+
+        [three_days_ago, current]
       end
     end
   end

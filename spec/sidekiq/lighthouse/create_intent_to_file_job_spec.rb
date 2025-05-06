@@ -14,7 +14,21 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
   let(:monitor) { double('monitor') }
 
   describe '#perform' do
-    let(:response) { double('response') }
+    let(:timestamp) { Time.zone.now }
+    let(:response) do
+      {
+        'data' => {
+          'id' => '123456',
+          'type' => 'intent_to_file',
+          'attributes' => {
+            'creationDate' => timestamp.to_s,
+            'expirationDate' => timestamp.to_s,
+            'type' => 'pensions',
+            'status' => 'active'
+          }
+        }
+      }
+    end
 
     before do
       allow(user).to receive(:participant_id).and_return('test-pid')
@@ -22,9 +36,8 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
       allow(InProgressForm).to receive(:find).and_return(pension_ipf)
 
       allow(BenefitsClaims::Service).to receive(:new).and_return(service)
-      allow(service).to receive(:create_intent_to_file).and_return(response)
 
-      job.instance_variable_set(:@itf_log_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive :track_create_itf_begun
       allow(monitor).to receive :track_create_itf_failure
       allow(monitor).to receive :track_create_itf_success
@@ -35,13 +48,38 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
       allow(monitor).to receive :track_invalid_itf_type
     end
 
+    it 'returns an established ITF' do
+      expect(service).to receive(:get_intent_to_file).with(itf_type).and_return(response)
+      expect(monitor).to receive(:track_create_itf_active_found)
+      expect(monitor).not_to receive(:track_create_itf_begun)
+      expect(service).not_to receive(:create_intent_to_file).with(itf_type, '')
+
+      # as when invoked from in_progress_form_controller
+      ret = job.perform(123, user.icn, user.participant_id)
+      expect(ret).to be response
+    end
+
     it 'successfully submits an ITF' do
+      expect(service).to receive(:get_intent_to_file).with(itf_type).and_raise Common::Exceptions::ResourceNotFound
       expect(monitor).to receive(:track_create_itf_begun).once
-      expect(service).to receive(:create_intent_to_file).with(itf_type, '')
+      expect(service).to receive(:create_intent_to_file).with(itf_type, '').and_return(response)
       expect(monitor).to receive(:track_create_itf_success).once
 
       # as when invoked from in_progress_form_controller
-      job.perform(123, user.icn, user.participant_id)
+      ret = job.perform(123, user.icn, user.participant_id)
+      expect(ret).to be response
+    end
+
+    it 'continues to submit if ITF is not active' do
+      response['data']['attributes']['status'] = 'FUBAR'
+      expect(service).to receive(:get_intent_to_file).with(itf_type).and_return(response)
+      expect(monitor).to receive(:track_create_itf_begun).once
+      expect(service).to receive(:create_intent_to_file).with(itf_type, '').and_return(response)
+      expect(monitor).to receive(:track_create_itf_success).once
+
+      # as when invoked from in_progress_form_controller
+      ret = job.perform(123, user.icn, user.participant_id)
+      expect(ret).to be response
     end
 
     it 'raises MissingICN' do
@@ -93,22 +131,26 @@ RSpec.describe Lighthouse::CreateIntentToFileJob do
       # as when invoked from in_progress_form_controller
       expect { job.perform(123, user.icn, user.participant_id) }.to raise_error ActiveRecord::RecordNotFound
     end
+  end
 
-    # Retries exhausted
-    describe 'sidekiq_retries_exhausted block' do
-      context 'when retries are exhausted' do
-        it 'logs a distinct error when form_type, form_start_date, and veteran_icn provided' do
-          Lighthouse::CreateIntentToFileJob.within_sidekiq_retries_exhausted_block(
-            { 'args' => ['21P-527EZ', pension_ipf.created_at.to_s, user_account.icn] }
-          ) do
-            expect(Rails.logger).to receive(:error).exactly(:once).with(
-              'Lighthouse::CreateIntentToFileJob create pension ITF exhausted',
-              hash_including(:error, itf_type: 'pension',
-                                     form_start_date: pension_ipf.created_at.to_s,
-                                     user_account_uuid: user_account.id)
-            )
-            expect(StatsD).to receive(:increment).with('worker.lighthouse.create_itf_async.exhausted')
-          end
+  # Retries exhausted
+  describe 'sidekiq_retries_exhausted block' do
+    context 'when retries are exhausted' do
+      let(:exhaustion_msg) do
+        { 'args' => [pension_ipf.id, user_account.icn, 'PID'], 'class' => 'Lighthouse::CreateIntentToFileJob',
+          'error_message' => 'An error occurred', 'queue' => 'default' }
+      end
+
+      before do
+        allow(BenefitsClaims::IntentToFile::Monitor).to receive(:new).and_return(monitor)
+        allow(InProgressForm).to receive(:find).and_return(pension_ipf)
+      end
+
+      it 'logs a distinct error when form_type, form_start_date, and veteran_icn provided' do
+        Lighthouse::CreateIntentToFileJob.within_sidekiq_retries_exhausted_block(
+          exhaustion_msg, 'TESTERROR'
+        ) do
+          expect(monitor).to receive(:track_create_itf_exhaustion).with('pension', pension_ipf, 'TESTERROR')
         end
       end
     end

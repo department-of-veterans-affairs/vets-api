@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/ppiu/service'
-require 'evss/intent_to_file/service'
-
 module EVSS
   module DisabilityCompensationForm
     # Transforms a client submission into the format expected by the EVSS 526 service
@@ -59,11 +56,7 @@ module EVSS
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
         output_form['claimSubmissionSource'] = 'VA.gov'
-        # any form that has a startedFormVersion (whether it is '2019' or '2022')
-        # will go through the Toxic Exposure flow
-        output_form['startedFormVersion'] = input_form['startedFormVersion'] || nil
         output_form.compact!
-
         output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
         output_form.update(translate_service_info)
@@ -72,7 +65,8 @@ module EVSS
         output_form.update(translate_disabilities)
         # any form that has a startedFormVersion (whether it is '2019' or '2022')
         # will go through the Toxic Exposure flow
-        output_form.update(add_toxic_exposure) if output_form['startedFormVersion']
+        output_form.update(translate_started_form_version)
+        output_form.update(add_toxic_exposure)
 
         @translated_form
       end
@@ -156,8 +150,7 @@ module EVSS
       def translate_banking_info
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
-        # if banking data is not included then it has not changed and will be retrieved
-        # from the PPIU service
+        # If banking data is not included, then it has not changed and will be retrieved from Lighthouse
         if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
           get_banking_info
         else
@@ -169,15 +162,15 @@ module EVSS
       end
 
       def get_banking_info
-        return {} unless @user.authorize :ppiu, :access?
+        return {} unless @user.authorize :lighthouse, :direct_deposit_access?
 
-        # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
+        # Call to Lighthouse Direct Deposit (aka PPIU) data provider
         service = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:ppiu],
-          provider: nil,
+          provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: {},
           current_user: @user,
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
+          feature_toggle: nil
         )
 
         response = service.get_payment_information
@@ -186,7 +179,7 @@ module EVSS
           set_account(response)
         rescue => e
           method_name = '#get_banking_info'
-          Rails.logger.error "#{method_name} Failed to retrieve PPIU data from #{service.class}: #{e.message}"
+          Rails.logger.error "#{method_name} Failed to retrieve DirectDeposit data from #{service.class}: #{e.message}"
           raise Common::Exceptions::BadRequest.new(errors: [e.message])
         end
       end
@@ -224,6 +217,13 @@ module EVSS
             'bankName' => bank_name
           }
         }
+      end
+
+      ###
+      # Started Form Version
+      ###
+      def translate_started_form_version
+        { 'startedFormVersion' => input_form['startedFormVersion'] || '2019' }
       end
 
       ###
@@ -386,7 +386,7 @@ module EVSS
       end
 
       def translate_mailing_address(address)
-        pciu_address = {
+        va_profile_address = {
           'country' => address['country'],
           'addressLine1' => address['addressLine1'],
           'addressLine2' => address['addressLine2'],
@@ -395,20 +395,20 @@ module EVSS
           'endingDate' => address.dig('effectiveDate', 'to')
         }
 
-        pciu_address['type'] = get_address_type(address)
+        va_profile_address['type'] = get_address_type(address)
 
         zip_code = split_zip_code(address['zipCode']) if address['zipCode']
 
-        case pciu_address['type']
+        case va_profile_address['type']
         when 'DOMESTIC'
-          pciu_address.merge!(set_domestic_address(address, zip_code))
+          va_profile_address.merge!(set_domestic_address(address, zip_code))
         when 'MILITARY'
-          pciu_address.merge!(set_military_address(address, zip_code))
+          va_profile_address.merge!(set_military_address(address, zip_code))
         when 'INTERNATIONAL'
-          pciu_address.merge!(set_international_address(address))
+          va_profile_address.merge!(set_international_address(address))
         end
 
-        pciu_address.compact
+        va_profile_address.compact
       end
 
       def get_address_type(address)
@@ -577,9 +577,7 @@ module EVSS
 
           next if append_input_disability.blank?
 
-          if Flipper.enabled?(:disability_526_toxic_exposure, @user)
-            append_input_disability['cause'] = input_disability['cause']
-          end
+          append_input_disability['cause'] = input_disability['cause']
           disabilities.append(append_input_disability)
         end
 
@@ -627,7 +625,7 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
+          'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n" \
                                 "#{input_disability['primaryDescription']}"
         }.compact
       end
@@ -647,7 +645,7 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Worsened because of military service\n"\
+          'serviceRelevance' => "Worsened because of military service\n" \
                                 "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
         }.compact
       end
@@ -668,9 +666,9 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Caused by VA care\n"\
-                                "Event: #{input_disability['vaMistreatmentDescription']}\n"\
-                                "Location: #{input_disability['vaMistreatmentLocation']}\n"\
+          'serviceRelevance' => "Caused by VA care\n" \
+                                "Event: #{input_disability['vaMistreatmentDescription']}\n" \
+                                "Location: #{input_disability['vaMistreatmentLocation']}\n" \
                                 "TimeFrame: #{input_disability['vaMistreatmentDate']}"
         }.compact
       end
@@ -690,7 +688,7 @@ module EVSS
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
           'specialIssues' => input_disability['specialIssues'].presence,
-          'serviceRelevance' => "Caused by a service-connected disability\n"\
+          'serviceRelevance' => "Caused by a service-connected disability\n" \
                                 "#{input_disability['causedByDisabilityDescription']}"
         }.compact
 

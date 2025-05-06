@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/financial-status-report/documentstream?objectId=ABCD-1234
+    uri: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/financial-status-report/documentstream?objectId=ABCD-1234
     body:
       encoding: UTF-8
       string: ''

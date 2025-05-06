@@ -6,10 +6,10 @@ RSpec.describe Preneeds::ReceiveApplication do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :receive_application }
+    let(:params) { attributes_for(:receive_application) }
 
     it 'populates attributes', run_at: '2017-01-04 03:00:00 EDT' do
-      name_map = described_class.attribute_set.map(&:name)
+      name_map = described_class.attribute_set
 
       expect(name_map).to contain_exactly(
         :tracking_number, :return_code, :application_uuid, :return_description, :submitted_at

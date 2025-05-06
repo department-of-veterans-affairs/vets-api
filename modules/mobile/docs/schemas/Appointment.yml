@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - type
   - id
@@ -13,13 +14,12 @@ properties:
     description: Upstream identifier
   attributes:
     type: object
+    additionalProperties: false
     required:
       - appointmentType
       - appointmentIen
       - cancelId
       - comment
-      - clinicId
-      - facilityId
       - healthcareProvider
       - healthcareService
       - location
@@ -34,7 +34,6 @@ properties:
       - vetextId
       - reason
       - isCovidVaccine
-      - locationId
     properties:
       appointmentType:
         type: string
@@ -42,37 +41,49 @@ properties:
         example: VA
       appointmentIen:
         type: string
+        nullable: true
         example: 19648
       cancelId:
         type: string
+        nullable: true
         example: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment:
         type: string
+        nullable: true
         example: Please arrive 20 minutes before the start of your appointment
       healthcareProvider:
         type: string
+        nullable: true
         example: John Smith
       healthcareService:
-        type: null
+        type: string
+        nullable: true
         example: null
         description: This is deprecated and will always return null. It is still included for backwards compatibility.
       location:
         type: object
+        additionalProperties: false
         required:
+          - id
           - name
           - address
-          - phoneNumber
+          - lat
+          - long
+          - phone
           - url
           - code
         properties:
           id:
             type: string
+            nullable: true
             example: 442
           name:
             type: string
+            nullable: true
             example: VA Long Beach Healthcare System
           address:
             type: object
+            additionalProperties: false
             required:
               - street
               - city
@@ -81,48 +92,63 @@ properties:
             properties:
               street:
                 type: string
+                nullable: true
                 example: 5901 East 7th Street, Building 166
               city:
                 type: string
+                nullable: true
                 example: Long Beach
               state:
                 type: string
+                nullable: true
                 example: CA
               zipCode:
                 type: string
+                nullable: true
                 example: 90822
           lat:
             type: float
+            nullable: true
             example: 33.770050
           long:
             type: float
+            nullable: true
             example: -118.193741
           phone:
             type: object
+            additionalProperties: false
             required:
+              - areaCode
               - number
               - extension
             properties:
               areaCode:
                 type: string
+                nullable: true
                 example: 562
               number:
                 type: string
+                nullable: true
                 example: 434-6008
               extension:
                 type: string
+                nullable: true
                 example: 1001
           url:
             type: string
+            nullable: true
             example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
           code:
             type: string
+            nullable: true
             example: GL32C
       physicalLocation:
         type: string
+        nullable: true
         example: Blind Rehabilitation Center
       minutesDuration:
         type: integer
+        nullable: true
         example: 60
       phoneOnly:
         type: boolean
@@ -140,6 +166,7 @@ properties:
         example: BOOKED
       statusDetail:
         type: string
+        nullable: true
         description: For a cancelled appointment return details about who or why it was cancelled.
         enum: [ CANCELLED BY CLINIC & AUTO RE-BOOK,
                 CANCELLED BY CLINIC,
@@ -149,12 +176,14 @@ properties:
         example: BOOKED
       timeZone:
         type: string
+        nullable: true
         example: "America/Los_Angeles"
       vetextId:
         type: string
         example: 308;20210106.140000
       reason:
         type: string
+        nullable: true
         example: "Follow-up/Routine: Reason 1"
       isCovidVaccine:
         type: boolean
@@ -164,25 +193,114 @@ properties:
         example: false
       proposedTimes:
         type: array
+        nullable: true
         example: [{ date: "10/01/2020", time: "AM" }, { date: "10/01/2020", time: "PM" }, { date: null, time: null }]
       typeOfCare:
         type: string
+        nullable: true
         example: "Primary Care"
       patientPhoneNumber:
         type: string
+        nullable: true
         example: "123-456-7890"
       patientEmail:
         type: string
+        nullable: true
         example: "someone@example.com"
       bestTimeToCall:
         type: array
+        nullable: true
         example: ["Morning", "Afternoon", "Evening"]
       friendlyLocationName:
         type: string
+        nullable: true
         example: "CHYSHR-Cheyenne VA Medical Center"
       serviceCategoryName:
         type: string
+        nullable: true
         example: "COMPENSATION & PENSION"
-      locationId:
-        type: string
-        example: '983'
+      travelPayClaim:
+        type: object
+        nullable: true
+        description: This is the travel pay claim object. 
+        additionalProperties: false
+        properties:
+          metadata:
+            type: object
+            nullable: false
+            description: Metadata about the claim call success
+            additionalProperties: false
+            required:
+              - status
+              - success
+              - message
+            properties:
+              status:
+                type: integer
+                nullable: false
+                example: 200
+              success:
+                type: boolean
+                nullable: false
+                example: true
+              message:
+                type: string
+                nullable: true
+                example: 'Data retrieved successfully'
+          claim:
+            type: object
+            nullable: true
+            description: The claim object - only appended if there is an existing claim for the appointment
+            additionalProperties: false
+            required:
+              - id
+              - claimNumber
+              - claimStatus
+              - appointmentDateTime
+              - facilityId
+              - facilityName
+              - totalCostRequested
+              - reimbursementAmount
+              - createdOn
+              - modifiedOn
+            properties:
+              id:
+                type: string
+                nullable: false
+                example: "16cbc3d0-56de-4d86-abf3-ed0f6908ee53"
+              claimNumber:
+                type: string
+                nullable: false
+                example: 'TC00000000001'
+              claimStatus:
+                type: string
+                nullable: false
+                example: 'In process'
+              appointmentDateTime:
+                type: string
+                nullable: false
+                example: '2023-02-23T22:22:52.549Z'
+              facilityId: 
+                type: string
+                nullable: false
+                example: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+              facilityName: 
+                type: string
+                nullable: false
+                example: 'Tomah VA Medical Center'
+              totalCostRequested:
+                type: float
+                nullable: false
+                example: 4.52
+              reimbursementAmount:
+                type: float
+                nullable: false
+                example: 0
+              createdOn:  
+                type: string
+                nullable: false
+                example: '2023-02-24T22:22:52.549Z'
+              modifiedOn:
+                type: string
+                nullable: false
+                example: '2023-02-26T22:22:52.549Z' 

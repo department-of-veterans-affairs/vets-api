@@ -1,6 +1,14 @@
 ---
 :services:
 
+# BGS
+- :name: "BGS"
+  :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/VDC/ManageRepresentativeService"
+      :file_path: "/bgs/manage_representative_service/read_poa_request/default"
+
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>
@@ -9,25 +17,41 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
-      :file_path: "/travel_pay/ping/default"
-      :response_delay: 0.3
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized-ping"
-      :file_path: "/travel_pay/ping/default"
-      :response_delay: 0.3
-    - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1/Auth/access-token"
-      :file_path: "/travel_pay/btsss_token/default"
-      :response_delay: 0.3
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/claims"
-      :file_path: "/travel_pay/claims/default"
-      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :response_delay: 0.3
+    ## Travel Pay
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
+      :file_path: "/travel_pay/btsss_token/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/search-by-appointment-date"
+      :file_path: "/travel_pay/claims/index/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :file_path: "/travel_pay/claims/index/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/appointments"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*/submit"
+      :file_path: "/travel_pay/claims/submit"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v1\.2\/claims\/(.+)\/submit'
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :file_path: "/travel_pay/claims/create/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/expenses/mileage"
+      :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
 
 #CRM Token post
@@ -65,6 +89,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+      :optional_code_locator: '"countOnly":(true|false)'
   - :method: :post
     :path: "/api/v1/digital-services/financial-status-report/formtopdf"
     :file_path: "debt_management_center/financial_status_reports/create"
@@ -120,6 +145,13 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'vaapikey'
+
+- :name: 'MHV UserAccount Creation'
+  :base_uri: <%= "#{URI(IdentitySettings.mhv.account_creation.host).host}:#{URI(IdentitySettings.mhv.account_creation.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: '/v1/usermgmt/account-service/account'
+    :file_path: 'mhv/account_creation/create_account/default'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
@@ -420,16 +452,6 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
 
-  # VSO Search
-  - :method: :post
-    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/#{Settings.evss.versions.common}/getCurrentInfo" %>
-    :file_path: "evss/vso_search/get_current_info"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-      :uid_location: header
-      :uid_locator: 'ssn'
-
 # EVSS Container
 - :name: 'EVSS Container'
   :base_uri: <%= "#{URI(Settings.evss.dvp.url).host}:#{URI(Settings.evss.dvp.url).port}" %>
@@ -452,87 +474,87 @@
 
 # MVI
 - :name: 'MVI'
-  :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.mvi.url).host}:#{URI(IdentitySettings.mvi.url).port}" %>
   :endpoints:
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id extension="([V0-9]*)"(?: root="2.16.840.1.113883.4.349")'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )extension="([V0-9]*)"'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_edipi"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(\d{10})"(?: root="2.16.840.1.113883.3.42.10001.100001.12")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_idme_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VIDM\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/profile_logingov_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/add_person_proxy_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )extension="([V0-9]*\^NI\^200M\^USVHA\^P)"'
       :optional_code_locator: 'PROXY_ADD'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/add_person_implicit_logingov_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201301UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/add_person_implicit_idme_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VIDM\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201301UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/update_profile_idme_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VIDM\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/update_profile_logingov_uuid"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )?extension="(.*)\^PN\^200VLGN\^USDVA\^A"(?:root="2.16.840.1.113883.4.349")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(IdentitySettings.mvi.url).path %>
     :file_path: "mvi/update_profile_edipi"
     :cache_multiple_responses:
       :uid_location: body
@@ -597,35 +619,12 @@
 
 # Search GSA
 - :name: 'Search GSA'
-  :base_uri: <%= "#{URI(Settings.search.gsa_url).host}:#{URI(Settings.search.gsa_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.search_gsa.url).host}:#{URI(Settings.search_gsa.url).port}" %>
   :endpoints:
   # Search results
   - :method: :get
     :path: "/technology/searchgov/v2/results/i14y"
     :file_path: "search/default"
-
-#GIS
-- :name: 'GIS'
-  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
-  :endpoints:
-    # VHA
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
-      :file_path: "gis/vha/facilities"
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
-      :file_path: "gis/vha/metadata"
-
-#PSSG
-- :name: 'PSSG'
-  :base_uri: <%= "#{URI(Settings.locators.drive_time_band_base_path).host}:#{URI(Settings.locators.drive_time_band_base_path).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
-      :file_path: "pssg/drivetime_bands"
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator:  resultOffset
 
 #VANotify
 - :name: 'VANotify'
@@ -663,6 +662,13 @@
       :cache_multiple_responses:
         :uid_location: 'url'
         :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+    - :method: :get
+      :path: "/vaos/v1/patients/*/appointments/*"
+      :file_path: "vaos/appointments/get"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments\/^[a-zA-Z0-9]+'
     - :method: :get
       :path: "/facilities/v2/facilities/*"
       :file_path: "vaos/facilities"
@@ -819,21 +825,11 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
-# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
-- :name: "Lighthouse Benefits Education"
-  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
-  :endpoints:
-  - :method: :get
-    :path: '/services/benefits-education/v1/education/chapter33'
-    :file_path: "/lighthouse/benefits_education"
-    :cache_multiple_responses:
-      :uid_location: "query"
-      :uid_locator: "icn"
-
-# Lighthouse Benefits Claims API
-- :name: "Lighthouse Benefits Claims"
+# Lighthouse
+- :name: "Lighthouse"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
   :endpoints:
+    # Benefits Claims API
     - :method: :get
       :path: "/services/claims/v2/veterans/*/claims"
       :file_path: "/lighthouse/benefits_claims/index"
@@ -866,6 +862,50 @@
       :cache_multiple_responses:
         :uid_location: "url"
         :uid_locator: "\/services/veteran_verification/v2/disability_rating\/(.+)"
+    # Benefits Education
+    - :method: :get
+      :path: '/services/benefits-education/v1/education/chapter33'
+      :file_path: "/lighthouse/benefits_education"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "icn"
+    # Patient Health API
+    - :method: :post
+      :path: "/oauth2/health/system/v1/token"
+      :file_path: "/lighthouse/veterans_health/token"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance/*"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+
+# CCRA Referral Service
+- :name: "CCRA Referral Service"
+  :base_uri: <%= "#{URI(Settings.vaos.ccra.api_url).host}:#{URI(Settings.vaos.ccra.api_url).port}" %>
+  :endpoints:
+
+    # Get referral list (POST)
+    - :method: :post
+      :path: "/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList"
+      :file_path: "vaos/ccra/referrals/referral_list"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"([^"]*)"'
+
+    # Get referral details (POST)
+    - :method: :post
+      :path: "/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"
+      :file_path: "vaos/ccra/referrals/get_referral"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'id":"([^"]*)"'
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
@@ -894,15 +934,18 @@
 
 # Security Token Service API
 - :name: "MAP STS"
-  :base_uri: <%= "#{URI(Settings.map_services.oauth_url).host}:#{URI(Settings.map_services.oauth_url).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.map_services.oauth_url).host}:#{URI(IdentitySettings.map_services.oauth_url).port}" %>
   :endpoints:
     - :method: :post
       :path: "/sts/oauth/v1/token"
       :file_path: "map/secure_token_service/token"
+    - :method: :get
+      :path: "/sts/oauth/v1/jwks"
+      :file_path: "map/secure_token_service/jwks"
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
-  :base_uri: <%= "#{URI(Settings.map_services.sign_up_service_url).host}:#{URI(Settings.map_services.sign_up_service_url).port}" %>
+  :base_uri: <%= "#{URI(IdentitySettings.map_services.sign_up_service_url).host}:#{URI(IdentitySettings.map_services.sign_up_service_url).port}" %>
   :endpoints:
     - :method: :get
       :path: "/signup/v1/patients/*/status/summary"
@@ -929,7 +972,7 @@
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
 
-# VA Profile / Vet360
+# VA Profile (formerly known as Vet360)
 - :name: "VA Profile"
   :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:
@@ -939,3 +982,25 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+    - :method: :get
+      :path: "/contact-information-hub/contact-information/v2/*/*"
+      :file_path: "vet360/contact_information_hub/default"
+
+# MHV Unified Health Data security service
+- :name: "MHV UHD Security"
+  :base_uri: <%= "#{URI(Settings.mhv.uhd.security_host).host}:#{URI(Settings.mhv.uhd.security_host).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/mhvapi/security/v1/login"
+      :file_path: "mhv/uhd/security-service/default"
+
+# MHV Unified Health Data service
+- :name: "MHV UHD"
+  :base_uri: <%= "#{URI(Settings.mhv.uhd.host).host}:#{URI(Settings.mhv.uhd.host).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/mhvapi/v1/medicalrecords/labs"
+      :file_path: "mhv/uhd/labs"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "patient-id"

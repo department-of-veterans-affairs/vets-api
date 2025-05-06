@@ -14,8 +14,19 @@ FactoryBot.define do
     refresh_token_duration { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
     description { Faker::Lorem.sentence }
     access_token_attributes { [] }
+    json_api_compatibility { true }
     enforced_terms { SignIn::Constants::Auth::VA_TERMS }
     terms_of_use_url { Faker::Internet.url }
     shared_sessions { false }
+
+    trait :with_certificates do
+      ignore do
+        certs_count { 1 }
+      end
+
+      after(:create) do |client_config, evaluator|
+        create_list(:sign_in_config_certificate, evaluator.certs_count, config: client_config)
+      end
+    end
   end
 end

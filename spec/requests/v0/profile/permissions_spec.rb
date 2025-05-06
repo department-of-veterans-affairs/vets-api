@@ -16,9 +16,8 @@ RSpec.describe 'V0::Profile::Permissions', type: :request do
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
 
-  Flipper.disable(:va_v3_contact_information_service)
-
   before do
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     Timecop.freeze(frozen_time)
     sign_in_as(user)
     allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')

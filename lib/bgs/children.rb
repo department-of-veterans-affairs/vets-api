@@ -11,11 +11,13 @@ module BGS
       @proc_id = proc_id
       @views = payload['view:selectable686_options']
       @dependents_application = payload['dependents_application']
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     def create_all
       report_children if @views['add_child']
       report_stepchildren if @views['report_stepchild_not_in_household']
+
       report_child_event('child_marriage') if @views['report_marriage_of_child_under18']
       report_child_event('not_attending_school') if @views['report_child18_or_older_is_not_attending_school']
 
@@ -36,7 +38,7 @@ module BGS
         bgs_service.create_person(person_params(child, participant, formatted_info))
         send_address(child, participant, child.address(@dependents_application))
 
-        step_child_parent(child_info) if child['family_relationship_type'] == 'Stepchild'
+        step_child_parent(child_info) if child.family_relationship_type == 'Stepchild'
 
         @children << child.serialize_dependent_result(
           participant,
@@ -87,8 +89,7 @@ module BGS
       )
     end
 
-    def report_child_event(event_type)
-      child_event = child_event_type(event_type)
+    def generate_child_event(child_event, event_type)
       formatted_info = child_event.format_info
       participant = bgs_service.create_participant(@proc_id)
 
@@ -118,25 +119,40 @@ module BGS
       bgs_service.create_address(address_params)
     end
 
-    def child_event_type(event_type)
+    def report_child_event(event_type)
       if event_type == 'child_marriage'
-        return BGSDependents::ChildMarriage.new(@dependents_application['child_marriage'])
+        if @is_v2
+          @dependents_application['child_marriage'].each do |child_marriage_details|
+            generate_child_event(BGSDependents::ChildMarriage.new(child_marriage_details), event_type)
+          end
+        else
+          generate_child_event(BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']), event_type)
+        end
+      elsif event_type == 'not_attending_school'
+        if @is_v2
+          @dependents_application['child_stopped_attending_school'].each do |child_stopped_attending_school_details|
+            generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(child_stopped_attending_school_details), event_type) # rubocop:disable Layout/LineLength
+          end
+        else
+          generate_child_event(BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school']), event_type) # rubocop:disable Layout/LineLength
+        end
       end
-
-      BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
     end
 
+    # rubocop:disable Metrics/MethodLength
     def step_child_parent(child_info)
       parent = bgs_service.create_participant(@proc_id)
-
+      child_status = @is_v2 ? child_info : child_info['child_status']
+      stepchild_parent = @is_v2 ? child_info['biological_parent_name'] : child_status['stepchild_parent']
+      household_date = @is_v2 ? child_info['date_entered_household'] : child_status['date_became_dependent']
       bgs_service.create_person(
         {
           vnp_proc_id: @proc_id,
           vnp_ptcpnt_id: parent[:vnp_ptcpnt_id],
-          first_nm: child_info['child_status']['stepchild_parent']['first'],
-          last_nm: child_info['child_status']['stepchild_parent']['last'],
-          brthdy_dt: format_date(child_info['child_status']['birth_date']),
-          ssn_nbr: child_info['child_status']['ssn']
+          first_nm: stepchild_parent['first'],
+          last_nm: stepchild_parent['last'],
+          brthdy_dt: format_date(child_status['birth_date']),
+          ssn_nbr: child_status['ssn']
         }
       )
 
@@ -145,11 +161,12 @@ module BGS
           vnp_participant_id: parent[:vnp_ptcpnt_id],
           participant_relationship_type_name: 'Spouse',
           family_relationship_type_name: 'Spouse',
-          event_date: child_info['child_status']['date_became_dependent'],
-          begin_date: child_info['child_status']['date_became_dependent'],
+          event_date: household_date,
+          begin_date: household_date,
           type: 'stepchild_parent'
         }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def format_date(date)
       return nil if date.nil?

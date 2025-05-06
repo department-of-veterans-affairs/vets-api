@@ -15,7 +15,7 @@ module SignIn
                 :ssn,
                 :mhv_icn,
                 :edipi,
-                :mhv_correlation_id
+                :mhv_credential_uuid
 
     def initialize(user_attributes:)
       @idme_uuid = user_attributes[:idme_uuid]
@@ -31,7 +31,7 @@ module SignIn
       @ssn = user_attributes[:ssn]
       @mhv_icn = user_attributes[:mhv_icn]
       @edipi = user_attributes[:edipi]
-      @mhv_correlation_id = user_attributes[:mhv_correlation_id]
+      @mhv_credential_uuid = user_attributes[:mhv_credential_uuid]
     end
 
     def perform
@@ -40,8 +40,7 @@ module SignIn
       validate_credential_attributes
 
       if mhv_auth?
-        mhv_set_user_attributes_from_mpi
-        add_mpi_user
+        validate_mhv_mpi_record
         validate_existing_mpi_attributes
       elsif mpi_record_exists?
         validate_existing_mpi_attributes
@@ -60,8 +59,9 @@ module SignIn
       check_lock_flag(mpi_response_profile.id_theft_flag, 'Theft Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
       check_lock_flag(mpi_response_profile.deceased_date, 'Death Flag', Constants::ErrorCode::MPI_LOCKED_ACCOUNT)
       check_id_mismatch(mpi_response_profile.edipis, 'EDIPI', Constants::ErrorCode::MULTIPLE_EDIPI)
-      check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN)
       check_id_mismatch(mpi_response_profile.participant_ids, 'CORP_ID', Constants::ErrorCode::MULTIPLE_CORP_ID)
+      check_id_mismatch(mpi_response_profile.mhv_iens, 'MHV_ID', Constants::ErrorCode::MULTIPLE_MHV_IEN,
+                        raise_error: false)
     end
 
     def add_mpi_user
@@ -109,7 +109,7 @@ module SignIn
     def validate_credential_attributes
       if mhv_auth?
         credential_attribute_check(:icn, mhv_icn)
-        credential_attribute_check(:mhv_uuid, mhv_correlation_id)
+        credential_attribute_check(:mhv_uuid, mhv_credential_uuid)
       else
         credential_attribute_check(:dslogon_uuid, edipi) if dslogon_auth?
         credential_attribute_check(:last_name, last_name) unless auto_uplevel
@@ -142,41 +142,41 @@ module SignIn
       attribute.tr('-', '').downcase
     end
 
-    def mhv_set_user_attributes_from_mpi
+    def validate_mhv_mpi_record
       unless mpi_response_profile
         handle_error('No MPI Record for MHV Account',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
                      error: Errors::MHVMissingMPIRecordError)
       end
-      @first_name = mpi_response_profile.given_names.first
-      @last_name = mpi_response_profile.family_name
-      @birth_date = mpi_response_profile.birth_date
-      @ssn = mpi_response_profile.ssn
-      @mhv_icn = mpi_response_profile.icn
+      attribute_mismatch_check(:icn, mhv_icn, verified_icn)
     end
 
     def check_lock_flag(attribute, attribute_description, code)
       handle_error("#{attribute_description} Detected", code, error: Errors::MPILockedAccountError) if attribute
     end
 
-    def check_id_mismatch(id_array, id_description, code)
+    def check_id_mismatch(id_array, id_description, code, raise_error: true)
       if id_array && id_array.compact.uniq.size > 1
         handle_error("User attributes contain multiple distinct #{id_description} values",
                      code,
-                     error: Errors::MPIMalformedAccountError)
+                     error: Errors::MPIMalformedAccountError, raise_error:)
       end
     end
 
-    def handle_error(error_message, error_code, error: nil)
+    def handle_error(error_message, error_code, error: nil, raise_error: true)
       sign_in_logger.info('attribute validator error', { errors: error_message,
                                                          credential_uuid:,
-                                                         type: service_name })
-      raise error.new message: error_message, code: error_code if error
+                                                         mhv_icn:,
+                                                         type: service_name }.compact)
+      raise error.new message: error_message, code: error_code if error && raise_error
     end
 
     def mpi_response_profile
       @mpi_response_profile ||=
-        if idme_uuid
+        if mhv_credential_uuid
+          mpi_service.find_profile_by_identifier(identifier: mhv_credential_uuid,
+                                                 identifier_type: MPI::Constants::MHV_UUID)&.profile
+        elsif idme_uuid
           mpi_service.find_profile_by_identifier(identifier: idme_uuid,
                                                  identifier_type: MPI::Constants::IDME_UUID)&.profile
         elsif logingov_uuid

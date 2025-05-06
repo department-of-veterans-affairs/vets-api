@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.8.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-256963932", dtSInfo;desc="0"
+      - dtRpid;desc="632257259", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - a2bea7cb-dbee-4e5d-baf4-8500aceb8bd4
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 26 Sep 2024 17:58:52 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"a2bea7cb-dbee-4e5d-baf4-8500aceb8bd4","status":"COMPLETED_SUCCESS","bios":[{"createDate":"2024-08-29T21:08:17Z","updateDate":"2024-09-18T19:07:30Z","txAuditId":"7c198f17-a3b8-415f-b0fd-e19ab1edcf3a","sourceSystem":"VETSGOV","sourceDate":"2024-09-17T16:09:37Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-09-17T16:09:37Z","vaProfileId":1781151,"addressId":577127,"addressType":"Domestic","addressPOU":"RESIDENCE","addressLine1":"1495
+        Martin Luther King Rd","cityName":"Fulton","state":{"stateName":"Mississippi","stateCode":"MS"},"zipCode5":"38843","county":{"countyName":"Itawamba
+        County","countyCode":"28057"},"country":{"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"latitude":"34.1989","longitude":"-88.5261","geocodePrecision":"31","geocodeDate":"2024-09-18T19:07:30Z"}]}'
+  recorded_at: Thu, 26 Sep 2024 17:58:52 GMT
+recorded_with: VCR 6.3.1

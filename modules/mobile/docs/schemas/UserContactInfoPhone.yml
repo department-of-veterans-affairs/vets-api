@@ -25,5 +25,6 @@ properties:
     enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
     example: "HOME"
   extension:
-    type: string, null
+    type: string
+    nullable: true
     example: "4567"

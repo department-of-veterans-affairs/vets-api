@@ -8,6 +8,7 @@
       }
     ],
     "kind": "clinic",
+    "type": "VA",
     "status": "cancelled",
     "service_type": "optometry",
     "patient_icn": "1012846043V576341",
@@ -70,6 +71,7 @@
       }
     ],
     "kind": "clinic",
+    "type": "VA",
     "status": "booked",
     "service_type": "optometry",
     "patient_icn": "1012853802V084487",
@@ -136,6 +138,7 @@
       }
     ],
     "kind": "cc",
+    "type": "COMMUNITY_CARE_APPOINTMENT",
     "status": "booked",
     "service_type": "primaryCare",
     "patient_Icn": "1012846043V576341",
@@ -200,6 +203,7 @@
       }
     ],
     "kind": "cc",
+    "type": "COMMUNITY_CARE_REQUEST",
     "status": "proposed",
     "service_type": "primaryCare",
     "patient_icn": "1012846043V576341",
@@ -301,6 +305,7 @@
       "code": null
     },
     "kind": "clinic",
+    "type": "REQUEST",
     "status": "proposed",
     "service_type": "socialWork",
     "patient_icn": "1012845331V153043",
@@ -341,6 +346,7 @@
       }
     ],
     "kind": "phone",
+    "type": "VA",
     "service_name": "Friendly Name Optometry",
     "location": {
       "id": "442",
@@ -405,6 +411,7 @@
       }
     ],
     "kind": "telehealth",
+    "type": "VA",
     "location": {
       "id": "442",
       "name": "Cheyenne VA Medical Center",
@@ -468,6 +475,7 @@
       }
     ],
     "kind": "telehealth",
+    "type": "VA",
     "location": {
       "id": "442",
       "name": "Cheyenne VA Medical Center",
@@ -541,6 +549,7 @@
       }
     ],
     "kind": "telehealth",
+    "type": "VA",
     "location": {
       "id": "442",
       "name": "Cheyenne VA Medical Center",
@@ -604,6 +613,7 @@
       }
     ],
     "kind": "phone",
+    "type": "VA",
     "service_name": "Friendly Name Optometry",
     "location": {
       "id": "442",
@@ -676,6 +686,7 @@
       }
     ],
     "kind": "phone",
+    "type": "VA",
     "service_name": "Friendly Name Optometry",
     "location": {
       "id": "442",
@@ -748,6 +759,7 @@
       }
     ],
     "kind": "clinic",
+    "type": "VA",
     "status": "cancelled",
     "service_type": "primaryCare",
     "reason_for_appointment": "Routine Follow-up",
@@ -835,6 +847,7 @@
       }
     ],
     "kind": "telehealth",
+    "type": "VA",
     "location": {
       "id": "442",
       "name": "Cheyenne VA Medical Center",

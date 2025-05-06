@@ -15,6 +15,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
   let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(authenticated_client)
     sign_in_as(current_user)
@@ -41,6 +42,15 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
 
+    before do
+      VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                          match_requests_on: %i[method sm_user_ignoring_path_param])
+    end
+
+    after do
+      VCR.eject_cassette
+    end
+
     context 'not a va patient' do
       before { get '/my_health/v1/medical_records/vitals' }
 
@@ -65,13 +75,49 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
     context 'when the patient is not found' do
       before do
         allow_any_instance_of(MedicalRecords::Client).to receive(:list_vitals)
-          .and_raise(MedicalRecords::PatientNotFound)
+          .and_return(:patient_not_found)
       end
 
       it 'returns a 202 Accepted response for GET #index' do
         get '/my_health/v1/medical_records/vitals'
         expect(response).to have_http_status(:accepted)
       end
+    end
+  end
+
+  context 'Premium User when use_oh_data_path is true' do
+    let(:mhv_account_type) { 'Premium' }
+    let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:, icn: '23000219') }
+
+    before do
+      sign_in_as(current_user)
+
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
+    end
+
+    it 'responds to GET #index' do
+      VCR.use_cassette('mr_client/get_a_list_of_vitals_oh_data_path') do
+        get '/my_health/v1/medical_records/vitals?from=2019-11&to=2019-11&use_oh_data_path=1'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+
+      expect(body['entry']).to be_an(Array)
+      expect(body['entry'].size).to be 6
+
+      # Verify that items are sorted by effectiveDateTime in descending order
+      expect(body['entry'][0]['resource']['effectiveDateTime']).to eq('2019-11-30T08:34:29Z')
+      expect(body['entry'][2]['resource']['effectiveDateTime']).to eq('2019-11-30T08:24:29Z')
+      expect(body['entry'][5]['resource']['effectiveDateTime']).to eq('2019-11-30T07:28:29Z')
+
+      item = body['entry'][2]
+      expect(item['resource']['resourceType']).to eq('Observation')
+      expect(item['resource']['code']['text']).to eq('Blood Pressure')
     end
   end
 end

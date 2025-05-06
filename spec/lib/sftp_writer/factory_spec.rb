@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'sftp_writer/factory'
 
-RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
+RSpec.describe SFTPWriter::Factory, form: :education_benefits, type: :model do
   subject { described_class }
 
   it 'raises an error if in production but lacking auth keys' do
@@ -22,7 +22,7 @@ RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
   it 'writes to production when possible' do
     expect(Rails.env).to receive('development?').once.and_return(false)
     # any readable file will work for this spec
-    key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
+    key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
     with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
       expect(subject.get_writer(Settings.edu.sftp)).to be(SFTPWriter::Remote)
     end

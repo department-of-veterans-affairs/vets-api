@@ -32,8 +32,8 @@ describe 'Contestable Issues', openapi_spec:, type: :request do
                 required: true,
                 description: 'Scoping of appeal type for associated issues',
                 schema: {
-                  'type': 'string',
-                  'enum': %w[higher_level_reviews notice_of_disagreements supplemental_claims]
+                  type: 'string',
+                  enum: %w[higher_level_reviews notice_of_disagreements supplemental_claims]
                 },
                 example: 'higher_level_reviews'
 
@@ -43,8 +43,8 @@ describe 'Contestable Issues', openapi_spec:, type: :request do
                 in: :query,
                 description: 'Required if decision review type is Higher Level Review or Supplemental Claims.',
                 schema: {
-                  'type': 'string',
-                  'enum': %w[
+                  type: 'string',
+                  enum: %w[
                     compensation
                     pensionSurvivorsBenefits
                     fiduciary
@@ -95,12 +95,12 @@ describe 'Contestable Issues', openapi_spec:, type: :request do
                           extract_desc: true
         end
 
-        describe 'bad X-VA-Receipt-Date' do
-          let(:'X-VA-Receipt-Date') { '1900-01-01' }
+        describe 'invalid X-VA-Receipt-Date' do
+          let(:'X-VA-Receipt-Date') { '2019-02-19' }
 
           it_behaves_like 'rswag example',
-                          cassette: 'caseflow/higher_level_reviews/bad_date',
-                          desc: 'Bad receipt date for HLR',
+                          cassette: 'caseflow/higher_level_reviews/contestable_issues',
+                          desc: 'Invalid receipt date',
                           extract_desc: true
         end
       end

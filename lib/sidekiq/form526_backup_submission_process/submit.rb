@@ -52,6 +52,10 @@ module Sidekiq
           'Form 526 Backup Submission Retries exhausted',
           { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
         )
+
+        if Flipper.enabled?(:form526_send_backup_submission_exhaustion_email_notice)
+          ::Form526SubmissionFailureEmailJob.perform_async(form526_submission_id, Time.now.utc.to_s)
+        end
       rescue => e
         ::Rails.logger.error(
           'Failure in Form526BackupSubmission#sidekiq_retries_exhausted',
@@ -65,6 +69,7 @@ module Sidekiq
             }
           }
         )
+        StatsD.increment('silent_failure', tags: ::Form526SubmissionFailureEmailJob::DD_ZSF_TAGS)
         raise e
       end
 

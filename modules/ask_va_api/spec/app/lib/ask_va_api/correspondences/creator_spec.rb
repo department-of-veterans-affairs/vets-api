@@ -5,9 +5,9 @@ require 'rails_helper'
 module AskVAApi
   module Correspondences
     RSpec.describe Creator do
-      subject(:creator) { described_class.new(message:, inquiry_id: '123', service: nil) }
+      subject(:creator) { described_class.new(params:, inquiry_id: '123', service: nil) }
 
-      let(:message) { 'this is a corespondence message' }
+      let(:params) { { reply: 'this is a corespondence message', files: [{ file_name: nil, file_content: nil }] } }
 
       describe '#call' do
         context 'when successful' do

@@ -1,0 +1,24 @@
+{
+  "data": {
+    "id": "180db896-2923-4483-93c6-17c864f8e723",
+   "type": "document_upload",
+   "attributes":  {
+    "guid": "180db896-2923-4483-93c6-17c864f8e723",
+     "status": "vbms",
+     "code": null,
+     "detail": "",
+     "location": null,
+     "updated_at": "2024-10-25T17:39:58.166Z",
+     "uploaded_pdf": {
+      "total_documents": 1,
+       "total_pages": 4,
+       "content": {
+        "page_count": 4,
+         "dimensions": {"height": 11.0, "width": 8.5, "oversized_pdf": false},
+         "file_size": 734481,
+         "attachments": []
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL
+    uri: "<BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService?WSDL"
     body:
       encoding: US-ASCII
       string: ''
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2023 20:47:06 GMT
 - request:
     method: post
-    uri: <BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService
+    uri: "<BGS_BASE_URL>/EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService"
     body:
       encoding: UTF-8
       string: |
@@ -153,7 +153,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2023 20:47:07 GMT
 - request:
     method: get
-    uri: <BGS_BASE_URL>/TrackedItemService/TrackedItemService?WSDL
+    uri: "<BGS_BASE_URL>/TrackedItemService/TrackedItemService?WSDL"
     body:
       encoding: US-ASCII
       string: ''
@@ -194,7 +194,7 @@ http_interactions:
   recorded_at: Wed, 19 Apr 2023 20:47:11 GMT
 - request:
     method: post
-    uri: <BGS_BASE_URL>/TrackedItemService/TrackedItemService
+    uri: "<BGS_BASE_URL>/TrackedItemService/TrackedItemService"
     body:
       encoding: UTF-8
       string: |
@@ -245,4 +245,69 @@ http_interactions:
         of dental disability needed</shortNm><stdDevactnId>18600</stdDevactnId><suspnsDt>2021-06-04T00:00:00-05:00</suspnsDt></dvlpmtItems><dvlpmtItems><jrnDt>2022-06-08T13:49:44-05:00</jrnDt><name>DevelopmentItem</name><claimId>600236068</claimId><createDt>2021-05-05T09:49:05-05:00</createDt><createPtcpntId>600052904</createPtcpntId><createStnNum>317</createStnNum><docid>815705</docid><dvlpmtItemId>293441</dvlpmtItemId><dvlpmtTc>CLMNTRQST</dvlpmtTc><receiveDt>2022-06-07T00:00:00-05:00</receiveDt><reqDt>2021-05-05T00:00:00-05:00</reqDt><shortNm>21-4142/21-4142a</shortNm><stdDevactnId>39498</stdDevactnId><suspnsDt>2021-06-04T00:00:00-05:00</suspnsDt></dvlpmtItems><dvlpmtItems><jrnDt>2021-05-05T09:49:04-05:00</jrnDt><name>DevelopmentItem</name><acceptDt>2021-06-04T00:00:00-05:00</acceptDt><claimId>600236068</claimId><createDt>2021-05-05T09:49:04-05:00</createDt><createPtcpntId>600052904</createPtcpntId><createStnNum>317</createStnNum><docid>815705</docid><dvlpmtItemId>293440</dvlpmtItemId><dvlpmtTc>CLMNTRQST</dvlpmtTc><reqDt>2021-05-05T00:00:00-05:00</reqDt><shortNm>21-4142a</shortNm><stdDevactnId>39496</stdDevactnId><suspnsDt>2021-06-04T00:00:00-05:00</suspnsDt></dvlpmtItems><dvlpmtItems><jrnDt>2021-05-05T09:49:04-05:00</jrnDt><name>DevelopmentItem</name><claimId>600236068</claimId><createDt>2021-05-05T09:49:04-05:00</createDt><createPtcpntId>600052904</createPtcpntId><createStnNum>317</createStnNum><docid>815705</docid><dvlpmtItemId>293439</dvlpmtItemId><dvlpmtTc>CLMNTRQST</dvlpmtTc><reqDt>2021-05-05T00:00:00-05:00</reqDt><shortNm>STRs
         not available - substitute documents needed</shortNm><stdDevactnId>101</stdDevactnId><suspnsDt>2021-06-04T00:00:00-05:00</suspnsDt></dvlpmtItems><letters><jrnDt>2021-05-05T09:49:06-05:00</jrnDt><name>Letter</name><clmId>600236068</clmId><docid>815705</docid><dvlpmtTc>CLMNTRQST</dvlpmtTc><fileSttDt>2021-05-05T00:00:00-05:00</fileSttDt><fileSttTc>DONEDVLPMT</fileSttTc><incldEnclsrInd>N</incldEnclsrInd><outdcmtTc>DV</outdcmtTc><printDt>2021-05-05T09:48:59-05:00</printDt><ptcpntDcmntTn>Receiver</ptcpntDcmntTn><ptcpntId>600934166</ptcpntId><templatTc>VSCNP</templatTc></letters></BenefitClaim></ns0:findTrackedItemsResponse></S:Body></S:Envelope>
   recorded_at: Wed, 19 Apr 2023 20:47:12 GMT
-recorded_with: VCR 6.1.0
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/PersonWebServiceBean/PersonWebService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://person.services.vetsnet.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>9076263895</vaws:ExternalUid>
+              <vaws:ExternalKey>9076263895</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:findPersonBySSN><ssn>488578119</ssn>
+        </tns:findPersonBySSN>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"findPersonBySSN"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 Nov 2024 20:10:21 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4wAAA=</work:WorkContext></env:Header><S:Body><ns0:findPersonBySSNResponse
+        xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"/></S:Body></S:Envelope>
+  recorded_at: Wed, 06 Nov 2024 20:10:21 GMT
+recorded_with: VCR 6.3.1

@@ -56,6 +56,10 @@ module Lighthouse
         get_list(first_response)
       end
 
+      def get_allergy_intolerance(id)
+        perform_get("services/fhir/v0/r4/AllergyIntolerance/#{id}")
+      end
+
       def list_bp_observations
         params = {
           category: 'vital-signs',
@@ -120,6 +124,9 @@ module Lighthouse
 
       def perform_get(uri_path, **params)
         perform(:get, uri_path, params, headers_hash)
+      rescue Common::Client::Errors::ClientError => e
+        log_operation_outcome(e)
+        raise e
       end
 
       def authenticate(params)
@@ -129,6 +136,18 @@ module Lighthouse
           URI.encode_www_form(params),
           { 'Content-Type': 'application/x-www-form-urlencoded' }
         )
+      rescue Common::Client::Errors::ClientError => e
+        log_operation_outcome(e)
+        raise e
+      end
+
+      def log_operation_outcome(error)
+        if Flipper.enabled?(:lighthouse_veterans_health_debug_logging, @current_user)
+          PersonalInformationLog.create!(
+            data: error.body || error,
+            error_class: self.class.name
+          )
+        end
       end
 
       def base64_icn

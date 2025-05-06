@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../rails_helper'
+require 'bgs_service/standard_data_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:headers) do
@@ -16,8 +17,14 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321],
-                                              birth_date: '19560506')
+      profile: build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321],
+                                   birth_date: '19560506')
+    )
+  end
+  let(:no_pid_profile) do
+    MPI::Responses::FindProfileResponse.new(
+      status: :ok,
+      profile: build(:mpi_profile, participant_id: nil, edipi: '123456', participant_ids: %w[])
     )
   end
 
@@ -266,7 +273,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'treatments[].center.country' is too long'" do
+        context "when 'treatments[].center.country' is too long" do
           let(:treated_disability_names) { ['PTSD (post traumatic stress disorder)'] }
 
           it 'returns a bad request' do
@@ -549,6 +556,108 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 end
               end
             end
+
+            context 'when the endingDate is not provided' do
+              let(:json_data) { JSON.parse data }
+              let(:change_of_address) do
+                {
+                  beginningDate: 1.month.from_now.to_date.to_s,
+                  addressChangeType: value,
+                  addressLine1: '1234 Couch Street',
+                  city: 'New York City',
+                  state: 'NY',
+                  type: 'DOMESTIC',
+                  zipFirstFive: '12345',
+                  country: 'USA'
+                }
+              end
+
+              it 'raises an exception that endingDate is not valid' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/brd/intake_sites') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      par = json_data
+                      par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                      par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                        '2007-08-01'
+
+                      post path, params: par.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'when the beginningDate is after the endingDate' do
+              let(:json_data) { JSON.parse data }
+              let(:change_of_address) do
+                {
+                  beginningDate: 1.month.from_now.to_date.to_s,
+                  endingDate: 1.month.ago.to_date.to_s,
+                  addressChangeType: value,
+                  addressLine1: '1234 Couch Street',
+                  city: 'New York City',
+                  state: 'NY',
+                  type: 'DOMESTIC',
+                  zipFirstFive: '12345',
+                  country: 'USA'
+                }
+              end
+
+              it 'raises an exception that endingDate is not valid' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/brd/intake_sites') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      par = json_data
+                      par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                      par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                        '2007-08-01'
+
+                      post path, params: par.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when addressChangeType is PERMANENT' do
+          let(:value) { 'PERMANENT' }
+
+          context 'when the endingDate is provided' do
+            let(:json_data) { JSON.parse data }
+            let(:change_of_address) do
+              {
+                beginningDate: 1.month.from_now.to_date.to_s,
+                endingDate: 2.months.from_now.to_date.to_s,
+                addressChangeType: value,
+                addressLine1: '1234 Couch Street',
+                city: 'New York City',
+                state: 'NY',
+                type: 'DOMESTIC',
+                zipFirstFive: '12345',
+                country: 'USA'
+              }
+            end
+
+            it 'raises an exception that endingDate is not valid' do
+              mock_acg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/brd/intake_sites') do
+                  VCR.use_cassette('claims_api/brd/countries') do
+                    par = json_data
+                    par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                    par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                      '2007-08-01'
+
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
           end
         end
 
@@ -576,6 +685,89 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   post path, params: par.to_json, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:bad_request)
                 end
+              end
+            end
+          end
+        end
+      end
+
+      describe 'activeDutyEndDate within 180 days' do
+        let(:json_data) { JSON.parse data }
+
+        before do
+          allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
+            .to receive(:validate_form_526_location_codes!).and_return(nil)
+          allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
+            .to receive(:validate_form_526_current_mailing_address!).and_return(nil)
+        end
+
+        context 'when activeDutyEndDate is beyond 180 days from now' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 181.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a bad request response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:bad_request)
+              end
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is exactly 180 days from now' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 180.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is less than 180 days from now' do
+          let(:service_periods) do
+            [
+              {
+                'activeDutyBeginDate' => 4.years.ago.to_date.to_s,
+                'activeDutyEndDate' => 179.days.from_now.to_date.to_s,
+                'serviceBranch' => 'Navy'
+              }
+            ]
+          end
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                par = json_data
+                par['data']['attributes']['serviceInformation']['servicePeriods'] = service_periods
+
+                post path, params: par.to_json, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
               end
             end
           end
@@ -766,6 +958,105 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                     post path, params: par.to_json, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'unitName' is empty" do
+          let(:unit_name) { '' }
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                  response_body = JSON.parse(response.body)
+                  claim_id = response_body['data']['id']
+                  claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                  claim.to_internal
+                  expect(claim.form_data['serviceInformation']['reservesNationalGuardService']['unitName']).to eq(' ')
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'unitName' is blank space" do
+          let(:unit_name) { ' ' }
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                  response_body = JSON.parse(response.body)
+                  claim_id = response_body['data']['id']
+                  claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                  claim.to_internal
+                  expect(claim.form_data['serviceInformation']['reservesNationalGuardService']['unitName']).to eq(' ')
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'unitName' is nil" do
+          let(:unit_name) { nil }
+
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'unitName' is not present" do
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'].delete('unitName')
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'serviceInformation' is not present" do
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes'].delete('serviceInformation')
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -1124,7 +1415,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context 'when consumer is representative' do
-        it 'returns an unprocessible entity status' do
+        it 'returns an unprocessable entity status' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
@@ -1144,7 +1435,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         let(:profile_with_edipi) do
           MPI::Responses::FindProfileResponse.new(
             status: 'OK',
-            profile: FactoryBot.build(:mpi_profile, edipi: '2536798', birth_date: '19560506')
+            profile: build(:mpi_profile, edipi: '2536798', birth_date: '19560506')
           )
         end
         let(:profile) { build(:mpi_profile, birth_date: '19560506') }
@@ -1194,23 +1485,26 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context 'when consumer is Veteran, but is missing a participant id' do
-        let(:profile) { build(:mpi_profile, birth_date: '19560506') }
-        let(:mpi_profile_response) { build(:find_profile_response, profile:) }
+        let(:add_person_proxy_response) do
+          instance_double(MPI::Responses::AddPersonResponse, ok?: true, status: :ok)
+        end
 
         it 'raises a 422, with message' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
-                mpi_profile_response.profile.participant_ids = []
-                mpi_profile_response.profile.participant_id = ''
-                allow_any_instance_of(MPIData).to receive(:add_person_proxy)
-                  .and_return(mpi_profile_response)
+                allow_any_instance_of(ClaimsApi::Veteran)
+                  .to receive(:mpi_record?).and_return(true)
                 allow_any_instance_of(MPIData)
-                  .to receive(:mvi_response).and_return(multi_profile)
+                  .to receive(:mvi_response).and_return(no_pid_profile)
+                allow_any_instance_of(MPIData)
+                  .to receive(:add_person_proxy).and_return(add_person_proxy_response)
 
-                post path, params: data, headers: auth_header
+                parsed_data = JSON.parse(data)
+                post path, params: parsed_data, headers: headers.merge(auth_header), as: :json
 
                 json_response = JSON.parse(response.body)
+
                 expect(response).to have_http_status(:unprocessable_entity)
                 expect(json_response['errors'][0]['detail']).to eq(
                   "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
@@ -1229,7 +1523,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
         end
 
-        it 'returns an unprocessible entity status' do
+        it 'returns an unprocessable entity status' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
@@ -1245,7 +1539,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
       end
 
-      it 'returns an unprocessible entity status' do
+      it 'returns an unprocessable entity status' do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/brd/countries') do
             VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -1562,6 +1856,28 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               '11111111111'
             post path, params: params.to_json, headers: headers.merge(auth_header)
             expect(response).to have_http_status(:bad_request)
+            response_error_details = JSON.parse(response.body)['errors'].first['detail']
+            expect(response_error_details).to include('is not a valid value for "separationLocationCode"')
+          end
+        end
+      end
+    end
+
+    context 'when submitted separationLocationCode is an integer' do
+      it 'responds with bad request' do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/brd/intake_sites') do
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
+              (Time.zone.today + 1.day).to_s
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] =
+              111
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response).to have_http_status(:unprocessable_entity)
+            response_error_details = JSON.parse(response.body)['errors'].first['detail']
+            expect(response_error_details).to include('Code must match the values returned by the /intake-sites' \
+                                                      ' endpoint on the [Benefits reference Data API]')
           end
         end
       end
@@ -1808,7 +2124,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is below the minimum" do
             let(:military_retired_payment_amount) { 0 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -1824,7 +2140,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is above the maximum" do
             let(:military_retired_payment_amount) { 1_000_000 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -1875,7 +2191,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
               end
 
-              it 'responds with an unprocessible entity' do
+              it 'responds with an unprocessable entity' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
@@ -1938,7 +2254,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is below the minimum" do
             let(:separation_payment_amount) { 0 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -1954,7 +2270,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is above the maximum" do
             let(:separation_payment_amount) { 1_000_000 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -2088,79 +2404,101 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.classificationCode' is invalid" do
+      context "when 'disabilities.secondaryDisabilities.classificationCode' is invalid" do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
-        before do
-          expect_any_instance_of(BGS::StandardDataService)
-            .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
-        end
+        [true, false].each do |flipped|
+          context "when feature flag is #{flipped}" do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
+              if flipped
+                expect_any_instance_of(ClaimsApi::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              else
+                expect_any_instance_of(BGS::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              end
+            end
 
-        it 'raises an exception' do
-          mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/brd/countries') do
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  secondaryDisabilities: [
+            it 'raises an exception' do
+              mock_acg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
                     {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      classificationCode: '2222'
+                      disabilityActionType: 'NONE',
+                      name: 'PTSD (post traumatic stress disorder)',
+                      diagnosticCode: 9999,
+                      secondaryDisabilities: [
+                        {
+                          disabilityActionType: 'SECONDARY',
+                          name: 'PTSD',
+                          serviceRelevance: 'Caused by a service-connected disability.',
+                          classificationCode: '2222'
+                        }
+                      ]
                     }
                   ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:bad_request)
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
             end
           end
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.classificationCode' does not match name" do
+      context "when 'disabilities.secondaryDisabilities.classificationCode' does not match name" do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
-        before do
-          expect_any_instance_of(BGS::StandardDataService)
-            .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
-        end
+        [true, false].each do |flipped|
+          context "when feature flag is #{flipped}" do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              if flipped
+                expect_any_instance_of(ClaimsApi::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              else
+                expect_any_instance_of(BGS::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              end
+            end
 
-        it 'raises an exception' do
-          mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/brd/countries') do
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  secondaryDisabilities: [
+            it 'raises an exception' do
+              mock_acg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
                     {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      classificationCode: '1111'
+                      disabilityActionType: 'NONE',
+                      name: 'PTSD (post traumatic stress disorder)',
+                      diagnosticCode: 9999,
+                      secondaryDisabilities: [
+                        {
+                          disabilityActionType: 'SECONDARY',
+                          name: 'PTSD',
+                          serviceRelevance: 'Caused by a service-connected disability.',
+                          classificationCode: '1111'
+                        }
+                      ]
                     }
                   ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:bad_request)
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
             end
           end
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.approximateBeginDate' is present" do
+      context "when 'disabilities.secondaryDisabilities.approximateBeginDate' is present" do
         it 'raises an exception if date is invalid' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
@@ -2216,7 +2554,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.classificationCode' is not present" do
+      context "when 'disabilities.secondaryDisabilities.classificationCode' is not present" do
         it 'raises an exception if name is not valid structure' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
@@ -2273,54 +2611,108 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
     end
 
-    describe "'disabilites' validations" do
+    describe "'disabilities' validations" do
       describe "'disabilities.classificationCode' validations" do
-        let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
+        [true, false].each do |flipped|
+          context "when feature flag is #{flipped}" do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(flipped)
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
+              if flipped
+                allow_any_instance_of(ClaimsApi::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              else
+                allow_any_instance_of(BGS::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              end
+            end
 
-        before do
-          expect_any_instance_of(BGS::StandardDataService)
-            .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
-        end
+            let(:classification_type_codes) { [{ clsfcn_id: '1111', end_dt: 1.year.from_now.iso8601 }] }
 
-        context "when 'disabilites.classificationCode' is valid" do
-          it 'returns a successful response' do
-            mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims') do
-                VCR.use_cassette('claims_api/brd/countries') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  disabilities = [
-                    {
-                      disabilityActionType: 'NEW',
-                      name: 'PTSD (post traumatic stress disorder)',
-                      classificationCode: '1111'
-                    }
-                  ]
-                  params['data']['attributes']['disabilities'] = disabilities
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:ok)
+            context "when 'disabilities.classificationCode' is valid and expires in the future" do
+              it 'returns a successful response' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NEW',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          classificationCode: '1111'
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
                 end
               end
             end
-          end
-        end
 
-        context "when 'disabilites.classificationCode' is invalid" do
-          it 'responds with a bad request' do
-            mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/brd/countries') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NEW',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    classificationCode: '2222'
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:bad_request)
+            context "when 'disabilities.classificationCode' is valid but expires in the past" do
+              before do
+                if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                  allow_any_instance_of(ClaimsApi::StandardDataService)
+                    .to receive(:get_contention_classification_type_code_list)
+                    .and_return([{
+                                  clsfcn_id: '1111',
+                                  end_dt: 1.year.ago.iso8601
+                                }])
+                else
+                  allow_any_instance_of(BGS::StandardDataService)
+                    .to receive(:get_contention_classification_type_code_list)
+                    .and_return([{
+                                  clsfcn_id: '1111',
+                                  end_dt: 1.year.ago.iso8601
+                                }])
+                end
+              end
+
+              it 'responds with a bad request' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api_bgs/claims/claims') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NEW',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          classificationCode: '1111'
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'disabilities.classificationCode' is invalid" do
+              it 'responds with a bad request' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/brd/countries') do
+                    VCR.use_cassette('claims_api/bgs/standard_service_data') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NEW',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          classificationCode: '2222'
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
               end
             end
           end
@@ -2328,9 +2720,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       describe "'disabilities.ratedDisabilityId' validations" do
-        context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
+        context "when 'disabilities.disabilityActionType' equals 'INCREASE'" do
           context "and 'disabilities.ratedDisabilityId' is not provided" do
-            it 'returns an unprocessible entity status' do
+            it 'returns an unprocessable entity status' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -2377,7 +2769,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
 
           context "and 'disabilities.diagnosticCode' is not provided" do
-            it 'returns an unprocessible entity status' do
+            it 'returns an unprocessable entity status' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -2398,10 +2790,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'disabilites.disabilityActionType' equals 'NONE'" do
-          context "and 'disabilites.secondaryDisabilities' is defined" do
-            context "and 'disabilites.diagnosticCode is not provided" do
-              it 'returns an unprocessible entity status' do
+        context "when 'disabilities.disabilityActionType' equals 'NONE'" do
+          context "and 'disabilities.secondaryDisabilities' is defined" do
+            context "and 'disabilities.diagnosticCode is not provided" do
+              it 'returns an unprocessable entity status' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
@@ -2432,7 +2824,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
+        context "when 'disabilities.disabilityActionType' equals value other than 'INCREASE'" do
           context "and 'disabilities.ratedDisabilityId' is not provided" do
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
@@ -2458,7 +2850,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      describe "'disabilites.approximateBeginDate' validations" do
+      describe "'disabilities.approximateBeginDate' validations" do
         let(:disabilities) do
           [
             {
@@ -2511,7 +2903,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      describe "'disabilites.specialIssues' validations" do
+      describe "'disabilities.specialIssues' validations" do
         let(:disabilities) do
           [
             {
@@ -2666,7 +3058,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'specialIssues' are provided for some 'disabilites'" do
+        context "when 'specialIssues' are provided for some 'disabilities'" do
           let(:disabilities) do
             [
               {
@@ -2796,6 +3188,30 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
     end
+
+    describe "'directDeposit.bankName" do
+      it 'is required if any other directDeposit values are present' do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            VCR.use_cassette('claims_api/brd/countries') do
+              direct_deposit_info = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                    'form_526_direct_deposit.json').read
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['directDeposit'] = JSON.parse direct_deposit_info
+              params['data']['attributes']['directDeposit']['bankName'] = ''
+
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+
+              expect(response).to have_http_status(:bad_request)
+              errors = JSON.parse(response.body)['errors']
+              expected_verbiage = '"" is not a valid value for "directDeposit.bankName"'
+              expect(errors.any? { |error| error['detail'].include?(expected_verbiage) }).to be true
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#526 without flashes or special issues' do
@@ -2870,7 +3286,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       mock_acg(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
-            params: base64_params, headers: headers.merge(auth_header))
+            params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
@@ -2903,7 +3319,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
-             params: base64_params, headers: headers.merge(auth_header))
+             params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
@@ -2931,6 +3347,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         }
 
         allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_add_person_proxy).and_return(true)
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         allow_any_instance_of(ClaimsApi::BD).to(
           receive(:upload).and_raise(Common::Exceptions::BackendServiceException.new(
@@ -2939,7 +3356,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         )
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
-             params: base64_params, headers: headers.merge(auth_header))
+             params: base64_params, headers: headers.merge(auth_header), as: :json)
         expect(response).to have_http_status(:ok)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
@@ -2947,7 +3364,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     end
 
     context 'when a claim is already established' do
-      let(:auto_claim) { create(:auto_established_claim, :status_established) }
+      let(:auto_claim) { create(:auto_established_claim, :established) }
 
       it 'returns a 404 error because only pending claims are allowed' do
         mock_acg(scopes) do |auth_header|
@@ -2974,7 +3391,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
     end
     let(:path) { '/services/claims/v1/forms/526' }
 
-    it 'returns existing claim if duplicate submit occurs by using the md5 lookup' do
+    it 'returns existing claim if duplicate submit occurs by using the hashed lookup' do
       mock_acg(scopes) do |auth_header|
         VCR.use_cassette('claims_api/bgs/claims/claims') do
           VCR.use_cassette('claims_api/brd/countries') do

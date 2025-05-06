@@ -1,0 +1,128 @@
+{
+
+  <%# Page 1 %>
+
+  <%# Station Address %>
+  "F[0].Page_1[0].Station_Address[0]": "<%= %>",
+
+  <%# Date Mailed %>
+  "F[0].Page_1[0].Date_Mailed[0]": "<%= %>",
+
+  <%# Section I - Veteran's Identification Information %>
+
+  <%# 1. Name of Veteran %>
+  "F[0].Page_1[0].VeteranFirstName[0]": "<%= form.first_name %>",
+  "F[0].Page_1[0].VeteranMiddleInitial1[0]": "<%= form.middle_initial %>",
+  "F[0].Page_1[0].VeteranLastName[0]": "<%= form.last_name %>",
+
+  <%# 2. Social Security Number %>
+  "F[0].Page_1[0].Veterans_Social_SecurityNumber_FirstThreeNumbers[0]": "<%= form.ssn[0] %>",
+  "F[0].Page_1[0].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.ssn[1] %>",
+  "F[0].Page_1[0].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
+
+  <%# 3. VA File Number %>
+  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+
+  <%# 4. Date of Birth (MM/DD/YYYY) %>
+  "F[0].Page_1[0].DOBmonth[0]": "<%= form.dob[1] %>",
+  "F[0].Page_1[0].DOBday[0]": "<%= form.dob[2] %>",
+  "F[0].Page_1[0].DOByear[0]": "<%= form.dob[0] %>",
+
+  <%# 5. Veteran's Service Number %>
+  "F[0].Page_1[0].VeteransServiceNumber[0]": "<%= form.data['service_number'] %>",
+
+  <%# 6. E-mail Address %>
+  "F[0].Page_1[0].E-Mail_Address[0]": "<%= form.data['email_address'] %>",
+
+  <%# 7. Primary Telephone Number %>
+  "F[0].Page_1[0].PrimaryTelephoneNumber[0]": "<%= form.phone_primary %>",
+
+  <%# 8. Alternate Telephone Number %>
+  "F[0].Page_1[0].AlternateTelephoneNumber[0]": "<%= form.phone_alternate %>",
+
+  <%# 9. Current Mailing Address of Veteran %>
+  "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": "<%= form.address.address_line1 %>",
+  "F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= form.address.address_line2 %>",
+  "F[0].Page_1[0].CurrentMailingAddress_City[0]": "<%= form.address.city %>",
+  "F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]": "<%= form.address.state_code %>",
+  "F[0].Page_1[0].CurrentMailingAddress_Country[0]": "<%= form.address.country_code_iso2 %>",
+  "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.address.zip_code %>",
+  "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.address.zip_code_suffix %>",
+
+  <%# 10. Were you employed by VA, others or self employed at any time during the past 12 months? %>
+  "F[0].Page_1[0].RadioButtonList[0]": "<%= form.data.dig('RadioButtonList') %>",
+
+  <%# Section II - Employment Certification %>
+  <%# 11A. Name and Address of Employer %>
+  "F[0].Page_1[0].Name_And_Address_Of_Employer[0]": "<%= form.employment_history[0].name_and_address %>",
+
+  <%# 11B. Type of Work %>
+  "F[0].Page_1[0].Type_Of_Work[0]": "<%= form.employment_history[0].type_of_work %>",
+
+  <%# 11C. Hours Per Week %>
+  "F[0].Page_1[0].Hours_Per_Week[0]": "<%= form.employment_history[0].hours_per_week %>",
+
+  <%# 11D. Dates of Employment or Self-Employment %>
+  "F[0].Page_1[0].Date_Of_Employment_From[0]": "<%= form.employment_history[0].date_started %>",
+  "F[0].Page_1[0].Date_Of_Employment_To[0]": "<%= form.employment_history[0].date_ended %>",
+
+  <%# 11E. Time Lost From Illness %>
+  "F[0].Page_1[0].Time_Lost_From_Illness[0]": "<%= form.employment_history[0].lost_time %>",
+
+  <%# 11F. Highest Gross Earnings Per Month %>
+  "F[0].Page_1[0].Gross_Earnings_Per_Month[0]": "<%= form.employment_history[0].highest_income %>",
+
+  <%# Page 2 %>
+  <%# Veteran's Social Security No. %>
+  "F[0].#subform[1].Veterans_Social_SecurityNumber_FirstThreeNumbers[0]": "<%= form.ssn[0] %>",
+  "F[0].#subform[1].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.ssn[1] %>",
+  "F[0].#subform[1].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
+
+  <%# Section II - Employment Certification (Continued) %>
+  <%# 11A. Name and Address of Employer %>
+  "F[0].#subform[1].Name_And_Address_Of_Employer[0]": "<%= form.employment_history[3].name_and_address %>",
+  "F[0].#subform[1].Name_And_Address_Of_Employer[1]": "<%= form.employment_history[2].name_and_address %>",
+  "F[0].#subform[1].Name_And_Address_Of_Employer[2]": "<%= form.employment_history[1].name_and_address %>",
+
+  <%# 11B. Type of Work %>
+  "F[0].#subform[1].Type_Of_Work[0]": "<%= form.employment_history[3].type_of_work %>",
+  "F[0].#subform[1].Type_Of_Work[1]": "<%= form.employment_history[2].type_of_work %>",
+  "F[0].#subform[1].Type_Of_Work[2]": "<%= form.employment_history[1].type_of_work %>",
+
+  <%# 11C. Hours Per Week %>
+  "F[0].#subform[1].Hours_Per_Week[0]": "<%= form.employment_history[3].hours_per_week %>",
+  "F[0].#subform[1].Hours_Per_Week[1]": "<%= form.employment_history[2].hours_per_week %>",
+  "F[0].#subform[1].Hours_Per_Week[2]": "<%= form.employment_history[1].hours_per_week %>",
+
+  <%# 11D. Dates of Employment or Self-Employment %>
+  "F[0].#subform[1].Date_Of_Employment_From[0]": "<%= form.employment_history[3].date_started %>",
+  "F[0].#subform[1].Date_Of_Employment_To[0]": "<%= form.employment_history[3].date_ended %>",
+  "F[0].#subform[1].Date_Of_Employment_From[1]": "<%= form.employment_history[2].date_started %>",
+  "F[0].#subform[1].Date_Of_Employment_To[1]": "<%= form.employment_history[2].date_ended %>",
+  "F[0].#subform[1].Date_Of_Employment_From[2]": "<%= form.employment_history[1].date_started %>",
+  "F[0].#subform[1].Date_Of_Employment_To[2]": "<%= form.employment_history[1].date_ended %>",
+
+  <%# 11E. Time Lost From Illness %>
+  "F[0].#subform[1].Time_Lost_From_Illness[0]": "<%= form.employment_history[3].lost_time %>",
+  "F[0].#subform[1].Time_Lost_From_Illness[1]": "<%= form.employment_history[2].lost_time %>",
+  "F[0].#subform[1].Time_Lost_From_Illness[2]": "<%= form.employment_history[1].lost_time %>",
+
+  <%# 11F. Highest Gross Earnings Per Month %>
+  "F[0].#subform[1].Gross_Earnings_Per_Month[0]": "<%= form.employment_history[2].highest_income %>",
+  "F[0].#subform[1].Gross_Earnings_Per_Month[1]": "<%= form.employment_history[3].highest_income %>",
+  "F[0].#subform[1].Gross_Earnings_Per_Month[2]": "<%= form.employment_history[1].highest_income %>",
+
+  <%# 12A. Signature of Veteran %>
+  "F[0].#subform[1].SignatureField1[0]": "<%= form.signature_employed %>",
+
+  <%# 12B. Date Signed %>
+  "F[0].#subform[1].DateSigned[1]": "<%= form.signature_date_employed %>",
+
+  <%# Section III - Unemployment Certification %>
+
+  <%# 13A. Signature of Veteran %>
+  "F[0].#subform[1].SignatureField1[1]": "<%= form.signature_unemployed %>",
+
+  <%# 13B. Date Signed %>
+  "F[0].#subform[1].DateSigned[0]": "<%= form.signature_date_unemployed %>"
+}

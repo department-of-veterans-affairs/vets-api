@@ -10,7 +10,7 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
     let(:path) { '/services/appeals/v0/appeals' }
 
     context 'with the X-VA-SSN and X-VA-User header supplied' do
-      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:user) { create(:user, :loa3) }
       let(:user_headers) do
         {
           'X-VA-SSN' => '111223333',
@@ -49,7 +49,7 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
     end
 
     context 'with an empty response' do
-      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:user) { create(:user, :loa3) }
       let(:user_headers) do
         {
           'X-VA-SSN' => '111223333',
@@ -118,6 +118,21 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
             }
           )
           expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name' => 'Jane',
+                      'X-VA-Last-Name' => 'Doe',
+                      'X-VA-SSN' => '123456789',
+                      'X-VA-Birth-Date' => '1969-12-31',
+                      'X-VA-User' => 'test.user@test.com'
+                    } do
+      def make_request(headers)
+        VCR.use_cassette('caseflow/appeals') do
+          get(path, params: nil, headers:)
         end
       end
     end

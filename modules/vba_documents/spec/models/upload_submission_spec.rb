@@ -3,15 +3,28 @@
 require 'rails_helper'
 
 describe VBADocuments::UploadSubmission, type: :model do
-  let(:upload_pending) { FactoryBot.create(:upload_submission) }
-  let(:upload_uploaded) { FactoryBot.create(:upload_submission, status: 'uploaded') }
-  let(:upload_received) { FactoryBot.create(:upload_submission, status: 'received') }
-  let(:upload_processing) { FactoryBot.create(:upload_submission, status: 'processing') }
-  let(:upload_success) { FactoryBot.create(:upload_submission, status: 'success') }
-  let(:upload_vbms) { FactoryBot.create(:upload_submission, status: 'vbms') }
-  let(:upload_error) { FactoryBot.create(:upload_submission, status: 'error') }
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:upload_pending) { create(:upload_submission) }
+  let(:upload_expired) { create(:upload_submission, status: 'expired') }
+  let(:upload_uploaded) { create(:upload_submission, status: 'uploaded') }
+  let(:upload_received) { create(:upload_submission, status: 'received') }
+  let(:upload_processing) { create(:upload_submission, status: 'processing') }
+  let(:upload_success) { create(:upload_submission, status: 'success') }
+  let(:upload_final_success) do
+    create(:upload_submission, status: 'success', metadata: { final_success_status: Time.now.to_i })
+  end
+  let(:upload_vbms) { create(:upload_submission, status: 'vbms') }
+  let(:upload_error) { create(:upload_submission, status: 'error') }
+  let(:upload_error_validation) do
+    create(:upload_submission,
+           status: 'error', code: 'DOC108', detail: 'Maximum page size exceeded. Limit is 78 in x 101 in.')
+  end
+  let(:upload_error_upstream) do
+    create(:upload_submission,
+           status: 'error', code: 'DOC202',
+           detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected.')
+  end
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
 
   let(:received_body) do
     [[{ uuid: 'ignored',
@@ -94,7 +107,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     it "returns records that have a status defined in 'IN_FLIGHT_STATUSES'" do
       all_statuses.each do |status|
-        upload = FactoryBot.create(:upload_submission, status:)
+        upload = create(:upload_submission, status:)
 
         if in_flight_statuses.include?(status)
           expect(subject).to include(upload)
@@ -105,22 +118,22 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
 
     it "returns records that do not have a 'final success' status key" do
-      upload = FactoryBot.create(:upload_submission, status: 'success')
+      upload = create(:upload_submission, status: 'success')
       expect(subject).to include(upload)
     end
 
     it "does not return records that have a 'final success' status key" do
-      upload = FactoryBot.create(:upload_submission, :status_final_success)
+      upload = create(:upload_submission, :status_final_success)
       expect(subject).not_to include(upload)
     end
 
     it 'returns records created after the VBMS status deployment date' do
-      upload = FactoryBot.create(:upload_submission, status: 'success', created_at: vbms_deployment_date.next_day(1))
+      upload = create(:upload_submission, status: 'success', created_at: vbms_deployment_date.next_day(1))
       expect(subject).to include(upload)
     end
 
     it 'does not return records created before the VBMS status deployment date' do
-      upload = FactoryBot.create(:upload_submission, status: 'success', created_at: vbms_deployment_date.prev_day(1))
+      upload = create(:upload_submission, status: 'success', created_at: vbms_deployment_date.prev_day(1))
       expect(subject).not_to include(upload)
     end
   end
@@ -146,19 +159,19 @@ describe VBADocuments::UploadSubmission, type: :model do
 
   describe 'consumer_name' do
     it 'returns unknown when no name is set' do
-      upload = FactoryBot.create(:upload_submission, consumer_name: nil)
+      upload = create(:upload_submission, consumer_name: nil)
       expect(upload.consumer_name).to eq('unknown')
     end
 
     it 'returns name when set' do
-      upload = FactoryBot.create(:upload_submission, consumer_name: 'test consumer')
+      upload = create(:upload_submission, consumer_name: 'test consumer')
       expect(upload.consumer_name).to eq('test consumer')
     end
   end
 
   describe 'clear_old_error' do
     it 'clears error fields when moving out of error status' do
-      upload = FactoryBot.create(:upload_submission, status: 'error', code: 'MAV505', detail: 'Mav Error')
+      upload = create(:upload_submission, status: 'error', code: 'MAV505', detail: 'Mav Error')
       upload.status = 'received'
       upload.save!
       expect(upload.detail).to be_nil
@@ -169,11 +182,11 @@ describe VBADocuments::UploadSubmission, type: :model do
 
   describe 'retains_error_fields' do
     it 'retains error fields when saved after edit if status does not change from error' do
-      upload = FactoryBot.create(:upload_submission,
-                                 status: 'error',
-                                 code: 'MAV505',
-                                 detail: 'Mav Error',
-                                 s3_deleted: false)
+      upload = create(:upload_submission,
+                      status: 'error',
+                      code: 'MAV505',
+                      detail: 'Mav Error',
+                      s3_deleted: false)
       upload.s3_deleted = true
       upload.save!
       expect(upload.detail).to eq('Mav Error')
@@ -231,7 +244,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_success.refresh_status!
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
       expect(updated.status).to eq('success')
-      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be(nil)
+      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be_nil
     end
 
     it 'updates completed status from upstream to ERROR if any UNIDENTIFIABLE_MAIL' do
@@ -411,11 +424,17 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload1 = VBADocuments::UploadSubmission.new
       upload2 = VBADocuments::UploadSubmission.new
       saved = upload1.save
-      expect(saved).to eq(true)
+      expect(saved).to be(true)
       guid = upload1.guid
       upload2.guid = guid
       saved = upload2.save
-      expect(saved).to eq(false)
+      expect(saved).to be(false)
+    end
+
+    it 'defaults s3_deleted to false when creating new records' do
+      upload1 = VBADocuments::UploadSubmission.new
+      upload1.save
+      expect(upload1.s3_deleted).to be(false)
     end
   end
 
@@ -466,40 +485,82 @@ describe VBADocuments::UploadSubmission, type: :model do
 
   describe '#appeals_consumer?' do
     it 'returns true if #consumer_name is appeals specific' do
-      upload = FactoryBot.create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission')
+      upload = create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission')
 
-      expect(upload.appeals_consumer?).to eq(true)
+      expect(upload.appeals_consumer?).to be(true)
     end
 
     it 'returns false if #consumer_name is not appeals specific' do
-      upload = FactoryBot.create(:upload_submission, consumer_name: 'unrelated')
+      upload = create(:upload_submission, consumer_name: 'unrelated')
 
-      expect(upload.appeals_consumer?).to eq(false)
+      expect(upload.appeals_consumer?).to be(false)
     end
   end
 
   describe '#base64_encoded?' do
     it 'returns true if metadata["base64_encoded"] is true' do
-      upload = FactoryBot.create(:upload_submission, metadata: { 'base64_encoded' => true })
+      upload = create(:upload_submission, metadata: { 'base64_encoded' => true })
 
-      expect(upload.base64_encoded?).to eq(true)
+      expect(upload.base64_encoded?).to be(true)
     end
 
     it 'returns false if metadata["base64_encoded"] is false' do
-      upload = FactoryBot.create(:upload_submission, metadata: { 'base64_encoded' => false })
+      upload = create(:upload_submission, metadata: { 'base64_encoded' => false })
 
-      expect(upload.base64_encoded?).to eq(false)
+      expect(upload.base64_encoded?).to be(false)
     end
 
     it 'returns false if metadata["base64_encoded"] is nil' do
-      upload = FactoryBot.create(:upload_submission)
+      upload = create(:upload_submission)
 
-      expect(upload.base64_encoded?).to eq(false)
+      expect(upload.base64_encoded?).to be(false)
+    end
+  end
+
+  describe '#in_final_status?' do
+    it 'returns false when status is pending' do
+      expect(upload_pending.in_final_status?).to be(false)
+    end
+
+    it 'returns true when status is expired' do
+      expect(upload_expired.in_final_status?).to be(true)
+    end
+
+    it 'returns false when status is uploaded' do
+      expect(upload_uploaded.in_final_status?).to be(false)
+    end
+
+    it 'returns false when status is received' do
+      expect(upload_received.in_final_status?).to be(false)
+    end
+
+    it 'returns false when status is processing' do
+      expect(upload_processing.in_final_status?).to be(false)
+    end
+
+    it 'returns false when status is success with no final success metadata key' do
+      expect(upload_success.in_final_status?).to be(false)
+    end
+
+    it 'returns true when status is success with a final success metadata key' do
+      expect(upload_final_success.in_final_status?).to be(true)
+    end
+
+    it 'returns true when status is vbms' do
+      expect(upload_vbms.in_final_status?).to be(true)
+    end
+
+    it 'returns true when status is error and the error code is DOC1XX (validation error)' do
+      expect(upload_error_validation.in_final_status?).to be(true)
+    end
+
+    it 'returns false when status is error and the error code is DOC2XX (upstream error)' do
+      expect(upload_error_upstream.in_final_status?).to be(false)
     end
   end
 
   describe '#track_upload_timeout_error' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { create(:upload_submission) }
 
     context 'when this is the first timeout error' do
       before { upload.track_upload_timeout_error }
@@ -527,7 +588,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     context 'when "upload_timeout_error_count" is smaller than the retry limit' do
       let(:error_count) { retry_limit - 1 }
-      let(:upload) { FactoryBot.create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
+      let(:upload) { create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
 
       it 'returns false' do
         expect(upload.hit_upload_timeout_limit?).to be(false)
@@ -536,7 +597,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     context 'when "upload_timeout_error_count" is equal to the retry limit' do
       let(:error_count) { retry_limit }
-      let(:upload) { FactoryBot.create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
+      let(:upload) { create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
 
       it 'returns false' do
         expect(upload.hit_upload_timeout_limit?).to be(false)
@@ -545,7 +606,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     context 'when "upload_timeout_error_count" is larger than the retry limit' do
       let(:error_count) { retry_limit + 1 }
-      let(:upload) { FactoryBot.create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
+      let(:upload) { create(:upload_submission, metadata: { 'upload_timeout_error_count' => error_count }) }
 
       it 'returns true' do
         expect(upload.hit_upload_timeout_limit?).to be(true)

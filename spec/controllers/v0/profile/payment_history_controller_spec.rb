@@ -13,7 +13,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             sign_in_as(user)
             get(:index)
 
-            expect(response.code).to eq('200')
+            expect(response).to have_http_status(:ok)
             expect(response).to have_http_status(:ok)
 
             expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to eq(47)
@@ -30,7 +30,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             sign_in_as(user)
             get(:index)
 
-            expect(response.code).to eq('200')
+            expect(response).to have_http_status(:ok)
             expect(response).to have_http_status(:ok)
 
             expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to eq(2)
@@ -48,7 +48,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
             sign_in_as(user)
             get(:index)
 
-            expect(response.code).to eq('200')
+            expect(response).to have_http_status(:ok)
             expect(response).to have_http_status(:ok)
 
             expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to eq(0)

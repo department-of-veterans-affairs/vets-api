@@ -8,7 +8,13 @@ module SimpleFormsApi
     class ScannedFormUploadsController < ApplicationController
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
-        render json: upload_response
+        check_for_changes
+
+        status, confirmation_number = upload_response
+
+        send_confirmation_email(params, confirmation_number) if status == 200
+
+        render json: { status:, confirmation_number: }
       end
 
       def upload_scanned_form
@@ -29,10 +35,18 @@ module SimpleFormsApi
 
       def upload_response
         file_path = find_attachment_path(params[:confirmation_code])
+        stamper = PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
+                                 timestamp: Time.current)
+        stamper.stamp_pdf
         metadata = validated_metadata
         status, confirmation_number = upload_pdf(file_path, metadata)
+        file_size = File.size(file_path).to_f / (2**20)
 
-        { confirmation_number:, status: }
+        Rails.logger.info(
+          'Simple forms api - scanned form uploaded',
+          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+        )
+        [status, confirmation_number]
       end
 
       def find_attachment_path(confirmation_code)
@@ -41,13 +55,11 @@ module SimpleFormsApi
 
       def validated_metadata
         raw_metadata = {
-          'veteranFirstName' => @current_user.first_name,
-          'veteranLastName' => @current_user.last_name,
-          'fileNumber' => params.dig(:options, :ssn) ||
-                          params.dig(:options, :va_file_number) ||
-                          @current_user.ssn,
-          'zipCode' => params.dig(:options, :zip_code) ||
-                       @current_user.address[:postal_code],
+          'veteranFirstName' => params.dig(:form_data, :full_name, :first),
+          'veteranLastName' => params.dig(:form_data, :full_name, :last),
+          'fileNumber' => params.dig(:form_data, :id_number, :ssn) ||
+                          params.dig(:form_data, :id_number, :va_file_number),
+          'zipCode' => params.dig(:form_data, :postal_code),
           'source' => 'VA Platform Digital Forms',
           'docType' => params[:form_number],
           'businessLine' => 'CMP'
@@ -70,14 +82,16 @@ module SimpleFormsApi
       end
 
       def create_form_submission_attempt(uuid)
-        form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
+        FormSubmissionAttempt.transaction do
+          form_submission = create_form_submission
+          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        end
       end
 
-      def create_form_submission(uuid)
+      def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
+          form_data: params[:form_data].to_json,
           user_account: @current_user&.user_account
         )
       end
@@ -93,6 +107,27 @@ module SimpleFormsApi
           document: file_path,
           upload_url: location
         )
+      end
+
+      def check_for_changes
+        in_progress_form = InProgressForm.form_for_user('FORM-UPLOAD-FLOW', @current_user)
+        if in_progress_form
+          prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
+                                                                        form_data: params[:form_data],
+                                                                        form_id: params[:form_number])
+          prefill_data_service.check_for_changes
+        end
+      end
+
+      def send_confirmation_email(params, confirmation_number)
+        config = {
+          form_number: params[:form_number],
+          form_data: params[:form_data],
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          confirmation_number:
+        }
+        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
+        notification_email.send
       end
     end
   end

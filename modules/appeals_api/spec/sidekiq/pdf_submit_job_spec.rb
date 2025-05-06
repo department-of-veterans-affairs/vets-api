@@ -18,15 +18,20 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
   let(:higher_level_review) { create(:higher_level_review_v2) }
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:supplemental_claim) { create(:supplemental_claim) }
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
+
+  after do
+    client_stub { nil }
+    faraday_response { nil }
+  end
 
   it_behaves_like 'a monitored worker'
 
   describe 'uploads a valid payload' do
     it 'HLRv2' do
       Timecop.freeze(DateTime.new(2020, 1, 1).utc) do
-        file_digest_stub = instance_double('Digest::SHA256')
+        file_digest_stub = instance_double(Digest::SHA256)
         allow(Digest::SHA256).to receive(:file) { file_digest_stub }
         allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
 
@@ -68,7 +73,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
     it 'NOD' do
       Timecop.freeze(DateTime.new(2020, 1, 1).utc) do
         allow(CentralMail::Service).to receive(:new) { client_stub }
-        file_digest_stub = instance_double('Digest::SHA256')
+        file_digest_stub = instance_double(Digest::SHA256)
         allow(Digest::SHA256).to receive(:file) { file_digest_stub }
         allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
 
@@ -110,7 +115,7 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
 
     it 'SC' do
       Timecop.freeze(DateTime.new(2020, 1, 1).utc) do
-        file_digest_stub = instance_double('Digest::SHA256')
+        file_digest_stub = instance_double(Digest::SHA256)
         allow(Digest::SHA256).to receive(:file) { file_digest_stub }
         allow(file_digest_stub).to receive(:hexdigest).and_return('file_digest_12345')
 

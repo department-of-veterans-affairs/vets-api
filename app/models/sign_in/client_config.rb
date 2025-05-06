@@ -7,6 +7,9 @@ module SignIn
     attribute :access_token_duration, :interval
     attribute :refresh_token_duration, :interval
 
+    has_many :config_certificates, as: :config, dependent: :destroy
+    has_many :certs, through: :config_certificates, class_name: 'SignIn::Certificate'
+
     validates :anti_csrf, inclusion: [true, false]
     validates :redirect_uri, presence: true
     validates :access_token_duration,
@@ -27,6 +30,7 @@ module SignIn
     validates :service_levels, presence: true, inclusion: { in: Constants::Auth::ACR_VALUES, allow_nil: false }
     validates :credential_service_providers, presence: true,
                                              inclusion: { in: Constants::Auth::CSP_TYPES, allow_nil: false }
+    validates :json_api_compatibility, inclusion: [true, false]
 
     def self.valid_client_id?(client_id:)
       find_by(client_id:).present?
@@ -56,8 +60,12 @@ module SignIn
       service_levels.include?(acr)
     end
 
-    def device_sso_enabled?
+    def api_sso_enabled?
       api_auth? && shared_sessions
+    end
+
+    def web_sso_enabled?
+      cookie_auth? && shared_sessions
     end
 
     private

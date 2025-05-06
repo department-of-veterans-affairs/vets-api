@@ -1,4 +1,4 @@
-The Decision Reviews API allows you to interact with a Veteran’s decision reviews, also known as benefit appeals. This API provides a secure and efficient alternative to paper or fax submissions and follows the AMA process. To view the status of all decision reviews and benefits appeals submitted according to the legacy benefits appeals process, use the [Appeals Status API](/explore/appeals/docs/appeals?version=current).
+The Decision Reviews API allows you to interact with a Veteran's decision reviews, also known as benefit appeals. This API provides a secure and efficient alternative to paper or fax submissions and follows the AMA process. To view the status of all decision reviews and benefits appeals submitted according to the legacy benefits appeals process, use the [Appeals Status API](/explore/appeals/docs/appeals?version=current).
 
 Information about the decision reviews process and types of decision reviews is available on the [VA decision reviews and appeals page](https://www.va.gov/decision-reviews/#request-a-decision-review-or-appeal).
 
@@ -10,9 +10,12 @@ Because this application is designed to allow third-parties to request informati
 ### Authorization and Access
 To gain access to the decision reviews API you must [request an API Key](/support/contact-us). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
+### Test data
+Our sandbox environment is populated with [claimant test data](/explore/api/decision-reviews/test-users) that can be used to test various response scenarios. This sandbox data contains no PII or PHI, but mimics real claimant account information.
+
 ### Submission Statuses
 
-Use the correct GET endpoint to check the appeal’s submission status. The endpoint returns the current status of the submission to VA but not the status of the appeal in the AMA process.
+Use the correct GET endpoint to check the appeal's submission status. The endpoint returns the current status of the submission to VA but not the status of the appeal in the AMA process.
 
 ### Decision Review/Appeal Submission Statuses
 

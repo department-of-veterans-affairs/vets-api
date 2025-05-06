@@ -7,6 +7,11 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
+        if Vye::CloudTransfer.holiday?
+          Rails.logger.info("Vye::MidnightRun::IngressTims: holiday detected, job run at: #{Time.zone.now}")
+          return
+        end
+
         Vye::PendingDocument.delete_all
 
         chunks = BatchTransfer::TimsChunk.build_chunks

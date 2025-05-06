@@ -5,7 +5,7 @@ FactoryBot.define do
     association :form526_submission
     lifecycle { ['datetime -- context'] }
     success { true }
-    ignored_as_duplicate { false }
+    remediation_type { :manual }
     created_at { Time.zone.now }
     updated_at { Time.zone.now }
   end

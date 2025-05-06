@@ -1,0 +1,52 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.wellhive.com/care-navigation/v1/appointments
+    body:
+      encoding: UTF-8
+      string: '{"patientId":"care-nav-patient-casey","referralId":"ref-123"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      X-Request-Id:
+      - fd679491-3fd4-491c-a02d-2d0b6fbcd7fa
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 11 Jan 2025 02:58:31 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '71'
+      Connection:
+      - keep-alive
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Strict-Transport-Security:
+      - max-age=6307200; includeSubDomains; preload
+      Traceparent:
+      - 00-32074bba21ef7d7988e01e29e229def0-338e005691793a96-01
+      X-Content-Type-Options:
+      - nosniff
+      X-Request-Id:
+      - fd679491-3fd4-491c-a02d-2d0b6fbcd7fa
+      X-Wellhive-Trace-Id:
+      - 32074bba21ef7d7988e01e29e229def0
+    body:
+      encoding: UTF-8
+      string: '{"id":"EEKoGzEf","state":"draft","patientId":"care-nav-patient-casey"}
+
+        '
+  recorded_at: Sat, 11 Jan 2025 02:58:31 GMT
+recorded_with: VCR 6.3.1

@@ -401,7 +401,6 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :type, :object
-              property(:validation_key, type: :integer)
 
               property(:addresses) do
                 key :type, :array
@@ -933,6 +932,13 @@ module Swagger
                       property :character_of_discharge_code, type: :string, example: 'DVN', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
                     end
                   end
+                  property :vet_status_eligibility do
+                    key :type, :object
+                    items do
+                      property :confirmed, type: :boolean
+                      property :message, type: :array
+                    end
+                  end
                 end
               end
             end
@@ -991,11 +997,11 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Gets the most recent transactions for a user.'\
-                            ' Response will include an array of transactions that are still in progress,'\
-                            ' or that were just updated to COMPLETED during the course of this request.'\
-                            ' The array will be empty if no transactions are pending or updated.'\
-                            ' Only the most recent transaction for each profile field will be included'\
+          key :description, 'Gets the most recent transactions for a user.' \
+                            ' Response will include an array of transactions that are still in progress,' \
+                            ' or that were just updated to COMPLETED during the course of this request.' \
+                            ' The array will be empty if no transactions are pending or updated.' \
+                            ' Only the most recent transaction for each profile field will be included' \
                             ' so there may be up to 4 (Address, Email, Telephone, Permission).'
           key :operationId, 'getTransactionStatusesByUser'
           key :tags, %w[profile]
@@ -1411,6 +1417,35 @@ module Swagger
             key :description, 'Successful request'
             schema do
               key :$ref, :Contacts
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/vet_verification_status' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Indicates whether an individual is "Confirmed" or "Not Confirmed" as a Title 38 Veteran according to VA.'
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Confirmation status successfully retrieved.'
+            schema do
+              key :type, :object
+              property(:data) do
+                key :type, :object
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes do
+                  key :type, :object
+                  property :veteran_status, type: :string, example: 'not confirmed', description: "Veteran's Title 38 status"
+                  property :not_confirmed_reason, type: :string, example: 'PERSON_NOT_FOUND', description: 'Reason for not being confirmed'
+                  property :message, type: :array, example: "We're sorry. There's a problem...", description: 'Alert message to display to user'
+                end
+              end
             end
           end
         end

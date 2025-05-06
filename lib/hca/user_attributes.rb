@@ -1,26 +1,41 @@
 # frozen_string_literal: true
 
-class HCA::UserAttributes
-  include ActiveModel::Validations
-  include Virtus.model(nullify_blank: true)
+module HCA
+  class UserAttributes
+    include ActiveModel::Model
+    include ActiveModel::Validations
 
-  attribute :first_name, String
-  attribute :middle_name, String
-  attribute :last_name, String
-  attribute :birth_date, String
-  attribute :ssn, String
+    validates :first_name, presence: true
+    validates :last_name, presence: true
+    validates :birth_date, presence: true
+    validates :ssn, presence: true
 
-  validates(:first_name, :last_name, :birth_date, :ssn, presence: true)
+    attr_accessor :first_name,
+                  :middle_name,
+                  :last_name,
+                  :birth_date,
+                  :ssn,
+                  :gender
 
-  # These attributes, along with uuid, are required by mpi/service.
-  # They can be nil as they're not part of the HCA form
-  attr_reader :mhv_icn, :edipi, :gender, :authn_context, :idme_uuid, :logingov_uuid
+    # These attributes, along with uuid, are required by mpi/service.
+    # They can be nil as they're not part of the HCA form
+    attr_reader :mhv_icn, :edipi, :authn_context, :idme_uuid, :logingov_uuid
 
-  def ssn=(new_ssn)
-    super(new_ssn&.gsub(/\D/, ''))
-  end
+    def initialize(attributes = {})
+      super
+      @ssn = attributes[:ssn]&.gsub(/\D/, '')
+    end
 
-  def uuid
-    SecureRandom.uuid
+    def to_h
+      {
+        first_name:,
+        middle_name:,
+        last_name:,
+        birth_date:,
+        ssn:
+      }
+    end
+
+    delegate :uuid, to: :SecureRandom
   end
 end

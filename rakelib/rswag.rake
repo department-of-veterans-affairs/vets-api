@@ -41,7 +41,7 @@ namespace :rswag do
       %w[dev production].each do |environment|
         ENV['DOCUMENTATION_ENVIRONMENT'] = environment
         Rake::Task['rswag:specs:swaggerize'].invoke
-        %w[v1 v2].each { |version| format_for_swagger(version, (version.eql?('v2') ? environment : nil)) }
+        %w[v1 v2].each { |version| format_for_swagger(version, version.eql?('v2') ? environment : nil) }
         Rake::Task['rswag:specs:swaggerize'].reenable
       end
     end
@@ -61,6 +61,16 @@ namespace :rswag do
     desc 'Generate all docs for all appeals APIs'
     task all: :environment do
       run_tasks_in_parallel(%w[rswag:appeals_api:prod rswag:appeals_api:dev])
+    end
+  end
+
+  namespace :representation_management do
+    desc 'Generate rswag docs for representation_management'
+    task build: :environment do
+      ENV['PATTERN'] = 'modules/representation_management/spec/requests/**/*_spec.rb'
+      ENV['RAILS_MODULE'] = 'representation_management'
+      ENV['SWAGGER_DRY_RUN'] = '0'
+      Rake::Task['rswag:specs:swaggerize'].invoke
     end
   end
 end

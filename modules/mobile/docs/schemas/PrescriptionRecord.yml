@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "Prescription"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - refillStatus
       - refillSubmitDate
@@ -31,7 +33,8 @@ properties:
       - facilityPhoneNumber
     properties:
       refillStatus:
-        type: string, null
+        type: string
+        nullable: true
         example: "refillinprocess"
         enum:
           - active
@@ -51,48 +54,63 @@ properties:
           - dateOfDeathEntered
           - transferred
       refillSubmitDate:
-        type: string, null
+        type: string
+        nullable: true
         example: "2022-10-28T04:00:00.000Z"
       refillDate:
-        type: string, null
+        type: string
+        nullable: true
         example: "2022-10-28T04:00:00.000Z"
       refillRemaining:
-        type: integer, null
+        type: integer
+        nullable: true
         example: 5
       facilityName:
-        type: string, null
+        type: string
+        nullable: true
         example: "DAYT29"
       isRefillable:
-        type: bool, null
+        type: bool
+        nullable: true
         example: false
       isTrackable:
-        type: bool, null
+        type: bool
+        nullable: true
         example: false
       orderedDate:
-        type: string, null
+        type: string
+        nullable: true
         example: "2022-10-28T04:00:00.000Z"
       quantity:
-        type: integer, null
+        type: integer
+        nullable: true
         example: 10
       expirationDate:
-        type: string, null
+        type: string
+        nullable: true
         example: "2022-10-28T04:00:00.000Z"
       prescriptionNumber:
-        type: string, null
+        type: string
+        nullable: true
         example: "2719536"
       prescriptionName:
-        type: string, null
+        type: string
+        nullable: true
         example: "SOMATROPIN 5MG INJ (VI)"
       instructions:
-        type: string, null
+        type: string
+        nullable: true
         example: "INJECT 1MG INTO THE MUSCLE WEEKLY FOR 30 DAYS"
       dispensedDate:
-        type: string, null
+        type: string
+        nullable: true
         example: "2022-10-28T04:00:00.000Z"
       stationNumber:
-        type: string, null
+        type: string
+        nullable: true
         example: "989"
       facilityPhoneNumber:
-        type: string, null
+        type: string
+        nullable: true
         example: "(217) 636-6712"
 

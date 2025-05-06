@@ -14,6 +14,8 @@ module MebApi
         STATSD_KEY_PREFIX = 'api.dgi.status'
 
         def get_claim_status(params, claimant_id, type = 'Chapter33')
+          type ||= 'Chapter33'
+
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
@@ -26,7 +28,7 @@ module MebApi
         private
 
         def end_point(latest, claimant_id, type)
-          latest = latest.nil? ? 'false' : latest
+          latest = 'false' if latest.nil?
           "claimant/#{claimant_id}/claimType/#{type}/claimstatus?latest=#{latest}"
         end
 

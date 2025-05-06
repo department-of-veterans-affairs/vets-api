@@ -172,32 +172,50 @@ class MPIData < Common::RedisStore
     cached?(key: user_key)
   end
 
-  # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
-  # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
-  # on the next call.
+  # The status of the MPI Add Person Proxy Add call.
+  # An Orchestrated MVI Search needs to be made to obtain a token before an MPI add person proxy add call is made.
+  # The cached response is deleted after the response if the call is successful.
+  #
+  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI
   def add_person_proxy
-    search_response = mpi_service.find_profile_by_attributes_with_orch_search(first_name: user_first_name,
-                                                                              last_name: user_last_name,
-                                                                              birth_date: user_birth_date,
-                                                                              ssn: user_ssn,
-                                                                              edipi: user_edipi)
+    search_response = mpi_service.find_profile_by_identifier(identifier: user_icn,
+                                                             identifier_type: MPI::Constants::ICN)
     if search_response.ok?
-      @mvi_response = search_response
-      add_response = mpi_service.add_person_proxy(last_name: search_response.profile.family_name,
-                                                  ssn: search_response.profile.ssn,
-                                                  birth_date: search_response.profile.birth_date,
-                                                  icn: search_response.profile.icn,
-                                                  edipi: search_response.profile.edipi,
-                                                  search_token: search_response.profile.search_token,
-                                                  first_name: search_response.profile.given_names.first)
-      add_ids(add_response) if add_response.ok?
-      add_response
+      orch_search_response = perform_orchestrated_search(search_response)
+      if orch_search_response.ok?
+        @mvi_response = orch_search_response
+        add_person_response = perform_add_person_proxy(orch_search_response)
+        add_ids(add_person_response) if add_person_response.ok?
+        add_person_response
+      else
+        orch_search_response
+      end
     else
       search_response
     end
   end
 
   private
+
+  def perform_orchestrated_search(search_response)
+    mpi_service.find_profile_by_attributes_with_orch_search(
+      first_name: search_response.profile.given_names.first,
+      last_name: search_response.profile.family_name,
+      birth_date: search_response.profile.birth_date,
+      ssn: search_response.profile.ssn,
+      edipi: search_response.profile.edipi
+    )
+  end
+
+  def perform_add_person_proxy(orch_search_response)
+    mpi_service.add_person_proxy(last_name: orch_search_response.profile.family_name,
+                                 ssn: orch_search_response.profile.ssn,
+                                 birth_date: orch_search_response.profile.birth_date,
+                                 icn: orch_search_response.profile.icn,
+                                 edipi: orch_search_response.profile.edipi,
+                                 search_token: orch_search_response.profile.search_token,
+                                 first_name: orch_search_response.profile.given_names.first)
+  end
 
   def get_user_key
     if user_icn.present?
@@ -232,11 +250,10 @@ class MPIData < Common::RedisStore
   end
 
   def add_ids(response)
-    # set new ids in the profile and recache the response
     profile.birls_id = response.parsed_codes[:birls_id].presence
     profile.participant_id = response.parsed_codes[:participant_id].presence
 
-    cache(user_uuid, mvi_response) if mvi_response.cache?
+    delete_cached_response if mvi_response.cache?
   end
 
   def response_from_redis_or_service(user_key:)
@@ -246,6 +263,11 @@ class MPIData < Common::RedisStore
       log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
       return nil
     end
+  end
+
+  def delete_cached_response
+    self.class.delete(get_user_key)
+    @mvi_response = nil
   end
 
   def mpi_service

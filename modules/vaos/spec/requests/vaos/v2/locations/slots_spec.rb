@@ -7,6 +7,7 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
 
   before do
     Flipper.enable('va_online_scheduling')
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     sign_in_as(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -19,8 +20,9 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
     describe 'GET available appointment slots' do
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_slots_search)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         context 'on a successful request' do
@@ -30,7 +32,6 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
                   headers: inflection_header
               expect(response).to have_http_status(:ok)
               expect(response.body).to match_camelized_schema('vaos/v2/slots', { strict: false })
-
               slots = JSON.parse(response.body)['data']
               expect(slots.size).to eq(730)
               slot = slots[1]
@@ -61,8 +62,11 @@ RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_enable_OH_slots_search)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_slots_search,
+                                                  instance_of(User)).and_return(true)
       end
 
       context 'on a successful request' do

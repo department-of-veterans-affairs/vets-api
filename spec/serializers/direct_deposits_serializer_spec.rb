@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-describe DirectDepositsSerializer, type: :serializer do
+describe DirectDepositsSerializer, feature: :direct_deposit,
+                                   team_owner: :vfs_authenticated_experience_backend, type: :serializer do
   subject { serialize(direct_deposit, serializer_class: described_class) }
 
   let(:direct_deposit) { build(:direct_deposit, :with_payment_account) }
@@ -23,6 +24,10 @@ describe DirectDepositsSerializer, type: :serializer do
 
   it 'includes :payment_account' do
     expect(attributes['payment_account']).to eq direct_deposit[:payment_account].deep_stringify_keys
+  end
+
+  it 'includes :veteran_status' do
+    expect(attributes['veteran_status']).to eq direct_deposit[:veteran_status]
   end
 
   it 'masks account number' do

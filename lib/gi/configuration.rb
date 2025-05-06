@@ -20,20 +20,30 @@ module GI
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+      Faraday.new(base_path, headers: request_headers, request: request_options) do |conn|
+        conn.use(:breakers, service_name:)
         conn.request :json
         # Uncomment this out for generating curl output
         # conn.request :curl, ::Logger.new(STDOUT), :warn
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :snakecase
-        conn.response :raise_custom_error, error_prefix: service_name
+        conn.response :raise_custom_error, error_prefix: service_name, allow_not_modified: versioning_enabled?
         conn.response :gids_errors
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    private
+
+    def request_headers
+      base_request_headers
+    end
+
+    def versioning_enabled?
+      try(:etag).present?
     end
   end
 end

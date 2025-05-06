@@ -10,7 +10,7 @@ module MebApi
 
         def initialize(status, response = nil)
           attributes = {
-            claimant_id: response.body['claimant_id']
+            claimant_id: response&.body.respond_to?(:fetch) ? response&.body&.fetch('claimant_id', nil) : response&.body
           }
           super(status, attributes)
         end

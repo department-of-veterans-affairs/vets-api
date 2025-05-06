@@ -95,8 +95,10 @@ module Lighthouse
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
-          job_success
           Rails.logger.info('Poll for form 526 PDF: PDF found')
+          if Flipper.enabled?(:disability_526_call_received_email_from_polling)
+            submission.send_received_email('PollForm526Pdf#perform pdf_found')
+          end
           return
         else
           # Check the submission.created_at date, if it's more than 2 days old
@@ -124,10 +126,7 @@ module Lighthouse
     end
 
     def get_form526_pdf(submission)
-      user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                     Account.lookup_by_user_uuid(submission.user_uuid)
-
-      icn = user_account.icn
+      icn = submission.account.icn
       service = BenefitsClaims::Service.new(icn)
       raw_response = service.get_claim(submission.submitted_claim_id)
       raw_response_body = if raw_response.is_a? String

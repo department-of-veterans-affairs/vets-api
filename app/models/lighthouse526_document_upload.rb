@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_documents/form526/polled_document_failure_handler'
+
 class Lighthouse526DocumentUpload < ApplicationRecord
   include AASM
 
@@ -40,7 +42,7 @@ class Lighthouse526DocumentUpload < ApplicationRecord
     end
 
     event :fail do
-      transitions from: :pending, to: :failed, guard: %i[end_time_saved? error_message_saved?]
+      transitions from: :pending, to: :failed, guard: %i[end_time_saved? error_message_saved?], after: :handle_failure
     end
   end
 
@@ -60,5 +62,12 @@ class Lighthouse526DocumentUpload < ApplicationRecord
 
   def error_message_saved?
     error_message != nil
+  end
+
+  def handle_failure
+    # Do not enable until 100 percent of Lighthouse document upload migration is complete!
+    if Flipper.enabled?(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
+      BenefitsDocuments::Form526::PolledDocumentFailureHandler.call(self)
+    end
   end
 end

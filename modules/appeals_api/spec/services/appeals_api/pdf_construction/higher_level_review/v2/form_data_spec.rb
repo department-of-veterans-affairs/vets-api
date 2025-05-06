@@ -13,17 +13,17 @@ describe AppealsApi::PdfConstruction::HigherLevelReview::V2::FormData do
 
   describe '#veteran_area_code' do
     # does not print on form when international number present
-    it { expect(form_data.veteran_area_code).to eq nil }
+    it { expect(form_data.veteran_area_code).to be_nil }
   end
 
   describe '#veteran_phone_prefix' do
     # does not print on form when international number present
-    it { expect(form_data.veteran_phone_prefix).to eq nil }
+    it { expect(form_data.veteran_phone_prefix).to be_nil }
   end
 
   describe '#veteran_phone_line_number' do
     # does not print on form when international number present
-    it { expect(form_data.veteran_phone_line_number).to eq nil }
+    it { expect(form_data.veteran_phone_line_number).to be_nil }
   end
 
   describe '#veteran_international_number' do
@@ -65,7 +65,7 @@ describe AppealsApi::PdfConstruction::HigherLevelReview::V2::FormData do
   end
 
   describe '#claimant_international_number' do
-    it { expect(form_data.claimant_international_number).to eq nil }
+    it { expect(form_data.claimant_international_number).to be_nil }
   end
 
   describe '#claimant_phone_ext' do

@@ -62,7 +62,8 @@ RSpec.describe IvcChampva::VHA1010d do
             'last' => 'Surname'
           },
           'email' => false
-        }
+        },
+        'primaryContactEmail' => 'false'
       )
     end
   end
@@ -112,7 +113,7 @@ RSpec.describe IvcChampva::VHA1010d do
 
       it 'returns stamps for all applicants' do
         stamps = vha1010d_with_multiple_applicants.desired_stamps
-        expect(stamps.count { |stamp| stamp[:text] == 'Canada' || stamp[:text] == 'Mexico' }).to eq(2)
+        expect(stamps.count { |stamp| %w[Canada Mexico].include?(stamp[:text]) }).to eq(2)
         expect(stamps).to include(
           hash_including(coords: [520, 470], text: 'Canada', page: 0),
           hash_including(coords: [520, 354], text: 'Mexico', page: 0)
@@ -144,5 +145,128 @@ RSpec.describe IvcChampva::VHA1010d do
         vha_10_10d.track_email_usage
       end
     end
+  end
+
+  describe '#add_applicant_properties' do
+    context 'when applicants array is present' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(true)
+      end
+
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+              'applicant_dob' => '1980-01-01' },
+            { 'applicant_ssn' => '987654321', 'applicant_name' => { 'first' => 'Jane', 'last' => 'Doe' },
+              'applicant_dob' => '1981-02-02' }
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns valid stringified JSON' do
+        res = vha1010d_applicants.add_applicant_properties
+        expect(res['applicant_0']).to be_a(String)
+        expect(JSON.parse(res['applicant_0'])).to be_a(Hash)
+      end
+
+      it 'includes a key for each applicant' do
+        res = vha1010d_applicants.add_applicant_properties
+        expect(res.keys.include?('applicant_0')).to be(true)
+        expect(res.keys.include?('applicant_1')).to be(true)
+      end
+
+      it 'contains applicant data' do
+        res = vha1010d_applicants.add_applicant_properties
+        expect(JSON.parse(res['applicant_0'])['applicant_name']['first']).to eq('John')
+      end
+    end
+
+    context 'when applicants array is empty' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(true)
+      end
+
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => []
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+    end
+
+    context 'when applicants have wrong properties' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(false)
+      end
+
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'applicant_ssn' => '123456789', 'applicant_name' => { 'first' => 'John', 'last' => 'Doe' },
+              'applicant_dob' => '1980-01-01' }
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+
+      it 'does not interfere with metadata creation' do
+        expect(vha1010d.metadata.keys.include?('veteranFirstName')).to be(true)
+      end
+    end
+
+    context 'when champva_pega_applicant_metadata_enabled flipper is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+          .with(:champva_pega_applicant_metadata_enabled, @current_user)
+          .and_return(true)
+      end
+
+      let(:applicant_data) do
+        data.merge(
+          'applicants' => [
+            { 'malformed' => '123456789' }
+          ]
+        )
+      end
+
+      let(:vha1010d_applicants) { described_class.new(applicant_data) }
+
+      it 'returns an empty object' do
+        json_result = vha1010d.add_applicant_properties
+        expect(json_result.empty?).to be(true)
+      end
+    end
+  end
+
+  it 'is not past OMB expiration date' do
+    # Update this date string to match the current PDF OMB expiration date:
+    omb_expiration_date = Date.strptime('12312027', '%m%d%Y')
+    error_message = <<~MSG
+      If this test is failing it likely means the form 10-10d PDF has reached
+      OMB expiration date. Please see ivc_champva module README for details on updating the PDF file.
+    MSG
+
+    expect(omb_expiration_date.past?).to be(false), error_message
   end
 end

@@ -13,7 +13,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
       it 'returns nil' do
-        expect(subject).to be nil
+        expect(subject).to be_nil
       end
     end
 
@@ -32,13 +32,13 @@ RSpec.describe SignIn::AttributeValidator do
           service_name:,
           auto_uplevel:,
           mhv_icn:,
-          mhv_correlation_id:,
+          mhv_credential_uuid:,
           edipi:
         }
       end
       let(:logingov_uuid) { nil }
       let(:idme_uuid) { nil }
-      let(:mhv_correlation_id) { nil }
+      let(:mhv_credential_uuid) { nil }
       let(:edipi) { nil }
       let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
       let(:ssn) { nil }
@@ -67,22 +67,31 @@ RSpec.describe SignIn::AttributeValidator do
       let(:add_person_response) { 'some-add-person-response' }
       let(:find_profile_response) { 'some-find-profile-response' }
       let(:update_profile_response) { 'some-update-profile-response' }
+      let(:identifier) { idme_uuid }
+      let(:identifier_type) { MPI::Constants::IDME_UUID }
 
       before do
         allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(add_person_response)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
+        allow_any_instance_of(MPI::Service)
+          .to receive(:find_profile_by_identifier)
+          .with(identifier:, identifier_type:)
+          .and_return(find_profile_response)
         allow_any_instance_of(MPI::Service).to receive(:update_profile).and_return(update_profile_response)
         allow(Rails.logger).to receive(:info)
       end
 
       shared_examples 'error response' do
         let(:expected_error_log) { 'attribute validator error' }
+        let(:expected_error_log_payload) do
+          { errors: expected_error_message,
+            credential_uuid: csp_id,
+            mhv_icn:,
+            type: service_name }.compact
+        end
+
         it 'raises the expected error' do
           expect_any_instance_of(SignIn::Logger).to receive(:info)
-            .with(expected_error_log,
-                  { errors: expected_error_message,
-                    credential_uuid: csp_id,
-                    type: service_name })
+            .with(expected_error_log, expected_error_log_payload)
 
           expect { subject }.to raise_error(expected_error, expected_error_message)
         end
@@ -122,15 +131,6 @@ RSpec.describe SignIn::AttributeValidator do
           it_behaves_like 'error response'
         end
 
-        context 'when mpi record for user has multiple mhv ids' do
-          let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
-          let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
-          let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
-          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_MHV_IEN }
-
-          it_behaves_like 'error response'
-        end
-
         context 'when mpi record for user has multiple participant ids' do
           let(:participant_ids) { %w[some-participant-id some-other-participant-id] }
           let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
@@ -138,6 +138,29 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_CORP_ID }
 
           it_behaves_like 'error response'
+        end
+
+        context 'when mpi record for user has multiple mhv ids' do
+          let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
+          let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
+          let(:expected_error_log) { 'attribute validator error' }
+          let(:expected_error_log_payload) do
+            { errors: expected_error_message,
+              credential_uuid: csp_id,
+              mhv_icn:,
+              type: service_name }.compact
+          end
+          let(:auto_uplevel) { true }
+
+          it 'logs the error' do
+            subject
+            expect(Rails.logger).to have_received(:info).with(a_string_including(expected_error_log),
+                                                              expected_error_log_payload)
+          end
+
+          it 'does not raise an error' do
+            expect { subject }.not_to raise_error
+          end
         end
       end
 
@@ -359,8 +382,10 @@ RSpec.describe SignIn::AttributeValidator do
         let(:idme_uuid) { 'some-idme-uuid' }
         let(:csp_id) { idme_uuid }
         let(:address) { nil }
-        let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+        let(:mhv_credential_uuid) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
+        let(:identifier) { mhv_credential_uuid }
+        let(:identifier_type) { MPI::Constants::MHV_UUID }
 
         context 'and credential is missing mhv icn' do
           let(:mhv_icn) { nil }
@@ -370,7 +395,7 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         context 'and credential is missing mhv correlation id' do
-          let(:mhv_correlation_id) { nil }
+          let(:mhv_credential_uuid) { nil }
           let(:attribute) { 'mhv_uuid' }
 
           it_behaves_like 'missing credential attribute'
@@ -447,25 +472,22 @@ RSpec.describe SignIn::AttributeValidator do
               }
             end
 
-            it 'makes an mpi call to create a new record' do
-              expect_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).with(expected_params)
-              subject
+            context 'and MPI icn does not match credential MHV ICN' do
+              let(:icn) { 'some-non-mhv-icn' }
+              let(:expected_error_message) { 'Attribute mismatch, icn in credential does not match MPI attribute' }
+              let(:expected_error_log) { 'attribute validator error' }
+
+              it 'makes a log to rails logger' do
+                expect_any_instance_of(SignIn::Logger).to receive(:info).with(expected_error_log,
+                                                                              { errors: expected_error_message,
+                                                                                credential_uuid: csp_id,
+                                                                                mhv_icn:,
+                                                                                type: service_name })
+                subject
+              end
             end
 
-            context 'and mpi add person call is not successful' do
-              let(:status) { :server_error }
-              let(:expected_error) { SignIn::Errors::MPIUserCreationFailedError }
-              let(:expected_error_message) { 'User MPI record cannot be created' }
-              let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
-
-              it_behaves_like 'error response'
-            end
-
-            context 'and mpi add person call is successful' do
-              let(:status) { :ok }
-
-              it_behaves_like 'mpi attribute validations'
-            end
+            it_behaves_like 'mpi attribute validations'
           end
         end
       end
@@ -485,6 +507,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
+        let(:identifier) { logingov_uuid }
+        let(:identifier_type) { MPI::Constants::LOGINGOV_UUID }
 
         context 'and credential is missing email' do
           let(:email) { nil }
@@ -606,6 +630,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:ssn) { '444444758' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
+        let(:identifier) { idme_uuid }
+        let(:identifier_type) { MPI::Constants::IDME_UUID }
 
         context 'and credential is missing email' do
           let(:email) { nil }
@@ -662,6 +688,8 @@ RSpec.describe SignIn::AttributeValidator do
         let(:country) { 'USA' }
         let(:birth_date) { '1930-01-01' }
         let(:email) { 'some-email' }
+        let(:identifier) { idme_uuid }
+        let(:identifier_type) { MPI::Constants::IDME_UUID }
 
         context 'and credential is missing email' do
           let(:email) { nil }

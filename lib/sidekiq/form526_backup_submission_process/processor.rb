@@ -51,6 +51,7 @@ module Sidekiq
         '21-4142' => 'L107',
         '21-0781' => 'L228',
         '21-0781a' => 'L229',
+        '21-0781V2' => 'L228',
         '21-8940' => 'L149',
         'bdd' => 'L023'
       }.freeze
@@ -59,6 +60,7 @@ module Sidekiq
         21-4142
         21-0781
         21-0781a
+        21-0781V2
         21-8940
       ].freeze
 
@@ -69,8 +71,7 @@ module Sidekiq
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
         @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
-        @user_account = UserAccount.find_by(id: submission.user_uuid) ||
-                        Account.lookup_by_user_uuid(submission.user_uuid)
+        @user_account = @submission.account
         @docs = docs
         @docs_gathered = false
         @initial_upload_fetched = false
@@ -131,7 +132,7 @@ module Sidekiq
 
       def evidence_526_split
         is_526_or_evidence = docs.group_by do |doc|
-          doc[:type] == FORM_526_DOC_TYPE || doc[:type] == FORM_526_UPLOADS_DOC_TYPE
+          [FORM_526_DOC_TYPE, FORM_526_UPLOADS_DOC_TYPE].include?(doc[:type])
         end
         [is_526_or_evidence[true], is_526_or_evidence[false]]
       end
@@ -330,25 +331,24 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        form_version = submission.saved_claim.parsed_form['startedFormVersion']
-        if form_version.present?
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
-          content = resp.env.response_body
-        else
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
-          b64_enc_body = resp.body['pdf']
-          content = Base64.decode64(b64_enc_body)
-        end
+        transaction_id = submission.system_transaction_id
+        resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
+                                          transaction_id)
+        content = resp.env.response_body
+
         file = write_to_tmp_file(content)
         docs << { type: FORM_526_DOC_TYPE, file: }
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
-      def get_form_from_external_api(headers, provider, form_json)
+      # @param headers auth headers for evss transmission
+      # @param provider which provider is desired? :evss or :lighthouse
+      # @param form_json the request body as a hash
+      # @param transaction_id for lighthouse provider only: to track submission's journey in APM(s) across systems
+      def get_form_from_external_api(headers, provider, form_json, transaction_id = nil)
         # get the "breakered" version
         service = choose_provider(headers, provider, breakered: true)
-
-        service.generate_526_pdf(form_json)
+        service.generate_526_pdf(form_json, transaction_id)
       end
 
       def get_uploads
@@ -431,14 +431,14 @@ module Sidekiq
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
-      def choose_provider(headers, provider, breakered: true)
+      def choose_provider(headers, _provider, breakered: true)
         ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
-          provider:,
+          provider: :lighthouse,
           # this sends the auth headers and if we want the "breakered" or "non-breakered" version
           options: { auth_headers: headers, breakered: },
           current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: @user_account.icn }),
-          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF
+          feature_toggle: nil
         )
       end
     end

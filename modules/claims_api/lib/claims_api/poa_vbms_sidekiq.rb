@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
+require 'bgs_service/person_web_service'
 
 module ClaimsApi
   module PoaVbmsSidekiq
@@ -20,16 +21,28 @@ module ClaimsApi
       )
     end
 
-    def rescue_file_not_found(power_of_attorney)
+    def rescue_file_not_found(power_of_attorney, process: nil)
+      error_message = 'File could not be retrieved from AWS'
+
       power_of_attorney.update(
         status: ClaimsApi::PowerOfAttorney::ERRORED,
-        vbms_error_message: 'File could not be retrieved from AWS'
+        vbms_error_message: error_message
       )
+      if process.present?
+        process.update!(step_status: 'FAILED',
+                        error_messages: [{ title: 'VBMS Error',
+                                           detail: error_message }])
+      end
     end
 
-    def rescue_vbms_error(power_of_attorney)
+    def rescue_vbms_error(power_of_attorney, process: nil)
       power_of_attorney.vbms_upload_failure_count = power_of_attorney.vbms_upload_failure_count + 1
       power_of_attorney.vbms_error_message = 'An unknown error has occurred when uploading document'
+      if process.present?
+        process.update!(step_status: 'FAILED',
+                        error_messages: [{ title: 'VBMS Error',
+                                           detail: power_of_attorney.vbms_error_message }])
+      end
       if power_of_attorney.vbms_upload_failure_count < 5
         self.class.perform_in(30.minutes, power_of_attorney.id)
       else
@@ -53,7 +66,7 @@ module ClaimsApi
       ssn = power_of_attorney.auth_headers['va_eauth_pnid']
 
       begin
-        bgs_service(power_of_attorney:).people.find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
+        bgs_service(power_of_attorney:).find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
       rescue BGS::ShareError => e
         error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
         log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
@@ -62,10 +75,17 @@ module ClaimsApi
     end
 
     def bgs_service(power_of_attorney:)
-      BGS::Services.new(
-        external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
-        external_key: power_of_attorney.auth_headers['va_eauth_pid']
-      )
+      if Flipper.enabled? :claims_api_use_person_web_service
+        ClaimsApi::PersonWebService.new(
+          external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
+          external_key: power_of_attorney.auth_headers['va_eauth_pid']
+        )
+      else
+        BGS::Services.new(
+          external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
+          external_key: power_of_attorney.auth_headers['va_eauth_pid']
+        ).people
+      end
     end
   end
 end

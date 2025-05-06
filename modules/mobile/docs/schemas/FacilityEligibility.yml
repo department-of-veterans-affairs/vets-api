@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - type
   - id
@@ -13,6 +14,7 @@ properties:
     description: Facility Id
   attributes:
     type: object
+    additionalProperties: false
     required:
       - facility_id
       - eligible

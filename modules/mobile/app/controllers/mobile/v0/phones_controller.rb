@@ -33,7 +33,13 @@ module Mobile
           :country_code,
           :extension,
           :phone_number,
-          :phone_type
+          :phone_type,
+          :is_international,
+          :is_text_permitted,
+          :is_textable,
+          :is_tty,
+          :is_voicemailable,
+          :transaction_id
         )
       end
     end

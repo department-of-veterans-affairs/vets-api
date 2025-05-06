@@ -22,7 +22,8 @@ module SISSessionHelper
         arg.is_a? Symbol
       end
 
-      user_attributes = { uuid: sis_access_token.user_uuid }.merge(*attributes)
+      user_attributes = { uuid: sis_access_token.user_uuid,
+                          session_handle: sis_access_token.session_handle }.merge(*attributes)
       traits |= [:api_auth]
       create(:user, *traits, **user_attributes)
     end

@@ -10,14 +10,16 @@ require 'dgi/exclusion_period/service'
 module MebApi
   module V0
     class EducationBenefitsController < MebApi::V0::BaseController
+      before_action :set_type, only: %i[claim_letter claim_status claimant_info eligibility]
+
       def claimant_info
-        response = automation_service.get_claimant_info('Chapter33')
+        response = automation_service.get_claimant_info(@form_type)
 
         render json: AutomationSerializer.new(response)
       end
 
       def eligibility
-        claimant_response = claimant_service.get_claimant_info
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
 
         eligibility_response = eligibility_service.get_eligibility(claimant_id)
@@ -29,9 +31,10 @@ module MebApi
       end
 
       def claim_status
-        claimant_response = claimant_service.get_claimant_info
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
+
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
 
         response = claimant_response.status == 201 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
@@ -40,10 +43,10 @@ module MebApi
       end
 
       def claim_letter
-        claimant_response = claimant_service.get_claimant_info
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id)
-        claim_letter_response = claim_letters_service.get_claim_letter(claimant_id)
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+        claim_letter_response = claim_letters_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
         response = claimant_response.status == 201 ? claim_letter_response : claimant_response
 
@@ -75,13 +78,13 @@ module MebApi
 
         render json: {
           data: {
-            'status': response.status
+            status: response.status
           }
         }
       end
 
       def enrollment
-        claimant_response = claimant_service.get_claimant_info
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
         if claimant_id.nil?
           render json: {
@@ -106,7 +109,7 @@ module MebApi
       end
 
       def submit_enrollment_verification
-        claimant_response = claimant_service.get_claimant_info
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
 
         if claimant_id.to_i.zero?
@@ -129,7 +132,7 @@ module MebApi
       end
 
       def exclusion_periods
-        claimant_response = claimant_service.get_claimant_info
+        claimant_response = claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant_id']
         exclusion_response = exclusion_period_service.get_exclusion_periods(claimant_id)
 
@@ -137,6 +140,10 @@ module MebApi
       end
 
       private
+
+      def set_type
+        @form_type = params['type']&.capitalize.presence || 'Chapter33'
+      end
 
       def contact_info_service
         MebApi::DGI::ContactInfo::Service.new(@current_user)

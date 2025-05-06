@@ -8,15 +8,18 @@ describe VANotify::InProgress1880FormReminder, type: :worker do
   let(:in_progress_form) { create(:in_progress_1880_form, user_uuid: user.uuid) }
 
   describe '#perform' do
-    it 'fails if ICN is not present' do
+    it 'skips sending if ICN is not present' do
       user_without_icn = double('VANotify::Veteran')
-      allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
       allow(user_without_icn).to receive_messages(first_name: 'first_name', icn: nil)
+      allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
 
-      expect do
+      allow(VANotify::OneTimeInProgressReminder).to receive(:perform_async)
+
+      Sidekiq::Testing.inline! do
         described_class.new.perform(in_progress_form.id)
-      end.to raise_error(VANotify::InProgress1880FormReminder::MissingICN,
-                         "ICN not found for InProgressForm: #{in_progress_form.id}")
+      end
+
+      expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
     end
 
     it 'skips sending reminder email if there is no first name' do
@@ -30,6 +33,30 @@ describe VANotify::InProgress1880FormReminder, type: :worker do
         described_class.new.perform(in_progress_form.id)
       end
 
+      expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
+    end
+
+    it 'rescues VANotify::Veteran::MPIError and returns nil' do
+      allow(VANotify::OneTimeInProgressReminder).to receive(:perform_async)
+      allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPIError)
+
+      result = Sidekiq::Testing.inline! do
+        described_class.new.perform(in_progress_form.id)
+      end
+
+      expect(result).to be_nil
+      expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
+    end
+
+    it 'rescues VANotify::Veteran::MPINameError and returns nil' do
+      allow(VANotify::OneTimeInProgressReminder).to receive(:perform_async)
+      allow(VANotify::Veteran).to receive(:new).and_raise(VANotify::Veteran::MPINameError)
+
+      result = Sidekiq::Testing.inline! do
+        described_class.new.perform(in_progress_form.id)
+      end
+
+      expect(result).to be_nil
       expect(VANotify::OneTimeInProgressReminder).not_to have_received(:perform_async)
     end
 

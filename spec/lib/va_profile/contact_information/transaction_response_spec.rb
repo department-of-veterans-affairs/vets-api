@@ -128,7 +128,7 @@ describe VAProfile::ContactInformation::TransactionResponse do
           end
 
           it 'returns nil' do
-            expect(subject.new_email).to eq(nil)
+            expect(subject.new_email).to be_nil
           end
         end
       end
@@ -219,10 +219,12 @@ describe VAProfile::ContactInformation::TransactionResponse do
       end
 
       it 'logs that error to sentry' do
+        redacted_body = described_class.redact_response_body(body)
+
         expect(described_class).to receive(:log_message_to_sentry).with(
-          'VAProfile transaction error',
+          'VAProfile contact info transaction error',
           :error,
-          { response_body: body },
+          { response_body: redacted_body },
           error: :va_profile
         )
         subject

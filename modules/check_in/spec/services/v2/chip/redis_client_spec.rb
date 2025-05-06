@@ -74,14 +74,14 @@ describe V2::Chip::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(redis_expiry_time.from_now) do
-          expect(redis_client.get).to eq(nil)
+          expect(redis_client.get).to be_nil
         end
       end
     end
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.get).to eq(nil)
+        expect(redis_client.get).to be_nil
       end
     end
   end
@@ -90,7 +90,7 @@ describe V2::Chip::RedisClient do
     let(:token) { '12345' }
 
     it 'saves the value in cache' do
-      expect(redis_client.save(token:)).to eq(true)
+      expect(redis_client.save(token:)).to be(true)
 
       val = Rails.cache.read(
         'check_in_chip_v2_2dcdrrn5zc',

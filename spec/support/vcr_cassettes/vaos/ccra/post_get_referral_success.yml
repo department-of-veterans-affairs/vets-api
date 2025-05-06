@@ -1,0 +1,34 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals/984_646372"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+      CACHE-CONTROL:
+      - no-cache
+      CONTENT-ENCODING:
+      - gzip
+      CONTENT-LENGTH:
+      - '3195'
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:06:42 GMT
+    body:
+      encoding: UTF-8
+      string: '{"categoryOfCare":"CARDIOLOGY","referralNumber":"VA0000005681","status":"First Appointment Made","appointmentDate":"2024-06-01","clinicallyIndicatedDate":"2024-03-28","episodeId":"5682","appointments":[{"appointmentDate":"2024-06-01","appointmentStatus":"A"}]}'
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
   include SchemaMatchers
+  include CommitteeHelper
 
   describe 'POST /mobile/v0/claims/pre-need-burial' do
-    Flipper.disable(:va_v3_contact_information_service)
     let!(:user) { sis_user(icn: '1012846043V576341') }
     let(:params) do
       { application: attributes_for(:burial_form) }
@@ -16,19 +17,19 @@ RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
       it 'returns an with a 422 error' do
         params[:application][:veteran].delete(:military_status)
         post('/mobile/v0/claims/pre-need-burial', headers: sis_headers, params:)
-        expect(response).to have_http_status(:unprocessable_entity)
+        assert_schema_conform(422)
         expect(response.parsed_body).to eq({ 'errors' =>
                                               [{ 'title' => 'Validation error',
                                                  'detail' => "The property '#/application/veteran/militaryStatus' of " \
                                                              'type null did not match the following type: string in ' \
-                                                             'schema 72d7bc55-042d-5bfd-8001-2b7c815c8e06',
+                                                             'schema 5e610c8c-e49f-54bb-8079-710b31a7928c',
                                                  'code' => '109',
                                                  'status' => '422' },
                                                { 'title' => 'Validation error',
                                                  'detail' => "The property '#/application/veteran/militaryStatus' " \
                                                              'value nil did not match one of the following values: A' \
                                                              ', I, D, S, R, E, O, V, X in schema ' \
-                                                             '72d7bc55-042d-5bfd-8001-2b7c815c8e06',
+                                                             '5e610c8c-e49f-54bb-8079-710b31a7928c',
                                                  'code' => '109',
                                                  'status' => '422' }] })
       end
@@ -41,7 +42,7 @@ RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
           post('/mobile/v0/claims/pre-need-burial', headers: sis_headers, params:)
         end
 
-        expect(response).to have_http_status(:bad_request)
+        assert_schema_conform(400)
 
         errors = response.parsed_body.dig('errors', 0)
         expect(errors['title']).to eq('Operation failed')

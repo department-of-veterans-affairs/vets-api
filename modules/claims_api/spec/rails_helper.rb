@@ -12,6 +12,7 @@ RSpec.configure do |config|
   config.before(:suite) do
     `truncate -s 0 log/test.log`
   end
+  config.include FactoryBot::Syntax::Methods
   config.after(:suite) do
     @results ||= []
     keywords ||= File.readlines('modules/claims_api/spec/support/pii_key_words.txt', chomp: true).map!(&:downcase)

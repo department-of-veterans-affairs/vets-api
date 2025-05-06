@@ -5,7 +5,7 @@ require 'dgi/forms/service/sponsor_service'
 
 RSpec.describe MebApi::DGI::Forms::Sponsor::Service do
   let(:claimant_id) { 600_000_001 }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:service) { MebApi::DGI::Forms::Sponsor::Service.new(user) }
 
   describe '#post_sponsor' do

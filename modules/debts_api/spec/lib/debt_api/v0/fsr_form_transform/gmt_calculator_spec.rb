@@ -10,15 +10,15 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::GmtCalculator, type: :service do
     let(:dependents) { '2' }
 
     before do
-      income_threshold_data = FactoryBot.create(:std_income_threshold)
-      zipcode_data = FactoryBot.create(:std_zipcode, zip_code: zip)
-      state_data = FactoryBot.create(:std_state, id: zipcode_data.state_id)
-      county_data = FactoryBot.create(:std_county, county_number: zipcode_data.county_number,
-                                                   state_id: zipcode_data.state_id)
-      gmt_threshold_data = FactoryBot.create(:gmt_threshold,
-                                             state_name: state_data.name,
-                                             county_name: "#{county_data.name} county",
-                                             effective_year: income_threshold_data.income_threshold_year)
+      income_threshold_data = create(:std_income_threshold)
+      zipcode_data = create(:std_zipcode, zip_code: zip)
+      state_data = create(:std_state, id: zipcode_data.state_id)
+      county_data = create(:std_county, county_number: zipcode_data.county_number,
+                                        state_id: zipcode_data.state_id)
+      gmt_threshold_data = create(:gmt_threshold,
+                                  state_name: state_data.name,
+                                  county_name: "#{county_data.name} county",
+                                  effective_year: income_threshold_data.income_threshold_year)
       state_fips_code = state_data.fips_code
       county_number = format('%03d', county_data.county_number)
       county_indentifier = state_fips_code.to_s + county_number.to_s

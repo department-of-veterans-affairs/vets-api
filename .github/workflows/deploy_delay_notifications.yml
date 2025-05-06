@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      development_summary: ${{ steps.check-dev-status.outputs.dev_summary }}
+      dev_summary: ${{ steps.check-dev-status.outputs.dev_summary }}
       staging_summary: ${{ steps.check-staging-status.outputs.staging_summary }}
 
     steps:
@@ -19,9 +19,11 @@ jobs:
           latest_commit_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/commits/master")
           latest_sha=$(echo "${latest_commit_info}" | jq -r '.sha')
-          commit_time=$(echo "${latest_commit_info}" | jq -r '.commit.committer.date')
           echo "latest_sha=${latest_sha}" >> $GITHUB_ENV
+          echo "latest_sha: ${latest_sha}"
+          commit_time=$(echo "${latest_commit_info}" | jq -r '.commit.committer.date')
           echo "commit_time=${commit_time}" >> $GITHUB_ENV
+          echo "commit_time: ${commit_time}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -38,6 +40,7 @@ jobs:
           echo "staging_deployed_sha=${deployed_sha}" >> $GITHUB_ENV
 
       - name: Check deployment status for development
+        if: ${{ env.latest_sha != '' && env.dev_deployed_sha != '' }}
         id: check-dev-status
         run: |
           latest_sha=${{ env.latest_sha }}
@@ -50,10 +53,10 @@ jobs:
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "dev_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '45 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '45 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 45 minutes. Skipping notification."
             echo "dev_summary=${info_message} has been delayed for more than 45 minutes. Skipping notification." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '30 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on development is ${deployed_sha:0:8}."
             echo "dev_summary=${info_message} has been delayed for more than 30 minutes. Current commit on development is ${deployed_sha:0:8}.\n\nCheck the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
@@ -64,7 +67,7 @@ jobs:
           fi
 
       - name: Check deployment status for staging
-        if: always()
+        if: ${{ always() && env.latest_sha != '' && env.staging_deployed_sha != '' }}
         id: check-staging-status
         run: |
           latest_sha=${{ env.latest_sha }}
@@ -76,10 +79,10 @@ jobs:
           if [ "${latest_sha:0:8}" == "${deployed_sha:0:8}" ]; then
             echo "${info_message} has been deployed."
             echo "staging_summary=${info_message} has been deployed." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '45 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '45 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 45 minutes. Skipping notification."
             echo "staging_summary=${info_message} has been delayed for more than 45 minutes. Skipping notification." >> $GITHUB_OUTPUT
-          elif [ "$(date -d "${commit_time}" +%s)" -gt "$(date -d '30 minutes ago' +%s)" ]; then
+          elif [ "$(date -d "${commit_time}" +%s)" -lt "$(date -d '30 minutes ago' +%s)" ]; then
             echo "${info_message} has been delayed for more than 30 minutes."
             echo "Current commit on staging is ${deployed_sha:0:8}."
             echo "staging_summary=${info_message} has been delayed for more than 30 minutes. Current commit on staging is ${deployed_sha:0:8}.\n\nCheck the following list of items for errors: ${action_items}" >> $GITHUB_OUTPUT
@@ -92,6 +95,9 @@ jobs:
   notify-on-failure:
     runs-on: ubuntu-latest
     needs: [check-deployment]
+    env:
+      dev_summary: ${{ needs.check-deployment.outputs.dev_summary }}
+      staging_summary: ${{ needs.check-deployment.outputs.staging_summary }}
     if: ${{ failure() }}
     steps:
       - name: Configure AWS Credentials
@@ -125,11 +131,44 @@ jobs:
           ssm_parameter: /devops/github_actions_slack_bot_user_token
           env_variable_name: SLACK_BOT_TOKEN
 
-      - name: Slack notify
+      - name: Notify for deployment failure
+        if: ${{ env.dev_summary != '' || env.staging_summary != '' }}
         uses: ./.github/actions/vsp-github-actions/slack-socket
         with:
           slack_app_token: ${{ env.SLACK_APP_TOKEN }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           message: "Vets API Deployment Delay:"
-          blocks: "[{\"type\": \"divider\"}, {\"type\": \"section\", \"text\": { \"type\": \"mrkdwn\", \"text\": \":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n*Development Summary:*\n${{ needs.check-deployment.outputs.development_summary }}\n\n*Staging Summary:*\n${{ needs.check-deployment.outputs.staging_summary }}\"}}, {\"type\": \"divider\"}]"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n *Development Summary:*\n${{ env.dev_summary }}\n\n *Staging Summary:*\n${{ env.staging_summary }}"
+                }
+              },
+              { "type": "divider" }
+            ]
+          channel_id: "C039HRTHXDH"
+
+      - name: Notify for other failure
+        if: ${{ env.dev_summary == '' && env.staging_summary == '' }}
+        uses: ./.github/actions/vsp-github-actions/slack-socket
+        with:
+          slack_app_token: ${{ env.SLACK_APP_TOKEN }}
+          slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
+          message: "Vets API Deployment Delay:"
+          blocks: |
+            [
+              { "type": "divider" },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n\n Unknown error occured. See logs:\n <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>"
+                }
+              },
+              { "type": "divider" }
+            ]
           channel_id: "C039HRTHXDH"

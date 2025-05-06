@@ -44,102 +44,31 @@ describe CARMA::Client::MuleSoftClient do
       let(:mock_success_response) { double('FaradayResponse', status: 201, body: response_body) }
       let(:payload) { {} }
 
-      context 'OAuth 2.0 flipper enabled' do
-        let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
+      let(:mulesoft_auth_token_client) { instance_double(CARMA::Client::MuleSoftAuthTokenClient) }
 
-        before do
-          Flipper.enable(:cg1010_oauth_2_enabled)
-          allow(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new).and_return(mulesoft_auth_token_client)
-        end
-
-        after do
-          Flipper.disable(:cg1010_oauth_2_enabled)
-        end
-
-        context 'successfully gets token' do
-          let(:bearer_token) { 'my-bearer-token' }
-          let(:headers) do
-            {
-              'Authorization' => "Bearer #{bearer_token}",
-              'Content-Type' => 'application/json'
-            }
-          end
-
-          before do
-            allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
-          end
-
-          it 'calls perform with expected params' do
-            expect(client).to receive(:perform)
-              .with(:post, resource, payload.to_json, headers, { timeout: })
-              .and_return(mock_success_response)
-
-            expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
-            expect(Rails.logger).to receive(:info)
-              .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 201")
-            expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
-
-            subject
-          end
-
-          context 'with errors' do
-            let(:has_errors) { true }
-            let(:mock_error_response) { double('FaradayResponse', status: 500, body: response_body) }
-
-            it 'raises SchemaValidationError' do
-              expect(client).to receive(:perform)
-                .with(:post, resource, payload.to_json, headers, { timeout: })
-                .and_return(mock_error_response)
-
-              expect(Rails.logger).to receive(:info)
-                .with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
-              expect(Rails.logger).to receive(:info)
-                .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 500")
-              expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
-
-              expect { subject }.to raise_error(Common::Exceptions::SchemaValidationErrors)
-            end
-          end
-        end
-
-        context 'error getting token' do
-          it 'logs error' do
-            expect(mulesoft_auth_token_client).to receive(:new_bearer_token)
-              .and_raise(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
-
-            expect do
-              subject
-            end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
-          end
-        end
+      before do
+        allow(CARMA::Client::MuleSoftAuthTokenClient).to receive(:new).and_return(mulesoft_auth_token_client)
       end
 
-      context 'OAuth 2.0 flipper disabled' do
-        let(:response_body) do
+      context 'successfully gets token' do
+        let(:bearer_token) { 'my-bearer-token' }
+        let(:headers) do
           {
-            data: {
-              carmacase: {
-                createdAt: '2022-08-04 16:44:37',
-                id: 'aB93S0000000FTqSAM'
-              }
-            },
-            record: {
-              hasErrors: false
-            }
-          }.to_json
+            'Authorization' => "Bearer #{bearer_token}",
+            'Content-Type' => 'application/json'
+          }
         end
-        let(:mock_success_response) { double('FaradayResponse', status: 201, body: response_body) }
 
         before do
-          Flipper.disable(:cg1010_oauth_2_enabled)
+          allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
         end
 
         it 'calls perform with expected params' do
           expect(client).to receive(:perform)
-            .with(:post, resource, payload.to_json, exp_headers, { timeout: })
+            .with(:post, resource, payload.to_json, headers, { timeout: })
             .and_return(mock_success_response)
 
-          expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}'")
+          expect(Rails.logger).to receive(:info).with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
           expect(Rails.logger).to receive(:info)
             .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 201")
           expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
@@ -147,18 +76,34 @@ describe CARMA::Client::MuleSoftClient do
           subject
         end
 
-        context 'with a records error' do
-          it 'raises RecordParseError' do
-            expect(client).to receive(:do_post).with(resource, {}, 60).and_return(
-              { 'data' => { 'carmacase' => { 'createdAt' => '2022-08-04 16:44:37', 'id' => 'aB93S0000000FTqSAM' } },
-                'record' => { 'hasErrors' => true,
-                              'results' => [{ 'referenceId' => '1010CG', 'id' => '0683S000000YBIFQA4',
-                                              'errors' => [] }] } }
-            )
-            expect do
-              subject
-            end.to raise_error(CARMA::Client::MuleSoftClient::RecordParseError)
+        context 'with errors' do
+          let(:has_errors) { true }
+          let(:mock_error_response) { double('FaradayResponse', status: 500, body: response_body) }
+
+          it 'raises SchemaValidationError' do
+            expect(client).to receive(:perform)
+              .with(:post, resource, payload.to_json, headers, { timeout: })
+              .and_return(mock_error_response)
+
+            expect(Rails.logger).to receive(:info)
+              .with("[Form 10-10CG] Submitting to '#{resource}' using bearer token")
+            expect(Rails.logger).to receive(:info)
+              .with("[Form 10-10CG] Submission to '#{resource}' resource resulted in response code 500")
+            expect(Sentry).to receive(:set_extras).with(response_body: mock_success_response.body)
+
+            expect { subject }.to raise_error(Common::Exceptions::SchemaValidationErrors)
           end
+        end
+      end
+
+      context 'error getting token' do
+        it 'logs error' do
+          expect(mulesoft_auth_token_client).to receive(:new_bearer_token)
+            .and_raise(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
+
+          expect do
+            subject
+          end.to raise_error(CARMA::Client::MuleSoftAuthTokenClient::GetAuthTokenError)
         end
       end
     end
@@ -170,7 +115,7 @@ describe CARMA::Client::MuleSoftClient do
         subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
 
         it 'returns nil' do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
 
         it 'logs submission and response code' do

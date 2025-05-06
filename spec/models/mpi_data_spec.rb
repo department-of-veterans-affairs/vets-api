@@ -75,9 +75,9 @@ describe MPIData, :skip_mvi do
       end
 
       before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
           .and_return(profile_response)
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
       end
 
@@ -96,13 +96,21 @@ describe MPIData, :skip_mvi do
         expect(mpi_data.participant_id).to eq(participant_id)
       end
 
+      it 'clears the cached MPI response' do
+        mpi_data.status
+        expect(mpi_data).to be_mpi_response_is_cached
+        subject
+        expect(mpi_data).not_to be_mpi_response_is_cached
+      end
+
       it 'returns the successful response' do
-        expect(subject.ok?).to eq(true)
+        expect(subject.ok?).to be(true)
       end
     end
 
     context 'with a failed search' do
       before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
           .and_return(profile_response_error)
       end
@@ -117,6 +125,7 @@ describe MPIData, :skip_mvi do
       let(:add_response_error) { create(:add_person_server_error_response) }
 
       before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
           .and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response_error)
@@ -126,7 +135,7 @@ describe MPIData, :skip_mvi do
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
         response = subject
-        expect(response.server_error?).to eq(true)
+        expect(response.server_error?).to be(true)
       end
     end
   end
@@ -140,7 +149,7 @@ describe MPIData, :skip_mvi do
       let(:user) { build(:user) }
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -221,7 +230,7 @@ describe MPIData, :skip_mvi do
 
           it 'does not cache the unsuccessful response' do
             subject
-            expect(MPIData.find(user.icn)).to be(nil)
+            expect(MPIData.find(user.icn)).to be_nil
           end
         end
       end

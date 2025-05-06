@@ -4,7 +4,7 @@
     "middle": "middle",
     "last": "last"
   },
-  "veteranSocialSecurityNumber": "111223333",
+  "veteranSocialSecurityNumber": "223334444",
   "newSchool": {
     "name": "school name",
     "address": {
@@ -38,13 +38,14 @@
     "state": "WI",
     "street": "123 Main St"
   },
-  "sponsorSocialSecurityNumber": "111223333",
+  "sponsorSocialSecurityNumber": "444433322",
   "applicantGender": "F",
   "dateOfBirth": "1970-01-01",
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "chapter33FryScholarship",
   "benefitUpdate": "chapter33FryScholarship",
+  "rudisillReview": "Yes",
   "changeAnotherBenefit": "Yes",
   "benefitAppliedFor": "chapter1606",
   "educationType": "tuitionTopUp",

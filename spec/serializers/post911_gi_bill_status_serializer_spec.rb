@@ -78,6 +78,19 @@ describe Post911GIBillStatusSerializer, type: :serializer do
     expect(attributes['enrollments'].first.keys).to eq expected_attributes
   end
 
+  context 'enrollment' do
+    let(:enrollment) { attributes['enrollments'].first }
+
+    it 'includes :amendments' do
+      expect(enrollment['amendments'].size).to eq gi_bill_status.enrollments.first.amendments.size
+    end
+
+    it 'includes :amendments with attributes' do
+      expected_attributes = gi_bill_status.enrollments.first.amendments.first.attributes.keys.map(&:to_s)
+      expect(enrollment['amendments'].first.keys).to eq expected_attributes
+    end
+  end
+
   private
 
   def expect_entitlement(serialized_entitlement, entitlement)

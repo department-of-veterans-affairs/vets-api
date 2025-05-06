@@ -19,22 +19,25 @@ module VBADocuments
             key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'status_description.md'))
             key :type, :string
             key :enum, %i[pending uploaded received processing success error]
-            key :example, 'received'
+            key :example, 'error'
           end
 
           property :code do
             key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'status_code_description.md'))
             key :type, :string
-          end
-
-          property :message do
-            key :description, 'Human readable error description. Only present if status = "error"'
-            key :type, :string
+            key :example, 'DOC108'
           end
 
           property :detail do
             key :description, 'Human readable error detail. Only present if status = "error"'
             key :type, :string
+            key :example, 'Maximum page size exceeded. Limit is 78 in x 101 in.'
+          end
+
+          property :final_status do
+            key :description, 'Indicates whether the status of the submission is final. Submissions with a final_status of true will no longer update to a new status.'
+            key :type, :boolean
+            key :example, true
           end
 
           property :updated_at do

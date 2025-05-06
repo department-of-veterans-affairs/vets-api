@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/contact-information-hub/referencedata/contact-information/v1/states
+    uri: <VETS360_URL>/contact-information-hub/referencedata/contact-information/v1/states
     body:
       encoding: US-ASCII
       string: ''
@@ -61,6 +61,6 @@ http_interactions:
         Islands","stateCode":"MH"},{"stateName":"Palau","stateCode":"PW"},{"stateName":"U.S.
         Armed Forces - Americas","stateCode":"AA"},{"stateName":"U.S. Armed Forces
         - Europe","stateCode":"AE"},{"stateName":"U.S. Armed Forces - Pacific","stateCode":"AP"}]}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 09 Apr 2018 17:52:03 GMT
 recorded_with: VCR 5.0.0

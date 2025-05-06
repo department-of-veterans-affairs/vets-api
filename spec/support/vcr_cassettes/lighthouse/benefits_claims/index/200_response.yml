@@ -98,7 +98,13 @@ http_interactions:
                           "endProductCode":"020",
                           "evidenceWaiverSubmitted5103":false,
                           "lighthouseId":null,
-                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION"
+                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION",
+                          "trackedItems":[
+                            {
+                              "displayName": "PMR Pending",
+                              "status": "NEEDED_FROM_YOU"
+                            }
+                          ]
                        }
                     },
                     {
@@ -232,6 +238,25 @@ http_interactions:
                           "evidenceWaiverSubmitted5103":true,
                           "lighthouseId":null,
                           "status":"PENDING"
+                       }
+                    },
+                    {
+                       "id":"600229972",
+                       "type":"claim",
+                       "attributes":{
+                          "claimDate":"2024-04-22",
+                          "claimPhaseDates":{
+                             "phaseChangeDate":"2024-05-22"
+                          },
+                          "claimType":"Death",
+                          "closeDate":null,
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"404",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION"
                        }
                     }
                  ]

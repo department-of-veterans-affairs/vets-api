@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'faraday/multipart'
+require 'debt_management_center/sharepoint/pdf_errors'
+require 'debt_management_center/sharepoint/errors'
+
+Faraday::Response.register_middleware sharepoint_pdf_errors: DebtManagementCenter::Sharepoint::PdfErrors
+Faraday::Response.register_middleware sharepoint_errors: DebtManagementCenter::Sharepoint::Errors
 
 module DebtManagementCenter
   module Sharepoint
@@ -34,12 +39,10 @@ module DebtManagementCenter
       #
       def upload(form_contents:, form_submission:, station_id:)
         @user = set_user_data(form_submission.user_account_id)
-        upload_response = upload_pdf(form_contents:, form_submission:,
-                                     station_id:)
-
+        upload_response = upload_pdf(form_contents:, form_submission:, station_id:)
         list_item_id = get_pdf_list_item_id(upload_response)
-
         resp = update_list_item_fields(list_item_id:, form_submission:, station_id:)
+
         if resp.success?
           StatsD.increment("#{STATSD_KEY_PREFIX}.success")
         else
@@ -167,7 +170,7 @@ module DebtManagementCenter
       def auth_connection
         Faraday.new(url: authentication_url, headers: auth_headers) do |conn|
           conn.request :url_encoded
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.response :raise_custom_error, error_prefix: service_name
           conn.response :json
@@ -179,9 +182,13 @@ module DebtManagementCenter
       def sharepoint_connection
         Faraday.new(url: "https://#{sharepoint_url}", headers: sharepoint_headers) do |conn|
           conn.request :json
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_custom_error, error_prefix: service_name
+          if Flipper.enabled?(:debts_sharepoint_error_logging)
+            conn.response :sharepoint_errors, error_prefix: service_name
+          else
+            conn.response :raise_custom_error, error_prefix: service_name
+          end
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter
@@ -192,9 +199,13 @@ module DebtManagementCenter
         Faraday.new(url: "https://#{sharepoint_url}", headers: sharepoint_headers) do |conn|
           conn.request :multipart
           conn.request :url_encoded
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
-          conn.response :raise_custom_error, error_prefix: service_name
+          if Flipper.enabled?(:debts_sharepoint_error_logging)
+            conn.response :sharepoint_pdf_errors, error_prefix: service_name
+          else
+            conn.response :raise_custom_error, error_prefix: service_name
+          end
           conn.response :json
           conn.response :betamocks if mock_enabled?
           conn.adapter Faraday.default_adapter

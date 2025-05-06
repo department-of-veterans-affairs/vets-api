@@ -7,6 +7,9 @@ module AskVAApi
       set_type :inquiry
 
       attributes :inquiry_number,
+                 :allow_attachments,
+                 :allow_replies,
+                 :has_attachments,
                  :attachments,
                  :category_name,
                  :created_on,

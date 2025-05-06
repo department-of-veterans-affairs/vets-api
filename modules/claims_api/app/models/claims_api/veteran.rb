@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
+require 'vets/model'
 
 module ClaimsApi
   class Veteran
     SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/
 
-    include Virtus.model
+    include Vets::Model
 
     %i[ssn
        first_name
@@ -27,7 +28,8 @@ module ClaimsApi
       attribute attr, String
     end
 
-    attribute :loa, Hash
+    # Vets::Attribute will not work with `default: -> { {} }`
+    attribute :loa, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
 
@@ -55,7 +57,6 @@ module ClaimsApi
       mpi_profile&.participant_id
     end
 
-    # Virtus doesnt provide a valid? method, but MPI requires it
     def valid?(*)
       va_profile.present?
     end
@@ -66,6 +67,10 @@ module ClaimsApi
 
     def mpi
       @mpi ||= MPIData.for_user(self)
+    end
+
+    def recache_mpi_data
+      @mpi = MPIData.for_user(self)
     end
 
     def mpi_record?(user_key: uuid)
@@ -80,7 +85,7 @@ module ClaimsApi
         )
       end
 
-      super(new_ssn)
+      @ssn = new_ssn
     end
 
     def loa3_user

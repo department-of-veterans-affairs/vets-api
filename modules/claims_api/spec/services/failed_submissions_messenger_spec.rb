@@ -3,37 +3,210 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
-  subject { described_class.new(claims, poa, itf, ews, from, to, environment) }
+  let(:notifier) { instance_double(ClaimsApi::Slack::Client) }
 
-  let(:claims) { %w[123456 789101112] }
-  let(:poa) { %w[1314151617 181920212223] }
-  let(:itf) { ['24252627'] }
-  let(:ews) { %w[32333435 36373839] }
-  let(:from) { '2022-01-01' }
-  let(:to) { '2022-01-31' }
-  let(:environment) { 'production' }
+  before do
+    allow(ClaimsApi::Slack::Client).to receive(:new).and_return(notifier)
+  end
 
-  describe '#build_notification_message' do
-    it 'builds the notification message correctly' do
-      message = subject.send(:build_notification_message)
+  context 'when there is one type of each error' do
+    let(:errored_disability_claims) { Array.new(1) { SecureRandom.uuid } }
+    let(:errored_va_gov_claims) { Array.new(1) { [SecureRandom.uuid, SecureRandom.uuid] } }
+    let(:errored_poa) { Array.new(1) { SecureRandom.uuid } }
+    let(:errored_itf) { Array.new(1) { SecureRandom.uuid } }
+    let(:errored_ews) { Array.new(1) { SecureRandom.uuid } }
+    let(:from) { '03:59PM EST' }
+    let(:to) { '04:59PM EST' }
+    let(:environment) { 'production' }
 
-      expected_message = "*ERRORED SUBMISSIONS* \n\n2022-01-01 - 2022-01-31 " \
-                         "\nThe following submissions have encountered errors in *#{environment}*. \n\n*Disability " \
-                         "Compensation Errors* \nTotal: 2 \n```123456 \n789101112 \n```  \n\n*Power of " \
-                         "Attorney Errors* \nTotal: 2 \n```1314151617 \n181920212223 \n```  \n\n*Intent to " \
-                         "File Errors* \nTotal: 1 \n\n*Evidence Waiver Errors* \nTotal: 2 " \
-                         "\n```32333435 \n36373839 \n```  \n\n"
+    it 'sends a well formatted slack message' do
+      messenger = described_class.new(
+        errored_disability_claims:,
+        errored_va_gov_claims:,
+        errored_poa:,
+        errored_itf:,
+        errored_ews:,
+        from:,
+        to:,
+        environment:
+      )
 
-      expect(message).to include("#{claims.count} \n")
-      expect(message).to include("123456 \n789101112 \n")
-      expect(message).to include("#{poa.count} \n")
-      expect(message).to include("1314151617 \n181920212223 \n")
-      expect(message).to include("#{itf.count} \n")
-      expect(message).not_to include("24252627 \n")
-      expect(message).to include("#{ews.count} \n")
-      expect(message).to include("32333435 \n36373839 \n")
+      expect(notifier).to receive(:notify) do |_text, args|
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('ERRORED SUBMISSIONS', from, to, environment)
+            }
+          )
+        )
 
-      expect(message).to eq(expected_message)
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('Disability Compensation Errors', 'Total: 1')
+            }
+          )
+        )
+
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('Va Gov Disability Compensation Errors', 'Total: 1')
+            }
+          )
+        )
+
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('Power of Attorney Errors', 'Total: 1')
+            }
+          )
+        )
+
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('Intent to File Errors', 'Total: 1')
+            }
+          )
+        )
+
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('Evidence Waiver Errors', 'Total: 1')
+            }
+          )
+        )
+
+        # title block + 1 totals block for each error type + 1 block for each error EXCEPT intent to file
+        expect(args[:blocks]).to have_attributes(size: 1 + 5 + 4)
+      end
+
+      messenger.notify!
+    end
+  end
+
+  context 'when there are more than 10 failed va.gov submissions' do
+    let(:num_errors) { 12 }
+    let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, SecureRandom.uuid] } }
+    let(:from) { '03:59PM EST' }
+    let(:to) { '04:59PM EST' }
+    let(:environment) { 'production' }
+
+    it 'sends error ids with links to logs' do
+      first_cid = errored_va_gov_claims.first[0]
+      first_tid = errored_va_gov_claims.first[1]
+
+      messenger = described_class.new(
+        errored_va_gov_claims:,
+        from:,
+        to:,
+        environment:
+      )
+
+      expect(notifier).to receive(:notify) do |_text, args|
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('ERRORED SUBMISSIONS', from, to, environment)
+            }
+          )
+        )
+
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('Va Gov Disability Compensation Errors', "Total: #{num_errors}")
+            }
+          )
+        )
+
+        expect(args[:blocks]).to include(
+          a_hash_including(
+            text: {
+              type: 'mrkdwn',
+              text: a_string_including('```',
+                                       'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_tid}",
+                                       '```')
+            }
+          )
+        )
+
+        # title block + total errors block + 1 block per 5 errors
+        expect(args[:blocks]).to have_attributes(size: 2 + (num_errors / 5) + ((num_errors % 5).zero? ? 0 : 1))
+      end
+
+      messenger.notify!
+    end
+
+    context 'if transaction ids are missing' do
+      let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, nil] } }
+
+      it 'avoids linking to logs that are not there' do
+        first_cid = errored_va_gov_claims.first[0]
+        first_tid = errored_va_gov_claims.first[1]
+        puts first_tid
+        messenger = described_class.new(
+          errored_va_gov_claims:,
+          from:,
+          to:,
+          environment:
+        )
+
+        expect(notifier).to receive(:notify) do |_text, args|
+          expect(args[:blocks]).to include(
+            a_hash_including(
+              text: {
+                type: 'mrkdwn',
+                text: a_string_including('```',
+                                         'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                         'TID', 'N/A',
+                                         '```')
+              }
+            )
+          )
+        end
+
+        messenger.notify!
+      end
+    end
+
+    context 'when there are intent to file errors' do
+      let(:num_errors) { 100 }
+      let(:errored_itf) { Array.new(num_errors) { SecureRandom.uuid } }
+
+      it 'only sends the title and total block' do
+        messenger = described_class.new(
+          errored_itf:
+        )
+
+        expect(notifier).to receive(:notify) do |_text, args|
+          expect(args[:blocks]).to include(
+            a_hash_including(
+              text: {
+                type: 'mrkdwn',
+                text: a_string_including('Intent to File Errors', "Total: #{num_errors}")
+              }
+            )
+          )
+
+          # title block + total errors block
+          expect(args[:blocks]).to have_attributes(size: 2)
+        end
+
+        messenger.notify!
+      end
     end
   end
 end

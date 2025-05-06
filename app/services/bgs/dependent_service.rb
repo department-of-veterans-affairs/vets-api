@@ -53,7 +53,7 @@ module BGS
         submit_form_job_id:
       }
     rescue => e
-      Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
+      Rails.logger.warn('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
@@ -66,6 +66,8 @@ module BGS
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
+      Rails.logger.debug('BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+                         { claim_id: claim.id })
       VBMS::SubmitDependentsPdfJob.perform_sync(
         claim.id,
         encrypted_vet_info,
@@ -74,6 +76,8 @@ module BGS
       )
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
+      # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
+      Rails.logger.warn('DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, icn:, error: e }) # rubocop:disable Layout/LineLength
       submit_to_central_service(claim:)
 
       raise e
@@ -93,11 +97,14 @@ module BGS
 
     def submit_to_central_service(claim:)
       vet_info = JSON.parse(claim.form)['dependents_application']
+      vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
       user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
-      CentralMail::SubmitCentralForm686cJob.perform_async(claim.id,
-                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
+        claim.id,
+        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
+      )
     end
 
     def external_key
@@ -108,7 +115,8 @@ module BGS
     end
 
     def get_form_hash_686c
-      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+      # include ssn in call to BGS for mocks
+      bgs_person = service.people.find_person_by_ptcpnt_id(participant_id, ssn) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
       @file_number = bgs_person[:file_nbr]
       # BGS's file number is supposed to be an eight or nine-digit string, and
       # our code is built upon the assumption that this is the case. However,

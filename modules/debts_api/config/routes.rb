@@ -9,6 +9,8 @@ DebtsApi::Engine.routes.draw do
       end
     end
 
+    resources :digital_disputes, only: %i[create]
+
     get 'financial_status_reports/rehydrate_submission/:submission_id', to: 'financial_status_reports#rehydrate'
     post 'financial_status_reports/transform_and_submit', to: 'financial_status_reports#transform_and_submit'
 
@@ -16,5 +18,6 @@ DebtsApi::Engine.routes.draw do
     post 'calculate_monthly_expenses', to: 'financial_status_reports_calculations#monthly_expenses'
     post 'calculate_all_expenses', to: 'financial_status_reports_calculations#all_expenses'
     post 'calculate_monthly_income', to: 'financial_status_reports_calculations#monthly_income'
+    post 'combine_one_debt_letter_pdf', to: 'one_debt_letters#combine_pdf'
   end
 end

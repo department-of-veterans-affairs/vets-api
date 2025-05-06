@@ -3,6 +3,5 @@
 replicaCount: 1
 image:
   repository: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/preview-environment/vets-api
-  testRepository: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/vets-api-postman
   pullPolicy: IfNotPresent
   tag: "0.0.1"

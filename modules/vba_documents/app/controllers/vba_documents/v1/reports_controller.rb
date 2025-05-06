@@ -16,7 +16,9 @@ module VBADocuments
                           " total GUIDs and the first 5 are #{params[ID_PARAM].first(5)}"
         statuses = VBADocuments::UploadSubmission.where(guid: params[ID_PARAM])
         spoofed_statuses = with_spoofed(statuses)
-        render json: VBADocuments::V1::UploadSerializer.new(spoofed_statuses)
+
+        options = { params: { render_location: false } }
+        render json: VBADocuments::V1::UploadSerializer.new(spoofed_statuses, options)
       end
 
       private

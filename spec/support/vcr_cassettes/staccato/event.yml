@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473/collect
+    uri: https://fwdproxy-staging.vfs.va.gov:4473/collect
     body:
       encoding: US-ASCII
       string: v=1&tid=foo&cid=8c5efa3b-a57f-447e-b728-bc92cc519834&t=event&ec=foo
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Ruby
       Host:
-      - internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473
+      - fwdproxy-staging.vfs.va.gov:4473
       Content-Type:
       - application/x-www-form-urlencoded
   response:

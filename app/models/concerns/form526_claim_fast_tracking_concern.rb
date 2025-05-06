@@ -2,7 +2,7 @@
 
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
-require 'virtual_regional_office/client'
+require 'contention_classification/client'
 
 # rubocop:disable Metrics/ModuleLength
 # For use with Form526Submission
@@ -11,10 +11,10 @@ module Form526ClaimFastTrackingConcern
 
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
-  EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
+  FLASHES_STATSD_KEY = 'worker.flashes'
+  DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX = 'worker.document_type_metrics'
 
-  EP_MERGE_BASE_CODES = %w[010 110 020].freeze
-  EP_MERGE_SPECIAL_ISSUE = 'EMP'
+  FLASH_PROTOTYPES = ['Amyotrophic Lateral Sclerosis'].freeze
   OPEN_STATUSES = [
     'CLAIM RECEIVED',
     'UNDER REVIEW',
@@ -23,8 +23,6 @@ module Form526ClaimFastTrackingConcern
     'CLAIM_RECEIVED',
     'INITIAL_REVIEW'
   ].freeze
-  CLAIM_REVIEW_BASE_CODES = %w[030 040].freeze
-  CLAIM_REVIEW_TYPES = %w[higherLevelReview supplementalClaim].freeze
 
   def claim_age_in_days(pending_ep)
     date = if pending_ep.respond_to?(:claim_date)
@@ -53,6 +51,7 @@ module Form526ClaimFastTrackingConcern
     self
   end
 
+  # TODO: Remove? This is unused.
   def rrd_status
     return 'processed' if rrd_claim_processed?
 
@@ -67,7 +66,9 @@ module Form526ClaimFastTrackingConcern
   # Fetch all claims from EVSS
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
-    pending = open_claims.any? { |claim| claim['base_end_product_code'] == '020' }
+    pending = open_claims.any? do |claim|
+      claim['base_end_product_code'] == '020' && claim['status'].upcase != 'COMPLETE'
+    end
     save_metadata(offramp_reason: 'pending_ep') if pending
     pending
   end
@@ -98,6 +99,10 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  def flashes
+    form['flashes'] || []
+  end
+
   def disabilities
     form.dig('form526', 'form526', 'disabilities')
   end
@@ -106,75 +111,21 @@ module Form526ClaimFastTrackingConcern
     disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
 
-  def increase_only?
-    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
-  end
-
-  def increase_or_new?
-    disabilities.all? do |disability|
-      disability['disabilityActionType']&.upcase == 'INCREASE' || disability['disabilityActionType']&.upcase == 'NEW'
-    end
-  end
-
   def diagnostic_codes
     disabilities.pluck('diagnosticCode')
   end
 
   def prepare_for_evss!
     begin
-      is_claim_fully_classified = update_classification!
+      update_contention_classification_all!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}."
-      Rails.logger.error e.backtrace.join('\n')
+      Rails.logger.error("Contention Classification failed #{e.message}.")
+      Rails.logger.error(e.backtrace.join('\n'))
     end
-
-    prepare_for_ep_merge! if is_claim_fully_classified
 
     return if pending_eps? || disabilities_not_service_connected?
 
     save_metadata(forward_to_mas_all_claims: true)
-  end
-
-  def prepare_for_ep_merge!
-    pending_eps = open_claims.select do |claim|
-      EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
-    end
-    Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
-    return unless pending_eps.count == 1
-
-    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
-    open_claim_review = open_claim_review?
-    Rails.logger.info(
-      'EP Merge open EP eligibility',
-      { id:, feature_enabled:, open_claim_review:,
-        pending_ep_age: claim_age_in_days(pending_eps.first), pending_ep_status: pending_eps.first['status'] }
-    )
-    if feature_enabled && !open_claim_review
-      save_metadata(ep_merge_pending_claim_id: pending_eps.first['id'])
-      add_ep_merge_special_issue!
-    end
-  rescue => e
-    Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
-  end
-
-  def get_claim_type
-    claim_type = disabilities.pick('disabilityActionType').upcase
-    if claim_type == 'INCREASE'
-      'claim_for_increase'
-    else
-      'new'
-    end
-  end
-
-  # Contact the VRO classifier service to classify the contentions on this form
-  # update the form with the classification codes
-  # returns true if all of form's contentions were classified
-  def update_classification!
-    if Flipper.enabled?(:disability_526_classifier_multi_contention)
-      update_contention_classification_all!
-    else
-      update_contention_classification_single_contention!
-    end
   end
 
   def update_form_with_classification_codes(classified_contentions)
@@ -190,12 +141,12 @@ module Form526ClaimFastTrackingConcern
   end
 
   def classify_vagov_contentions(params)
-    vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_vagov_contentions(params)
+    cc_client = ContentionClassification::Client.new
+    response = cc_client.classify_vagov_contentions_expanded(params)
     response.body
   end
 
-  def format_contention_for_vro(disability)
+  def format_contention_for_request(disability)
     contention = {
       contention_text: disability['name'],
       contention_type: disability['disabilityActionType']
@@ -209,10 +160,17 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
-  # Submits contention information to the VRO contention classification service
+  def log_and_halt_if_no_disabilities
+    Rails.logger.info("No disabilities found for classification on claim #{id}")
+    false
+  end
+
+  # Submits contention information to the Contention Classification API service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
-    contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
+    return log_and_halt_if_no_disabilities if disabilities.blank?
+
+    contentions_array = disabilities.map { |disability| format_contention_for_request(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
     log_claim_level_metrics(classifier_response)
@@ -234,67 +192,22 @@ module Form526ClaimFastTrackingConcern
     classifier_response['is_fully_classified']
   end
 
-  # Submits contention information to the VRO contention classification
-  # service for single-contention claims.
-  #
-  # note: this method is only used for single-contention claims and is
-  # deprecated in favor of update_contention_classification_all, which handles
-  # both single and multi-contention claims
-  def update_contention_classification_single_contention!
-    return unless increase_or_new?
-    return unless disabilities.count == 1
-
-    claim_type = get_claim_type
-    return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
-
-    diagnostic_code = diagnostic_codes.first
-    params = {
-      diagnostic_code:,
-      claim_id: saved_claim_id,
-      form526_submission_id: id,
-      claim_type:,
-      contention_text: disabilities.pick('name')
-    }
-
-    classification = classify_single_contention(params)
-    Rails.logger.info('Classified 526Submission', id:, saved_claim_id:, classification:, claim_type:)
-    return if classification.blank?
-
-    update_form_with_classification_code(classification['classification_code'])
-    classification['classification_code'].present?
-  end
-
-  def classify_single_contention(params)
-    vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_single_contention(params)
-    response.body
-  end
-
-  def update_form_with_classification_code(classification_code)
-    form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
-      disability['classificationCode'] = classification_code
-    end
-
-    update!(form_json: form.to_json)
-    invalidate_form_hash
-  end
-
   def log_max_cfi_metrics_on_submit
-    user = User.find(user_uuid)
-    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
-      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
-
+    max_rated_diagnostic_codes_from_ipf.each do |diagnostic_code|
       disability_claimed = diagnostic_codes.include?(diagnostic_code)
-
-      if disability_claimed
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
-      end
-      Rails.logger.info('Max CFI form526 submission',
-                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
-                        cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
-                        total_increase_conditions: increase_disabilities.count)
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.submit",
+                       tags: ["diagnostic_code:#{diagnostic_code}", "claimed:#{disability_claimed}"])
     end
+    claimed_max_rated_dcs = max_rated_diagnostic_codes_from_ipf & diagnostic_codes
+    Rails.logger.info('Max CFI form526 submission',
+                      id:,
+                      num_max_rated: max_rated_diagnostic_codes_from_ipf.count,
+                      num_max_rated_cfi: claimed_max_rated_dcs.count,
+                      total_cfi: increase_disabilities.count,
+                      cfi_checkbox_was_selected: cfi_checkbox_was_selected?)
+    StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_submit",
+                     tags: ["claimed:#{claimed_max_rated_dcs.any?}",
+                            "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
     log_exception_to_sentry(e)
@@ -302,7 +215,7 @@ module Form526ClaimFastTrackingConcern
 
   def send_post_evss_notifications!
     conditionally_notify_mas
-    conditionally_merge_ep
+    log_flashes
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 
@@ -320,14 +233,6 @@ module Form526ClaimFastTrackingConcern
     return false if in_progress_form.nil?
 
     ClaimFastTracking::MaxCfiMetrics.new(in_progress_form, {}).create_or_load_metadata['cfiLogged']
-  end
-
-  def add_ep_merge_special_issue!
-    disabilities.each do |disability|
-      disability['specialIssues'] ||= []
-      disability['specialIssues'].append(EP_MERGE_SPECIAL_ISSUE).uniq!
-    end
-    update!(form_json: JSON.dump(form))
   end
 
   private
@@ -356,59 +261,40 @@ module Form526ClaimFastTrackingConcern
   # value outdated if using the same Form526Submission instance.
   def open_claims
     @open_claims ||= begin
-      icn = UserAccount.where(id: user_account_id).first&.icn
+      icn = account.icn
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
-        provider: nil,
+        provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
         options: { auth_headers:, icn: },
         # Flipper id is needed to check if the feature toggle works for this user
         current_user: OpenStruct.new({ flipper_id: user_account_id }),
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
+        feature_toggle: nil
       )
       all_claims = api_provider.all_claims
       all_claims['open_claims']
     end
   end
 
-  # Check both Benefits Claim service and Caseflow Appeals status APIs for open 030 or 040
-  # Offramps EP 400 Merge process if any are found, or if anything fails
-  def open_claim_review?
-    open_claim_review = open_claims.any? do |claim|
-      CLAIM_REVIEW_BASE_CODES.include?(claim['base_end_product_code']) && OPEN_STATUSES.include?(claim['status'])
-    end
-    if open_claim_review
-      StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.open_claim_review")
-      return true
-    end
-
-    ssn = User.find(user_uuid)&.ssn
-    ssn ||= auth_headers['va_eauth_pnid'] if auth_headers['va_eauth_pnidtype'] == 'SSN'
-    decision_reviews = Caseflow::Service.new.get_appeals(OpenStruct.new({ ssn: })).body['data']
-    StatsD.increment("#{EP_MERGE_STATSD_KEY_PREFIX}.caseflow_api_called")
-    decision_reviews.any? do |review|
-      CLAIM_REVIEW_TYPES.include?(review['type']) && review['attributes']['active']
-    end
-  rescue => e
-    Rails.logger.error('EP Merge failed open claim review check', backtrace: e.backtrace)
-    Rails.logger.error(e.backtrace.join('\n'))
-    true
-  end
-
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
   def all_rated_disabilities
     settings = Settings.lighthouse.veteran_verification.form526
-    icn = UserAccount.where(id: user_account_id).first&.icn
+    icn = account&.icn
+    invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-      provider: nil,
+      provider: :lighthouse,
       options: { auth_headers:, icn: },
       # Flipper id is needed to check if the feature toggle works for this user
-      current_user: OpenStruct.new({ flipper_id: user_account_id }),
-      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
+      current_user: OpenStruct.new({ flipper_id: user_uuid }),
+      feature_toggle: nil
     )
 
     @all_rated_disabilities ||= begin
-      response = api_provider.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities(
+        settings.access_token.client_id,
+        settings.access_token.rsa_key,
+        { invoker: }
+      )
       response.rated_disabilities
     end
   end
@@ -441,14 +327,63 @@ module Form526ClaimFastTrackingConcern
     StatsD.increment("#{RRD_STATSD_KEY_PREFIX}.notify_mas.failure")
   end
 
-  def conditionally_merge_ep
-    pending_claim_id = read_metadata(:ep_merge_pending_claim_id)
-    return if pending_claim_id.blank?
-
-    vro_client = VirtualRegionalOffice::Client.new
-    vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)
+  def log_flashes
+    flash_prototypes = FLASH_PROTOTYPES & flashes
+    Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flashes: }) if flash_prototypes.any?
+    flashes.each do |flash|
+      StatsD.increment(FLASHES_STATSD_KEY, tags: ["flash:#{flash}", "prototype:#{flash_prototypes.include?(flash)}"])
+    end
   rescue => e
-    Rails.logger.error "EP merge request failed #{e.message}.", backtrace: e.backtrace
+    Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
+  end
+
+  def log_document_type_metrics
+    return if in_progress_form.blank?
+
+    fd = in_progress_form.form_data
+    fd = JSON.parse(fd) if fd.is_a?(String)
+    additional_docs_by_type = get_doc_type_counts(fd, 'additionalDocuments')
+    private_medical_docs_by_type = get_doc_type_counts(fd, 'privateMedicalRecordAttachments')
+    return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
+
+    log_doc_type_metrics_for_group(additional_docs_by_type, 'additionalDocuments')
+    log_doc_type_metrics_for_group(private_medical_docs_by_type, 'privateMedicalRecordAttachments')
+
+    Rails.logger.info('Form526 evidence document type metrics',
+                      id:,
+                      additional_docs_by_type:,
+                      private_medical_docs_by_type:)
+  rescue => e
+    # Log the exception but do not fail
+    log_exception_to_sentry(e)
+  end
+
+  def get_group_docs(form_data, group_key)
+    return [] unless form_data.is_a?(Hash)
+
+    form_data.fetch(group_key, form_data.fetch(group_key.underscore, []))
+  end
+
+  def get_doc_type_counts(form_data, group_key)
+    docs = get_group_docs(form_data, group_key)
+    return {} if docs.nil? || !docs.is_a?(Array)
+
+    docs.map do |doc|
+      next nil if doc.blank?
+      next 'unknown' unless doc.is_a?(Hash)
+
+      doc.fetch('attachmentId', doc.fetch('attachment_id', 'unknown'))
+    end.compact
+       .group_by(&:itself)
+       .transform_values(&:count)
+  end
+
+  def log_doc_type_metrics_for_group(doc_type_counts, group_name)
+    doc_type_counts.each do |doc_type, count|
+      StatsD.increment("#{DOCUMENT_TYPE_METRICS_STATSD_KEY_PREFIX}.#{group_name.underscore}_document_type",
+                       count,
+                       tags: ["document_type:#{doc_type}", 'source:form526'])
+    end
   end
 end
 # rubocop:enable Metrics/ModuleLength

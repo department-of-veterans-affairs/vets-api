@@ -5,12 +5,14 @@ require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
+require 'hca/overrides_parser'
+require 'va1010_forms/enrollment_system/service'
 
 module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::Utils
-    include SentryLogging
+    extend SentryLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 
@@ -26,6 +28,32 @@ module Form1010Ezr
       @user = user
     end
 
+    def self.veteran_initials(parsed_form)
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
+      }
+    end
+
+    # @param [JSON] parsed_form
+    # @param [String] sentry_msg
+    # @param [String] sentry_context - identifier specific to the error
+    def self.log_submission_failure_to_sentry(
+      parsed_form,
+      sentry_msg,
+      sentry_context
+    )
+      if parsed_form.present?
+        log_message_to_sentry(
+          sentry_msg.to_s,
+          :error,
+          veteran_initials(parsed_form),
+          ezr: :"#{sentry_context}"
+        )
+      end
+    end
+
     def submit_async(parsed_form)
       HCA::EzrSubmissionJob.perform_async(
         HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
@@ -37,19 +65,26 @@ module Form1010Ezr
 
     def submit_sync(parsed_form)
       res = with_monitoring do
-        es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
+        if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
+          VA1010Forms::EnrollmentSystem::Service.new(
+            HealthCareApplication.get_user_identifier(@user)
+          ).submit(parsed_form, FORM_ID)
+        else
+          es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
+        end
       end
-
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info(
-        '1010EZR successfully submitted',
-        submission_id: res[:formSubmissionId],
-        veteran_initials: veteran_initials(parsed_form)
-      )
+      log_successful_submission(res[:formSubmissionId], self.class.veteran_initials(parsed_form))
+
+      if parsed_form['attachments'].present?
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
+      end
 
       res
     rescue => e
-      log_and_raise_error(e, parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
+      Form1010Ezr::Service.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      raise e
     end
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
@@ -61,33 +96,9 @@ module Form1010Ezr
 
       submit_async(parsed_form)
     rescue => e
-      log_and_raise_error(e, parsed_form)
-    end
-
-    def log_submission_failure(parsed_form)
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
-
-      if parsed_form.present?
-        PersonalInformationLog.create!(
-          data: parsed_form,
-          error_class: 'Form1010Ezr Failed'
-        )
-
-        log_message_to_sentry(
-          '1010EZR failure',
-          :error,
-          veteran_initials(parsed_form),
-          ezr: :failure
-        )
-      end
-    end
-
-    def veteran_initials(parsed_form)
-      {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.chr || 'no initial provided',
-        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.chr || 'no initial provided',
-        last_initial: parsed_form.dig('veteranFullName', 'last')&.chr || 'no initial provided'
-      }
+      self.class.log_submission_failure_to_sentry(parsed_form, '1010EZR failure', 'failure')
+      raise e
     end
 
     private
@@ -107,11 +118,8 @@ module Form1010Ezr
           )
         end
 
-        log_validation_errors(parsed_form)
+        log_validation_errors(validation_errors, parsed_form)
 
-        Rails.logger.error(
-          "10-10EZR form validation failed. Form does not match schema. Error list: #{validation_errors}"
-        )
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
@@ -156,7 +164,7 @@ module Form1010Ezr
       post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
-      override_parsed_form(parsed_form)
+      HCA::OverridesParser.new(parsed_form).override
       add_financial_flag(parsed_form)
     end
 
@@ -168,8 +176,13 @@ module Form1010Ezr
       end
     end
 
-    def log_validation_errors(parsed_form)
+    # @param [Hash] errors
+    def log_validation_errors(errors, parsed_form)
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.validation_error")
+
+      Rails.logger.error(
+        "10-10EZR form validation failed. Form does not match schema. Error list: #{errors}"
+      )
 
       PersonalInformationLog.create(
         data: parsed_form,
@@ -177,10 +190,12 @@ module Form1010Ezr
       )
     end
 
-    def log_and_raise_error(error, form)
-      log_submission_failure(form)
-      Rails.logger.error "10-10EZR form submission failed: #{error.message}"
-      raise error
+    def log_successful_submission(submission_id, veteran_initials)
+      Rails.logger.info(
+        '1010EZR successfully submitted',
+        submission_id:,
+        veteran_initials:
+      )
     end
   end
 end

@@ -1,0 +1,97 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization:
+          - Bearer blahblech
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 11 Aug 2023 15:19:27 GMT
+        Content-Type:
+          - application/json; charset=utf-8
+        Connection:
+          - keep-alive
+        Ratelimit-Remaining:
+          - '59'
+        Ratelimit-Reset:
+          - '34'
+        X-Ratelimit-Limit-Minute:
+          - '60'
+        X-Ratelimit-Remaining-Minute:
+          - '59'
+        Ratelimit-Limit:
+          - '60'
+        Referrer-Policy:
+          - strict-origin-when-cross-origin
+        Vary:
+          - Origin
+        X-Content-Type-Options:
+          - nosniff
+        X-Download-Options:
+          - noopen
+        X-Frame-Options:
+          - SAMEORIGIN
+          - SAMEORIGIN
+        X-Git-Sha:
+          - 46db541c4bbdedc0cdfbfcd8006319af45721497
+        X-Github-Repository:
+          - https://github.com/department-of-veterans-affairs/vets-api
+        X-Permitted-Cross-Domain-Policies:
+          - none
+        X-Request-Id:
+          - 0df284e5-b452-4bba-bfba-fa8ef6c013ea
+        X-Runtime:
+          - '0.073531'
+        X-Xss-Protection:
+          - 1; mode=block
+        Access-Control-Allow-Origin:
+          - "*"
+        Strict-Transport-Security:
+          - max-age=31536000; includeSubDomains; preload
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: UTF-8
+        string: '{
+  "data": [
+    {
+      "id": "555555555",
+      "type": "claim",
+      "attributes": {
+      "baseEndProductCode":"020",
+        "claimDate": "2017-05-02",
+        "claimPhaseDates": {
+          "phaseChangeDate": "2017-10-18"
+        },
+        "claimType": "Compensation",
+        "closeDate": "2017-10-18",
+        "decisionLetterSent": false,
+        "developmentLetterSent": false,
+        "documentsNeeded": false,
+        "endProductCode": "404",
+        "evidenceWaiverSubmitted5103": false,
+        "lighthouseId": null,
+        "status": "COMPLETE"
+      }
+    }
+  ]
+}'
+    recorded_at: Fri, 11 Aug 2023 15:19:27 GMT
+recorded_with: VCR 6.2.0

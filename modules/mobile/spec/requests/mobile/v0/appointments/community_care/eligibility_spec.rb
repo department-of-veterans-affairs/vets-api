@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../support/helpers/rails_helper'
+require_relative '../../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :request do
   include JsonSchemaMatchers
+  include CommitteeHelper
 
   let!(:user) { sis_user(icn: '9000682') }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
@@ -25,12 +27,12 @@ RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :re
         end
 
         it 'returns successful response' do
-          expect(response).to have_http_status(:success)
+          assert_schema_conform(200)
         end
 
         it 'returns true eligibility' do
           eligibility = response.parsed_body.dig('data', 'attributes', 'eligible')
-          expect(eligibility).to eq(true)
+          expect(eligibility).to be(true)
         end
 
         it 'returns expected schema' do
@@ -48,16 +50,12 @@ RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :re
         end
 
         it 'returns successful response' do
-          expect(response).to have_http_status(:success)
+          assert_schema_conform(200)
         end
 
         it 'returns false eligibility' do
           eligibility = response.parsed_body.dig('data', 'attributes', 'eligible')
-          expect(eligibility).to eq(false)
-        end
-
-        it 'returns expected schema' do
-          expect(response.body).to match_json_schema('cc_eligibility')
+          expect(eligibility).to be(false)
         end
       end
     end
@@ -72,7 +70,7 @@ RSpec.describe 'Mobile::V0::Appointments::CommunityCare::Eligibility', type: :re
       end
 
       it 'returns bad request response' do
-        expect(response).to have_http_status(:bad_request)
+        assert_schema_conform(400)
       end
 
       it 'returns unknown service type error' do

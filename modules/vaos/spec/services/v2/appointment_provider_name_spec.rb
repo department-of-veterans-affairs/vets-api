@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::V2::AppointmentProviderName do
-  let(:user) { FactoryBot.build(:user) }
+  let(:user) { build(:user) }
   let(:provider_names) { described_class.new(user) }
   let(:practitioner_list) do
     [
@@ -41,7 +41,7 @@ describe VAOS::V2::AppointmentProviderName do
           ]
         }
       ]
-      expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_no_value)).to eq(nil)
+      expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_no_value)).to be_nil
     end
 
     it 'returns nil is identifier system is not us-npi' do
@@ -55,7 +55,7 @@ describe VAOS::V2::AppointmentProviderName do
           ]
         }
       ]
-      expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_wrong_system)).to eq(nil)
+      expect(provider_names.form_names_from_appointment_practitioners_list(practioner_list_wrong_system)).to be_nil
     end
 
     it 'uses response from upstream to form a name when provider id present' do

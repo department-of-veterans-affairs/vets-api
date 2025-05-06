@@ -7,38 +7,38 @@
     },
     "email": "email@address.com"
   },
-  "veteran_full_name": { "first": "First", "middle": "middle", "last": "last" },
-  "veteran_date_of_birth": "2000-01-01",
-  "veteran_social_security_number": {
-    "ssn": "123123123",
-    "va_file_number": "123123123"
+  "veteran": {
+    "date_of_birth": "02/02/1987",
+    "full_name": {
+      "first": "Veteran",
+      "middle": "B",
+      "last": "Surname",
+      "suffix": "Jr."
+    },
+    "physical_address": {
+      "country": "USA",
+      "street": "1 Physical Ln",
+      "street_combined": "1 Physical Ln",
+      "city": "Place",
+      "state": "AL",
+      "postal_code": "12345"
+    },
+    "physical_address_string": "1 Physical Ln\nPlace, AL\n12345",
+    "mailing_address": {
+      "country": "USA",
+      "street": "1 Mail Ln",
+      "street_combined": "1 Mail Ln",
+      "city": "Place",
+      "state": "PA",
+      "postal_code": "12345"
+    },
+    "mailing_address_string": "1 Mail Ln\nPlace, PA\n12345",
+    "ssn": "222554444",
+    "va_claim_number": "123456789",
+    "phone_number": "9876543213",
+    "email_address": "veteran@mail.com",
+    "send_payment": "Veteran"
   },
-  "veteran_address": {
-    "country": "USA",
-    "street": "123 Street Lane",
-    "city": "Cityburg",
-    "state": "AL",
-    "postal_code": "12312"
-  },
-  "physical_address": {
-    "country": "USA",
-    "street": "222 Street Lane",
-    "city": "Cityland",
-    "state": "MD",
-    "postal_code": "15312"
-  },
-  "veteran_phone_number": "2341232345",
-  "veteran_email_address": "email@mail.gov",
-  "same_mailing_address": false,
-  "send_payment": true,
-  "supporting_docs": [
-    {
-      "name": "file.png",
-      "confirmationCode": "36650811-4af5-4992-87d2-1aea872245c9",
-      "attachmentId": "",
-      "isEncrypted": false
-    }
-  ],
   "statement_of_truth_signature": "Veteran B Surname",
   "current_date": "01/01/2024"
 }

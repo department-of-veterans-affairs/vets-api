@@ -23,6 +23,7 @@ module MPI
 
     IDME_FULL_IDENTIFIER = 'PN^200VIDM^USDVA^A'
     LOGINGOV_FULL_IDENTIFIER = 'PN^200VLGN^USDVA^A'
+    MHV_FULL_IDENTIFIER = 'PI^200MH^USVHA^A'
     DSLOGON_FULL_IDENTIFIER = 'NI^200DOD^USDOD^A'
 
     ACTIVE_VHA_IDENTIFIER = 'USVHA^A'
@@ -42,6 +43,6 @@ module MPI
     FIND_PROFILE_BY_ATTRIBUTES_ORCH_SEARCH_TYPE = 'find_profile_by_attributes_orch_search'
     FIND_PROFILE_BY_FACILITY_TYPE = 'find_profile_by_facility'
 
-    QUERY_IDENTIFIERS = [ICN = 'ICN', IDME_UUID = 'idme', LOGINGOV_UUID = 'logingov'].freeze
+    QUERY_IDENTIFIERS = [ICN = 'ICN', IDME_UUID = 'idme', LOGINGOV_UUID = 'logingov', MHV_UUID = 'mhv'].freeze
   end
 end

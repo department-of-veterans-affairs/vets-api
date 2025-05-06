@@ -18,7 +18,7 @@ RSpec.describe VAOS::AppointmentsHelper do
         ]
       }
 
-      expect(subject.cerner?(appt)).to eq(true)
+      expect(subject.cerner?(appt)).to be(true)
     end
 
     it 'returns false when the appointment is not cerner' do
@@ -31,7 +31,7 @@ RSpec.describe VAOS::AppointmentsHelper do
         ]
       }
 
-      expect(subject.cerner?(appt)).to eq(false)
+      expect(subject.cerner?(appt)).to be(false)
     end
 
     it 'returns true when at least one identifier is cerner' do
@@ -48,13 +48,13 @@ RSpec.describe VAOS::AppointmentsHelper do
         ]
       }
 
-      expect(subject.cerner?(appt)).to eq(true)
+      expect(subject.cerner?(appt)).to be(true)
     end
 
     it 'returns false when the appointment does not contain identifier(s)' do
       appt = {}
 
-      expect(subject.cerner?(appt)).to eq(false)
+      expect(subject.cerner?(appt)).to be(false)
     end
   end
 

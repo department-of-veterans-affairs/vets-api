@@ -7,6 +7,13 @@ module Vye
       sidekiq_options retry: 5
 
       def perform
+        if Vye::CloudTransfer.holiday?
+          Rails.logger.info("Vye::MidnightRun::IngressBdn: holiday detected, job run at: #{Time.zone.now}")
+          return
+        end
+
+        Rails.logger.info('Vye::MidnightRun::IngressBdn: starting')
+
         bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
         bdn_clone_id = bdn_clone.id
 
@@ -22,6 +29,8 @@ module Vye
             IngressBdnChunk.perform_in((index * 5).seconds, bdn_clone_id, offset, block_size, filename)
           end
         end
+
+        Rails.logger.info('Vye::MidnightRun::IngressBdn: finished')
       end
 
       def on_complete(status, options)
@@ -29,10 +38,10 @@ module Vye
 
         message =
           if status.failures.zero?
-            "#{self.class.name}: All chunks have ran for BdnClone(#{bdn_clone_id}), there were no failures."
+            "Vye::MidnightRun::IngressBdn: All chunks have ran for BdnClone(#{bdn_clone_id}), there were no failures."
           else
             <<~MESSAGE
-              #{self.class.name}: All chunks have ran for BdnClone(#{bdn_clone_id}),
+              Vye::MidnightRun::IngressBdn: All chunks have ran for BdnClone(#{bdn_clone_id}),
               there were #{status.failures} failure(s).
             MESSAGE
           end
@@ -45,7 +54,7 @@ module Vye
         bdn_clone = BdnClone.find(bdn_clone_id)
         bdn_clone.update!(is_active: false)
 
-        Rails.logger.info "#{self.class.name}: Ingress completed successfully for BdnClone(#{bdn_clone_id})"
+        Rails.logger.info "Vye::MidnightRun::IngressBdn: Ingress completed successfully for BdnClone(#{bdn_clone_id})"
       end
     end
   end

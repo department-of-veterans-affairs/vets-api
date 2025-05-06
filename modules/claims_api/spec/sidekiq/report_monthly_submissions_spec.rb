@@ -49,7 +49,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     end
 
     def setup_one_claim_one_pact_claim
-      claim = create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
+      claim = create(:auto_established_claim, :established, cid: '0oa9uf05lgXYk6ZXn297')
       ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
     end
 
@@ -64,7 +64,7 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     end
 
     def setup_one_claim_no_pact_claims
-      create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:auto_established_claim, :established, cid: '0oa9uf05lgXYk6ZXn297')
     end
 
     it_behaves_like 'sends mail with expected totals'
@@ -79,8 +79,8 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     end
 
     def setup_two_claims_one_pact_claim
-      claim = create(:auto_established_claim, :status_established, cid: '0oa9uf05lgXYk6ZXn297')
-      create(:auto_established_claim, :status_errored, cid: '0oagdm49ygCSJTp8X297')
+      claim = create(:auto_established_claim, :established, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:auto_established_claim, :errored, cid: '0oagdm49ygCSJTp8X297')
       ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
     end
 
@@ -96,9 +96,9 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
 
     def setup_one_consumer_multiple_claims
       cid = '0oa9uf05lgXYk6ZXn297'
-      create(:auto_established_claim, :status_established, cid:)
-      create(:auto_established_claim, :status_established, cid:)
-      create(:auto_established_claim, :status_errored, cid:)
+      create(:auto_established_claim, :established, cid:)
+      create(:auto_established_claim, :established, cid:)
+      create(:auto_established_claim, :errored, cid:)
     end
 
     it_behaves_like 'sends mail with expected totals'
@@ -124,9 +124,9 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     end
 
     def setup_three_poas
-      create(:power_of_attorney, cid: '0oa9uf05lgXYk6ZXn297')
-      create(:power_of_attorney, status: 'errored', cid: '0oa9uf05lgXYk6ZXn297')
-      create(:power_of_attorney, cid: '0oagdm49ygCSJTp8X297')
+      create(:power_of_attorney, :submitted, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:power_of_attorney, :errored, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:power_of_attorney, :submitted, cid: '0oagdm49ygCSJTp8X297')
     end
 
     it_behaves_like 'sends mail with expected totals'
@@ -156,9 +156,9 @@ RSpec.describe ClaimsApi::ReportMonthlySubmissions, type: :job do
     end
 
     def setup_three_ews
-      create(:evidence_waiver_submission, cid: '0oa9uf05lgXYk6ZXn297')
-      create(:evidence_waiver_submission, status: 'errored', cid: '0oa9uf05lgXYk6ZXn297')
-      create(:evidence_waiver_submission, cid: '0oagdm49ygCSJTp8X297')
+      create(:evidence_waiver_submission, :submitted, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:evidence_waiver_submission, :errored, cid: '0oa9uf05lgXYk6ZXn297')
+      create(:evidence_waiver_submission, :submitted, cid: '0oagdm49ygCSJTp8X297')
     end
   end
 

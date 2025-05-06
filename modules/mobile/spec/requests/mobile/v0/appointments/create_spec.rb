@@ -22,33 +22,21 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
       receive(:get_clinic).and_return(mock_clinic)
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_facility).and_return(mock_facility)
-  end
-
-  after(:all) do
-    Flipper.disable('va_online_scheduling')
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
   end
 
   describe 'CREATE appointment', :aggregate_failures do
     let(:community_cares_request_body) do
-      FactoryBot.build(:appointment_form_v2, :community_cares).attributes
+      build(:appointment_form_v2, :community_cares).attributes
     end
     let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
+      build(:appointment_form_v2, :va_booked).attributes
     end
     let(:va_proposed_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_proposed_clinic).attributes
+      build(:appointment_form_v2, :va_proposed_clinic).attributes
     end
 
     describe 'authorization' do
-      context 'when feature flag is off' do
-        before { Flipper.disable('va_online_scheduling') }
-
-        it 'returns forbidden' do
-          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-
       context 'when user does not have access' do
         let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -58,11 +46,15 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
         end
       end
 
-      context 'when feature flag is on and user has access' do
+      context 'when user has access' do
         context 'using VAOS' do
           before do
-            Flipper.disable(:va_online_scheduling_use_vpg)
-            Flipper.disable(:va_online_scheduling_enable_OH_requests)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                      instance_of(User)).and_return(false)
           end
 
           it 'returns created' do
@@ -78,8 +70,11 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
 
         context 'using VPG' do
           before do
-            Flipper.enable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_enable_OH_requests)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                      instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                      instance_of(User)).and_return(true)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
           end
 
           it 'returns created' do
@@ -97,8 +92,10 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
 
     context 'using VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_requests)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
       it 'clears the cache' do
@@ -124,8 +121,10 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_enable_OH_requests)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
       end
 
       it 'clears the cache' do
@@ -152,8 +151,11 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
     context 'for CC facility' do
       context 'for VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_requests)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         it 'creates the cc appointment' do
@@ -169,8 +171,9 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
 
       context 'for VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_requests)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         end
 
         it 'creates the cc appointment' do
@@ -189,8 +192,11 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
     context 'for va facility' do
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_requests)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
         end
 
         it 'creates the va appointment - proposed' do
@@ -216,8 +222,10 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_requests)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         end
 
         it 'creates the va appointment - proposed' do

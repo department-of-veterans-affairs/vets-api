@@ -41,7 +41,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
         end
       end
 
-      it 'returns a single service history episode' do
+      it 'returns a single service history episode and vet_status_eligibility' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           get '/v0/profile/service_history'
 
@@ -55,17 +55,26 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
           expect(episode['period_of_service_type_text']).to eq('National Guard member')
           expect(episode['termination_reason_code']).to eq('S')
           expect(episode['termination_reason_text']).to eq('Separation from personnel category or organization')
+          expect(json.dig('attributes', 'vet_status_eligibility')).to eq({ 'confirmed' => true, 'message' => [] })
         end
       end
 
       it 'returns no service history episodes' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
           get '/v0/profile/service_history'
+          problem_message = [
+            'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status ' \
+            'card for you right now.',
+            'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711).' \
+            ' They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+          ]
           json = json_body_for(response)
-          expect(response).to be_ok
-
           episodes = json.dig('attributes', 'service_history')
+          vet_status_eligibility = json.dig('attributes', 'vet_status_eligibility')
+
+          expect(response).to be_ok
           expect(episodes.count).to eq(0)
+          expect(vet_status_eligibility).to eq({ 'confirmed' => false, 'message' => problem_message })
         end
       end
 

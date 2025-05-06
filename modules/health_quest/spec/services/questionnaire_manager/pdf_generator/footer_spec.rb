@@ -29,11 +29,11 @@ describe HealthQuest::QuestionnaireManager::PdfGenerator::Footer do
 
   describe 'attributes' do
     it 'responds to opts' do
-      expect(subject.build.respond_to?(:opts)).to eq(true)
+      expect(subject.build.respond_to?(:opts)).to be(true)
     end
 
     it 'responds to composer' do
-      expect(subject.build.respond_to?(:composer)).to eq(true)
+      expect(subject.build.respond_to?(:composer)).to be(true)
     end
   end
 

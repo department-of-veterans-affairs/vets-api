@@ -22,12 +22,12 @@ describe AppealsApi::AddIcnUpdater, type: :job do
       expect(hlr.reload.veteran_icn).to be_present
     end
 
-    xit 'does not update ICN if flipper is disabled' do
+    it 'does not update ICN if flipper is disabled', skip: 'TODO' do
       Flipper.disable(:decision_review_icn_updater_enabled)
       # ...
     end
 
-    xit 'it logs error & does not update INC if PII has been removed from the record' do
+    it 'logs error & does not update INC if PII has been removed from the record', skip: 'TODO' do
       hlr.update(auth_headers: nil, form_data: nil)
       # ...
     end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/addresses
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/addresses
     body:
       encoding: UTF-8
       string: '{"bio":{"addressId":42,"addressLine1":"1493 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE/CHOICE","addressType":"domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":null,"countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1"}}'

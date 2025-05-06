@@ -12,12 +12,27 @@ describe CARMA::Client::MuleSoftAuthTokenConfiguration do
     allow(Settings.form_10_10cg.carma.mulesoft.auth).to receive(:token_url).and_return(token_url)
   end
 
-  it 'sets base_path on connection' do
-    expect(Faraday).to receive(:new).with("#{token_url}/")
-    subject.connection
+  describe 'connection' do
+    let(:faraday) { double('Faraday::Connection') }
+
+    it 'creates a new Faraday connection with the correct base path' do
+      expect(Faraday).to receive(:new).with("#{token_url}/")
+      subject.connection
+    end
+
+    it 'creates the connection' do
+      allow(Faraday).to receive(:new).and_yield(faraday)
+
+      expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
+      expect(faraday).to receive(:request).once.with(:instrumentation,
+                                                     { name: 'CARMA::Client::MuleSoftAuthTokenConfiguration' })
+      expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+
+      subject.connection
+    end
   end
 
-  it 'returns class name' do
+  it 'service_name returns class name' do
     expect(subject.service_name).to eq('CARMA::Client::MuleSoftAuthTokenConfiguration')
   end
 

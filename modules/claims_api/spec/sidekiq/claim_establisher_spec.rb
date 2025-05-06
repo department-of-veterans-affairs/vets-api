@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     stub_claims_api_auth_token
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user)
                                            .add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -64,7 +64,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     end
 
     it 'clears original data upon success' do
-      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
       allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
 
@@ -82,7 +82,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     end
 
     it 'sets the status of the claim to an error if it raises an Common::Exceptions::BackendServiceException error' do
-      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
       allow(evss_service_stub).to receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
                                                                errors
@@ -96,7 +96,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
     it 'preserves the original form data throughout the job' do
       orig_form_data = claim_with_treatments.form_data
-      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
 
       expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
@@ -108,6 +108,58 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
       claim_with_treatments.reload
 
       expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
+    end
+
+    it 'rescues a Lighthouse::BackendServiceException and does not raise an error' do
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
+      allow(evss_service_stub).to receive(:submit).and_raise(
+        ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(errors)
+      )
+
+      expect { subject.new.perform(claim.id) }.not_to raise_error
+    end
+  end
+
+  describe 'Expectation Failed Errors' do
+    before do
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
+      allow(evss_service_stub).to receive(:submit).and_raise(error)
+    end
+
+    context 'when the error is a BackendServiceException and the message text includes 417' do
+      let(:error) do
+        Common::Exceptions::BackendServiceException.new(
+          nil,
+          {},
+          nil,
+          { messages: [{ key: 'form526.submit.establishClaim.serviceError',
+                         severity: 'FATAL',
+                         text: 'Expectation Failed [417]' }] }
+        )
+      end
+
+      it 'raises an error (thereby retrying the job)' do
+        expect { subject.new.perform(claim.id) }.to raise_error(Common::Exceptions::BackendServiceException)
+      end
+    end
+
+    context 'when the error is a BackendServiceException and the message text does not include 417' do
+      let(:error) do
+        Common::Exceptions::BackendServiceException.new(
+          nil,
+          {},
+          nil,
+          { messages: [{ key: 'form526.submit.establishClaim.serviceError',
+                         severity: 'FATAL',
+                         text: 'Some other error [500]' }] }
+        )
+      end
+
+      it 'does not raise an error (thereby not retrying the job)' do
+        expect { subject.new.perform(claim.id) }.not_to raise_error
+      end
     end
   end
 

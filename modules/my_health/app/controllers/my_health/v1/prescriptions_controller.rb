@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -14,30 +15,58 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-        resource.data = filter_non_va_meds(resource.data)
+        raw_data = resource.data.dup
+        resource.data = resource_data_modifications(resource)
+        filter_count = set_filter_metadata(resource.data, raw_data)
+        if params[:filter].present?
+          resource = if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
+                       filter_renewals(resource)
+                     else
+                       resource.find_by(filter_params)
+                     end
+        end
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
+        resource.data = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
-        resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
-
-        options = { meta: resource.metadata }
+        resource = resource.paginate(**pagination_params) if is_using_pagination
+        options = { meta: resource.metadata.merge(filter_count) }
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
       def show
         id = params[:id].try(:to_i)
-        resource = client.get_rx_details(id)
+        resource = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
+                     get_single_rx_from_grouped_list(collection_resource.data, id)
+                   else
+                     client.get_rx_details(id)
+                   end
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        options = { meta: resource.metadata }
+        options = if Flipper.enabled?(:mhv_medications_display_grouping, current_user)
+                    { meta: client.get_rx_details(id).metadata }
+                  else
+                    { meta: resource.metadata }
+                  end
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 
       def refill
         client.post_refill_rx(params[:id])
         head :no_content
+      end
+
+      def filter_renewals(resource)
+        resource.data = resource.data.select(&method(:renewable))
+        resource.metadata = resource.metadata.merge({
+                                                      'filter' => {
+                                                        'disp_status' => {
+                                                          'eq' => 'Active,Expired'
+                                                        }
+                                                      }
+                                                    })
+        resource
       end
 
       def refill_prescriptions
@@ -70,6 +99,8 @@ module MyHealth
 
       private
 
+      # rubocop:disable ThreadSafety/NewThread
+      # New threads are joined at the end
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
@@ -86,6 +117,7 @@ module MyHealth
         threads.each(&:join)
         data
       end
+      # rubocop:enable ThreadSafety/NewThread
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
@@ -121,12 +153,83 @@ module MyHealth
         "#{image_root_uri + folder_name}/#{file_name}"
       end
 
+      def filter_params
+        @filter_params ||= begin
+          valid_filter_params = params.require(:filter).permit(PrescriptionDetails.filterable_attributes)
+          raise Common::Exceptions::FilterNotAllowed, params[:filter] if valid_filter_params.empty?
+
+          valid_filter_params
+        end
+      end
+
       def collection_resource
         case params[:refill_status]
         when nil
           client.get_all_rxs
         when 'active'
           client.get_active_rxs_with_details
+        end
+      end
+
+      def resource_data_modifications(resource)
+        display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
+        display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
+        # according to business logic filter for all medications is the only list that should contain PD meds
+        resource.data = if params[:filter].blank? && display_pending_meds
+                          resource.data.reject { |item| item.prescription_source.equal? 'PF' }
+                        else
+                          # TODO: remove this line when PF and PD are allowed on va.gov
+                          resource.data = remove_pf_pd(resource.data)
+                        end
+        resource.data = group_prescriptions(resource.data) if display_grouping
+        resource.data = filter_non_va_meds(resource.data)
+      end
+
+      def set_filter_metadata(list, non_modified_collection)
+        {
+          filter_count: {
+            all_medications: group_prescriptions(non_modified_collection).length,
+            active: count_active_medications(list),
+            recently_requested: count_recently_requested_medications(list),
+            renewal: list.select(&method(:renewable)).length,
+            non_active: count_non_active_medications(list)
+          }
+        }
+      end
+
+      def count_active_medications(list)
+        active_statuses = [
+          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+          'Active: Parked', 'Active: Submitted'
+        ]
+        list.select { |rx| active_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_recently_requested_medications(list)
+        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
+        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_non_active_medications(list)
+        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
+        list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
+      end
+
+      # TODO: remove once pf and pd are allowed on va.gov
+      def remove_pf_pd(data)
+        sources_to_remove_from_data = %w[PF PD]
+        data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
+      end
+
+      def sort_prescriptions_with_pd_at_top(prescriptions)
+        prescriptions.sort do |a, b|
+          if a.prescription_source == 'PD' && b.prescription_source != 'PD'
+            -1
+          elsif a.prescription_source != 'PD' && b.prescription_source == 'PD'
+            1
+          else
+            0
+          end
         end
       end
     end

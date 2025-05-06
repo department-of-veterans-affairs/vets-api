@@ -27,4 +27,8 @@ describe RepresentationManagement::PowerOfAttorney::RepresentativeSerializer, ty
   it 'includes :phone' do
     expect(attributes['phone']).to eq object.phone_number
   end
+
+  it 'includes :individual_type' do
+    expect(attributes['individual_type']).to eq 'attorney'
+  end
 end

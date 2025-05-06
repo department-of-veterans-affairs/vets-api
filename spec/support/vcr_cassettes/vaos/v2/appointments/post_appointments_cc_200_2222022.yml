@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments
     body:
       encoding: UTF-8
       string: '{"kind":"cc","status":"proposed","locationId":"983","contact":{"telecom":[{"type":"phone","value":"2125688887"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"serviceType":"podiatry","requestedPeriods":[{"start":"2021-06-15T12:00:00.000+00:00","end":"2021-06-15T23:59:00.000+00:00"}],"preferredLanguage":"English","practitioners":[{"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"1407938061"}],"address":{"type":"postal","line":["38143

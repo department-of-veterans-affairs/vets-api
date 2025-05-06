@@ -46,7 +46,7 @@ module MebApi
 
         def request_headers
           {
-            "Content-Type": 'application/json',
+            'Content-Type': 'application/json',
             Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}"
           }
         end

@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'lighthouse/benefits_claims/configuration'
+require 'lighthouse/benefits_claims/constants'
 require 'lighthouse/benefits_claims/service_exception'
 require 'lighthouse/service_exception'
 
@@ -11,6 +12,8 @@ module BenefitsClaims
     STATSD_KEY_PREFIX = 'api.benefits_claims'
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
+
+    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
     def initialize(icn)
       @icn = icn
@@ -32,7 +35,13 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      # Manual status override for certain tracked items
+      # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
+      # This should be removed when the items are re-categorized by BGS
+      override_tracked_items(claim['data']) if Flipper.enabled?(:cst_override_pmr_pending_tracked_items)
+      apply_friendlier_language(claim['data']) if Flipper.enabled?(:cst_friendly_evidence_requests)
+      claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -41,6 +50,28 @@ module BenefitsClaims
 
     def get_power_of_attorney(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       config.get("#{@icn}/power-of-attorney", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
+    def get_2122_submission(
+      id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {}
+    )
+      config.get("#{@icn}/power-of-attorney/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
+    def submit2122(attributes, lighthouse_client_id = nil,
+                   lighthouse_rsa_key_path = nil, options = {})
+      data = { data: { attributes: } }
+      config.post(
+        "#{@icn}/2122", data, lighthouse_client_id, lighthouse_rsa_key_path, options
+      )
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -114,11 +145,11 @@ module BenefitsClaims
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
     # @option options [hash] :asynchronous call the asynchronous endpoint
+    # @option options [hash] :transaction_id submission endpoint tracking
     def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint, path = submit_endpoint(options)
 
-      body = prepare_submission_body(body)
-
+      body = prepare_submission_body(body, options[:transaction_id])
       response = config.post(
         path,
         body,
@@ -144,7 +175,7 @@ module BenefitsClaims
     def validate526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint = '{icn}/526/validate'
       path = "#{@icn}/526/validate"
-      body = prepare_submission_body(body)
+      body = prepare_submission_body(body, options[:transaction_id])
 
       response = config.post(
         path,
@@ -162,24 +193,27 @@ module BenefitsClaims
 
     private
 
-    def build_request_body(body)
+    def build_request_body(body, transaction_id = "vagov-#{SecureRandom}")
       body = body.as_json
       if body.dig('data', 'attributes').nil?
         body = {
           data: {
             type: 'form/526',
             attributes: body
+          },
+          meta: {
+            transaction_id:
           }
         }
       end
       body.as_json.deep_transform_keys { |k| k.camelize(:lower) }
     end
 
-    def prepare_submission_body(body)
+    def prepare_submission_body(body, transaction_id)
       # if we're coming straight from the transformation service without
-      # making this a jsonapi request body first ({data: {type:, attributes}}),
+      # making this a jsonapi request body first ({data: {type:, attributes}, meta: {transactionId:}}),
       # this will put it in the correct format for transmission
-      body = build_request_body(body)
+      body = build_request_body(body, transaction_id)
 
       # Inflection settings force 'current_va_employee' to render as 'currentVAEmployee' in the above camelize() call
       # Since Lighthouse needs 'currentVaEmployee', the following workaround renames it.
@@ -247,6 +281,38 @@ module BenefitsClaims
 
     def filter_by_status(items)
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
+    end
+
+    def override_tracked_items(claim)
+      tracked_items = claim['attributes']['trackedItems']
+      return unless tracked_items
+
+      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
+        i['status'] = 'NEEDED_FROM_OTHERS'
+        i['displayName'] = 'Private Medical Record'
+      end
+
+      tracked_items.select { |i| i['displayName'] == 'Proof of service (DD214, etc.)' }.each do |i|
+        i['status'] = 'NEEDED_FROM_OTHERS'
+      end
+      tracked_items
+    end
+
+    def apply_friendlier_language(claim)
+      tracked_items = claim['attributes']['trackedItems']
+      return unless tracked_items
+
+      tracked_items.each do |i|
+        display_name = i['displayName']
+        i['canUploadFile'] =
+          BenefitsClaims::Constants::UPLOADER_MAPPING[display_name].nil? ||
+          BenefitsClaims::Constants::UPLOADER_MAPPING[display_name]
+        i['friendlyName'] = BenefitsClaims::Constants::FRIENDLY_DISPLAY_MAPPING[display_name]
+        i['activityDescription'] = BenefitsClaims::Constants::ACTIVITY_DESCRIPTION_MAPPING[display_name]
+        i['shortDescription'] = BenefitsClaims::Constants::SHORT_DESCRIPTION_MAPPING[display_name]
+        i['supportAliases'] = BenefitsClaims::Constants::SUPPORT_ALIASES_MAPPING[display_name] || []
+      end
+      tracked_items
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

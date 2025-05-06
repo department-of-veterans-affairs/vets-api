@@ -54,7 +54,7 @@ module Swagger
               key :type, :object
 
               property(:data) do
-                key :'$ref', :OnsiteNotification
+                key :$ref, :OnsiteNotification
               end
             end
           end
@@ -92,7 +92,7 @@ module Swagger
                 key :type, :array
 
                 items do
-                  key :'$ref', :OnsiteNotification
+                  key :$ref, :OnsiteNotification
                 end
               end
 
@@ -157,7 +157,7 @@ module Swagger
               key :type, :object
 
               property(:data) do
-                key :'$ref', :OnsiteNotification
+                key :$ref, :OnsiteNotification
               end
             end
           end

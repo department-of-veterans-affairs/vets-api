@@ -13,16 +13,13 @@ RSpec.describe ClaimsApi::EvidenceWaiverSubmission, type: :model do
     end
 
     context "when 'cid' is not provided" do
-      it 'fails validation' do
-        ews = ClaimsApi::EvidenceWaiverSubmission.new(auth_headers: 'cghdsjg')
-        expect(ews.valid?).to be(false)
-      end
+      it { is_expected.to validate_presence_of(:cid) }
     end
 
     context 'when all required attributes are provided' do
       it 'saves the record' do
-        ews = ClaimsApi::EvidenceWaiverSubmission.create!(auth_headers: 'cghdsjg',
-                                                          cid: '21635')
+        ews = create(:evidence_waiver_submission, auth_headers: 'cghdsjg',
+                                                  cid: '21635')
 
         expect { ews.save! }.not_to raise_error
       end

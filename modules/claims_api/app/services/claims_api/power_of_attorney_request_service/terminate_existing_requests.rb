@@ -18,13 +18,22 @@ module ClaimsApi
         mapped_requests = []
         requests = get_non_obsolete_requests
         requests.each do |request|
+          next if request['procId'].blank?
+
           mapped_requests << { proc_id: request['procId'],
                                representative: { first_name: DEFAULT_FIRST_NAME,
                                                  last_name: DEFAULT_LAST_NAME } }
         end
 
-        mapped_requests.each do |request|
-          set_to_obsolete(request)
+        if mapped_requests.empty?
+          ClaimsApi::Logger.log('poa_terminate_existing_requests',
+                                message: "No requests returned for pctpntId: #{@veteran_participant_id}")
+
+          mapped_requests
+        else
+          mapped_requests.each do |request|
+            set_to_obsolete(request)
+          end
         end
       end
 
@@ -38,9 +47,14 @@ module ClaimsApi
       end
 
       def set_to_obsolete(request)
-        ClaimsApi::ManageRepresentativeService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
-          .update_poa_request(representative: request[:representative], proc_id: request[:proc_id])
+        manage_representative_service.update_poa_request(representative: request[:representative],
+                                                         proc_id: request[:proc_id])
+      end
+
+      def manage_representative_service
+        @manage_representative_service ||= ClaimsApi::ManageRepresentativeService
+                                           .new(external_uid: @veteran_participant_id,
+                                                external_key: @veteran_participant_id)
       end
     end
   end

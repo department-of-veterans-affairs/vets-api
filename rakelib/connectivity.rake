@@ -74,7 +74,7 @@ namespace :connectivity do
 
   desc 'Check that logs are writeable'
   task logs: :environment do
-    if File.writable?(Rails.root.join('log'))
+    if Rails.root.join('log').writable?
       puts 'Logging directory is writeable.'
     else
       puts 'Logging directory is not writeable!'
@@ -83,7 +83,7 @@ namespace :connectivity do
 
   desc 'Check MVI'
   task mvi: :environment do
-    check 'MVI', Settings.mvi.url do
+    check 'MVI', IdentitySettings.mvi.url do
       user = User.new(
         first_name: 'John',
         last_name: 'Smith',
@@ -127,8 +127,8 @@ namespace :connectivity do
 
   desc 'Check StatsD'
   task statsd: :environment do
-    if Settings.statsd.host.present? && Settings.statsd.port.present?
-      puts "StatsD configured for #{Settings.statsd.host}:#{Settings.statsd.port}."
+    if ENV['STATSD_ADDR'].present?
+      puts "StatsD configured for #{ENV['STATSD_ADDR']}."
     else
       puts 'StatsD not configured!'
     end

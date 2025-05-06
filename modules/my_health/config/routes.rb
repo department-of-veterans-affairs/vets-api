@@ -1,7 +1,17 @@
 # frozen_string_literal: true
 
 MyHealth::Engine.routes.draw do
+  namespace :v2 do
+    scope :medical_records do
+      resources :labs_and_tests, only: %i[index], defaults: { format: :json }
+    end
+  end
+
   namespace :v1 do
+    resources :tooltips, only: %i[index create update], controller: 'tooltips', defaults: { format: :json }
+
+    resources :aal, only: %i[create], controller: 'aal', defaults: { format: :json }
+
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
@@ -16,6 +26,42 @@ MyHealth::Engine.routes.draw do
     namespace :medical_records do
       resources :session, only: %i[create], controller: 'mr_session', defaults: { format: :json } do
         get :status, on: :collection
+      end
+      resources :ccd, only: [] do
+        collection do
+          get :generate, to: 'ccd#generate'
+          get :download, to: 'ccd#download'
+        end
+      end
+      resources :bbmi_notification, only: [] do
+        get :status, on: :collection
+      end
+      resources :military_service, only: %i[index]
+      resources :self_entered, only: %i[index], defaults: { format: :json } do
+        get :vitals, on: :collection
+        get :allergies, on: :collection
+        get :family_history, on: :collection
+        get :vaccines, on: :collection
+        get :test_entries, on: :collection
+        get :medical_events, on: :collection
+        get :military_history, on: :collection
+        get :providers, on: :collection
+        get :health_insurance, on: :collection
+        get :treatment_facilities, on: :collection
+        get :food_journal, on: :collection
+        get :activity_journal, on: :collection
+        get :medications, on: :collection
+        get :emergency_contacts, on: :collection
+      end
+      resources :patient, only: %i[index] do
+        get :demographic, on: :collection
+      end
+      resources :imaging, only: %i[index], defaults: { format: :json } do
+        get 'request', on: :member, action: :request_download
+        get :status, on: :collection, action: :request_status
+        get :images, on: :member
+        get 'images/:series_id/:image_id', to: 'imaging#image', on: :member, as: :image
+        get :dicom, on: :member
       end
       resources :radiology, only: %i[index], defaults: { format: :json }
     end
@@ -50,6 +96,8 @@ MyHealth::Engine.routes.draw do
 
       resource :preferences, only: %i[show update], controller: 'messaging_preferences' do
         post 'recipients', action: :update_triage_team_preferences
+        get :signature, on: :member
+        post :signature, on: :member, action: :update_signature
       end
     end
 

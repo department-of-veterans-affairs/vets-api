@@ -26,7 +26,6 @@ RSpec.describe IvcChampva::VHA107959f1 do
     }
   end
   let(:vha107959f1) { described_class.new(data) }
-  let(:file_path) { 'vha_10_7959f_1-tmp.pdf' }
   let(:uuid) { SecureRandom.uuid }
   let(:instance) { IvcChampva::VHA107959f1.new(data) }
 
@@ -55,12 +54,15 @@ RSpec.describe IvcChampva::VHA107959f1 do
             'last' => 'Surname'
           },
           'email' => 'email@address.com'
-        }
+        },
+        'primaryContactEmail' => 'email@address.com'
       )
     end
   end
 
   describe '#handle_attachments' do
+    let(:file_path) { "#{uuid}_vha_10_7959f_1-tmp.pdf" }
+
     it 'renames the file and returns the new file path' do
       allow(File).to receive(:rename)
       result = instance.handle_attachments(file_path)
@@ -94,4 +96,15 @@ RSpec.describe IvcChampva::VHA107959f1 do
     end
   end
   # rubocop:enable Naming/VariableNumber
+
+  it 'is not past OMB expiration date' do
+    # Update this date string to match the current PDF OMB expiration date:
+    omb_expiration_date = Date.strptime('03312027', '%m%d%Y')
+    error_message = <<~MSG
+      If this test is failing it likely means the form 10-7959f-1 PDF has reached
+      OMB expiration date. Please see ivc_champva module README for details on updating the PDF file.
+    MSG
+
+    expect(omb_expiration_date.past?).to be(false), error_message
+  end
 end

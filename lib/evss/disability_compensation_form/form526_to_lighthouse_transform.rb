@@ -78,7 +78,8 @@ module EVSS
       }.freeze
 
       # takes known EVSS Form526Submission format and converts it to a Lighthouse request body
-      # evss_data will look like JSON.parse(form526_submission.form_data)
+      # @param evss_data will look like JSON.parse(form526_submission.form_data)
+      # @return Requests::Form526
       def transform(evss_data)
         form526 = evss_data['form526']
         lh_request_body = Requests::Form526.new
@@ -266,28 +267,42 @@ module EVSS
 
         # create an Array[Requests::MultipleExposures]
         multiple_exposures = []
-        if toxic_exposure_source['gulfWar1990Details'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar1990Details'])
+
+        gulf_war1990_details = toxic_exposure_source['gulfWar1990Details']
+        if gulf_war1990_details.present? && gulf_war1990.present?
+          filtered_gulf_war1990_details = filtered_details(gulf_war1990, gulf_war1990_details)
+          multiple_exposures += transform_multiple_exposures(filtered_gulf_war1990_details)
         end
-        if toxic_exposure_source['gulfWar2001Details'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['gulfWar2001Details'])
+
+        gulf_war2001_details = toxic_exposure_source['gulfWar2001Details']
+        if gulf_war2001_details.present? && gulf_war2001.present?
+          filtered_gulf_war2001_details = filtered_details(gulf_war2001, gulf_war2001_details)
+          multiple_exposures += transform_multiple_exposures(filtered_gulf_war2001_details)
         end
-        if toxic_exposure_source['herbicideDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['herbicideDetails'],
+
+        herbicide_details = toxic_exposure_source['herbicideDetails']
+        if herbicide_details.present? && herbicide.present?
+          filtered_herbicide_details = filtered_details(herbicide, herbicide_details)
+          multiple_exposures += transform_multiple_exposures(filtered_herbicide_details,
                                                              MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
-        if values_present(toxic_exposure_source['otherHerbicideLocations'])
+
+        if values_present(other_herbicide_locations) && other_herbicide_locations['description'].present?
           multiple_exposures +=
-            transform_multiple_exposures_other_details(toxic_exposure_source['otherHerbicideLocations'],
+            transform_multiple_exposures_other_details(other_herbicide_locations,
                                                        MULTIPLE_EXPOSURES_TYPE[:herbicide])
         end
-        if toxic_exposure_source['otherExposuresDetails'].present?
-          multiple_exposures += transform_multiple_exposures(toxic_exposure_source['otherExposuresDetails'],
+
+        other_exposures_details = toxic_exposure_source['otherExposuresDetails']
+        if other_exposures_details.present? && other_exposures.present?
+          filtered_other_exposures_details = filtered_details(other_exposures, other_exposures_details)
+          multiple_exposures += transform_multiple_exposures(filtered_other_exposures_details,
                                                              MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
-        if values_present(toxic_exposure_source['specifyOtherExposures'])
+
+        if values_present(specify_other_exposures) && specify_other_exposures['description'].present?
           multiple_exposures +=
-            transform_multiple_exposures_other_details(toxic_exposure_source['specifyOtherExposures'],
+            transform_multiple_exposures_other_details(specify_other_exposures,
                                                        MULTIPLE_EXPOSURES_TYPE[:hazard])
         end
 
@@ -350,6 +365,35 @@ module EVSS
         [obj]
       end
 
+      # Filters a details object (i.e. gulfwar1990Details) of "false" or "unchecked" attributes from the source object
+      # example:
+      # {
+      #   "gulfWar1990": {
+      #     "afghanistan": true,
+      #     "bahrain": true,
+      #     "jordan": true,
+      #     "kuwait": true,
+      #     "iraq": true,
+      #     "qatar": false #<- this should be removed from the matching details object
+      #   },
+      #   "gulfWar1990Details": {
+      #     "iraq": {
+      #       "startDate": "1991-03-01",
+      #       "endDate": "1992-01-01"
+      #     },
+      #     "qatar": { #<- remove this
+      #                "startDate": "1991-02-12",
+      #                "endDate": "1991-06-01"
+      #     },
+      #     "kuwait": {
+      #       "startDate": "1991-03-15"
+      #     }
+      #   }
+      # }
+      def filtered_details(source, details)
+        details.select { |obj| source[obj].present? }
+      end
+
       def transform_gulf_war(gulf_war1990, gulf_war2001)
         filtered_results1990 = gulf_war1990&.filter { |k| k != 'notsure' }
         gulf_war1990_value = filtered_results1990&.values&.any?(&:present?) && !none_of_these(filtered_results1990)
@@ -366,7 +410,7 @@ module EVSS
       def transform_herbicide(herbicide, other_herbicide_locations)
         filtered_results_herbicide = herbicide&.filter { |k| k != 'notsure' }
         herbicide_value = (values_present(filtered_results_herbicide) ||
-                          values_present(other_herbicide_locations)) &&
+          (other_herbicide_locations.present? && other_herbicide_locations['description'].present?)) &&
                           !none_of_these(filtered_results_herbicide)
 
         herbicide_service = Requests::HerbicideHazardService.new
@@ -376,7 +420,10 @@ module EVSS
       end
 
       def transform_other_exposures(other_exposures, specify_other_exposures)
-        return nil if none_of_these(other_exposures) && !values_present(specify_other_exposures)
+        if none_of_these(other_exposures) &&
+           specify_other_exposures.present? && specify_other_exposures['description'].blank?
+          return nil
+        end
 
         filtered_results_other_exposures = other_exposures&.filter { |k, v| k != 'notsure' && v }
         additional_hazard_exposures_service = Requests::AdditionalHazardExposures.new
@@ -385,7 +432,9 @@ module EVSS
             HAZARDS_LH_ENUM[k.to_sym]
           end
         end
-        other = HAZARDS_LH_ENUM[:other] if values_present(specify_other_exposures)
+        if specify_other_exposures.present? && specify_other_exposures['description'].present?
+          other = HAZARDS_LH_ENUM[:other]
+        end
         additional_hazard_exposures_service.additional_exposures << other if other.present?
         return nil if additional_hazard_exposures_service.additional_exposures == []
 
@@ -699,6 +748,7 @@ module EVSS
 
         # somehow, partial dates with the 'XX' (i.e. "2020-01-XX or 2020-XX-XX") are getting past FE validation
         # fix here in the backend while a proper FE solution is found
+        return nil if year.downcase.include?('x')
         return year if month.blank? || month.upcase == 'XX'
         return "#{year}-#{month}" if day.blank? || day.upcase == 'XX'
 

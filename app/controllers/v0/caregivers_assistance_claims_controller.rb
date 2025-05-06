@@ -3,6 +3,7 @@
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
+    include RetriableConcern
     service_tag 'caregiver-application'
 
     AUDITOR = ::Form1010cg::Auditor.new
@@ -11,7 +12,7 @@ module V0
     before_action :load_user, only: :create
 
     before_action :record_submission_attempt, only: :create
-    before_action :initialize_claim
+    before_action :initialize_claim, only: %i[create download_pdf]
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
@@ -30,28 +31,61 @@ module V0
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
         raise(Common::Exceptions::ValidationErrors, @claim)
       end
+    rescue => e
+      unless e.is_a?(Common::Exceptions::ValidationErrors) || e.is_a?(::Form1010cg::Service::InvalidVeteranStatus)
+        Rails.logger.error('CaregiverAssistanceClaim: error submitting claim',
+                           { saved_claim_guid: @claim.guid, error: e })
+      end
+      raise e
     end
 
-    # If we were unable to submit the user's claim digitally, we allow them to the download
-    # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
-      # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
-      # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
-      source_file_path = PdfFill::Filler.fill_form(@claim, SecureRandom.uuid, sign: false)
+      file_name = SecureRandom.uuid
+      source_file_path = with_retries('Generate 10-10CG PDF') do
+        @claim.to_pdf(file_name, sign: false)
+      end
+
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
-
-      # rubocop:disable Lint/NonAtomicFileOperation
-      File.delete(source_file_path) if File.exist?(source_file_path)
-      # rubocop:enable Lint/NonAtomicFileOperation
 
       auditor.record(:pdf_download)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
+    ensure
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
+    end
+
+    def facilities
+      lighthouse_facilities = lighthouse_facilities_service.get_paginated_facilities(lighthouse_facilities_params)
+      render(json: lighthouse_facilities)
     end
 
     private
+
+    def lighthouse_facilities_service
+      @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
+    end
+
+    def lighthouse_facilities_params
+      permitted_params = params.permit(
+        :zip,
+        :state,
+        :lat,
+        :long,
+        :radius,
+        :visn,
+        :type,
+        :mobile,
+        :page,
+        :per_page,
+        :facility_ids,
+        services: [],
+        bbox: []
+      )
+
+      # The Lighthouse Facilities api expects the facility ids param as `facilityIds`
+      permitted_params.to_h.transform_keys { |key| key == 'facility_ids' ? 'facilityIds' : key }
+    end
 
     def record_submission_attempt
       auditor.record(:submission_attempt)

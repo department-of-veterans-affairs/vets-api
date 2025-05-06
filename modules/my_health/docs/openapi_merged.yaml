@@ -63,6 +63,93 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Forbidden
       summary: /v1/medical_records/allergies/{id}
+  /v1/medical_records/bbmi_notification/status:
+    get:
+      description: Show the current user's preference setting for BBMI email notifications.
+      operationId: bbmi_notification_status
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flag:
+                    type: boolean
+                    description: Indicates whether the BBMI email preference is enabled (`true`) or disabled (`false`).
+                example:
+                  flag: true
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/bbmi_notification/status
+  /v1/medical_records/ccd/generate:
+    get:
+      description: Generate a Continuity of Care Document for a patient to later download.
+      operationId: generate_ccd
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicalRecordsCcdGenerateStatus'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/ccd/generate
+  /v1/medical_records/ccd/download:
+    get:
+      description: Download the Continuity of Care Document specified by the date parameter.
+      operationId: download_ccd
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Date of the desired study, as pulled verbatim from the generate endpoint response
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/xml:
+              schema:
+                type: object
+                description: |
+                  The returned document is an XML file representing the patient's Continuity of Care Document.
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/ccd/download
   /v1/medical_records/clinical_notes:
     get:
       description: List patient clinical notes
@@ -167,6 +254,211 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Forbidden
       summary: /v1/medical_records/conditions/{id}
+  /v1/medical_records/imaging:
+    get:
+      description: Get a list of MHV radiology reports from CVIX for the current user. These results do not include VIA reports.
+      operationId: list_imaging_studies
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicalRecordsImagingStudyList'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/imaging
+  /v1/medical_records/imaging/status:
+    get:
+      description: Get the statuses of all available CVIX study jobs for the current user.
+      operationId: list_study_job_statuses
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MedicalRecordsStudyJobStatus'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/imaging
+  /v1/medical_records/imaging/{studyId}/dicom:
+    get:
+      description: Returns a ZIP file containing DICOM images for the specified study.
+      operationId: download_dicom
+      parameters:
+        - name: studyId
+          in: path
+          required: true
+          description: Unique identifier for the imaging study
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/imaging/{studyId}/dicom
+  /v1/medical_records/imaging/{studyId}/images/{seriesId}/{imageId}:
+    get:
+      description: Returns a JPG image for the provided study, series, and image.
+      operationId: download_image
+      parameters:
+        - name: studyId
+          in: path
+          required: true
+          description: Unique identifier for the imaging study
+          schema:
+            type: string
+        - name: seriesId
+          in: path
+          required: true
+          description: Study-scoped identifier for the image series
+          schema:
+            type: string
+        - name: imageId
+          in: path
+          required: true
+          description: Study-scoped identifier for the image within the series
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/imaging/{studyId}/images/{seriesId}/{imageId}
+  /v1/medical_records/imaging/{studyId}/request:
+    get:
+      description: Request that MHV download an imaging study from CVIX. This will initiate the transfer of the images into MHV for later retrieval from vets-api as DICOM or JPGs.
+      operationId: request_study
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicalRecordsStudyJobStatus'
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not Found
+      summary: /v1/medical_records/imaging/{studyId}/request
+  /v1/medical_records/imaging/{studyId}/images:
+    get:
+      description: Get a list of images for the provided CVIX radiology study
+      operationId: list_images
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Filename representing an image in a specific series.
+                example:
+                  - Series 01 - Image 01.jpg
+                  - Series 02 - Image 01.jpg
+                  - Series 03 - Image 01.jpg
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Bad Request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not Found
+      summary: /v1/medical_records/imaging/{studyId}/images
   /v1/medical_records/labs_and_tests:
     get:
       description: |
@@ -194,11 +486,10 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Forbidden
       summary: /v1/medical_records/labs_and_tests
-  /v1/medical_records/labs_and_tests/diagrep/{id}:
+  /v1/medical_records/labs_and_tests/{id}:
     get:
       description: |
-        Get a patient labs and tests record of type DiagnosticReport. This is for Chemistry/Hematology,
-        Microbiology, and Pathology results.
+        Get a patient labs and tests record of type DiagnosticReport.
       operationId: get_labs_and_tests_diagrep
       responses:
         '200':
@@ -207,7 +498,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DiagnosticReport. The schemas can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
+                  FHIR DiagnosticReport. The schemas can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a> <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
           description: OK
         '401':
           content:
@@ -221,12 +512,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
           description: Forbidden
-      summary: /v1/medical_records/labs_and_tests/diagrep/{id}
-  /v1/medical_records/labs_and_tests/docref/{id}:
+      summary: /v1/medical_records/labs_and_tests/{id}
+  /v1/medical_records/military_service:
     get:
-      description: |
-        Get a patient labs and tests record of type DocumentReference. This is for EKG and Radiolody results.
-      operationId: get_labs_and_tests_docref
+      description: Get the current user's military service
+      operationId: get_military_service
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                description: A long string containing the user's military service report
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/military_service
+  /v1/medical_records/patient:
+    get:
+      description: Get the current user's patient account information, including a list of treatment facilities.
+      operationId: get_patient
       responses:
         '200':
           content:
@@ -234,7 +549,7 @@ paths:
               schema:
                 type: object
                 description: |
-                  FHIR DocumentReference. The schema can be found at <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>, <a href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+                  The returned object is a  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-common-api/blob/development/src/main/java/gov/va/med/mhv/common/api/dto/PatientDTO.java'>PatientDTO object</a>.
           description: OK
         '401':
           content:
@@ -248,7 +563,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/Errors'
           description: Forbidden
-      summary: /v1/medical_records/labs_and_tests/docref/{id}
+      summary: /v1/medical_records/patient
+  /v1/medical_records/patient/demographic:
+    get:
+      description: Get the current user's self-entered demographic information.
+      operationId: get_patient_demographic
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                description: |
+                  The returned object is a  <a target="_blank" href='https://github.com/department-of-veterans-affairs/mhv-np-bluebutton-api/blob/development/mhv-bluebutton-portal-data-jpa/src/main/java/gov/va/med/mhv/bluebutton/model/phr/PhrDemographics.java'>PhrDemographics object</a>.
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/patient/demographic
+  /v1/medical_records/radiology:
+    get:
+      description: Get the current user's non-FHIR-ized list of radiology reports from VIA (through MHV).
+      operationId: get_mhv_radiology
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicalRecordsPhrRadiologyList'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/radiology
+  /v1/medical_records/session:
+    get:
+      description: Creates a session to the upstream MHV APIs. Note that any MR API call will do this as well. This endpoint ONLY creates a session.
+      operationId: post_session
+      responses:
+        '204':
+          description: No Content
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/session
+  /v1/medical_records/session/status:
+    get:
+      description: Returns the PHR Refresh status for the current user.
+      operationId: get_session_status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicalRecordsPatientExtractStatus'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden
+      summary: /v1/medical_records/session/status
   /v1/medical_records/vaccines:
     get:
       description: List patient vaccines
@@ -330,7 +739,7 @@ paths:
   /v1/medical_records/vitals/{id}:
     get:
       description: Get a patient vital record
-      operationId: get_vaccine
+      operationId: get_vitals
       responses:
         '200':
           content:
@@ -866,32 +1275,6 @@ paths:
       summary: /v1/messaging/messages/categories
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
-  /v1/messaging/messages/signature:
-    get:
-      description: Gets user message signature preferences
-      operationId: get_signature
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SecureMessageSignature'
-          description: OK
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: Unauthorized
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Errors'
-          description: Not authorized for access to secure messages
-      summary: /v1/messaging/messages/signature
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
@@ -1292,6 +1675,63 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/messaging/preferences/recipients
+  /v1/messaging/preferences/signature:
+    get:
+      description: Gets user message signature preferences
+      operationId: get_signature
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessageSignature'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+    post:
+      description: Update user message signature preferences
+      operationId: update_signature
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessageSignatureUpdateRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessageSignature'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/preferences/signature
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
   /v1/prescriptions:
     get:
       description: List medications.
@@ -1570,6 +2010,410 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error'
+    MedicalRecordsCcdGenerateStatus:
+      type: array
+      items:
+        type: object
+        properties:
+          dateGenerated:
+            type: string
+            format: date-time
+            description: Timestamp when the document status was generated (ISO 8601 format with timezone).
+          status:
+            type: string
+            description: Status of the CCD generation.
+            enum:
+              - COMPLETE
+              - ERROR
+          patientId:
+            type: string
+            description: Unique ICN identifier of the patient.
+      example:
+        - dateGenerated: 2024-11-20T11:57:07.000-0500
+          status: COMPLETE
+          patientId: 1012740024V936776
+        - dateGenerated: 2024-11-19T14:29:54.000-0500
+          status: ERROR
+          patientId: 1012740024V936776
+    MedicalRecordsImagingStudyList:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique identifier for the study.
+          stationNumber:
+            type: string
+            description: VA facility station number where the study was performed.
+          procedureName:
+            type: string
+            description: Name of the radiology procedure.
+          event:
+            type: string
+            description: Type of imaging event (e.g., "COMPUTED TOMOGRAPHY", "DIGITAL RADIOGRAPHY").
+          patientId:
+            type: integer
+            format: int64
+            description: Unique identifier for the patient.
+          studyIdUrn:
+            type: string
+            description: Unique study identifier in URN format.
+          imageCount:
+            type: integer
+            description: Number of images generated by the study.
+          performedDatePrecise:
+            type: integer
+            format: int64
+            description: Timestamp when the procedure was performed (UNIX epoch in milliseconds).
+          performedDateImprecise:
+            type: string
+            nullable: true
+            description: An imprecise date representation of the performed date, if applicable.
+          studyJob:
+            type: object
+            nullable: true
+            description: Associated study job metadata (currently null).
+          performedDateStr:
+            type: string
+            description: Human-readable formatted date string.
+          reportOnly:
+            type: boolean
+            nullable: true
+            description: Indicates whether this is a report-only study.
+          cvixOnly:
+            type: boolean
+            nullable: true
+            description: Indicates whether this study is CVIX-only.
+          reportText:
+            type: string
+            description: The radiology report text including findings, impressions, and diagnostic codes.
+          phrRadiologyId:
+            type: integer
+            description: Unique identifier for the PHR (Personal Health Record) radiology entry.
+      example:
+        - id: 24647611
+          stationNumber: '451'
+          procedureName: CT THORAX W/O CONT
+          event: COMPUTED TOMOGRAPHY
+          patientId: 11382904
+          studyIdUrn: 451-72913365
+          imageCount: 213
+          performedDatePrecise: 1296052104901
+          performedDateImprecise: null
+          studyJob: null
+          performedDateStr: 26 Jan 2011 @ 09<span class="usa-sr-only">:</span>28
+          reportOnly: null
+          cvixOnly: null
+          reportText: |-
+            1^CT THORAX W/O CONT^PATIENTLAST,JOHN
+            Group ID# 72913365...
+          phrRadiologyId: 0
+        - id: 24647612
+          stationNumber: '453'
+          procedureName: KNEE 4 OR MORE VIEWS (LEFT)
+          event: DIGITAL RADIOGRAPHY
+          patientId: 11382904
+          studyIdUrn: 453-2487450
+          imageCount: 4
+          performedDatePrecise: 1712264604902
+          performedDateImprecise: null
+          studyJob: null
+          performedDateStr: 04 Apr 2024 @ 17<span class="usa-sr-only">:</span>03
+          reportOnly: null
+          cvixOnly: null
+          reportText: |-
+            1^KNEE 4 OR MORE VIEWS (LEFT)^PATIENTLAST,JOHN
+            Group ID# 2487450...
+          phrRadiologyId: 0
+        - id: 24647613
+          stationNumber: '453'
+          procedureName: CT THORAX W/CONT
+          event: COMPUTED TOMOGRAPHY
+          patientId: 11382904
+          studyIdUrn: 453-2487448
+          imageCount: 1
+          performedDatePrecise: 1712264064902
+          performedDateImprecise: null
+          studyJob: null
+          performedDateStr: 04 Apr 2024 @ 16<span class="usa-sr-only">:</span>54
+          reportOnly: null
+          cvixOnly: null
+          reportText: |-
+            1^CT THORAX W/CONT^PATIENTLAST,JOHN
+            Group ID# 2487448...
+          phrRadiologyId: 0
+    MedicalRecordsStudyJobStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Current status of the study job (e.g., "NEW", "PROCESSING", "COMPLETE", "ERROR").
+        statusText:
+          type: string
+          description: String representation of percentage complete.
+        studyIdUrn:
+          type: string
+          description: Unique identifier for the study.
+        percentComplete:
+          type: integer
+          nullable: true
+          description: Percentage complete of the study download.
+        fileSize:
+          type: string
+          nullable: true
+          description: Human-readable file size (e.g., "20MB", "1.5GB").
+        fileSizeNumber:
+          type: integer
+          format: int64
+          nullable: true
+          description: Numeric file size in bytes.
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the study job started.
+        endDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the study job ended.
+      example:
+        - status: COMPLETE
+          statusText: '100'
+          studyIdUrn: 5df3a7b7-7ead-45ff-b466-8b29a01ba94d
+          percentComplete: 100
+          fileSize: 253.91 KB
+          fileSizeNumber: 260003
+          startDate: 1734360572036
+          endDate: 1734360578627
+    MedicalRecordsPhrRadiologyList:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique identifier for the radiology record.
+          reasonForStudy:
+            type: string
+            nullable: true
+            description: The reason for conducting the study.
+          radiologist:
+            type: string
+            description: Name of the radiologist.
+          clinicalHistory:
+            type: string
+            nullable: true
+            description: Clinical history related to the radiology procedure.
+          comments:
+            type: string
+            nullable: true
+            description: Additional comments on the study.
+          createdDate:
+            type: string
+            format: date-time
+            description: Timestamp when the record was created (ISO 8601 format).
+          impressionText:
+            type: string
+            nullable: true
+            description: Impression section from the radiology report.
+          inPatientOutPatient:
+            type: string
+            nullable: true
+            description: Indicates whether the patient was an inpatient or outpatient.
+          oplock:
+            type: integer
+            description: Versioning control number for the record.
+          stationNumber:
+            type: string
+            description: Station number where the procedure was performed.
+          patientId:
+            type: integer
+            format: int64
+            description: Unique identifier for the patient.
+          procedureName:
+            type: string
+            description: Name of the radiology procedure performed.
+          status:
+            type: string
+            description: The status of the radiology report (e.g., "Verified").
+          requestingProvider:
+            type: string
+            nullable: true
+            description: Name of the requesting healthcare provider.
+          reportText:
+            type: string
+            description: Full radiology report.
+          performingLocationStNum:
+            type: string
+            nullable: true
+            description: Station number of the performing location.
+          eventDate:
+            type: string
+            format: date-time
+            description: Timestamp of the event date (ISO 8601 format).
+          examDate:
+            type: string
+            format: date-time
+            nullable: true
+            description: Timestamp of the exam date (ISO 8601 format).
+          performingLocation:
+            type: string
+            nullable: true
+            description: Name of the location where the study was performed.
+      example:
+        - id: 5621490
+          reasonForStudy: null
+          radiologist: DOE,JOHN
+          clinicalHistory: this is 71 yr old pt had ab test in the past so he need to have recheck again.
+          comments: null
+          createdDate: '2020-11-13T20:52:28-05:00'
+          impressionText: 1. Osteopenia of the left forearm...
+          inPatientOutPatient: null
+          oplock: 0
+          stationNumber: '994'
+          patientId: 616827
+          procedureName: DEXA, PERIPHERAL STUDY
+          status: Verified
+          requestingProvider: DOE,JANE
+          reportText: '1/6/04  STEWART, EARL H. SR. #404-42-7209...'
+          performingLocationStNum: '994'
+          eventDate: '2004-01-06T19:27:00-05:00'
+          examDate: null
+          performingLocation: DAYT3
+        - id: 5621491
+          reasonForStudy: null
+          radiologist: DOE,JOHN
+          clinicalHistory: Pt with hx of dizzy spells, occ vision problems.
+          comments: null
+          createdDate: '2020-11-13T20:52:28-05:00'
+          impressionText: No hemodynamic changes to suggest significant diameter stenosis.
+          inPatientOutPatient: null
+          oplock: 0
+          stationNumber: '994'
+          patientId: 616827
+          procedureName: CAROTID DOPPLER (BILATERAL)
+          status: Verified
+          requestingProvider: DOE,JANE
+          reportText: CAROTID DOPPLER (REFERENCE VALUES)...
+          performingLocationStNum: '994'
+          eventDate: '2001-02-16T18:16:00-05:00'
+          examDate: null
+          performingLocation: DAYT3
+    MedicalRecordsPatientExtractStatus:
+      type: object
+      properties:
+        patient:
+          type: object
+          description: Patient identifier details.
+          properties:
+            identifier:
+              type: string
+              description: Unique identifier of the patient.
+            assigningFacility:
+              type: string
+              description: The assigning facility for the identifier.
+            assigningAuthority:
+              type: string
+              description: The assigning authority for the identifier.
+            typeCode:
+              type: string
+              description: The type of identifier.
+            icn:
+              type: boolean
+              description: Indicates if the identifier is an ICN.
+        retrievedDate:
+          type: integer
+          format: int64
+          description: Timestamp when the status was retrieved.
+        lastRefreshDate:
+          type: integer
+          format: int64
+          nullable: true
+          description: Timestamp of the last refresh date (null if not refreshed).
+        facilityExtractStatusList:
+          type: array
+          description: List of extract status entries for each facility and data domain.
+          items:
+            type: object
+            properties:
+              icn:
+                type: string
+                description: Patient ICN associated with the extract.
+              stationNumber:
+                type: string
+                description: Facility identifier.
+              extract:
+                type: string
+                description: Type of data (e.g., "Appointments", "Allergy", "ImagingStudy").
+              lastModified:
+                type: integer
+                format: int64
+                description: Timestamp of the last modification of the extract.
+              recordCount:
+                type: integer
+                description: Number of records retrieved in the last extract.
+              lastRequested:
+                type: integer
+                format: int64
+                description: Timestamp of the last extract request.
+              lastCompleted:
+                type: integer
+                format: int64
+                description: Timestamp when the last request was fully processed.
+              loadStatus:
+                type: string
+                enum:
+                  - OK
+                  - ERROR
+                description: Status of the extract process.
+              errorMessage:
+                type: string
+                nullable: true
+                description: Error message if the extract failed.
+              lastSuccessfulCompleted:
+                type: integer
+                format: int64
+                nullable: true
+                description: Timestamp of the last successful extract.
+              upToDate:
+                type: boolean
+                description: Indicates if the extract is current.
+      example:
+        patient:
+          identifier: 1012664643V006744
+          assigningFacility: 200M
+          assigningAuthority: USVHA
+          typeCode: NI
+          icn: true
+        retrievedDate: 1732138027402
+        lastRefreshDate: null
+        facilityExtractStatusList:
+          - icn: 1012664643V006744
+            stationNumber: '0'
+            extract: AppointmentsReminder
+            lastModified: 1587054285453
+            recordCount: 0
+            lastRequested: 1587054283492
+            lastCompleted: 1587054285453
+            loadStatus: OK
+            errorMessage: null
+            lastSuccessfulCompleted: 1587054285453
+            upToDate: true
+          - icn: 1012664643V006744
+            stationNumber: '0'
+            extract: ImagingStudy
+            lastModified: 1732137958411
+            recordCount: 0
+            lastRequested: 1732137957157
+            lastCompleted: 1732137958411
+            loadStatus: ERROR
+            errorMessage: Failed query id 24816394 Error getting Studies with Filter. site Id&#x3a; 991
+            lastSuccessfulCompleted: null
+            upToDate: true
     SecureMessagingFolder:
       type: object
       required:
@@ -1760,6 +2604,9 @@ components:
               type: string
               nullable: true
               example: SMITH, JOHN
+            suggestedNameDisplay:
+              type: string
+              example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
         links:
           type: object
           required:
@@ -1855,6 +2702,8 @@ components:
         - hasAttachment
         - unsentDrafts
         - unreadMessages
+        - isOhMessage
+        - suggestedNameDisplay
       properties:
         threadId:
           type: integer
@@ -1921,6 +2770,12 @@ components:
         unreadMessages:
           type: boolean
           example: true
+        isOhMessage:
+          type: boolean
+          example: false
+        suggestedNameDisplay:
+          type: string
+          example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
     SecureMessageThreadList:
       type: object
       required:
@@ -2187,32 +3042,6 @@ components:
                     - MEDICATIONS
                     - TEST_RESULTS
                     - EDUCATION
-    SecureMessageSignature:
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: object
-          required:
-            - signatureName
-            - includeSignature
-            - signatureTitle
-          properties:
-            signatureName:
-              type: string
-              example: My Signature Name
-            includeSignature:
-              type: boolean
-            signatureTitle:
-              type: string
-              example: My Signature Title
-        errors:
-          type: object
-          example: {}
-        metadata:
-          type: object
-          example: {}
     SecureMessageReplyRequest:
       type: object
       required:
@@ -2273,6 +3102,7 @@ components:
             - draftDate
             - toDate
             - hasAttachments
+            - suggestedNameDisplay
           properties:
             messageId:
               type: integer
@@ -2347,6 +3177,9 @@ components:
             hasAttachments:
               type: boolean
               example: false
+            suggestedNameDisplay:
+              type: string
+              example: Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James
         links:
           type: object
           required:
@@ -2582,7 +3415,7 @@ components:
                   - stationNumber
                   - blockedStatus
                   - preferredTeam
-                  - relationshipType
+                  - relationType
                 properties:
                   triageTeamId:
                     type: integer
@@ -2599,11 +3432,38 @@ components:
                   preferredTeam:
                     type: boolean
                     example: true
-                  relationshipType:
+                  relationType:
                     type: string
                     enum:
                       - PATIENT
                     example: PATIENT
+                  locationName:
+                    type: string
+                    example: Main Hospital
+                  leadProviderName:
+                    type: string
+                    example: Dr. Smith
+                  teamName:
+                    type: string
+                    example: Radiology Team
+                  suggestedNameDisplay:
+                    type: string
+                    example: Radiology Triage Group 1
+                  healthCareSystemName:
+                    type: string
+                    example: VA Health Care System
+                  groupTypeEnumVal:
+                    type: string
+                    example: Primary
+                  subGroupTypeEnumVal:
+                    type: string
+                    example: Secondary
+                  groupTypePatientDisplay:
+                    type: string
+                    example: Primary Care
+                  subGroupTypePatientDisplay:
+                    type: string
+                    example: Specialty Care
         meta:
           type: object
           required:
@@ -2628,6 +3488,9 @@ components:
             associatedBlockedTriageGroups:
               type: integer
               example: 1
+            friendlyTriageTeamPilotFacilities:
+              type: string
+              example: 979,989
     SecureMessagingUpdateTriageTeamRequest:
       type: object
       properties:
@@ -2645,6 +3508,49 @@ components:
               preferred_team:
                 type: boolean
                 description: Indicates if the team is preferred (displayed in contact list if `true`)
+    SecureMessageSignature:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - signatureName
+            - signatureTitle
+            - includeSignature
+          properties:
+            signatureName:
+              type: string
+              example: My Signature Name
+            signatureTitle:
+              type: string
+              example: My Signature Title
+            includeSignature:
+              type: boolean
+              description: Whether or not the signature should be included in messages. If both `signatureName` and `signatureTitle` are present, this defaults to `true`.
+        errors:
+          type: object
+          example: {}
+        metadata:
+          type: object
+          example: {}
+    SecureMessageSignatureUpdateRequest:
+      type: object
+      properties:
+        signatureName:
+          type: string
+          example: Test
+        signatureTitle:
+          type: string
+          example: ''
+        includeSignature:
+          type: boolean
+          example: false
+      required:
+        - signatureName
+        - signatureTitle
+        - includeSignature
     PrescriptionTrackingItem:
       type: object
       properties:

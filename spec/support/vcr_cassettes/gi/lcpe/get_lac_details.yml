@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/lcpe/lacs/1v3"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - 2023-12-31 16:37:38 UTC
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"ff1a729d3cea5d287acb3caa07e7adb2"
+      X-Request-Id:
+      - 18f050a0-c74e-4d37-b200-d81a8fa39eb0
+      X-Runtime:
+      - '0.034054'
+      Server-Timing:
+      - start_processing.action_controller;dur=0.01, sql.active_record;dur=5.35, instantiation.active_record;dur=1.04,
+        render.active_model_serializers;dur=0.48, process_action.action_controller;dur=23.27
+      Content-Length:
+      - '526'
+    body:
+      encoding: UTF-8
+      string: '{"lac":{"enriched_id":"1@f9822","lac_nm":"Gas Fitter","edu_lac_type_nm":"License","state":"AR","tests":[{"name":"Restricted
+        Gas Fitter Examination","fee":"75"}],"institution":{"name":"ARKANSAS DEPARTMENT
+        OF HEALTH","physical_address":{"address_1":"4815 W MARKHAM STREET","address_2":null,"address_3":null,"city":"LITTLE
+        ROCK","state":"AR","zip":"72204","country":"USA"},"mailing_address":{"address_1":"4815
+        W MARKHAM STREET","address_2":null,"address_3":null,"city":"LITTLE ROCK","state":"AR","zip":"72204","country":"USA"}}}}'
+  recorded_at: Tue, 31 Dec 2024 16:37:38 GMT
+recorded_with: VCR 6.3.1

@@ -12,7 +12,7 @@ module V0
       after_action :invalidate_mpi_cache
 
       def initialize_vet360_id
-        response = if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        response = if Flipper.enabled?(:remove_pciu, @current_user)
                      VAProfile::V2::Person::Service.new(@current_user).init_vet360_id
                    else
                      VAProfile::Person::Service.new(@current_user).init_vet360_id

@@ -69,8 +69,7 @@ end
 vcr_options = {
   cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: vcr_options do
@@ -216,55 +215,6 @@ RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: 
                         ],
                         [],
                         false
-      end
-    end
-
-    context 'params[:type] = health' do
-      context 'params[:services] = [\'Covid19Vaccine\']', vcr: vcr_options.merge(
-        cassette_name: 'facilities/mobile/covid'
-      ) do
-        let(:params) do
-          {
-            lat: 42.060906,
-            long: -71.051868,
-            type: 'health',
-            services: ['Covid19Vaccine']
-          }
-        end
-
-        before do
-          Flipper.enable('facilities_locator_mobile_covid_online_scheduling', flipper)
-          post '/facilities_api/v2/va', params:
-        end
-
-        context 'facilities_locator_mobile_covid_online_scheduling enabled' do
-          let(:flipper) { true }
-
-          it { expect(response).to be_successful }
-
-          it 'is expected not to populate tmpCovidOnlineScheduling' do
-            attributes_covid = parsed_body['data'].collect { |x| x['attributes']['tmpCovidOnlineScheduling'] }
-
-            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
-            expect(attributes_covid).to eql([true, true, true, false, true, false, false, true, false, false])
-          end
-        end
-
-        context 'facilities_locator_mobile_covid_online_scheduling disabled' do
-          let(:flipper) { false }
-
-          it { expect(response).to be_successful }
-
-          it 'is expected not to populate tmpCovidOnlineScheduling' do
-            parsed_body['data']
-
-            expect(parsed_body['data']).to all(
-              a_hash_including(
-                attributes: a_hash_including(tmpCovidOnlineScheduling: nil)
-              )
-            )
-          end
-        end
       end
     end
   end

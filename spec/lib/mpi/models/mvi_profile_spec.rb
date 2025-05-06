@@ -73,7 +73,7 @@ describe MPI::Models::MviProfile do
     subject { build(:mpi_profile) }
 
     it 'returns a icn_with_aaid' do
-      expect(subject.icn_with_aaid.present?).to eq true
+      expect(subject.icn_with_aaid.present?).to be true
     end
   end
 end

@@ -54,5 +54,17 @@ describe ClaimsApi::PowerOfAttorneyRequestService::TerminateExistingRequests do
         end
       end
     end
+
+    context 'when there are no requests return or no procIds present' do
+      before do
+        allow_any_instance_of(described_class).to receive(:get_non_obsolete_requests).and_return([{}])
+      end
+
+      it 'does not attempt to update requests' do
+        res = subject.call
+
+        expect(res).to eq([])
+      end
+    end
   end
 end

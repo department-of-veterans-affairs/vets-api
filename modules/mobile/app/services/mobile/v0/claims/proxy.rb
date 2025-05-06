@@ -70,7 +70,7 @@ module Mobile
         end
 
         def cleanup_after_upload
-          (FileUtils.rm_rf(@base_path) if File.exist?(@base_path)) if @base_path
+          FileUtils.rm_rf(@base_path) if @base_path
         end
 
         def get_all_claims
@@ -106,6 +106,12 @@ module Mobile
           document_data = EVSSClaimDocument.new(evss_claim_id: claim_id, file_obj: file, uuid: SecureRandom.uuid,
                                                 file_name: file.original_filename, tracked_item_id:,
                                                 document_type:, password:)
+          Rails.logger.info('claim_id', claim_id:)
+          Rails.logger.info('document_type', document_type:)
+          Rails.logger.info('file_name present?', file&.original_filename.present?)
+          Rails.logger.info('file extension', file&.original_filename&.split('.')&.last)
+          Rails.logger.info('file content type', file&.content_type)
+
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
           evss_claim_service.upload_document(document_data)
@@ -165,7 +171,7 @@ module Mobile
           FileUtils.mkpath @base_path
           Prawn::Document.generate(pdf_path) do |pdf|
             image_list.each do |img|
-              File.open(img_path, 'wb') { |f| f.write Base64.decode64(img) }
+              File.binwrite(img_path, Base64.decode64(img))
               img = MiniMagick::Image.open(img_path)
               if img.height > pdf.bounds.top || img.width > pdf.bounds.right
                 pdf.image img_path, fit: [pdf.bounds.right, pdf.bounds.top]

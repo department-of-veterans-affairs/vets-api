@@ -14,6 +14,8 @@ module MebApi
           STATSD_KEY_PREFIX = 'api.dgi.status'
 
           def get_claim_letter(claimant_id, type = 'toe')
+            type ||= 'toe'
+
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
@@ -29,10 +31,10 @@ module MebApi
 
           def request_headers
             {
-              "Accept": 'application/pdf',
-              "Authorization": "Bearer #{MebApi::AuthenticationTokenService.call}",
-              "Accept-Encoding": 'gzip, deflate, br',
-              "Connection": 'keep-alive'
+              Accept: 'application/pdf',
+              Authorization: "Bearer #{MebApi::AuthenticationTokenService.call}",
+              'Accept-Encoding': 'gzip, deflate, br',
+              Connection: 'keep-alive'
             }
           end
         end

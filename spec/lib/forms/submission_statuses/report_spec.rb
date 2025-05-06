@@ -4,11 +4,12 @@ require 'rails_helper'
 require 'forms/submission_statuses/gateway'
 require 'forms/submission_statuses/report'
 
-describe Forms::SubmissionStatuses::Report do
+describe Forms::SubmissionStatuses::Report, feature: :form_submission,
+                                            team_owner: :vfs_authenticated_experience_backend do
   subject { described_class.new(user_account:, allowed_forms:) }
 
   let(:user_account) { create(:user_account) }
-  let(:allowed_forms) { %w[20-10207 21-0845 21-0966 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
+  let(:allowed_forms) { %w[20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847] }
 
   context 'when user has no submissions' do
     before do
@@ -25,7 +26,7 @@ describe Forms::SubmissionStatuses::Report do
   context 'when user has submissions' do
     before do
       create(:form_submission, :with_form214142, user_account_id: user_account.id)
-      create(:form_submission, :with_form210966, user_account_id: user_account.id)
+      create(:form_submission, :with_form210845, user_account_id: user_account.id)
       create(:form_submission, :with_form_blocked, user_account_id: user_account.id)
     end
 
@@ -35,20 +36,20 @@ describe Forms::SubmissionStatuses::Report do
           [
             [
               {
-                'id' => 'eff61cbc-f379-421d-977e-d7fd1a06bca3',
+                'id' => '4b846069-e496-4f83-8587-42b570f24483',
                 'attributes' => {
                   'detail' => 'detail',
-                  'guid' => 'eff61cbc-f379-421d-977e-d7fd1a06bca3',
+                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
                   'message' => 'message',
                   'status' => 'received',
                   'updated_at' => '2024-03-13T18:51:00.953Z'
                 }
               },
               {
-                'id' => '6d353dee-a0e0-40e3-a25c-9b652247a0d9',
+                'id' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
                 'attributes' => {
                   'detail' => 'detail',
-                  'guid' => '6d353dee-a0e0-40e3-a25c-9b652247a0d9',
+                  'guid' => 'd0c6cea6-9885-4e2f-8e0c-708d5933833a',
                   'message' => 'message',
                   'status' => 'received',
                   'updated_at' => '2024-03-08T19:30:39.939Z'
@@ -78,11 +79,12 @@ describe Forms::SubmissionStatuses::Report do
         result = subject.run
 
         submission_status = result.submission_statuses.first
-        expect(submission_status.id).to eq('6d353dee-a0e0-40e3-a25c-9b652247a0d9')
+        expect(submission_status.id).to eq('d0c6cea6-9885-4e2f-8e0c-708d5933833a')
         expect(submission_status.detail).to eq('detail')
-        expect(submission_status.form_type).to eq('21-0966')
+        expect(submission_status.form_type).to eq('21-0845')
         expect(submission_status.message).to eq('message')
         expect(submission_status.status).to eq('received')
+        expect(submission_status.pdf_support).to be(true)
       end
     end
 
@@ -101,11 +103,12 @@ describe Forms::SubmissionStatuses::Report do
         result = subject.run
 
         submission_status = result.submission_statuses.first
-        expect(submission_status.id).to eq('eff61cbc-f379-421d-977e-d7fd1a06bca3')
+        expect(submission_status.id).to eq('4b846069-e496-4f83-8587-42b570f24483')
         expect(submission_status.detail).to be_nil
         expect(submission_status.form_type).to eq('21-4142')
         expect(submission_status.message).to be_nil
         expect(submission_status.status).to be_nil
+        expect(submission_status.pdf_support).to be(true)
       end
     end
 
@@ -115,10 +118,10 @@ describe Forms::SubmissionStatuses::Report do
           [
             [
               {
-                'id' => 'eff61cbc-f379-421d-977e-d7fd1a06bca3',
+                'id' => '4b846069-e496-4f83-8587-42b570f24483',
                 'attributes' => {
                   'detail' => 'detail',
-                  'guid' => 'eff61cbc-f379-421d-977e-d7fd1a06bca3',
+                  'guid' => '4b846069-e496-4f83-8587-42b570f24483',
                   'message' => 'message',
                   'updated_at' => '2024-03-13T18:51:00.953Z',
                   'status' => 'received'

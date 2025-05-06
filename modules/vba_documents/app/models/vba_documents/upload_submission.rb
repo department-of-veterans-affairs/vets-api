@@ -10,6 +10,9 @@ module VBADocuments
     include SetGuid
     include SentryLogging
     include Webhooks
+
+    attribute :s3_deleted, default: false
+
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?
     before_save :clear_resolved_error
@@ -135,6 +138,17 @@ module VBADocuments
     # base64_encoded metadata field was added in late 2022; recommend only using for records submitted 2023 or later
     def base64_encoded?
       metadata['base64_encoded'] || false
+    end
+
+    def in_final_status?
+      # TODO: Improve true/false classification for submissions in "error" status
+      #       Non-recoverable errors should return true and recoverable errors false
+      return true if status == 'vbms' ||
+                     status == 'expired' ||
+                     (status == 'success' && metadata[FINAL_SUCCESS_STATUS_KEY].present?) ||
+                     (status == 'error' && code.start_with?('DOC1')) # non-upstream errors only
+
+      false
     end
 
     def track_uploaded_received(cause_key, cause)

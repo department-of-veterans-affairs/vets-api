@@ -369,8 +369,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
         The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
       DESC
-      parameter name: 'nod_uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
-        schema { key :'$ref', :uuid }
+      parameter name: 'nod_uuid', in: 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
+        schema { key :$ref, :uuid }
       end
 
       response 202 do
@@ -583,7 +583,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
             property :Message do
               key :type, :string
               key :description, 'Error detail'
-              key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -'\
+              key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -' \
                             'The Content-MD5 you specified was invalid.'
             end
 
@@ -609,8 +609,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'getNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Shows a specific Notice of Disagreement Evidence Submission.'
       key :description, 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.'
-      parameter name: 'uuid', 'in': 'path', required: true do
-        schema { key :'$ref', :uuid }
+      parameter name: 'uuid', in: 'path', required: true do
+        schema { key :$ref, :uuid }
         key :description, 'Notice of Disagreement UUID Evidence Submission'
       end
 
@@ -623,7 +623,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
             property :data do
               property :id do
-                key :'$ref', :uuid
+                key :$ref, :uuid
               end
 
               property :type do
@@ -634,7 +634,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               property :status do
                 key :type, :string
                 key :description, 'evidenceSubmissionStatus'
-                key :'$ref', '#/components/schemas/evidenceSubmissionStatus'
+                key :$ref, '#/components/schemas/evidenceSubmissionStatus'
               end
             end
           end

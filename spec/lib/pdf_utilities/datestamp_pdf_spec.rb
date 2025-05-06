@@ -10,15 +10,12 @@ RSpec.describe PDFUtilities::DatestampPdf do
       Prawn::Document.generate(@file_path, margin: [0, 0]) do |pdf|
         5.times { pdf.start_new_page }
       end
+      allow(Logging::Monitor).to receive(:new).and_return(logging_monitor_double)
     end
 
-    let(:opt) do
-      { append_to_stamp: 'Confirmation=VETS-XX-1234' }
-    end
-
-    let(:instance) do
-      described_class.new(@file_path, **opt)
-    end
+    let(:opt) { { append_to_stamp: 'Confirmation=VETS-XX-1234' } }
+    let(:instance) { described_class.new(@file_path, **opt) }
+    let(:logging_monitor_double) { instance_double(Logging::Monitor, track_request: true) }
 
     after do
       Common::FileHelpers.delete_file_if_exists(@file_path)
@@ -88,26 +85,55 @@ RSpec.describe PDFUtilities::DatestampPdf do
     end
 
     describe 'error handling' do
+      subject(:run) { instance.run(text: 'Received via vets.gov at', x: 10, y: 10) }
+
       let(:error_message) { 'bad news bears' }
 
       context 'when an error occurs in #generate_stamp' do
-        it 'logs and reraise the error and not call stamp' do
+        before do
           allow(Prawn::Document).to receive(:generate).and_raise(error_message)
-          expect(Rails.logger).to receive(:error).once.with("Failed to generate datestamp file: #{error_message}")
+        end
+
+        it 'logs and reraise the error and not call stamp' do
+          expect(logging_monitor_double).to receive(:track_request).at_least(:once).with(
+            :error,
+            /Failed to generate/,
+            'api.datestamp_pdf.error',
+            hash_including(exception: /bad news bears/)
+          )
           expect(instance).not_to receive(:stamp_pdf)
-          expect do
-            instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          end.to raise_error(StandardError, error_message)
+          expect { run }.to raise_error(RuntimeError, /bad news bears/)
         end
       end
 
       context 'when an error occurs in #stamp' do
+        subject(:run) { instance.run(text: 'Received via vets.gov at', x: 10, y: 10) }
+
+        before { allow(PDFUtilities::PDFTK).to receive(:stamp).and_raise(error_message) }
+
         it 'logs and reraise the error and clean up after itself' do
-          allow(PDFUtilities::PDFTK).to receive(:stamp).and_raise(error_message)
           expect(File).to receive(:delete).twice.and_call_original
-          expect do
-            instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          end.to raise_error(StandardError, error_message)
+          expect { run }.to raise_error(RuntimeError, /bad news bears/)
+        end
+      end
+
+      context 'when the file does not exist' do
+        subject(:instance) { described_class.new(stamped_template_path) }
+
+        let(:stamped_template_path) { 'nonexistent.pdf' }
+
+        it 'raises a PdfMissingError' do
+          expect { instance }.to raise_error(PDFUtilities::PdfMissingError, /Original PDF is missing/)
+        end
+      end
+
+      context 'when the template does not exist' do
+        subject(:run) { instance.run(text: 'Received via vets.gov', template:, page_number: 1) }
+
+        let(:template) { './nonexistent_template.pdf' }
+
+        it 'raises a StampGenerationError during stamp generation' do
+          expect { run }.to raise_error(PDFUtilities::StampGenerationError, /Template PDF missing/)
         end
       end
     end

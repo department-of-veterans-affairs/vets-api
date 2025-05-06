@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA210972
-    include Virtus.model(nullify_blank: true)
+  class VBA210972 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_0972'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def metadata
       {
@@ -21,6 +14,14 @@ module SimpleFormsApi
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def notification_first_name
+      data.dig('preparer_full_name', 'first')
+    end
+
+    def notification_email_address
+      data['preparer_email']
     end
 
     def zip_code_is_us_based

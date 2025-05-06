@@ -32,7 +32,7 @@ module VBADocuments
                                             detail: 'Incorrect content-type for document part')
       end
       regex = /\A#{META_PART_NAME}|#{DOC_PART_NAME}|attachment\d+\z/
-      invalid_parts = parts.keys.reject { |key| regex.match?(key) }
+      invalid_parts = parts.keys.grep_v(regex)
       log_invalid_parts(model, invalid_parts) if invalid_parts.any?
     end
 
@@ -52,7 +52,7 @@ module VBADocuments
       if rejected.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
       end
-      if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
+      if (FILE_NUMBER_REGEX =~ metadata['fileNumber'].strip).nil?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
@@ -76,6 +76,8 @@ module VBADocuments
 
     def perfect_metadata(model, parts, timestamp)
       metadata = JSON.parse(parts['metadata'])
+      metadata['ICN'] = model.metadata['icn'] if model.metadata['icn'].present?
+      metadata['fileNumber'] = metadata['fileNumber'].strip
       metadata['source'] = "#{model.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = model.guid
@@ -90,6 +92,17 @@ module VBADocuments
       metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
       metadata['businessLine'] = AppealsApi::LineOfBusiness.new(model).value if model.appeals_consumer?
       metadata
+    end
+
+    def read_original_metadata_file_number(parts)
+      return unless parts.key?(META_PART_NAME) && parts[META_PART_NAME].is_a?(String)
+
+      metadata = JSON.parse(parts[META_PART_NAME])
+      return unless metadata.is_a?(Hash) && metadata.key?('fileNumber')
+
+      return if (FILE_NUMBER_REGEX =~ metadata['fileNumber'].strip).nil?
+
+      metadata['fileNumber'].strip
     end
 
     private
@@ -168,11 +181,11 @@ module VBADocuments
     end
 
     def log_invalid_parts(model, invalid_parts)
-      message = "VBADocuments Invalid Part Uploaded\t"\
-                "GUID: #{model.guid}\t"\
-                "Uploaded Time: #{model.created_at}\t"\
-                "Consumer Name: #{model.consumer_name}\t"\
-                "Consumer Id: #{model.consumer_id}\t"\
+      message = "VBADocuments Invalid Part Uploaded\t" \
+                "GUID: #{model.guid}\t" \
+                "Uploaded Time: #{model.created_at}\t" \
+                "Consumer Name: #{model.consumer_name}\t" \
+                "Consumer Id: #{model.consumer_id}\t" \
                 "Invalid parts: #{invalid_parts}\t"
       Rails.logger.warn(message)
       model.metadata['invalid_parts'] = invalid_parts

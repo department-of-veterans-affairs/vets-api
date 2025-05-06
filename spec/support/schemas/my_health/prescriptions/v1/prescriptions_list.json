@@ -19,6 +19,16 @@
         "failed_station_list": { "type": "string" },
         "sort": {
           "type": "object"
+        },
+        "filter_count": { 
+          "type": "object",
+          "properties": {
+            "active": { "type":"integer"},
+            "all_medications": { "type":"integer"},
+            "recently_requested": { "type":"integer"},
+            "non_active": { "type":"integer"},
+            "renewal": { "type":"integer"}
+          }
         }
       }
     }

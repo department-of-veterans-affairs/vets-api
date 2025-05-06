@@ -130,6 +130,19 @@ RSpec.describe 'AppsApi::V0::Directory', type: :request do
       end
     end
 
+    it 'returns a unique display name for health' do
+      VCR.use_cassette('okta/duplicate_displayname', match_requests_on: %i[method path]) do
+        get '/services/apps/v0/directory/scopes/Health'
+        body = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(body).not_to be_empty
+
+        display_names = body['data'].pluck('displayName')
+        expect(display_names).to eq(display_names.uniq)
+        expect(display_names).to include('Patient ID')
+      end
+    end
+
     it 'returns a populated list of benefits scopes' do
       VCR.use_cassette('okta/benefits-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/benefits'

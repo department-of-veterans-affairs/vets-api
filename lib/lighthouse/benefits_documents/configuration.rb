@@ -11,7 +11,7 @@ module BenefitsDocuments
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 20
+    self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 65
 
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
@@ -120,7 +120,7 @@ module BenefitsDocuments
     #
     def connection(api_path = base_api_path)
       @conn ||= Faraday.new(api_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
+        faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 
         faraday.request :multipart

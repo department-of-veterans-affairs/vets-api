@@ -490,6 +490,11 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      SM154:
+        <<: *validation_errors
+        code: 'SM154'
+        detail: 'Email Signature Name and Title is required'
+        status: 400
       SM172:
         <<: *external_defaults
         code: 'SM172'
@@ -960,6 +965,42 @@ en:
         code: IAM_SSOE_502
         detail: Received an an invalid response from the upstream server
         status: 502
+      SHAREPOINT_PDF_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: SHAREPOINT_PDF_400
+        detail: Malformed PDF request to SharePoint
+        status: 400
+      SHAREPOINT_PDF_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: SHAREPOINT_PDF_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      SHAREPOINT_PDF_UNKNOWN:
+        <<: *external_defaults
+        title: Unexpected SharePoint Error
+        code: SHAREPOINT_PDF_UNKNOWN
+        detail: An unexpected error occurred while communicating with SharePoint
+        status: 500
+      SHAREPOINT_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: SHAREPOINT_400
+        detail: Malformed request to SharePoint
+        status: 400
+      SHAREPOINT_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: SHAREPOINT_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      SHAREPOINT_UNKNOWN:
+        <<: *external_defaults
+        title: Unexpected SharePoint Error
+        code: SHAREPOINT_UNKNOWN
+        detail: An unexpected error occurred while communicating with SharePoint
+        status: 500
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -2165,15 +2206,15 @@ en:
         status: 400
       DR_500:
         <<: *defaults
-        title: Bad Gateway
+        title: Internal server error
         code: DR_500
-        detail: Received an an invalid response from the upstream server
-        status: 502
+        detail: Received an invalid response from the upstream server
+        status: 500
       DR_502:
         <<: *defaults
         title: Bad Gateway
         code: DR_502
-        detail: Received an an invalid response from the upstream server
+        detail: Received an invalid response from the upstream server
         status: 502
       DR_503:
         <<: *defaults
@@ -2247,13 +2288,6 @@ en:
         <<: *defaults
         code: LH_gateway_timeout
         status: 504
-    benefits_education:
-      outside_working_hours:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'Lighthouse GI Bill Status is not available outside of working hours'
-        code: 114
-        status: 503
   evss:
     external_service_unavailable:
       <<: *defaults
@@ -2395,6 +2429,12 @@ en:
         detail: The upstream server returned an error code that is unmapped
         code: unmapped_service_exception
         status: 400
+      MDOT_internal_server_error:
+        <<: *defaults
+        title: Internal Server Error
+        detail: The system of record was unable to process this request.
+        code: MDOT_internal_server_error
+        status: 500
       MDOT_502:
         <<: *defaults
         title: Bad Gateway
@@ -2413,6 +2453,12 @@ en:
         detail: The request was malformed and could not be processed
         code: MDOT_malformed_request
         status: 400
+      MDOT_unauthorized:
+        <<: *defaults
+        title: Unauthorized
+        detail: We could not authenticate your credentials for this resource
+        code: MDOT_unauthorized
+        status: 401
       MDOT_forbidden:
         <<: *defaults
         title: Forbidden

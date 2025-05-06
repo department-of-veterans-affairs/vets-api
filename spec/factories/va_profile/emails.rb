@@ -10,7 +10,8 @@ FactoryBot.define do
     vet360_id { '12345' }
 
     trait :contact_info_v2 do
-      source_date { '2024-08-27T18:51:06.012Z' }
+      source_date { '2024-08-27T18:51:06.000Z' }
+      effective_start_date { '2024-08-27T18:51:06.000Z' }
     end
   end
 end

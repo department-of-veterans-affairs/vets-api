@@ -2,16 +2,16 @@ inherit_from:
   - .rubocop_explicit_enables.yml
   - .rubocop_todo.yml
 
-# in rakelib/lint.rake we require rubocop-thread_safety for the CI env only,
-# because codeclimate does not support rubocop-thread_safety
 require:
+  - './lib/rubocop/cops/ams_serializer.rb'
+
+plugins:
   - rubocop-rails
   - rubocop-rspec
   - rubocop-capybara
   - rubocop-factory_bot
   - rubocop-rspec_rails
   - rubocop-thread_safety
-  - './lib/rubocop/cops/ams_serializer.rb'
 
 
 AllCops:
@@ -26,8 +26,10 @@ AllCops:
     - '**/*.rb'
   Exclude:
     - db/schema.rb
+    - db/audit_schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
+    - db/audit_migrate/*.rb
     - 'vendor/**/*'
     - modules/**/db/migrate/*.rb
     - 'tmp/**/*'
@@ -41,6 +43,9 @@ Style/ClassAndModuleChildren:
 Style/GlobalVars:
   AllowedVariables:
     - $redis
+
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
 
 # Bug in 1.11.0
 RSpec/VariableName:
@@ -189,7 +194,6 @@ RSpec/SpecFilePathFormat:
     - 'spec/lib/sm/client/message_drafts_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
     - 'spec/lib/mail_automation/integration/client_spec.rb'
-    - 'spec/lib/virtual_regional_office/integration/client_spec.rb'
     - 'spec/rakelib/piilog_repl/piilog_helpers_spec.rb'
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
@@ -331,6 +335,7 @@ RSpec/ScatteredLet:
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
+    - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/requests/health_care_applications_request_spec.rb'
     - 'spec/requests/health_records_request_spec.rb'
     - 'spec/requests/http_method_not_allowed_spec.rb'

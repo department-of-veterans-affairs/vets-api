@@ -8,7 +8,7 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
       from = 1.month.ago
       to = Time.zone.now
 
-      claim = create(:auto_established_claim, :status_established)
+      claim = create(:auto_established_claim, :established)
       ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT', consumer_label: 'Consumer name here'
 
       described_class.build(
@@ -28,13 +28,15 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to eq(
         %w[
-          alex.wilson@oddball.io
+          drew.fisher@adhocteam.us
           emily.goodrich@oddball.io
           jennica.stiehl@oddball.io
           kayla.watanabe@adhocteam.us
           matthew.christianson@adhocteam.us
           rockwell.rice@oddball.io
           tyler.coleman@oddball.io
+          Janet.Coutinho@va.gov
+          Michael.Harlow@va.gov
         ]
       )
     end

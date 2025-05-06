@@ -5,8 +5,7 @@ require 'rails_helper'
 vcr_options = {
   cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vcr_options do
@@ -223,6 +222,24 @@ RSpec.describe FacilitiesApi::V2::Lighthouse::Client, team: :facilities, vcr: vc
       r = facilities_client.get_facilities({ taco: true })
       expect(r.length).to be 10
       expect(r[0]).to be_a(FacilitiesApi::V2::Lighthouse::Facility)
+    end
+  end
+
+  describe '#get_paginated_facilities' do
+    it 'returns full facilities response object for request' do
+      meta = {
+        'pagination' => {
+          'currentPage' => 1,
+          'perPage' => 10,
+          'totalPages' => 1,
+          'totalEntries' => 9
+        }
+      }
+
+      r = facilities_client.get_paginated_facilities(params)
+      expect(r).to be_a(FacilitiesApi::V2::Lighthouse::Response)
+      expect(r.facilities).to be_an(Array)
+      expect(r.meta).to eq meta
     end
   end
 end

@@ -11,10 +11,19 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     )
   end
 
+  let(:headers) do
+    {
+      'ACCEPT' => 'application/json',
+      'CONTENT_TYPE' => 'application/json',
+      'HTTP_X_KEY_INFLECTION' => 'camel'
+    }
+  end
+
   describe 'GET rating_info' do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(false)
       sign_in_as(current_user)
     end
 
@@ -26,6 +35,22 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       expect(JSON.parse(response.body)['data']['attributes']).to eq(
         { 'user_percent_of_disability' => 100 }
       )
+    end
+
+    context 'hca_disable_bgs_service enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(true)
+      end
+
+      it 'does not call the BGS Service and returns the rating info as 0' do
+        expect_any_instance_of(BGS::Service).not_to receive(:find_rating_data)
+
+        get(rating_info_v0_health_care_applications_path)
+
+        expect(JSON.parse(response.body)['data']['attributes']).to eq(
+          { 'user_percent_of_disability' => 0 }
+        )
+      end
     end
 
     context 'User not found' do
@@ -142,8 +167,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'returns 404' do
-          get(enrollment_status_v0_health_care_applications_path,
-              params: { userAttributes: build(:health_care_application).parsed_form })
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form }
+          )
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -154,8 +181,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             current_user.icn, true
           ).and_return(success_response)
 
-          get(enrollment_status_v0_health_care_applications_path,
-              params: { userAttributes: build(:health_care_application).parsed_form })
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form }
+          )
 
           expect(response.body).to eq(success_response.to_json)
         end
@@ -209,66 +238,51 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'GET facilities' do
-    it 'responds with facilities data' do
-      StdInstitutionFacility.create(station_number: '042')
+    it 'triggers HCA::StdInstitutionImportJob when the HealthFacility table is empty' do
+      HealthFacility.delete_all
 
-      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-      end
-      expect(response).to have_http_status(:ok)
-      expect(response.parsed_body[0]).to eq({ 'access' => nil,
-                                              'active_status' => nil,
-                                              'address' => {
-                                                'mailing' => { 'zip' => '66713', 'city' => 'Leavenworth',
-                                                               'state' => 'KS', 'address1' => '150 Muncie Rd' },
-                                                'physical' => { 'zip' => '66713', 'city' => 'Baxter Springs',
-                                                                'state' => 'KS',
-                                                                'address1' => 'Baxter Springs City Cemetery' }
-                                              },
-                                              'classification' => 'Soldiers Lot',
-                                              'detailed_services' => nil,
-                                              'distance' => nil,
-                                              'facility_type' => 'va_cemetery',
-                                              'facility_type_prefix' => 'nca',
-                                              'feedback' => nil,
-                                              'hours' =>
-                                               { 'monday' => 'Sunrise - Sundown',
-                                                 'tuesday' => 'Sunrise - Sundown',
-                                                 'wednesday' => 'Sunrise - Sundown',
-                                                 'thursday' => 'Sunrise - Sundown',
-                                                 'friday' => 'Sunrise - Sundown',
-                                                 'saturday' => 'Sunrise - Sundown',
-                                                 'sunday' => 'Sunrise - Sundown' },
-                                              'id' => 'nca_042',
-                                              'lat' => 37.0320575,
-                                              'long' => -94.7706605,
-                                              'mobile' => nil,
-                                              'name' => "Baxter Springs City Soldiers' Lot",
-                                              'operating_status' => { 'code' => 'NORMAL' },
-                                              'operational_hours_special_instructions' => nil,
-                                              'parent' => nil,
-                                              'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
-                                              'services' => nil,
-                                              'type' => 'va_facilities',
-                                              'unique_id' => '042',
-                                              'visn' => nil,
-                                              'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+      import_job = instance_double(HCA::StdInstitutionImportJob)
+      expect(HCA::StdInstitutionImportJob).to receive(:new).and_return(import_job)
+      expect(import_job).to receive(:perform)
+
+      get(facilities_v0_health_care_applications_path(state: 'OH'))
     end
 
-    it 'filters out facilities not yet supported downstream' do
-      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
-      end
+    it 'does not trigger HCA::StdInstitutionImportJob when HealthFacility table is populated' do
+      create(:health_facility, name: 'Test Facility', station_number: '123', postal_name: 'OH')
+      expect(HCA::StdInstitutionImportJob).not_to receive(:new)
+
+      get(facilities_v0_health_care_applications_path(state: 'OH'))
+    end
+
+    it 'responds with serialized facilities data for supported facilities' do
+      mock_facilities = [
+        { name: 'My VA Facility', station_number: '123', postal_name: 'OH' },
+        { name: 'A VA Facility', station_number: '222', postal_name: 'OH' },
+        { name: 'My Other VA Facility', station_number: '231', postal_name: 'NH' }
+      ]
+      mock_facilities.each { |attrs| create(:health_facility, attrs) }
+
+      get(facilities_v0_health_care_applications_path(state: 'OH'))
+
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body[0]).to be_nil
+      expect(response.parsed_body).to contain_exactly({
+                                                        'id' => mock_facilities[0][:station_number],
+                                                        'name' => mock_facilities[0][:name]
+                                                      }, {
+                                                        'id' => mock_facilities[1][:station_number],
+                                                        'name' => mock_facilities[1][:name]
+                                                      })
     end
   end
 
   describe 'POST create' do
     subject do
-      post(v0_health_care_applications_path,
-           params: params.to_json,
-           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
+      post(
+        v0_health_care_applications_path,
+        params: params.to_json,
+        headers:
+      )
     end
 
     context 'with invalid params' do
@@ -290,7 +304,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
           )
-        ).to eq(true)
+        ).to be(true)
       end
     end
 
@@ -306,37 +320,39 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           subject
           body = JSON.parse(response.body)
           expect(body).to eq(
-            'data' =>
-           { 'id' => HealthCareApplication.last.id.to_s,
-             'type' => 'health_care_applications',
-             'attributes' =>
-             { 'state' => 'pending', 'formSubmissionId' => nil, 'timestamp' => nil } }
+            'data' => {
+              'id' => HealthCareApplication.last.id.to_s,
+              'type' => 'health_care_applications',
+              'attributes' => {
+                'state' => 'pending',
+                'formSubmissionId' => nil,
+                'timestamp' => nil
+              }
+            }
           )
         end
       end
 
       context 'anonymously' do
         let(:body) do
-          { 'formSubmissionId' => 436_426_165,
+          {
+            'formSubmissionId' => 436_426_165,
             'timestamp' => '2024-08-20T12:08:06.729-05:00',
-            'success' => true }
+            'success' => true
+          }
         end
 
         context 'with an email set' do
+          before do
+            expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+          end
+
           expect_async_submit
         end
 
         context 'with no email set' do
           before do
             test_veteran.delete('email')
-          end
-
-          context 'with async_all set' do
-            before do
-              params[:async_all] = true
-            end
-
-            expect_async_submit
           end
 
           it 'increments statsd' do
@@ -354,6 +370,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           end
 
           it 'renders success', run_at: '2017-01-31' do
+            expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
             VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
               subject
               expect(JSON.parse(response.body)).to eq(body)
@@ -365,9 +382,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
         let(:body) do
-          { 'formSubmissionId' => 436_426_340,
+          {
+            'formSubmissionId' => 436_426_340,
             'timestamp' => '2024-08-20T12:26:48.275-05:00',
-            'success' => true }
+            'success' => true
+          }
         end
 
         before do
@@ -410,6 +429,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'raises an invalid field value error' do
+          expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -418,51 +438,123 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       end
 
       context 'when hca service raises an error' do
-        before do
-          test_veteran.delete('email')
-          allow_any_instance_of(HCA::Service).to receive(:post) do
-            raise error
-          end
-        end
-
-        context 'with a validation error' do
-          let(:error) { HCA::SOAPParser::ValidationError.new }
-
-          it 'renders error message' do
-            subject
-
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(JSON.parse(response.body)).to eq(
-              'errors' => [
-                { 'title' => 'Operation failed', 'detail' => 'Validation error', 'code' => 'HCA422', 'status' => '422' }
-              ]
-            )
-          end
-        end
-
-        context 'with a SOAP error' do
-          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
+        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is enabled" do
           before do
-            allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+            test_veteran.delete('email')
+            allow_any_instance_of(HCA::Service).to receive(:submit_form) do
+              raise error
+            end
           end
 
-          it 'renders error message' do
-            expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+          context 'with a validation error' do
+            let(:error) { HCA::SOAPParser::ValidationError.new }
 
-            subject
+            it 'renders error message' do
+              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
-            expect(response).to have_http_status(:bad_request)
-            expect(JSON.parse(response.body)).to eq(
-              'errors' => [
-                { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
-              ]
-            )
+              subject
+
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'Validation error',
+                    'code' => 'HCA422',
+                    'status' => '422'
+                  }
+                ]
+              )
+            end
+          end
+
+          context 'with a SOAP error' do
+            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
+            before do
+              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+            end
+
+            it 'renders error message' do
+              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+              expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
+
+              subject
+
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'error message',
+                    'code' => 'VA900',
+                    'status' => '400'
+                  }
+                ]
+              )
+            end
+          end
+        end
+
+        context "when the 'va1010_forms_enrollment_system_service_enabled' flipper is disabled" do
+          before do
+            Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
+            test_veteran.delete('email')
+            allow(HealthCareApplication).to receive(:user_icn).and_return('123')
+            allow_any_instance_of(HCA::Service).to receive(:post) do
+              raise error
+            end
+          end
+
+          context 'with a validation error' do
+            let(:error) { HCA::SOAPParser::ValidationError.new }
+
+            it 'renders error message' do
+              subject
+
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'Validation error',
+                    'code' => 'HCA422',
+                    'status' => '422'
+                  }
+                ]
+              )
+            end
+          end
+
+          context 'with a SOAP error' do
+            let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
+            before do
+              allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+            end
+
+            it 'renders error message' do
+              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+
+              subject
+
+              expect(response).to have_http_status(:bad_request)
+              expect(JSON.parse(response.body)).to eq(
+                'errors' => [
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'error message',
+                    'code' => 'VA900',
+                    'status' => '400'
+                  }
+                ]
+              )
+            end
           end
         end
       end
 
-      context 'with hca_use_facilities_API enabled' do
+      context 'with an arbitrary medical facility ID' do
         let(:current_user) { create(:user) }
         let(:params) do
           test_veteran['vaMedicalFacility'] = '000'
@@ -480,8 +572,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
         before do
           sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-          Flipper.enable(:hca_use_facilities_API, current_user)
         end
 
         it 'does not error on vaMedicalFacility validation' do
@@ -491,28 +581,67 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
         end
       end
+    end
+  end
 
-      context 'with hca_use_facilities_API disabled' do
-        let(:current_user) { create(:user) }
-        let(:params) do
-          test_veteran['vaMedicalFacility'] = '000'
-          {
-            form: test_veteran.to_json
-          }
-        end
+  describe 'POST /v0/health_care_applications/download_pdf' do
+    subject do
+      post('/v0/health_care_applications/download_pdf', params: body, headers:)
+    end
 
-        before do
-          sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-        end
+    let(:endpoint) { '/v0/health_care_applications/download_pdf' }
+    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_from_response.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
 
-        it 'errors on vaMedicalFacility validation' do
-          subject
+    let!(:form_data) { get_fixture('pdf_fill/10-10EZ/simple').to_json }
+    let!(:health_care_application) { build(:health_care_application, form: form_data) }
+    let(:body) { { form: form_data, asyncCompatible: true }.to_json }
 
-          expect(JSON.parse(response.body)['errors']).not_to be_blank
-          expect(JSON.parse(response.body)['errors'].first['title']).to include('"000" did not match')
-        end
-      end
+    before do
+      allow(SecureRandom).to receive(:uuid).and_return('saved-claim-guid', 'file-name-uuid')
+      allow(HealthCareApplication).to receive(:new)
+        .with(hash_including('form' => form_data))
+        .and_return(health_care_application)
+    end
+
+    after do
+      FileUtils.rm_f(response_pdf)
+    end
+
+    it 'returns a completed PDF' do
+      subject
+
+      expect(response).to have_http_status(:ok)
+
+      veteran_full_name = health_care_application.parsed_form['veteranFullName']
+      expected_filename = "10-10EZ_#{veteran_full_name['first']}_#{veteran_full_name['last']}.pdf"
+
+      expect(response.headers['Content-Disposition']).to include("filename=\"#{expected_filename}\"")
+      expect(response.content_type).to eq('application/pdf')
+      expect(response.body).to start_with('%PDF')
+    end
+
+    it 'ensures the tmp file is deleted when send_data fails' do
+      allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
+
+      subject
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(
+        File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
+      ).to be(false)
+    end
+
+    it 'ensures the tmp file is deleted when fill_form fails after retries' do
+      expect(PdfFill::Filler).to receive(:fill_form).exactly(3).times.and_raise(StandardError, 'error filling form')
+
+      subject
+
+      expect(response).to have_http_status(:internal_server_error)
+
+      expect(
+        File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
+      ).to be(false)
     end
   end
 end

@@ -32,7 +32,7 @@ module Form1010cg
     end
 
     def size_range
-      1.byte...10.megabytes
+      (1.byte)...(10.megabytes)
     end
   end
 end

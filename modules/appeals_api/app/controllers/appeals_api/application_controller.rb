@@ -7,7 +7,6 @@ module AppealsApi
     skip_after_action :set_csrf_header
     before_action :deactivate_endpoint
     before_action :set_default_headers
-    before_action :require_gateway_origin
 
     def render_response(response)
       render json: response.body, status: response.status
@@ -36,17 +35,11 @@ module AppealsApi
 
     DEFAULT_HEADERS = { 'Content-Language' => 'en-US' }.freeze
 
-    def require_gateway_origin
-      raise Common::Exceptions::Unauthorized if Rails.env.production? \
-        && (request.headers['X-Consumer-ID'].blank? || request.headers['X-Consumer-Username'].blank?) \
-        && Flipper.enabled?(:benefits_require_gateway_origin)
-    end
-
     def set_default_headers
       DEFAULT_HEADERS.each { |k, v| response.headers[k] = v }
     end
 
-    def set_tags_and_extra_context
+    def set_sentry_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'appeals_api' }
       Sentry.set_tags(source: 'appeals_api')
     end

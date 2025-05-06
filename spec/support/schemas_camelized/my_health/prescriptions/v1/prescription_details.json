@@ -176,7 +176,136 @@
         "tracking": { "type": ["boolean", "null"] },
         "orderableItem": { "type": ["string", "null"] },
         "sortedDispensedDate": { "type": ["string", "null"], "format": "date" },
-        "prescriptionImage": { "type": ["string", "null"] }
+        "prescriptionImage": { "type": ["string", "null"] },
+        "groupedMedications": {
+          "type": ["array", "null"],
+          "properties": {
+            "prescriptionId": { "type": ["integer", "null"] },
+            "prescriptionNumber": { "type": ["string", "null"] },
+            "prescriptionName": { "type": ["string", "null"] },
+            "refillStatus": { "type": ["string", "null"] },
+            "refillSubmitDate": { "type": ["string", "null"], "format": "date" },
+            "refillDate": { "type": ["string", "null"], "format": "date" },
+            "refillRemaining": { "type": ["integer", "null"] },
+            "facilityName": { "type": ["string", "null"] },
+            "orderedDate": { "type": ["string", "null"], "format": "date" },
+            "quantity": { "type": ["integer", "null"]  },
+            "expirationDate": { "type": ["string", "null"], "format": "date" },
+            "dispensedDate": { "type": ["string", "null"], "format": "date" },
+            "stationNumber": { "type": ["string", "null"] },
+            "isRefillable": { "type": ["boolean", "null"] },
+            "isTrackable": { "type": ["boolean", "null"] },
+            "sig": { "type": ["string", "null"] },
+            "cmopDivisionPhone": { "type": ["string", "null"] },
+            "inCernerTransition": { "type": ["boolean", "null"] },
+            "notRefillableDisplayMessage": { "type": ["string", "null"] },
+            "cmopNdcNumber": { "type": ["string", "null"] },
+            "userId": { "type": ["integer", "null"] },
+            "providerFirstName": { "type": ["string", "null"] },
+            "providerLastName": { "type": ["string", "null"]},
+            "remarks": { "type": ["string", "null"] },
+            "divisionName": { "type": ["string", "null"] },
+            "modifiedDate": { "type": ["string", "null"], "format": "date" },
+            "institutionId": { "type": ["string", "null"] },
+            "dialCmopDivisionPhone": { "type": ["string", "null"] },
+            "dispStatus": { "type": ["string", "null"] },
+            "ndc": { "type": ["string", "null"] },
+            "reason": { "type": ["string", "null"] },
+            "prescriptionNumberIndex": { "type": ["string", "null"] },
+            "prescriptionSource": { "type": ["string", "null"] },
+            "disclaimer": { "type": ["string", "null"] },
+            "indicationForUse": { "type": ["string", "null"] },
+            "indicationForUseFlag": { "type": ["string", "null"] },
+            "category": { "type": ["string", "null"] },
+            "color": { "type": ["string", "null"] },
+            "shape": { "type": ["string", "null"] },
+            "backImprint": { "type": ["string", "null"] },
+            "frontImprint": { "type": ["string", "null"] },
+            "trackingList": {
+              "type": "array",
+              "items": {
+                "tracking": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "stationNumber": { "type": "string" },
+                      "rxNumber": { "type": "string" },
+                      "carrier": { "type": "string" },
+                      "trackingNumber": { "type": "string" },
+                      "completeDateTime": { "type": "string", "format": "date" },
+                      "divisionPhone": { "type": "string" },
+                      "ndc": { "type": "string" },
+                      "dateLoaded": { "type": "string", "format": "date" },
+                      "isLocalTracking": { "type": "boolean" },
+                      "othersInSamePackage": { "type": "boolean" },
+                      "viewImageDisplayed": { "type": "boolean" }
+                    }
+                  }
+                }
+              }
+            },
+            "rxRfRecords": {
+              "type": "array",
+              "items": {
+                "rf_record": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "prescriptionId": { "type": "integer" },
+                      "prescriptionNumber": { "type": "string" },
+                      "prescriptionName": { "type": "string" },
+                      "refillStatus": { "type": "string" },
+                      "refillSubmitDate": { "type": ["string", "null"], "format": "date" },
+                      "refillDate": { "type": "string", "format": "date" },
+                      "refillRemaining": { "type": "integer" },
+                      "facilityName": { "type": "string" },
+                      "orderedDate": { "type": "string", "format": "date" },
+                      "quantity": { "type": "integer" },
+                      "expirationDate": { "type": "string", "format": "date" },
+                      "dispensedDate": { "type": ["string", "null"], "format": "date" },
+                      "stationNumber": { "type": "string" },
+                      "isRefillable": { "type": "boolean" },
+                      "isTrackable": { "type": "boolean" },
+                      "sig": { "type": ["string", "null"] },
+                      "inCernerTransition": { "type": "boolean" },
+                      "notRefillableDisplayMessage": { "type": "string" },
+                      "cmopNdcNumber": { "type": ["string", "null"] },
+                      "userId": { "type": ["integer"] },
+                      "providerFirstName": { "type": "string" },
+                      "providerLastName": { "type": "string" },
+                      "remarks": { "type": "string" },
+                      "divisionName": { "type": "string" },
+                      "modifiedDate": { "type": ["string", "null"], "format": "date" },
+                      "institutionId": { "type": ["string", "null"] },
+                      "dialCmopDivisionPhone": { "type": "string" },
+                      "dispStatus": { "type": "string" },
+                      "ndc": { "type": "string" },
+                      "reason": { "type": "string" },
+                      "prescriptionNumberIndex": { "type": "string" },
+                      "prescriptionSource": { "type": "string" },
+                      "disclaimer": { "type": "string" },
+                      "indicationForUse": { "type": "string" },
+                      "indicationForUseFlag": { "type": "string" },
+                      "category": { "type": "string" },
+                      "tracking": { "type": "boolean" }
+                    }
+                  }
+                }
+              }
+            },
+            "tracking": { "type": ["boolean", "null"] },
+            "orderableItem": { "type": ["string", "null"] },
+            "sortedDispensedDate": { "type": ["string", "null"], "format": "date" },
+            "prescriptionImage": { "type": ["string", "null"] },
+            "groupedMedications": {
+              "type": ["array", "null"],
+              "properties": {}
+            }
+          }
+        }
       }
     },
     "links": {

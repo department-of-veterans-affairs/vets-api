@@ -4,10 +4,10 @@ require 'rails_helper'
 
 RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
-
   before do
-    Flipper.enable('va_online_scheduling')
-    Flipper.enable_actor('appointments_consolidation', current_user)
+    allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -109,17 +109,18 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     context 'with VAOS' do
       before do
-        Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_requests)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
       end
 
       describe 'CREATE cc appointment' do
         let(:community_cares_request_body) do
-          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
 
         let(:community_cares_request_body2) do
-          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares2, user: current_user).attributes
         end
 
         it 'creates the cc appointment' do
@@ -155,11 +156,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE va appointment' do
         let(:va_booked_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+          build(:appointment_form_v2, :va_booked, user: current_user).attributes
         end
 
         let(:va_proposed_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+          build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
         end
 
         it 'creates the va appointment - proposed' do
@@ -210,17 +211,21 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
     context 'using VPG' do
       before do
-        Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_enable_OH_requests)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                  instance_of(User)).and_return(true)
       end
 
       describe 'CREATE cc appointment' do
         let(:community_cares_request_body) do
-          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
 
         let(:community_cares_request_body2) do
-          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares2, user: current_user).attributes
         end
 
         it 'creates the cc appointment' do
@@ -257,11 +262,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE va appointment' do
         let(:va_booked_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+          build(:appointment_form_v2, :va_booked, user: current_user).attributes
         end
 
         let(:va_proposed_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+          build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
         end
 
         it 'creates the va appointment - proposed' do
@@ -274,9 +279,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'creates the va appointment - booked' do
+        it 'creates the booked va appointment using VPG' do
           stub_clinics
           VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+              expect(response).to have_http_status(:created)
+              json_body = json_body_for(response)
+              expect(json_body).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+              expect(json_body['attributes']['localStartTime']).to eq('2022-11-30T13:45:00.000-07:00')
+            end
+          end
+        end
+
+        it 'creates the booked va appointment using VAOS' do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                    instance_of(User)).and_return(false)
+
+          stub_clinics
+          VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                            match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                              match_requests_on: %i[method path query]) do
@@ -328,8 +351,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
         context 'using VAOS' do
           before do
-            Flipper.disable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_after_visit_summary)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
           end
 
           it 'fetches appointment list and includes avs on past booked appointments' do
@@ -377,7 +404,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         context 'using VAOS' do
           before do
             Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
-            Flipper.disable(:va_online_scheduling_use_vpg)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details,
+                                                      instance_of(User)).and_return(false)
+            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
           end
 
           after do
@@ -396,7 +428,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(data.size).to eq(16)
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
               expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
-              expect(data[0]['attributes']['friendlyName']).to eq('service_name')
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -465,8 +496,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(16)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
-              expect(data[0]['attributes']['location']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
+              expect(data[0]['attributes']['location']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -521,7 +552,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(1)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -535,7 +566,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -547,9 +578,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
-              expect(data.size).to eq(10)
+              expect(data.size).to eq(18)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -562,8 +593,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
+              expect(data.size).to eq(18)
               expect(data[0]['attributes']['location']).to eq(facility_error_msg)
-              expect(data[9]['attributes']['location']).not_to eq(facility_error_msg)
+              expect(data[17]['attributes']['location']).not_to eq(facility_error_msg)
               expect(Rails.logger).not_to have_received(:info).with("Details for Cerner 'COL OR 1' Appointment",
                                                                     any_args)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -655,8 +687,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'GET appointment' do
       context 'when the VAOS service returns a single appointment' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_after_visit_summary)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         let(:avs_path) do
@@ -677,6 +711,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+            expect(data['attributes']['pending']).to be(true)
+            expect(data['attributes']['past']).to be(true)
+            expect(data['attributes']['future']).to be(false)
             expect(data['attributes']['avsPath']).to be_nil
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
@@ -772,7 +809,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'updates the service name, physical location, friendly name, and location' do
+        it 'updates the service name, physical location, and location' do
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
@@ -785,7 +822,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             data = json_body_for(response)['attributes']
             expect(data['serviceName']).to eq('Service Name')
             expect(data['physicalLocation']).to eq('Physical Location')
-            expect(data['friendlyName']).to eq('Service Name')
             expect(data['location']).to eq(expected_facility)
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
@@ -793,11 +829,99 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             )
           end
         end
+
+        it 'displays telehealth link if current time is within lower boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T14:31:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(true)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'hides telehealth link if current time is outside lower boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T14:29:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(false)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'displays telehealth link if current time is within upper boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T19:00:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(true)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'hides telehealth link if current time is outside upper boundary' do
+          Timecop.freeze(DateTime.parse('2023-10-13T19:01:00Z'))
+
+          stub_facilities
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
+            .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_telehealth_info',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            get '/vaos/v2/appointments/75105', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            data = json_body_for(response)['attributes']
+            expect(data['telehealth']['displayLink']).to be(false)
+
+            Timecop.unfreeze
+          end
+        end
+
+        it 'returns an eps appointment' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
+              get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
+
+              expect(response).to have_http_status(:success)
+              body = JSON.parse(response.body)
+
+              expect(body).to include('data')
+              expect(body['data']).to include('id', 'type', 'attributes')
+              expect(body['data']['attributes']).to include(
+                'id', 'state', 'patientId', 'referral',
+                'providerServiceId', 'networkId', 'slotIds',
+                'appointmentDetails'
+              )
+            end
+          end
+        end
       end
 
       context 'when the VAOS service errors on retrieving an appointment' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
         end
 
         it 'returns a 502 status code' do
@@ -806,9 +930,31 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                        'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d/appointments/00000'
             get '/vaos/v2/appointments/00000'
             body = JSON.parse(response.body)
+
             expect(response).to have_http_status(:bad_gateway)
             expect(body.dig('errors', 0, 'code')).to eq('VAOS_502')
             expect(body.dig('errors', 0, 'source', 'vamf_url')).to eq(vamf_url)
+          end
+        end
+      end
+
+      context 'when the EPS service errors on retrieving an appointment' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+        end
+
+        it 'returns a 502 status code' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path query]) do
+              vamf_url = 'https://api.wellhive.com/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true'
+              get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
+              expect(response).to have_http_status(:bad_gateway)
+              body = JSON.parse(response.body)
+
+              expect(body.dig('errors', 0, 'code')).to eq('VAOS_502')
+              expect(body.dig('errors', 0, 'source', 'vamfUrl')).to eq(vamf_url)
+            end
           end
         end
       end
@@ -817,7 +963,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     describe 'PUT appointments' do
       context 'when the appointment is successfully cancelled' do
         before do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         it 'returns a status code of 200 and the cancelled appointment with the updated status' do
@@ -837,7 +985,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         context 'when clinic and location_id are present' do
-          it 'updates the service name, physical location, friendly name, and location' do
+          it 'updates the service name, physical location, and location' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
             stub_facilities
@@ -848,14 +996,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = json_body_for(response)['attributes']
               expect(data['serviceName']).to eq('Service Name')
               expect(data['physicalLocation']).to eq('Physical Location')
-              expect(data['friendlyName']).to eq('Service Name')
               expect(data['location']).to eq(expected_facility)
             end
           end
         end
 
         it 'returns a 400 status code' do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations).and_return(false)
           VCR.use_cassette('vaos/v2/appointments/cancel_appointment_400', match_requests_on: %i[method path query]) do
             put '/vaos/v2/appointments/42081', params: { status: 'cancelled' }
             expect(response).to have_http_status(:bad_request)
@@ -866,7 +1013,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the backend service cannot handle the request' do
         before do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                    instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         it 'returns a 502 status code' do
@@ -875,6 +1024,506 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             expect(response).to have_http_status(:bad_gateway)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_502')
           end
+        end
+      end
+    end
+
+    describe 'POST appointments/submit' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+      end
+
+      context 'referral appointment' do
+        let(:params) do
+          { referral_number: '12345',
+            provider_service_id: '9mN718pH',
+            id: 'J9BhspdR',
+            slot_id: '5vuTac8v-practitioner-4-role-1|2a82f6c9-e693-4091-826d' \
+                     '-97b392958301|2024-11-04T17:00:00Z|30m0s|1732735998236|ov',
+            network_id: 'sandbox-network-5vuTac8v',
+            name: {
+              family: 'Smith',
+              given: %w[
+                Sarah
+                Elizabeth
+              ]
+            },
+            birth_date: '1985-03-15',
+            email: 'sarah.smith@email.com',
+            gender: 'female',
+            phone_number: '407-555-8899',
+            address: {
+              city: 'Orlando',
+              country: 'USA',
+              line: [
+                '742 Sunshine Boulevard',
+                'Apt 15B'
+              ],
+              postal_code: '32801',
+              state: 'FL',
+              type: 'both',
+              text: 'text'
+            } }
+        end
+
+        it 'successfully submits referral appointment' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
+                             match_requests_on: %i[method path body]) do
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:created)
+              expect(response_obj.dig('data', 'id')).to eql('J9BhspdR')
+            end
+          end
+        end
+
+        it 'handles EPS error response' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment_400',
+                             match_requests_on: %i[method path]) do
+              post '/vaos/v2/appointments/submit', params: { ** params, phone_number: nil }, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:bad_request)
+              expect(response_obj['errors'].length).to be(1)
+              expect(response_obj['errors'][0]['detail']).to eql('missing patient attributes: phone')
+            end
+          end
+        end
+      end
+    end
+  end
+
+  context 'for eps referrals' do
+    let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
+    let(:draft_params) { { referral_id: 'ref-123' } }
+
+    let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+    let(:redis_token_expiry) { 59.minutes }
+    let(:npi) { '7894563210' }
+    let(:appointment_type_id) { 'ov' }
+    let(:start_date) { '2025-01-01T00:00:00Z' }
+    let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:referral_identifiers) do
+      {
+        data: {
+          id: draft_params[:referral_id],
+          type: :referral_identifier,
+          attributes: { npi:, appointment_type_id:, start_date:, end_date: }
+        }
+      }.to_json
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
+      Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
+
+      allow(Rails).to receive(:cache).and_return(memory_store)
+      Rails.cache.clear
+
+      Rails.cache.write(
+        "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+        referral_identifiers,
+        namespace: 'vaos-eps-cache',
+        expires_in: redis_token_expiry
+      )
+    end
+
+    describe 'POST create_draft' do
+      context 'when the request is successful' do
+        let(:draft_appointment_response) do
+          {
+            id: 'EEKoGzEf',
+            state: 'draft',
+            patientId: 'ref-123'
+          }
+        end
+
+        let(:provider) do
+          {
+            'id' => '53mL4LAZ',
+            'name' => 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
+            'isActive' => true,
+            'individualProviders' => [
+              {
+                'name' => 'Dr. Monty Graciano',
+                'npi' => '7894563210'
+              }
+            ],
+            'providerOrganization' => {
+              'name' => 'Meridian Health (Sandbox 5vuTac8v)'
+            },
+            'location' => {
+              'name' => 'FHA Kissimmee Medical Campus',
+              'address' => '2184 E Irlo Bronson, Kissimmee, FL, 34744-4415, US',
+              'latitude' => 28.30468,
+              'longitude' => -81.41667,
+              'timezone' => 'America/New_York'
+            },
+            'networkIds' => ['sandbox-network-5vuTac8v'],
+            'schedulingNotes' => 'Age Limitations: This provider does not see patients 60 years or older.',
+            'appointmentTypes' => [
+              {
+                'id' => 'ov',
+                'name' => 'Office Visit',
+                'isSelfSchedulable' => true
+              }
+            ],
+            'specialties' => [
+              {
+                'id' => '208800000X',
+                'name' => 'Urology'
+              }
+            ],
+            'visitMode' => 'in-person',
+            'features' => {
+              'isDigital' => true,
+              'directBooking' => {
+                'isEnabled' => true,
+                'requiredFields' => %w[phone address name birthdate gender]
+              }
+            }
+          }
+        end
+
+        let(:slots_response) do
+          {
+            'count' => 2,
+            'slots' => [
+              {
+                'id' => '5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|' \
+                        '2025-01-02T11:00:00Z|30m0s|1736636444704|ov',
+                'providerServiceId' => '9mN718pH',
+                'appointmentTypeId' => 'ov',
+                'start' => '2025-01-02T11:00:00Z',
+                'remaining' => 1
+              },
+              {
+                'id' => '5vuTac8v-practitioner-1-role-2|e43a19a8-b0cb-4dcf-befa-8cc511c3999b|' \
+                        '2025-01-02T15:30:00Z|30m0s|1736636444704|ov',
+                'providerServiceId' => '9mN718pH',
+                'appointmentTypeId' => 'ov',
+                'start' => '2025-01-02T15:30:00Z',
+                'remaining' => 1
+              }
+            ]
+          }
+        end
+
+        let(:drive_times_response) do
+          {
+            'origin' => {
+              'latitude' => 40.7128,
+              'longitude' => -74.006
+            },
+            'destination' => {
+              'distanceInMiles' => 313,
+              'driveTimeInSecondsWithoutTraffic' => 19_096,
+              'driveTimeInSecondsWithTraffic' => 19_561,
+              'latitude' => 44.475883,
+              'longitude' => -73.212074
+            }
+          }
+        end
+
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => draft_appointment_response[:id],
+              'type' => 'draft_appointment',
+              'attributes' => {
+                'provider' => provider,
+                'slots' => slots_response['slots'],
+                'drivetime' => drive_times_response
+              }
+            }
+          }
+        end
+
+        it 'returns a successful response when all calls succeed' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+            VCR.use_cassette('vaos/eps/get_drive_times/200') do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                VCR.use_cassette('vaos/eps/search_provider_services/200') do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                    VCR.use_cassette 'vaos/eps/token/token_200' do
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
+
+                      post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                      expect(response).to have_http_status(:created)
+                      expect(JSON.parse(response.body)).to eq(expected_response)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when drive time coords are invalid' do
+        let(:draft_params) do
+          {
+            referral_id: 'ref-123'
+          }
+        end
+
+        it 'handles invalid_range response' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
+                           match_requests_on: %i[method path body]) do
+            VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords' do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                VCR.use_cassette 'vaos/eps/search_provider_services/200' do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                    VCR.use_cassette 'vaos/eps/token/token_200' do
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
+                      post '/vaos/v2/appointments/draft', params: draft_params
+
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when provider is not found' do
+        let(:invalid_provider_id) { '9mN718pHa' }
+
+        before do
+          updated_referral_identifiers = {
+            data: {
+              id: draft_params[:referral_id],
+              type: :referral_identifier,
+              attributes: { npi: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
+            }
+          }.to_json
+
+          Rails.cache.write(
+            "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+            updated_referral_identifiers,
+            namespace: 'vaos-eps-cache',
+            expires_in: redis_token_expiry
+          )
+        end
+
+        it 'returns correct error status for provider not found' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
+                           match_requests_on: %i[method path body]) do
+            VCR.use_cassette 'vaos/eps/search_provider_services/empty_200' do
+              VCR.use_cassette 'vaos/eps/token/token_200' do
+                allow_any_instance_of(Eps::AppointmentService)
+                  .to receive(:get_appointments)
+                  .and_return(OpenStruct.new(data: []))
+                post '/vaos/v2/appointments/draft', params: draft_params
+
+                expect(response).to have_http_status(:not_found)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when patient id is invalid' do
+        it 'handles invalid patientId response as 400' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+            VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+              VCR.use_cassette('vaos/eps/search_provider_services/200') do
+                VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
+                  VCR.use_cassette 'vaos/eps/token/token_200' do
+                    allow_any_instance_of(Eps::AppointmentService)
+                      .to receive(:get_appointments)
+                      .and_return(OpenStruct.new(data: []))
+                    post '/vaos/v2/appointments/draft', params: draft_params
+
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when there is already an appointment associated with the referral' do
+        it 'fails if a vaos appointment with the given referral id already exists' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+            updated_referral_identifiers = {
+              data: {
+                id: 'ref-124',
+                type: :referral_identifier,
+                attributes: { npi:, appointment_type_id:, start_date:, end_date: }
+              }
+            }.to_json
+
+            Rails.cache.write(
+              'vaos_eps_referral_identifier_ref-124',
+              updated_referral_identifiers,
+              namespace: 'vaos-eps-cache',
+              expires_in: redis_token_expiry
+            )
+            draft_params[:referral_id] = 'ref-124'
+            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+            response_obj = JSON.parse(response.body)
+            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+          end
+        end
+
+        it 'fails if an eps appointment with the given referral id already exists' do
+          eps_appointments = OpenStruct.new(data:
+            [
+              {
+                id: '124',
+                state: 'proposed',
+                patient_id: '457',
+                referral: {
+                  referral_number: 'ref-126'
+                },
+                provider_service_id: 'DBKQ-H0a',
+                network_id: 'random-sandbox-network-id',
+                slot_ids: [
+                  '5vuTac8v-practitioner-8-role-1|' \
+                  '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+                  '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+                ],
+                appointment_details: {
+                  status: 'booked',
+                  start: '2024-12-02T10:00:00Z',
+                  is_latest: false,
+                  last_retrieved: '2024-12-02T10:00:00Z'
+                }
+              }
+            ])
+
+          vaos_appointments = OpenStruct.new(data: [], meta: {})
+          allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_all_appointments).and_return(
+            vaos_appointments
+          )
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+
+          updated_referral_identifiers = {
+            data: {
+              id: 'ref-126',
+              type: :referral_identifier,
+              attributes: { npi:, appointment_type_id:, start_date:, end_date: }
+            }
+          }.to_json
+
+          Rails.cache.write(
+            'vaos_eps_referral_identifier_ref-126',
+            updated_referral_identifiers,
+            namespace: 'vaos-eps-cache',
+            expires_in: redis_token_expiry
+          )
+
+          draft_params[:referral_id] = 'ref-126'
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          response_obj = JSON.parse(response.body)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response_obj['message']).to eq('No new appointment created: referral is already used')
+        end
+      end
+
+      context 'when there is a failure in the request for appointments from CCRA' do
+        it 'handles error response as 500' do
+          expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
+          allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          response_obj = JSON.parse(response.body)
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response_obj['message']).to eq('Error checking appointments: Missing ICN message')
+        end
+
+        it 'handles partial error as 500' do
+          expected_error_msg = 'Error checking appointments: ' \
+                               '[{:system=>"VSP", :status=>"500", :code=>10000, ' \
+                               ':message=>"Could not fetch appointments from Vista Scheduling Provider", ' \
+                               ':detail=>"icn=1012846043V576341, startDate=1921-09-02T00:00:00Z, ' \
+                               'endDate=2121-09-02T00:00:00Z"}]'
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors',
+                           match_requests_on: %i[method path query]) do
+            post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+            response_obj = JSON.parse(response.body)
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response_obj['message']).to eq(expected_error_msg)
+          end
+        end
+      end
+
+      context 'when the upstream service returns a 500 error' do
+        it 'returns a bad_gateway status and appropriate error message' do
+          VCR.use_cassette('vaos/eps/get_appointments/500_error') do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+              VCR.use_cassette('vaos/eps/get_drive_times/200') do
+                VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                  VCR.use_cassette 'vaos/eps/get_provider_service/200' do
+                    VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                      VCR.use_cassette 'vaos/eps/token/token_200' do
+                        post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                        expect(response).to have_http_status(:bad_gateway)
+                        response_body = JSON.parse(response.body)
+                        expect(response_body).to have_key('errors')
+                        expect(response_body['errors']).to be_an(Array)
+
+                        error = response_body['errors'].first
+                        expect(error).to include(
+                          'title' => 'Bad Gateway',
+                          'detail' => 'Received an an invalid response from the upstream server',
+                          'code' => 'VAOS_502',
+                          'status' => '502',
+                          'source' => {
+                            'vamfUrl' => 'https://api.wellhive.com/care-navigation/v1/appointments?patientId=care-nav-patient-casey',
+                            'vamfBody' => '{"isFault": true,"isTemporary": true,"name": "Internal Server Error"}',
+                            'vamfStatus' => 500
+                          }
+                        )
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when Redis connection fails' do
+        it 'returns a bad_gateway status and appropriate error message' do
+          # Mock the Redis client to raise a connection error
+          redis_client = instance_double(Eps::RedisClient)
+          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
+          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
+                                                                               'Redis connection refused')
+
+          post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+          expect(response).to have_http_status(:bad_gateway)
+
+          response_obj = JSON.parse(response.body)
+          expect(response_obj['errors'].first['title']).to eq('Error fetching referral data from cache')
+          expect(response_obj['errors'].first['detail']).to eq('Unable to connect to cache service')
         end
       end
     end

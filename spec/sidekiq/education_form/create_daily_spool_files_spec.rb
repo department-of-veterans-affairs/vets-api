@@ -2,13 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, type: :model do
   subject { described_class.new }
 
   let!(:application_1606) do
     create(:va1990).education_benefits_claim
   end
   let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
+
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
 
   after(:all) do
     FileUtils.rm_rf('tmp/spool_files')
@@ -108,9 +112,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         allow(Rails.env).to receive('development?').and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 2 regions..
@@ -126,37 +130,30 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        ENV['HOSTNAME'] = 'staging-api.va.gov'
         application_1606.saved_claim.form = {}.to_json
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
       end
 
-      after do
-        ENV['HOSTNAME'] = nil
-      end
-
       it 'processes the valid messages' do
-        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
-        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
-        expect(ActionMailer::Base.deliveries.count).to be > 0
+        with_settings(Settings, hostname: 'staging-api.va.gov') do
+          expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+          expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
+          expect(ActionMailer::Base.deliveries.count).to be > 0
+        end
       end
     end
 
     context 'with records in production', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        ENV['HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
         application_1606.saved_claim.form = {}.to_json
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
-      end
-
-      after do
-        ENV['HOSTNAME'] = nil
       end
 
       it 'does not process the valid messages' do
@@ -232,7 +229,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
     let(:filename) { '307_09172016_070000_vetsgov.spl' }
-    let!(:second_record) { FactoryBot.create(:va1995) }
+    let!(:second_record) { create(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -294,7 +291,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'logs exception to sentry' do
-        local_mock = instance_double('SFTPWriter::Local')
+        local_mock = instance_double(SFTPWriter::Local)
 
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         expect(SFTPWriter::Local).to receive(:new).exactly(6).and_return(local_mock)
@@ -307,36 +304,76 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    it 'writes files out over sftp' do
-      # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
-      allow(Rails.env).to receive(:production?).and_return(true)
-      ENV['HOSTNAME'] = 'api.va.gov'
-      expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-      expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+    context 'in the production env' do
+      it 'writes files out over sftp' do
+        # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
+        allow(Rails.env).to receive(:production?).and_return(true)
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 
-      # any readable file will work for this spec
-      key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
-      with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
-        sftp_session_mock = instance_double('Net::SSH::Connection::Session')
-        sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
+        # any readable file will work for this spec
+        key_path = Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
+        with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
+          session_mock = instance_double(Net::SSH::Connection::Session)
 
-        expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
-        expect(sftp_mock).to receive(:open?).once.and_return(true)
-        expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
-        expect(sftp_mock).to receive(:upload!) do |contents, path|
-          expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
-          expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+          sftp_mock = instance_double(Net::SFTP::Session, session: session_mock)
+          expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
+          expect(sftp_mock).to receive(:open?).once.and_return(true)
+          expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
+          expect(sftp_mock).to receive(:upload!) do |contents, path|
+            expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
+            expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+          end
+          expect(sftp_mock).to receive(:stat!).with(anything).and_return(4619)
+          expect(session_mock).to receive(:close)
+
+          expect { subject.perform }.to trigger_statsd_gauge(
+            'worker.education_benefits_claim.transmissions.307.22-1990',
+            value: 1
+          ).and trigger_statsd_gauge(
+            'worker.education_benefits_claim.transmissions.307.22-1995',
+            value: 1
+          )
+
+          expect(EducationBenefitsClaim.unprocessed).to be_empty
         end
-        expect(sftp_session_mock).to receive(:close)
-        expect { subject.perform }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions.307.22-1990',
-          value: 1
-        ).and trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions.307.22-1995',
-          value: 1
-        )
+      end
 
-        expect(EducationBenefitsClaim.unprocessed).to be_empty
+      # rubocop:disable RSpec/NoExpectationExample
+      it 'notifies the slack channel with a warning if no files were written' do
+        stub_env_and_writer(
+          byte_count: 0,
+          expected_message: 'Warning: Uploaded 0 bytes to region: eastern'
+        )
+      end
+      # rubocop:enable RSpec/NoExpectationExample
+
+      def stub_env_and_writer(byte_count:, expected_message:)
+        allow(Rails.env).to receive(:production?).and_return(true)
+        allow(Settings).to receive(:hostname).and_return('api.va.gov')
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+
+        key_path = Rails.root.join('spec', 'fixtures', 'files', 'idme_cert.crt').to_s
+        with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
+          sftp_writer_mock = instance_double(SFTPWriter::Remote)
+
+          allow(SFTPWriter::Factory).to receive(:get_writer).with(Settings.edu.sftp).and_return(SFTPWriter::Remote)
+          allow(SFTPWriter::Remote)
+            .to receive(:new)
+            .with(Settings.edu.sftp, logger: anything)
+            .and_return(sftp_writer_mock)
+
+          allow(sftp_writer_mock).to receive(:write).once.and_return(byte_count)
+          allow(sftp_writer_mock).to receive(:close).once.and_return(true)
+
+          instance = described_class.new
+          # allow is needed because it's called multiple times and expect fails without it
+          allow(instance).to receive(:log_to_slack)
+          expect(instance).to receive(:log_to_slack).with(include(expected_message))
+
+          instance.perform
+        end
       end
     end
   end

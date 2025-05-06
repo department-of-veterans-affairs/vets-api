@@ -7,7 +7,8 @@ require_relative 'configuration'
 module CentralMail
   class Service < Common::Client::Base
     ################################################################
-    # Please do not use this module. It has been superceded by the #
+    # If you are not a Lighthouse API team, please do not use      #
+    # this module. It has been superceded by the                   #
     # Lighthouse::BenefitsIntake::Service module:                  #
     #                                                              #
     #   https://github.com/department-of-veterans-affairs/vets-api/blob/94f88d1bb55d961e036d6fed3117735d6b9074cd/lib/lighthouse/benefits_intake/service.rb
@@ -70,13 +71,9 @@ module CentralMail
       )
     end
 
-    def self.current_breaker_outage?
+    def self.service_is_up?
       last_cm_outage = Breakers::Outage.find_latest(service: CentralMail::Configuration.instance.breakers_service)
-      if last_cm_outage.present? && last_cm_outage.end_time.blank?
-        return CentralMail::Service.new.status('').try(:status) != 200
-      end
-
-      false
+      last_cm_outage.blank? || last_cm_outage.end_time.present?
     end
   end
 end

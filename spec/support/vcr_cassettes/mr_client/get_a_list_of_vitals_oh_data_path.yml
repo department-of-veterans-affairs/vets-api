@@ -1,0 +1,160 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/oauth2/health/system/v1/token"
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=<TOKEN>&scope=launch+patient%2FAllergyIntolerance.read+patient%2FDiagnosticReport.read+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read+patient%2FCondition.read&launch=eyJwYXRpZW50IjogIjIzMDAwMjE5In0%3D
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 05 Nov 2024 22:33:14 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '237'
+      Ratelimit-Limit:
+      - '240'
+      Ratelimit-Remaining:
+      - '237'
+      Ratelimit-Reset:
+      - '47'
+      X-Ratelimit-Limit-Minute:
+      - '240'
+      Vary:
+      - Origin
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Etag:
+      - W/"5d3-fVUXJxEoE/N3mjA2TeQkDzH+mks"
+      Access-Control-Allow-Origin:
+      - "*"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"<TOKEN>","token_type":"Bearer","scope":"launch
+        patient/Patient.read patient/Practitioner.read patient/AllergyIntolerance.read
+        patient/Observation.read patient/Condition.read patient/MedicationRequest.read
+        patient/DiagnosticReport.read system/Patient.read","expires_in":300,"state":null,"patient":"23000219"}'
+  recorded_at: Tue, 05 Nov 2024 22:33:14 GMT
+- request:
+    method: get
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation?_count=100&category=vital-signs&date=le2019-11&patient=23000219"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 05 Nov 2024 22:33:14 GMT
+      Content-Type:
+      - application/fhir+json;charset=UTF-8
+      Content-Length:
+      - '9010'
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '46'
+      X-Ratelimit-Remaining-Minute:
+      - '399'
+      X-Ratelimit-Limit-Minute:
+      - '400'
+      Ratelimit-Remaining:
+      - '399'
+      Ratelimit-Limit:
+      - '400'
+      Pragma:
+      - no-cache
+      - no-cache
+      Content-Language:
+      - en-US
+      Yanartas-Response-Source:
+      - C:6
+      - R:0
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - script-src 'self'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: UTF-8
+      string: '{"resourceType":"Bundle","type":"searchset","link":[{"relation":"self","url":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation?date=ge2019-11&date=le2019-11&patient=23000219&-pageToken=1~6Z807QTZrKsurkk&category=vital-signs"}],"entry":[{"fullUrl":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation/4-1bKloYjorOvJVl","resource":{"resourceType":"Observation","id":"4-1bKloYjorOvJVl","meta":{"lastUpdated":"2019-12-30T08:24:29Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"8302-2","display":"Body
+        Height"}],"text":"Body Height"},"subject":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Patient/23000219","display":"Mr.
+        Dexter530 Victor265 Schneider199"},"encounter":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Encounter/4-1abOMcOPHkP7a7"},"effectiveDateTime":"2019-11-30T08:34:29Z","issued":"2019-11-30T08:24:29Z","performer":[{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Practitioner/4-Nn79MfQtfImP","display":"Dr.
+        Hayden835 Lehner980 MD"},{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"}],"valueQuantity":{"value":166.8,"unit":"cm","system":"http://unitsofmeasure.org","code":"cm"},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code":"A","display":"Abnormal"}],"text":"A"}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation/4-1bKloYjorOvaYn","resource":{"resourceType":"Observation","id":"4-1bKloYjorOvaYn","meta":{"lastUpdated":"2019-12-30T08:24:29Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"72514-3","display":"Pain
+        severity - 0-10 verbal numeric rating [Score] - Reported"}],"text":"Pain severity
+        - 0-10 verbal numeric rating [Score] - Reported"},"subject":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Patient/23000219","display":"Mr.
+        Dexter530 Victor265 Schneider199"},"encounter":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Encounter/4-1abOMcOPHkP7a7"},"effectiveDateTime":"2019-11-30T08:24:29Z","issued":"2019-11-30T08:24:29Z","performer":[{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Practitioner/4-Nn79MfQtfImP","display":"Dr.
+        Hayden835 Lehner980 MD"},{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"}],"valueQuantity":{"value":3.0,"unit":"Score","system":"http://unitsofmeasure.org","code":"{score}"},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code":"A","display":"Abnormal"}],"text":"A"}],"referenceRange":[{"low":{"value":20.0,"unit":"Score","system":"http://unitsofmeasure.org","code":"{score}"},"high":{"value":182.0,"unit":"Score","system":"http://unitsofmeasure.org","code":"{score}"}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation/4-1bKloYjorOvrbp","resource":{"resourceType":"Observation","id":"4-1bKloYjorOvrbp","meta":{"lastUpdated":"2019-12-30T08:24:29Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"29463-7","display":"Body
+        Weight"}],"text":"Body Weight"},"subject":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Patient/23000219","display":"Mr.
+        Dexter530 Victor265 Schneider199"},"encounter":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Encounter/4-1abOMcOPHkP7a7"},"effectiveDateTime":"2019-11-30T08:14:29Z","issued":"2019-11-30T08:24:29Z","performer":[{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Practitioner/4-Nn79MfQtfImP","display":"Dr.
+        Hayden835 Lehner980 MD"},{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"}],"valueQuantity":{"value":81.8,"unit":"kg","system":"http://unitsofmeasure.org","code":"kg"},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code":"A","display":"Abnormal"}],"text":"A"}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation/4-1bKloYjorOwPht","resource":{"resourceType":"Observation","id":"4-1bKloYjorOwPht","meta":{"lastUpdated":"2019-12-30T08:24:29Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"85354-9","display":"Blood
+        Pressure"}],"text":"Blood Pressure"},"subject":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Patient/23000219","display":"Mr.
+        Dexter530 Victor265 Schneider199"},"encounter":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Encounter/4-1abOMcOPHkP7a7"},"effectiveDateTime":"2019-11-30T08:24:29Z","issued":"2019-11-30T08:24:29Z","performer":[{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Practitioner/4-Nn79MfQtfImP","display":"Dr.
+        Hayden835 Lehner980 MD"},{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"}],"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code":"A","display":"Abnormal"}],"text":"A"}],"component":[{"code":{"coding":[{"system":"http://loinc.org","code":"8462-4","display":"Diastolic
+        Blood Pressure"}],"text":"Diastolic Blood Pressure"},"valueQuantity":{"value":75,"unit":"mm
+        Hg","system":"http://unitsofmeasure.org","code":"mm[Hg]"}},{"code":{"coding":[{"system":"http://loinc.org","code":"8480-6","display":"Systolic
+        Blood Pressure"}],"text":"Systolic Blood Pressure"},"valueQuantity":{"value":145,"unit":"mm
+        Hg","system":"http://unitsofmeasure.org","code":"mm[Hg]"}}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation/4-1bKloYjorOwgkv","resource":{"resourceType":"Observation","id":"4-1bKloYjorOwgkv","meta":{"lastUpdated":"2019-12-30T08:24:29Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"8867-4","display":"Heart
+        rate"}],"text":"Heart rate"},"subject":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Patient/23000219","display":"Mr.
+        Dexter530 Victor265 Schneider199"},"encounter":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Encounter/4-1abOMcOPHkP7a7"},"effectiveDateTime":"2019-11-30T07:28:29Z","issued":"2019-11-30T08:24:29Z","performer":[{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Practitioner/4-Nn79MfQtfImP","display":"Dr.
+        Hayden835 Lehner980 MD"},{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"}],"valueQuantity":{"value":96.0,"unit":"/min","system":"http://unitsofmeasure.org","code":"/min"},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code":"A","display":"Abnormal"}],"text":"A"}]},"search":{"mode":"match"}},{"fullUrl":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Observation/4-1bKloYjorOwxnx","resource":{"resourceType":"Observation","id":"4-1bKloYjorOwxnx","meta":{"lastUpdated":"2019-12-30T08:24:29Z"},"status":"final","category":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/observation-category","code":"vital-signs","display":"Vital
+        Signs"}],"text":"Vital Signs"}],"code":{"coding":[{"system":"http://loinc.org","code":"9279-1","display":"Respiratory
+        rate"}],"text":"Respiratory rate"},"subject":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Patient/23000219","display":"Mr.
+        Dexter530 Victor265 Schneider199"},"encounter":{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Encounter/4-1abOMcOPHkP7a7"},"effectiveDateTime":"2019-11-30T08:24:29Z","issued":"2019-11-30T08:24:29Z","performer":[{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Practitioner/4-Nn79MfQtfImP","display":"Dr.
+        Hayden835 Lehner980 MD"},{"reference":"<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/fhir/v0/r4/Organization/4-5pFm5AlwLJx","display":"TEST
+        VAMC"}],"valueQuantity":{"value":16.0,"unit":"/min","system":"http://unitsofmeasure.org","code":"/min"},"interpretation":[{"coding":[{"system":"http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code":"A","display":"Abnormal"}],"text":"A"}]},"search":{"mode":"match"}}]}'
+  recorded_at: Tue, 05 Nov 2024 22:33:14 GMT
+recorded_with: VCR 6.3.1

@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -9,11 +10,13 @@ properties:
       $ref: "./SecureMessagingFolder.yml"
   meta:
     type: object
+    additionalProperties: false
     required:
       - pagination
     properties:
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage

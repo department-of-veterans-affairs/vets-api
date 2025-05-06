@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Device, type: :model do
-  let(:current_user) { FactoryBot.build(:user) }
+  let(:current_user) { build(:user) }
 
   it 'creates device when given a name and key' do
     expect(Device.new(name: 'name', key: 'key')).to be_valid

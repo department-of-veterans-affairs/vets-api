@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/2122"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"123 Main St","addressLine2":"Apt 1","city":"Springfield","stateCode":"IL","countryCode":"US","zipCode":"62704","zipCodeSuffix":"6789"},"phone":{"areaCode":"123","phoneNumber":"4567890"},"email":"veteran@example.com","serviceNumber":"123456789"},"serviceOrganization":{"poaCode":"x23","registrationNumber":"357458"},"recordConsent":false,"consentLimits":["HIV","DRUG_ABUSE"],"consentAddressChange":true}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Wed, 05 Feb 2025 14:56:06 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '55'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - bc27e0eacb557da327060489813391971306df46
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 24b25753-1c7d-41bb-a38a-bb51b208a6ac
+      X-Runtime:
+      - '0.223592'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"status":"404","title":"Resource not found","detail":"Could
+        not find an Accredited Representative with registration number: 1012666183V089914
+        and poa code: x23"}]}'
+  recorded_at: Wed, 05 Feb 2025 14:56:06 GMT
+recorded_with: VCR 6.3.1

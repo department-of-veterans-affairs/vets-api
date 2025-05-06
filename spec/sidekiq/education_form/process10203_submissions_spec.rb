@@ -4,17 +4,21 @@ require 'rails_helper'
 require 'fugit'
 require 'feature_flipper'
 
-RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::Process10203Submissions, form: :education_benefits, type: :model do
   subject { described_class.new }
 
   sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
   lines = File.readlines(sidekiq_file).grep(/EducationForm::Process10203Submissions/i)
   cron = lines.first.gsub("  mgr.register('", '').gsub("', 'EducationForm::Process10203Submissions')\n", '')
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
   let(:parsed_schedule) { Fugit.do_parse(cron) }
   let(:user2) { create(:user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
-  let(:no_edipi_user) { create(:user, participant_id: nil) }
+  let(:no_edipi_user) { create(:user, :with_terms_of_use_agreement, idme_uuid: SecureRandom.uuid, participant_id: nil) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
+
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
 
   describe 'scheduling' do
     before do
@@ -59,8 +63,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       context 'evss user with less than 180 days of entitlement' do
         before do
           expect(FeatureFlipper).to receive(:send_email?).once.and_return(false)
-          allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
-                                                                  .and_return(evss_response_with_poa.body)
         end
 
         it 'changes from init to processed with good answers' do
@@ -104,25 +106,11 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
           allow_any_instance_of(BenefitsEducation::Service).to receive(:get_gi_bill_status)
                                                                     .and_return(gi_bill_status)
         end
-
-        it 'is denied' do
-          application_10203 = create(:va10203, :automated_bad_answers)
-          application_10203.after_submit(user)
-          # allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
-          #                                                      .and_return(evss_response_with_poa.body)
-
-          # expect do
-          #   subject.perform
-          # end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
-          #            .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
-        end
       end
 
       it 'evss user with no entitlement is processed' do
         application_10203 = create(:va10203)
         application_10203.after_submit(user)
-        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
-                                                             .and_return(evss_response_with_poa.body)
 
         expect do
           subject.perform
@@ -130,53 +118,24 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
       end
 
-      it 'skips POA check when :stem_automated_decision flag is on' do
-        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
-        application_10203 = create(:va10203)
-        application_10203.after_submit(user)
-
-        subject.perform
-        application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
-      end
-
       it 'skips POA check for user without an EDIPI' do
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.after_submit(no_edipi_user)
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
-      it 'sets claim poa for evss user without poa' do
+      it 'sets POA to nil for new submissions' do
         allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.after_submit(user)
-        evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
-        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
-                                                             .and_return(evss_response_without_poa)
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(false)
-      end
-
-      it 'sets claim poa for user with poa' do
-        allow(Flipper).to receive(:enabled?).with(:form21_10203_confirmation_email)
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
-        application_10203 = create(:va10203)
-        application_10203.after_submit(user)
-        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
-                                                             .and_return(evss_response_with_poa.body)
-
-        subject.perform
-        application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
       it 'sets claim poa for claim with decision poa flag' do
@@ -187,7 +146,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_stem_automated_decision.poa).to eq(true)
+        expect(application_10203.education_stem_automated_decision.poa).to be(true)
       end
     end
     # rubocop:enable Layout/MultilineMethodCallIndentation

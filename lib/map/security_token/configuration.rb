@@ -7,31 +7,43 @@ module MAP
   module SecurityToken
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.map_services.oauth_url
+        IdentitySettings.map_services.oauth_url
       end
 
       def chatbot_client_id
-        Settings.map_services.chatbot_client_id
+        IdentitySettings.map_services.chatbot_client_id
       end
 
       def sign_up_service_client_id
-        Settings.map_services.sign_up_service_client_id
+        IdentitySettings.map_services.sign_up_service_client_id
       end
 
       def check_in_client_id
-        Settings.map_services.check_in_client_id
+        IdentitySettings.map_services.check_in_client_id
       end
 
       def appointments_client_id
-        Settings.map_services.appointments_client_id
+        IdentitySettings.map_services.appointments_client_id
       end
 
       def client_key_path
-        Settings.map_services.client_key_path
+        IdentitySettings.map_services.client_key_path
       end
 
       def client_cert_path
-        Settings.map_services.client_cert_path
+        IdentitySettings.map_services.client_cert_path
+      end
+
+      def jwks_cache_key
+        'map_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
+      end
+
+      def public_jwks_path
+        '/sts/oauth/v1/jwks'
       end
 
       def service_name
@@ -66,7 +78,7 @@ module MAP
         'icn'
       end
 
-      def logging_prefix
+      def log_prefix
         '[MAP][SecurityToken][Service]'
       end
 
@@ -84,11 +96,11 @@ module MAP
           headers: base_request_headers,
           request: request_options
         ) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
           conn.response :json, content_type: /\bjson/
-          conn.response :betamocks if Settings.map_services.secure_token_service.mock
+          conn.response :betamocks if IdentitySettings.map_services.secure_token_service.mock
         end
       end
     end

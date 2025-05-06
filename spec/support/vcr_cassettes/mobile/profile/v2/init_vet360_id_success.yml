@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA
     body:
       encoding: UTF-8
       string: '{"bio":{"sourceDate":"2018-04-09T17:52:03Z"}}'

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/intent_to_file/service'
-require 'bgs_service/local_bgs'
+require 'bgs_service/intent_to_file_web_service'
 
 module ClaimsApi
   module V1
@@ -26,7 +25,7 @@ module ClaimsApi
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
 
-          bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
+          bgs_response = bgs_itf_service.insert_intent_to_file(intent_to_file_options)
           if bgs_response.empty?
             claims_v1_logging('itf_submit', message: 'Veteran ID not found')
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
@@ -43,7 +42,7 @@ module ClaimsApi
         # @return [JSON] Response from BGS
         def active # rubocop:disable Metrics/MethodLength
           check_for_type
-          bgs_response = local_bgs_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
+          bgs_response = bgs_itf_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
             ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES[active_param]
           )

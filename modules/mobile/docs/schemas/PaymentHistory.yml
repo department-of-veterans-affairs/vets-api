@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
@@ -19,6 +20,7 @@ properties:
           description: Upstream identifier
         attributes:
           type: object
+          additionalProperties: false
           required:
             - amount
             - date
@@ -32,7 +34,7 @@ properties:
               example: "$350.00"
             date:
               type: string
-              example: "2022-15-01"
+              example: "2022-01-15T00:00:00.000-06:00"
             paymentMethod:
               type: string
               example: "Direct Deposit"
@@ -40,22 +42,27 @@ properties:
               type: string
               example: "Compensation & Pension - Recurring"
             bank:
-              type: string, null
+              type: string
+              nullable: true
               example: "PACIFIC PREMIER BANK"
             account:
-              type: string, null
+              type: string
+              nullable: true
               example: "************6464"
   meta:
     type: object
+    additionalProperties: false
     required:
       - errors
       - pagination
       - availableYears
+      - recurringPayment
     properties:
       errors:
         type: [ array, null ]
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage
@@ -77,3 +84,16 @@ properties:
       availableYears:
         type: [ array, null ]
         example: [2019, 2018, 2017, 2016, 2015]
+      recurringPayment:
+        type: object
+        additionalProperties: false
+        required:
+          - amount
+          - date
+        properties:
+          amount:
+            type: string
+            example: "$350.00"
+          date:
+            type: string
+            example: "2022-01-15T00:00:00.000-06:00"

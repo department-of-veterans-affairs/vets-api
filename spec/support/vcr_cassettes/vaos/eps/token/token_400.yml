@@ -1,0 +1,74 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://login.wellhive.com/oauth2/default/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=care-nav&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJraWQiOiJmYWtlX2tpZCIsInR5cCI6IkpXVCIsImFsZyI6IlJTNTEyIn0.eyJpc3MiOiJmYWtlX2NsaWVudF9pZCIsInN1YiI6ImZha2VfY2xpZW50X2lkIiwiYXVkIjoiaHR0cHM6Ly9sb2dpbi53ZWxsaGl2ZS5jb20vb2F1dGgyL2RlZmF1bHQvdjEvdG9rZW4iLCJpYXQiOjE3MzY1NTE4MzUsImV4cCI6MTczNjU1MjEzNX0.m6hJ74jQQMqGclfIjJd-3PCcVQNRfuXmDudS6eAP4Q1skyaJWsW_LSV023EBacSPCY8wT7El8ACH_PhbfLL4rogYIMA_h73GAgxlXFVbiy1_bAzaZFTVD8HV4Hb4VQgUnW799r6LjKrq9WRzlXg9nEQ2_K_gbD6ON52IUvNt04-wZdXtLyu9Kc459pd95VtxC_nLF2hZHEK8xeCdVd0fvDh8XNTrH9IGpNs-ap894ATQgR1cmhY4S_xakmeuZ70Vfv63jQ2lgMzWbIxDWNSyuYEueGcxMpoceMfsYZ4skzfxCCAWSS0-6ssjFwiPmTwYth36y0e4NhprmEmoemSJHA
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 10 Jan 2025 23:30:36 GMT
+      Server:
+      - nginx
+      Content-Type:
+      - application/json
+      X-Okta-Request-Id:
+      - Z4GtnOoXfWcbgf2DQb0yDwAADyM
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      Content-Security-Policy:
+      - 'default-src ''self'' wellhiveapphigh.okta-gov.com login.wellhive.com *.oktacdn.com;
+        connect-src ''self'' wellhiveapphigh.okta-gov.com wellhiveapphigh-admin.okta-gov.com
+        login.wellhive.com *.oktacdn.com *.mixpanel.com *.mapbox.com *.mtls.okta-gov.com
+        wellhiveapphigh.kerberos.okta-gov.com *.authenticatorlocalprod.com:8769 http://localhost:8769
+        http://127.0.0.1:8769 *.authenticatorlocalprod.com:65111 http://localhost:65111
+        http://127.0.0.1:65111 *.authenticatorlocalprod.com:65121 http://localhost:65121
+        http://127.0.0.1:65121 *.authenticatorlocalprod.com:65131 http://localhost:65131
+        http://127.0.0.1:65131 *.authenticatorlocalprod.com:65141 http://localhost:65141
+        http://127.0.0.1:65141 *.authenticatorlocalprod.com:65151 http://localhost:65151
+        http://127.0.0.1:65151 https://oinmanager.okta.com data: data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com; script-src ''unsafe-inline''
+        ''unsafe-eval'' ''self'' ''report-sample'' wellhiveapphigh.okta-gov.com login.wellhive.com
+        *.oktacdn.com; style-src ''unsafe-inline'' ''self'' wellhiveapphigh.okta-gov.com
+        login.wellhive.com *.oktacdn.com; frame-src ''self'' wellhiveapphigh.okta-gov.com
+        wellhiveapphigh-admin.okta-gov.com login.wellhive.com login.okta.com com-okta-authenticator:;
+        img-src ''self'' wellhiveapphigh.okta-gov.com login.wellhive.com *.oktacdn.com
+        *.tiles.mapbox.com *.mapbox.com data: data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        pendo-static-5391521872216064.storage.googleapis.com blob:; font-src ''self''
+        wellhiveapphigh.okta-gov.com login.wellhive.com data: *.oktacdn.com fonts.gstatic.com;
+        frame-ancestors ''self'''
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      Set-Cookie:
+      - activate_ca_modal_triggered=""; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/
+      - autolaunch_triggered=""; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/
+      - sid="";Version=1;Path=/;Max-Age=0
+      - xids="";Version=1;Path=/;Max-Age=0
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"errorCode":"invalid_client","errorSummary":"Invalid value for ''client_id''
+        parameter.","errorLink":"invalid_client","errorId":"oaeSxICVTYMQ2acj0PiqCbM5w","errorCauses":[]}'
+  recorded_at: Fri, 10 Jan 2025 23:30:36 GMT
+recorded_with: VCR 6.3.1

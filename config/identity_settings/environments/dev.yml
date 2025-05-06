@@ -1,0 +1,59 @@
+idme:
+  client_cert_path: /srv/vets-api/secret/sign-in-service-oauth-lowers.pem
+  client_id: dde0b5b8bfc023a093830e64ef83f148
+  client_key_path: /srv/vets-api/secret/sign-in-service-oauth-lowers-key.pem
+  redirect_uri: https://dev-api.va.gov/v0/sign_in/callback
+
+logingov:
+  client_cert_path: /srv/vets-api/secret/sign-in-service-oauth-lowers.pem
+  client_key_path: /srv/vets-api/secret/sign-in-service-oauth-lowers-key.pem
+  logout_redirect_uri: https://dev-api.va.gov/v0/sign_in/logingov_logout_proxy
+  oauth_public_key: /srv/vets-api/secret/logingov_oauth_pub.pem
+  redirect_uri: https://dev-api.va.gov/v0/sign_in/callback
+
+map_services:
+  client_cert_path: /srv/vets-api/secret/mobile-application-platform-lowers.pem
+  client_key_path: /srv/vets-api/secret/mobile-application-platform-lowers-key.pem
+
+mhv:
+  account_creation:
+    sts:
+      issuer: https://dev-api.va.gov
+      service_account_id: e2386c6ec816c44ddcb82e21fe730cb2
+
+mvi:
+  client_cert_path: /etc/pki/tls/certs/vetsgov-mvi-cert.pem
+  client_key_path: /etc/pki/tls/private/vetsgov-mvi.key
+  url: https://fwdproxy-dev.vfs.va.gov:4434/psim_webservice/dev/IdMWebService
+
+saml_ssoe:
+  callback_url: https://dev-api.va.gov/v1/sessions/callback
+  cert_path: /srv/vets-api/secret/vagov-ssoe-saml-dev-cert.pem
+  idp_metadata_file: /app/config/ssoe_idp_int_metadata_isam.xml
+  issuer: https://ssoe-sp-dev.va.gov
+  key_path: /srv/vets-api/secret/vagov-ssoe-saml-dev-key.pem
+  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  request_signing: true
+  response_encryption: true
+  response_signing: true
+  tou_decline_logout_app_key: https://ssoe-sp-dev.va.gov/agreements_declined
+
+session_cookie:
+  secure: true
+
+sign_in:
+  cookies_secure: true
+  info_cookie_domain: va.gov
+  jwt_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-lowers-key.pem
+  jwt_old_encode_key: /srv/vets-api/secret/sign-in-service-token-signing-lowers-key-old.pem
+  mock_auth_url: https://dev-api.va.gov/mocked_authentication/profiles
+  mock_redirect_uri: https://dev-api.va.gov/v0/sign_in/callback
+  sts_client:
+    base_url: https://dev-api.va.gov
+    key_path: /srv/vets-api/secret/sign-in-service-sts-client.pem
+  usip_uri: https://dev.va.gov/sign-in
+
+ssoe_eauth_cookie:
+  domain: .va.gov
+  name: vagov_saml_request_dev
+  secure: true

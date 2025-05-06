@@ -49,7 +49,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
     let(:veteran_id) { '1013062086V794840' }
 
-    context 'submit' do
+    describe 'submit', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
       let(:validate_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
 
@@ -422,30 +422,54 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           end
         end
 
-        context 'when email exceeds max length' do
-          let(:email) { '1234567890abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
+        context 'when email exceeds max length of 80 characters' do
+          let(:email) { '123456789011121314151617abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /veteranIdentification/emailAddress/email did not match the ' \
+                'following requirements:'
+              )
             end
           end
         end
 
-        context 'when email is not valid' do
-          let(:email) { '.invalid@somedomain.com' }
+        context 'when email TLD is over 3 characters' do
+          let(:email) { 'valid@some.extralongtld' }
 
-          it 'responds with bad request' do
+          it 'responds with accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when email TLD is under 2 characters' do
+          let(:email) { '1234567890abcd@some.v' }
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /veteranIdentification/emailAddress/email did not match the ' \
+                'following requirements:'
+              )
             end
           end
         end
@@ -4049,93 +4073,95 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       end
     end
 
-    context 'attachments' do
-      let(:auto_claim) { create(:auto_established_claim) }
-      let(:attachments_path) do
-        "/services/claims/v2/veterans/#{veteran_id}/526/#{auto_claim.id}/attachments"
-      end
-      let(:target_veteran) do
-        OpenStruct.new(
-          icn: veteran_id,
-          first_name: 'abraham',
-          last_name: 'lincoln',
-          loa: { current: 3, highest: 3 },
-          ssn: '796111863',
-          edipi: '8040545646',
-          participant_id: '600061742',
-          mpi: OpenStruct.new(
+    describe 'attachments', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526/{id}/attachments' do
+      context 'attachments' do
+        let(:auto_claim) { create(:auto_established_claim) }
+        let(:attachments_path) do
+          "/services/claims/v2/veterans/#{veteran_id}/526/#{auto_claim.id}/attachments"
+        end
+        let(:target_veteran) do
+          OpenStruct.new(
             icn: veteran_id,
-            profile: OpenStruct.new(ssn: '796111863')
+            first_name: 'abraham',
+            last_name: 'lincoln',
+            loa: { current: 3, highest: 3 },
+            ssn: '796111863',
+            edipi: '8040545646',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: veteran_id,
+              profile: OpenStruct.new(ssn: '796111863')
+            )
           )
-        )
-      end
-
-      describe 'with binary params' do
-        let(:binary_params) do
-          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                         .split('/')).to_s),
-            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                         .split('/')).to_s) }
         end
 
-        it 'responds with a 202' do
-          mock_ccg(scopes) do |auth_header|
-            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(target_veteran)
-            post attachments_path, params: binary_params, headers: auth_header
-            expect(response).to have_http_status(:accepted)
+        describe 'with binary params' do
+          let(:binary_params) do
+            { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                          .split('/')).to_s),
+              attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                          .split('/')).to_s) }
+          end
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(target_veteran)
+              post attachments_path, params: binary_params, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
           end
         end
-      end
 
-      describe 'with base 64 params' do
-        let(:base64_params) do
-          { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
-            attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
-        end
+        describe 'with base 64 params' do
+          let(:base64_params) do
+            { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+              attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
+          end
 
-        it 'responds with a 202' do
-          mock_ccg(scopes) do |auth_header|
-            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(target_veteran)
-            post attachments_path, params: base64_params, headers: auth_header
-            expect(response).to have_http_status(:accepted)
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(target_veteran)
+              post attachments_path, params: base64_params, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
           end
         end
-      end
 
-      describe 'with more then 10 attachments' do
-        let(:binary_params) do
-          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment3: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment4: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment5: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment7: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment6: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment8: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment9: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment10: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment11: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s) }
-        end
+        describe 'with more then 10 attachments' do
+          let(:binary_params) do
+            { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment3: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment4: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment5: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment7: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment6: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment8: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment9: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment10: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment11: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s) }
+          end
 
-        it 'responds with a 422' do
-          mock_ccg(scopes) do |auth_header|
-            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(target_veteran)
-            post attachments_path, params: binary_params, headers: auth_header
-            expect(response).to have_http_status(:unprocessable_entity)
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(target_veteran)
+              post attachments_path, params: binary_params, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
           end
         end
       end
@@ -4219,7 +4245,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     end
   end
 
-  describe 'POST #submit not using md5 lookup' do
+  describe 'POST #submit not using md5 lookup',
+           skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
@@ -4262,9 +4289,17 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   describe 'POST #synchronous' do
     let(:veteran_id) { '1012832025V743496' }
     let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
-      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
-                      'form_526_json_api.json').read
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+                             'form_526_json_api.json').read
+      temp = JSON.parse(temp)
+      attributes = temp['data']['attributes']
+      attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
+      attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      temp.to_json
     end
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
     let(:synchronous_scopes) { %w[system/526.override system/claim.write] }
@@ -4306,7 +4341,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 claim_id = parsed_res['data']['id']
                 aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
-                expect(aec.transaction_id).to eq(nil)
+                expect(aec.transaction_id).to be_nil
                 expect(parsed_res).not_to have_key('meta')
                 expect(response).to have_http_status(:accepted)
               end

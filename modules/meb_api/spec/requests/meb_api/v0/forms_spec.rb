@@ -51,7 +51,7 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
     # context 'Retrieves sponsors for FryDea' do
     #   it 'returns a 200 status' do
     #     VCR.use_cassette('dgi/forms/sponsor_fry_dea') do
-    #       post '/meb_api/v0/forms_sponsors', params: { "form_type": 'FryDea' }
+    #       post '/meb_api/v0/forms_sponsors', params: { 'form_type': 'FryDea' }
     #       expect(response).to have_http_status(:ok)
     #     end
     #   end
@@ -65,6 +65,34 @@ Rspec.describe 'MebApi::V0 Forms', type: :request do
           get '/meb_api/v0/forms_claimant_info'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+        end
+      end
+
+      it 'returns a claimant info 200 status with type as a parameter' do
+        VCR.use_cassette('dgi/post_chapter35_claimant_info') do
+          get '/meb_api/v0/forms_claimant_info', params: { type: 'chapter35' }
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+        end
+      end
+    end
+  end
+
+  describe 'GET /meb_api/v0/forms_claim_status' do
+    context 'when polling for a claimant id' do
+      it 'handles a request when the claimant has not been created yet' do
+        VCR.use_cassette('dgi/polling_with_race_condition') do
+          get '/meb_api/v0/forms_claim_status', params: { type: 'ToeSubmission' }
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes']['claimStatus']).to eq('INPROGRESS')
+        end
+      end
+
+      it 'handles a request when the claimant has been created' do
+        VCR.use_cassette('dgi/polling_without_race_condition') do
+          get '/meb_api/v0/forms_claim_status', params: { type: 'ToeSubmission' }
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes']['claimant_id']).to eq(600_000_001)
         end
       end
     end

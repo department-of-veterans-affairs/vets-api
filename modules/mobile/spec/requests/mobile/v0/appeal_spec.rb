@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
+require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Appeal', type: :request do
   include JsonSchemaMatchers
+  include CommitteeHelper
 
   describe 'GET /v0/appeal/:id' do
     let!(:user) { sis_user }
@@ -20,7 +22,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
                   'aod' => false,
                   'aoj' => 'vba',
                   'description' => '',
-                  'docket' => nil,
+                  'docket' => {},
                   'events' =>
                     [{ 'date' => '2008-04-24', 'type' => 'claim_decision' },
                      { 'date' => '2008-06-11', 'type' => 'nod' },
@@ -74,7 +76,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
         it 'and a result that matches our schema is successfully returned with the 200 status' do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/appeal/3294289', headers: sis_headers
-            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
             expect(response.parsed_body).to eq(appeal_response)
           end
         end
@@ -82,8 +84,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
         it 'and attempting to access a nonexistent appeal returns a 404 with an error' do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/appeal/1234567', headers: sis_headers
-            expect(response).to have_http_status(:not_found)
-            expect(response.body).to match_json_schema('evss_errors')
+            assert_schema_conform(404)
           end
         end
       end
@@ -94,7 +95,8 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
         it 'and a result that matches our schema is successfully returned with the 200 status' do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/appeal/3294289', headers: sis_headers
-            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
+            appeal_response['data']['attributes']['docket'] = nil
             expect(response.parsed_body).to eq(appeal_response)
           end
         end
@@ -102,8 +104,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
         it 'and attempting to access a nonexistant appeal returns a 404 wtih an error' do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/appeal/1234567', headers: sis_headers
-            expect(response).to have_http_status(:not_found)
-            expect(response.body).to match_json_schema('evss_errors')
+            assert_schema_conform(404)
           end
         end
       end
@@ -115,7 +116,7 @@ RSpec.describe 'Mobile::V0::Appeal', type: :request do
       it 'returns 403 status' do
         VCR.use_cassette('caseflow/appeals') do
           get '/mobile/v0/appeal/3294289', headers: sis_headers
-          expect(response).to have_http_status(:forbidden)
+          assert_schema_conform(403)
         end
       end
     end

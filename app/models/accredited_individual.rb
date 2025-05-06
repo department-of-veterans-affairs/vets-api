@@ -3,7 +3,7 @@
 require 'accredited_representation/constants'
 
 class AccreditedIndividual < ApplicationRecord
-  # Represents an accredited individual (attorney, claims agent, representative) as defined by he OGC accreditation
+  # Represents an accredited individual (attorney, claims agent, representative) as defined by the OGC accreditation
   # APIs. Until a form of soft deletion is implemented, these records will only reflect individuals with active
   # accreditation.
   #
@@ -27,7 +27,7 @@ class AccreditedIndividual < ApplicationRecord
   validates :poa_code, length: { is: 3 }, allow_blank: true
   validates :individual_type, uniqueness: { scope: :registration_number }
 
-  enum individual_type: {
+  enum :individual_type, {
     'attorney' => 'attorney',
     'claims_agent' => 'claims_agent',
     'representative' => 'representative'

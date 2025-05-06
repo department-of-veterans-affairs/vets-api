@@ -1,0 +1,131 @@
+{
+  "form526": {
+    "form526": {
+      "veteran": {
+        "emailAddress": "test@email.com",
+        "alternateEmailAddress": "test2@email.com",
+        "mailingAddress": {
+          "country": "USA",
+          "addressLine1": "1234 Classy Street",
+          "addressLine2": "Apartment 567",
+          "type": "DOMESTIC",
+          "city": "Quaint Town",
+          "state": "OR",
+          "zipFirstFive": "85918",
+          "zipLastFour": "1212"
+        },
+        "forwardingAddress": {
+          "effectiveDate": "2018-03-29",
+          "country": "USA",
+          "addressLine1": "1234 de Buen Tono Calle",
+          "addressLine2": "Apartamento 567",
+          "type": "MILITARY",
+          "militaryPostOfficeTypeCode": "APO",
+          "militaryStateCode": "AA",
+          "zipFirstFive": "12345",
+          "zipLastFour": "6789"
+        },
+        "primaryPhone": {
+          "areaCode": "202",
+          "phoneNumber": "4561111"
+        },
+        "homelessness": {
+          "hasPointOfContact": true,
+          "pointOfContact": {
+            "pointOfContactName": "Ted",
+            "primaryPhone": {
+              "areaCode": "123",
+              "phoneNumber": "4567890"
+            }
+          }
+        },
+        "serviceNumber": "string"
+      },
+      "militaryPayments": {
+        "payments": [],
+        "receiveCompensationInLieuOfRetired": false
+      },
+      "serviceInformation": {
+        "servicePeriods": [
+          {
+            "serviceBranch": "National Oceanic & Atmospheric Administration",
+            "activeDutyBeginDate": "2018-03-29",
+            "activeDutyEndDate": "2018-03-29"
+          }
+        ],
+        "reservesNationalGuardService": {
+          "title10Activation": {
+            "title10ActivationDate": "2018-03-29",
+            "anticipatedSeparationDate": "2018-03-29"
+          },
+          "obligationTermOfServiceFromDate": "2018-03-29",
+          "obligationTermOfServiceToDate": "2018-03-29",
+          "unitName": "string",
+          "inactiveDutyTrainingPay": {
+            "waiveVABenefitsToRetainTrainingPay": false
+          }
+        },
+        "alternateNames": [
+          {
+            "firstName": "string",
+            "middleName": "string",
+            "lastName": "string"
+          }
+        ],
+        "confinements": [
+          {
+            "confinementBeginDate": "2018-03-29",
+            "confinementEndDate": "2018-03-29",
+            "verifiedIndicator": false
+          }
+        ]
+      },
+      "disabilities": [
+        {
+          "name": "ALS (amyotrophic lateral sclerosis)",
+          "classificationCode": "9007",
+          "disabilityActionType": "INCREASE",
+          "ratedDisabilityId": "1",
+          "diagnosticCode": 7101,
+          "secondaryDisabilities": []
+        }
+      ],
+      "treatments": [
+        {
+          "center": {
+            "name": "string",
+            "type": "DOD_MTF",
+            "country": "USA",
+            "city": "string",
+            "state": "OR"
+          },
+          "startDate": "2018-03-29",
+          "endDate": "2018-03-29"
+        }
+      ],
+      "specialCircumstances": [
+        {
+          "name": "string",
+          "code": "string",
+          "needed": false
+        }
+      ],
+      "standardClaim": false,
+      "claimantCertification": true,
+      "autoCestPDFGenerationDisabled": false,
+      "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+      "directDeposit": {
+        "accountType": "CHECKING",
+        "accountNumber": "9876543211234",
+        "routingNumber": "042102115",
+        "bankName": "Comerica"
+      }
+    }
+  },
+  "form526_uploads": [],
+  "form4142": null,
+  "form0781": null,
+  "form8940": null,
+  "flashes": ["Amyotrophic Lateral Sclerosis", "Terminally Ill"]
+}
+

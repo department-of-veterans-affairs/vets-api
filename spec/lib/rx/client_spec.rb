@@ -29,7 +29,7 @@ describe Rx::Client do
       VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
         client_response = client.get_preferences
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-        expect(client_response.rx_flag).to eq(true)
+        expect(client_response.rx_flag).to be(true)
       end
     end
 
@@ -37,11 +37,11 @@ describe Rx::Client do
       VCR.use_cassette('rx_client/preferences/sets_rx_preferences') do
         client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
         expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
-        expect(client_response.rx_flag).to eq(false)
+        expect(client_response.rx_flag).to be(false)
         # Change it back to what it was to make this test idempotent
         client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-        expect(client_response.rx_flag).to eq(true)
+        expect(client_response.rx_flag).to be(true)
       end
     end
 
@@ -72,7 +72,7 @@ describe Rx::Client do
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
         else
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -87,7 +87,7 @@ describe Rx::Client do
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:gethistoryrx")
         else
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -144,8 +144,8 @@ describe Rx::Client do
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
-          expect(client_response.cached?).to eq(false)
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(client_response.cached?).to be(false)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -164,6 +164,69 @@ describe Rx::Client do
 
   describe 'Prescriptions with caching enabled' do
     it_behaves_like 'prescriptions', true
+  end
+
+  describe 'Test new API gateway methods' do
+    before do
+      allow(Settings.mhv.rx).to receive(:use_new_api).and_return(use_new_api)
+      allow(Settings.mhv_mobile.rx).to receive(:x_api_key).and_return('fake-x-api-key')
+      allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
+                                                                  app_token: 'test-app-token'))
+      allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
+                                                                  app_token: 'test-app-token',
+                                                                  x_api_key: 'fake-x-api-key'))
+    end
+
+    describe '#auth_headers' do
+      let(:use_new_api) { true }
+
+      it 'returns headers with appToken and mhvCorrelationId' do
+        result = client.send(:auth_headers)
+        expect(result).to include('x-api-key' => 'fake-x-api-key')
+      end
+    end
+
+    describe '#get_headers' do
+      let(:headers) { { 'custom-header' => 'value' } }
+
+      context 'when use_new_api is true' do
+        let(:use_new_api) { true }
+
+        it 'adds x-api-key to headers' do
+          result = client.send(:get_headers, headers)
+          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'fake-x-api-key')
+        end
+      end
+
+      context 'when use_new_api is false' do
+        let(:use_new_api) { false }
+
+        it 'returns headers without x-api-key' do
+          result = client.send(:get_headers, headers)
+          expect(result).to eq(headers)
+        end
+      end
+    end
+
+    describe '#get_path' do
+      context 'when use_new_api is true' do
+        let(:use_new_api) { true }
+
+        it 'returns path with pharmacy/ess' do
+          result = client.send(:get_path, 'test-endpoint')
+          expect(result).to eq('pharmacy/ess/test-endpoint')
+        end
+      end
+
+      context 'when use_new_api is false' do
+        let(:use_new_api) { false }
+
+        it 'returns path with prescription' do
+          result = client.send(:get_path, 'test-endpoint')
+          expect(result).to eq('prescription/test-endpoint')
+        end
+      end
+    end
   end
 
   def cache_key_for(collection)

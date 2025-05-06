@@ -31,6 +31,7 @@ properties:
       - draftDate
       - toDate
       - hasAttachments
+      - suggestedNameDisplay
     properties:
       messageId:
         type: integer
@@ -100,6 +101,9 @@ properties:
       hasAttachments:
         type: boolean
         example: false
+      suggestedNameDisplay:
+        type: string
+        example: "Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - Madison, James"
   links:
     type: object
     required:

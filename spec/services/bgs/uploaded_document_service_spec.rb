@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::UploadedDocumentService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
 
   describe '#get_documents' do
     context 'with a valid participant id' do
@@ -22,7 +22,7 @@ RSpec.describe BGS::UploadedDocumentService do
           allow(user).to receive(:participant_id).and_return('11111111111')
           service = BGS::UploadedDocumentService.new(user)
           response = service.get_documents
-          expect(response).to eq(false)
+          expect(response).to be_empty
         end
       end
     end

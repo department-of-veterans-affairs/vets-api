@@ -42,10 +42,10 @@ module Slack
 
     def build_section(text, text_type)
       {
-        "type": 'section',
-        "text": {
-          "type": text_type,
-          "text": text
+        type: 'section',
+        text: {
+          type: text_type,
+          text:
         }
       }
     end

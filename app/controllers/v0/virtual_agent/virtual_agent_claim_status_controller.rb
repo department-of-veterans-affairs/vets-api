@@ -10,7 +10,7 @@ module V0
       include IgnoreNotFound
       service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      unless Settings.vsp_environment.downcase == 'localhost' || Settings.vsp_environment.downcase == 'development'
+      unless %w[localhost development].include?(Settings.vsp_environment.downcase)
         before_action { authorize :lighthouse, :access? }
       end
 
@@ -34,6 +34,14 @@ module V0
         raw_claim_list = lighthouse_service.get_claims['data']
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
         conversation_id = params[:conversation_id]
+        if conversation_id.blank?
+          Rails.logger.error(
+            'V0::VirtualAgent::VirtualAgentClaimStatusController#poll_claims_from_lighthouse ' \
+            'conversation_id is missing in parameters'
+          )
+          raise ActionController::ParameterMissing, 'conversation_id'
+        end
+
         begin
           claims = order_claims_lighthouse(raw_claim_list)
           report_or_error(cxdw_reporting_service, conversation_id)
@@ -46,7 +54,35 @@ module V0
       end
 
       def get_claim_from_lighthouse(id)
-        lighthouse_service.get_claim(id)
+        claim = lighthouse_service.get_claim(id)
+        # Manual status override for certain tracked items
+        # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/101447
+        # This should be removed when the items are re-categorized by BGS
+        # We are not doing this in the Lighthouse service because we want web and mobile to have
+        # separate rollouts and testing.
+        claim = override_rv1(claim) if Flipper.enabled?(:cst_override_reserve_records_website)
+        # https://github.com/department-of-veterans-affairs/va.gov-team/issues/98364
+        # This should be removed when the items are removed by BGS
+        claim = suppress_evidence_requests(claim) if Flipper.enabled?(:cst_suppress_evidence_requests_website)
+        claim
+      end
+
+      def override_rv1(claim)
+        tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+        return claim unless tracked_items
+
+        tracked_items.select { |i| i['displayName'] == 'RV1 - Reserve Records Request' }.each do |i|
+          i['status'] = 'NEEDED_FROM_OTHERS'
+        end
+        claim
+      end
+
+      def suppress_evidence_requests(claim)
+        tracked_items = claim.dig('data', 'attributes', 'trackedItems')
+        return unless tracked_items
+
+        tracked_items.reject! { |i| BenefitsClaims::Service::SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+        claim
       end
 
       def lighthouse_service

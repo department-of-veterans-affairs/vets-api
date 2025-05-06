@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'caseflow/service'
-require 'decision_review/service'
 require 'common/exceptions'
 
 module AppealsApi
   module V0
     class AppealsController < ApplicationController
+      include AppealsApi::GatewayOriginCheck
+
       skip_before_action(:authenticate)
 
       def index

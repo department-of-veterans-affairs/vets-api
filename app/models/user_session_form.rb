@@ -22,22 +22,23 @@ class UserSessionForm
     @saml_uuid = saml_response.in_response_to
     saml_user = SAML::User.new(saml_response)
     saml_attributes = normalize_saml(saml_user)
-    existing_user = User.find(saml_attributes[:uuid])
+    uuid = saml_attributes[:uuid]
+    existing_user = User.find(uuid)
+    @session = Session.new(uuid:, ssoe_transactionid: saml_user.user_attributes.try(:transactionid))
     @user_identity = UserIdentity.new(saml_attributes)
-    @user = User.new(uuid: @user_identity.attributes[:uuid])
+    @user = User.new(uuid:)
+    @user.session_handle = @session.token
     @user.instance_variable_set(:@identity, @user_identity)
+    @user.invalidate_mpi_cache
 
     if saml_user.changing_multifactor?
       last_signed_in = existing_user&.last_signed_in || Time.current.utc
       @user.mhv_last_signed_in = last_signed_in
       @user.last_signed_in = last_signed_in
-      log_existing_user_warning(saml_attributes[:uuid], saml_attributes[:mhv_icn]) unless existing_user
+      log_existing_user_warning(uuid, saml_attributes[:mhv_icn]) unless existing_user
     else
       @user.last_signed_in = Time.current.utc
     end
-
-    ssoe_transactionid = saml_user.user_attributes.try(:transactionid)
-    @session = Session.new(uuid: @user.uuid, ssoe_transactionid:)
   end
 
   def normalize_saml(saml_user)

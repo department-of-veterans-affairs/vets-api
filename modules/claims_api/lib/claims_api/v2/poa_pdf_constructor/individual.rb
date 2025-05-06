@@ -51,11 +51,11 @@ module ClaimsApi
             "#{base_form}.AuthorizationForRepActClaimantsBehalf[0]": data['consentAddressChange'] == true ? 1 : 0,
             # Conditions of Appointment
             # Item 22B
-            "#{base_form}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
+            "#{base_form}.Date_Signed[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form),
             # Item 23
             "#{base_form}.LIMITATIONS[0]": data['conditionsOfAppointment']&.join(', '),
             # Item 24B
-            "#{base_form}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
+            "#{base_form}.Date_Signed[1]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
 
@@ -96,7 +96,7 @@ module ClaimsApi
             "#{base_form}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipCode'),
             "#{base_form}.MailingAddress_ZIPOrPostalCode_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipCodeSuffix'),
             # Item 8
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": handle_country_code(data.dig('veteran', 'phone')),
             # Item 9
             "#{base_form}.EmailAddress_Optional[0]": data.dig('veteran', 'email'),
 
@@ -114,9 +114,9 @@ module ClaimsApi
             "#{base_form}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipCode'),
             "#{base_form}.CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipCodeSuffix'),
             # Item 12
-            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
+            "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": handle_country_code(data.dig('claimant', 'phone')),
             # Item 13
-            "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email'),
+            "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email')&.downcase,
             # Item 14
             "#{base_form}.RelationshipToVeteran[0]": data.dig('claimant', 'relationship'),
 

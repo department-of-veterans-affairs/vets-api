@@ -31,9 +31,9 @@ shared_examples 'removes expired PII' do
        extra_supplemental_claim minimal_supplemental_claim_v0]
   end
 
-  def create_appeals = [FactoryBot.create(v0_factory), FactoryBot.create(v2_factory)]
+  def create_appeals = [create(v0_factory), create(v2_factory)]
 
-  def create_misc_appeals = create_appeals + misc_appeal_types.map { |f| FactoryBot.create(f) }
+  def create_misc_appeals = create_appeals + misc_appeal_types.map { |f| create(f) }
 
   let!(:unexpired_appeals) do # These should all be ignored and remain unchanged
     appeals = []

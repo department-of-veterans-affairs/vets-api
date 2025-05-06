@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
-require 'medical_records/patient_not_found'
 
 module MedicalRecords
   ##
@@ -14,7 +13,7 @@ module MedicalRecords
     include Common::Client::Concerns::MhvFhirSessionClient
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 9999
+    DEFAULT_COUNT = 200
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11506-3' # Physician procedure note
@@ -43,7 +42,11 @@ module MedicalRecords
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.medical_records.host}/fhir/"
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        "#{Settings.mhv.api_gateway.hosts.fhir}/v1/fhir/"
+      else
+        "#{Settings.mhv.medical_records.host}/fhir/"
+      end
     end
 
     ##
@@ -72,22 +75,27 @@ module MedicalRecords
     # @return [FHIR::Client]
     #
     def fhir_client
-      raise MedicalRecords::PatientNotFound if patient_fhir_id.nil?
-
       @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
       result = fhir_client.search(FHIR::Patient, {
                                     search: { parameters: { identifier: } },
-                                    headers: { 'Cache-Control': 'no-cache' }
+                                    headers: default_headers
                                   })
+
+      # MHV will return a 202 if and only if the patient does not exist. It will not return 202 for
+      # multiple patients found.
+      return :patient_not_found if result.response[:code] == 202
+
       resource = result.resource
       handle_api_errors(result) if resource.nil?
       resource
     end
 
     def list_allergies
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::AllergyIntolerance,
                            search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
                                                    'verification-status:not': 'entered-in-error' } })
@@ -99,6 +107,8 @@ module MedicalRecords
     end
 
     def list_vaccines
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::Immunization,
                            search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :occurrenceDateTime, :desc)
@@ -108,7 +118,10 @@ module MedicalRecords
       fhir_read(FHIR::Immunization, vaccine_id)
     end
 
-    def list_vitals
+    # Function args are accepted and ignored for compatibility with MedicalRecords::LighthouseClient
+    def list_vitals(*)
+      return :patient_not_found unless patient_found?
+
       # loinc_codes =
       #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,
@@ -118,6 +131,8 @@ module MedicalRecords
     end
 
     def list_conditions
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::Condition,
                            search: { parameters: { patient: patient_fhir_id,
                                                    'verification-status:not': 'entered-in-error' } })
@@ -125,14 +140,20 @@ module MedicalRecords
     end
 
     def get_condition(condition_id)
+      return :patient_not_found unless patient_found?
+
       fhir_read(FHIR::Condition, condition_id)
     end
 
     def list_clinical_notes
-      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY},#{CONSULT_RESULT}"
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::DocumentReference,
-                           search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
-                                                   'status:not': 'entered-in-error' } })
+                           search: { parameters: {
+                             patient: patient_fhir_id,
+                             category: 'http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category|clinical-note',
+                             'status:not': 'entered-in-error'
+                           } })
 
       # Sort the bundle of notes based on the date field appropriate to each note type.
       sort_bundle_with_criteria(bundle, :desc) do |resource|
@@ -152,16 +173,22 @@ module MedicalRecords
     end
 
     def get_clinical_note(note_id)
+      return :patient_not_found unless patient_found?
+
       fhir_read(FHIR::DocumentReference, note_id)
     end
 
     def list_labs_and_tests
+      return :patient_not_found unless patient_found?
+
       bundle = fhir_search(FHIR::DiagnosticReport,
                            search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
       sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def get_diagnostic_report(record_id)
+      return :patient_not_found unless patient_found?
+
       fhir_read(FHIR::DiagnosticReport, record_id)
     end
 
@@ -174,6 +201,8 @@ module MedicalRecords
     # @return [FHIR::Bundle]
     #
     def list_labs_document_reference
+      return :patient_not_found unless patient_found?
+
       loinc_codes = "#{EKG},#{RADIOLOGY}"
       fhir_search(FHIR::DocumentReference,
                   search: { parameters: { patient: patient_fhir_id, type: loinc_codes,
@@ -189,14 +218,30 @@ module MedicalRecords
     #
     def fhir_search(fhir_model, params)
       reply = fhir_search_query(fhir_model, params)
+
       combined_bundle = reply.resource
       loop do
+        rewrite_next_link(reply.resource)
         break unless reply.resource.next_link
 
-        reply = fhir_client.next_page(reply)
+        reply = fhir_client.next_page(reply, headers: default_headers)
         combined_bundle = merge_bundles(combined_bundle, reply.resource)
       end
       combined_bundle
+    end
+
+    ##
+    # Because we use a fwdproxy, the "next" link has the wrong host. This method rewrites the link.
+    #
+    # @param bundle [FHIR:Bundle] A FHIR bundle, potentially with a "next" link to rewrite
+    #
+    def rewrite_next_link(bundle)
+      next_link = bundle.link.find { |l| l.relation == 'next' }
+      return unless next_link
+
+      uri = URI.parse(next_link.url)
+      stripped_base = base_path.chomp('/')
+      next_link.url = "#{stripped_base}?#{uri.query}"
     end
 
     ##
@@ -207,7 +252,6 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      default_headers = { 'Cache-Control': 'no-cache' }
       params[:headers] = default_headers.merge(params.fetch(:headers, {}))
 
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
@@ -218,9 +262,17 @@ module MedicalRecords
     end
 
     def fhir_read(fhir_model, id)
-      result = fhir_client.read(fhir_model, id)
+      result = fhir_client.read(fhir_model, id, nil, nil, { headers: default_headers })
       handle_api_errors(result) if result.resource.nil?
       result.resource
+    end
+
+    def default_headers
+      headers = { 'Cache-Control' => 'no-cache' }
+      if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
+        headers['x-api-key'] = Settings.mhv.medical_records.x_api_key
+      end
+      headers
     end
 
     def handle_api_errors(result)
@@ -228,12 +280,6 @@ module MedicalRecords
         body = JSON.parse(result.body)
         diagnostics = body['issue']&.first&.fetch('diagnostics', nil)
         diagnostics = "Error fetching data#{": #{diagnostics}" if diagnostics}"
-
-        # Special-case exception handling
-        if result.code == 500 && diagnostics.include?('HAPI-1363')
-          # "HAPI-1363: Either No patient or multiple patient found"
-          raise MedicalRecords::PatientNotFound
-        end
 
         # Default exception handling
         raise Common::Exceptions::BackendServiceException.new(
@@ -355,6 +401,12 @@ module MedicalRecords
           0
         end
       end
+    end
+
+    private
+
+    def patient_found?
+      !patient_fhir_id.nil?
     end
   end
 end

@@ -1,0 +1,89 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://<ADDRESS_VALIDATION>/services/address-validation/v3/candidate
+    body:
+      encoding: UTF-8
+      string: '{"address":{"addressLine1":"sdfdsfsdf","cityName":"Sparks Glencoe","zipCode5":"21152","country":{"countryCodeISO3":"USA","countryName":"USA"},"state":{"stateCode":"MD"},"province":{},"addressPOU":"RESIDENCE"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Apikey:
+      - "<AV_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 22 Oct 2024 19:26:20 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Expires:
+      - '0'
+      Pragma:
+      - no-cache
+      - no-cache
+      Vet360txauditid:
+      - 1a19bb51-3466-4484-81bf-8c42585f91f1
+      Via:
+      - kong/3.0.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '97'
+      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '500'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '498'
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '58751'
+      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '250'
+      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '248'
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: ASCII-8BIT
+      string: '{"candidateAddresses":[{"addressLine1":"Sdfdsfsdf","cityName":"Sparks Glencoe","zipCode5":"21152",
+        "state":{"stateName":"Maryland","stateCode":"MD"},"country":{"countryName":"United States",
+        "countryCodeFips":"US","countryCodeIso2":"US","countryCodeIso3":"USA"},"geocode":{
+        "calcDate":"2024-10-22T19:26:20+00:00Z","latitude":39.5412,"longitude":-76.6676},"confidence":0.0,
+        "addressType":"Domestic","deliveryPointValidation":"MISSING_ZIP"}],"overrideValidationKey":1499210293,
+        "messages":[{"code":"ADDRVAL108","key":"CandidateAddressNotFound","severity":"WARN","text":"No Candidate Address Found",
+        "potentially_self_correcting_on_retry":true}]}'
+    http_version:
+  recorded_at: Tue, 22 Oct 2024 19:26:20 GMT
+recorded_with: VCR 6.3.1

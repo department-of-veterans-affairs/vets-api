@@ -43,7 +43,7 @@ module ClaimsApi
       def validate_poa_code_for_current_user!(poa_code)
         return if valid_poa_code_for_current_user?(poa_code)
 
-        error_msg = 'Veterans making requests do not need to include identifying headers '\
+        error_msg = 'Veterans making requests do not need to include identifying headers ' \
                     "such as 'X-VA-First-Name'. Please resubmit without extraneous headers"
         raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_msg) if target_veteran_is_current_user?
 
@@ -65,35 +65,19 @@ module ClaimsApi
       # @param poa_code [String] poa code to match to @current_user
       #
       # @return [Boolean] True if valid poa code, False if not
-      def valid_poa_code_for_current_user?(poa_code) # rubocop:disable Metrics/MethodLength
+      def valid_poa_code_for_current_user?(poa_code)
         return false if @current_user.first_name.nil? || @current_user.last_name.nil?
 
-        reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
-                                                               last_name: @current_user.last_name)
+        reps_by_first_and_last_name = ::Veteran::Service::Representative.all_for_user(
+          first_name: @current_user.first_name,
+          last_name: @current_user.last_name
+        )
 
-        return false if reps.blank?
-
-        if reps.count > 1
-          if @current_user.middle_name.blank?
-            raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results'
-          else
-            middle_initial = @current_user.middle_name[0]
-            reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
-                                                                   last_name: @current_user.last_name,
-                                                                   middle_initial:)
-
-            if reps.blank? || reps.count > 1
-              reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name,
-                                                                     poa_code:)
-            end
-
-            raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
-            raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
-          end
-        end
-
-        reps.first.poa_codes.include?(poa_code)
+        exactly_one_rep_match?(reps_by_first_and_last_name, poa_code) ||
+          find_by_suffix(poa_code) ||
+          find_by_middle_initial(poa_code) ||
+          find_by_poa_code(poa_code) ||
+          handle_not_found(reps_by_first_and_last_name)
       end
 
       #
@@ -114,6 +98,47 @@ module ClaimsApi
 
       def poa_code_in_organization?(poa_code)
         ::Veteran::Service::Organization.find_by(poa: poa_code).present?
+      end
+
+      private
+
+      def exactly_one_rep_match?(reps, poa_code)
+        reps.first.poa_codes.include?(poa_code) if reps.count == 1
+      end
+
+      def find_by_suffix(poa_code)
+        return false if @current_user.suffix.blank?
+
+        last_name_with_suffix = "#{@current_user.last_name} #{@current_user.suffix}"
+        reps_by_suffix = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                                         last_name: last_name_with_suffix)
+
+        exactly_one_rep_match?(reps_by_suffix, poa_code)
+      end
+
+      def find_by_middle_initial(poa_code)
+        return false if @current_user.middle_name.blank?
+
+        middle_initial = @current_user.middle_name[0]
+        reps_by_middle_initial = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                                                 last_name: @current_user.last_name,
+                                                                                 middle_initial:)
+
+        exactly_one_rep_match?(reps_by_middle_initial, poa_code)
+      end
+
+      def find_by_poa_code(poa_code)
+        reps_by_poa_code = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                                           last_name: @current_user.last_name,
+                                                                           poa_code:)
+
+        exactly_one_rep_match?(reps_by_poa_code, poa_code)
+      end
+
+      def handle_not_found(reps)
+        raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
+
+        false
       end
     end
   end

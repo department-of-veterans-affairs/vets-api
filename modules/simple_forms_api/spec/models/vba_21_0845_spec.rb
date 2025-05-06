@@ -1,68 +1,69 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA210845 do
-  describe 'zip_code_is_us_based' do
-    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
+  it_behaves_like 'zip_code_is_us_based', %w[authorizer_address person_address organization_address]
 
-    context 'authorizer address is present and in US' do
-      let(:data) { { 'authorizer_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'authorizer address is present and not in US' do
-      let(:data) { { 'authorizer_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'person is present and in US' do
-      let(:data) { { 'person_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'person is present and not in US' do
-      let(:data) { { 'person_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'organization is present and in US' do
+  describe '#notification_first_name' do
+    context 'preparer is veteran' do
       let(:data) do
-        { 'organization_address' => { 'country' => 'USA' } }
+        {
+          'authorizer_type' => 'veteran',
+          'veteran_full_name' => {
+            'first' => 'Veteran',
+            'last' => 'Eteranvay'
+          }
+        }
       end
 
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
+      it 'returns the veteran first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Veteran'
       end
     end
 
-    context 'organization is present and not in US' do
+    context 'preparer is non-veteran' do
       let(:data) do
-        { 'organization_address' => { 'country' => 'Canada' } }
+        {
+          'authorizer_type' => 'nonVeteran',
+          'authorizer_full_name' => {
+            'first' => 'Authorizer',
+            'last' => 'Eteranvay'
+          }
+        }
       end
 
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
+      it 'returns the non-veteran first name' do
+        expect(described_class.new(data).notification_first_name).to eq 'Authorizer'
+      end
+    end
+  end
+
+  describe '#notification_email_address' do
+    context 'preparer is veteran' do
+      let(:data) do
+        {
+          'authorizer_type' => 'veteran',
+          'veteran_email' => 'a@b.com'
+        }
+      end
+
+      it 'returns the veteran email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
     end
 
-    context 'no valid address is given' do
-      let(:data) { {} }
+    context 'preparer is nonVeteran' do
+      let(:data) do
+        {
+          'authorizer_type' => 'nonVeteran',
+          'authorizer_email' => 'a@b.com'
+        }
+      end
 
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
+      it 'returns the authorizer email address' do
+        expect(described_class.new(data).notification_email_address).to eq 'a@b.com'
       end
     end
   end

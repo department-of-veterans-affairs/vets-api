@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/lcpe/lacs?state=MT"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - 2024-02-11 20:17:48 UTC
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"2db6c952ca306d1ceadf5008266c24fb"
+      X-Request-Id:
+      - baa0839f-bb2a-403b-a630-a0a4f1fe9690
+      X-Runtime:
+      - '0.027701'
+      Server-Timing:
+      - start_processing.action_controller;dur=0.01, sql.active_record;dur=2.96, instantiation.active_record;dur=0.29,
+        unpermitted_parameters.action_controller;dur=0.08, render.active_model_serializers;dur=2.72,
+        process_action.action_controller;dur=15.82
+      Content-Length:
+      - '1242'
+    body:
+      encoding: UTF-8
+      string: '{"lacs":[{"enriched_id":"157@399a6","lac_nm":"Lawyer","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"269@78ab3","lac_nm":"Certified
+        Nurse Aide","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"389@8012b","lac_nm":"PHYSICAL
+        THERAPIST ASSISTANT","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"524@f5870","lac_nm":"PROPERTY
+        MANAGER","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"525@e9190","lac_nm":"REAL
+        ESTATE BROKER","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"526@d0193","lac_nm":"SALESPERSON","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"797@7978d","lac_nm":"JOURNEYMAN
+        ELECTRICIAN","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"798@ba50e","lac_nm":"MASTER
+        ELECTRICIAN","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"799@6002d","lac_nm":"RESIDENTIAL
+        ELECTRICIAN","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"887@b8ceb","lac_nm":"CERTIFIED
+        MONTANA HIGH SCHOOL OFFICIAL","edu_lac_type_nm":"Certification","state":"MT"},{"enriched_id":"1246@4b849","lac_nm":"Nurse","edu_lac_type_nm":"License","state":"MT"},{"enriched_id":"1316@a831f","lac_nm":"Life,
+        Accident and Disability Insurance License","edu_lac_type_nm":"License","state":"MT"}]}'
+  recorded_at: Tue, 11 Feb 2025 20:17:48 GMT
+recorded_with: VCR 6.3.1

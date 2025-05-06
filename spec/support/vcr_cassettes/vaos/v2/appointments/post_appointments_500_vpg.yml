@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://veteran.apps.va.gov/vpg/v1/patients/1012846043V576341/appointments
+      uri: <VA_MOBILE_URL>/vpg/v1/patients/1012846043V576341/appointments
       body:
         encoding: UTF-8
         string:

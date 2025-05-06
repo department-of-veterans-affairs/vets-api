@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-
 module Preneeds
   # Models service record information for a {Preneeds::BurialForm} form
   #

@@ -127,7 +127,7 @@ RSpec.describe SAML::User do
           verified_at: nil,
           sec_id: nil,
           mhv_icn: nil,
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           edipi: nil,
           loa: { current: 1, highest: 1 },
@@ -160,7 +160,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '123123123',
           mhv_icn: '1200049153V217987',
-          mhv_correlation_id: '123456',
+          mhv_credential_uuid: '123456',
           mhv_account_type: nil,
           edipi: nil,
           uuid: 'aa478abc-e494-4af1-9f87-d002f8fe1cda',
@@ -200,7 +200,7 @@ RSpec.describe SAML::User do
           gender: nil,
           ssn: nil,
           mhv_icn: nil,
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
@@ -235,7 +235,7 @@ RSpec.describe SAML::User do
           gender: nil,
           ssn: nil,
           mhv_icn: nil,
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
@@ -271,7 +271,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '666271152',
           mhv_icn: '1008830476V316605',
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
@@ -311,7 +311,7 @@ RSpec.describe SAML::User do
           gender: nil,
           ssn: nil,
           mhv_icn: nil,
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: 'Advanced',
           uuid: '881571066e5741439652bc80759dd88c',
           email: 'alexmac_0@example.com',
@@ -352,7 +352,7 @@ RSpec.describe SAML::User do
           gender: 'F',
           ssn: '230595111',
           mhv_icn: '1013183292V131165',
-          mhv_correlation_id: '15001594',
+          mhv_credential_uuid: '15001594',
           mhv_account_type: 'Advanced',
           uuid: '881571066e5741439652bc80759dd88c',
           email: 'alexmac_0@example.com',
@@ -388,7 +388,7 @@ RSpec.describe SAML::User do
           gender: nil,
           ssn: nil,
           mhv_icn: nil,
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: 'Basic',
           uuid: '72782a87a807407f83e8a052d804d7f7',
           email: 'pv+mhvtestb@example.com',
@@ -427,7 +427,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '666811850',
           mhv_icn: '1012853550V207686',
-          mhv_correlation_id: '12345748',
+          mhv_credential_uuid: '12345748',
           mhv_account_type: 'Premium',
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'k+tristanmhv@example.com',
@@ -467,7 +467,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '666811850',
           mhv_icn: '1012853550V207686',
-          mhv_correlation_id: '12345748',
+          mhv_credential_uuid: '12345748',
           mhv_account_type: 'Premium',
           uuid: nil,
           email: 'k+tristanmhv@example.com',
@@ -497,7 +497,7 @@ RSpec.describe SAML::User do
 
         it 'resolves mhv id' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: '999888'
+            mhv_credential_uuid: '999888'
           )
         end
 
@@ -516,7 +516,7 @@ RSpec.describe SAML::User do
 
         it 'resolves mhv id' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: mhv_ien
+            mhv_credential_uuid: mhv_ien
           )
         end
 
@@ -535,7 +535,7 @@ RSpec.describe SAML::User do
 
         it 'resolves mhv id' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: mhv_ien
+            mhv_credential_uuid: mhv_ien
           )
         end
 
@@ -544,7 +544,7 @@ RSpec.describe SAML::User do
         end
       end
 
-      context 'with mismatching identifiers' do
+      context 'with multiple mhv id values identifiers' do
         let(:mhv_uuid) { '999888' }
         let(:mhv_ien) { '888777' }
         let(:mhv_icn) { '123456789V98765431' }
@@ -557,29 +557,26 @@ RSpec.describe SAML::User do
         let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
         let(:expected_error_data) { { mismatched_ids: [mhv_ien, mhv_uuid], icn: mhv_icn } }
         let(:expected_error_message) { expected_error[:message] }
-        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}" }
 
         it 'resolves mhv id from credential provider' do
           expect(subject.to_hash).to include(
-            mhv_correlation_id: mhv_uuid
+            mhv_credential_uuid: mhv_uuid
           )
         end
 
         context 'normal validation flow' do
-          it 'does not validate and throws an error' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
-            expect { subject.validate! }.to raise_error { |error|
-              expect(error).to be_a(SAML::UserAttributeError)
-              expect(error.message).to eq(expected_error_message)
-            }
+          it 'logs a warning and doesnt raise an error' do
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
+            expect { subject.validate! }.not_to raise_error
           end
         end
 
         context 'MHV outbound-redirect flow' do
           let(:client_id) { 'mhv' }
 
-          it 'does not validate and logs a Sentry warning' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
+          it 'logs a warning and doesnt raise an error' do
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
             expect { subject.validate! }.not_to raise_error
           end
         end
@@ -595,11 +592,11 @@ RSpec.describe SAML::User do
         end
         let(:expected_error_data) { { mismatched_ids: [va_eauth_icn, va_eauth_mhvicn], icn: va_eauth_icn } }
         let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch][:message] }
-        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}" }
 
         context 'normal validation flow' do
           it 'does not validate' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
             expect { subject.validate! }.to raise_error { |error|
               expect(error).to be_a(SAML::UserAttributeError)
               expect(error.message).to eq(expected_error_message)
@@ -611,7 +608,7 @@ RSpec.describe SAML::User do
           let(:client_id) { 'myvahealth' }
 
           it 'does not validate and logs a Sentry warning' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
             expect { subject.validate! }.not_to raise_error
           end
         end
@@ -634,7 +631,7 @@ RSpec.describe SAML::User do
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
-              mhv_correlation_id: '888777'
+              mhv_credential_uuid: '888777'
             )
           end
 
@@ -649,7 +646,7 @@ RSpec.describe SAML::User do
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
-              mhv_correlation_id: '888777'
+              mhv_credential_uuid: '888777'
             )
           end
 
@@ -664,7 +661,7 @@ RSpec.describe SAML::User do
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
-              mhv_correlation_id: nil
+              mhv_credential_uuid: nil
             )
           end
 
@@ -680,7 +677,7 @@ RSpec.describe SAML::User do
 
           it 'de-duplicates values' do
             expect(subject.to_hash).to include(
-              mhv_correlation_id: '888777'
+              mhv_credential_uuid: '888777'
             )
           end
 
@@ -696,15 +693,11 @@ RSpec.describe SAML::User do
           let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
           let(:expected_error_data) { { mismatched_ids: [first_ien, second_ien], icn: mhv_icn } }
           let(:expected_error_message) { expected_error[:message] }
-          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}" }
 
-          it 'does not validate' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
-            expect { subject.validate! }
-              .to raise_error { |error|
-                expect(error).to be_a(SAML::UserAttributeError)
-                expect(error.message).to eq(expected_error_message)
-              }
+          it 'logs a warning but does not raise an error' do
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
+            expect { subject.validate! }.not_to raise_error
           end
         end
 
@@ -715,15 +708,11 @@ RSpec.describe SAML::User do
           let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] }
           let(:expected_error_data) { { mismatched_ids: [first_ien, second_ien], icn: mhv_icn } }
           let(:expected_error_message) { expected_error[:message] }
-          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+          let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}" }
 
-          it 'does not validate' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
-            expect { subject.validate! }
-              .to raise_error { |error|
-                expect(error).to be_a(SAML::UserAttributeError)
-                expect(error.message).to eq(expected_error_message)
-              }
+          it 'logs a warning but does not raise an error' do
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
+            expect { subject.validate! }.not_to raise_error
           end
         end
       end
@@ -776,11 +765,11 @@ RSpec.describe SAML::User do
         let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_corp_ids] }
         let(:expected_error_data) { { mismatched_ids: [first_corp_id, second_corp_id], icn: mhv_icn } }
         let(:expected_error_message) { expected_error[:message] }
-        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}" }
 
         context 'regular auth flow' do
           it 'does not validate and prevents login' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
             expect { subject.validate! }
               .to raise_error { |error|
                     expect(error).to be_a(SAML::UserAttributeError)
@@ -793,7 +782,7 @@ RSpec.describe SAML::User do
           let(:client_id) { 'mhv' }
 
           it 'logs a Sentry warning and allows login' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
             expect { subject.validate! }.not_to raise_error
           end
         end
@@ -802,7 +791,7 @@ RSpec.describe SAML::User do
           let(:client_id) { 'test application' }
 
           it 'does not validate and prevents login' do
-            expect(Rails.logger).to receive(:warn).with(expected_log)
+            expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
             expect { subject.validate! }
               .to raise_error { |error|
                     expect(error).to be_a(SAML::UserAttributeError)
@@ -828,10 +817,10 @@ RSpec.describe SAML::User do
         let(:expected_error) { SAML::UserAttributeError::ERRORS[:multiple_edipis] }
         let(:expected_error_data) { { mismatched_ids: [first_edipi, second_edipi], icn: mhv_icn } }
         let(:expected_error_message) { expected_error[:message] }
-        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}, #{expected_error_data}" }
+        let(:expected_log) { "[SAML::UserAttributes::SSOe] #{expected_error_message}" }
 
         it 'does not validate' do
-          expect(Rails.logger).to receive(:warn).with(expected_log)
+          expect(Rails.logger).to receive(:warn).with(expected_log, expected_error_data)
           expect { subject.validate! }
             .to raise_error { |error|
                   expect(error).to be_a(SAML::UserAttributeError)
@@ -877,7 +866,7 @@ RSpec.describe SAML::User do
       let(:service_name) { 'dslogon' }
       let(:account_type) { '1' }
 
-      xit 'has various important attributes' do
+      it 'has various important attributes', skip: 'Unknown reason for skip' do
         expect(subject.to_hash).to eq(
           birth_date: nil,
           authn_context:,
@@ -888,7 +877,7 @@ RSpec.describe SAML::User do
           gender: nil,
           ssn: nil,
           mhv_icn: nil,
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
@@ -908,10 +897,10 @@ RSpec.describe SAML::User do
       let(:multifactor) { true }
       let(:saml_attributes) do
         build(:ssoe_idme_dslogon_level2_singlefactor,
-              va_eauth_gcIds: ['1013173963V366678^NI^200M^USVHA^P|'\
-                               '2106798217^NI^200DOD^USDOD^A'\
-                               '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|'\
-                               '2106798217^NI^200DOD^USDOD^A|'\
+              va_eauth_gcIds: ['1013173963V366678^NI^200M^USVHA^P|' \
+                               '2106798217^NI^200DOD^USDOD^A' \
+                               '363761e8857642f7b77ef7d99200e711^PN^200VIDM^USDVA^A|' \
+                               '2106798217^NI^200DOD^USDOD^A|' \
                                '1013173963^PN^200PROV^USDVA^A'])
       end
       let(:service_name) { 'dslogon' }
@@ -928,7 +917,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '666016789',
           mhv_icn: '1013173963V366678',
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           uuid: '363761e8857642f7b77ef7d99200e711',
           email: 'iam.tester@example.com',
@@ -945,7 +934,7 @@ RSpec.describe SAML::User do
 
       it 'does not trigger upleveling' do
         loa = subject.to_hash[:loa]
-        expect((loa[:highest] > loa[:current])).to be false
+        expect(loa[:highest] > loa[:current]).to be false
       end
     end
 
@@ -968,7 +957,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '796123607',
           mhv_icn: '1012740600V714187',
-          mhv_correlation_id: '14384899',
+          mhv_credential_uuid: '14384899',
           mhv_account_type: nil,
           uuid: '1655c16aa0784dbe973814c95bd69177',
           email: 'Test0206@gmail.com',
@@ -1007,7 +996,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '796123607',
           mhv_icn: '1012740600V714187',
-          mhv_correlation_id: '14384899',
+          mhv_credential_uuid: '14384899',
           mhv_account_type: nil,
           uuid: '1655c16aa0784dbe973814c95bd69177',
           email: 'Test0206@gmail.com',
@@ -1063,7 +1052,7 @@ RSpec.describe SAML::User do
           gender: 'F',
           ssn: '101174874',
           mhv_icn: '1012779219V964737',
-          mhv_correlation_id: nil,
+          mhv_credential_uuid: nil,
           mhv_account_type: nil,
           uuid: nil,
           email: nil,
@@ -1116,7 +1105,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '666872589',
           mhv_icn: '1013062086V794840',
-          mhv_correlation_id: '15093546',
+          mhv_credential_uuid: '15093546',
           mhv_account_type: nil,
           uuid: '53f065475a794e14a32d707bfd9b215f',
           email: nil,
@@ -1154,7 +1143,7 @@ RSpec.describe SAML::User do
           gender: 'M',
           ssn: '666271152',
           mhv_icn: '1012827134V054550',
-          mhv_correlation_id: '10894456',
+          mhv_credential_uuid: '10894456',
           mhv_account_type: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@gmail.com',

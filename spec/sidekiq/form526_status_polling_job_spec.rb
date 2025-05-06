@@ -25,6 +25,41 @@ RSpec.describe Form526StatusPollingJob, type: :job do
     end
 
     context 'polling on pending submissions' do
+      let(:api_response) do
+        {
+          'data' => [
+            {
+              'id' => backup_submission_a.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_a.backup_submitted_claim_id,
+                'status' => 'vbms'
+              }
+            },
+            {
+              'id' => backup_submission_b.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_b.backup_submitted_claim_id,
+                'status' => 'success'
+              }
+            },
+            {
+              'id' => backup_submission_c.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_c.backup_submitted_claim_id,
+                'status' => 'error'
+              }
+            },
+            {
+              'id' => backup_submission_d.backup_submitted_claim_id,
+              'attributes' => {
+                'guid' => backup_submission_d.backup_submitted_claim_id,
+                'status' => 'expired'
+              }
+            }
+          ]
+        }
+      end
+
       describe 'submission to the bulk status report endpoint' do
         it 'submits only pending form submissions' do
           pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
@@ -84,58 +119,136 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       end
 
       describe 'updating the form 526s local submission state' do
-        let(:api_response) do
-          {
-            'data' => [
-              {
-                'id' => backup_submission_a.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_a.backup_submitted_claim_id,
-                  'status' => 'vbms'
-                }
-              },
-              {
-                'id' => backup_submission_b.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_b.backup_submitted_claim_id,
-                  'status' => 'success'
-                }
-              },
-              {
-                'id' => backup_submission_c.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_c.backup_submitted_claim_id,
-                  'status' => 'error'
-                }
-              },
-              {
-                'id' => backup_submission_d.backup_submitted_claim_id,
-                'attributes' => {
-                  'guid' => backup_submission_d.backup_submitted_claim_id,
-                  'status' => 'expired'
-                }
-              }
-            ]
-          }
+        let(:pending_claim_ids) do
+          Form526Submission.pending_backup
+                           .pluck(:backup_submitted_claim_id)
         end
+        let(:response) { double }
 
-        it 'updates local state to reflect the returned statuses' do
-          pending_claim_ids = Form526Submission.pending_backup
-                                               .pluck(:backup_submitted_claim_id)
-          response = double
-
+        before do
           allow(response).to receive(:body).and_return(api_response)
           allow_any_instance_of(BenefitsIntakeService::Service)
             .to receive(:get_bulk_status_of_uploads)
             .with(pending_claim_ids)
             .and_return(response)
 
+          allow(Flipper).to receive(:enabled?).and_call_original
+        end
+
+        # if a backup submission hits paranoid_success!, it should send the received email to the Veteran
+        context 'when disability_526_send_received_email_from_backup_path is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_send_received_email_from_backup_path)
+              .and_return(true)
+          end
+
+          it 'behaves sends the received email' do
+            expect(Form526ConfirmationEmailJob).to receive(:perform_async).once
+            Form526StatusPollingJob.new.perform
+          end
+        end
+
+        context 'when disability_526_send_received_email_from_backup_path is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?)
+              .with(:disability_526_send_received_email_from_backup_path)
+              .and_return(false)
+          end
+
+          it 'behaves does not send the received email' do
+            expect(Form526ConfirmationEmailJob).not_to receive(:perform_async)
+            Form526StatusPollingJob.new.perform
+          end
+        end
+
+        it 'updates local state to reflect the returned statuses' do
           Form526StatusPollingJob.new.perform
 
           expect(backup_submission_a.reload.backup_submitted_claim_status).to eq 'accepted'
           expect(backup_submission_b.reload.backup_submitted_claim_status).to eq 'paranoid_success'
           expect(backup_submission_c.reload.backup_submitted_claim_status).to eq 'rejected'
           expect(backup_submission_d.reload.backup_submitted_claim_status).to eq 'rejected'
+        end
+      end
+
+      context 'when a failure type response is returned from the API' do
+        context 'when form526_send_backup_submission_polling_failure_email_notice is enabled' do
+          let(:timestamp) { Time.now.utc }
+
+          before do
+            Flipper.enable(:form526_send_backup_submission_polling_failure_email_notice)
+          end
+
+          it 'enqueues a failure notification email job' do
+            Timecop.freeze(timestamp) do
+              pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
+
+              response = double
+              allow(response).to receive(:body).and_return(api_response)
+              allow_any_instance_of(BenefitsIntakeService::Service)
+                .to receive(:get_bulk_status_of_uploads)
+                .with(pending_claim_ids)
+                .and_return(response)
+
+              expect(Form526SubmissionFailureEmailJob)
+                .not_to receive(:perform_async).with(backup_submission_a.id, timestamp.to_s)
+              expect(Form526SubmissionFailureEmailJob)
+                .not_to receive(:perform_async).with(backup_submission_b.id, timestamp.to_s)
+
+              expect(Form526SubmissionFailureEmailJob)
+                .to receive(:perform_async).once.ordered.with(backup_submission_c.id, timestamp.to_s)
+              expect(Form526SubmissionFailureEmailJob)
+                .to receive(:perform_async).once.ordered.with(backup_submission_d.id, timestamp.to_s)
+
+              Form526StatusPollingJob.new.perform
+            end
+          end
+        end
+
+        context 'when form526_send_backup_submission_polling_failure_email_notice is disabled' do
+          let!(:pending_claim_ids) { Form526Submission.pending_backup.pluck(:backup_submitted_claim_id) }
+
+          before do
+            Flipper.disable(:form526_send_backup_submission_polling_failure_email_notice)
+          end
+
+          it 'does not enqueue a failure notification email job' do
+            response = double
+            allow(response).to receive(:body).and_return(api_response)
+            allow_any_instance_of(BenefitsIntakeService::Service)
+              .to receive(:get_bulk_status_of_uploads)
+              .with(pending_claim_ids)
+              .and_return(response)
+
+            expect(Form526SubmissionFailureEmailJob).not_to receive(:perform_async)
+            Form526StatusPollingJob.new.perform
+          end
+
+          it 'logs submission failure' do
+            response = double
+            allow(response).to receive(:body).and_return(api_response)
+            allow_any_instance_of(BenefitsIntakeService::Service)
+              .to receive(:get_bulk_status_of_uploads)
+              .with(pending_claim_ids)
+              .and_return(response)
+
+            expect(Rails.logger).to receive(:warn).with(
+              'Form526StatusPollingJob submission failure',
+              {
+                result: 'failure',
+                submission_id: backup_submission_c.id
+              }
+            ).once
+            expect(Rails.logger).to receive(:warn).with(
+              'Form526StatusPollingJob submission failure',
+              {
+                result: 'failure',
+                submission_id: backup_submission_d.id
+              }
+            ).once
+            Form526StatusPollingJob.new.perform
+          end
         end
       end
     end

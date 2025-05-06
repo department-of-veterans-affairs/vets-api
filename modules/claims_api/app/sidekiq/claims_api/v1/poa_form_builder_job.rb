@@ -16,21 +16,25 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number = nil) # rubocop:disable Metrics/MethodLength
+      def perform(power_of_attorney_id, action, form_number = nil) # rubocop:disable Metrics/MethodLength
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
-        doc_type = form_number == '2122' ? 'L190' : 'L075'
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
 
         if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-          benefits_doc_api.upload(claim: power_of_attorney, pdf_path: output_path, doc_type:)
+          doc_type = form_number == '2122' ? 'L190' : 'L075'
+          benefits_doc_upload(poa: power_of_attorney, pdf_path: output_path, doc_type:, action:)
         else
           upload_to_vbms(power_of_attorney, output_path)
         end
 
-        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+        if dependent_filing?(power_of_attorney)
+          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id)
+        else
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+        end
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
       rescue Errno::ENOENT
@@ -48,6 +52,14 @@ module ClaimsApi
 
       def benefits_doc_api
         ClaimsApi::BD.new
+      end
+
+      def benefits_doc_upload(poa:, pdf_path:, doc_type:, action:)
+        if Flipper.enabled?(:claims_api_poa_uploads_bd_refactor)
+          PoaDocumentService.new.create_upload(poa:, pdf_path:, doc_type:, action:)
+        else
+          benefits_doc_api.upload(claim: poa, pdf_path:, doc_type:)
+        end
       end
 
       def pdf_constructor(poa_code)

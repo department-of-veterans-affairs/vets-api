@@ -12,7 +12,7 @@ on:
       auto_deploy_envs:
         required: true
         type: string
-      commit_sha:  # #${{ github.sha }}
+      commit_sha:  # #${{ github.event.workflow_run.head_commit.id }}
         required: true
         type: string
     secrets:
@@ -23,7 +23,7 @@ on:
 
 jobs:
   prepare-values:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       environments: ${{ steps.set-environments.outputs.environments }}
     steps:
@@ -38,7 +38,7 @@ jobs:
   release:
     needs: [prepare-values]
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -50,7 +50,7 @@ jobs:
           aws-region: "us-gov-west-1"
 
       - name: Log into ECR
-        id: login-ecr
+        id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Get bot token from Parameter Store
@@ -59,12 +59,12 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - name: Install yq if needed
+      - name: Install yq
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update
-          sudo apt install yq -y
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O yq
+          chmod +x yq
+          sudo mv yq /usr/local/bin/
+          yq --version
 
       - name: Check out Manifest Repo
         uses: actions/checkout@v4
@@ -77,7 +77,7 @@ jobs:
 
       - name: Update vets-api image and version name in Manifest repo for parent helm
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           ECR_REPOSITORY: dsva/${{inputs.ecr_repository}}
         run: |
           cd vsp-infra-application-manifests/apps/${{inputs.manifests_directory}}
@@ -101,5 +101,5 @@ jobs:
           add: "*"
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
-          author_email: devops@va.gov
+          author_email: 70344339+va-vsp-bot@users.noreply.github.com
           message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."

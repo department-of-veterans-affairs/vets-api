@@ -10,42 +10,63 @@ module VANotify
 
     class MissingICN < StandardError; end
 
-    # rubocop:disable Metrics/MethodLength
     def perform(form_id)
       @in_progress_form = InProgressForm.find(form_id)
       return unless enabled?
-
-      @veteran = VANotify::Veteran.new(in_progress_form)
-      return if veteran.first_name.blank?
-      return if veteran.icn.blank?
+      return if veteran.first_name.blank? || in_progress_form.user_account_id.blank?
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
-        if Flipper.enabled?(:va_notify_user_account_job)
-          UserAccountJob.perform_async(veteran.uuid,
-                                       template_id,
-                                       personalisation_details_single)
+
+        if Flipper.enabled?(:va_notify_in_progress_metadata)
+          send_with_callback_metadata_single(in_progress_form, template_id)
         else
-          IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
+          UserAccountJob.perform_async(in_progress_form.user_account_id, template_id, personalisation_details_single)
         end
       elsif oldest_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
-        if Flipper.enabled?(:va_notify_user_account_job)
-          UserAccountJob.perform_async(veteran.uuid,
-                                       template_id,
-                                       personalisation_details_multiple)
+
+        if Flipper.enabled?(:va_notify_in_progress_metadata)
+          send_with_callback_metadata_multiple(in_progress_form, template_id)
         else
-          IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
+          UserAccountJob.perform_async(in_progress_form.user_account_id, template_id, personalisation_details_multiple)
         end
       end
     rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
       nil
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
-    attr_accessor :in_progress_form, :veteran
+    attr_accessor :in_progress_form
+
+    def veteran
+      @veteran ||= VANotify::Veteran.new(in_progress_form)
+    end
+
+    def send_with_callback_metadata_single(in_progress_form, template_id)
+      form_number = in_progress_form.form_id
+      statsd_tags = { 'service' => 'va-notify',
+                      'function' => "#{form_number} in progress reminder" }
+      UserAccountJob.perform_async(in_progress_form.user_account_id,
+                                   template_id,
+                                   personalisation_details_single,
+                                   Settings.vanotify.services.va_gov.api_key,
+                                   { callback_metadata: { notification_type: 'in_progress_reminder', form_number:,
+                                                          statsd_tags: } })
+    end
+
+    def send_with_callback_metadata_multiple(in_progress_form, template_id)
+      form_number = 'multiple'
+      statsd_tags = { 'service' => 'va-notify',
+                      'function' => "#{form_number} in progress reminder" }
+      UserAccountJob.perform_async(in_progress_form.user_account_id,
+                                   template_id,
+                                   personalisation_details_multiple,
+                                   Settings.vanotify.services.va_gov.api_key,
+                                   { callback_metadata: { notification_type: 'in_progress_reminder', form_number:,
+                                                          statsd_tags: } })
+    end
 
     def enabled?
       case @in_progress_form.form_id

@@ -13,7 +13,7 @@ module AppealsApi
   class Configuration < ::TokenValidation::V2::Configuration
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :url_encoded # required for token validation service v3 (v2 accepted json)
         conn.response :snakecase
         conn.adapter Faraday.default_adapter
@@ -38,10 +38,10 @@ module AppealsApi
     # @raise [::Common::Exceptions::Unauthorized] if the token is rejected by the auth server
     # @raise [::Common::Exceptions::Forbidden] if the token has the wrong scope(s)
     def validate_token!(audience:, token:, scopes:)
-      params = { 'aud': audience }
+      params = { aud: audience }
       headers = {
-        'apiKey': @api_key,
-        'Authorization': "Bearer #{token}",
+        apiKey: @api_key,
+        Authorization: "Bearer #{token}",
         'Content-Type': 'application/x-www-form-urlencoded'
       }
 

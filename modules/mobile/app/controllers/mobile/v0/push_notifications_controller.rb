@@ -6,13 +6,24 @@ module Mobile
   module V0
     class PushNotificationsController < ApplicationController
       def register
-        result = service.register(
-          get_app_name(params),
-          params[:device_token],
-          @current_user.icn,
-          params[:os_name],
-          params[:device_name] || params[:os_name]
-        )
+        begin
+          result = service.register(
+            get_app_name(params),
+            params[:device_token],
+            @current_user.icn,
+            params[:os_name],
+            params[:device_name] || params[:os_name]
+          )
+        rescue => e
+          if Flipper.enabled?(:mobile_push_register_logging, @current_user)
+            PersonalInformationLog.create!(
+              data: { icn: @current_user.icn, message: e.message, backtrace: e.backtrace },
+              error_class: 'Mobile Push Register Error'
+            )
+          end
+
+          raise e
+        end
 
         render json: Mobile::V0::PushRegisterSerializer.new(params[:app_name], result.body[:sid])
       end

@@ -24,14 +24,152 @@ describe IvcChampva::FileUploader do
       end
     end
 
-    context 'when at least one PDF upload fails' do
+    context 'when at least one PDF upload fails:' do
       before do
         allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
       end
 
-      it 'returns an array of upload results' do
-        expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])
+      it 'raises an error' do
+        # Updated this test to account for new error being raised. This is so submissions are blocked
+        # from completing if any files fail to make it to S3. Formerly, the expectation was:
+        # `expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])`
+        expect { uploader.handle_uploads }.to raise_error(StandardError, /Upload failed/)
       end
+    end
+
+    context 'when FMP single file upload flipper is enabled' do
+      let(:form_id) { 'vha_10_7959f_2' }
+      let(:combined_pdf_path) { File.join('tmp/', "#{metadata['uuid']}_#{form_id}_combined.pdf") }
+      let(:file_paths) do
+        ['modules/ivc_champva/spec/fixtures/pdfs/vha_10_7959f_2-filled.pdf',
+         'modules/ivc_champva/spec/fixtures/images/test_image.pdf',
+         'spec/fixtures/files/doctors-note.pdf']
+      end
+      # let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_fmp_single_file_upload, @current_user).and_return(true)
+        allow(FileUtils).to receive(:rm_f)
+      end
+
+      it 'combines PDFs and uploads as a single file' do
+        expect(IvcChampva::PdfCombiner).to receive(:combine)
+          .with(combined_pdf_path, file_paths.compact)
+          .and_return(combined_pdf_path)
+
+        expect(uploader).to receive(:upload)
+          .with(File.basename(combined_pdf_path), combined_pdf_path, anything)
+          .and_return([200])
+
+        expect(uploader).to receive(:generate_and_upload_meta_json).and_return([200, nil])
+
+        result = uploader.handle_uploads
+        expect(result).to eq([200, nil])
+
+        expect(FileUtils).to have_received(:rm_f).with(combined_pdf_path)
+      end
+
+      it 'handles errors during PDF combination' do
+        expect(IvcChampva::PdfCombiner).to receive(:combine)
+          .with(combined_pdf_path, file_paths.compact)
+          .and_raise(StandardError.new('PDF combination failed'))
+
+        expect(FileUtils).to receive(:rm_f).with(combined_pdf_path)
+
+        expect { uploader.handle_uploads }.to raise_error(StandardError, 'PDF combination failed')
+      end
+
+      it 'handles meta data upload failures' do
+        expect(IvcChampva::PdfCombiner).to receive(:combine)
+          .with(combined_pdf_path, file_paths.compact)
+          .and_return(combined_pdf_path)
+
+        expect(uploader).to receive(:upload)
+          .with(File.basename(combined_pdf_path), combined_pdf_path, anything)
+          .and_return([200])
+
+        expect(uploader).to receive(:generate_and_upload_meta_json)
+          .and_return([400, 'Metadata upload failed'])
+
+        result = uploader.handle_uploads
+        expect(result).to eq([400, 'Metadata upload failed'])
+
+        expect(FileUtils).to have_received(:rm_f).with(combined_pdf_path)
+      end
+
+      it 'only inserts supporting_doc files into the database when insert_db_row is true' do
+        mixed_file_paths = [
+          'path/to/main_form.pdf',
+          'path/to/supporting_doc_1.pdf',
+          'path/to/regular_attachment.pdf',
+          'path/to/supporting_doc_2.pdf',
+          'path/to/another_file.pdf'
+        ]
+
+        test_uploader = IvcChampva::FileUploader.new(
+          form_id,
+          metadata.merge('attachment_ids' => [1, 2, 3, 4, 5]),
+          mixed_file_paths,
+          true,
+          @current_user
+        )
+
+        # set up tracking for inserted files
+        inserted_files = []
+        allow(test_uploader).to receive(:insert_form) do |file_name, _status|
+          inserted_files << file_name
+          nil
+        end
+
+        # call the method directly with test parameters
+        test_uploader.send(:insert_merged_pdf_and_docs, combined_pdf_path, [200])
+
+        # verify that exactly 3 files were inserted: combined PDF + 2 supporting docs
+        expect(inserted_files.size).to eq(3)
+
+        # first inserted file should be the combined PDF
+        expect(inserted_files[0]).to eq(combined_pdf_path)
+
+        # the rest should all be supporting docs
+        supporting_docs = inserted_files[1..]
+        expect(supporting_docs.size).to eq(2)
+        expect(supporting_docs).to all(include('supporting_doc'))
+
+        # verify that non-supporting_doc files were not inserted
+        expect(supporting_docs).not_to include('main_form.pdf')
+        expect(supporting_docs).not_to include('regular_attachment.pdf')
+        expect(supporting_docs).not_to include('another_file.pdf')
+      end
+
+      it 'returns metadata upload results when require_all_s3_success is enabled' do
+        allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
+
+        expect(IvcChampva::PdfCombiner).to receive(:combine)
+          .with(combined_pdf_path, file_paths.compact)
+          .and_return(combined_pdf_path)
+
+        expect(uploader).to receive(:upload)
+          .with(File.basename(combined_pdf_path), combined_pdf_path, anything)
+          .and_return([200])
+
+        expect(uploader).to receive(:generate_and_upload_meta_json)
+          .and_return([400, 'Metadata upload failed'])
+
+        result = uploader.handle_uploads
+        expect(result).to eq([400, 'Metadata upload failed'])
+
+        expect(FileUtils).to have_received(:rm_f).with(combined_pdf_path)
+      end
+    end
+  end
+
+  describe '#insert_form' do
+    it 're-raises the exception when inserting into the DB fails' do
+      allow(IvcChampvaForm).to receive(:create!).and_raise(ActiveRecord::RecordInvalid.new(IvcChampvaForm.new))
+
+      expect do
+        uploader.send(:insert_form, 'test_file.pdf', [400, 'Upload failed'])
+      end.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 

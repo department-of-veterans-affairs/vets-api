@@ -43,6 +43,20 @@ module DebtsApi
     }.freeze
 
     ##
+    # Measure the time taken to execute a block of code and send that timing metric to StatsD/Datadog.
+    #
+    # @param metric_key [String]
+    # @return [Hash]
+    #
+    def measure_latency(metric_key)
+      start_time = Time.current
+      result = yield
+      elapsed_time = (Time.current - start_time) * 1000
+      StatsD.measure(metric_key, elapsed_time)
+      result
+    end
+
+    ##
     # Submit a financial status report to the Debt Management Center
     #
     # @param form [JSON] JSON serialized form data of a Financial Status Report form (VA-5655)
@@ -106,7 +120,10 @@ module DebtsApi
     def submit_vba_fsr(form)
       Rails.logger.info('5655 Form Submitting to VBA')
       form.delete('streamlined')
-      response = perform(:post, 'financial-status-report/formtopdf', form)
+      response = measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vba.latency") do
+        perform(:post, 'financial-status-report/formtopdf', form)
+      end
+
       fsr_response = DebtsApi::V0::FinancialStatusReportResponse.new(response.body)
       raise FailedFormToPdfResponse unless response.success?
 
@@ -129,13 +146,15 @@ module DebtsApi
         form_submission:,
         station_id: vha_form['facilityNum']
       )
-      vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
-                                      { jsonDocument: vha_form.to_json })
+      vha_response = measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vha.latency") do
+        vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                         { jsonDocument: vha_form.to_json })
+      end
 
       form_submission.submitted!
-      { status: vbs_response.status }
+      { status: vha_response.status }
     rescue => e
-      form_submission.register_failure(e.message)
+      form_submission.register_failure("FinancialStatusReportService#submit_vha_fsr: #{e.message}")
       raise e
     end
 
@@ -144,8 +163,10 @@ module DebtsApi
 
       vbs_request = DebtManagementCenter::VBS::Request.build
       Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
-      vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
-                       { jsonDocument: form.to_json })
+      measure_latency("#{STATSD_KEY_PREFIX}.fsr.submit.vbs.latency") do
+        vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                         { jsonDocument: form.to_json })
+      end
     end
 
     def send_vha_confirmation_email(_status, options)
@@ -154,7 +175,8 @@ module DebtsApi
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         options['email'],
         options['template_id'],
-        options['email_personalization_info']
+        options['email_personalization_info'],
+        { id_type: 'email', failure_mailer: false }
       )
     end
 
@@ -232,7 +254,10 @@ module DebtsApi
       schema_path = Rails.root.join('lib', 'debt_management_center', 'schemas', 'fsr.json').to_s
       errors = JSON::Validator.fully_validate(schema_path, form)
 
-      raise FSRInvalidRequest if errors.any?
+      if errors.any?
+        Rails.logger.error("DebtsApi::V0::FinancialStatusReportService validation failed: #{errors}")
+        raise FSRInvalidRequest
+      end
     end
 
     def send_confirmation_email(template_id)
@@ -241,7 +266,9 @@ module DebtsApi
       email = @user.email&.downcase
       return if email.blank?
 
-      DebtManagementCenter::VANotifyEmailJob.perform_async(email, template_id, email_personalization_info)
+      DebtManagementCenter::VANotifyEmailJob.perform_async(
+        email, template_id, email_personalization_info, { id_type: 'email' }
+      )
     end
 
     def email_personalization_info

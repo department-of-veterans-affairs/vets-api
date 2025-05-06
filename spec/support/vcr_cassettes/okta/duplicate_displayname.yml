@@ -1,0 +1,29 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/internal/auth/v2/server/health/scopes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json;charset=UTF-8
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"name": "launch/patient","displayName": "Patient ID","description": "Your unique VA ID number, called the integration control number or ICN. It is used across VA programs and links your information to you."},{"name": "patient/AllergyIntolerance.read","displayName": "Patient ID","description": "Your unique VA ID number, called the integration control number or ICN. It is used across VA programs and links your information to you."}]'
+    http_version:
+  recorded_at: Mon, 08 Mar 2021 16:42:21 GMT

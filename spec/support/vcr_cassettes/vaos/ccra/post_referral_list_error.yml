@@ -1,0 +1,28 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/invalid/referrals?status='S','BP','AP','AC','A','I'"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      CACHE-CONTROL:
+      - no-cache
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:05:45 GMT
+    body:
+      encoding: UTF-8
+      string: '{"error":"Invalid ICN format"}'
+    http_version: 
+  recorded_at: Tue, 26 Nov 2024 17:05:45 GMT 

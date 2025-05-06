@@ -140,7 +140,7 @@ describe 'Notice of Disagreements', openapi_spec:, type: :request do
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodShowResponse'
 
-        let(:uuid) { FactoryBot.create(:notice_of_disagreement_v2).id }
+        let(:uuid) { create(:notice_of_disagreement_v2).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response
@@ -291,7 +291,7 @@ describe 'Notice of Disagreements', openapi_spec:, type: :request do
       produces 'application/json'
 
       response '202', 'Accepted. Location generated' do
-        let(:nod_uuid) { FactoryBot.create(:notice_of_disagreement_v2, :board_review_evidence_submission).id }
+        let(:nod_uuid) { create(:notice_of_disagreement_v2, :board_review_evidence_submission).id }
 
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
 
@@ -316,7 +316,7 @@ describe 'Notice of Disagreements', openapi_spec:, type: :request do
       end
 
       response '422', 'Validation errors' do
-        let(:nod_uuid) { FactoryBot.create(:notice_of_disagreement_v2, :board_review_direct_review).id }
+        let(:nod_uuid) { create(:notice_of_disagreement_v2, :board_review_direct_review).id }
         let(:'X-VA-File-Number') { '987654321' }
         schema '$ref' => '#/components/schemas/errorModel'
         it_behaves_like 'rswag example', desc: 'returns a 422 response'
@@ -347,7 +347,7 @@ describe 'Notice of Disagreements', openapi_spec:, type: :request do
 
         schema type: :object,
                description: 'Document upload failed',
-               xml: { 'name': 'Error' },
+               xml: { name: 'Error' },
                properties: {
                  Code: {
                    type: :string, description: 'Error code', example: 'Bad Digest'
@@ -391,7 +391,7 @@ describe 'Notice of Disagreements', openapi_spec:, type: :request do
       response '200', 'Info about a single Notice of Disagreement Evidence Submission.' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
 
-        let(:uuid) { FactoryBot.create(:evidence_submission).guid }
+        let(:uuid) { create(:evidence_submission).guid }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_evidence_submission_response

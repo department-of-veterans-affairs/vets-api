@@ -20,7 +20,7 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
   describe '#perform' do
     it 'sends an email using the template id' do
       client = double
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
+      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key, nil).and_return(client)
 
       expect(client).to receive(:send_email).with(
         {
@@ -32,13 +32,15 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
         }
       )
 
+      expect(StatsD).to receive(:increment).with('api.vanotify.user_account_job.success')
+
       described_class.new.perform(user_account.id, template_id)
     end
 
     it 'can use non-default api key' do
       client = double
       api_key = 'test-yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy-zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz'
-      expect(VaNotify::Service).to receive(:new).with(api_key).and_return(client)
+      expect(VaNotify::Service).to receive(:new).with(api_key, nil).and_return(client)
 
       expect(client).to receive(:send_email).with(
         {
@@ -55,12 +57,19 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
       described_class.new.perform(user_account.id, template_id, personalization, api_key)
     end
 
+    it 'returns a response object' do
+      VCR.use_cassette('va_notify/success_email') do
+        response = described_class.new.perform(user_account.id, template_id, {})
+        expect(response).to an_instance_of(Notifications::Client::ResponseNotification)
+      end
+    end
+
     context 'when vanotify returns a 400 error' do
       it 'rescues and logs the error' do
-        VCR.use_cassette('va_notify/bad_request') do
+        VCR.use_cassette('va_notify/bad_request_invalid_template_id') do
           job = described_class.new
           expect(job).to receive(:log_exception_to_sentry).with(
-            instance_of(Common::Exceptions::BackendServiceException),
+            instance_of(VANotify::BadRequest),
             {
               args: {
                 recipient_identifier: {
@@ -78,6 +87,33 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
 
           job.perform(user_account.id, template_id)
         end
+      end
+    end
+
+    context 'with optional callback support' do
+      it 'can accept callback options' do
+        client = double
+        api_key = Settings.vanotify.services.va_gov.api_key
+        callback_options = {
+          callback: 'TestTeam::TestClass',
+          metadata: 'optional_test_metadata'
+        }
+
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+
+        expect(client).to receive(:send_email).with(
+          {
+            recipient_identifier: {
+              id_value: icn,
+              id_type: 'ICN'
+            },
+            template_id:,
+            personalisation: {}
+          }
+        )
+        personalization = {}
+
+        described_class.new.perform(user_account.id, template_id, personalization, api_key, callback_options)
       end
     end
   end

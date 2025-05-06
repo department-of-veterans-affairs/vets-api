@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/57d5364b-149a-4802-bc18-b9b0b0742db6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1704421025", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 57d5364b-149a-4802-bc18-b9b0b0742db6
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 23:42:20 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"57d5364b-149a-4802-bc18-b9b0b0742db6","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-08-27T18:51:06.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","voiceMailAcceptableInd":true},"txOutput":[{"createDate":"2024-08-27T19:13:04Z","updateDate":"2024-08-27T19:13:04Z","txAuditId":"57d5364b-149a-4802-bc18-b9b0b0742db6","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-08-27T18:51:06.000Z","internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","carrier":"Multiple
+        OCN Listing","classification":{"classificationCode":4,"classificationName":"OTHER"}}]}'
+  recorded_at: Thu, 12 Sep 2024 23:42:20 GMT
+recorded_with: VCR 6.3.1

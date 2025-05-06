@@ -16,7 +16,8 @@ module ClaimsApi
 
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
 
-          render json: [] && return unless bgs_claims || lighthouse_claims
+          return render json: [] if bgs_claims.blank? && lighthouse_claims.blank?
+
           mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
@@ -68,8 +69,9 @@ module ClaimsApi
                                               lighthouse_id: nil,
                                               upstream_id: bgs_details[:benefit_claim_id])
           end
+          ssn = auth_headers['va_eauth_pnid']
           structure.merge!(errors: get_errors(lighthouse_claim))
-          structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
+          structure.merge!(supporting_documents: build_supporting_docs(bgs_claim, ssn))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
         end
 
@@ -133,13 +135,13 @@ module ClaimsApi
         def find_bgs_claim!(claim_id:)
           return if claim_id.blank?
 
-          local_bgs_service.find_benefit_claim_details_by_benefit_claim_id(
+          bgs_claim_status_service.find_benefit_claim_details_by_benefit_claim_id(
             claim_id
           )
         end
 
         def find_bgs_claims!
-          local_bgs_service.find_benefit_claims_status_by_ptcpnt_id(
+          bgs_claim_status_service.find_benefit_claims_status_by_ptcpnt_id(
             target_veteran.participant_id
           )
         end
@@ -192,7 +194,7 @@ module ClaimsApi
 
           return false if lc_status_array.first&.dig(:phase_type_change_ind).nil?
 
-          indicator = latest_phase_type_change_indicator(data).split('')
+          indicator = latest_phase_type_change_indicator(data).chars
           return false if indicator == 'N'
 
           indicator.first.to_i > indicator.last.to_i
@@ -210,7 +212,7 @@ module ClaimsApi
           end
           return bgs_phase_status_mapper.get_phase_type_from_dictionary(latest.downcase) unless latest.nil?
 
-          indicator = latest_phase_type_change_indicator(data).split('')
+          indicator = latest_phase_type_change_indicator(data).chars
           bgs_phase_status_mapper.get_phase_type_from_dictionary(indicator.last.to_i)
         end
 
@@ -229,7 +231,7 @@ module ClaimsApi
           if details[:phase_type_change_ind].present?
             return if details[:phase_type_change_ind] == 'N'
 
-            details[:phase_type_change_ind].split('').first
+            details[:phase_type_change_ind].chars.first
           end
         end
 
@@ -243,12 +245,12 @@ module ClaimsApi
           end
           return {} if lc_status_array&.first&.nil?
 
-          max_completed_phase = lc_status_array&.first&.[](:phase_type_change_ind)&.split('')&.last
+          max_completed_phase = lc_status_array&.first&.[](:phase_type_change_ind)&.chars&.last
           return {} if max_completed_phase&.downcase.eql?('n') || max_completed_phase.nil?
 
           {}.tap do |phase_date|
             lc_status_array.reverse.map do |phase|
-              completed_phase_number = phase[:phase_type_change_ind].split('').first
+              completed_phase_number = phase[:phase_type_change_ind].chars.first
               if completed_phase_number < max_completed_phase
                 phase_date["phase#{completed_phase_number}CompleteDate"] = date_present(phase[:phase_chngd_dt])
               end

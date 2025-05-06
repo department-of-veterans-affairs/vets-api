@@ -6,7 +6,6 @@ namespace :routes do
     all_routes = Rails.application.routes.routes
     require 'action_dispatch/routing/inspector'
     inspector = ActionDispatch::Routing::RoutesInspector.new(all_routes)
-    # puts inspector.format(ActionDispatch::Routing::ConsoleFormatter.new, ENV['CONTROLLER'])
     puts inspector.format(CSVFormatter.new)
   end
 end
@@ -26,13 +25,11 @@ class CSVFormatter
 
   def section(routes)
     routes.map do |r|
-      # @buffer << "#{r[:name]},#{r[:verb]},#{r[:path]},#{r[:reqs]}"
       @buffer << "#{r[:path]},#{r[:reqs]}"
     end
   end
 
   def header(_routes)
-    # @buffer << 'Prefix,Verb,URI Pattern,Controller#Action'
     @buffer << 'Prefix,Controller#Action'
   end
 

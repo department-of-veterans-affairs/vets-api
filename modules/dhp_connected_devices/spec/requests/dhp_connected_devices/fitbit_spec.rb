@@ -199,7 +199,7 @@ RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
 
         it 'updates the user\'s fitbit record to false and redirect to success url' do
           fitbit_disconnect
-          expect(VeteranDeviceRecord.active_devices(current_user).empty?).to eq true
+          expect(VeteranDeviceRecord.active_devices(current_user).empty?).to be true
           expect(fitbit_disconnect).to redirect_to @disconnect_success_path
         end
 

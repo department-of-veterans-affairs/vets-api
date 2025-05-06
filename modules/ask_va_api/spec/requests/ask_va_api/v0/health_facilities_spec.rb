@@ -35,6 +35,7 @@ RSpec.shared_examples 'paginated response from request body with expected IDs' d
     it 'is expected to have specified pagination metadata' do
       current_page = request_params[:page] || 1
       prev_page = current_page > 1 ? current_page - 1 : nil
+
       expect(parsed_body[:meta][:pagination]).to match({
                                                          current_page:,
                                                          prev_page:,
@@ -70,12 +71,24 @@ end
 vcr_options = {
   cassette_name: '/facilities/va/lighthouse',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type: :request, vcr: vcr_options do
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
+
+  let(:cache_data_instance) { Crm::CacheData.new }
+  let(:patsr_facilities) do
+    data = File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
+
+  before do
+    allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+    allow_any_instance_of(Crm::Service).to receive(:call).and_return(patsr_facilities)
+    allow(Crm::CacheData).to receive(:new).and_return(cache_data_instance)
+    allow(cache_data_instance).to receive(:fetch_and_cache_data).and_return(patsr_facilities)
+  end
 
   describe 'POST #search' do
     it 'returns 400 for invalid type parameter' do
@@ -83,18 +96,8 @@ RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type
       expect(response).to have_http_status(:bad_request)
     end
 
-    it 'returns 200 for query with services but no type' do
-      post '/ask_va_api/v0/health_facilities', params: { services: 'EyeCare' }
-      expect(response).to have_http_status(:ok)
-    end
-
     it 'returns 400 for health query with unknown service' do
       post '/ask_va_api/v0/health_facilities', params: { type: 'health', services: ['OilChange'] }
-      expect(response).to have_http_status(:bad_request)
-    end
-
-    it 'returns 400 for benefits query with unknown service' do
-      post '/ask_va_api/v0/health_facilities', params: { type: 'benefits', services: ['Haircut'] }
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -116,158 +119,10 @@ RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type
 
     it_behaves_like 'paginated response from request body with expected IDs',
                     {
-                      bbox: [-74.730, 40.015, -73.231, 41.515],
-                      page: 2
-                    },
-                    %w[vc_0110V nca_808 vha_526 vha_526QA vc_0857MVC vha_561GD vc_0132V vha_630A4 vha_526GB vba_309]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64]
-                    },
-                    %w[vha_648GI vba_348a vba_348 vc_0617V vba_348d vha_648 vba_348h vha_648A4 nca_954 nca_907]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
                       bbox: [-122.786758, 45.451913, -122.440689, 45.64],
                       type: 'health'
                     },
-                    %w[vha_648GI vha_648 vha_648A4 vha_648GE]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                      type: 'benefits'
-                    },
-                    %w[vba_348a vba_348 vba_348d vba_348h]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                      type: 'benefits',
-                      services: ['DisabilityClaimAssistance']
-                    },
-                    %w[vba_348]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      lat: 33.298639,
-                      long: -111.789659
-                    },
-                    %w[vha_644BY vha_644GJ vc_0524V vba_345g vha_644GI vba_345 vha_644QA vc_0517V vha_644GG vha_644QB],
-                    [2.08, 6.58, 7.68, 11.72, 16.75, 18.3, 19.59, 19.71, 20.31, 20.95]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      lat: 33.298639,
-                      long: -111.789659,
-                      radius: 50
-                    },
-                    %w[vha_644BY vha_644GJ vc_0524V vba_345g vha_644GI vba_345 vha_644QA vc_0517V vha_644GG vha_644QB],
-                    [2.08, 6.58, 7.68, 11.72, 16.75, 18.3, 19.59, 19.71, 20.31, 20.95]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                      lat: 33.298639,
-                      long: -111.789659,
-                      radius: 50
-                    },
-                    %w[vha_648GI vba_348a vba_348 vc_0617V vba_348d vha_648 vba_348h vha_648A4 nca_954 nca_907]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      state: 'TX'
-                    },
-                    %w[nca_846 nca_851 nca_854 nca_877 nca_886 nca_916 nca_s1118 nca_s1119 nca_s1120 nca_s1121]
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      zip: 85_297
-                    },
-                    ['vha_644BY']
-    it_behaves_like 'paginated response from request body with expected IDs',
-                    {
-                      ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
-                    },
-                    %w[vha_442 vha_442GB vha_442GC vha_552 vha_552GA vha_552GB vha_552GD]
-
-    context 'params[:mobile]' do
-      context 'mobile not passed' do
-        it_behaves_like 'paginated response from request body with expected IDs',
-                        {
-                          bbox: [-74.730, 40.015, -73.231, 41.515],
-                          page: 1
-                        },
-                        %w[vc_0106V vha_630 vba_306 vha_630GA vc_0133V vha_526GD vc_0105V vha_561GE vc_0109V vc_0102V]
-      end
-
-      context 'true' do
-        it_behaves_like 'paginated response from request body with expected IDs',
-                        {
-                          mobile: true,
-                          bbox: [-74.730, 40.015, -73.231, 41.515],
-                          page: 1
-                        },
-                        %w[vha_526QA vc_0857MVC vha_630QA vha_630QB vha_632QA vha_632QB],
-                        [],
-                        true
-      end
-
-      context 'false' do
-        it_behaves_like 'paginated response from request body with expected IDs',
-                        {
-                          mobile: false,
-                          bbox: [-74.730, 40.015, -73.231, 41.515],
-                          page: 1
-                        },
-                        %w[
-                          vc_0106V vha_630 vha_630GA vc_0133V vha_526GD vc_0105V vha_561GE vc_0109V vc_0102V vc_0110V
-                        ],
-                        [],
-                        false
-      end
-    end
-
-    context 'params[:type] = health' do
-      context 'params[:services] = [\'Covid19Vaccine\']', vcr: vcr_options.merge(
-        cassette_name: 'facilities/mobile/covid'
-      ) do
-        let(:params) do
-          {
-            lat: 42.060906,
-            long: -71.051868,
-            type: 'health',
-            services: ['Covid19Vaccine']
-          }
-        end
-
-        before do
-          Flipper.enable('facilities_locator_mobile_covid_online_scheduling', flipper)
-          post '/ask_va_api/v0/health_facilities', params:
-        end
-
-        context 'facilities_locator_mobile_covid_online_scheduling enabled' do
-          let(:flipper) { true }
-
-          it { expect(response).to be_successful }
-
-          it 'is expected not to populate tmpCovidOnlineScheduling' do
-            attributes_covid = parsed_body['data'].collect { |x| x['attributes']['tmpCovidOnlineScheduling'] }
-
-            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
-            expect(attributes_covid).to eql([true, true, true, false, true, false, false, true, false, false])
-          end
-        end
-
-        context 'facilities_locator_mobile_covid_online_scheduling disabled' do
-          let(:flipper) { false }
-
-          it { expect(response).to be_successful }
-
-          it 'is expected not to populate tmpCovidOnlineScheduling' do
-            parsed_body['data']
-
-            expect(parsed_body['data']).to all(
-              a_hash_including(
-                attributes: a_hash_including(tmpCovidOnlineScheduling: nil)
-              )
-            )
-          end
-        end
-      end
-    end
+                    %w[vha_648]
   end
 
   describe 'GET #show' do

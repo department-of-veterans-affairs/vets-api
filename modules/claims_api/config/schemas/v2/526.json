@@ -86,13 +86,13 @@
               "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
               "minLength": 1,
               "maxLength": 30,
-              "example": "Portland"
+              "example": "Schenectady"
             },
             "state": {
               "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
               "type": ["string", "null"],
               "pattern": "^[a-z,A-Z]{2}$",
-              "example": "OR",
+              "example": "NY",
               "nullable": true
             },
             "country": {
@@ -131,9 +131,9 @@
           "properties": {
             "email": {
               "type": ["string", "null"],
-              "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+              "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
               "description": "The most current email address of the Veteran.",
-              "maxLength": 50,
+              "maxLength": 80,
               "nullable": true
             },
             "agreeToEmailRelatedToClaim": {
@@ -193,13 +193,13 @@
           "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
           "minLength": 0,
           "maxLength": 30,
-          "example": "Portland"
+          "example": "Schenectady"
         },
         "state": {
           "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
           "type": ["string", "null"],
           "pattern": "^$|^[a-z,A-Z]{2}$",
-          "example": "OR",
+          "example": "NY",
           "nullable": true
         },
         "country": {
@@ -669,7 +669,7 @@
       }
     },
     "treatments": {
-      "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 1000 characters to successfully generate a PDF.",
+      "description": "Identifies the Service Treatment information of the Veteran. The combination of treatedDisabilityName, center name, center city, and center state must be less than 10,000 characters to successfully generate a PDF.",
       "type": ["array", "null"],
       "nullable": true,
       "uniqueItems": true,
@@ -779,7 +779,7 @@
                 "example": "2018-06-06"
               },
               "activeDutyEndDate": {
-                "description": "Date completed active duty.",
+                "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                 "type": "string",
                 "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-06"

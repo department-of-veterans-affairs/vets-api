@@ -1,0 +1,79 @@
+{
+  "selected_debts": [
+    {
+      "support_statement": "test test",
+      "dispute_reason": "I don't think I owe this debt to VA",
+      "composite_debt_id": "71166",
+      "label": "$120.40 overpayment for Post-9/11 GI Bill debt for books and supplies",
+      "description": "Pay or request help by November 17, 2020",
+      "debt_type": "DEBT",
+      "selected_debt_id": "71166"
+    },
+    {
+      "support_statement": "test test",
+      "dispute_reason": "I don't think I owe this debt to VA",
+      "composite_debt_id": "72321",
+      "label": "$227.42 overpayment for Post-9/11 GI Bill debt for housing",
+      "description": "Pay or request help by September 7, 2018",
+      "debt_type": "DEBT",
+      "selected_debt_id": "72321"
+    }
+  ],
+  "veteran_information": {
+    "email": "myemail72585885@unattended.com",
+    "mobile_phone": {
+      "area_code": "619",
+      "country_code": "1",
+      "phone_number": "5551234",
+      "extension": "",
+      "phone_type": "MOBILE",
+      "source_date": "2022-02-17T20:15:44.000Z",
+      "source_system_user": "",
+      "transaction_id": "fdb13953-f670-4bd3-a3bb-8881eb9165dd",
+      "vet360_id": "1273766",
+      "updated_at": "2022-02-17T20:15:45.000Z",
+      "effective_start_date": "2022-02-17T20:15:44.000Z",
+      "effective_end_date": "",
+      "created_at": "2022-01-12T16:22:03.000Z",
+      "id": 269804,
+      "is_international": false,
+      "is_textable": "",
+      "is_text_permitted": "",
+      "is_tty": "",
+      "is_voicemailable": ""
+    },
+    "mailing_address": {
+      "address_line1": "123 Mailing Address St.",
+      "address_line2": "Apt 1",
+      "address_line3": "",
+      "address_pou": "CORRESPONDENCE",
+      "address_type": "DOMESTIC",
+      "bad_address": "",
+      "city": "Fulton",
+      "country_code_fips": "",
+      "country_code_iso2": "US",
+      "country_code_iso3": "USA",
+      "county_code": "",
+      "country_name": "United States",
+      "created_at": "2022-03-21T21:06:15.000Z",
+      "effective_end_date": "",
+      "effective_start_date": "2022-03-23T19:14:59.000Z",
+      "id": 311999,
+      "geocode_date": "2022-03-23T19:15:00.000Z",
+      "geocode_precision": "",
+      "international_postal_code": "",
+      "latitude": 45.2248,
+      "longitude": -121.3595,
+      "province": "",
+      "source_date": "2022-03-23T19:14:59.000Z",
+      "source_system_user": "",
+      "state_code": "NY",
+      "transaction_id": "3ea3ecf8-3ddf-46d9-8a4b-b5554385b3fb",
+      "updated_at": "2022-03-23T19:15:01.000Z",
+      "validation_key": "",
+      "vet360_id": "1273766",
+      "zip_code": "97063",
+      "zip_code_suffix": ""
+    }
+  }
+}

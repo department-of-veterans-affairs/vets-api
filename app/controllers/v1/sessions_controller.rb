@@ -28,13 +28,22 @@ module V1
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
     FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
+    OPERATION_TYPES = [AUTHORIZE = 'authorize',
+                       INTERSTITIAL_VERIFY = 'interstitial_verify',
+                       INTERSTITIAL_SIGNUP = 'interstitial_signup',
+                       MHV_EXCEPTION = 'mhv_exception',
+                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SSOeSettingsService and SAML::URLService
+    # rubocop:disable Metrics/MethodLength
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
+      operation = params[:operation] || 'authorize'
+
+      validate_operation_params(operation)
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -47,9 +56,9 @@ module V1
         url = URI.parse(url_service.ssoe_slo_url)
 
         app_key = if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
-                    Settings.saml_ssoe.tou_decline_logout_app_key
+                    IdentitySettings.saml_ssoe.tou_decline_logout_app_key
                   else
-                    Settings.saml_ssoe.logout_app_key
+                    IdentitySettings.saml_ssoe.logout_app_key
                   end
 
         query_strings = { appKey: CGI.escape(app_key), clientId: params[:client_id] }.compact
@@ -60,8 +69,9 @@ module V1
       else
         render_login(type)
       end
-      new_stats(type, client_id)
+      new_stats(type, client_id, operation)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def ssoe_slo_callback
       Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
@@ -144,22 +154,33 @@ module V1
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
-      mhv_unverified_validation(user_session_form)
-
+      mhv_unverified_validation(user_session_form.user)
+      user_verification = create_user_verification(user_session_form.user_identity)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
 
-      if @current_user.needs_accepted_terms_of_use
+      if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url
       end
+      UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
     end
 
-    def mhv_unverified_validation(user_session_form)
-      if html_escaped_relay_state['type'] == 'mhv_verified' && user_session_form.user.loa[:current] < LOA::THREE
+    def create_user_verification(user_identity)
+      Login::UserVerifier.new(login_type: user_identity.sign_in&.dig(:service_name),
+                              auth_broker: user_identity.sign_in&.dig(:auth_broker),
+                              mhv_uuid: user_identity.mhv_credential_uuid,
+                              idme_uuid: user_identity.idme_uuid,
+                              dslogon_uuid: user_identity.edipi,
+                              logingov_uuid: user_identity.logingov_uuid,
+                              icn: user_identity.icn).perform
+    end
+
+    def mhv_unverified_validation(user)
+      if html_escaped_relay_state['type'] == 'mhv_verified' && user.loa[:current] < LOA::THREE
         mhv_unverified_error = SAML::UserAttributeError::ERRORS[:mhv_unverified_blocked]
         Rails.logger.warn("SessionsController version:v1 #{mhv_unverified_error[:message]}")
         raise SAML::UserAttributeError.new(message: mhv_unverified_error[:message],
@@ -181,12 +202,12 @@ module V1
     end
 
     def set_sso_saml_cookie!
-      cookies[Settings.ssoe_eauth_cookie.name] = {
+      cookies[IdentitySettings.ssoe_eauth_cookie.name] = {
         value: saml_cookie_content.to_json,
         expires: nil,
-        secure: Settings.ssoe_eauth_cookie.secure,
+        secure: IdentitySettings.ssoe_eauth_cookie.secure,
         httponly: true,
-        domain: Settings.ssoe_eauth_cookie.domain
+        domain: IdentitySettings.ssoe_eauth_cookie.domain
       }
     end
 
@@ -208,9 +229,7 @@ module V1
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
         url_service.login_url('mhv_verified', 'myhealthevet', AuthnContext::MHV)
-      when 'dslogon'
-        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
-      when 'dslogon_verified'
+      when 'dslogon', 'dslogon_verified'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
@@ -288,16 +307,17 @@ module V1
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
       if logout_request.present?
         logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
+        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
                           "'#{originating_request_id}'")
       else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
                           "'#{originating_request_id}'")
       end
     end
 
-    def new_stats(type, client_id)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+    def new_stats(type, client_id, operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
+
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
@@ -305,12 +325,13 @@ module V1
     def login_stats(status, error = nil)
       type = url_service.tracker.payload_attr(:type)
       client_id = url_service.tracker.payload_attr(:application)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+      operation = url_service.tracker.payload_attr(:operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags:)
-        context = { icn: @current_user.icn, version: 'v1', client_id:, type: }
+        context = { icn: @current_user.icn, version: 'v1', client_id:, type:, operation: }
         Rails.logger.info('LOGIN_STATUS_SUCCESS', context)
         Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags:)
@@ -324,22 +345,21 @@ module V1
     end
 
     def callback_stats(status, saml_response = nil, failure_tag = nil)
-      tracker = url_service.tracker
-      tracker_tags = ["type:#{tracker.payload_attr(:type)}", "client_id:#{tracker.payload_attr(:application)}"]
+      tracker_tags = ["type:#{url_service.tracker.payload_attr(:type)}",
+                      "client_id:#{url_service.tracker.payload_attr(:application)}",
+                      "operation:#{url_service.tracker.payload_attr(:operation)}"]
       case status
       when :success
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{saml_response&.authn_context}",
-                                VERSION_TAG].concat(tracker_tags))
+        tags = ['status:success', "context:#{saml_response&.authn_context}", VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
       when :failure
-        tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{saml_response&.authn_context}",
-                                VERSION_TAG].concat(tracker_tags))
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
+        parsed_failure_tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
+        tags = ['status:failure', "context:#{saml_response&.authn_context}", VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [parsed_failure_tag, VERSION_TAG])
       when :failed_unknown
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags))
+        tags = ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown', VERSION_TAG])
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])
@@ -355,7 +375,7 @@ module V1
                 else
                   exc.message
                 end
-      conditional_log_message_to_sentry(message, level, context, code)
+      conditional_log_message_to_sentry(message, level, context)
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
@@ -374,14 +394,11 @@ module V1
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def conditional_log_message_to_sentry(message, level, context, code)
-      # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
-      # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
-      # to pollute Sentry with this condition, but we will still log in case we want metrics in
-      # Cloudwatch or any other log aggregator. Additionally, if the user has an invalid message timestamp
+    def conditional_log_message_to_sentry(message, level, context)
+      # If the user has an invalid message timestamp
       # error, this means they have waited too long in the log in page to progress, so it's not really an
       # appropriate Sentry error
-      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE || invalid_message_timestamp_error?(message)
+      if invalid_message_timestamp_error?(message)
         Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
       else
         log_message_to_sentry(message, level, extra_context: context)
@@ -398,15 +415,15 @@ module V1
     end
 
     def after_login_actions
-      user_verifier_object = OpenStruct.new({ sign_in: @current_user.identity.sign_in,
-                                              mhv_correlation_id: @current_user.mhv_correlation_id,
-                                              idme_uuid: @current_user.idme_uuid,
-                                              edipi: @current_user.identity.edipi,
-                                              logingov_uuid: @current_user.logingov_uuid,
-                                              icn: @current_user.icn })
-      Login::UserVerifier.new(user_verifier_object).perform
-      Login::AfterLoginActions.new(@current_user).perform
+      Login::AfterLoginActions.new(@current_user, skip_mhv_account_creation).perform
       log_persisted_session_and_warnings
+    end
+
+    def skip_mhv_account_creation
+      skip_mhv_account_creation_client = url_service.tracker.payload_attr(:application) == SAML::User::MHV_ORIGINAL_CSID
+      skip_mhv_account_creation_type = url_service.tracker.payload_attr(:type) == 'custom'
+
+      skip_mhv_account_creation_client || skip_mhv_account_creation_type
     end
 
     def log_persisted_session_and_warnings
@@ -430,6 +447,10 @@ module V1
                                                 user: current_user,
                                                 params:,
                                                 loa3_context: LOA::IDME_LOA3)
+    end
+
+    def validate_operation_params(operation)
+      raise Common::Exceptions::InvalidFieldValue.new('operation', operation) unless OPERATION_TYPES.include?(operation)
     end
   end
 end

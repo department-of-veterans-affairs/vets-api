@@ -34,11 +34,13 @@ module BenefitsDocuments
         client.upload_document(@file_body, @lighthouse_document)
       rescue => e
         # NOTE: third argument, lighthouse_client_id is left nil so it isn't logged.
-        Lighthouse::ServiceException.send_error(
+        error = Lighthouse::ServiceException.send_error(
           e, self.class.to_s.underscore, nil, BenefitsDocuments::Configuration::DOCUMENTS_PATH
         )
 
-        raise e
+        # Lighthouse::ServiceException can either raise an error or return an error object, so we need to
+        # assign it to a variable and re-raise it here manually if it is the latter
+        raise error
       end
     end
   end

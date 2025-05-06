@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - type
   - id
@@ -13,6 +14,7 @@ properties:
     description: Upstream identifier. provider id.
   attributes:
     type: object
+    additionalProperties: false
     required:
       - name
       - address
@@ -23,6 +25,7 @@ properties:
         example: "Dr. Smith"
       address:
         type: object
+        additionalProperties: false
         $ref: "./FacilityAddress.yml"
       distance:
         type: float

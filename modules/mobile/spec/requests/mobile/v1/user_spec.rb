@@ -5,9 +5,18 @@ require 'common/client/errors'
 
 RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
-  Flipper.disable(:va_v3_contact_information_service)
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_letters, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_claims, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_direct_deposit, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:mobile_lighthouse_disability_ratings,
+                                              instance_of(User)).and_return(false)
+  end
+
   let(:contact_information_service) do
-    VAProfile::ContactInformation::Service
+    VAProfile::V2::ContactInformation::Service
   end
 
   describe 'GET /mobile/v1/user' do
@@ -56,7 +65,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
 
       it 'includes the users gender identity' do
         expect(attributes['profile']).to include(
-          'genderIdentity' => 'F'
+          'genderIdentity' => nil
         )
       end
 
@@ -67,7 +76,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       end
 
       it 'includes the users contact email id' do
-        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(456)
+        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(318_927)
       end
 
       it 'includes the users contact email addrss' do
@@ -83,11 +92,11 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
-            'id' => 123,
+            'id' => 577_127,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
-            'addressPou' => 'RESIDENCE/CHOICE',
+            'addressPou' => 'RESIDENCE',
             'addressType' => 'DOMESTIC',
             'city' => 'Washington',
             'countryCodeIso3' => 'USA',
@@ -123,7 +132,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
       it 'includes a home phone number' do
         expect(attributes['profile']['homePhoneNumber']).to include(
           {
-            'id' => 789,
+            'id' => 458_781,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
@@ -366,7 +375,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
 
     describe 'vet360 linking' do
       context 'when user has a vet360_id' do
-        # let(:user) { FactoryBot.build(:iam_user) }
+        # let(:user) { build(:iam_user) }
 
         # before { iam_sign_in(user) }
 

@@ -154,9 +154,10 @@ RSpec.describe SignIn::TokenExchanger, type: :model do
                     let(:expected_hashed_refresh_token) do
                       Digest::SHA256.hexdigest(new_refresh_token.parent_refresh_token_hash)
                     end
+                    let(:expected_last_regeneration_time) { Time.zone.now }
 
                     let(:expected_refresh_expiration) do
-                      expected_refresh_creation + new_client_config.refresh_token_duration
+                      expected_last_regeneration_time + new_client_config.refresh_token_duration
                     end
                     let(:expected_session_handle) { Faker::Internet.uuid }
                     let(:expected_client_id) { new_client_config.client_id }
@@ -166,7 +167,12 @@ RSpec.describe SignIn::TokenExchanger, type: :model do
                     let(:expected_device_secret_hash) { nil }
                     let(:expected_user_uuid) { current_session.user_verification.backing_credential_identifier }
 
-                    before { allow(SecureRandom).to receive(:uuid).and_return(expected_session_handle) }
+                    before do
+                      Timecop.freeze(Time.zone.now.floor)
+                      allow(SecureRandom).to receive(:uuid).and_return(expected_session_handle)
+                    end
+
+                    after { Timecop.return }
 
                     it 'creates a session with the expected attributes' do
                       new_session = token_exchanger.perform.session
@@ -186,7 +192,7 @@ RSpec.describe SignIn::TokenExchanger, type: :model do
                       expect(new_access_token.session_handle).to eq(expected_session_handle)
                       expect(new_access_token.audience).to eq(expected_audience)
                       expect(new_access_token.client_id).to eq(expected_client_id)
-                      expect(new_access_token.last_regeneration_time).to eq(expected_refresh_creation)
+                      expect(new_access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
                       expect(new_access_token.user_attributes).to eq(JSON.parse(expected_user_attributes))
                       expect(new_access_token.user_uuid).to eq(expected_user_uuid)
                       expect(new_access_token.device_secret_hash).to eq(expected_device_secret_hash)

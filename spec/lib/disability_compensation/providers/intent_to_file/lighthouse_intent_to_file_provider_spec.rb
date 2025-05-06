@@ -9,12 +9,7 @@ RSpec.describe LighthouseIntentToFileProvider do
   let(:provider) { LighthouseIntentToFileProvider.new(current_user) }
 
   before do
-    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
-  end
-
-  after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
   end
 
   it_behaves_like 'intent to file provider'
@@ -24,6 +19,7 @@ RSpec.describe LighthouseIntentToFileProvider do
   it 'retrieves intent to file from the Lighthouse API' do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
       response = provider.get_intent_to_file('compensation', '', '')
+      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
       expect(response['intent_to_file'].length).to eq(1)
     end
   end
@@ -31,18 +27,18 @@ RSpec.describe LighthouseIntentToFileProvider do
   it 'creates intent to file using the Lighthouse API' do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
       response = provider.create_intent_to_file('compensation', '', '')
-      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
-      expect(response['intent_to_file'][0]['type']).to eq('compensation')
-      expect(response['intent_to_file'][0]['id']).to be_present
+      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFileResponse)
+      expect(response['intent_to_file']['type']).to eq('compensation')
+      expect(response['intent_to_file']['id']).to be_present
     end
   end
 
   it 'creates intent to file with the survivor type' do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_survivor_200_response') do
       response = provider.create_intent_to_file('survivor', '', '')
-      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
-      expect(response['intent_to_file'][0]['type']).to eq('survivor')
-      expect(response['intent_to_file'][0]['id']).to be_present
+      expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFileResponse)
+      expect(response['intent_to_file']['type']).to eq('survivor')
+      expect(response['intent_to_file']['id']).to be_present
     end
   end
 

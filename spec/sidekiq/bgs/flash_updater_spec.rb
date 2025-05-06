@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BGS::FlashUpdater, type: :job do
   subject { described_class }
 
-  let(:user) { FactoryBot.create(:evss_user, :loa3) } # ssn 796043735
+  let(:user) { create(:evss_user, :loa3) } # ssn 796043735
   let(:submission) { create(:form526_submission, :with_uploads, user_uuid: user.uuid) }
   let(:ssn) { submission.auth_headers['va_eauth_pnid'] }
   let(:flashes) { %w[Homeless POW] }

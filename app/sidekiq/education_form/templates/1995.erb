@@ -1,5 +1,9 @@
 <%= parse_with_template_path('header_1995') %>
-<%= @applicant.benefitAppliedFor&.titleize %>
+<% if @applicant.benefitAppliedFor -%>
+<%= header_abbreviated_form_type(@applicant.benefitAppliedFor)%>
+<% else -%>
+<%= header_abbreviated_form_type(@applicant.benefitUpdate)%>
+<% end -%>
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074
@@ -52,6 +56,8 @@ VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
                   -----------------------------------------
 
 Benefit Most Recently Received: <%= form_benefit %>
+
+Do you wish to request a 'Rudisill' review?: <%= @applicant.rudisillReview %>
 
 Select Another Benefit: <%= @applicant.changeAnotherBenefit %>
 

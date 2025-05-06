@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 
 RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
+  # allow to have access to inquiry_param
+  include_context 'shared data'
+
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
   let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
@@ -15,16 +19,18 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   let(:invalid_id) { 'A-20240423-30709' }
   let(:static_data_mock) { File.read('modules/ask_va_api/config/locales/static_data.json') }
   let(:cache_data) { JSON.parse(static_data_mock, symbolize_names: true) }
+  let(:patsr_facilities) do
+    data = File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
 
   before do
     allow(LogService).to receive(:new).and_return(logger)
     allow(logger).to receive(:call).and_yield(span)
     allow(span).to receive(:set_tag)
+    allow(span).to receive(:set_error)
     allow(Rails.logger).to receive(:error)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-    allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
-      .with('categories_topics_subtopics')
-      .and_return(cache_data)
   end
 
   shared_examples_for 'common error handling' do |status, action, error_message|
@@ -38,6 +44,21 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
   end
 
+  # spec/support/shared_examples/loa3_protected.rb
+
+  shared_examples_for 'an endpoint requiring loa3' do |http_method, endpoint, request_options = {}|
+    let(:loa1_user) { build(:user) }
+
+    before do
+      sign_in(loa1_user)
+      send(http_method, endpoint, **request_options)
+    end
+
+    it 'returns unauthorized for LOA1 users' do
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   describe 'GET #index' do
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
@@ -48,6 +69,9 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             'type' => 'inquiry',
             'attributes' =>
              { 'inquiry_number' => 'A-4',
+               'allow_attachments' => nil,
+               'allow_replies' => nil,
+               'has_attachments' => true,
                'attachments' => [{ 'Id' => '4', 'Name' => 'testfile.txt' }],
                'category_name' => 'Benefits issues outside the U.S.',
                'created_on' => '8/5/2024 4:51:52 PM',
@@ -71,21 +95,32 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       context 'when an error occurs' do
-        context 'when a service error' do
-          let(:error_message) do
-            'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
+        context 'when Multiple Contacts found by ICN' do
+          let(:service) { instance_double(Crm::Service) }
+          let(:body) do
+            '{"Data":null,"Message":"Data Validation: Multiple Contacts found by ICN"' \
+              ',"ExceptionOccurred":true,"ExceptionMessage"' \
+              ':"Data Validation: No Contact found by ICN","MessageId":"19d9799c-159f-4901-8672-6bdfc1d4cc0f"}'
           end
+          let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
 
           before do
-            allow_any_instance_of(Crm::Service)
-              .to receive(:call)
-              .and_raise(Crm::ErrorHandler::ServiceError.new(error_message))
+            allow(Crm::Service).to receive(:new).and_return(service)
+            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+            allow(service).to receive(:call).and_return(failure)
             get inquiry_path
           end
 
+          it 'log uuid' do
+            expect(span).to have_received(:set_tag).with('safe_field.idme_uuid', authorized_user.idme_uuid)
+            expect(span).to have_received(:set_tag).with('safe_field.logingov_uuid', authorized_user.logingov_uuid)
+          end
+
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Crm::ErrorHandler::ServiceError: ' \
-                          'AskVAApi::Inquiries::InquiriesRetrieverError: Data Validation: No Contact found by ICN'
+                          'AskVAApi::Inquiries::InquiriesRetrieverError:' \
+                          ' {"Data":null,"Message":"Data Validation: Multiple Contacts found by ICN"' \
+                          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found by ICN",' \
+                          '"MessageId":"19d9799c-159f-4901-8672-6bdfc1d4cc0f"}'
         end
 
         context 'when a standard error' do
@@ -109,6 +144,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
       it { expect(response).to have_http_status(:unauthorized) }
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/inquiries'
   end
 
   describe 'GET #show' do
@@ -118,8 +155,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           'type' => 'inquiry',
           'attributes' =>
           { 'inquiry_number' => 'A-1',
+            'allow_attachments' => nil,
+            'allow_replies' => nil,
+            'has_attachments' => true,
             'attachments' => [{ 'Id' => '1', 'Name' => 'testfile.txt' }],
-            'category_name' => 'Veteran Affairs  - Debt',
+            'category_name' => 'Debt for benefit overpayments and health care copay bills',
             'created_on' => '8/5/2024 4:51:52 PM',
             'correspondences' =>
             { 'data' =>
@@ -145,6 +185,12 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             'veteran_relationship' => 'self' } } }
     end
 
+    before do
+      allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
+        .with('categories_topics_subtopics')
+        .and_return(cache_data)
+    end
+
     context 'when user is signed in' do
       context 'when mock is given' do
         before do
@@ -167,7 +213,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
             InquiryNumber: 'A-123456',
             InquiryStatus: 'In Progress',
             InquiryTopic: 'Cemetery Debt',
-            LastUpdate: '1/1/1900',
+            LastUpdate: '8/5/2024 4:51:52 PM',
             QueueId: '9876t54',
             QueueName: 'Debt Management Center',
             SchoolFacilityCode: '0123',
@@ -187,8 +233,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
               'type' => 'inquiry',
               'attributes' =>
               { 'inquiry_number' => 'A-123456',
+                'allow_attachments' => nil,
+                'allow_replies' => nil,
+                'has_attachments' => nil,
                 'attachments' => [{ 'Id' => '012345', 'Name' => 'File A.pdf' }],
-                'category_name' => 'Veteran Affairs  - Debt',
+                'category_name' => 'Debt for benefit overpayments and health care copay bills',
                 'created_on' => '8/5/2024 4:51:52 PM',
                 'correspondences' =>
                 { 'data' =>
@@ -205,7 +254,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                 'has_been_split' => true,
                 'inquiry_topic' => 'Cemetery Debt',
                 'level_of_authentication' => 'Personal',
-                'last_update' => '1/1/1900',
+                'last_update' => '8/5/2024 4:51:52 PM',
                 'queue_id' => '9876t54',
                 'queue_name' => 'Debt Management Center',
                 'status' => 'In Progress',
@@ -244,53 +293,61 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           get "#{inquiry_path}/#{invalid_id}"
         end
 
-        it { expect(response).to have_http_status(:unprocessable_entity) }
+        it { expect(response).to have_http_status(:not_found) }
 
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+        it_behaves_like 'common error handling', :not_found, 'service_error',
                         'AskVAApi::Inquiries::InquiriesRetrieverError: ' \
                         '{"Data":null,"Message":"Data Validation: No Inquiries found by ID A-20240423-30709"' \
                         ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Inquiries found by ' \
                         'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/inquiries/A-1',
+                    { params: { user_mock_data: true } }
   end
 
   describe 'GET #download_attachment' do
     let(:id) { '1' }
 
-    before do
-      sign_in(authorized_user)
-    end
-
-    context 'when successful' do
+    context 'when a user is loa3' do
       before do
-        get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+        sign_in(authorized_user)
       end
 
-      it 'response with 200' do
-        expect(response).to have_http_status(:ok)
+      context 'when successful' do
+        before do
+          get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+        end
+
+        it 'response with 200' do
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when Crm raise an error' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
+            '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
+            ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
+        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
+        before do
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
+          get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
+        end
+
+        it 'raise the error' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
       end
     end
 
-    context 'when Crm raise an error' do
-      let(:body) do
-        '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
-          '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
-          ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
-      end
-      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
-      before do
-        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
-        get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
-      end
-
-      it 'raise the error' do
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-    end
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/download_attachment',
+                    { params: { id:, mock: true } }
   end
 
   describe 'GET #profile' do
@@ -335,6 +392,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                       ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found ' \
                       '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/profile', { params: { user_mock_data: true } }
   end
 
   describe 'GET #status' do
@@ -382,10 +441,10 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
       end
 
       it 'raise StatusRetrieverError' do
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:not_found)
       end
 
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+      it_behaves_like 'common error handling', :not_found, 'service_error',
                       'AskVAApi::Inquiries::Status::StatusRetrieverError: ' \
                       '{"Data":null,"Message":"Data Validation: No Inquiries found",' \
                       '"ExceptionOccurred":true,' \
@@ -394,357 +453,158 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
   end
 
-  describe 'POST #create' do
-    let(:payload) do
-      {
-        inquiry_category: '5c524deb-d864-eb11-bb24-000d3a579c45',
-        inquiry_source: 722_310_004,
-        inquiry_subtopic: '932a8586-e764-eb11-bb23-000d3a579c3f',
-        inquiry_topic: '932a8586-e764-eb11-bb23-000d3a579c3f',
-        submitter_question: 'test',
-        are_you_the_dependent: true,
-        attachment_present: false,
-        branch_of_service: 722_310_000,
-        city: 'Queens',
-        contact_method: 722_310_001,
-        country: 722_310_000,
-        daytime_phone: '1235559090',
-        dependant_city: 'Morrilton',
-        dependant_country: 722_310_000,
-        dependant_day_time_phone: '1235559090',
-        dependant_dob: '01/01/2000',
-        dependant_email: 'test@email.com',
-        dependant_first_name: 'Peter',
-        dependant_gender: 'M',
-        dependant_last_name: 'Parker',
-        dependant_middle_name: 'B',
-        dependant_province: 722_310_008,
-        dependant_relationship: 722_310_007,
-        dependant_ssn: '123456789',
-        dependant_state: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        dependant_street_address: 'TEST',
-        dependant_zip_code: '72156',
-        email_address: 'test@email.com',
-        email_confirmation: 'test@email.com',
-        first_name: 'Pete',
-        gender: 'M',
-        inquiry_about: 722_310_003,
-        inquiry_summary: 'string',
-        inquiry_type: 722_310_001,
-        is_va_employee: true,
-        is_veteran: true,
-        is_veteran_an_employee: true,
-        is_veteran_deceased: true,
-        level_of_authentication: 722_310_001,
-        medical_center: '07a51029-6816-e611-9436-0050568d743d',
-        middle_name: 'MiddleName',
-        preferred_name: 'Petey',
-        pronouns: 'string',
-        school_obj: {
-          school_facility_code: '1000000898',
-          institution_name: "Kyle's Institution",
-          city: 'Boston',
-          state_abbreviation: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-          regional_office: '669cbc60-b58d-eb11-b1ac-001dd8309d89'
-        },
-        street_address2: 'string',
-        submitter: '42cc2a0a-2ebf-e711-9495-0050568d63d9',
-        submitter_dependent: 722_310_000,
-        submitter_dob: '01/01/2000',
-        submitter_gender: 'M',
-        submitter_province: 722_310_008,
-        submitters_dod_id_edipi_number: 'string',
-        submitter_ssn: 'string',
-        submitter_state: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        submitter_state_of_residency: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        submitter_state_of_school: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        submitter_state_property: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        submitter_street_address: 'string',
-        submitter_vet_center: 'string',
-        submitter_zip_code_of_residency: 'e3df3e75-54a1-eb11-b1ac-001dd804abe6',
-        suffix: 722_310_001,
-        supervisor_flag: true,
-        va_employee_time_stamp: 'string',
-        veteran_city: 'string',
-        veteran_claim_number: 'string',
-        veteran_country: 722_310_186,
-        veteran_date_of_death: '01/01/2000',
-        veteran_dob: '01/01/2000',
-        veteran_dod_id_edipi_number: 'string',
-        veteran_email: 'string',
-        veteran_email_confirmation: 'string',
-        veteran_enrolled: true,
-        veteran_first_name: 'string',
-        veteran_icn: 'string',
-        veteran_last_name: 'string',
-        veteran_middle_name: 'string',
-        veteran_phone: 'string',
-        veteran_prefered_name: 'string',
-        veteran_pronouns: 'string',
-        veteran_province: 722_310_005,
-        veteran_relationship: 722_310_008,
-        veteran_service_end_date: '01/01/2000',
-        veteran_service_number: 'string',
-        veteran_service_start_date: '01/01/1960',
-        veteran_ssn: 'string',
-        veterans_state: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        veteran_street_address: 'string',
-        veteran_suffix: 722_310_001,
-        veteran_suite_apt_other: 'string',
-        veteran_zip_code: 'string',
-        who_was_their_counselor: 'string',
-        your_last_name: 'string',
-        zip_code: 'string'
-      }
-    end
-    let(:converted_payload) do
-      { AreYouTheDependent: 'true',
-        AttachmentPresent: 'false',
-        BranchOfService: '722310000',
-        City: 'Queens',
-        ContactMethod: '722310001',
-        Country: '722310000',
-        DaytimePhone: '1235559090',
-        DependantCity: 'Morrilton',
-        DependantCountry: '722310000',
-        DependantDOB: '01/01/2000',
-        DependantEmail: 'test@email.com',
-        DependantFirstName: 'Peter',
-        DependantGender: 'M',
-        DependantLastName: 'Parker',
-        DependantMiddleName: 'B',
-        DependantProvince: '722310008',
-        DependantRelationship: '722310007',
-        DependantSSN: '123456789',
-        DependantState: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        DependantStreetAddress: 'TEST',
-        DependantZipCode: '72156',
-        EmailAddress: 'test@email.com',
-        EmailConfirmation: 'test@email.com',
-        FirstName: 'Pete',
-        Gender: 'M',
-        InquiryAbout: '722310003',
-        InquiryCategory: '5c524deb-d864-eb11-bb24-000d3a579c45',
-        InquirySource: '722310004',
-        InquirySubtopic: '932a8586-e764-eb11-bb23-000d3a579c3f',
-        InquirySummary: 'string',
-        InquiryTopic: '932a8586-e764-eb11-bb23-000d3a579c3f',
-        InquiryType: '722310001',
-        IsVAEmployee: 'true',
-        IsVeteran: 'true',
-        IsVeteranAnEmployee: 'true',
-        IsVeteranDeceased: 'true',
-        LevelOfAuthentication: '722310001',
-        MedicalCenter: '07a51029-6816-e611-9436-0050568d743d',
-        MiddleName: 'MiddleName',
-        PreferredName: 'Petey',
-        Pronouns: 'string',
-        StreetAddress2: 'string',
-        Submitter: '42cc2a0a-2ebf-e711-9495-0050568d63d9',
-        SubmitterDependent: '722310000',
-        SubmitterDOB: '01/01/2000',
-        SubmitterGender: 'M',
-        SubmitterProvince: '722310008',
-        SubmitterQuestion: 'test',
-        SubmittersDodIdEdipiNumber: 'string',
-        SubmitterSSN: 'string',
-        SubmitterState: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        SubmitterStateOfResidency: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        SubmitterStateOfSchool: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        SubmitterStateProperty: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        SubmitterStreetAddress: 'string',
-        SubmitterVetCenter: 'string',
-        SubmitterZipCodeOfResidency: 'e3df3e75-54a1-eb11-b1ac-001dd804abe6',
-        Suffix: '722310001',
-        SupervisorFlag: 'true',
-        VaEmployeeTimeStamp: 'string',
-        VeteranCity: 'string',
-        VeteranClaimNumber: 'string',
-        VeteranCountry: '722310186',
-        VeteranDateOfDeath: '01/01/2000',
-        VeteranDOB: '01/01/2000',
-        VeteranDodIdEdipiNumber: 'string',
-        VeteranEmail: 'string',
-        VeteranEmailConfirmation: 'string',
-        VeteranEnrolled: 'true',
-        VeteranFirstName: 'string',
-        VeteranICN: 'string',
-        VeteranLastName: 'string',
-        VeteranMiddleName: 'string',
-        VeteranPhone: 'string',
-        VeteranPreferedName: 'string',
-        VeteranPronouns: 'string',
-        VeteranProvince: '722310005',
-        VeteranRelationship: '722310008',
-        VeteranServiceEndDate: '01/01/2000',
-        VeteranServiceNumber: 'string',
-        VeteranServiceStartDate: '01/01/1960',
-        VeteranSSN: 'string',
-        VeteransState: '80b9d1e0-d488-eb11-b1ac-001dd8309d89',
-        VeteranStreetAddress: 'string',
-        VeteranSuffix: '722310001',
-        VeteranSuiteAptOther: 'string',
-        VeteranZipCode: 'string',
-        WhoWasTheirCounselor: 'string',
-        YourLastName: 'string',
-        ZipCode: 'string',
-        SchoolObj: { City: 'Boston',
-                     InstitutionName: "Kyle's Institution",
-                     RegionalOffice: '669cbc60-b58d-eb11-b1ac-001dd8309d89',
-                     SchoolFacilityCode: '1000000898',
-                     StateAbbreviation: '80b9d1e0-d488-eb11-b1ac-001dd8309d89' } }
-    end
-    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
-
-    context 'when successful' do
-      before do
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint:, method: :put,
-                payload: converted_payload).and_return({
-                                                         Data: {
-                                                           Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
-                                                         },
-                                                         Message: '',
-                                                         ExceptionOccurred: false,
-                                                         ExceptionMessage: '',
-                                                         MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
-                                                       })
-        sign_in(authorized_user)
-        post '/ask_va_api/v0/inquiries/auth', params: payload
-      end
-
-      it { expect(response).to have_http_status(:created) }
-    end
-
-    context 'when crm api fail' do
-      context 'when the API call fails' do
-        let(:payload) { { first_name: 'test' } }
-        let(:converted_payload) { { FirstName: 'test' } }
-        let(:body) do
-          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
-            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
-            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
-        end
-        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
-        before do
-          allow_any_instance_of(Crm::Service).to receive(:call)
-            .with(endpoint:, method: :put,
-                  payload: converted_payload).and_return(failure)
-          sign_in(authorized_user)
-          post '/ask_va_api/v0/inquiries/auth', params: payload
-        end
-
-        it 'raise InquiriesCreatorError' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Inquiries::InquiriesCreatorError: {"Data":null,"Message":' \
-                        '"Data Validation: missing InquiryCategory"' \
-                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
-                        'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
-      end
-    end
-  end
-
-  describe 'POST #unauth_create' do
-    let(:payload) { { first_name: 'Fake', your_last_name: 'Smith' } }
-    let(:converted_payload) { { FirstName: 'Fake', YourLastName: 'Smith' } }
-    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
-
-    context 'when successful' do
-      before do
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint:, method: :put,
-                payload: converted_payload).and_return({
-                                                         Data: {
-                                                           Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
-                                                         },
-                                                         Message: '',
-                                                         ExceptionOccurred: false,
-                                                         ExceptionMessage: '',
-                                                         MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
-                                                       })
-        post inquiry_path, params: payload
-      end
-
-      it { expect(response).to have_http_status(:created) }
-    end
-
-    context 'when crm api fail' do
-      context 'when the API call fails' do
-        let(:payload) { { first_name: 'test' } }
-        let(:converted_payload) { { FirstName: 'test' } }
-        let(:body) do
-          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
-            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
-            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
-        end
-        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
-        before do
-          allow_any_instance_of(Crm::Service).to receive(:call)
-            .with(endpoint:, method: :put,
-                  payload: converted_payload).and_return(failure)
-          post '/ask_va_api/v0/inquiries', params: payload
-        end
-
-        it 'raise InquiriesCreatorError' do
-          expect(response).to have_http_status(:unprocessable_entity)
-        end
-
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'AskVAApi::Inquiries::InquiriesCreatorError: ' \
-                        '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
-                        ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
-                        'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
-      end
-    end
-  end
-
-  describe 'POST #upload_attachment' do
+  describe 'when creating an inquiry' do
     let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
     let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
     let(:file) { "data:image/png;base64,#{base64_encoded_file}" }
-    let(:inquiry_id) { '1c1f5631-9edf-ee11-904d-001dd8306b36' }
-    let(:correspondence_id) { nil }
-    let(:params) do
-      {
-        file_name: 'testfile',
-        file_content: file,
-        inquiry_id:,
-        correspondence_id:
-      }
+    let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
+    let(:cache_data_service) { instance_double(Crm::CacheData) }
+    let(:cached_data) do
+      data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+      JSON.parse(data, symbolize_names: true)
+    end
+    let(:safe_fields) do
+      %i[category_id
+         contact_preference
+         family_members_location_of_residence
+         is_question_about_veteran_or_someone_else
+         more_about_your_relationship_to_veteran
+         relationship_to_veteran
+         select_category
+         select_topic
+         subtopic_id
+         topic_id
+         veterans_postal_code
+         who_is_your_question_about]
     end
 
-    context 'when successful' do
-      let(:crm_response) do
-        { Data: {
-          Id: '1c1f5631-9edf-ee11-904d-001dd8306b36'
-        } }
+    before do
+      allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
+      allow(cache_data_service).to receive(:call).with(
+        endpoint: 'optionset',
+        cache_key: 'optionset'
+      ).and_return(cached_data)
+      allow(cache_data_service).to receive(:fetch_and_cache_data).and_return(patsr_facilities)
+    end
+
+    context 'POST #create' do
+      context 'when user is loa3' do
+        context 'when successful' do
+          before do
+            allow_any_instance_of(Crm::Service).to receive(:call)
+              .and_return({
+                            Data: {
+                              Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                            },
+                            Message: '',
+                            ExceptionOccurred: false,
+                            ExceptionMessage: '',
+                            MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                          })
+            sign_in(authorized_user)
+            # inquiry_params is in include_context 'shared data'
+            post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
+          end
+
+          it { expect(response).to have_http_status(:created) }
+        end
+
+        context 'when crm api fail' do
+          context 'when the API call fails' do
+            let(:body) do
+              '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+                ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+            end
+            let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
+            before do
+              allow_any_instance_of(Crm::Service).to receive(:call)
+                .and_return(failure)
+              sign_in(authorized_user)
+              post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
+            end
+
+            it 'raise InquiriesCreatorError and set span safe_fields' do
+              expect(response).to have_http_status(:unprocessable_entity)
+              safe_fields.each do |field|
+                expect(span).to have_received(:set_tag).with(
+                  "safe_field.#{field}",
+                  inquiry_params[:inquiry][field]
+                )
+              end
+            end
+
+            it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                            'InquiriesCreatorError: {"Data":null,"Message":' \
+                            '"Data Validation: missing InquiryCategory"' \
+                            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+          end
+        end
       end
 
-      before do
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint: 'attachment/new', payload: {
-                  inquiryId: params[:inquiry_id],
-                  fileName: params[:file_name],
-                  fileContent: file,
-                  correspondenceId: params[:correspondence_id]
-                }).and_return(crm_response)
+      it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/auth', { params: { inquiry: {} } }
+    end
 
-        post '/ask_va_api/v0/upload_attachment', params:
+    context 'POST #unauth_create' do
+      let(:icn) { nil }
+
+      context 'when successful' do
+        before do
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .and_return({
+                          Data: {
+                            Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                          },
+                          Message: '',
+                          ExceptionOccurred: false,
+                          ExceptionMessage: '',
+                          MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                        })
+          post inquiry_path, params: inquiry_params
+        end
+
+        it { expect(response).to have_http_status(:created) }
       end
 
-      it 'returns http status :ok' do
-        expect(response).to have_http_status(:ok)
+      context 'when crm api fail' do
+        context 'when the API call fails' do
+          let(:body) do
+            '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+              ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+              'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+          end
+          let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
+          before do
+            allow_any_instance_of(Crm::Service).to receive(:call)
+              .and_return(failure)
+            post '/ask_va_api/v0/inquiries', params: inquiry_params
+          end
+
+          it 'raise InquiriesCreatorError' do
+            expect(response).to have_http_status(:unprocessable_entity)
+            safe_fields.each do |field|
+              expect(span).to have_received(:set_tag).with(
+                "safe_field.#{field}",
+                inquiry_params[:inquiry][field]
+              )
+            end
+          end
+
+          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                          'InquiriesCreatorError: ' \
+                          '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+                          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                          'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        end
       end
     end
   end
 
   describe 'POST #create_reply' do
-    let(:payload) { { 'reply' => 'this is my reply' } }
+    let(:payload) { { 'reply' => 'this is my reply', 'files' => [{ 'file_name' => nil, 'file_content' => nil }] } }
 
     context 'when successful' do
       before do
@@ -772,7 +632,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload: { Reply: 'this is my reply' }).and_return(failure)
+                  payload: { Reply: 'this is my reply', ListOfAttachments: nil }).and_return(failure)
           post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
         end
 
@@ -787,5 +647,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                         'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
       end
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/123/reply/new',
+                    { params: { reply: 'reply' } }
   end
 end

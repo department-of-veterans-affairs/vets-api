@@ -5,6 +5,8 @@ require 'bgs/power_of_attorney_verifier'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
 require 'mpi/errors/errors'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
+require 'bgs_service/intent_to_file_web_service'
 
 module ClaimsApi
   module V1
@@ -18,7 +20,7 @@ module ClaimsApi
       service_tag 'lighthouse-claims'
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
-      before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
+      before_action :authenticate
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_header_values_format, if: -> { header_request? }
       before_action :validate_veteran_identifiers
@@ -68,11 +70,12 @@ module ClaimsApi
           )
         end
 
-        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, ' /
-                                'header_request: #{header_request?}, require_birls: #{require_birls}, ' /
-                                'birls_id: #{target_veteran&.birls_id.present?}, ' /
-                                'rid: #{request&.request_id}, ' /
-                                'ptcpnt_id: #{target_veteran&.participant_id.present?}")
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, " \
+                                                           "header_request: #{header_request?}, " \
+                                                           "require_birls: #{require_birls}, " \
+                                                           "birls_id: #{target_veteran&.birls_id.present?}, " \
+                                                           "rid: #{request&.request_id}, " \
+                                                           "ptcpnt_id: #{target_veteran&.participant_id.present?}")
         if target_veteran.icn.blank?
           claims_v1_logging('unable_to_locate_icn',
                             message: 'unable_to_locate_icn on request in v1 application controller.')
@@ -97,12 +100,12 @@ module ClaimsApi
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
-        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, ' /
-                                                  'header_request: #{header_request?}, ' /
-                                                  'birls_id: #{target_veteran&.birls_id.present?}, ' /
-                                                  'rid: #{request&.request_id}, ' /
-                                                  'mpi_res_ok: #{mpi_add_response&.ok?}, ' /
-                                                  'ptcpnt_id: #{target_veteran&.participant_id.present?}")
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size}, " \
+                                                           "header_request: #{header_request?}, " \
+                                                           "birls_id: #{target_veteran&.birls_id.present?}, " \
+                                                           "rid: #{request&.request_id}, " \
+                                                           "mpi_res_ok: #{mpi_add_response&.ok?}, " \
+                                                           "ptcpnt_id: #{target_veteran&.participant_id.present?}")
       rescue MPI::Errors::ArgumentError
         claims_v1_logging('unable_to_locate_participant_id',
                           message: 'unable_to_locate_participant_id on request in v1 application controller.')
@@ -136,20 +139,45 @@ module ClaimsApi
         edipi_check
 
         if Flipper.enabled? :claims_status_v1_bgs_enabled
-          local_bgs_service
+          bgs_claim_status_service
         else
           claims_service
         end
+      end
+
+      def bgs_service
+        bgs = BGS::Services.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
+        ClaimsApi::Logger.log('poa', detail: 'bgs-ext service built')
+        bgs
+      end
+
+      def local_bgs_service
+        external_key = target_veteran.participant_id.to_s
+        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          external_uid: external_key,
+          external_key:
+        )
       end
 
       def claims_service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
       end
 
-      def local_bgs_service
-        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+      def bgs_claim_status_service
+        @bgs_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
+        )
+      end
+
+      def bgs_itf_service
+        external_key = target_veteran.participant_id.to_s
+        @bgs_itf_service ||= ClaimsApi::IntentToFileWebService.new(
+          external_uid: external_key,
+          external_key:
         )
       end
 
@@ -205,10 +233,12 @@ module ClaimsApi
         vet.edipi = vet.edipi_mpi
         vet.participant_id = vet.participant_id_mpi
         vet.icn = vet&.mpi_icn
+        # This will cache using the ICN as the KEY in Redis now if it is present
+        vet.recache_mpi_data
         vet
       end
 
-      def set_tags_and_extra_context
+      def set_sentry_tags_and_extra_context
         RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
         Sentry.set_tags(source: 'claims_api')
       end

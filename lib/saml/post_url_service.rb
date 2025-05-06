@@ -47,8 +47,8 @@ module SAML
       auth = 'force-needed' if auth != 'success' && @tracker&.payload_attr(:type) == 'custom'
       set_query_params(auth, code, request_id)
 
-      if Settings.saml_ssoe.relay.present?
-        add_query(Settings.saml_ssoe.relay, query_params)
+      if IdentitySettings.saml_ssoe.relay.present?
+        add_query(IdentitySettings.saml_ssoe.relay, query_params)
       else
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
@@ -73,7 +73,7 @@ module SAML
 
     # logout URL for SSOe
     def ssoe_slo_url
-      Settings.saml_ssoe.logout_url
+      IdentitySettings.saml_ssoe.logout_url
     end
 
     private
@@ -105,11 +105,19 @@ module SAML
     end
 
     def terms_of_use_url
-      if Settings.review_instance_slug.present?
-        "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
-      else
-        "#{base_redirect_url}/terms-of-use"
+      current_application = @tracker&.payload_attr(:application)
+
+      base_url = if Settings.review_instance_slug.present?
+                   "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
+                 else
+                   "#{base_redirect_url}/terms-of-use"
+                 end
+
+      if current_application.in?(SKIP_MHV_ACCOUNT_CREATION_CLIENTS) || @tracker&.payload_attr(:type) == 'custom'
+        base_url = add_query(base_url, { skip_mhv_account_creation: true })
       end
+
+      base_url
     end
 
     def client_redirect_target
@@ -139,7 +147,7 @@ module SAML
     end
 
     def enabled_tou_clients
-      Settings.terms_of_use.enabled_clients.split(',').collect(&:strip)
+      IdentitySettings.terms_of_use.enabled_clients.split(',').collect(&:strip)
     end
   end
 end

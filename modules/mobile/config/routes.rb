@@ -13,8 +13,6 @@ Mobile::Engine.routes.draw do
     get '/appointments/facilities/:facility_id/clinics', to: 'clinics#index'
     get '/appointments/facilities/:facility_id/clinics/:clinic_id/slots', to: 'clinics#slots'
     get '/appointments/facilities/:facility_id/slots', to: 'clinics#facility_slots'
-    get '/appointments/preferences', to: 'appointment_preferences#show'
-    put '/appointments/preferences', to: 'appointment_preferences#update'
     post '/appointments/check-in', to: 'check_in#create'
     patch '/appointments/check-in/demographics', to: 'check_in_demographics#update'
     post '/appointment', to: 'appointments#create'
@@ -38,6 +36,8 @@ Mobile::Engine.routes.draw do
     get '/dependents/request-decisions', to: 'dependents_request_decisions#index'
     get '/disability-rating', to: 'disability_rating#index'
     get '/enrollment-status', to: 'enrollment_status#show'
+    get '/efolder/documents', to: 'efolder#index'
+    post '/efolder/documents/:document_id/download', to: 'efolder#download'
     get '/facilities-info', to: 'facilities_info#index'
     get '/facilities-info/:sort', to: 'facilities_info#schedulable'
     post '/financial-status-reports/download', to: 'financial_status_reports#download'
@@ -72,7 +72,8 @@ Mobile::Engine.routes.draw do
     post '/messaging/health/message_drafts', to: 'message_drafts#create'
     patch '/messaging/health/message_drafts/:id', to: 'message_drafts#update'
     put '/messaging/health/message_drafts/:id', to: 'message_drafts#update'
-    get '/messaging/health/recipients', to: 'triage_teams#index'
+    get '/messaging/health/recipients', to: 'recipients#recipients'
+    get '/messaging/health/allrecipients', to: 'recipients#all_recipients'
     get '/military-service-history', to: 'military_information#get_service_history'
     get '/payment-history', to: 'payment_history#index'
     get '/payment-information/benefits', to: 'payment_information#index'
@@ -81,6 +82,7 @@ Mobile::Engine.routes.draw do
     get '/push/prefs/:endpoint_sid', to: 'push_notifications#get_prefs'
     put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_pref'
     post '/push/send', to: 'push_notifications#send_notification'
+    get '/translations/download', to: 'translations#download'
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
@@ -103,10 +105,12 @@ Mobile::Engine.routes.draw do
     get '/health/rx/prescriptions', to: 'prescriptions#index'
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
+    get '/vet_verification_status', to: 'vet_verification_statuses#show'
   end
 
   namespace :v1 do
     get '/health/immunizations', to: 'immunizations#index'
+    get '/health/labs-and-tests', to: 'labs_and_tests#index'
     get '/messaging/health/messages/:id/thread', to: 'messages#thread'
     get '/user', to: 'users#show'
   end

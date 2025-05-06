@@ -2,11 +2,12 @@
 
 require 'rails_helper'
 require_relative '../../../rails_helper'
-require 'bgs_service/local_bgs'
+require 'bgs_service/intent_to_file_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796-10-4437',
+    { 'Content-Type': 'application/json',
+      'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-Consumer-Username': 'TestConsumer',
@@ -151,7 +152,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
       describe 'handling the claimant fields' do
         context "when 'participant_claimant_id' is provided" do
           it 'that field and value are sent to BGS' do
-            expect_any_instance_of(ClaimsApi::LocalBGS)
+            expect_any_instance_of(ClaimsApi::IntentToFileWebService)
               .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '123')).and_return({})
 
             mock_acg(scopes) do |auth_header|
@@ -163,7 +164,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
 
         context "when 'claimant_ssn' is provided" do
           it 'that field and value are sent to BGS' do
-            expect_any_instance_of(ClaimsApi::LocalBGS)
+            expect_any_instance_of(ClaimsApi::IntentToFileWebService)
               .to receive(:insert_intent_to_file).with(hash_including(claimant_ssn: '123')).and_return({})
 
             mock_acg(scopes) do |auth_header|
@@ -179,7 +180,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
           end
 
           it "'participant_claimant_id' is set to the target_veteran.participant_id and sent to BGS" do
-            expect_any_instance_of(ClaimsApi::LocalBGS)
+            expect_any_instance_of(ClaimsApi::IntentToFileWebService)
               .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '999')).and_return({})
 
             mock_acg(scopes) do |auth_header|
@@ -190,7 +191,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
 
         context "when both 'participant_claimant_id' and 'claimant_ssn' are provided" do
           it "both 'participant_claimant_id' and 'claimant_ssn' are sent to BGS" do
-            expect_any_instance_of(ClaimsApi::LocalBGS)
+            expect_any_instance_of(ClaimsApi::IntentToFileWebService)
               .to receive(:insert_intent_to_file).with(
                 hash_including(
                   participant_claimant_id: '123', claimant_ssn: '456'

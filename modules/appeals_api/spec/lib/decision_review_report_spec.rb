@@ -6,13 +6,13 @@ require 'appeals_api/decision_review_report'
 describe AppealsApi::DecisionReviewReport do
   # rubocop:disable Layout/FirstHashElementIndentation
   it 'can correctly calculate hlrs' do
-    create_list :higher_level_review_v2, 3, status: 'processing'
+    create_list(:higher_level_review_v2, 3, status: 'processing')
 
-    create :higher_level_review_v2, created_at: 1.week.ago, status: 'success'
-    create :higher_level_review_v2, status: 'success'
-    create :higher_level_review_v2, status: 'complete'
+    create(:higher_level_review_v2, created_at: 1.week.ago, status: 'success')
+    create(:higher_level_review_v2, status: 'success')
+    create(:higher_level_review_v2, status: 'complete')
 
-    create :higher_level_review_v2, status: 'error'
+    create(:higher_level_review_v2, status: 'error')
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
@@ -74,20 +74,20 @@ describe AppealsApi::DecisionReviewReport do
   describe '#total_hlr_successes' do
     it 'shows correct count of all successful HLRs regardless timeframe' do
       # NOTE: HLRv1's "final status" is 'success', while HLRv2's is 'complete'
-      create_list :higher_level_review_v1, 1, created_at: 3.weeks.ago # Ignored
-      create_list :higher_level_review_v1, 2, status: 'success', created_at: 3.weeks.ago # Added to total
-      create_list :higher_level_review_v2, 4, status: 'success', created_at: 4.weeks.ago # Ignored
-      create_list :higher_level_review_v2, 8, status: 'complete', created_at: 4.weeks.ago # Added to total
+      create_list(:higher_level_review_v1, 1, created_at: 3.weeks.ago) # Ignored
+      create_list(:higher_level_review_v1, 2, status: 'success', created_at: 3.weeks.ago) # Added to total
+      create_list(:higher_level_review_v2, 4, status: 'success', created_at: 4.weeks.ago) # Ignored
+      create_list(:higher_level_review_v2, 8, status: 'complete', created_at: 4.weeks.ago) # Added to total
       expect(subject.total_hlr_successes).to eq 10
     end
   end
 
   it 'can correctly calculate nods' do
-    create :notice_of_disagreement, created_at: 1.week.ago, status: 'success'
-    create :notice_of_disagreement, status: 'success'
-    create :notice_of_disagreement, status: 'complete'
+    create(:notice_of_disagreement, created_at: 1.week.ago, status: 'success')
+    create(:notice_of_disagreement, status: 'success')
+    create(:notice_of_disagreement, status: 'complete')
 
-    create :notice_of_disagreement, :status_error
+    create(:notice_of_disagreement, :status_error)
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
@@ -134,18 +134,18 @@ describe AppealsApi::DecisionReviewReport do
 
   describe '#total_nod_successes' do
     it 'shows correct count of all successful NODs regardless of timeframe' do
-      create_list :notice_of_disagreement, 5, created_at: 3.weeks.ago
-      create_list :notice_of_disagreement, 5, status: 'complete', created_at: 3.weeks.ago
+      create_list(:notice_of_disagreement, 5, created_at: 3.weeks.ago)
+      create_list(:notice_of_disagreement, 5, status: 'complete', created_at: 3.weeks.ago)
       expect(subject.total_nod_successes).to eq 5
     end
   end
 
   it 'can correctly calculate SCs' do
-    create :supplemental_claim, :status_success, created_at: 1.week.ago
-    create :supplemental_claim, :status_success
-    create :supplemental_claim, :status_success
+    create(:supplemental_claim, :status_success, created_at: 1.week.ago)
+    create(:supplemental_claim, :status_success)
+    create(:supplemental_claim, :status_success)
 
-    create :supplemental_claim, :status_error
+    create(:supplemental_claim, :status_error)
 
     subject = described_class.new(from: 5.days.ago, to: Time.now.utc)
 
@@ -192,8 +192,8 @@ describe AppealsApi::DecisionReviewReport do
 
   describe '#total_sc_successes' do
     it 'shows correct count of all successful SCs regardless of timeframe' do
-      create_list :supplemental_claim, 5, created_at: 3.weeks.ago
-      create_list :supplemental_claim, 5, status: 'complete', created_at: 3.weeks.ago
+      create_list(:supplemental_claim, 5, created_at: 3.weeks.ago)
+      create_list(:supplemental_claim, 5, status: 'complete', created_at: 3.weeks.ago)
       expect(subject.total_sc_successes).to eq 5
     end
   end
@@ -316,13 +316,13 @@ describe AppealsApi::DecisionReviewReport do
 
   describe '#no_faulty_records?' do
     it 'returns false if there are records with a faulty status' do
-      create :notice_of_disagreement, :status_error
+      create(:notice_of_disagreement, :status_error)
 
-      expect(described_class.new.no_faulty_records?).to eq(false)
+      expect(described_class.new.no_faulty_records?).to be(false)
     end
 
     it 'returns true if there are no records with a faulty status' do
-      expect(described_class.new.no_faulty_records?).to eq(true)
+      expect(described_class.new.no_faulty_records?).to be(true)
     end
   end
 end

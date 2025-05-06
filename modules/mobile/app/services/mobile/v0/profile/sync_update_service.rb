@@ -51,6 +51,9 @@ module Mobile
 
         def save!(http_method, resource_type, params)
           record = build_record(resource_type, params)
+          if Settings.vsp_environment == 'staging'
+            Rails.logger.info("ContactInformationV2 #{resource_type} #{http_method} Request Initiated")
+          end
           raise Common::Exceptions::ValidationErrors, record unless record.valid?
 
           response = contact_information_service.send("#{http_method}_#{resource_type.downcase}", record)
@@ -58,8 +61,8 @@ module Mobile
         end
 
         def build_record(type, params)
-          if type == :address && Flipper.enabled?(:va_v3_contact_information_service, @user)
-            'VAProfile::Models::V2::Address'
+          if type == :address && Flipper.enabled?(:remove_pciu, @user)
+            'VAProfile::Models::V3::Address'
               .constantize
               .new(params)
               .set_defaults(@user)
@@ -129,7 +132,11 @@ module Mobile
         end
 
         def contact_information_service
-          VAProfile::ContactInformation::Service.new @user
+          if Flipper.enabled?(:remove_pciu, @user)
+            VAProfile::V2::ContactInformation::Service.new @user
+          else
+            VAProfile::ContactInformation::Service.new @user
+          end
         end
 
         def raise_timeout_error(_elapsed, _try)

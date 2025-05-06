@@ -9,14 +9,20 @@ module MebApi
   module V0
     class FormsController < MebApi::V0::BaseController
       before_action :check_forms_flipper
+      before_action :set_type, only: %i[claim_letter claim_status claimant_info]
 
       def claim_letter
-        claimant_response = claimant_service.get_claimant_info('toe')
-        claimant_id = claimant_response['claimant']['claimant_id']
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
-        claim_letter_response = letter_service.get_claim_letter(claimant_id, 'toe')
+        claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_id = claimant_response['claimant_id']
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+        claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
-        response = claimant_response.status == 200 ? claim_letter_response : claimant_response
+
+        response = if valid_claimant_response?(claimant_response)
+                     claim_letter_response
+                   else
+                     claimant_response
+                   end
 
         date = Time.now.getlocal
         timestamp = date.strftime('%m/%d/%Y %I:%M:%S %p')
@@ -28,19 +34,22 @@ module MebApi
       end
 
       def claim_status
-        claimant_response = claimant_service.get_claimant_info('toe')
-        claimant_id = claimant_response['claimant']['claimant_id']
+        forms_claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_id = forms_claimant_response['claimant_id']
 
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, 'toe')
+        if claimant_id.present?
+          claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+          response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
+          srlzr = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
 
-        response = claimant_response.status == 200 ? claim_status_response : claimant_response
-        serializer = claimant_response.status == 200 ? ClaimStatusSerializer : ClaimantSerializer
-
-        render json: serializer.new(response)
+          render json: srlzr.new(response)
+        else
+          render json: { data: { attributes: { claimStatus: 'INPROGRESS' } } }, status: :ok
+        end
       end
 
       def claimant_info
-        response = claimant_service.get_claimant_info('toe')
+        response = form_claimant_service.get_claimant_info(@form_type)
 
         render json: ToeClaimantInfoSerializer.new(response)
       end
@@ -65,13 +74,13 @@ module MebApi
           end
         end
 
-        response = submission_service.submit_claim(params, response_data, 'toe')
+        response = submission_service.submit_claim(params, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
         render json: {
           data: {
-            'status': response.status
+            status: response.status
           }
         }
       end
@@ -88,7 +97,34 @@ module MebApi
 
       private
 
-      def claimant_service
+      def set_type
+        @form_type = params['type'] == 'ToeSubmission' ? 'toe' : params['type']&.capitalize
+      end
+
+      def valid_claimant_response?(response)
+        [200, 201, 204].include?(response.status)
+      end
+
+      def render_claimant_error(response)
+        render json: {
+          errors: [{
+            title: 'Claimant information error',
+            detail: 'Unable to retrieve claimant information',
+            code: response.status.to_s,
+            status: response.status.to_s
+          }]
+        }, status: response.status
+      end
+
+      def determine_response_and_serializer(claim_status_response, claimant_response)
+        if claim_status_response.status == valid_claimant_response?(claimant_response)
+          [claim_status_response, ClaimStatusSerializer]
+        else
+          [claimant_response, ToeClaimantInfoSerializer]
+        end
+      end
+
+      def form_claimant_service
         MebApi::DGI::Forms::Claimant::Service.new(@current_user)
       end
 

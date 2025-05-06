@@ -7,7 +7,7 @@ module ClaimsApi
   class ClaimUploader < ClaimsApi::ServiceBase
     sidekiq_options retry: true, unique_until: :success
 
-    def perform(uuid) # rubocop:disable Metrics/MethodLength
+    def perform(uuid, record_type) # rubocop:disable Metrics/MethodLength
       claim_object = ClaimsApi::SupportingDocument.find_by(id: uuid) ||
                      ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
 
@@ -17,7 +17,17 @@ module ClaimsApi
       if auto_claim.evss_id.nil?
         ClaimsApi::Logger.log('lighthouse_claim_uploader',
                               detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
-        self.class.perform_in(30.minutes, uuid)
+
+        if auto_claim.status == errored_state_value
+          msg = "Auto claim with id: #{auto_claim.id} is errored, " \
+                'not rescheduling the Claim Uploader job called with' \
+                " a #{record_type} id"
+          ClaimsApi::Logger.log('lighthouse_claim_uploader',
+                                detail: msg)
+          slack_alert_on_failure('ClaimsApi::ClaimUploader', msg)
+        else
+          self.class.perform_in(30.minutes, uuid, record_type)
+        end
       else
         auth_headers = auto_claim.auth_headers
         uploader = claim_object.uploader
@@ -47,7 +57,12 @@ module ClaimsApi
     end
 
     def claim_bd_upload_document(claim, doc_type, pdf_path, original_filename) # rubocop:disable Metrics/MethodLength
-      ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:, original_filename:)
+      if Flipper.enabled? :claims_api_bd_refactor
+        DisabilityCompensation::DisabilityDocumentService.new.create_upload(claim:, pdf_path:, doc_type:,
+                                                                            original_filename:)
+      else
+        ClaimsApi::BD.new.upload(claim:, doc_type:, pdf_path:, original_filename:)
+      end
     # Temporary errors (returning HTML, connection timeout), retry call
     rescue Faraday::ParsingError, Faraday::TimeoutError => e
       message = get_error_message(e)

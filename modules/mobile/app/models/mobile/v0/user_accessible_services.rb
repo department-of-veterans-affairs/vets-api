@@ -21,7 +21,7 @@ module Mobile
       def service_auth_map
         @service_auth_map ||= {
           appeals: access?(appeals: :access?),
-          appointments: access?(vaos: :access?) && @user.icn.present?,
+          appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
           claims: flagged_access?(:mobile_lighthouse_claims, { lighthouse: :access? }, { evss: :access? }),
           decisionLetters: access?(bgs: :access?),
           directDepositBenefits: flagged_access?(:mobile_lighthouse_direct_deposit, { lighthouse: :mobile_access? },
@@ -38,7 +38,7 @@ module Mobile
           prescriptions: access?(mhv_prescriptions: :access?),
           scheduleAppointments: access?(schedule_appointment: :access?),
           secureMessaging: access?(mhv_messaging: :mobile_access?),
-          userProfileUpdate: access?(vet360: :access?)
+          userProfileUpdate: access?(va_profile: :access_to_v2?)
         }
       end
       # rubocop:enable Metrics/MethodLength

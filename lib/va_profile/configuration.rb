@@ -5,15 +5,17 @@ require_relative 'models/base'
 
 module VAProfile
   class Configuration < Common::Client::Configuration::REST
-    SETTINGS = Settings.va_profile || Settings.vet360
+    SETTINGS = Rails.env.production? ? Settings.va_profile : Settings.vet360
 
     def self.base_request_headers
       super.merge('cufSystemName' => VAProfile::Models::Base::SOURCE_SYSTEM)
     end
 
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use      :breakers
+      ssl_enabled = Rails.env.production?
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options,
+                                       ssl: { verify: ssl_enabled }) do |faraday|
+        faraday.use(:breakers, service_name:)
         faraday.use      Faraday::Response::RaiseError
 
         faraday.response :snakecase, symbolize: false

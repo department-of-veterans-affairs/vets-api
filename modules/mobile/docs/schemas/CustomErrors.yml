@@ -1,0 +1,30 @@
+type: object
+additionalProperties: false
+required:
+  - errors
+properties:
+  errors:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - body
+        - source
+        - telephone
+        - refreshable
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        source:
+          type: string
+        telephone:
+          type: string
+        refreshable:
+          type: boolean
+        status:
+          type: integer
+

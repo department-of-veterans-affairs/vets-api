@@ -12,14 +12,16 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
   end
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
     Flipper.disable(:disability_compensation_production_tester)
+    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token)
+      .and_return('access_token')
   end
 
   context 'with an exhausted callback message' do
-    let!(:form526_submission) { create :form526_submission }
+    let(:user_account) { create(:user_account, icn: '123498767V234859') }
+    let!(:form526_submission) { create(:form526_submission, user_account:) }
     let!(:form526_job_status) do
-      create :form526_job_status, job_id: msg['jid'], form526_submission:
+      create(:form526_job_status, job_id: msg['jid'], form526_submission:)
     end
 
     let(:msg) do
@@ -87,7 +89,7 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
       form526_submission.saved_claim.save
       form526_submission.save!
       VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-        VCR.use_cassette('form526_backup/200_evss_get_pdf') do
+        VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             expect do
               worker_class.job_exhausted(msg, 'stats_key')

@@ -1,39 +1,56 @@
 ---
 http_interactions:
-  - request:
-      method: get
-      uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/alltriageteams"
-      body:
-        encoding: US-ASCII
-        string: ""
-      headers:
-        Accept:
-          - application/json
-        Content-Type:
-          - application/json
-        User-Agent:
-          - Vets.gov Agent
-        Token: "<SESSION_TOKEN>"
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-    response:
-      status:
-        code: 200
-        message: OK
-      headers:
-        Server:
-          - Apache-Coyote/1.1
-        X-Powered-By:
-          - Servlet/2.5 JSP/2.1
-        Content-Type:
-          - application/json
-        Content-Length:
-          - "249"
-        Date:
-          - Thu, 14 Sep 2023 21:20:38 GMT
-      body:
-        encoding: UTF-8
-        string: '[{"associatedTriageGroups":38,"associatedBlockedTriageGroups":1},{"triageTeam":[{"triageTeamId":1013155,"name":"***MEDICATION_AWARENESS_100% @ MOH_DAYT29","stationNumber":"989","blockedStatus":false,"preferredTeam":true,"relationshipType":"PATIENT"},{"triageTeamId":2666935,"name":"Ademonow","stationNumber":"989","blockedStatus":true,"preferredTeam":true,"relationshipType":"PATIENT"},{"triageTeamId":2323849,"name":"ALPHA_PCMM ASSOCIATION_DAYT29","stationNumber":"989","blockedStatus":false,"preferredTeam":false,"relationshipType":"PATIENT"}]}]'
-      http_version:
-    recorded_at: Thu, 14 Sep 2023 21:20:38 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/alltriageteams"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 06 Mar 2025 15:16:36 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '4323'
+      X-Amzn-Requestid:
+      - 4bb8e19d-6835-43f2-a188-0e1511103f5e
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - HApdOHJvvHMFnkA=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Thu, 06 Mar 2025 15:16:36 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"associatedTriageGroups":9,"friendlyTriageTeamPilotFacilities":"979","associatedBlockedTriageGroups":0},{"triageTeam":[{"triageTeamId":4399547,"name":"589GR Pharmacy Ask a pharmacist SLC10 JAMES, DON","stationNumber":"979","blockedStatus":false,"preferredTeam":true,"locationName":"Robert J. Dole VA Medical And Regional Office Center","leadProviderName":"James, Donald","teamName":"SLC10","suggestedNameDisplay":"Robert J. Dole VA Medical And Regional Office Center | Pharmacy | Ask a pharmacist | SLC10 - James, Donald Sr","healthCareSystemName":"VA Wichita Health Care","groupTypeEnumVal":"PHARMACY","subGroupTypeEnumVal":"ASK_A_PHARMACIST","groupTypePatientDisplay":"Pharmacy","subGroupTypePatientDisplay":"Ask a pharmacist","relationType":"PATIENT"}]}]'
+  recorded_at: Thu, 06 Mar 2025 15:16:35 GMT
+recorded_with: VCR 6.3.1

@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe BGS::DependentService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
-  let(:user2) { FactoryBot.create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
+  let(:user) { create(:evss_user, :loa3, birth_date:, ssn: '796043735') }
+  let(:user2) { create(:evss_user, :loa3, participant_id: nil, birth_date:, ssn: '796043735') }
   let(:birth_date) { '1809-02-12' }
   let(:claim) { double('claim') }
   let(:vet_info) do
@@ -30,6 +30,7 @@ RSpec.describe BGS::DependentService do
   before do
     allow(claim).to receive(:id).and_return('1234')
     allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
   end
 
   describe '#submit_686c_form' do

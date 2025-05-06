@@ -7,12 +7,13 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_api_ews_updater_enables_local_bgs).and_return false
     ews.claim_id = '600065431'
     ews.save
   end
 
   let(:veteran_id) { '1012667145V762142' }
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
 
   context 'when waiver consent is present and allowed' do
     it 'updates evidence waiver record for a qualifying ews submittal' do
@@ -48,6 +49,25 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
           error: error_msg
         )
       end
+    end
+  end
+
+  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is enabled' do
+    let(:benefit_claim_web_service) { instance_double(ClaimsApi::BenefitClaimWebService) }
+    let(:bgs_claim) { { bnft_claim_dto: { some_claim: 'some_value' } } }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_ews_updater_enables_local_bgs).and_return true
+      allow(ClaimsApi::BenefitClaimWebService).to receive(:new).with(external_uid: anything,
+                                                                     external_key: anything)
+                                                               .and_return(benefit_claim_web_service)
+      allow(benefit_claim_web_service).to receive(:find_bnft_claim).with(claim_id: anything).and_return(bgs_claim)
+      allow(benefit_claim_web_service).to receive(:update_bnft_claim).with(claim: anything).and_return(bgs_claim)
+    end
+
+    it 'calls local_bgs instead of bgs-ext' do
+      subject.new.perform(ews.id)
+      expect(benefit_claim_web_service).to have_received(:update_bnft_claim)
     end
   end
 end

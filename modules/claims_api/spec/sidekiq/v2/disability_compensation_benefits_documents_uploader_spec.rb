@@ -13,7 +13,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -56,30 +56,44 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
       end.to change(subject.jobs, :size).by(1)
     end
 
-    it 'the claim should still be established on a successful BD submission' do
-      VCR.use_cassette('claims_api/bd/upload') do
-        expect(claim.status).to eq('pending') # where we start
+    context 'when claims_api_526_v2_uploads_bd_refactor is disabled' do
+      it 'the claim should still be established on a successful BD submission' do
+        VCR.use_cassette('claims_api/bd/upload') do
+          expect(claim.status).to eq('pending') # where we start
+          allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
+          service.perform(claim.id)
 
+          claim.reload
+          expect(claim.status).to eq('established') # where we end
+        end
+      end
+
+      it 'submits successfully with BD' do
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         service.perform(claim.id)
 
         claim.reload
-        expect(claim.status).to eq('established') # where we end
+        expect(claim.uploader.blank?).to be(false)
       end
     end
 
-    it 'submits successfully with BD' do
-      expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
+    context 'when claims_api_526_v2_uploads_bd_refactor is enabled' do
+      it 'submits successfully with refactored BD' do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return true
+        expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document).and_return true
+        service.perform(claim.id)
 
-      service.perform(claim.id)
-
-      claim.reload
-      expect(claim.uploader.blank?).to eq(false)
+        claim.reload
+        expect(claim.uploader.blank?).to be(false)
+      end
     end
   end
 
-  context 'when the pdf is mocked' do
+  context 'when the pdf is mocked and claims_api_526_v2_uploads_bd_refactor is disabled' do
     it 'uploads to BD' do
       with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_526_v2_uploads_bd_refactor).and_return false
         subject.perform_async(claim.id)
 
         claim.reload
@@ -93,7 +107,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
     it 'returns the file body correctly' do
       subject.perform_async(claim.id)
 
-      expect(service.send(:get_file_body, claim).blank?).to eq(false)
+      expect(service.send(:get_file_body, claim).blank?).to be(false)
       claim.reload
       expect(claim.uploader).to be_a(ClaimsApi::SupportingDocumentUploader)
     end

@@ -1,11 +1,38 @@
 type: object
+additionalProperties: false
 required:
-  - code
-  - message
+  - data
 properties:
-  code:
-    type: string
-    example: 'check-in-success'
-  message:
-    type: string
-    example: 'Check-In successful'
+  data:
+    type: object
+    additionalProperties: false
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "check_in"
+      id:
+        type: string
+        example: "75db6a5c-84ae-4ca4-bba2-ef4c41d563ab"
+        description: user uuid
+      attributes:
+        type: object
+        additionalProperties: false
+        required:
+          - id
+          - code
+          - message
+        properties:
+          id:
+            type: string
+            example: "75db6a5c-84ae-4ca4-bba2-ef4c41d563ab"
+            description: user uuid
+          code:
+            type: string
+            example: 'check-in-success'
+          message:
+            type: string
+            example: 'Check-In successful'

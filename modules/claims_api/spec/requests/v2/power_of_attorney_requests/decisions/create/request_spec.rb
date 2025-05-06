@@ -3,7 +3,9 @@
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
-RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs, type: :request do
+# TODO: Delete this file
+# We are covered by request_controller_spec.rb
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs, :skip, type: :request do
   def perform_request(params)
     post(
       "/services/claims/v2/power-of-attorney-requests/#{id}/decision",
@@ -456,7 +458,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs,
       }
 
       mock_ccg(scopes, allow_playback_repeats: true) do
-        use_soap_cassette('acceptance', use_spec_name_prefix: true, record: :new_episodes) do
+        use_soap_cassette('acceptance', use_spec_name_prefix: true) do
           perform_request(params)
 
           expect(response).to(
@@ -471,10 +473,6 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs,
     before do
       allow(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
         receive(:create)
-      )
-
-      allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
-        receive(:perform)
       )
 
       expect(ClaimsApi::PowerOfAttorneyRequest).to(
@@ -552,10 +550,6 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs,
     before do
       allow(ClaimsApi::PowerOfAttorneyRequest::Decision).to(
         receive(:create)
-      )
-
-      allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
-        receive(:perform)
       )
 
       expect(ClaimsApi::PowerOfAttorneyRequest).to(

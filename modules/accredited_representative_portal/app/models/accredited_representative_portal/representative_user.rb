@@ -30,7 +30,10 @@ module AccreditedRepresentativePortal
     )
 
     def user_account
-      @user_account ||= UserAccount.find_by(id: user_account_uuid)
+      @user_account ||=
+        RepresentativeUserAccount.find(user_account_uuid).tap do |account|
+          account.set_email(email)
+        end
     end
 
     def flipper_id

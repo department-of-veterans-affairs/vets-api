@@ -43,6 +43,11 @@ RSpec.describe 'Mobile::V2::User', type: :request do
       expect(attributes['signinService']).to eq('idme')
     end
 
+    it 'includes edipi' do
+      get_user
+      expect(attributes['edipi']).to eq('384759483')
+    end
+
     describe 'has_facility_transitioning_to_cerner' do
       context 'with feature flag off and user\'s va_treatment_facility_ids contains the hardcoded facility id' do
         let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['979']) }
@@ -52,7 +57,7 @@ RSpec.describe 'Mobile::V2::User', type: :request do
 
         it 'sets hasFacilityTransitioningToCerner to false' do
           get_user
-          expect(attributes['hasFacilityTransitioningToCerner']).to eq(false)
+          expect(attributes['hasFacilityTransitioningToCerner']).to be(false)
         end
       end
 
@@ -60,10 +65,11 @@ RSpec.describe 'Mobile::V2::User', type: :request do
         let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['979']) }
 
         before { Flipper.enable(:mobile_cerner_transition) }
+        after { Flipper.disable(:mobile_cerner_transition) }
 
         it 'sets hasFacilityTransitioningToCerner to true' do
           get_user
-          expect(attributes['hasFacilityTransitioningToCerner']).to eq(true)
+          expect(attributes['hasFacilityTransitioningToCerner']).to be(true)
         end
       end
 
@@ -71,10 +77,11 @@ RSpec.describe 'Mobile::V2::User', type: :request do
         let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['555']) }
 
         before { Flipper.enable(:mobile_cerner_transition) }
+        after { Flipper.disable(:mobile_cerner_transition) }
 
         it 'sets hasFacilityTransitioningToCerner to false' do
           get_user
-          expect(attributes['hasFacilityTransitioningToCerner']).to eq(false)
+          expect(attributes['hasFacilityTransitioningToCerner']).to be(false)
         end
       end
     end

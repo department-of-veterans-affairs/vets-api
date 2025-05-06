@@ -38,12 +38,12 @@ describe FakeController do
 
     it '#accepted?' do
       result = subject.accepted?(status)
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
 
     it '#overdue?' do
       result = subject.overdue?(tracked_item, wwsnfy)
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
 
     it '#tracked_item_req_date' do
@@ -53,7 +53,7 @@ describe FakeController do
 
     it '#uploads_allowed?' do
       result = subject.uploads_allowed?(status)
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
   end
 end

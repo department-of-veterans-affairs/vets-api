@@ -1,9 +1,9 @@
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: decision-reviews
-  description: The Decision Reviews API allows you to interact with a Veteran’s decision reviews, also known as benefit appeals.
-  title: Decision Reviews API
+  name: decision-reviews-v2
+  description: The Decision Reviews API is a collection of submission paths and services in support of the decision review process pursuant to the Appeals Modernization Act of 2017. The API enables applications that allow Veterans to digitally submit Higher-Level Reviews (VA form 21-0996), Supplemental Claims (VA form 21-0995), and Notices of Disagreement (VA form 21-10182) into the mail handling system. End-users of the API can use it to retrieve a list of issues eligible for appeal for each decision review type, find appeals from the legacy appeals process that are eligible to be moved into the AMA process, and submit forms and accompanying evidence to initiate an appeal.
+  title: Decision Reviews API v2
   tags:
     - internal
     - lighthouse
@@ -18,4 +18,4 @@ spec:
   owner: lighthouse-banana-peels
   system: vets-api
   definition:
-    $text: https://api.va.gov/services/appeals/docs/v2/decision_reviews
+    $text: https://api.va.gov/services/appeals/v2/decision_reviews/docs

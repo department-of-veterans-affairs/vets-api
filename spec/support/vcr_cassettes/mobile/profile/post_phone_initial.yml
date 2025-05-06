@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/telephones
+      uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/telephones
       body:
         encoding: UTF-8
         string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","sourceSystemUser":"1234","telephoneId":null,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'

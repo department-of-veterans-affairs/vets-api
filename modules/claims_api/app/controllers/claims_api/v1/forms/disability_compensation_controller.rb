@@ -4,7 +4,6 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/dvp/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
-require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
 require 'evss_service/base' # docker container
@@ -56,11 +55,20 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', claim_id: auto_claim.id, detail: 'Submitted to Lighthouse',
                                        pdf_gen_dis: form_attributes['autoCestPDFGenerationDisabled'])
 
+          form_attributes['disabilities'].each do |disability|
+            if disability['classificationCode'].present?
+              ClaimsApi::Logger.log('526_classification_code',
+                                    classification_code: disability['classificationCode'],
+                                    cid: token.payload['cid'], version: 'v1')
+            end
+          end
+
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
           unless auto_claim.id
-            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim
+                                  .find_by('header_hash = ? OR md5 = ?', auto_claim.header_hash, auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
 
@@ -93,7 +101,7 @@ module ClaimsApi
 
             ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
-            ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
+            ClaimsApi::ClaimUploader.perform_async(pending_claim.id, 'claim')
 
             render json: ClaimsApi::AutoEstablishedClaimSerializer.new(pending_claim)
 
@@ -128,7 +136,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, EVSS_DOCUMENT_TYPE, params[:description])
             claim_document.save!
-            ClaimsApi::ClaimUploader.perform_async(claim_document.id)
+            ClaimsApi::ClaimUploader.perform_async(claim_document.id, 'document')
           end
 
           render json: ClaimsApi::ClaimDetailSerializer.new(claim, { params: { uuid: claim.id } })
@@ -186,7 +194,7 @@ module ClaimsApi
                Faraday::ParsingError,
                Breakers::OutageException => e
           claims_v1_logging('validate_form_526',
-                            message: "rescuing in validate_form_526, claim_id: #{auto_claim.id}" \
+                            message: "rescuing in validate_form_526, claim_id: #{auto_claim&.id}" \
                                      "#{e.class.name}, error: #{e.try(:as_json) || e}")
           raise e
         end
@@ -233,7 +241,7 @@ module ClaimsApi
         end
 
         def validate_initial_claim
-          if local_bgs_service.claims_count(target_veteran.participant_id).zero? &&
+          if bgs_claim_status_service.claims_count(target_veteran.participant_id).zero? &&
              form_attributes['autoCestPDFGenerationDisabled'] == false
             message = 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)

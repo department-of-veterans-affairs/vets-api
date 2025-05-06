@@ -7,9 +7,9 @@ module EducationForm::Forms
     end
 
     LEARNING_FORMAT = {
-      'inPerson': 'In person',
-      'online': 'Online',
-      'onlineAndInPerson': 'Online and in person'
+      inPerson: 'In person',
+      online: 'Online',
+      onlineAndInPerson: 'Online and in person'
     }.freeze
 
     def location

@@ -13,7 +13,7 @@ RSpec.describe MedicalCopays::Request do
 
   describe 'settings' do
     it 'has a host' do
-      expect(subject.host).to eq('internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491')
+      expect(subject.host).to eq('fwdproxy-staging.vfs.va.gov:4491')
     end
 
     it 'has base_path' do
@@ -25,7 +25,7 @@ RSpec.describe MedicalCopays::Request do
     end
 
     it 'has a url' do
-      url = 'https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491'
+      url = 'https://fwdproxy-staging.vfs.va.gov:4491'
       expect(subject.url).to eq(url)
     end
   end
@@ -44,7 +44,7 @@ RSpec.describe MedicalCopays::Request do
 
   describe '#headers' do
     it 'has request headers' do
-      host = 'internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491'
+      host = 'fwdproxy-staging.vfs.va.gov:4491'
       expect(subject.headers).to eq({ 'Host' => host,
                                       'Content-Type' => 'application/json',
                                       'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
@@ -63,6 +63,49 @@ RSpec.describe MedicalCopays::Request do
         .with(path).once
 
       subject.post(path, params)
+    end
+
+    context 'with debt_copay_logging Flipper enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(true)
+        allow(Rails.env).to receive(:development?).and_return(false)
+      end
+
+      it 'calls the with_monitoring_and_error_handling method' do
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:with_monitoring_and_error_handling)
+        # rubocop:enable RSpec/SubjectStub
+        subject.post(path, params)
+      end
+
+      it 'logs the error message' do
+        allow_any_instance_of(Faraday::Connection)
+          .to receive(:post).with(path).and_raise(StandardError.new('Something went wrong'))
+        expect(Rails.logger).to receive(:error).with(
+          'MedicalCopays::Request error: Something went wrong'
+        )
+
+        expect do
+          subject.post(path, params)
+        end.to raise_error(StandardError, 'Something went wrong')
+      end
+    end
+
+    context 'with debt_copay_logging Flipper not enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(false)
+        allow(Rails.env).to receive(:development?).and_return(false)
+      end
+
+      it 'calls the with_monitoring_and_error_handling method' do
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:with_monitoring)
+        # rubocop:enable RSpec/SubjectStub
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
+        subject.post(path, params)
+      end
     end
   end
 

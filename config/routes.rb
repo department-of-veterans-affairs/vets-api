@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'flipper/admin_user_constraint'
+require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   get '/v0/sign_in/authorize', to: 'v0/sign_in#authorize'
+  get '/v0/sign_in/authorize_sso', to: 'v0/sign_in#authorize_sso' unless Settings.vsp_environment == 'production'
   get '/v0/sign_in/callback', to: 'v0/sign_in#callback'
   post '/v0/sign_in/refresh', to: 'v0/sign_in#refresh'
   post '/v0/sign_in/revoke', to: 'v0/sign_in#revoke'
@@ -28,6 +29,7 @@ Rails.application.routes.draw do
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
+      get '/user_info', to: 'user_info#show'
     end
   end
 
@@ -46,6 +48,7 @@ Rails.application.routes.draw do
     resources :debts, only: %i[index show]
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
+    resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
@@ -99,13 +102,21 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      collection do
+        get 'credential_emails'
+      end
+      resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
+
+    resource :test_account_user_email, only: [:create]
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
       collection do
         post(':form_type', action: :create, as: :form_type)
         get(:stem_claim_status)
+        get('download_pdf/:id', action: :download_pdf, as: :download_pdf)
       end
     end
 
@@ -115,14 +126,19 @@ Rails.application.routes.draw do
         get(:enrollment_status)
         get(:rating_info)
         get(:facilities)
+        post(:download_pdf)
       end
     end
 
     resource :hca_attachments, only: :create
     resource :form1010_ezr_attachments, only: :create
 
-    resources :caregivers_assistance_claims, only: :create
-    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+    resources :caregivers_assistance_claims, only: :create do
+      collection do
+        post(:facilities)
+        post(:download_pdf)
+      end
+    end
 
     namespace :form1010cg do
       resources :attachments, only: :create
@@ -136,23 +152,17 @@ Rails.application.routes.draw do
 
     resources :dependents_verifications, only: %i[create index]
 
-    resources :burial_claims, only: %i[create show] if Settings.central_mail.upload.enabled
-
-    post 'form0969', to: 'income_and_assets_claims#create'
-    get 'form0969', to: 'income_and_assets_claims#show'
-
     resources :benefits_claims, only: %i[index show] do
       post :submit5103, on: :member
       post 'benefits_documents', to: 'benefits_documents#create'
     end
 
+    resources :evidence_submissions, only: %i[index]
+
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
 
     get 'average_days_for_claim_completion', to: 'average_days_for_claim_completion#index'
-
-    get 'virtual_agent_claim_letters', to: 'virtual_agent_claim_letters#index'
-    get 'virtual_agent_claim_letters/:document_id', to: 'virtual_agent_claim_letters#show'
 
     resources :efolder, only: %i[index show]
 
@@ -165,25 +175,13 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
-    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
-      get 'claim', to: 'virtual_agent_claim#index'
-      get 'claim/:id', to: 'virtual_agent_claim#show'
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
-    resources :virtual_agent_claim, only: %i[index]
-
-    namespace :virtual_agent do
-      get 'appeal', to: 'virtual_agent_appeal#index'
-    end
-
-    resources :virtual_agent_appeal, only: %i[index]
-
     get 'intent_to_file', to: 'intent_to_files#index'
-    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
@@ -277,6 +275,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -290,6 +289,7 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
+      resource :vet_verification_status, only: :show
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -333,7 +333,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: %i[index show]
+    resources :backend_statuses, only: %i[index]
 
     resources :apidocs, only: [:index]
 
@@ -366,6 +366,8 @@ Rails.application.routes.draw do
     resources :form1010_ezrs, only: %i[create]
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
+
+    get 'banners', to: 'banners#by_path'
   end
   # end /v0
 
@@ -379,10 +381,6 @@ Rails.application.routes.draw do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
-    end
-
-    namespace :facilities, module: 'facilities' do
-      resources :va, only: %i[index show]
     end
 
     namespace :gi, module: 'gids' do
@@ -402,30 +400,17 @@ Rails.application.routes.draw do
       resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
-    end
 
-    resource :decision_review_evidence, only: :create
-
-    namespace :higher_level_reviews do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
+      namespace :lcpe do
+        resources :lacs, only: %i[index show], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
+      end
     end
-    resources :higher_level_reviews, only: %i[create show]
-
-    namespace :notice_of_disagreements do
-      get 'contestable_issues', to: 'contestable_issues#index'
-    end
-    resources :notice_of_disagreements, only: %i[create show]
 
     resource :post911_gi_bill_status, only: [:show]
 
-    namespace :supplemental_claims do
-      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-    end
-    resources :supplemental_claims, only: %i[create show]
-
     scope format: false do
-      resources :nod_callbacks, only: [:create]
-      resources :pension_ipf_callbacks, only: [:create]
+      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
     end
   end
 
@@ -437,7 +422,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
@@ -445,12 +429,12 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
-  mount CovidResearch::Engine, at: '/covid-research'
-  mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount IncomeAndAssets::Engine, at: '/income_and_assets'
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
@@ -460,9 +444,12 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
+  mount VRE::Engine, at: '/vre'
+  mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'
@@ -481,12 +468,15 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  get '/flipper/features/logout', to: 'flipper#logout'
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
+  get '/flipper/logout', to: 'flipper#logout'
+  get '/flipper/login', to: 'flipper#login'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::RouteAuthorizationConstraint
 
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
+
+  get '/apple-touch-icon-:size.png', to: redirect('/apple-touch-icon.png')
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]

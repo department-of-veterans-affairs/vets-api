@@ -5,15 +5,15 @@ require_relative '../../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
 require_relative '../../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBADocument::V2::Uploads::Report', type: :request do
+RSpec.describe 'VBADocument::V2::Uploads::Report', skip: 'v2 will never be launched in vets-api', type: :request do
   include VBADocuments::Fixtures
   load('./modules/vba_documents/config/routes.rb')
 
   describe '#create /v2/uploads/report' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
-    let(:pdf_info) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
-    let(:upload_received) { FactoryBot.create(:upload_submission, status: 'received') }
-    let(:upload2_received) { FactoryBot.create(:upload_submission, status: 'received') }
+    let(:upload) { create(:upload_submission) }
+    let(:pdf_info) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+    let(:upload_received) { create(:upload_submission, status: 'received') }
+    let(:upload2_received) { create(:upload_submission, status: 'received') }
 
     context 'with in-flight submissions' do
       it 'returns status of a single upload submissions' do
@@ -94,7 +94,7 @@ RSpec.describe 'VBADocument::V2::Uploads::Report', type: :request do
         inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
         pdf_controller_data = json['data'].first['attributes']['uploaded_pdf']
         pdf_data = VBADocuments::UploadSerializer.scrub_unnecessary_keys(inspector.pdf_data.as_json)
-        expect(pdf_controller_data.eql?(pdf_data)).to eq(true)
+        expect(pdf_controller_data.eql?(pdf_data)).to be(true)
       end
     end
   end

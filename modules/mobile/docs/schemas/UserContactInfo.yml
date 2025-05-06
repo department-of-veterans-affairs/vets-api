@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "contact_info"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - residentialAddress
       - mailingAddress
@@ -32,6 +34,7 @@ properties:
         $ref: "./UserContactInfoPhone.yml"
       contactEmail:
         type: object
+        additionalProperties: false
         nullable: true
         required:
           - id

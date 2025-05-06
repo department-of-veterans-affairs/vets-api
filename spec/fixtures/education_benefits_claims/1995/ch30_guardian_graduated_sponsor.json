@@ -11,7 +11,7 @@
     "state": "TX",
     "street": "123 Test St"
   },
-  "sponsorSocialSecurityNumber": "123456789",
+  "sponsorSocialSecurityNumber": "444433322",
   "sponsorFullName": {
     "first": "John",
     "last": "Smith"
@@ -22,6 +22,7 @@
   "email": "test@test.com",
   "benefit": "chapter30",
   "benefitUpdate": "chapter30",
+  "rudisillReview": "Yes",
   "changeAnotherBenefit": "Yes",
   "benefitAppliedFor": "chapter35",
   "remarks": "remarks",
@@ -35,7 +36,7 @@
     "guardianFirstName":"Richard",
     "guardianMiddleName":"D",
     "guardianLastName":"Van Dyke",
-    "guardianSuffix":"Jr.",    
+    "guardianSuffix":"Jr.",
     "guardianAddress":{
       "street":"456 oak blvd",
       "street2":"apt 88",

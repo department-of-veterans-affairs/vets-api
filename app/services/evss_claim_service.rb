@@ -3,6 +3,8 @@
 require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
+require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 # EVSS Claims Status Tool
 class EVSSClaimService
@@ -53,7 +55,7 @@ class EVSSClaimService
   # upload file to s3 and enqueue job to upload to EVSS, used by Claim Status Tool
   # EVSS::DocumentsService is where the uploading of documents actually happens
   def upload_document(evss_claim_document)
-    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
+    uploader = EVSSClaimDocumentUploader.new(@user.user_account_uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
 
     # the uploader sanitizes the filename before storing, so set our doc to match
@@ -63,8 +65,12 @@ class EVSSClaimService
     headers = auth_headers.clone
     headers_supplemented = supplement_auth_headers(evss_claim_document.evss_claim_id, headers)
 
-    job_id = EVSS::DocumentUpload.perform_async(headers, @user.uuid, evss_claim_document.to_serializable_hash)
-
+    evidence_submission_id = nil
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
+      evidence_submission_id = create_initial_evidence_submission(evss_claim_document).id
+    end
+    job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
+                                                evss_claim_document.to_serializable_hash, evidence_submission_id)
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
     job_id
@@ -121,6 +127,33 @@ class EVSSClaimService
                           job_id:,
                           revision: 2
                         })
+  end
+
+  def create_initial_evidence_submission(document)
+    user_account = UserAccount.find(@user.user_account_uuid)
+    es = EvidenceSubmission.create(
+      claim_id: document.evss_claim_id,
+      tracked_item_id: document.tracked_item_id,
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:CREATED],
+      user_account:,
+      template_metadata: { personalisation: create_personalisation(document) }.to_json
+    )
+    StatsD.increment('cst.evss.document_uploads.evidence_submission_record_created')
+    ::Rails.logger.info('EVSS - Created Evidence Submission Record', {
+                          claim_id: document.evss_claim_id,
+                          evidence_submission_id: es.id
+                        })
+    es
+  end
+
+  def create_personalisation(document)
+    first_name = auth_headers['va_eauth_firstName'].titleize unless auth_headers['va_eauth_firstName'].nil?
+    { first_name:,
+      document_type: document.description,
+      file_name: document.file_name,
+      obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
+      date_submitted: BenefitsDocuments::Utilities::Helpers.format_date_for_mailers(Time.zone.now),
+      date_failed: nil }
   end
 
   def claims_scope

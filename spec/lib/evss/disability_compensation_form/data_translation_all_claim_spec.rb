@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
 require 'disability_compensation/factories/api_provider_factory'
+require 'lighthouse/direct_deposit/response'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
@@ -15,8 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     User.create(user)
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-    Flipper.disable('disability_526_toxic_exposure')
+    allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
   end
 
   after { Timecop.return }
@@ -24,7 +24,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#redacted' do
     context 'when the banking numbers include a *' do
       it 'returns true' do
-        expect(subject.send('redacted', '**234', '1212')).to eq(
+        expect(subject.send('redacted', '**234', '1212')).to be(
           true
         )
       end
@@ -32,7 +32,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when the banking numbers dont include a *' do
       it 'returns false' do
-        expect(subject.send('redacted', '234', '1212')).to eq(
+        expect(subject.send('redacted', '234', '1212')).to be(
           false
         )
       end
@@ -461,54 +461,41 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
 
     context 'when the banking info is redacted' do
-      let(:form_content) do
-        {
-          'form526' => {
-            'bankName' => 'test',
-            'bankAccountType' => 'checking',
-            'bankAccountNumber' => '**34567890',
-            'bankRoutingNumber' => '0987654321'
-          }
-        }
-      end
+      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
-      it 'gathers the banking info from the PPIU service' do
-        VCR.use_cassette('evss/ppiu/payment_information') do
+      it 'gathers the banking info from Lighthouse DirectDeposit' do
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
           expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
             'accountType' => 'CHECKING',
-            'accountNumber' => '9876543211234',
-            'routingNumber' => '042102115',
-            'bankName' => 'Comerica'
+            'accountNumber' => '1234567890',
+            'routingNumber' => '031000503',
+            'bankName' => 'WELLS FARGO BANK'
           }
         end
       end
     end
 
     context 'when not provided banking info' do
-      context 'and the PPIU service has the account info' do
-        it 'gathers the banking info from the PPIU service' do
-          VCR.use_cassette('evss/ppiu/payment_information') do
+      let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
+
+      context 'and the Lighthouse DirectDeposit service has the account info' do
+        it 'gathers the banking info from the LH DirectDeposit' do
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
               'accountType' => 'CHECKING',
-              'accountNumber' => '9876543211234',
-              'routingNumber' => '042102115',
-              'bankName' => 'Comerica'
+              'accountNumber' => '1234567890',
+              'routingNumber' => '031000503',
+              'bankName' => 'WELLS FARGO BANK'
             }
           end
         end
       end
 
-      context 'and the PPIU service does not have the account info' do
-        let(:response) do
-          OpenStruct.new(
-            get_payment_information: OpenStruct.new(
-              responses: [OpenStruct.new(payment_account: nil)]
-            )
-          )
-        end
+      context 'and the Lighthouse DirectDeposit service does not have the account info' do
+        let(:response) { Lighthouse::DirectDeposit::Response.new(200, nil, nil, nil) }
 
         it 'does not set payment information' do
-          expect(EVSS::PPIU::Service).to receive(:new).once.and_return(response)
+          expect_any_instance_of(DirectDeposit::Client).to receive(:get_payment_info).and_return(response)
           expect(subject.send(:translate_banking_info)).to eq({})
         end
       end
@@ -619,7 +606,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'does not translate separation pay' do
-        expect(subject.send(:separation_pay)).to eq nil
+        expect(subject.send(:separation_pay)).to be_nil
       end
     end
 
@@ -634,7 +621,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'does not translate separation pay' do
-        expect(subject.send(:separation_pay)).to eq nil
+        expect(subject.send(:separation_pay)).to be_nil
       end
     end
 
@@ -1128,7 +1115,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'returns nil' do
-        expect(subject.send(:translate_homelessness)).to eq nil
+        expect(subject.send(:translate_homelessness)).to be_nil
       end
     end
 
@@ -1460,7 +1447,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
-    context 'when there is an  `NONE` action type disability but it has a new secondary disability' do
+    context 'when there is an `NONE` action type disability but it has a new secondary disability' do
       let(:form_content) do
         {
           'form526' => {
@@ -1531,24 +1518,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'name' => 'new condition',
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'new condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
             'cause' => 'NEW'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1578,25 +1551,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
-              "Worsened because of military service\nworsened condition description: worsened effects"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'worsened condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects",
             'cause' => 'WORSENED'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1627,27 +1585,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
-              "Location: va location\nTimeFrame: the third of october"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'va condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
+              "Caused by VA care\nEvent: va condition description\n" \
               "Location: va location\nTimeFrame: the third of october",
             'cause' => 'VA'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1763,7 +1705,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'brand new disability to be rated',
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
+            'cause' => 'NEW'
           }
         ]
       end
@@ -1825,8 +1768,56 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         let(:date) { '' }
 
         it 'returns the year' do
-          expect(subject.send(:approximate_date, date)).to eq nil
+          expect(subject.send(:approximate_date, date)).to be_nil
         end
+      end
+    end
+  end
+
+  describe '#translateStartedFormVersion' do
+    context 'no startedFormVersion on input form' do
+      let(:form_content) do
+        {
+          'form526' => {}
+        }
+      end
+
+      it 'adds in startedFormVersion when it was missing' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2019'
+                                                                    })
+      end
+    end
+
+    context 'startedFormVersion is 2022' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'startedFormVersion' => '2022'
+          }
+        }
+      end
+
+      it 'adds in startedFormVersion when it was missing' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2022'
+                                                                    })
+      end
+    end
+
+    context 'startedFormVersion is 2019' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'startedFormVersion' => '2019'
+          }
+        }
+      end
+
+      it 'fills in 2019 startedFormVersion' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2019'
+                                                                    })
       end
     end
   end
@@ -1918,7 +1909,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is true' do
-        expect(subject.send(:bdd_qualified?)).to eq true
+        expect(subject.send(:bdd_qualified?)).to be true
       end
 
       context 'when only gurard/reserves' do
@@ -1941,7 +1932,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'bdd_qualified is true' do
-          expect(subject.send(:bdd_qualified?)).to eq false
+          expect(subject.send(:bdd_qualified?)).to be false
         end
       end
 
@@ -1971,7 +1962,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'bdd_qualified is true' do
-          expect(subject.send(:bdd_qualified?)).to eq true
+          expect(subject.send(:bdd_qualified?)).to be true
         end
       end
     end
@@ -1996,7 +1987,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is false' do
-        expect(subject.send(:bdd_qualified?)).to eq false
+        expect(subject.send(:bdd_qualified?)).to be false
       end
     end
   end

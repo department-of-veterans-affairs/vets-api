@@ -10,7 +10,10 @@ RSpec.describe SignIn::SessionSpawner do
   describe '#perform' do
     subject { session_spawner.perform }
 
-    let(:current_session) { create(:oauth_session, handle: current_session_handle, user_verification:) }
+    let(:current_session) do
+      create(:oauth_session, handle: current_session_handle, user_verification:, refresh_creation:)
+    end
+    let(:refresh_creation) { 5.minutes.ago }
     let(:current_session_handle) { 'edd4c2fc-d776-4596-8dce-71a9848e15e0' }
     let(:user_uuid) { current_session.user_verification.backing_credential_identifier }
     let(:user_verification) { create(:user_verification, locked:) }
@@ -24,6 +27,10 @@ RSpec.describe SignIn::SessionSpawner do
     let(:access_token_attributes) { %w[first_name last_name email all_emails] }
     let(:enforced_terms) { nil }
     let(:device_sso) { false }
+
+    before { Timecop.freeze(Time.zone.now.floor) }
+
+    after { Timecop.return }
 
     context 'expected credential_lock validation' do
       let(:locked) { false }
@@ -84,7 +91,8 @@ RSpec.describe SignIn::SessionSpawner do
       let(:expected_token_uuid) { SecureRandom.uuid }
       let(:expected_parent_token_uuid) { SecureRandom.uuid }
       let(:expected_user_uuid) { user_uuid }
-      let(:expected_expiration_time) { expected_created_time + refresh_token_duration }
+      let(:expected_last_regeneration_time) { Time.zone.now }
+      let(:expected_expiration_time) { expected_last_regeneration_time + refresh_token_duration }
       let(:expected_user_attributes) { JSON.parse(current_session.user_attributes) }
       let(:expected_double_hashed_parent_refresh_token) do
         Digest::SHA256.hexdigest(parent_refresh_token_hash)
@@ -214,7 +222,7 @@ RSpec.describe SignIn::SessionSpawner do
                anti_csrf_token: expected_anti_csrf_token)
       end
       let(:expected_parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
-      let(:expected_last_regeneration_time) { current_session.refresh_creation }
+      let(:expected_last_regeneration_time) { Time.zone.now }
 
       before do
         allow(SecureRandom).to receive_messages(hex: stubbed_random_number, uuid: expected_handle)
@@ -228,7 +236,7 @@ RSpec.describe SignIn::SessionSpawner do
         expect(access_token.refresh_token_hash).to eq(expected_refresh_token_hash)
         expect(access_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
         expect(access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
-        expect(access_token.device_secret_hash).to eq(nil)
+        expect(access_token.device_secret_hash).to be_nil
         expect(access_token.user_attributes).to eq(JSON.parse(current_session.user_attributes))
       end
     end

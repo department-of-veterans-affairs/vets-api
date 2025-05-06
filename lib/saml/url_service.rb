@@ -26,6 +26,7 @@ module SAML
     MOBILE_CLIENT_ID = 'mobile'
     UNIFIED_SIGN_IN_CLIENTS = %w[vaweb mhv myvahealth ebenefits vamobile vaoccmobile].freeze
     TERMS_OF_USE_DECLINED_PATH = '/terms-of-use/declined'
+    SKIP_MHV_ACCOUNT_CREATION_CLIENTS = %w[mhv custom].freeze
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 
@@ -70,8 +71,8 @@ module SAML
       @query_params[:auth] = auth if auth != 'success'
       @query_params[:code] = code if code
 
-      if Settings.saml_ssoe.relay.present?
-        add_query(Settings.saml_ssoe.relay, query_params)
+      if IdentitySettings.saml_ssoe.relay.present?
+        add_query(IdentitySettings.saml_ssoe.relay, query_params)
       else
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
@@ -170,7 +171,7 @@ module SAML
 
     # logout URL for SSOe
     def ssoe_slo_url
-      Settings.saml_ssoe.logout_url
+      IdentitySettings.saml_ssoe.logout_url
     end
 
     private
@@ -240,6 +241,7 @@ module SAML
       redirect = previous&.payload_attr(:redirect) || params[:redirect]
       application = previous&.payload_attr(:application) || params[:application] || 'vaweb'
       post_login = previous&.payload_attr(:post_login) || params[:postLogin]
+      operation = previous&.payload_attr(:operation) || params[:operation] || 'authorize'
 
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
@@ -248,7 +250,8 @@ module SAML
                    transaction_id:,
                    redirect:,
                    application:,
-                   post_login: }.compact,
+                   post_login:,
+                   operation: }.compact,
 
         created_at: previous&.created_at
       )

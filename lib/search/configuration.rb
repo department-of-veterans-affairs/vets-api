@@ -8,7 +8,7 @@ module Search
 
     def connection
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use      :breakers
+        faraday.use(:breakers, service_name:)
         faraday.use      Faraday::Response::RaiseError
 
         faraday.response :betamocks if mock_enabled?
@@ -23,16 +23,7 @@ module Search
     end
 
     def base_path
-      flipper_enabled? ? Settings.search.gsa_url : Settings.search.url
-    end
-
-    # Breakers initialization requires this configuration which means the #base_path
-    # is required when building the DBs in CI that flipper uses for checking toggles.
-    # The NoDatabaseError rescue handles times we're building new DBs.
-    def flipper_enabled?
-      Flipper.enabled?(:search_use_v2_gsa)
-    rescue ActiveRecord::NoDatabaseError
-      false
+      Settings.search.url
     end
 
     def service_name

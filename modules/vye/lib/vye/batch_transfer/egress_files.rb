@@ -24,7 +24,7 @@ module Vye
       def direct_deposit_filename = prefixed_dated('DirDep')
 
       # enrollment verification sent to BDN everyday.
-      def verification_filename = "vawave#{now_in_bdn_timezone.yday}"
+      def verification_filename = format('vawave%03d', now_in_bdn_timezone.yday)
 
       public
 

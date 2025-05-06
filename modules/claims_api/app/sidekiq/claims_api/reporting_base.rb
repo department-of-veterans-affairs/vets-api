@@ -11,10 +11,23 @@ module ClaimsApi
     end
 
     def errored_claims
-      ClaimsApi::AutoEstablishedClaim.where(
-        created_at: @from..@to,
-        status: %w[errored]
-      ).order(:cid, :status)
+      ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, status: 'errored').where(
+        "cid <> '0oagdm49ygCSJTp8X297'"
+      ).order(
+        :cid, :status
+      )
+    end
+
+    def unsuccessful_va_gov_claims_submissions
+      arr = errored_va_gov_claims.pluck(:transaction_id, :id).map do |transaction_id, id|
+        { transaction_id:, id: }
+      end
+      map_transaction_ids(arr) if arr.count.positive?
+    end
+
+    def errored_va_gov_claims
+      ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to,
+                                            status: 'errored', cid: '0oagdm49ygCSJTp8X297')
     end
 
     def with_special_issues(cid: nil)
@@ -32,7 +45,8 @@ module ClaimsApi
     end
 
     def claims_totals
-      @claims_consumers.map do |cid|
+      @claims_consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:cid).uniq
+      @claims_consumers&.map do |cid|
         counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }.to_f
 
@@ -52,7 +66,8 @@ module ClaimsApi
     end
 
     def poa_totals
-      @poa_consumers.map do |cid|
+      @poa_consumers = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).pluck(:cid).uniq
+      @poa_consumers&.map do |cid|
         counts = ClaimsApi::PowerOfAttorney.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }
 
@@ -80,7 +95,8 @@ module ClaimsApi
     end
 
     def itf_totals
-      @itf_consumers.map do |cid|
+      @itf_consumers = ClaimsApi::IntentToFile.where(created_at: @from..@to).pluck(:cid).uniq
+      @itf_consumers&.map do |cid|
         counts = ClaimsApi::IntentToFile.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }
 
@@ -95,7 +111,8 @@ module ClaimsApi
     end
 
     def ews_totals
-      @ews_consumers.map do |cid|
+      @ews_consumers = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).pluck(:cid).uniq
+      @ews_consumers&.map do |cid|
         counts = ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to, cid:).group(:status).count
         totals = counts.sum { |_k, v| v }
 
@@ -120,6 +137,24 @@ module ClaimsApi
         created_at: @from..@to,
         status: %w[errored]
       ).order(:cid, :status)
+    end
+
+    def map_transaction_ids(array)
+      key_index = 0
+      transaction_mapping = {}
+      key_sequence = (1..array.size + 1).to_a
+
+      # Map each unique transaction_id to a new key
+      array.each do |array_transaction_id_and_id|
+        transaction_id = array_transaction_id_and_id[:transaction_id]
+        unless transaction_mapping.key?(transaction_id)
+          transaction_mapping[transaction_id] = key_sequence[key_index]
+          key_index += 1
+        end
+      end
+
+      # Group the array by the new keys
+      array.group_by { |item| transaction_mapping[item[:transaction_id]] }
     end
   end
 end

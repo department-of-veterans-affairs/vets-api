@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/va21p527ez'
+require 'pensions/pdf_fill/va21p527ez'
 require 'lib/pdf_fill/fill_form_examples'
 
 def basic_class
@@ -17,7 +17,7 @@ describe Pensions::PdfFill::Va21p527ez do
 
   it_behaves_like 'a form filler', {
     form_id: described_class::FORM_ID,
-    factory: :pensions_module_pension_claim,
+    factory: :pensions_saved_claim,
     use_vets_json_schema: true,
     input_data_fixture_dir: 'modules/pensions/spec/lib/pdf_fill/fixtures',
     output_pdf_fixture_dir: 'modules/pensions/spec/lib/pdf_fill/fixtures'
@@ -188,7 +188,29 @@ describe Pensions::PdfFill::Va21p527ez do
       form_data = { 'bankAccount' => { 'accountType' => nil } }
       form = described_class.new(form_data)
       form.expand_direct_deposit_information
-      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to eq(nil)
+      expect(form.instance_variable_get('@form_data')['bankAccount']['accountType']).to be_nil
+    end
+  end
+
+  describe '#expand_claim_certification_and_signature' do
+    it 'defaults to today' do
+      date = Time.new(2024, 11, 25, 2, 2, 2, 'UTC')
+      zone = double('zone')
+      allow(zone).to receive(:now).and_return(date)
+      allow(Time).to receive(:zone).and_return(zone)
+      form_data = {}
+      form = described_class.new(form_data)
+      form.expand_claim_certification_and_signature
+      expect(form.instance_variable_get('@form_data')['signatureDate']).to eq({ 'month' => '11', 'day' => '25',
+                                                                                'year' => '2024' })
+    end
+
+    it 'applies date if provided' do
+      form_data = { 'signatureDate' => '2024-10-31' }
+      form = described_class.new(form_data)
+      form.expand_claim_certification_and_signature
+      expect(form.instance_variable_get('@form_data')['signatureDate']).to eq({ 'month' => '10', 'day' => '31',
+                                                                                'year' => '2024' })
     end
   end
 

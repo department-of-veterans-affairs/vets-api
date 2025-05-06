@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - id
       - type
@@ -18,6 +20,7 @@ properties:
         example: "dependency_request_decisions"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - dependencyVerifications
           - diaries
@@ -27,6 +30,7 @@ properties:
             type: array
             items:
               type: object
+              additionalProperties: false
               required:
                 - awardEffectiveDate
                 - awardEventId
@@ -150,6 +154,7 @@ properties:
                 sortOrderNumber:
                   type: string
                   example: "0"
+                  nullable: true
                 veteranId:
                   type: string
                   nullable: true
@@ -158,6 +163,7 @@ properties:
             type: array
             items:
               type: object
+              additionalProperties: false
               required:
                 - awardDiaryId
                 - awardType
@@ -178,6 +184,7 @@ properties:
                 - ptcpntDiaryId
                 - statusDate
                 - veteranId
+                - payeeType
               properties:
                 awardDiaryId:
                   type: string
@@ -236,6 +243,10 @@ properties:
                 veteranId:
                   type: string
                   example: "13014883"
+                payeeType:
+                  type: string
+                  example: "11"
+                  nullable: true
           promptRenewal:
             type: boolean
             example: false

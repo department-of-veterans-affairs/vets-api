@@ -60,7 +60,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
 
     describe 'logging' do
       before do
-        allow(notification_client).to receive(:send_email)
+        allow(notification_client).to receive(:send_email).and_return({})
       end
 
       it 'logs to the Rails logger' do
@@ -79,14 +79,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
               obscured_filename:,
               form526_submission_id: form526_submission.id,
               supporting_evidence_attachment_guid: form_attachment.guid,
-              timestamp: exhaustion_time
+              timestamp: exhaustion_time,
+              va_notify_response: {}
             }
           )
         end
       end
 
-      it 'increments a Statsd metric' do
-        # allow(notification_client).to receive(:send_email)
+      it 'increments StatsD success & silent failure avoided metrics' do
         expect do
           subject.perform_async(form526_submission.id, form_attachment.guid)
           subject.drain
@@ -121,7 +121,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
       allow(notification_client).to receive(:send_email)
     end
 
-    it 'increments a StatsD exhaustion metric, logs to the Rails logger and updates the job status' do
+    it 'increments StatsD exhaustion & silent failure metrics, logs to the Rails logger and updates the job status' do
       Timecop.freeze(exhaustion_time) do
         described_class.within_sidekiq_retries_exhausted_block(retry_params) do
           expect(Rails.logger).to receive(:warn).with(
@@ -135,9 +135,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEma
               supporting_evidence_attachment_guid: form_attachment.guid
             }
           ).and_call_original
+
           expect(StatsD).to receive(:increment).with(
             'api.form_526.veteran_notifications.document_upload_failure_email.exhausted'
-          )
+          ).ordered
+
+          expect(StatsD).to receive(:increment).with(
+            'silent_failure',
+            tags: [
+              'service:disability-application',
+              'function:526_evidence_upload_failure_email_queuing'
+            ]
+          ).ordered
         end
 
         form526_job_status.reload

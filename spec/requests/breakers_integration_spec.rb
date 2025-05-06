@@ -95,7 +95,7 @@ RSpec.describe 'Breakers Integration', type: :request do
     end
   end
 
-  xit 'includes correct tags in background jobs' do
+  it 'includes correct tags in background jobs', skip: 'Flaky test noted in commit history' do
     RequestStore.store['additional_request_attributes'] = { 'source' => 'auth' }
     PagerDuty::PollMaintenanceWindows.perform_async
     RequestStore.clear!

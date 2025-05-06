@@ -49,7 +49,7 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
                     path: '/services/appeals/docs/v1/decision_reviews',
                     path_template: '/services/appeals/{version}/decision_reviews'
     it_behaves_like 'an openapi endpoint',
-                    path: '/services/appeals/docs/v2/decision_reviews',
+                    path: '/services/appeals/v2/decision_reviews/docs',
                     path_template: '/services/appeals/{version}/decision_reviews'
   end
 

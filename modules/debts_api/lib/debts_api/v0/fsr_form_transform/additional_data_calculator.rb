@@ -55,11 +55,19 @@ module DebtsApi
 
         def get_discharged_date
           raw_date = @bankruptcy['date_discharged']
+
           return '00/0000' if raw_date.blank?
 
           date_object = Date.parse(raw_date)
 
           "#{date_object.strftime('%m')}/#{date_object.year}"
+        rescue Date::Error => e
+          Rails.logger.error("DebtsApi AdditionalDataCalculator#get_discharge_date: #{e.message}")
+          Rails.logger.info(
+            "DebtsApi AdditionalDataCalculator#get_discharge_date input: #{@bankruptcy['date_discharged']}"
+          )
+
+          '00/0000'
         end
       end
     end

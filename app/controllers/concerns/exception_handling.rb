@@ -3,10 +3,12 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json_schema/json_api_missing_attribute'
-require 'ddtrace'
+require 'datadog'
+require 'vets/shared_logging'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
+  include Vets::SharedLogging
 
   # In addition to Common::Exceptions::BackendServiceException that have sentry_type :none the following exceptions
   # will also be skipped.
@@ -37,7 +39,8 @@ module ExceptionHandling
         when ActionController::InvalidAuthenticityToken
           Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
         when Common::Exceptions::TokenValidationError,
-            Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute
+            Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute,
+          Common::Exceptions::ServiceUnavailable, Common::Exceptions::BadGateway
           exception
         when ActionController::ParameterMissing
           Common::Exceptions::ParameterMissing.new(exception.param)
@@ -75,6 +78,7 @@ module ExceptionHandling
     elsif exception.is_a?(Common::Exceptions::BackendServiceException) && exception.generic_error?
       # Warn about VA900 needing to be added to exception.en.yml
       log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+      log_message_to_rails(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
     end
   end
 
@@ -83,10 +87,11 @@ module ExceptionHandling
     # Add additional user specific context to the logs
     if exception.is_a?(Common::Exceptions::BackendServiceException) && current_user.present?
       extra[:icn] = current_user.icn
-      extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+      extra[:mhv_credential_uuid] = current_user.mhv_credential_uuid
     end
     va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
     log_exception_to_sentry(exception, extra.merge(va_exception_info))
+    log_exception_to_rails(exception)
 
     # Because we are handling exceptions here and not re-raising, we need to set the error on the
     # Datadog span for it to be reported correctly. We also need to set it on the top-level

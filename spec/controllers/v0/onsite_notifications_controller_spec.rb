@@ -38,7 +38,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       it "returns the user's undismissed onsite notifications" do
         get(:index)
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data'].map { |d| d['id'] }).to eq(
           [onsite_notification.id.to_s]
         )
@@ -47,7 +47,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       it "returns all of the user's onsite notifications, including dismissed ones" do
         get :index, params: { include_dismissed: true }
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data'].map do |d|
                  d['id']
                end).to contain_exactly(onsite_notification.id.to_s, dismissed_onsite_notification.id.to_s)
@@ -140,8 +140,8 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         it 'returns 404' do
           do_update
 
-          expect(response.status).to eq(404)
-          expect(onsite_notification.reload.dismissed).to eq(false)
+          expect(response).to have_http_status(:not_found)
+          expect(onsite_notification.reload.dismissed).to be(false)
         end
       end
 
@@ -163,13 +163,13 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
                  'source' => { 'pointer' => 'data/attributes/template-id' },
                  'status' => '422' }] }
           )
-          expect(response.status).to eq(422)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
 
       it 'doesnt update va_profile_id' do
         do_update(va_profile_id: '5')
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
 
         expect(onsite_notification.reload.va_profile_id).not_to eq('5')
       end
@@ -177,9 +177,9 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       it "updates the notification's dismissed status" do
         do_update
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['id']).to eq(onsite_notification.id.to_s)
-        expect(onsite_notification.reload.dismissed).to eq(true)
+        expect(onsite_notification.reload.dismissed).to be(true)
       end
     end
   end
@@ -194,7 +194,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       it 'creates an onsite notification' do
         post(:create, params:, as: :json)
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
 
         res = JSON.parse(response.body)
         expect(res['data']['attributes'].keys).to eq(%w[template_id va_profile_id dismissed created_at
@@ -222,7 +222,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
                'source' => { 'pointer' => 'data/attributes/template-id' },
                'status' => '422' }] }
         )
-        expect(response.status).to eq(422)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
@@ -232,7 +232,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       it 'returns 403' do
         request.headers['Authorization'] = nil
         post(:create, params:)
-        expect(response.status).to eq(403)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
@@ -240,7 +240,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       it 'returns 403' do
         request.headers['Authorization'] = 'Bearer foo'
         post(:create, params:)
-        expect(response.status).to eq(403)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
@@ -255,7 +255,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         )}"
 
         post(:create, params:)
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -265,7 +265,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
 
         post(:create, params:)
-        expect(response.status).to eq(403)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
@@ -275,7 +275,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
 
         post(:create, params:)
-        expect(response.status).to eq(403)
+        expect(response).to have_http_status(:forbidden)
       end
     end
 
@@ -285,7 +285,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
 
         post(:create, params:)
-        expect(response.status).to eq(403)
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end

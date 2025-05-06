@@ -1,32 +1,34 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/configuration/vff_config'
+require_relative '../../app/services/simple_forms_api/form_remediation/jobs/archive_batch_processing_job'
+
 # Invoke this as follows:
-#  Set the parameters as variables ahead of time:
-#    bundle exec rails simple_forms_api:archive_forms_by_uuid[benefits_intake_uuids, parent_dir]
-#  Pass in UUIDs only if default parent_dir is appropriate:
+#  Passing just UUIDs (will use default type):
 #    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456]
-#  Pass in new directory to override default:
-#    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,custom-directory]
+#  Passing a custom type:
+#    bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,submission]
 namespace :simple_forms_api do
-  desc 'Kick off the SubmissionArchiveHandler to archive submissions to S3 and print presigned URLs'
-  task :archive_forms_by_uuid, %i[benefits_intake_uuids parent_dir] => :environment do |_, args|
-    benefits_intake_uuids = args[:benefits_intake_uuids]&.split || []
-    parent_dir = args[:parent_dir] || 'vff-simple-forms'
+  desc 'Kick off the ArchiveBatchProcessingJob to archive submissions to S3 and print presigned URLs'
+  task :archive_forms_by_uuid, %i[benefits_intake_uuids type] => :environment do |_, args|
+    benefits_intake_uuids = args[:benefits_intake_uuids].to_s.split(/[,\s]+/)
+    type = args[:type] || :remediation
 
     begin
       validate_input!(benefits_intake_uuids)
 
-      Rails.logger.info("Starting SubmissionArchiveHandler for UUIDs: #{benefits_intake_uuids.join(', ')}")
+      Rails.logger.info(
+        "Starting ArchiveBatchProcessingJob for UUIDs: #{benefits_intake_uuids.join(', ')} using type: #{type}"
+      )
 
       # Call the service object synchronously and get the presigned URLs
-      handler = SimpleFormsApi::S3::SubmissionArchiveHandler.new(benefits_intake_uuids:, parent_dir:)
-      presigned_urls = handler.upload
+      config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
+      job = SimpleFormsApi::FormRemediation::Jobs::ArchiveBatchProcessingJob.new
+      job.perform(ids: benefits_intake_uuids, config:, type: type.to_sym)
 
-      # ArgoCD makes it impossible to download any files so
-      # the urls must be printed to console.
-      handle_presigned_urls(presigned_urls)
-
-      Rails.logger.info('SubmissionArchiveHandler completed successfully.')
+      Rails.logger.info('Task successfully completed.')
+    rescue Common::Exceptions::ParameterMissing => e
+      raise e
     rescue => e
       Rails.logger.error("Error occurred while archiving submissions: #{e.message}")
       puts 'An error occurred. Check logs for more details.'
@@ -36,19 +38,6 @@ namespace :simple_forms_api do
   private
 
   def validate_input!(benefits_intake_uuids)
-    raise 'Error: No benefits_intake_uuids provided.' if benefits_intake_uuids.blank?
-  end
-
-  # This redundancy ensures we have a way to retrieve the URLs
-  # easily if ArgoCD crashes or times out.
-  def handle_presigned_urls(presigned_urls)
-    if presigned_urls.present?
-      Rails.logger.info("Generated presigned URLs: #{presigned_urls.join(', ')}")
-      puts 'Presigned URLs:'
-      presigned_urls.each { |url| puts url }
-    else
-      Rails.logger.warn('No URLs were generated.')
-      puts 'No URLs were generated.'
-    end
+    raise Common::Exceptions::ParameterMissing, 'benefits_intake_uuids' unless benefits_intake_uuids&.any?
   end
 end

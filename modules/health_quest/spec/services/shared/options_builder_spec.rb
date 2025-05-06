@@ -26,8 +26,8 @@ describe HealthQuest::Shared::OptionsBuilder do
     let(:filters) { {}.with_indifferent_access }
 
     it 'responds to set attributes' do
-      expect(options_builder.respond_to?(:user)).to eq(true)
-      expect(options_builder.respond_to?(:filters)).to eq(true)
+      expect(options_builder.respond_to?(:user)).to be(true)
+      expect(options_builder.respond_to?(:filters)).to be(true)
     end
   end
 

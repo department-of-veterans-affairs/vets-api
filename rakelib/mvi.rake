@@ -20,12 +20,12 @@ namespace :mvi do
 
       identity = UserIdentity.new(
         uuid:,
-        first_name: ENV['first_name'],
-        middle_name: ENV['middle_name'],
-        last_name: ENV['last_name'],
-        birth_date: ENV['birth_date'],
-        gender: ENV['gender'],
-        ssn: ENV['ssn'],
+        first_name: ENV.fetch('first_name', nil),
+        middle_name: ENV.fetch('middle_name', nil),
+        last_name: ENV.fetch('last_name', nil),
+        birth_date: ENV.fetch('birth_date', nil),
+        gender: ENV.fetch('gender', nil),
+        ssn: ENV.fetch('ssn', nil),
         email: 'foo@bar.com',
         loa: {
           current: LOA::THREE,
@@ -41,9 +41,7 @@ namespace :mvi do
       )
 
       user.last_signed_in = Time.now.utc
-      # rubocop:disable Lint/Debugger
       pp MPIData.for_user(user).profile
-      # rubocop:enable Lint/Debugger
     rescue => e
       puts "User query failed: #{e.message}"
     end
@@ -127,13 +125,13 @@ namespace :mvi do
 
   desc "Given a ssn update a mocked user's correlation ids"
   task update_ids: :environment do
-    ssn = ENV['ssn']
+    ssn = ENV.fetch('ssn', nil)
     raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
 
     ids = {}
-    ids['icn'] = ENV['icn']
-    ids['edipi'] = ENV['edipi']
-    ids['participant_id'] = ENV['participant_id']
+    ids['icn'] = ENV.fetch('icn', nil)
+    ids['edipi'] = ENV.fetch('edipi', nil)
+    ids['participant_id'] = ENV.fetch('participant_id', nil)
     ids['mhv_ids'] = ENV['mhv_ids']&.split
     ids['vha_facility_ids'] = ENV['vha_facility_ids']&.split
     # 5343578988
@@ -147,7 +145,7 @@ namespace :mvi do
     xml = yaml[:body].dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml.match?(/^<\?xml/)
 
     yaml[:body] = update_ids(xml, ids)
-    File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
+    File.write(path, yaml.to_yaml)
 
     puts 'ids updated!'
   end
@@ -244,13 +242,13 @@ def create_cache_from_profile(cache_file, profile, template)
     status: 200
   }
 
-  File.open(cache_file, 'w') { |f| f.write(response.to_yaml) }
+  File.write(cache_file, response.to_yaml)
 end
 
 def valid_user_vars
-  date_valid = validate_date(ENV['birth_date'])
-  name_valid = ENV['first_name'] && ENV['middle_name'] && ENV['last_name']
-  attrs_valid = ENV['gender'] && ENV['ssn']
+  date_valid = validate_date(ENV.fetch('birth_date', nil))
+  name_valid = ENV.fetch('first_name', nil) && ENV.fetch('middle_name', nil) && ENV.fetch('last_name', nil)
+  attrs_valid = ENV.fetch('gender', nil) && ENV.fetch('ssn', nil)
   date_valid && name_valid && attrs_valid
 end
 

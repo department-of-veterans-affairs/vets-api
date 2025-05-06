@@ -32,7 +32,8 @@ module FormDurations
     REGISTRY = {
       'standard' => { klazz: StandardDuration, static: true },
       '21-526ez' => { klazz: AllClaimsDuration, static: true },
-      'hc-qstnr' => { klazz: CustomDuration, static: false }
+      'hc-qstnr' => { klazz: CustomDuration, static: false },
+      '686c-674-v2' => { klazz: CustomDuration, static: false }
     }.freeze
 
     attr_reader :form_id, :days_till_expires, :config, :duration_instance

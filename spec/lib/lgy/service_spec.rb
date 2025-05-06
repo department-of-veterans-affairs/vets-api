@@ -7,8 +7,8 @@ require 'saved_claim/coe_claim'
 describe LGY::Service do
   subject { described_class.new(edipi: user.edipi, icn: user.icn) }
 
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:coe_claim) { FactoryBot.create(:coe_claim) }
+  let(:user) { create(:evss_user, :loa3) }
+  let(:coe_claim) { create(:coe_claim) }
 
   describe '#get_determination' do
     subject { described_class.new(edipi: user.edipi, icn: user.icn).get_determination }
@@ -149,7 +149,7 @@ describe LGY::Service do
               },
               { team: 'vfs-ebenefits' }
             )
-            expect(subject.coe_status).to eq(nil)
+            expect(subject.coe_status).to be_nil
           end
         end
       end

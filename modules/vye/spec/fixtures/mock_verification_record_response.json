@@ -1,0 +1,28 @@
+{
+    "claimantId": 0,
+    "delimitingDate": "2024-11-01",
+    "enrollmentVerifications": [
+      {
+        "verificationMonth": "December 2023",
+        "verificationBeginDate": "2024-11-01",
+        "verificationEndDate": "2024-11-01",
+        "verificationThroughDate": "2024-11-01",
+        "createdDate": "2024-11-01",
+        "verificationMethod": "",
+        "verificationResponse": "Y",
+        "facilityName": "string",
+        "totalCreditHours": 0,
+        "paymentTransmissionDate": "2024-11-01",
+        "lastDepositAmount": 0,
+        "remainingEntitlement": "53-01"
+      }
+    ],
+    "verifiedDetails": [
+      {
+        "benefitType": "CH33",
+        "verifiedThroughDate": "2024-11-01",
+        "verificationMethod": "Initial"
+      }
+    ],
+    "paymentOnHold": true
+  }

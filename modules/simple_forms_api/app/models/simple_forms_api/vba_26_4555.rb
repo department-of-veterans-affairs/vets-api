@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA264555
-    include Virtus.model(nullify_blank: true)
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
-
+  class VBA264555 < BaseForm
     def as_payload
       {
         remarks: data['remarks'],
@@ -39,6 +31,14 @@ module SimpleFormsApi
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def notification_first_name
+      data.dig('veteran', 'full_name', 'first')
+    end
+
+    def notification_email_address
+      data.dig('veteran', 'email')
     end
 
     def zip_code_is_us_based

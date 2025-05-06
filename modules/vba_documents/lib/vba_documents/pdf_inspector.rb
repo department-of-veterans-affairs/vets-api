@@ -81,17 +81,20 @@ module VBADocuments
 
     def pdf_metadata(pdf)
       metadata = PdfInfo::Metadata.read(pdf)
-      dimensions = metadata.page_size_inches
       max_width, max_height = VBADocuments::DocumentRequestValidator.pdf_validator_options.values_at(
         :width_limit_in_inches, :height_limit_in_inches
       )
+      oversized_pages = metadata.oversized_pages_inches(max_width, max_height)
+
+      # report the first oversized page, or if none, use first pages dimensions
+      dimensions = oversized_pages.any? ? oversized_pages[0] : metadata.page_size_inches
 
       {
         page_count: metadata.pages,
         dimensions: {
           height: dimensions[:height].round(2),
           width: dimensions[:width].round(2),
-          oversized_pdf: dimensions[:height] > max_height || dimensions[:width] > max_width
+          oversized_pdf: oversized_pages.any?
         },
         file_size: metadata.file_size,
         sha256_checksum: Digest::SHA256.file(pdf).hexdigest

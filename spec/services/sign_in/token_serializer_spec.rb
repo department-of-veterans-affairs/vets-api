@@ -22,8 +22,11 @@ RSpec.describe SignIn::TokenSerializer do
     let(:refresh_token) { create(:refresh_token) }
     let(:access_token) { create(:access_token) }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:client_config) { create(:client_config, authentication:, anti_csrf:, shared_sessions:) }
+    let(:client_config) do
+      create(:client_config, authentication:, anti_csrf:, shared_sessions:, json_api_compatibility:)
+    end
     let(:anti_csrf) { false }
+    let(:json_api_compatibility) { true }
     let(:authentication) { SignIn::Constants::Auth::API }
     let(:device_secret) { 'some-device-secret' }
     let(:shared_sessions) { false }
@@ -45,10 +48,10 @@ RSpec.describe SignIn::TokenSerializer do
         }
       end
       let(:path) { '/' }
-      let(:secure) { Settings.sign_in.cookies_secure }
+      let(:secure) { IdentitySettings.sign_in.cookies_secure }
       let(:httponly) { true }
       let(:httponly_info_cookie) { false }
-      let(:domain) { Settings.sign_in.info_cookie_domain }
+      let(:domain) { IdentitySettings.sign_in.info_cookie_domain }
       let(:refresh_path) { SignIn::Constants::Auth::REFRESH_ROUTE_PATH }
       let(:expected_access_token_cookie) do
         {
@@ -126,7 +129,7 @@ RSpec.describe SignIn::TokenSerializer do
 
         it 'does not anti csrf token cookie' do
           subject
-          expect(cookies[anti_csrf_token_cookie_name]).to eq(nil)
+          expect(cookies[anti_csrf_token_cookie_name]).to be_nil
         end
 
         it 'returns an empty hash' do
@@ -183,6 +186,36 @@ RSpec.describe SignIn::TokenSerializer do
           expect(subject).to eq(expected_json_payload)
         end
       end
+
+      context 'and client is configured to be compatible with json api' do
+        let(:json_api_compatibility) { true }
+        let(:expected_json_payload) { { data: token_payload } }
+        let(:token_payload) do
+          {
+            access_token: encoded_access_token,
+            refresh_token: encrypted_refresh_token
+          }
+        end
+
+        it 'returns expected json payload' do
+          expect(subject).to eq(expected_json_payload)
+        end
+      end
+
+      context 'and client is not configured to be compatible with json api' do
+        let(:json_api_compatibility) { false }
+        let(:expected_json_payload) { token_payload }
+        let(:token_payload) do
+          {
+            access_token: encoded_access_token,
+            refresh_token: encrypted_refresh_token
+          }
+        end
+
+        it 'returns expected json payload' do
+          expect(subject).to eq(expected_json_payload)
+        end
+      end
     end
 
     context 'when client is configured with mock based authentication' do
@@ -197,10 +230,10 @@ RSpec.describe SignIn::TokenSerializer do
         }
       end
       let(:path) { '/' }
-      let(:secure) { Settings.sign_in.cookies_secure }
+      let(:secure) { IdentitySettings.sign_in.cookies_secure }
       let(:httponly) { true }
       let(:httponly_info_cookie) { false }
-      let(:domain) { Settings.sign_in.info_cookie_domain }
+      let(:domain) { IdentitySettings.sign_in.info_cookie_domain }
       let(:refresh_path) { SignIn::Constants::Auth::REFRESH_ROUTE_PATH }
       let(:expected_access_token_cookie) do
         {
@@ -270,7 +303,7 @@ RSpec.describe SignIn::TokenSerializer do
 
         it 'does not anti csrf token cookie' do
           subject
-          expect(cookies[anti_csrf_token_cookie_name]).to eq(nil)
+          expect(cookies[anti_csrf_token_cookie_name]).to be_nil
         end
       end
 

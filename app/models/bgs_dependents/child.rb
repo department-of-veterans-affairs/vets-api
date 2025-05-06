@@ -57,7 +57,9 @@ module BGSDependents
 
     def initialize(child_info)
       @child_info = child_info
-      self.attributes = child_attributes
+      @is_v2 = v2?
+
+      assign_attributes
     end
 
     # Sets a hash with child attributes
@@ -77,33 +79,55 @@ module BGSDependents
       dependent_address(
         dependents_application:,
         lives_with_vet: @child_info['does_child_live_with_you'],
-        alt_address: @child_info.dig('child_address_info', 'address')
+        alt_address: @is_v2 ? @child_info['address'] : @child_info.dig('child_address_info', 'address')
       )
     end
 
     private
 
-    def child_attributes
-      {
-        ssn: @child_info['ssn'],
-        birth_date: @child_info['birth_date'],
-        family_relationship_type: child_status,
-        place_of_birth_country: @child_info.dig('place_of_birth', 'country'),
-        place_of_birth_state: @child_info.dig('place_of_birth', 'state'),
-        place_of_birth_city: @child_info.dig('place_of_birth', 'city'),
-        reason_marriage_ended: @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
-        ever_married_ind: marriage_indicator,
-        child_income: formatted_boolean(@child_info['child_income']),
-        not_self_sufficient: formatted_boolean(@child_info['not_self_sufficient'])
-      }.merge(@child_info['full_name'])
+    def assign_attributes
+      @ssn = @child_info['ssn']
+      @birth_date = @child_info['birth_date']
+      @family_relationship_type = child_status
+      @place_of_birth_country = place_of_birth['country']
+      @place_of_birth_state = place_of_birth['state']
+      @place_of_birth_city = place_of_birth['city']
+      @reason_marriage_ended = reason_marriage_ended
+      @ever_married_ind = marriage_indicator
+      @child_income = formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income'])
+      @not_self_sufficient = formatted_boolean(@child_info['not_self_sufficient'])
+      @first = @child_info['full_name']['first']
+      @middle = @child_info['full_name']['middle']
+      @last = @child_info['full_name']['last']
+      @suffix = @child_info['full_name']['suffix']
+    end
+
+    def place_of_birth
+      @is_v2 ? @child_info.dig('birth_location', 'location') : @child_info['place_of_birth']
     end
 
     def child_status
-      CHILD_STATUS[@child_info['child_status']&.key(true)]
+      if @is_v2
+        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
+      else
+        CHILD_STATUS[@child_info['child_status']&.key(true)]
+      end
     end
 
     def marriage_indicator
-      @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
+      if @is_v2
+        @child_info['has_child_ever_been_married'] ? 'Y' : 'N'
+      else
+        @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
+      end
+    end
+
+    def reason_marriage_ended
+      if @is_v2
+        @child_info['marriage_end_reason']
+      else
+        @child_info.dig('previous_marriage_details', 'reason_marriage_ended')
+      end
     end
   end
 end

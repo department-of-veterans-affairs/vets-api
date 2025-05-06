@@ -10,6 +10,7 @@ class FakeController < ApplicationController
     @current_user = ClaimsApi::ClaimsUser.new('test')
     @current_user.first_name_last_name('John', 'Doe')
     @current_user.middle_name = 'Alexander'
+    @current_user.suffix = 'III'
   end
 end
 
@@ -23,7 +24,7 @@ describe FakeController do
     context 'when no rep is found' do
       it 'returns false' do
         ret = subject.valid_poa_code_for_current_user?(poa_code)
-        expect(ret).to eq(false)
+        expect(ret).to be(false)
       end
     end
 
@@ -36,7 +37,7 @@ describe FakeController do
 
         it 'returns true' do
           ret = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(ret).to eq(true)
+          expect(ret).to be(true)
         end
       end
 
@@ -48,7 +49,7 @@ describe FakeController do
 
         it 'returns false' do
           ret = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(ret).to eq(false)
+          expect(ret).to be(false)
         end
       end
     end
@@ -63,7 +64,7 @@ describe FakeController do
 
       it 'searches with middle name' do
         res = subject.valid_poa_code_for_current_user?(poa_code)
-        expect(res).to eq(true)
+        expect(res).to be(true)
       end
     end
 
@@ -80,7 +81,7 @@ describe FakeController do
 
         it 'returns true' do
           res = subject.valid_poa_code_for_current_user?(poa_code)
-          expect(res).to eq(true)
+          expect(res).to be(true)
         end
       end
 
@@ -95,8 +96,22 @@ describe FakeController do
         end
 
         it 'raises "Ambiguous VSO Representative Results"' do
-          expect { subject.valid_poa_code_for_current_user?(poa_code) }.to raise_error(Common::Exceptions::Unauthorized)
+          expect do
+            subject.valid_poa_code_for_current_user?(poa_code)
+          end.to raise_error(Common::Exceptions::Unauthorized)
         end
+      end
+    end
+
+    context 'when the repʼs last name includes a suffix that matches the current userʼs suffix' do
+      before do
+        create(:representative, representative_id: '12345', first_name:, last_name: "#{last_name} III",
+                                poa_codes: ['091'], phone:)
+      end
+
+      it 'finds the rep and returns true' do
+        res = subject.valid_poa_code_for_current_user?(poa_code)
+        expect(res).to be(true)
       end
     end
   end

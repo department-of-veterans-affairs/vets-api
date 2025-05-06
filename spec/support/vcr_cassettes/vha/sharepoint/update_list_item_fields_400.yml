@@ -1,0 +1,274 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dvagov.sharepoint.com/sites/vhafinance/MDW/_api/Web/GetFolderByServerRelativeUrl('/sites/vhafinance/MDW/Submissions')/Files/add(url='20230829T161322_6598_Beer.pdf',overwrite=true)
+    body:
+      encoding: UTF-8
+      base64_string: a_base_64d_pdf_file
+    headers:
+      Authorization: Bearer <TOKEN>
+      Accept:
+      - application/json;odata=verbose
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - octet/stream
+      Content-Length:
+      - '1621920'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private, max-age=0
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json;odata=verbose;charset=utf-8
+      Expires:
+      - Mon, 14 Aug 2023 16:13:22 GMT
+      Last-Modified:
+      - Tue, 29 Aug 2023 16:13:22 GMT
+      Vary:
+      - Origin,Accept-Encoding
+      P3p:
+      - CP="ALL IND DSP COR ADM CONo CUR CUSo IVAo IVDo PSA PSD TAI TELo OUR SAMo
+        CNT COM INT NAV ONL PHY PRE PUR UNI"
+      X-Networkstatistics:
+      - 0,525568,0,0,228,0,24209
+      X-Sharepointhealthscore:
+      - '1'
+      X-Sp-Serverstate:
+      - ReadOnly=0
+      Dataserviceversion:
+      - '3.0'
+      Spclientservicerequestduration:
+      - '930'
+      Sprequestduration:
+      - '931'
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Databoundary:
+      - NONE
+      X-1dscollectorurl:
+      - https://mobile.events.data.microsoft.com/OneCollector/1.0/
+      X-Ariacollectorurl:
+      - https://browser.pipe.aria.microsoft.com/Collector/3.0/
+      Sprequestguid:
+      - f043d5a0-c07d-e000-1b49-8e25d3a41908
+      Request-Id:
+      - f043d5a0-c07d-e000-1b49-8e25d3a41908
+      Ms-Cv:
+      - oNVD8H3AAOAbSY4l06QZCA.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com
+        *.teams.microsoft.us local.teams.office.com teams.microsoftonline.cn *.powerapps.com
+        *.yammer.com *.officeapps.live.com *.office.com *.stream.azure-test.net *.microsoftstream.com
+        *.dynamics.com *.microsoft.com onedrive.live.com *.onedrive.live.com securebroker.sharepointonline.com;
+      X-Powered-By:
+      - ASP.NET
+      Microsoftsharepointteamservices:
+      - 16.0.0.24016
+      X-Content-Type-Options:
+      - nosniff
+      X-Ms-Invokeapp:
+      - 1; RequireReadOnly
+      X-Cache:
+      - CONFIG_NOCACHE
+      X-Msedge-Ref:
+      - 'Ref A: D1F6F2FA5DC54BD1950A2EF233808BD5 Ref B: YVR311000111047 Ref C: 2023-08-29T16:13:22Z'
+      Date:
+      - Tue, 29 Aug 2023 16:13:22 GMT
+    body:
+      encoding: ASCII-8BIT
+      base64_string: eyJkIjp7Il9fbWV0YWRhdGEiOnsiaWQiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9HZXRGaWxlQnlTZXJ2ZXJSZWxhdGl2ZVBhdGgoZGVjb2RlZHVybD0nL3NpdGVzL3ZoYWZpbmFuY2UvTURXL1N1Ym1pc3Npb25zLzIwMjMwODI5VDE2MTMyMl82NTk4X0JlZXIucGRmJykiLCJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9HZXRGaWxlQnlTZXJ2ZXJSZWxhdGl2ZVBhdGgoZGVjb2RlZHVybD0nL3NpdGVzL3ZoYWZpbmFuY2UvTURXL1N1Ym1pc3Npb25zLzIwMjMwODI5VDE2MTMyMl82NTk4X0JlZXIucGRmJykiLCJ0eXBlIjoiU1AuRmlsZSJ9LCJBdXRob3IiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9HZXRGaWxlQnlTZXJ2ZXJSZWxhdGl2ZVBhdGgoZGVjb2RlZHVybD0nL3NpdGVzL3ZoYWZpbmFuY2UvTURXL1N1Ym1pc3Npb25zLzIwMjMwODI5VDE2MTMyMl82NTk4X0JlZXIucGRmJykvQXV0aG9yIn19LCJDaGVja2VkT3V0QnlVc2VyIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvR2V0RmlsZUJ5U2VydmVyUmVsYXRpdmVQYXRoKGRlY29kZWR1cmw9Jy9zaXRlcy92aGFmaW5hbmNlL01EVy9TdWJtaXNzaW9ucy8yMDIzMDgyOVQxNjEzMjJfNjU5OF9CZWVyLnBkZicpL0NoZWNrZWRPdXRCeVVzZXIifX0sIkVmZmVjdGl2ZUluZm9ybWF0aW9uUmlnaHRzTWFuYWdlbWVudFNldHRpbmdzIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvR2V0RmlsZUJ5U2VydmVyUmVsYXRpdmVQYXRoKGRlY29kZWR1cmw9Jy9zaXRlcy92aGFmaW5hbmNlL01EVy9TdWJtaXNzaW9ucy8yMDIzMDgyOVQxNjEzMjJfNjU5OF9CZWVyLnBkZicpL0VmZmVjdGl2ZUluZm9ybWF0aW9uUmlnaHRzTWFuYWdlbWVudFNldHRpbmdzIn19LCJJbmZvcm1hdGlvblJpZ2h0c01hbmFnZW1lbnRTZXR0aW5ncyI6eyJfX2RlZmVycmVkIjp7InVyaSI6Imh0dHBzOi8vZHZhZ292LnNoYXJlcG9pbnQuY29tL3NpdGVzL3ZoYWZpbmFuY2UvTURXL19hcGkvV2ViL0dldEZpbGVCeVNlcnZlclJlbGF0aXZlUGF0aChkZWNvZGVkdXJsPScvc2l0ZXMvdmhhZmluYW5jZS9NRFcvU3VibWlzc2lvbnMvMjAyMzA4MjlUMTYxMzIyXzY1OThfQmVlci5wZGYnKS9JbmZvcm1hdGlvblJpZ2h0c01hbmFnZW1lbnRTZXR0aW5ncyJ9fSwiTGlzdEl0ZW1BbGxGaWVsZHMiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9HZXRGaWxlQnlTZXJ2ZXJSZWxhdGl2ZVBhdGgoZGVjb2RlZHVybD0nL3NpdGVzL3ZoYWZpbmFuY2UvTURXL1N1Ym1pc3Npb25zLzIwMjMwODI5VDE2MTMyMl82NTk4X0JlZXIucGRmJykvTGlzdEl0ZW1BbGxGaWVsZHMifX0sIkxvY2tlZEJ5VXNlciI6eyJfX2RlZmVycmVkIjp7InVyaSI6Imh0dHBzOi8vZHZhZ292LnNoYXJlcG9pbnQuY29tL3NpdGVzL3ZoYWZpbmFuY2UvTURXL19hcGkvV2ViL0dldEZpbGVCeVNlcnZlclJlbGF0aXZlUGF0aChkZWNvZGVkdXJsPScvc2l0ZXMvdmhhZmluYW5jZS9NRFcvU3VibWlzc2lvbnMvMjAyMzA4MjlUMTYxMzIyXzY1OThfQmVlci5wZGYnKS9Mb2NrZWRCeVVzZXIifX0sIk1vZGlmaWVkQnkiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9HZXRGaWxlQnlTZXJ2ZXJSZWxhdGl2ZVBhdGgoZGVjb2RlZHVybD0nL3NpdGVzL3ZoYWZpbmFuY2UvTURXL1N1Ym1pc3Npb25zLzIwMjMwODI5VDE2MTMyMl82NTk4X0JlZXIucGRmJykvTW9kaWZpZWRCeSJ9fSwiUHJvcGVydGllcyI6eyJfX2RlZmVycmVkIjp7InVyaSI6Imh0dHBzOi8vZHZhZ292LnNoYXJlcG9pbnQuY29tL3NpdGVzL3ZoYWZpbmFuY2UvTURXL19hcGkvV2ViL0dldEZpbGVCeVNlcnZlclJlbGF0aXZlUGF0aChkZWNvZGVkdXJsPScvc2l0ZXMvdmhhZmluYW5jZS9NRFcvU3VibWlzc2lvbnMvMjAyMzA4MjlUMTYxMzIyXzY1OThfQmVlci5wZGYnKS9Qcm9wZXJ0aWVzIn19LCJWZXJzaW9uRXZlbnRzIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvR2V0RmlsZUJ5U2VydmVyUmVsYXRpdmVQYXRoKGRlY29kZWR1cmw9Jy9zaXRlcy92aGFmaW5hbmNlL01EVy9TdWJtaXNzaW9ucy8yMDIzMDgyOVQxNjEzMjJfNjU5OF9CZWVyLnBkZicpL1ZlcnNpb25FdmVudHMifX0sIlZlcnNpb25FeHBpcmF0aW9uUmVwb3J0Ijp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvR2V0RmlsZUJ5U2VydmVyUmVsYXRpdmVQYXRoKGRlY29kZWR1cmw9Jy9zaXRlcy92aGFmaW5hbmNlL01EVy9TdWJtaXNzaW9ucy8yMDIzMDgyOVQxNjEzMjJfNjU5OF9CZWVyLnBkZicpL1ZlcnNpb25FeHBpcmF0aW9uUmVwb3J0In19LCJWZXJzaW9ucyI6eyJfX2RlZmVycmVkIjp7InVyaSI6Imh0dHBzOi8vZHZhZ292LnNoYXJlcG9pbnQuY29tL3NpdGVzL3ZoYWZpbmFuY2UvTURXL19hcGkvV2ViL0dldEZpbGVCeVNlcnZlclJlbGF0aXZlUGF0aChkZWNvZGVkdXJsPScvc2l0ZXMvdmhhZmluYW5jZS9NRFcvU3VibWlzc2lvbnMvMjAyMzA4MjlUMTYxMzIyXzY1OThfQmVlci5wZGYnKS9WZXJzaW9ucyJ9fSwiQ2hlY2tJbkNvbW1lbnQiOiIiLCJDaGVja091dFR5cGUiOjIsIkNvbnRlbnRUYWciOiJ7OTgwM0QwREUtOTA5Qy00MDY1LUE1M0EtRTdDOEE5QkVCM0FBfSwxLDEiLCJDdXN0b21pemVkUGFnZVN0YXR1cyI6MCwiRVRhZyI6Ilwiezk4MDNEMERFLTkwOUMtNDA2NS1BNTNBLUU3QzhBOUJFQjNBQX0sMVwiIiwiRXhpc3RzIjp0cnVlLCJFeGlzdHNBbGxvd1Rocm93Rm9yUG9saWN5RmFpbHVyZXMiOnRydWUsIklybUVuYWJsZWQiOmZhbHNlLCJMZW5ndGgiOiIxNjIxOTIwIiwiTGV2ZWwiOjEsIkxpbmtpbmdVcmkiOm51bGwsIkxpbmtpbmdVcmwiOiIiLCJNYWpvclZlcnNpb24iOjEsIk1pbm9yVmVyc2lvbiI6MCwiTmFtZSI6IjIwMjMwODI5VDE2MTMyMl82NTk4X0JlZXIucGRmIiwiU2VydmVyUmVsYXRpdmVVcmwiOiIvc2l0ZXMvdmhhZmluYW5jZS9NRFcvU3VibWlzc2lvbnMvMjAyMzA4MjlUMTYxMzIyXzY1OThfQmVlci5wZGYiLCJUaW1lQ3JlYXRlZCI6IjIwMjMtMDgtMjlUMTY6MTM6MjRaIiwiVGltZUxhc3RNb2RpZmllZCI6IjIwMjMtMDgtMjlUMTY6MTM6MjRaIiwiVGl0bGUiOm51bGwsIlVJVmVyc2lvbiI6NTEyLCJVSVZlcnNpb25MYWJlbCI6IjEuMCIsIlVuaXF1ZUlkIjoiOTgwM2QwZGUtOTA5Yy00MDY1LWE1M2EtZTdjOGE5YmViM2FhIn19
+  recorded_at: Tue, 29 Aug 2023 16:13:23 GMT
+- request:
+    method: get
+    uri: https://dvagov.sharepoint.com/sites/vhafinance/MDW/_api/Web/GetFileByServerRelativePath(decodedurl='/sites/vhafinance/MDW/Submissions/20230829T161322_6598_Beer.pdf')/ListItemAllFields
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Authorization: Bearer <TOKEN>
+      Accept:
+      - application/json;odata=verbose
+      User-Agent:
+      - Faraday v0.17.6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Cache-Control:
+      - private, max-age=0
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json;odata=verbose;charset=utf-8
+      Expires:
+      - Mon, 14 Aug 2023 16:13:24 GMT
+      Last-Modified:
+      - Tue, 29 Aug 2023 16:13:24 GMT
+      Etag:
+      - '"9803d0de-909c-4065-a53a-e7c8a9beb3aa,1"'
+      Vary:
+      - Origin,Accept-Encoding
+      P3p:
+      - CP="ALL IND DSP COR ADM CONo CUR CUSo IVAo IVDo PSA PSD TAI TELo OUR SAMo
+        CNT COM INT NAV ONL PHY PRE PUR UNI"
+      X-Networkstatistics:
+      - 0,525568,0,0,254,0,24209
+      X-Sharepointhealthscore:
+      - '2'
+      X-Sp-Serverstate:
+      - ReadOnly=0
+      Dataserviceversion:
+      - '3.0'
+      Spclientservicerequestduration:
+      - '63'
+      Sprequestduration:
+      - '64'
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Databoundary:
+      - NONE
+      X-1dscollectorurl:
+      - https://mobile.events.data.microsoft.com/OneCollector/1.0/
+      X-Ariacollectorurl:
+      - https://browser.pipe.aria.microsoft.com/Collector/3.0/
+      Sprequestguid:
+      - f043d5a0-50da-e000-1b49-80d3a1a1f7b1
+      Request-Id:
+      - f043d5a0-50da-e000-1b49-80d3a1a1f7b1
+      Ms-Cv:
+      - oNVD8NpQAOAbSYDToaH3sQ.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com
+        *.teams.microsoft.us local.teams.office.com teams.microsoftonline.cn *.powerapps.com
+        *.yammer.com *.officeapps.live.com *.office.com *.stream.azure-test.net *.microsoftstream.com
+        *.dynamics.com *.microsoft.com onedrive.live.com *.onedrive.live.com securebroker.sharepointonline.com;
+      X-Powered-By:
+      - ASP.NET
+      Microsoftsharepointteamservices:
+      - 16.0.0.24016
+      X-Content-Type-Options:
+      - nosniff
+      X-Ms-Invokeapp:
+      - 1; RequireReadOnly
+      X-Cache:
+      - CONFIG_NOCACHE
+      X-Msedge-Ref:
+      - 'Ref A: 798DBDBBCC184A1E9F4C748B87512F75 Ref B: YVR311000107049 Ref C: 2023-08-29T16:13:23Z'
+      Date:
+      - Tue, 29 Aug 2023 16:13:24 GMT
+    body:
+      encoding: ASCII-8BIT
+      base64_string: eyJkIjp7Il9fbWV0YWRhdGEiOnsiaWQiOiIxNmIyMWRiMS00ZGQyLTRkODYtOTJkYi1hZTIwZmM0NjJlYjQiLCJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KSIsImV0YWciOiJcIjFcIiIsInR5cGUiOiJTUC5EYXRhLlN1Ym1pc3Npb25zSXRlbSJ9LCJGaXJzdFVuaXF1ZUFuY2VzdG9yU2VjdXJhYmxlT2JqZWN0Ijp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvRmlyc3RVbmlxdWVBbmNlc3RvclNlY3VyYWJsZU9iamVjdCJ9fSwiUm9sZUFzc2lnbm1lbnRzIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvUm9sZUFzc2lnbm1lbnRzIn19LCJBdHRhY2htZW50RmlsZXMiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KS9BdHRhY2htZW50RmlsZXMifX0sIkNvbnRlbnRUeXBlIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvQ29udGVudFR5cGUifX0sIkdldERscFBvbGljeVRpcCI6eyJfX2RlZmVycmVkIjp7InVyaSI6Imh0dHBzOi8vZHZhZ292LnNoYXJlcG9pbnQuY29tL3NpdGVzL3ZoYWZpbmFuY2UvTURXL19hcGkvV2ViL0xpc3RzKGd1aWQnNWU4ZWU0MzQtYmQ5Yi00YzJjLThjOTItNzE2ZDY5MDdhOTFjJykvSXRlbXMoMTA2NzYpL0dldERscFBvbGljeVRpcCJ9fSwiRmllbGRWYWx1ZXNBc0h0bWwiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KS9GaWVsZFZhbHVlc0FzSHRtbCJ9fSwiRmllbGRWYWx1ZXNBc1RleHQiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KS9GaWVsZFZhbHVlc0FzVGV4dCJ9fSwiRmllbGRWYWx1ZXNGb3JFZGl0Ijp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvRmllbGRWYWx1ZXNGb3JFZGl0In19LCJGaWxlIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvRmlsZSJ9fSwiRm9sZGVyIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvRm9sZGVyIn19LCJMaWtlZEJ5SW5mb3JtYXRpb24iOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KS9MaWtlZEJ5SW5mb3JtYXRpb24ifX0sIlBhcmVudExpc3QiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KS9QYXJlbnRMaXN0In19LCJQcm9wZXJ0aWVzIjp7Il9fZGVmZXJyZWQiOnsidXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2FwaS9XZWIvTGlzdHMoZ3VpZCc1ZThlZTQzNC1iZDliLTRjMmMtOGM5Mi03MTZkNjkwN2E5MWMnKS9JdGVtcygxMDY3NikvUHJvcGVydGllcyJ9fSwiVmVyc2lvbnMiOnsiX19kZWZlcnJlZCI6eyJ1cmkiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fYXBpL1dlYi9MaXN0cyhndWlkJzVlOGVlNDM0LWJkOWItNGMyYy04YzkyLTcxNmQ2OTA3YTkxYycpL0l0ZW1zKDEwNjc2KS9WZXJzaW9ucyJ9fSwiRmlsZVN5c3RlbU9iamVjdFR5cGUiOjAsIklkIjoxMDY3NiwiU2VydmVyUmVkaXJlY3RlZEVtYmVkVXJpIjoiaHR0cHM6Ly9kdmFnb3Yuc2hhcmVwb2ludC5jb20vc2l0ZXMvdmhhZmluYW5jZS9NRFcvX2xheW91dHMvMTUvRW1iZWQuYXNweD9VbmlxdWVJZD05ODAzZDBkZS05MDljLTQwNjUtYTUzYS1lN2M4YTliZWIzYWEiLCJTZXJ2ZXJSZWRpcmVjdGVkRW1iZWRVcmwiOiJodHRwczovL2R2YWdvdi5zaGFyZXBvaW50LmNvbS9zaXRlcy92aGFmaW5hbmNlL01EVy9fbGF5b3V0cy8xNS9FbWJlZC5hc3B4P1VuaXF1ZUlkPTk4MDNkMGRlLTkwOWMtNDA2NS1hNTNhLWU3YzhhOWJlYjNhYSIsIkNvbnRlbnRUeXBlSWQiOiIweDAxMDEwMEI2RThFRTYzRTA5QUU4NDJCOENCQkVGN0U3NDgxNDI0IiwiQ29tcGxpYW5jZUFzc2V0SWQiOm51bGwsIlRpdGxlIjpudWxsLCJTdGF0aW9uSWQiOm51bGwsIkNQQUMiOm51bGwsIlNTTiI6bnVsbCwiTmFtZTEiOm51bGwsIlVJRCI6bnVsbCwiT0RhdGFfX2lwX1VuaWZpZWRDb21wbGlhbmNlUG9saWN5UHJvcGVydGllcyI6bnVsbCwiT0RhdGFfX0NvbG9yVGFnIjpudWxsLCJNb2RpZmllZCI6IjIwMjMtMDgtMjlUMTE6MTM6MjQiLCJJRCI6MTA2NzYsIkNyZWF0ZWQiOiIyMDIzLTA4LTI5VDExOjEzOjI0IiwiQXV0aG9ySWQiOjEwNzM3NDE4MjIsIkVkaXRvcklkIjoxMDczNzQxODIyLCJPRGF0YV9fQ29weVNvdXJjZSI6bnVsbCwiQ2hlY2tvdXRVc2VySWQiOm51bGwsIk9EYXRhX19VSVZlcnNpb25TdHJpbmciOiIxLjAiLCJHVUlEIjoiODZiMzgxMWItMTExNS00YjBmLWI5YjUtYjcwNTg2Y2NiNGEzIn19
+  recorded_at: Tue, 29 Aug 2023 16:13:24 GMT
+- request:
+    method: post
+    uri: https://dvagov.sharepoint.com/sites/vhafinance/MDW/_api/Web/Lists/GetByTitle('Submissions')/items(10676)
+    body:
+      encoding: UTF-8
+      base64_string: eyJfX21ldGFkYXRhIjp7InR5cGUiOiJTUC5EYXRhLlN1Ym1pc3Npb25zSXRlbSJ9LCJTdGF0aW9uSWQiOiIxMjMiLCJVSUQiOiIwNGNjMTc0MC1mOTA5LTQ4YmUtYjQxMC00MzEyNjEwZGNiMzgiLCJTU04iOiI0ODI2MzY1OTgiLCJOYW1lMSI6IkJlZXIsIENhbGViIn0=
+    headers:
+      Authorization: Bearer <TOKEN>
+      Accept:
+      - application/json;odata=verbose
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/json;odata=verbose
+      X-Http-Method:
+      - MERGE
+      If-Match:
+      - "*"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Cache-Control:
+      - private, max-age=0
+      Expires:
+      - Mon, 14 Aug 2023 16:13:24 GMT
+      Last-Modified:
+      - Tue, 29 Aug 2023 16:13:24 GMT
+      Etag:
+      - '"9803d0de-909c-4065-a53a-e7c8a9beb3aa,2"'
+      Vary:
+      - Origin
+      P3p:
+      - CP="ALL IND DSP COR ADM CONo CUR CUSo IVAo IVDo PSA PSD TAI TELo OUR SAMo
+        CNT COM INT NAV ONL PHY PRE PUR UNI"
+      X-Networkstatistics:
+      - 0,525568,0,0,12480,0,26603
+      X-Sharepointhealthscore:
+      - '0'
+      X-Sp-Serverstate:
+      - ReadOnly=0
+      Dataserviceversion:
+      - '3.0'
+      Spclientservicerequestduration:
+      - '187'
+      Sprequestduration:
+      - '187'
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Databoundary:
+      - NONE
+      X-1dscollectorurl:
+      - https://mobile.events.data.microsoft.com/OneCollector/1.0/
+      X-Ariacollectorurl:
+      - https://browser.pipe.aria.microsoft.com/Collector/3.0/
+      Sprequestguid:
+      - f043d5a0-40e9-e000-1b49-84518b14968f
+      Request-Id:
+      - f043d5a0-40e9-e000-1b49-84518b14968f
+      Ms-Cv:
+      - oNVD8OlAAOAbSYRRixSWjw.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - frame-ancestors 'self' teams.microsoft.com *.teams.microsoft.com *.skype.com
+        *.teams.microsoft.us local.teams.office.com teams.microsoftonline.cn *.powerapps.com
+        *.yammer.com *.officeapps.live.com *.office.com *.stream.azure-test.net *.microsoftstream.com
+        *.dynamics.com *.microsoft.com onedrive.live.com *.onedrive.live.com securebroker.sharepointonline.com;
+      X-Powered-By:
+      - ASP.NET
+      Microsoftsharepointteamservices:
+      - 16.0.0.24016
+      X-Content-Type-Options:
+      - nosniff
+      X-Ms-Invokeapp:
+      - 1; RequireReadOnly
+      X-Cache:
+      - CONFIG_NOCACHE
+      X-Msedge-Ref:
+      - 'Ref A: 4DDD0589FB164EA181952B501639A8FD Ref B: YVR311000109023 Ref C: 2023-08-29T16:13:24Z'
+      Date:
+      - Tue, 29 Aug 2023 16:13:23 GMT
+    body:
+      encoding: UTF-8
+      base64_string: ''
+  recorded_at: Tue, 29 Aug 2023 16:13:24 GMT
+recorded_with: VCR 6.2.0

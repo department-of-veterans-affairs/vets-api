@@ -5,7 +5,8 @@ require './lib/central_mail/utilities'
 require_relative '../../../support/vba_document_fixtures'
 
 # rubocop:disable Style/OptionalBooleanParameter
-RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
+RSpec.describe 'VBADocument::V2::Uploads::Submit',
+               retry: 3, skip: 'v2 will never be launched in vets-api', type: :request do
   include VBADocuments::Fixtures
 
   load('./modules/vba_documents/config/routes.rb')
@@ -99,9 +100,9 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
       expect(@attributes['status']).to eq('uploaded')
       uploaded_pdf = @attributes['uploaded_pdf']
       expect(uploaded_pdf['total_documents']).to eq(3)
-      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to be(false)
+      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to be(false)
+      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to be(false)
     end
 
     it 'processes base64 requests' do
@@ -128,9 +129,11 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
         expect(@attributes['status']).to eq('error')
         uploaded_pdf = @attributes['uploaded_pdf']
         expect(uploaded_pdf['total_documents']).to eq(3)
-        expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-        expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
-        expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+        expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to be(false)
+        expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to be(true)
+        expect(uploaded_pdf['content']['attachments'].first['dimensions']['height']).to eq(102)
+        expect(uploaded_pdf['content']['attachments'].first['dimensions']['width']).to eq(10)
+        expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to be(false)
       end
     end
 
@@ -194,7 +197,7 @@ RSpec.describe 'VBADocument::V2::Uploads::Submit', retry: 3, type: :request do
         pdf_data = json['data']['attributes']['uploaded_pdf']
         expect(@attributes['status']).to eq('uploaded')
         expect(pdf_data['line_of_business']).to eq(key)
-        expect(pdf_data['submitted_line_of_business']).to eq(nil)
+        expect(pdf_data['submitted_line_of_business']).to be_nil
       end
     end
 

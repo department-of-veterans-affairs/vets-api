@@ -25,11 +25,20 @@ module DisabilityCompensation
       attribute :type, String
     end
 
+    # array of Intent to Files
     class IntentToFilesResponse
       include ActiveModel::Serialization
       include Virtus.model
 
       attribute :intent_to_file, Array[DisabilityCompensation::ApiProvider::IntentToFile]
+    end
+
+    # a single Intent to File
+    class IntentToFileResponse
+      include ActiveModel::Serialization
+      include Virtus.model
+
+      attribute :intent_to_file, DisabilityCompensation::ApiProvider::IntentToFile
     end
   end
 end

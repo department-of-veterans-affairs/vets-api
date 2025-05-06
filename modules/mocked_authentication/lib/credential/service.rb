@@ -8,7 +8,7 @@ module MockedAuthentication
     class Service
       attr_accessor :type
 
-      def render_auth(state:, acr:, operation:)
+      def render_auth(state:, acr:, operation: SignIn::Constants::Auth::AUTHORIZE)
         renderer.render(template: 'oauth_get_form',
                         locals: { url: redirect_uri_with_params(state, acr, operation) },
                         format: :html)
@@ -17,7 +17,7 @@ module MockedAuthentication
       def token(code)
         {
           access_token: code
-        }.merge(jwt_id_token(code))
+        }.merge(logingov_acr(code))
       end
 
       def user_info(token)
@@ -43,22 +43,21 @@ module MockedAuthentication
         {
           type:,
           acr_values: acr,
-          mock_redirect_uri: Settings.sign_in.mock_redirect_uri,
+          mock_redirect_uri: IdentitySettings.sign_in.mock_redirect_uri,
           state:,
           operation:
         }.compact
       end
 
       def redirect_uri
-        Settings.sign_in.mock_auth_url
+        IdentitySettings.sign_in.mock_auth_url
       end
 
-      def jwt_id_token(code)
+      def logingov_acr(code)
         return {} unless type == SignIn::Constants::Auth::LOGINGOV
 
         ial =  logingov_credential_has_attributes?(mock_credential_info(code)) ? IAL::TWO : IAL::ONE
-        id_token_payload = { acr: get_authn_context(ial) }
-        { id_token: JWT.encode(id_token_payload, nil) }
+        { logingov_acr: get_authn_context(ial) }
       end
 
       def logingov_credential_has_attributes?(mock_credential_info)

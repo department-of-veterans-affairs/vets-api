@@ -38,15 +38,15 @@ http_interactions:
       string: '{"message":[{"id":7209899,"category":"TEST_RESULTS","subject":"Test
         Inquiry","body":null,"attachment":false,"attachments":null,"sentDate":"Fri,
         21 Oct 2022 20:16:18 GMT","senderId":6177,"senderName":"SMITH, BOB
-        ","recipientId":6820911,"recipientName":"SMITH, ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null},{"id":7181007,"category":"TEST_RESULTS","subject":"Test
+        ","recipientId":6820911,"recipientName":"SMITH, ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null,"suggestedNameDisplay":null},{"id":7181007,"category":"TEST_RESULTS","subject":"Test
         Inquiry","body":null,"attachment":false,"attachments":null,"sentDate":"Tue,
         13 Sep 2022 16:09:26 GMT","senderId":20029,"senderName":"SMITH, BOB","recipientId":6820911,"recipientName":"SMITH,
-        ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null},{"id":7177170,"category":"TEST_RESULTS","subject":"Test
+        ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null,"suggestedNameDisplay":null},{"id":7177170,"category":"TEST_RESULTS","subject":"Test
         Inquiry","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
         07 Sep 2022 15:07:46 GMT","senderId":6177,"senderName":"SMITH, BOB
-        ","recipientId":6820911,"recipientName":"SMITH, ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null},{"id":7176529,"category":"TEST_RESULTS","subject":"Test
+        ","recipientId":6820911,"recipientName":"SMITH, ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null,"suggestedNameDisplay":null},{"id":7176529,"category":"TEST_RESULTS","subject":"Test
         Inquiry","body":null,"attachment":false,"attachments":null,"sentDate":"Tue,
         06 Sep 2022 18:45:06 GMT","senderId":6177,"senderName":"SMITH, BOB
-        ","recipientId":6820911,"recipientName":"SMITH, ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null}]}'
+        ","recipientId":6820911,"recipientName":"SMITH, ALICE ","readReceipt":"READ","triageGroupName":null,"proxySenderName":null,"suggestedNameDisplay":null}]}'
   recorded_at: Wed, 02 Nov 2022 19:06:45 GMT
 recorded_with: VCR 6.1.0

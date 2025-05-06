@@ -58,9 +58,9 @@
   "F[0].#subform[1].COMPENSATION[0]": "<%= form.data.dig('benefit_selection', 'compensation') ? 1 : 0 %>",
   "F[0].#subform[1].SURVIVORS_PENSION_AND_OR_DEPENDENCY_AND_INDEMNITY_COMPENSATION_DIC[0]": "<%= form.data.dig('benefit_selection', 'survivor') ? 1 : 0 %>",
   "F[0].#subform[1].SignatureField1[0]": "",
-  "F[0].#subform[1].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
-  "F[0].#subform[1].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
-  "F[0].#subform[1].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
+  "F[0].#subform[1].Date_Signed_Year[0]": "<%= form&.signature_date&.strftime('%Y') %>",
+  "F[0].#subform[1].Date_Signed_Day[0]": "<%= form&.signature_date&.strftime('%d') %>",
+  "F[0].#subform[1].Date_Signed_Month[0]": "<%= form&.signature_date&.strftime('%m') %>",
   "F[0].#subform[1].Name_Of_Attorney_Agent_Or_Veterans_Service_Organization_VS[0]": "<%= form.third_party_info %>",
   "F[0]": "<%= form.data.dig('F') %>"
 }

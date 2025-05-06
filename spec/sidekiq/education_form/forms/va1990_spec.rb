@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::Forms::VA1990, form: :education_benefits, type: :model do
   subject { described_class.new(application) }
 
-  let(:application) { FactoryBot.create(:va1990).education_benefits_claim }
+  let(:application) { create(:va1990).education_benefits_claim }
 
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the

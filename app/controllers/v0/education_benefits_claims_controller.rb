@@ -28,6 +28,27 @@ module V0
       render json: EducationStemClaimStatusSerializer.new(current_applications)
     end
 
+    def download_pdf
+      education_claim = EducationBenefitsClaim.find(params[:id].to_i)
+      saved_claim = SavedClaim.find(education_claim.saved_claim_id)
+
+      source_file_path = PdfFill::Filler.fill_form(
+        saved_claim,
+        SecureRandom.uuid,
+        sign: false
+      )
+
+      client_file_name = "education_benefits_claim_#{saved_claim.id}.pdf"
+      file_contents = File.read(source_file_path)
+
+      send_data file_contents,
+                filename: client_file_name,
+                type: 'application/pdf',
+                disposition: 'attachment'
+    ensure
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
+    end
+
     private
 
     def form_type
@@ -37,7 +58,7 @@ module V0
     def user_stem_automated_decision_claims
       EducationBenefitsClaim.joins(:education_stem_automated_decision)
                             .where(
-                              'education_stem_automated_decisions.user_uuid' => @current_user.uuid
+                              'education_stem_automated_decisions.user_account_id' => @current_user.user_account_uuid
                             ).to_a
     end
 

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe CemeterySerializer do
   subject { serialize(cemetery, serializer_class: described_class) }
 
-  let(:cemetery) { build :cemetery }
+  let(:cemetery) { build(:cemetery) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

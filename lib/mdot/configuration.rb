@@ -4,6 +4,9 @@ require 'common/client/configuration/rest'
 
 module MDOT
   class Configuration < Common::Client::Configuration::REST
+    self.open_timeout = Settings.mdot.timeout || 5
+    self.read_timeout = Settings.mdot.timeout || 5
+
     def service_name
       'MDOT'
     end
@@ -14,22 +17,22 @@ module MDOT
 
     def connection
       @connection = Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
-        f.use :breakers
+        f.use(:breakers, service_name:) if breakers_enabled?
         f.request :json
         f.use Faraday::Response::RaiseError
         f.response :betamocks if mock_enabled?
         f.response :snakecase, symbolize: false
         f.response :json
         f.adapter Faraday.default_adapter
-
-        # TODO: remove long timeouts after changing to real API
-        f.options.timeout = 30
-        f.options.open_timeout = 30
       end
     end
 
     def mock_enabled?
       Settings.mdot.mock || false
+    end
+
+    def breakers_enabled?
+      Settings.mdot.breakers || false
     end
   end
 end

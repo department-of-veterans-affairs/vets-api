@@ -10,8 +10,8 @@ module AskVAApi
 
         attr_reader :icn, :service, :inquiry_number
 
-        def initialize(user_mock_data:, entity_class:, inquiry_number:, icn: nil)
-          super(user_mock_data:, entity_class:)
+        def initialize(inquiry_number:, icn: nil, **args)
+          super(**args)
           @icn = icn
           @inquiry_number = inquiry_number
           @service = Crm::Service.new(icn:)

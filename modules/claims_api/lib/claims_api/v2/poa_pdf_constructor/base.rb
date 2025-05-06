@@ -81,6 +81,20 @@ module ClaimsApi
           "#{address['addressLine1']}, #{address['city']} #{address['stateCode']} #{address['zipCode']}"
         end
 
+        def handle_country_code(phone)
+          return if phone.blank?
+
+          country_code = phone['countryCode']
+          area_code = phone['areaCode']
+          phone_number = phone['phoneNumber']
+
+          if country_code.blank?
+            "#{area_code} #{phone_number}"
+          else
+            "+#{country_code} #{area_code} #{phone_number}"
+          end
+        end
+
         private
 
         #
@@ -128,6 +142,14 @@ module ClaimsApi
             flatten: true
           )
           @page2_path = temp_path
+        end
+
+        # positive grants are provided in the form data, but the pdf form reverses this logic in box 20
+        # e.g. if form data includes ['ABC'], then ABC in box 20 will NOT be checked, but everything else will
+        def set_limitation_of_consent_check_box(consent_limits, item)
+          return 0 if consent_limits.blank?
+
+          consent_limits.include?(item) ? 0 : 1
         end
 
         def insert_text_signatures(page_template, signatures)

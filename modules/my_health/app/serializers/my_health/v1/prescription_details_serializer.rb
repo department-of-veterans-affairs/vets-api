@@ -48,6 +48,7 @@ module MyHealth
       attribute :color
       attribute :back_imprint
       attribute :front_imprint
+      attribute :grouped_medications
     end
   end
 end

@@ -7,6 +7,7 @@ FactoryBot.define do
     uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
     last_signed_in { Time.now.utc }
     fingerprint { '111.111.1.1' }
+    session_handle { SecureRandom.hex }
     transient do
       authn_context { LOA::IDME_LOA1_VETS }
       email { 'abraham.lincoln@vets.gov' }
@@ -14,6 +15,7 @@ FactoryBot.define do
       middle_name { nil }
       last_name { 'lincoln' }
       gender { 'M' }
+      preferred_name { 'abe' }
       birth_date { '1809-02-12' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
@@ -21,13 +23,14 @@ FactoryBot.define do
       verified_at { nil }
       sec_id { '123498767' }
       participant_id { Faker::Number.number(digits: 8) }
-      birls_id { Faker::Number.number(digits: 10) }
+      birls_id { Faker::Number.number(digits: 9) }
       icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
-      mhv_ids { [] }
-      active_mhv_ids { [] }
-      mhv_correlation_id { Faker::Number.number(digits: 9) }
+      mhv_ids { [mhv_credential_uuid] }
+      active_mhv_ids { [mhv_credential_uuid] }
+      mhv_correlation_id { mhv_credential_uuid }
+      mhv_credential_uuid { Faker::Number.number(digits: 9) }
       mhv_account_type { nil }
       edipi { '384759483' }
       va_patient { nil }
@@ -84,7 +87,7 @@ FactoryBot.define do
           mhv_icn:,
           loa:,
           multifactor:,
-          mhv_correlation_id:,
+          mhv_credential_uuid:,
           mhv_account_type:,
           edipi:,
           sign_in: }
@@ -93,6 +96,7 @@ FactoryBot.define do
       mpi_profile do
         given_names = [first_name]
         given_names << middle_name if middle_name.present?
+        preferred_names = [preferred_name]
 
         mpi_attributes = { active_mhv_ids:,
                            address:,
@@ -104,6 +108,7 @@ FactoryBot.define do
                            family_name: last_name,
                            gender:,
                            given_names:,
+                           preferred_names:,
                            home_phone:,
                            icn:,
                            mhv_ids:,
@@ -115,6 +120,10 @@ FactoryBot.define do
                            vha_facility_hash:,
                            vet360_id: }
         build(:mpi_profile, mpi_attributes)
+      end
+
+      mhv_user_account do
+        build(:mhv_user_account)
       end
     end
 
@@ -349,7 +358,7 @@ FactoryBot.define do
     end
 
     trait :api_auth_v2 do
-      vet360_id { '1781151' }
+      vet360_id { '1' }
       authn_context { LOA::IDME_LOA3_VETS }
       sign_in do
         {

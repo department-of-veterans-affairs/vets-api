@@ -6,7 +6,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
 
   def size_range
-    1.byte...10.megabytes
+    (1.byte)...(10.megabytes)
   end
 
   process(convert: 'jpg', if: :png?)

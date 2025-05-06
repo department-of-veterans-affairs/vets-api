@@ -87,7 +87,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
         result = JSON.parse(response.body)
         expect(result['data']['links']['self']).to match(%r{/mobile/v0})
-        expect(result['meta']['userInTriageTeam?']).to eq(false)
+        expect(result['meta']['userInTriageTeam?']).to be(false)
       end
 
       it 'returns message signature preferences' do
@@ -97,7 +97,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
         result = JSON.parse(response.body)
         expect(result['data']['attributes']['signatureName']).to eq('test-api Name')
-        expect(result['data']['attributes']['includeSignature']).to eq(true)
+        expect(result['data']['attributes']['includeSignature']).to be(true)
         expect(result['data']['attributes']['signatureTitle']).to eq('test-api title')
       end
 
@@ -108,9 +108,9 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           end
 
           result = JSON.parse(response.body)
-          expect(result['data']['attributes']['signatureName']).to eq(nil)
-          expect(result['data']['attributes']['includeSignature']).to eq(false)
-          expect(result['data']['attributes']['signatureTitle']).to eq(nil)
+          expect(result['data']['attributes']['signatureName']).to be_nil
+          expect(result['data']['attributes']['includeSignature']).to be(false)
+          expect(result['data']['attributes']['signatureTitle']).to be_nil
         end
       end
 
@@ -140,7 +140,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
             expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
             expect(response).to match_camelized_response_schema('message')
             included = response.parsed_body.dig('included', 0)
-            expect(included).to eq(nil)
+            expect(included).to be_nil
           end
 
           it 'with attachments' do
@@ -228,6 +228,20 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
 
           expect(response).to be_successful
           expect(response).to have_http_status(:no_content)
+        end
+
+        context 'when message is not found' do
+          it 'responds with expected error' do
+            VCR.use_cassette('sm_client/messages/moves_a_message_with_id_error') do
+              patch '/mobile/v0/messaging/health/messages/999999/move?folder_id=0', headers: sis_headers
+            end
+            expected_error = { 'errors' => [{ 'title' => 'Operation failed',
+                                              'detail' => 'Message requested could not be found',
+                                              'code' => 'SM904', 'source' => 'Severity[Error]:message.not.found;',
+                                              'status' => '404' }] }
+            expect(response).to have_http_status(:not_found)
+            expect(response.parsed_body).to eq(expected_error)
+          end
         end
       end
     end

@@ -57,13 +57,16 @@ RSpec.describe Form1010cg::Service do
     it 'raises error if claim is invalid' do
       expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
         expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(2)
-        expect(e.errors[0].code).to eq('100')
+        expect(e.errors.size).to eq(4)
         expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
         expect(e.errors[0].status).to eq('422')
-        expect(e.errors[1].detail).to include("did not contain a required property of 'primaryCaregiver'")
+        expect(e.errors[0].code).to eq('100')
+        expect(e.errors[1].detail).to include("The property '#/' of type object did not match")
         expect(e.errors[1].status).to eq('422')
         expect(e.errors[1].code).to eq('100')
+        expect(e.errors[2].detail).to include("did not contain a required property of 'primaryCaregiver'")
+        expect(e.errors[2].status).to eq('422')
+        expect(e.errors[2].code).to eq('100')
       end
     end
 
@@ -206,6 +209,26 @@ RSpec.describe Form1010cg::Service do
       expect_any_instance_of(MPI::Service).not_to receive(:find_profile_by_attributes)
 
       result = subject.icn_for('primaryCaregiver')
+
+      expect(result).to eq('NOT_FOUND')
+    end
+
+    it 'returns "NOT_FOUND" when nothing is found and no error is returned' do
+      subject = described_class.new(
+        build(
+          :caregivers_assistance_claim,
+          form: {
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
+          }.to_json
+        )
+      )
+
+      expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+        OpenStruct.new(ok?: false, not_found?: false, error: nil)
+      )
+
+      result = subject.icn_for('veteran')
 
       expect(result).to eq('NOT_FOUND')
     end
@@ -424,7 +447,7 @@ RSpec.describe Form1010cg::Service do
     it "does not raise error if veteran's icn is found" do
       expect(subject).to receive(:icn_for).with('veteran').and_return(:ICN_123)
 
-      expect(subject.assert_veteran_status).to eq(nil)
+      expect(subject.assert_veteran_status).to be_nil
     end
   end
 
@@ -506,6 +529,15 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'submits to mulesoft' do
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :success, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
+
         subject
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
       end
@@ -542,6 +574,15 @@ RSpec.describe Form1010cg::Service do
                   form: '10-10CG',
                   claim_guid: claim_with_mpi_veteran.guid
                 })
+
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :failure, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
 
         expect { subject }.to raise_error(exception)
       end

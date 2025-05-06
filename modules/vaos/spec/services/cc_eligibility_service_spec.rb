@@ -14,14 +14,14 @@ describe VAOS::CCEligibilityService do
     it 'gets an eligibility of true' do
       VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method path query]) do
         response = subject.get_eligibility(service_type)
-        expect(response[:data].eligible).to eq(true)
+        expect(response[:data].eligible).to be(true)
       end
     end
 
     it 'gets an eligibility of false' do
       VCR.use_cassette('vaos/cc_eligibility/get_eligibility_false', match_requests_on: %i[method path query]) do
         response = subject.get_eligibility(service_type)
-        expect(response[:data].eligible).to eq(false)
+        expect(response[:data].eligible).to be(false)
       end
     end
 

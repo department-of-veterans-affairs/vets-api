@@ -5,11 +5,11 @@ module Mobile
     module Adapters
       class Appeal
         def parse(appeal)
-          Mobile::V0::Appeals::Appeal.new(
+          Mobile::V0::Appeal.new(
             id: appeal[:id],
             appealIds: appeal[:appealIds],
             active: appeal[:active],
-            alerts: appeal[:alerts],
+            alerts: Array.wrap(appeal[:alerts]),
             aod: appeal[:aod],
             aoj: appeal[:aoj],
             description: appeal[:description],
@@ -20,10 +20,18 @@ module Mobile
             issues: appeal[:issues].map(&:deep_symbolize_keys),
             location: appeal[:location],
             programArea: appeal[:programArea],
-            status: appeal[:status].deep_symbolize_keys,
+            status: status(appeal[:status].deep_symbolize_keys),
             type: appeal[:type],
             updated: appeal[:updated]
           )
+        end
+
+        private
+
+        # Prod has a common issue with this type having a typo
+        def status(status)
+          status[:type] = 'sc_received' if status[:type] == 'sc_recieved'
+          status
         end
       end
     end

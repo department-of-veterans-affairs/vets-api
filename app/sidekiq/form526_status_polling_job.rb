@@ -50,26 +50,40 @@ class Form526StatusPollingJob
   end
 
   def handle_submission(status, form_submission)
+    submission_id = form_submission.id
+
     if %w[error expired].include? status
-      log_result('failure')
+      log_result('failure', submission_id)
       form_submission.rejected!
+      notify_veteran(submission_id)
     elsif status == 'vbms'
-      log_result('true_success')
+      log_result('true_success', submission_id)
       form_submission.accepted!
     elsif status == 'success'
-      log_result('paranoid_success')
+      log_result('paranoid_success', submission_id)
       form_submission.paranoid_success!
+      # Send Received Email once Backup Path is successful!
+      if Flipper.enabled?(:disability_526_send_received_email_from_backup_path)
+        form_submission.send_received_email('Form526StatusPollingJob#handle_submission paranoid_success!')
+      end
     else
       Rails.logger.info(
         'Unknown or incomplete status returned from Benefits Intake API for 526 submission',
-        status:,
-        submission_id: form_submission.id
+        status:, submission_id:
       )
     end
   end
 
-  def log_result(result)
+  def log_result(result, submission_id)
     StatsD.increment("#{STATS_KEY}.526.#{result}")
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
+
+    Rails.logger.warn('Form526StatusPollingJob submission failure', { result:, submission_id: }) if result == 'failure'
+  end
+
+  def notify_veteran(submission_id)
+    if Flipper.enabled?(:form526_send_backup_submission_polling_failure_email_notice)
+      Form526SubmissionFailureEmailJob.perform_async(submission_id, Time.now.utc.to_s)
+    end
   end
 end

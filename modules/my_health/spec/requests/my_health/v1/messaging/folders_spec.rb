@@ -54,7 +54,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('folders')
+        expect(response).to match_response_schema('my_health/messaging/v1/folders')
       end
 
       it 'responds to GET #index when camel-inflected' do
@@ -64,7 +64,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('folders')
+        expect(response).to match_camelized_response_schema('my_health/messaging/v1/folders')
       end
 
       it 'responds to GET #index when requires_oh_messages param is provided' do
@@ -74,7 +74,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('folders')
+        expect(response).to match_camelized_response_schema('my_health/messaging/v1/folders')
       end
     end
 
@@ -87,7 +87,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('folder')
+          expect(response).to match_response_schema('my_health/messaging/v1/folder')
         end
 
         it 'response to GET #show when camel-inflected' do
@@ -97,7 +97,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('folder')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/folder')
         end
 
         it 'response to GET #show when requires_oh_messages parameter is provided' do
@@ -107,7 +107,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('folder')
+          expect(response).to match_response_schema('my_health/messaging/v1/folder')
         end
       end
     end
@@ -123,7 +123,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response).to have_http_status(:created)
-          expect(response).to match_response_schema('folder')
+          expect(response).to match_response_schema('my_health/messaging/v1/folder')
         end
 
         it 'response to POST #create with camel-inflection' do
@@ -133,7 +133,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response).to have_http_status(:created)
-          expect(response).to match_camelized_response_schema('folder')
+          expect(response).to match_camelized_response_schema('my_health/messaging/v1/folder')
         end
       end
     end
@@ -150,7 +150,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response).to have_http_status(:created)
-          expect(response).to match_response_schema('folder')
+          expect(response).to match_response_schema('my_health/messaging/v1/folder')
         end
       end
     end
@@ -181,7 +181,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('folder_search')
+          expect(response).to match_response_schema('my_health/messaging/v1/folder_search')
         end
 
         it 'responds to POST #search when requires_oh_messages parameter is provided' do
@@ -191,7 +191,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
           expect(response).to be_successful
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('folder_search')
+          expect(response).to match_response_schema('my_health/messaging/v1/folder_search')
         end
       end
     end
@@ -204,7 +204,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('messages')
+        expect(response).to match_response_schema('my_health/messaging/v1/messages')
       end
 
       it 'gets messages#index with camel-inflection' do
@@ -214,7 +214,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
 
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
-        expect(response).to match_camelized_response_schema('messages')
+        expect(response).to match_camelized_response_schema('my_health/messaging/v1/messages')
       end
     end
 

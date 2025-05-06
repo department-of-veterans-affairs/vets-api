@@ -12,10 +12,29 @@ describe GIDSRedis do
   end
 
   context 'when `GIDSRedis` responds to method' do
-    it 'delegates to `GI::Client`' do
-      allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
+    context 'and the method belongs to `GI::Client`' do
+      it 'delegates to `GI::Client`' do
+        allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
 
-      expect(subject.get_institution_details_v0(scrubbed_params)).to eq(gids_response.body)
+        expect(subject.get_institution_details_v0(scrubbed_params)).to eq(gids_response.body)
+      end
+    end
+
+    context 'and the method belongs to `GI::SearchClient`' do
+      it 'delegates to `GI::SearchClient`' do
+        allow_any_instance_of(GI::SearchClient).to receive(:get_institution_search_results_v0).and_return(gids_response)
+
+        expect(subject.get_institution_search_results_v0(scrubbed_params)).to eq(gids_response.body)
+      end
+    end
+
+    context 'and the method belongs to `GI::LCPE::Client`' do
+      it 'delegates to `GI::LCPE::Client`' do
+        allow_any_instance_of(GI::LCPE::Client).to(
+          receive(:get_licenses_and_certs_v1).and_return(gids_response)
+        )
+        expect(subject.get_licenses_and_certs_v1(scrubbed_params)).to eq(gids_response.body)
+      end
     end
   end
 

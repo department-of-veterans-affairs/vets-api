@@ -18,7 +18,7 @@ RSpec.describe AccountLoginStatisticsJob, type: :job do
     end
 
     context 'with data' do
-      let(:account) { FactoryBot.create(:account) }
+      let(:account) { create(:account) }
 
       before { AccountLoginStat.create(account_id: account.id, idme_at: 3.days.ago) }
 

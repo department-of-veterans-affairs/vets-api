@@ -104,6 +104,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:malformed_form_data) do
       { 'bad' => 'data' }
     end
+    let(:mock_success_response) { double('FaradayResponse', status: 201, success?: true, body: valid_form_data) }
 
     context 'with valid form data' do
       it 'accepts the submission' do
@@ -128,8 +129,48 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
                 'name' => user_data.first_name,
                 'time' => '48 hours',
                 'date' => Time.zone.now.strftime('%m/%d/%Y')
-              }
+              },
+              { id_type: 'email' }
             )
+            service.submit_vba_fsr(valid_form_data)
+          end
+        end
+      end
+
+      it 'measures latency of the API call using measure_latency' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user_data)
+            expect(service).to receive(:measure_latency)
+              .with("#{described_class::STATSD_KEY_PREFIX}.fsr.submit.vba.latency")
+              .and_call_original
+
+            service.submit_vba_fsr(valid_form_data)
+          end
+        end
+      end
+
+      it 'calls perform inside measure_latency' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user_data)
+            expect(service).to receive(:measure_latency).and_yield
+            expect(service).to receive(:perform).with(:post, 'financial-status-report/formtopdf',
+                                                      hash_including(valid_form_data)).and_return(mock_success_response)
+
+            service.submit_vba_fsr(valid_form_data)
+          end
+        end
+      end
+
+      it 'logs submission attempt' do
+        service = described_class.new(user_data)
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            expect(Rails.logger).to receive(:info).with(
+              '5655 Form Submitting to VBA'
+            )
+
             service.submit_vba_fsr(valid_form_data)
           end
         end
@@ -182,30 +223,152 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   end
 
   describe '#submit_vha_fsr' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
-    let(:user) { build(:user, :loa3) }
-    let(:user_data) { build(:user_profile_attributes) }
-
-    before do
-      mock_sharepoint_upload
+    let(:user_account) { create(:user_account) }
+    let(:form_submission) do
+      build(:debts_api_form5655_submission, user_account_id: user_account.id, created_at: Time.current)
     end
+    let(:user_data) { build(:user_profile_attributes) }
+    let(:user_info) do
+      OpenStruct.new(
+        {
+          verified_at: '1-1-2022',
+          sub: 'some-logingov_uuid',
+          social_security_number: '123456598',
+          birthdate: '2022-01-01',
+          given_name: 'some-name',
+          family_name: 'Beer',
+          email: 'some-email'
+        }
+      )
+    end
+    let(:mpi_profile) do
+      build(:mpi_profile,
+            ssn: user_info.social_security_number,
+            birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
+            given_names: [user_info.given_name],
+            family_name: user_info.family_name)
+    end
+    let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    it 'submits to the VBS endpoint' do
-      service = described_class.new(user_data)
-      VCR.use_cassette('dmc/submit_to_vbs') do
-        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+    context 'success' do
+      before do
+        mock_sharepoint_upload
+        allow_any_instance_of(DebtsApi::V0::FinancialStatusReportService).to receive(:measure_latency).and_yield
+      end
+
+      it 'submits to the VBS endpoint' do
+        service = described_class.new(user_data)
+        VCR.use_cassette('dmc/submit_to_vbs') do
+          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        end
+      end
+
+      it 'measures latency of the API call using measure_latency' do
+        service = described_class.new(user_data)
+        VCR.use_cassette('dmc/submit_to_vbs') do
+          expect(service).to receive(:measure_latency)
+            .with("#{described_class::STATSD_KEY_PREFIX}.fsr.submit.vha.latency")
+            .and_yield
+
+          service.submit_vha_fsr(form_submission)
+        end
+      end
+
+      it 'logs submission attempt' do
+        service = described_class.new(user_data)
+        VCR.use_cassette('dmc/submit_to_vbs') do
+          expect(Rails.logger).to receive(:info).with(
+            '5655 Form Submitting to VHA',
+            submission_id: form_submission.id
+          )
+
+          service.submit_vha_fsr(form_submission)
+        end
+      end
+
+      context 'with streamlined waiver' do
+        let(:form_submission) { build(:debts_api_sw_form5655_submission) }
+        let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
+
+        it 'submits to the VBS endpoint' do
+          VCR.use_cassette('dmc/submit_to_vbs') do
+            service = described_class.new(user_data)
+            expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+          end
+        end
       end
     end
 
-    context 'with streamlined waiver' do
-      let(:form_submission) { build(:debts_api_sw_form5655_submission) }
-      let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
+    context 'failure' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
+      end
 
-      it 'submits to the VBS endpoint' do
-        VCR.use_cassette('dmc/submit_to_vbs') do
-          service = described_class.new(user_data)
-          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+      it 'raises an error when submission fails' do
+        service = described_class.new(user_data)
+
+        allow_any_instance_of(MPI::Service)
+          .to receive(:find_profile_by_identifier).and_return(find_profile_response)
+        allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
+          .to receive(:set_sharepoint_access_token).and_return('fake token')
+
+        expect(form_submission).to receive(:register_failure).with(
+          a_string_starting_with('FinancialStatusReportService#submit_vha_fsr: BackendServiceException:')
+        )
+
+        Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
+          VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+            expect do
+              service.submit_vha_fsr(form_submission)
+            end.to raise_error(Common::Exceptions::BackendServiceException,
+                               'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}')
+          end
         end
+      end
+
+      context 'with Sharepoint Error Flipper enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(true)
+        end
+
+        it 'raises an error when submission fails' do
+          service = described_class.new(user_data)
+
+          allow_any_instance_of(MPI::Service)
+            .to receive(:find_profile_by_identifier).and_return(find_profile_response)
+          allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
+            .to receive(:set_sharepoint_access_token).and_return('fake token')
+
+          expect(form_submission).to receive(:register_failure).with(
+            a_string_starting_with('FinancialStatusReportService#submit_vha_fsr: BackendServiceException:')
+          )
+
+          Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
+            VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+              expect { service.submit_vha_fsr(form_submission) }
+                .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+                error_details = e.errors.first
+                expect(error_details.status).to eq('400')
+                expect(error_details.detail).to eq('Malformed PDF request to SharePoint')
+                expect(error_details.code).to eq('SHAREPOINT_PDF_400')
+                expect(error_details.source).to eq('SharepointRequest')
+              end
+            end
+          end
+        end
+      end
+
+      it 'raises an error when Faraday fails' do
+        service = described_class.new(user_data)
+
+        # Mock the Faraday connection and raise an error
+        allow_any_instance_of(Faraday::Connection)
+          .to receive(:post).and_raise(StandardError.new('Upload error'))
+
+        expect do
+          service.submit_vha_fsr(form_submission)
+        end.to raise_error(StandardError, 'Upload error')
       end
     end
   end
@@ -271,7 +434,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       expect { service.submit_combined_fsr(builder) }.to change(
         DebtsApi::V0::Form5655Submission, :count
       ).by(copay_count)
-      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
+      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to be(true)
       form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
       expect(form.class).to be(Hash)
     end
@@ -286,7 +449,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         expect do
           service.submit_combined_fsr(builder)
         end.to change(DebtsApi::V0::Form5655Submission, :count).by(needed_count)
-        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to be(true)
         debt_amounts = DebtsApi::V0::Form5655Submission.with_debt_type('DEBT').last.public_metadata['debt_amounts']
         expect(debt_amounts).to eq(['541.67', '1134.22'])
       end
@@ -361,7 +524,8 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
         email,
         described_class::VHA_CONFIRMATION_TEMPLATE,
-        email_personalization_info
+        email_personalization_info,
+        { id_type: 'email', failure_mailer: false }
       )
       service.send_vha_confirmation_email('ok',
                                           { 'email' => email,

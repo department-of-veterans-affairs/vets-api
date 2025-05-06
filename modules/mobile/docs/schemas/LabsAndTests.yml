@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
@@ -6,6 +7,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       required:
         - type
         - id
@@ -20,6 +22,7 @@ properties:
           description: Upstream identifier
         attributes:
           type: object
+          additionalProperties: false
           required:
             - category
             - subject
@@ -32,6 +35,7 @@ properties:
               example: 'Laboratory'
             subject:
               type: object
+              additionalProperties: false
               required:
                 - reference
                 - display
@@ -52,6 +56,7 @@ properties:
               type: array
               items:
                 type: object
+                additionalProperties: false
                 required:
                   - reference
                   - display

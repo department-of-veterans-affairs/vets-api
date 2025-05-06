@@ -2,18 +2,27 @@
 
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
+require 'va_profile/models/v3/validation_address'
+require 'va_profile/v3/address_validation/service'
 
 module AskVAApi
   module V0
-    class AddressValidationController < ApplicationController
+    class AddressValidationController < ::ApplicationController
       skip_before_action :authenticate
-      skip_before_action :verify_authenticity_token
       service_tag 'profile'
 
       def create
-        address = VAProfile::Models::ValidationAddress.new(address_params)
+        address = if Flipper.enabled?(:remove_pciu)
+                    VAProfile::Models::V3::ValidationAddress.new(address_params)
+                  else
+                    VAProfile::Models::ValidationAddress.new(address_params)
+                  end
+
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
+        if Settings.vsp_environment == 'staging'
+          Rails.logger.info("Staging Address valid: #{address.valid?}, Address POU: #{address.address_pou}")
+        end
         Rails.logger.warn('AddressValidationController#create request completed', sso_logging_info)
 
         render(json: service.address_suggestions(address))
@@ -29,6 +38,7 @@ module AskVAApi
           :address_pou,
           :address_type,
           :city,
+          :country_name,
           :country_code_iso3,
           :international_postal_code,
           :province,
@@ -39,7 +49,11 @@ module AskVAApi
       end
 
       def service
-        @service ||= VAProfile::AddressValidation::Service.new
+        @service ||= if Flipper.enabled?(:remove_pciu)
+                       VAProfile::V3::AddressValidation::Service.new
+                     else
+                       VAProfile::AddressValidation::Service.new
+                     end
       end
     end
   end

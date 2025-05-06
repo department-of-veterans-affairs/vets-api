@@ -4,13 +4,11 @@ require 'rails_helper'
 require 'pdf_fill/extras_generator'
 
 describe PdfFill::ExtrasGenerator do
-  subject do
-    described_class.new
-  end
+  subject { described_class.new }
 
   describe '#sort_generate_blocks' do
-    it 'sorts the blocks correctly' do
-      metadatas = [
+    let(:metadatas) do
+      [
         {
           question_num: 1
         },
@@ -41,7 +39,9 @@ describe PdfFill::ExtrasGenerator do
           question_suffix: 'B'
         }
       ]
+    end
 
+    it 'sorts the blocks correctly' do
       subject.instance_variable_set(:@generate_blocks, metadatas.reverse.map do |metadata|
         {
           metadata:
@@ -78,7 +78,7 @@ describe PdfFill::ExtrasGenerator do
 
       expect(
         FileUtils.compare_file(file_path, 'spec/fixtures/pdf_fill/extras.pdf')
-      ).to eq(true)
+      ).to be(true)
 
       File.delete(file_path)
     end

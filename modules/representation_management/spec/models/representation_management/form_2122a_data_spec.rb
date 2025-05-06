@@ -10,38 +10,58 @@ RSpec.describe RepresentationManagement::Form2122aData, type: :model do
       expect(subject).to validate_inclusion_of(:veteran_service_branch)
         .in_array(described_class::VETERAN_SERVICE_BRANCHES)
     }
+  end
 
-    it {
-      expect(subject).to validate_inclusion_of(:representative_type)
-        .in_array(described_class::REPRESENTATIVE_TYPES)
-    }
+  describe 'representative_field_truncated' do
+    subject { described_class.new }
 
-    it { expect(subject).to validate_presence_of(:representative_type) }
-    it { expect(subject).to validate_presence_of(:representative_first_name) }
-    it { expect(subject).to validate_length_of(:representative_first_name).is_at_most(12) }
-    it { expect(subject).to validate_length_of(:representative_middle_initial).is_at_most(1) }
-    it { expect(subject).to validate_presence_of(:representative_last_name) }
-    it { expect(subject).to validate_length_of(:representative_last_name).is_at_most(18) }
-    it { expect(subject).to validate_presence_of(:representative_address_line1) }
-    it { expect(subject).to validate_length_of(:representative_address_line1).is_at_most(30) }
-    it { expect(subject).to validate_length_of(:representative_address_line2).is_at_most(5) }
-    it { expect(subject).to validate_presence_of(:representative_city) }
-    it { expect(subject).to validate_length_of(:representative_city).is_at_most(18) }
-    it { expect(subject).to validate_presence_of(:representative_country) }
-    it { expect(subject).to validate_length_of(:representative_country).is_equal_to(2) }
-    it { expect(subject).to validate_presence_of(:representative_state_code) }
-    it { expect(subject).to validate_length_of(:representative_state_code).is_equal_to(2) }
-    it { expect(subject).to validate_presence_of(:representative_zip_code) }
-    it { expect(subject).to validate_length_of(:representative_zip_code).is_equal_to(5) }
-    it { expect(subject).to allow_value('12345').for(:representative_zip_code) }
-    it { expect(subject).not_to allow_value('1234A').for(:representative_zip_code) }
-    it { expect(subject).not_to allow_value('12345').for(:representative_zip_code_suffix) }
-    it { expect(subject).to allow_value('1234').for(:representative_zip_code_suffix) }
-    it { expect(subject).to validate_length_of(:representative_zip_code_suffix).is_equal_to(4) }
-    it { expect(subject).to validate_presence_of(:representative_phone) }
-    it { expect(subject).to validate_length_of(:representative_phone).is_equal_to(10) }
-    it { expect(subject).to allow_value('1234567890').for(:representative_phone) }
-    it { expect(subject).not_to allow_value('123456789A').for(:representative_phone) }
-    it { expect(subject).not_to allow_value('123456789').for(:representative_phone) }
+    it 'truncates characters beyond the specificied number' do
+      representative = create(:accredited_individual, first_name: 'A' * 13)
+      subject.representative_id = representative.id
+      expect(subject.representative_field_truncated(:first_name)).to eq('A' * 12)
+    end
+
+    it 'returns the full string if it is below the truncation limit' do
+      representative = create(:accredited_individual, first_name: 'A' * 5)
+      subject.representative_id = representative.id
+      expect(subject.representative_field_truncated(:first_name)).to eq('A' * 5)
+    end
+
+    it 'returns the full string if it is equal to the truncation limit' do
+      representative = create(:accredited_individual, first_name: 'A' * 12)
+      subject.representative_id = representative.id
+      expect(subject.representative_field_truncated(:first_name)).to eq('A' * 12)
+    end
+
+    it 'works for every value in TRUNCATION_LIMITS' do
+      representative = create(:accredited_individual)
+      subject.representative_id = representative.id
+      described_class::TRUNCATION_LIMITS.each do |field, limit|
+        subject.representative.send("#{field}=", 'A' * (limit + 1))
+        expect(subject.representative_field_truncated(field)).to eq('A' * limit)
+      end
+    end
+
+    it 'raises StandardError if the field does not have a truncation limit defined' do
+      representative = create(:accredited_individual)
+      subject.representative_id = representative.id
+      expect { subject.representative_field_truncated(:address_line3) }.to raise_error(StandardError)
+    end
+  end
+
+  describe 'representative_zip_code_expanded' do
+    subject { described_class.new }
+
+    it 'returns the zip code and suffix if the suffix is present' do
+      representative = create(:accredited_individual, zip_code: '12345', zip_suffix: '6789')
+      subject.representative_id = representative.id
+      expect(subject.representative_zip_code_expanded).to eq(%w[12345 6789])
+    end
+
+    it 'returns the expanded zip code if the suffix is not present' do
+      representative = create(:accredited_individual, zip_code: '123456789')
+      subject.representative_id = representative.id
+      expect(subject.representative_zip_code_expanded).to eq(%w[12345 6789])
+    end
   end
 end

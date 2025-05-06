@@ -1,6 +1,6 @@
 # Betamocks
 
-Betamocks is a Faraday middleware gem that mocks APIs by recording and replaying requests. It's especially useful for local development to mock out APIs that are behind a VPN, often go down, or when an API may not have a corresponding dev or staging environment. Mockdata for vets-api is in https://github.com/department-of-veterans-affairs/vets-api-mockdata
+[Betamocks](https://github.com/department-of-veterans-affairs/betamocks) is a Faraday middleware gem that mocks APIs by recording and replaying requests. It's especially useful for local development to mock out APIs that are behind a VPN, often go down, or when an API may not have a corresponding dev or staging environment. Mockdata for vets-api is in https://github.com/department-of-veterans-affairs/vets-api-mockdata
 
 
 See also: https://github.com/department-of-veterans-affairs/vets-api-mockdata#create-mock-data-for-a-brand-new-service
@@ -12,7 +12,7 @@ cd ~/Documents
 git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
 ```
 
-2. Set the cache dir to the relative path of the mock data repo in 
+2. Set the cache dir to the relative path of the mock data repo in
 config/development.yml file.
 ```yaml
 betamocks:
@@ -23,7 +23,7 @@ betamocks:
   #cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
 ```
-If you're using Docker run `make up` to start vets-api.
+If you're using Docker, run `make up` to start vets-api.
 
 Lighthouse devs can begin making api requests. Va.gov devs can now login with one of the [test users](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv)
 without being connect to the VA VPN. By default all users have been mocked for MVI but
@@ -32,41 +32,40 @@ only M. Webb (vets.gov.user+228@gmail.com) will work for the other services unle
 
 
 ## Mocking a Service
-If a service class implements response middleware, it is important to consider the order in which the middleware is stacked. For further details, refer to the [Faraday API documentation](https://www.rubydoc.info/gems/faraday#Advanced_middleware_usage). 
+If a service class implements response middleware, it is important to consider the order in which the middleware is stacked. For further details, refer to the [Faraday API documentation](https://www.rubydoc.info/gems/faraday#Advanced_middleware_usage).
 
-In the following example, Betamocks will only record the raw response from the backing service, and will not record any transformations applied by the `::FacilityParser` or `::FacilityValidator` middlewares.  
+In the following example, Betamocks will only record the raw response from the backing service, and will not record any transformations applied by the `::FacilityParser` or `::FacilityValidator` middlewares.
 
 ```ruby
 def connection
   Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-    conn.use :breakers
+    conn.use(:breakers, service_name:)
     conn.request :json
-    
+
     conn.response :raise_custom_error, error_prefix: service_name
     conn.response :facility_parser
     conn.response :facility_validator
     conn.response :betamocks if Settings.locators.mock_gis
-    
+
     conn.adapter Faraday.default_adapter
   end
 end
 ```
 
-2. Add endpoints to be mocked to the services config file.
-Each service description has a `base_uri` (pulled from Settings)
-`endpoints` is an array of hashes with:
+2. Add endpoints to be mocked to the [services config file](../../config/betamocks/services_config.yml).
+Each service description has a `name`, `base_uri` (pulled from Settings), and `endpoints`, an array of hashes that contains:
 - `method:` a symbol of the http verb `:get`, `:post`, `:put`...
 - `path:` the path that combined with the base_uri makes a full URI
 - `file_path:` where to save the file (relative to betamocks' cache dir)
 ```yaml
 :services:
 
-# EVSS::PCIUAddress
-- :base_uri: <%= URI(Settings.evss.url).host %>
+- :name: 'VBS'
+  :base_uri: <%= "#{URI(Settings.mcp.vbs_v2.url).host}:#{URI(Settings.mcp.vbs_v2.url).port}" %>
   :endpoints:
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-    :file_path: "evss/pciu_address"
+  - :method: :post
+    :path: "/vbsapi/UploadFSRJsonDocument"
+    :file_path: "vbs/fsr"
 ```
 
 3. In config/settings.yml set betamocks recording to true:
@@ -84,19 +83,19 @@ You can record an error response or edit one manually to return an error status,
 by adding an error key to the config with an optional body. Restart rails after updating the service config:
 ```yaml
 - :method: :get
-  :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-  :file_path: "evss/pciu_address"
+  :path: "/_api/Web/*"
+  :file_path: "vha/sharepoint/show"
   :error: 400
 ```
 ```yaml
-- :method: :get
-  :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-  :file_path: "evss/pciu_address"
+- :method: :post
+  :path: "/_api/Web/*"
+  :file_path: "vha/sharepoint/show"
   :error: 420
   :body: '{"key": "letter.generator.error", "message": "the letter generator hamsters have fallen asleep"}'
 ```
 
-## Caching mulitple responses
+## Caching multiple responses
 To record multiple responses for a URI you can add a wildcard in place of the identifier
 and add a matching locator or in the case of endpoints that use header or body values for identifiers you can write
 a locator that will be appended to the cache file name. `query` and `header` uid_location types
@@ -149,6 +148,6 @@ XML request bodies to the same directory:
     :file_path: "mvi/profiles"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?' 
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
       extension=
 ```

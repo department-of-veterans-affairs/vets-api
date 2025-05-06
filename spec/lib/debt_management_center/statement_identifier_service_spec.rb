@@ -6,8 +6,6 @@ require 'debt_management_center/statement_identifier_service'
 RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
                type: :service do
   describe '#get_mpi_data' do
-    Flipper.disable(:va_v3_contact_information_service)
-
     context 'given edipi statement' do
       edipi = '492031291'
       let(:verification) { build(:dslogon_user_verification) }
@@ -194,13 +192,8 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, :skip_vet360,
   end
 
   describe '#get_mpi_data v2' do
-    Flipper.enable(:va_v3_contact_information_service)
-    let(:cassette_path) do
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        'va_profile/v2/contact_information'
-      else
-        'va_profile/contact_information'
-      end
+    before do
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     end
 
     context 'given edipi statement' do

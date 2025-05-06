@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, vha_facility_ids: [402, 555]) }
   let(:non_evss_user) { build(:user, :loa3, edipi: nil, ssn: nil, participant_id: nil) }
   let(:non_lighthouse_user) { build(:user, :loa3, icn: nil, participant_id: nil) }
   let(:user_services) { Mobile::V0::UserAccessibleServices.new(user) }
@@ -26,37 +26,33 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
     end
 
     describe 'appointments' do
-      context 'when feature flag is off' do
-        before { Flipper.disable(:va_online_scheduling) }
+      context 'when user does not have vaos access' do
+        let(:user) { build(:user, :loa1, vha_facility_ids: [402, 555]) }
 
         it 'is false' do
           expect(user_services.service_auth_map[:appointments]).to be(false)
         end
       end
 
-      context 'when feature flag is on' do
-        before { Flipper.enable(:va_online_scheduling) }
+      context 'when user does not have an icn' do
+        let!(:user) { build(:user, :loa3, icn: nil, vha_facility_ids: [402, 555]) }
 
-        context 'when user does not have vaos access' do
-          let(:user) { build(:user, :loa1) }
-
-          it 'is false' do
-            expect(user_services.service_auth_map[:appointments]).to be(false)
-          end
+        it 'is false' do
+          expect(user_services.service_auth_map[:appointments]).to be(false)
         end
+      end
 
-        context 'when user does not have an icn' do
-          let!(:user) { build(:user, :loa3, icn: nil) }
+      context 'when user has VAOS access and an ICN but no facilities' do
+        let!(:user) { build(:user, :loa3, vha_facility_ids: []) }
 
-          it 'is false' do
-            expect(user_services.service_auth_map[:appointments]).to be(false)
-          end
+        it 'is false' do
+          expect(user_services.service_auth_map[:appointments]).to be(false)
         end
+      end
 
-        context 'when user has an icn and vaos access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:appointments]).to be_truthy
-          end
+      context 'when user has an icn and vaos access' do
+        it 'is true' do
+          expect(user_services.service_auth_map[:appointments]).to be_truthy
         end
       end
     end

@@ -13,7 +13,7 @@ module VBADocuments
         && Flipper.enabled?(:benefits_require_gateway_origin)
     end
 
-    def set_tags_and_extra_context
+    def set_sentry_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'vba_documents' }
       Sentry.set_tags(source: 'vba_documents')
     end

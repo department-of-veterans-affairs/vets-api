@@ -32,9 +32,9 @@ RSpec.describe Preneeds::DeleteOldUploads, type: :model do
       expect(job).to receive(:uuids_to_keep).and_return([attach3.guid])
 
       job.perform
-      expect(model_exists?(attach1)).to eq(true)
-      expect(model_exists?(attach2)).to eq(false)
-      expect(model_exists?(attach3)).to eq(true)
+      expect(model_exists?(attach1)).to be(true)
+      expect(model_exists?(attach2)).to be(false)
+      expect(model_exists?(attach3)).to be(true)
     end
   end
 end

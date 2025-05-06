@@ -1,13 +1,36 @@
 {
   "ignored_warnings": [
     {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "6cc3643a6f55145df1240ed4f37c8db0371bf7350eb0b510d881a2671bf529ea",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 50,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.read(with_retries(\"Generate 10-10CG PDF\") do\n SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n end)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "9fd09ce387199671367fce6b24dbcfebb3f63174d3d1e810791e62b531b7f559",
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "modules/check_in/app/services/v2/chip/client.rb",
-      "line": 196,
+      "line": 184,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.delete(\"/#{base_path}/actions/deleteFromLorota/#{check_in_session.uuid}\")",
       "render_path": null,
@@ -45,6 +68,29 @@
         77
       ],
       "note": "User input is sanitized in the parent class bin/lib/vets-api/commands/command.rb"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "a8a8808bf8774793cf0af4fde6874dccf9defc9a70666d91716c9ffdff76734d",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 56,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.delete(with_retries(\"Generate 10-10CG PDF\") do\n SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)\n end)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
     },
     {
       "warning_type": "Remote Code Execution",
@@ -109,6 +155,5 @@
       "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
     }
   ],
-  "updated": "2024-08-02 08:13:59 -0400",
-  "brakeman_version": "6.1.2"
+  "brakeman_version": "7.0.2"
 }

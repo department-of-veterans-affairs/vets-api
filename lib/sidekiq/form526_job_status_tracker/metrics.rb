@@ -19,20 +19,20 @@ module Sidekiq
 
       # Increments a job success
       # rubocop:disable Style/OptionalBooleanParameter
-      def increment_success(is_bdd = false)
-        StatsD.increment("#{@prefix}.success", tags: ["is_bdd:#{is_bdd}"])
+      def increment_success(is_bdd = false, service_provider = nil)
+        StatsD.increment("#{@prefix}.success", tags: %W[is_bdd:#{is_bdd} service_provider:#{service_provider}])
       end
 
       # Increments a non retryable error with a tag for the specific error
       #
-      def increment_non_retryable(error, is_bdd = false)
-        StatsD.increment("#{@prefix}.non_retryable_error", tags: error_tags(error, is_bdd))
+      def increment_non_retryable(error, is_bdd = false, service_provider = nil)
+        StatsD.increment("#{@prefix}.non_retryable_error", tags: error_tags(error, is_bdd, service_provider))
       end
 
       # Increments a retryable error with a tag for the specific error
       #
-      def increment_retryable(error, is_bdd = false)
-        StatsD.increment("#{@prefix}.retryable_error", tags: error_tags(error, is_bdd))
+      def increment_retryable(error, is_bdd = false, service_provider = nil)
+        StatsD.increment("#{@prefix}.retryable_error", tags: error_tags(error, is_bdd, service_provider))
       end
 
       # Increments when a job has exhausted all its retries
@@ -43,11 +43,12 @@ module Sidekiq
 
       private
 
-      def error_tags(error, is_bdd)
+      def error_tags(error, is_bdd, service_provider)
         tags = ["error:#{error.class}"]
         tags << "status:#{error.status_code}" if error.try(:status_code)
         tags << "message:#{error.message}" if error.try(:message)
         tags << "is_bdd:#{is_bdd}"
+        tags << "service_provider:#{service_provider}"
         tags
       end
     end

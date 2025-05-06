@@ -10,11 +10,11 @@ module AskVAApi
     end
 
     def call
-      if fetch_data.is_a?(Array)
-        fetch_data.map { |item| entity_class.new(item) }
-      else
-        entity_class.new(fetch_data)
-      end
+      data = fetch_data
+
+      return data.map { |item| entity_class.new(item) } if data.is_a?(Array)
+
+      entity_class.new(data)
     rescue => e
       ::ErrorHandler.handle_service_error(e)
     end
@@ -22,13 +22,7 @@ module AskVAApi
     private
 
     def fetch_data
-      data = if user_mock_data
-               static = File.read('modules/ask_va_api/config/locales/static_data.json')
-               JSON.parse(static, symbolize_names: true)
-             else
-               Crm::CacheData.new.call(endpoint: 'Topics', cache_key: 'categories_topics_subtopics')
-             end
-      filter_data(data)
+      raise NotImplementedError, 'Subclasses must implement the filter_data method'
     end
 
     def filter_data(data)

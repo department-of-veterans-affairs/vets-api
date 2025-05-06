@@ -55,6 +55,48 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
     }
   end
 
+  let(:no_service_verification_body) do
+    {
+      'data' => {
+        'id' => user.uuid,
+        'type' => 'letters',
+        'attributes' => {
+          'letters' =>
+                  [
+                    {
+                      'name' => 'Commissary Letter',
+                      'letterType' => 'commissary'
+                    },
+                    {
+                      'name' => 'Proof of Service Letter',
+                      'letterType' => 'proof_of_service'
+                    },
+                    {
+                      'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
+                      'letterType' => 'medicare_partd'
+                    },
+                    {
+                      'name' => 'Proof of Minimum Essential Coverage Letter',
+                      'letterType' => 'minimum_essential_coverage'
+                    },
+                    {
+                      'name' => 'Civil Service Preference Letter',
+                      'letterType' => 'civil_service'
+                    },
+                    {
+                      'name' => 'Benefit Summary and Service Verification Letter',
+                      'letterType' => 'benefit_summary'
+                    },
+                    {
+                      'name' => 'Benefit Verification Letter',
+                      'letterType' => 'benefit_verification'
+                    }
+                  ]
+        }
+      }
+    }
+  end
+
   describe 'GET /mobile/v0/letters' do
     context 'when user does not have access' do
       let!(:user) { sis_user(participant_id: nil) }
@@ -66,12 +108,35 @@ RSpec.describe 'Mobile::V0::Letters', type: :request do
     end
 
     context 'with a valid evss response' do
-      it 'matches the letters schema' do
-        VCR.use_cassette('evss/letters/letters') do
-          get '/mobile/v0/letters', headers: sis_headers
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)).to eq(letters_body)
-          expect(response.body).to match_json_schema('letters')
+      context 'when :letters_hide_service_verification_letter is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(true)
+        end
+
+        it 'excludes service_verification and matches the letters schema' do
+          VCR.use_cassette('evss/letters/letters') do
+            get '/mobile/v0/letters', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(no_service_verification_body)
+            expect(response.body).to match_json_schema('letters')
+          end
+        end
+      end
+
+      context 'when :letters_hide_service_verification_letter is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:letters_hide_service_verification_letter).and_return(false)
+        end
+
+        it 'does not exclude service_verification and matches the letters schema' do
+          VCR.use_cassette('evss/letters/letters') do
+            get '/mobile/v0/letters', headers: sis_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(letters_body)
+            expect(response.body).to match_json_schema('letters')
+          end
         end
       end
     end

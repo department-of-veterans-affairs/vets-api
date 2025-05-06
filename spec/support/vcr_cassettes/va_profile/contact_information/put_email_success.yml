@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/emails
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/emails
     body:
       encoding: UTF-8
       string: '{"bio":{"emailAddressText":"person42@example.com","emailId":8087,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
@@ -56,6 +56,6 @@ http_interactions:
         detected between current data and the data you sent.  This message is informational
         only, please verify your request if you believe you sent actual changes that
         should be applied."}],"txAuditId":"7d1667a5-df5f-4559-be35-b36042c61187","status":"COMPLETED_NO_CHANGES_DETECTED"}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 14 Jan 2020 06:14:02 GMT
 recorded_with: VCR 5.0.0

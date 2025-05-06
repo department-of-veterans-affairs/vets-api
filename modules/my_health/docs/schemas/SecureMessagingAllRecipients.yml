@@ -26,7 +26,7 @@ properties:
             - stationNumber
             - blockedStatus
             - preferredTeam
-            - relationshipType
+            - relationType
           properties:
             triageTeamId:
               type: integer
@@ -43,10 +43,37 @@ properties:
             preferredTeam:
               type: boolean
               example: true
-            relationshipType:
+            relationType:
               type: string
               enum: [PATIENT]
               example: PATIENT
+            locationName:
+              type: string
+              example: "Main Hospital"
+            leadProviderName:
+              type: string
+              example: "Dr. Smith"
+            teamName:
+              type: string
+              example: "Radiology Team"
+            suggestedNameDisplay:
+              type: string
+              example: "Radiology Triage Group 1"
+            healthCareSystemName:
+              type: string
+              example: "VA Health Care System"
+            groupTypeEnumVal:
+              type: string
+              example: "Primary"
+            subGroupTypeEnumVal:
+              type: string
+              example: "Secondary"
+            groupTypePatientDisplay:
+              type: string
+              example: "Primary Care"
+            subGroupTypePatientDisplay:
+              type: string
+              example: "Specialty Care"
   meta:
     type: object
     required:
@@ -69,3 +96,6 @@ properties:
       associatedBlockedTriageGroups:
         type: integer
         example: 1
+      friendlyTriageTeamPilotFacilities:
+        type: string
+        example: "979,989"

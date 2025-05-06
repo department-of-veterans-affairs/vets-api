@@ -79,7 +79,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       describe 'by default' do
         subject { supplemental_claim.soc_opt_in }
 
-        it('is true') { is_expected.to eq(true) }
+        it('is true') { is_expected.to be(true) }
       end
 
       describe 'if a false value is provided' do
@@ -88,7 +88,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           supplemental_claim.soc_opt_in
         end
 
-        it('ignores the user-provided value') { is_expected.to eq(true) }
+        it('ignores the user-provided value') { is_expected.to be(true) }
       end
     end
 
@@ -192,7 +192,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           expect(appeal.errors.size).to eq 1
           error = appeal.errors.first
           expect(error.attribute)
-            .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
+            .to eq(:'/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]')
           expect(error.message).to eq '2020-05-10 must before or the same day as 2020-04-10. ' \
                                       'Both dates must also be in the past.'
         end
@@ -208,7 +208,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           expect(appeal.errors.size).to eq 1
           error = appeal.errors.first
           expect(error.attribute)
-            .to eq(:"/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]")
+            .to eq(:'/data/attributes/evidenceSubmission/retrieveFrom[2]/attributes/evidenceDates[0]')
           expect(error.message).to eq "2020-04-10 must before or the same day as #{end_date}. " \
                                       'Both dates must also be in the past.'
         end

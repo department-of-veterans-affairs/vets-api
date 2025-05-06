@@ -17,7 +17,11 @@ module V0
 
     def accept
       terms_of_use_agreement = acceptor.perform!
-      recache_user unless terms_code_temporary_auth?
+      unless terms_code_temporary_auth?
+        recache_user
+        current_user.create_mhv_account_async unless skip_mhv_account_creation?
+      end
+
       render_success(action: 'accept', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::AcceptorError => e
       render_error(action: 'accept', message: e.message)
@@ -28,13 +32,19 @@ module V0
       if terms_of_use_agreement.accepted?
         provisioner.perform
         create_cerner_cookie
-        recache_user unless terms_code_temporary_auth?
+
+        unless terms_code_temporary_auth?
+          recache_user
+          current_user.create_mhv_account_async unless skip_mhv_account_creation?
+
+        end
+
         render_success(action: 'accept_and_provision', body: { terms_of_use_agreement:, provisioned: true },
                        status: :created)
       else
         render_error(action: 'accept_and_provision', message: 'Failed to accept and provision')
       end
-    rescue TermsOfUse::Errors::AcceptorError, TermsOfUse::Errors::ProvisionerError => e
+    rescue TermsOfUse::Errors::AcceptorError, Identity::Errors::CernerProvisionerError => e
       render_error(action: 'accept_and_provision', message: e.message)
     end
 
@@ -50,7 +60,7 @@ module V0
       provisioner.perform
       create_cerner_cookie
       render_success(action: 'update_provisioning', body: { provisioned: true }, status: :ok)
-    rescue TermsOfUse::Errors::ProvisionerError => e
+    rescue Identity::Errors::CernerProvisionerError => e
       render_error(action: 'update_provisioning', message: e.message)
     end
 
@@ -65,7 +75,7 @@ module V0
     end
 
     def provisioner
-      TermsOfUse::Provisioner.new(icn: @user_account.icn)
+      Identity::CernerProvisioner.new(icn: @user_account.icn)
     end
 
     def recache_user
@@ -74,11 +84,11 @@ module V0
     end
 
     def create_cerner_cookie
-      cookies[TermsOfUse::Constants::PROVISIONER_COOKIE_NAME] = {
-        value: TermsOfUse::Constants::PROVISIONER_COOKIE_VALUE,
-        expires: TermsOfUse::Constants::PROVISIONER_COOKIE_EXPIRATION.from_now,
-        path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
-        domain: TermsOfUse::Constants::PROVISIONER_COOKIE_DOMAIN
+      cookies[Identity::CernerProvisioner::COOKIE_NAME] = {
+        value: Identity::CernerProvisioner::COOKIE_VALUE,
+        expires: Identity::CernerProvisioner::COOKIE_EXPIRATION.from_now,
+        path: Identity::CernerProvisioner::COOKIE_PATH,
+        domain: Identity::CernerProvisioner::COOKIE_DOMAIN
       }
     end
 
@@ -115,6 +125,10 @@ module V0
     def mpi_profile
       @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: @user_account.icn,
                                                                    identifier_type: MPI::Constants::ICN)&.profile
+    end
+
+    def skip_mhv_account_creation?
+      ActiveModel::Type::Boolean.new.cast(params[:skip_mhv_account_creation])
     end
 
     def render_success(action:, body:, status: :ok, icn: @user_account.icn)

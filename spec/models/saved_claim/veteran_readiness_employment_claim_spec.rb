@@ -6,7 +6,7 @@ require 'claims_api/vbms_uploader'
 
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:new_address_hash) do
     {
       newAddress: {
@@ -22,10 +22,26 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       }
     }
   end
+  let(:user_struct) do
+    OpenStruct.new(
+      edipi: user_object.edipi,
+      participant_id: user_object.participant_id,
+      pid: user_object.participant_id,
+      birth_date: user_object.birth_date,
+      ssn: user_object.ssn,
+      vet360_id: user_object.vet360_id,
+      loa3?: true,
+      icn: user_object.icn,
+      uuid: user_object.uuid,
+      first_name: user_object.first_name,
+      va_profile_email: user_object.va_profile_email
+    )
+  end
+  let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
+  let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
 
   before do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
-    Flipper.enable(:veteran_readiness_employment_to_res)
   end
 
   describe '#add_claimant_info' do
@@ -58,6 +74,14 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_vre' do
     subject { claim.send_to_vre(user_object) }
+
+    it 'propagates errors from send_to_lighthouse!' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'Attachment error')
+
+      expect do
+        claim.send_to_lighthouse!(user_object)
+      end.to raise_error(StandardError, 'Attachment error')
+    end
 
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
@@ -108,19 +132,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
             claim.send_to_vre(user_object)
           end
         end
-
-        context 'flipper disabled' do
-          before do
-            Flipper.disable(:veteran_readiness_employment_to_res)
-          end
-
-          it 'stops submission if location is not in list' do
-            expect(VRE::Ch31Form).not_to receive(:new)
-            claim.add_claimant_info(user_object)
-
-            claim.send_to_vre(user_object)
-          end
-        end
       end
     end
 
@@ -147,15 +158,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_vbms_confirmation_email' do
-    subject { claim.send_vbms_confirmation_email(user_object) }
+    subject { claim.send_vbms_confirmation_email(user) }
 
     it 'calls the VA notify email job' do
       expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user_object.va_profile_email,
+        user.va_profile_email,
         'ch31_vbms_fake_template_id',
         {
           'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY'
+          'first_name' => user.first_name.upcase.presence
         }
       )
 
@@ -164,15 +175,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_lighthouse_confirmation_email' do
-    subject { claim.send_lighthouse_confirmation_email(user_object) }
+    subject { claim.send_lighthouse_confirmation_email(user) }
 
     it 'calls the VA notify email job' do
       expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user_object.va_profile_email,
+        user.va_profile_email,
         'ch31_central_mail_fake_template_id',
         {
           'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY'
+          'first_name' => user.first_name.upcase.presence
         }
       )
 

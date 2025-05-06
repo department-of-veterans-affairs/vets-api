@@ -36,8 +36,8 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
 
     # the following filter is used on responses from
     # https://api.github.com/app/installations/14176090/access_tokens
-    string = '{"token":"removed","expires_at":"2021-02-02T18:24:37Z",'\
-             '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},'\
+    string = '{"token":"removed","expires_at":"2021-02-02T18:24:37Z",' \
+             '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},' \
              '"repository_selection":"selected"}'
     c.filter_sensitive_data(string) do |interaction|
       if (match = interaction.response.body.match(/^{"token.+/))
@@ -228,17 +228,17 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
       line += ':' if %w[\[ \] { }].none? { |char| line.include?(char) } &&
                      (selected_lines[index + 1] == '[' ||
                      selected_lines[index + 1] == '{' ||
-                     in_object &&
-                     object_prop_index_is_even && index.even? || object_prop_index_is_odd && index.odd?)
+                     (in_object &&
+                     object_prop_index_is_even && index.even?) || (object_prop_index_is_odd && index.odd?))
 
       # append comma where necessary (at the end of most values, etc.)
-      line += ',' if line == ']' && selected_lines[index + 1] != '}' ||
-                     line == '}' && selected_lines[index + 1] == '{' ||
+      line += ',' if (line == ']' && selected_lines[index + 1] != '}') ||
+                     (line == '}' && selected_lines[index + 1] == '{') ||
                      (in_object &&
                      line.exclude?('{') &&
                      selected_lines[index + 1].exclude?('}') &&
                      selected_lines[index + 1].exclude?(']') &&
-                     (object_prop_index_is_even && index.odd? || object_prop_index_is_odd && index.even?))
+                     ((object_prop_index_is_even && index.odd?) || (object_prop_index_is_odd && index.even?)))
 
       line
     end

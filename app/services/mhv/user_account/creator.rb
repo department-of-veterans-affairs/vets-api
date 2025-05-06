@@ -5,37 +5,43 @@ require 'mhv/account_creation/service'
 module MHV
   module UserAccount
     class Creator
-      attr_reader :user_verification, :break_cache
+      attr_reader :user_verification, :break_cache, :from_cache_only
 
-      def initialize(user_verification:, break_cache: false)
+      def initialize(user_verification:, break_cache: false, from_cache_only: false)
         @user_verification = user_verification
         @break_cache = break_cache
+        @from_cache_only = from_cache_only
       end
 
       def perform
         validate!
         create_mhv_user_account!
       rescue ActiveModel::ValidationError, Errors::ValidationError => e
-        log_and_raise_error(e, :validation)
+        log_error(e, :validation)
+        raise Errors::ValidationError, e.message
       rescue Common::Client::Errors::Error => e
-        log_and_raise_error(e, :client)
+        log_error(e, :client)
+
+        raise Errors::MHVClientError.new(e.message, e.body)
       rescue => e
-        log_and_raise_error(e, :creator)
+        log_error(e, :creator)
+        raise Errors::CreatorError, e.message
       end
 
       private
 
       def create_mhv_user_account!
+        return nil if mhv_account_creation_response.nil? && from_cache_only
+
         account = MHVUserAccount.new(mhv_account_creation_response)
         account.validate!
-
+        MPIData.find(icn)&.destroy
         account
       end
 
       def mhv_account_creation_response
-        tou_occurred_at = current_tou_agreement.created_at
-
-        mhv_client.create_account(icn:, email:, tou_occurred_at:, break_cache:)
+        @mhv_account_creation_response ||= mhv_client.create_account(icn:, email:, tou_occurred_at:, break_cache:,
+                                                                     from_cache_only:)
       end
 
       def icn
@@ -54,6 +60,10 @@ module MHV
         @user_account ||= user_verification.user_account
       end
 
+      def tou_occurred_at
+        current_tou_agreement.created_at
+      end
+
       def mhv_client
         MHV::AccountCreation::Service.new
       end
@@ -61,7 +71,6 @@ module MHV
       def validate!
         errors = [
           ('ICN must be present' if icn.blank?),
-          ('Email must be present' if email.blank?),
           ('Current terms of use agreement must be present' if current_tou_agreement.blank?),
           ("Current terms of use agreement must be 'accepted'" unless current_tou_agreement&.accepted?)
         ].compact
@@ -69,18 +78,8 @@ module MHV
         raise Errors::ValidationError, errors.join(', ') if errors.present?
       end
 
-      def log_and_raise_error(error, type = nil)
-        klass = case type
-                when :validation
-                  Errors::ValidationError
-                when :client
-                  Errors::MHVClientError
-                else
-                  Errors::CreatorError
-                end
-
+      def log_error(error, type)
         Rails.logger.error("[MHV][UserAccount][Creator] #{type} error", error_message: error.message, icn:)
-        raise klass, error.message
       end
     end
   end

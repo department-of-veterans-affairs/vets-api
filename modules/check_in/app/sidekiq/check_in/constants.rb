@@ -5,6 +5,11 @@ module CheckIn
     # settings for travel claims for vista appts
     STATSD_NOTIFY_ERROR = 'worker.checkin.travel_claim.notify.error'
     STATSD_NOTIFY_SUCCESS = 'worker.checkin.travel_claim.notify.success'
+    STATSD_NOTIFY_SILENT_FAILURE = 'silent_failure'
+    STATSD_CIE_SILENT_FAILURE_TAGS = ['service:check-in',
+                                      'function: CheckIn Travel Pay Notification Failure'].freeze
+    STATSD_OH_SILENT_FAILURE_TAGS = ['service:check-in',
+                                     'function: OH Travel Pay Notification Failure'].freeze
 
     CIE_SUCCESS_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_success_text
     CIE_DUPLICATE_TEMPLATE_ID = Settings.vanotify.services.check_in.template_id.claim_submission_duplicate_text

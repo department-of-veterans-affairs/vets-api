@@ -62,11 +62,11 @@ describe HealthQuest::QuestionnaireManager::BasicQuestionnaireManagerFormatter d
 
   describe 'attributes' do
     it 'responds to appointments' do
-      expect(basic_structure.respond_to?(:appointments)).to eq(true)
+      expect(basic_structure.respond_to?(:appointments)).to be(true)
     end
 
     it 'responds to hashed_questionnaires' do
-      expect(basic_structure.respond_to?(:hashed_questionnaires)).to eq(true)
+      expect(basic_structure.respond_to?(:hashed_questionnaires)).to be(true)
     end
   end
 

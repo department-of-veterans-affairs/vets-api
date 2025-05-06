@@ -1,0 +1,316 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<VEIS_AUTH_URL>/tenant_id/oauth2/token"
+    body:
+      encoding: US-ASCII
+      string: 'client_id=client_id&client_secret=client_secret&client_info=1&grant_type=client_credentials&resource=resource_id'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "access_token": "string",
+          "contactId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+- request:
+    method: post
+    uri: "https://www.example.com/v0/sign_in/token"
+    body:
+      encoding: US-ASCII
+      string: 'some_payload'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "access_token": "string"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+- request:
+    method: get
+    uri: https://btsss.gov/api/v1.2/claims/search-by-appointment-date
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer string
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+       "statusCode": 200,
+        "message": "nice job everyone",
+        "success": true,
+        "data": [
+          {
+            "id": "claim_id_1",
+            "claimNumber": "TC0928098230498",
+            "claimStatus": "InProcess",
+            "appointmentDateTime": "2021-09-02T10:00:00Z",
+            "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "facilityName": "Cheyenne VA Medical Center",
+            "totalCostRequested": 4.52,
+            "reimbursementAmount": 0,
+            "createdOn": "2024-04-22T21:22:34.465Z",
+            "modifiedOn": "2024-04-23T16:44:34.465Z"
+          },
+          {
+            "id": "claim_id_2",
+            "claimNumber": "TC0928098228366",
+            "claimStatus": "Incomplete",
+            "appointmentDateTime": "2024-04-09T20:15:34.465Z",
+            "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "facilityName": "Cheyenne VA Medical Center",
+            "totalCostRequested": 10,
+            "reimbursementAmount": 0,
+            "createdOn": "2024-04-09T14:13:22.465Z",
+            "modifiedOn": "2024-04-09T20:29:34.465Z"
+          },
+          {
+            "id": "claim_id_3",
+            "claimNumber": "TC092809828275",
+            "claimStatus": "InManualReview",
+            "appointmentDateTime": "2024-04-13T20:30:34.465Z",
+            "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "facilityName": "Cheyenne VA Medical Center",
+            "totalCostRequested": 5.16,
+            "reimbursementAmount": 0,
+            "createdOn": "2024-04-13T15:55:57.465Z",
+            "modifiedOn": "2024-04-14T18:40:34.465Z"
+          }
+        ]
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+- request:
+    method: post
+    uri: https://www.example.com/v0/sign_in/token
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Etag:
+      - W/"6571c42e57529000188d704a3cd1f46a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - d687047e-5004-43c1-babb-c2f52f2fda40
+      X-Runtime:
+      - '3.569014'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '3573'
+      X-Kong-Proxy-Latency:
+      - '24'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "access_token": "sts_token"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+- request:
+    method: post
+    uri:  https://btsss.gov/api/v1.2/Auth/access-token
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Etag:
+      - W/"6571c42e57529000188d704a3cd1f46a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - d687047e-5004-43c1-babb-c2f52f2fda40
+      X-Runtime:
+      - '3.569014'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '3573'
+      X-Kong-Proxy-Latency:
+      - '24'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "data": {
+          "accessToken": "btsss_token"
+        }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+recorded_with: VCR 6.1.0

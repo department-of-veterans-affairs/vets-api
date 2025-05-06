@@ -90,6 +90,38 @@ module AppealsApi
       )
     end
 
+    def homeless_poc
+      @homeless_point_of_contact_phone ||= Appellant.new(
+        type: nil,
+        auth_headers: nil,
+        form_data: { 'phone' => data_attributes&.dig('homelessPointOfContactPhone') }
+      )
+    end
+
+    def homeless
+      data_attributes&.dig('homeless')
+    end
+
+    def homeless_living_situation
+      data_attributes&.dig('homelessLivingSituation')
+    end
+
+    def homeless_other_reason
+      data_attributes&.dig('homelessLivingSituationOther')
+    end
+
+    def homeless_point_of_contact
+      data_attributes&.dig('homelessPointOfContact')
+    end
+
+    def treatment_locations
+      evidence_submission&.dig('treatmentLocations')
+    end
+
+    def treatment_location_other_details
+      evidence_submission&.dig('treatmentLocationOther')
+    end
+
     def non_veteran_claimant?
       claimant.signing_appellant?
     end
@@ -126,6 +158,10 @@ module AppealsApi
       signing_appellant.zip_code_5 || '00000'
     end
 
+    def veteran_zip_code
+      veteran.zip_code_5 || '00000'
+    end
+
     def consumer_name
       auth_headers['X-Consumer-Username']
     end
@@ -136,6 +172,10 @@ module AppealsApi
 
     def benefit_type
       data_attributes['benefitType']&.strip
+    end
+
+    def mst_disclosure
+      data_attributes['mstUpcomingEventDisclosure']&.strip
     end
 
     def claimant_type

@@ -1,10 +1,45 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module Form1095
   class New1095BsJob
     include Sidekiq::Job
 
-    sidekiq_options(unique_for: 4.hours)
+    sidekiq_options(retry: false)
+
+    def perform
+      log_message(:info, 'Checking for new 1095-B data')
+
+      file_names = get_bucket_files
+      if file_names.empty?
+        log_message(:info, 'No new 1095 files found')
+      else
+        log_message(:info, "#{file_names.size} files found")
+      end
+
+      files_read_count = 0
+      file_names.each do |file_name|
+        if download_and_process_file?(file_name)
+          files_read_count += 1
+          log_message(:info, "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3")
+          bucket.delete_objects(delete: { objects: [{ key: file_name }] })
+        else
+          message = "failed to save #{@error_count} forms from file: #{file_name}; " \
+                    "successfully saved #{@form_count} forms"
+          log_message(:error, message)
+        end
+      end
+
+      log_message(:info, "#{files_read_count}/#{file_names.size} files read successfully")
+    end
+
+    private
+
+    # used to enable datadog monitoring
+    def log_message(level, message)
+      Rails.logger.send(level, "Form1095B Creation Job #{level.capitalize}: #{message}")
+    end
 
     def bucket
       @bucket ||= Aws::S3::Resource.new(
@@ -63,7 +98,7 @@ module Form1095
         val = "H#{i < 10 ? '0' : ''}#{i}"
 
         field = form_fields[val.to_sym]
-        coverage_arr.push(field && field.strip == 'Y' ? true : false)
+        coverage_arr.push((field && field.strip == 'Y') || false)
 
         i += 1
       end
@@ -74,7 +109,7 @@ module Form1095
     def produce_1095_hash(form_fields, unique_id, coverage_arr)
       {
         unique_id:,
-        veteran_icn: form_fields[:A15].gsub(/\A0{6}|0{6}\z/, ''),
+        veteran_icn: form_fields[:A15]&.gsub(/\A0{6}|0{6}\z/, ''),
         form_data: {
           last_name: form_fields[:A01] || '',
           first_name: form_fields[:A02] || '',
@@ -111,7 +146,7 @@ module Form1095
       if !corrected && existing_form.present? # returns true to indicate successful entry
         return true
       elsif corrected && existing_form.nil?
-        Rails.logger.warn "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms."
+        log_message(:warn, "Form for year #{form_data[:tax_year]} not found, but file is for Corrected 1095-B forms.")
       end
 
       rv = false
@@ -128,6 +163,9 @@ module Form1095
 
     def process_line?(form, file_details)
       data = parse_form(form)
+      # we can't save records without icns and should not retain the file in cases
+      # where the icn is missing
+      return true if data[:veteran_icn].blank?
 
       corrected = !file_details[:isOg?]
 
@@ -141,7 +179,7 @@ module Form1095
 
       unless save_data?(data, corrected)
         @error_count += 1
-        Rails.logger.warn "Failed to save form with unique ID: #{unique_id}"
+        log_message(:warn, "Failed to save form with unique ID: #{unique_id}")
         return false
       end
 
@@ -162,15 +200,15 @@ module Form1095
 
       all_succeeded
     rescue => e
-      Rails.logger.error "#{e.message}."
-      log_exception_to_sentry(e, 'context' => "Error processing file: #{file_details}, on line #{lines}")
+      message = "Error processing file: #{file_details[:name]}, on line #{lines}; #{e.message}"
+      log_message(:error, message)
       false
     end
 
     # downloading file to the disk and then reading that file,
     # this will allow us to read large S3 files without exhausting resources/crashing the system
     def download_and_process_file?(file_name)
-      Rails.logger.info "processing file: #{file_name}"
+      log_message(:info, "processing file: #{file_name}")
 
       @form_count = 0
       @error_count = 0
@@ -178,6 +216,8 @@ module Form1095
       file_details = parse_file_name(file_name)
 
       return false if file_details.blank?
+
+      return true if file_details[:tax_year] < Form1095B.current_tax_year
 
       # downloads S3 file into local file, allows for processing large files this way
       temp_file = Tempfile.new(file_name, encoding: 'ascii-8bit')
@@ -187,33 +227,8 @@ module Form1095
 
       process_file?(temp_file, file_details)
     rescue => e
-      Rails.logger.error(e.message)
+      log_message(:error, e.message)
       false
-    end
-
-    def perform
-      Rails.logger.info 'Checking for new 1095-B data'
-
-      file_names = get_bucket_files
-      if file_names.empty?
-        Rails.logger.info 'No new 1095 files found'
-      else
-        Rails.logger.info "#{file_names.size} files found"
-      end
-
-      files_read_count = 0
-      file_names.each do |file_name|
-        if download_and_process_file?(file_name)
-          files_read_count += 1
-          Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
-          bucket.delete_objects(delete: { objects: [{ key: file_name }] })
-        else
-          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};"\
-                              " successfully saved #{@form_count} forms"
-        end
-      end
-
-      Rails.logger.info "#{files_read_count}/#{file_names.size} files read successfully"
     end
   end
 end

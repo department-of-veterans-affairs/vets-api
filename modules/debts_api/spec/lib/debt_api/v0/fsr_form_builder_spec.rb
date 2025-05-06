@@ -31,22 +31,22 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       let(:builder) { described_class.new(combined_form_data, '123', user) }
 
       it 'sets is_combined' do
-        expect(builder.is_combined).to eq(true)
+        expect(builder.is_combined).to be(true)
       end
 
       it 'has a vba form' do
-        expect(builder.vba_form.present?).to eq(true)
+        expect(builder.vba_form.present?).to be(true)
         expect(builder.vba_form.debts.length).to eq(2)
       end
 
       it 'has vha forms' do
-        expect(builder.vha_forms.present?).to eq(true)
+        expect(builder.vha_forms.present?).to be(true)
         expect(builder.vha_forms.length).to eq(2)
       end
 
       it 'updates vha form\'s additionalComments' do
         comments = builder.vha_forms.first.form_data.dig('additionalData', 'additionalComments')
-        expect(comments.include?('Combined FSR')).to eq(true)
+        expect(comments.include?('Combined FSR')).to be(true)
       end
 
       it 'adds an element for station type' do
@@ -69,12 +69,12 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       let(:builder) { described_class.new(vba_form_data, '123', user) }
 
       it 'is not combined' do
-        expect(builder.is_combined).to eq(false)
+        expect(builder.is_combined).to be(false)
       end
 
       it 'has a vba form but no vha forms' do
-        expect(builder.vba_form.present?).to eq(true)
-        expect(builder.vha_forms.empty?).to eq(true)
+        expect(builder.vba_form.present?).to be(true)
+        expect(builder.vha_forms.empty?).to be(true)
       end
 
       it 'adds compromise ammounts' do
@@ -88,7 +88,7 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       end
 
       it 'does not have debts and copays' do
-        expect(builder.vba_form.form_data['selectedDebtsAndCopays']).to eq(nil)
+        expect(builder.vba_form.form_data['selectedDebtsAndCopays']).to be_nil
       end
 
       it 'does not have any vha forms' do
@@ -100,7 +100,7 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       let(:builder) { described_class.new(vha_form_data, '123', user) }
 
       it 'has a facility num' do
-        expect(builder.sanitized_form['facilityNum']).to eq(nil)
+        expect(builder.sanitized_form['facilityNum']).to be_nil
         expect(builder.vha_forms.map { |form| form.form_data['facilityNum'] }).to eq(%w[123 999])
       end
 
@@ -114,7 +114,7 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       end
 
       it 'is not streamlined' do
-        expect(builder.is_streamlined).to eq(false)
+        expect(builder.is_streamlined).to be(false)
       end
 
       it 'parses out delimiter characters' do
@@ -131,11 +131,11 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         copays.first['deductionCode'] = '30'
         builder = described_class.new(compromise_form, '123', user)
         comments = builder.vha_forms.first.form_data.dig('additionalData', 'additionalComments')
-        expect(comments.include?('Disability compensation and pension debt')).to eq(true)
+        expect(comments.include?('Disability compensation and pension debt')).to be(true)
       end
 
       it 'does not have a vba form' do
-        expect(builder.vba_form).to eq(nil)
+        expect(builder.vba_form).to be_nil
       end
 
       it 'knows when it has both cerner and vista copays' do
@@ -156,12 +156,12 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
       let(:form_builder) { described_class.new(streamlined_form_data, '123', user) }
 
       it 'sets is_streamlined' do
-        expect(form_builder.is_streamlined).to eq(true)
+        expect(form_builder.is_streamlined).to be(true)
       end
 
       it 'sets is_streamlined for explicitly non-streamlined FSRs' do
         streamlined_form_data['streamlined'] = { 'value' => false, 'type' => 'none' }
-        expect(form_builder.is_streamlined).to eq(false)
+        expect(form_builder.is_streamlined).to be(false)
       end
 
       it 'reflects streamlined status in vha fsr' do
@@ -180,18 +180,18 @@ RSpec.describe DebtsApi::V0::FsrFormBuilder, type: :service do
         form_builder = described_class.new(streamlined_form_data, '123', user)
         vha_form = form_builder.vha_forms.first.form_data
         reasons = vha_form['personalIdentification']['fsrReason']
-        expect(reasons.include?('Automatically Approved')).to eq(false)
+        expect(reasons.include?('Automatically Approved')).to be(false)
       end
 
       it 'does not give streamlined status to vba fsr' do
         combined_form_data['streamlined'] = { value: true, type: 'short' }
         combined_builder = described_class.new(combined_form_data, '123', user)
         vba_form = combined_builder.vba_form
-        expect(vba_form.form_data['streamlined']).to eq(nil)
+        expect(vba_form.form_data['streamlined']).to be_nil
       end
 
       it 'purges streamlined data from sanitized form' do
-        expect(form_builder.sanitized_form['streamlined']).to eq(nil)
+        expect(form_builder.sanitized_form['streamlined']).to be_nil
       end
 
       it 'makes streamlined the 2nd to last and station_type the last key in the form hash' do

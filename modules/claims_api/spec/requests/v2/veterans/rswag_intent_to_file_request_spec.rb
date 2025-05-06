@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require 'rails_helper'
+require 'bgs_service/intent_to_file_web_service'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
@@ -38,19 +39,15 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
       describe 'Getting a successful response' do
         response '200', 'Successful response with active Intent to File' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join(
-                'spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'intent_to_file', 'intent_to_file.json'
-              )
-            )
+            Rails.root.join(
+              'spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'intent_to_file', 'intent_to_file.json'
+            ).read
           )
 
           let(:bgs_response) do
             JSON.parse(
-              File.read(
-                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'intent_to_file',
-                                'find_by_ptcpnt_id_and_itf_type.json')
-              ),
+              Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'intent_to_file',
+                              'find_by_ptcpnt_id_and_itf_type.json').read,
               symbolize_names: true
             )
           end
@@ -60,7 +57,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
             Timecop.freeze(Time.zone.parse('2022-01-01T08:00:00Z'))
 
             mock_ccg(scopes) do
-              expect_any_instance_of(ClaimsApi::LocalBGS)
+              expect_any_instance_of(ClaimsApi::IntentToFileWebService)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(bgs_response)
 
               submit_request(example.metadata)
@@ -84,8 +81,8 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           before do |example|
             submit_request(example.metadata)
@@ -108,15 +105,13 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
-            )
+            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json').read
           )
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             mock_ccg(scopes) do
-              expect_any_instance_of(ClaimsApi::LocalBGS)
+              expect_any_instance_of(ClaimsApi::IntentToFileWebService)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(nil)
 
               submit_request(example.metadata)
@@ -166,11 +161,9 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join(
-                'spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'intent_to_file', 'intent_to_file.json'
-              )
-            )
+            Rails.root.join(
+              'spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'intent_to_file', 'intent_to_file.json'
+            ).read
           )
 
           let(:scopes) { %w[system/claim.write] }
@@ -194,7 +187,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:insert_intent_to_file).and_return(
+            allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
               stub_response
             )
 
@@ -219,8 +212,8 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
       describe 'Getting a 400 response' do
         response '400', 'Bad Request' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
@@ -255,8 +248,8 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
@@ -285,8 +278,8 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[system/claim.write] }
           let(:data) { { data: { attributes: { type: 'survivor', claimantSsn: 'not-a-valid-ssn' } } } }
@@ -345,11 +338,9 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
           schema JSON.parse(
-            File.read(
-              Rails.root.join(
-                'spec', 'support', 'schemas', 'claims_api', 'forms', 'intent_to_file', 'validate.json'
-              )
-            )
+            Rails.root.join(
+              'spec', 'support', 'schemas', 'claims_api', 'forms', 'intent_to_file', 'validate.json'
+            ).read
           )
 
           let(:scopes) { %w[system/claim.write] }
@@ -373,7 +364,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            allow_any_instance_of(BGS::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
+            allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
               stub_response
             )
 
@@ -398,8 +389,8 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
       describe 'Getting a 400 response' do
         response '400', 'Bad Request' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
@@ -434,8 +425,8 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'default.json').read)
 
           let(:scopes) { %w[system/claim.write] }
           let(:data) do

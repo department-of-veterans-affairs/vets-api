@@ -11,18 +11,10 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
   before do
     allow_any_instance_of(User).to receive(:va_patient?).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
   end
 
   describe 'authorization' do
-    context 'when feature flag is off' do
-      before { Flipper.disable('va_online_scheduling') }
-
-      it 'returns forbidden' do
-        put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
-
     context 'when user does not have access' do
       let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -32,28 +24,34 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
       end
     end
 
-    context 'when feature flag is on and user has access' do
-      context 'using VAOS' do
-        before do
-          Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
-          Flipper.disable(:va_online_scheduling_use_vpg)
-        end
+    context 'using VAOS' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+      end
 
-        it 'returns no content' do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-              put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
+      it 'returns no content' do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/cancel_appointment_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", params: nil, headers: sis_headers
 
-              expect(response).to have_http_status(:no_content)
-            end
+            expect(response).to have_http_status(:no_content)
           end
         end
       end
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
-          Flipper.enable(:va_online_scheduling_use_vpg)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                    instance_of(User)).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
         end
 
         it 'returns no content' do
@@ -75,8 +73,13 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
 
   context 'using vaos-service' do
     before do
-      Flipper.disable(:va_online_scheduling_enable_OH_cancellations)
-      Flipper.disable(:va_online_scheduling_use_vpg)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_request, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do
@@ -122,8 +125,12 @@ RSpec.describe 'Mobile::V0::Appointments::Cancel', type: :request do
 
   context 'using vpg' do
     before do
-      Flipper.enable(:va_online_scheduling_enable_OH_cancellations)
-      Flipper.enable(:va_online_scheduling_use_vpg)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
     end
 
     describe 'PUT /mobile/v0/appointments/cancel', :aggregate_failures do

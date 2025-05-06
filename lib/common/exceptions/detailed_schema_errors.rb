@@ -28,7 +28,7 @@ module Common
       private
 
       def i18n_interpolated(path, options = {})
-        merge_values = options.map { |attr, opts| [attr, i18n_field("#{path}.#{attr}", opts)] }.to_h
+        merge_values = options.to_h { |attr, opts| [attr, i18n_field("#{path}.#{attr}", opts)] }
         i18n_data[path].merge(merge_values)
       end
 

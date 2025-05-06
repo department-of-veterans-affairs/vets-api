@@ -133,7 +133,7 @@ module BGS
         pgm_type_cd: 'CPL'
       }
 
-      increment_params.merge!(user_ssn) if Settings.bgs.mock_response == true
+      increment_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
       with_multiple_attempts_enabled do
         service.share_data.find_benefit_claim_type_increment(**increment_params)
       end
@@ -172,7 +172,7 @@ module BGS
         jrn_obj_id: Settings.bgs.application
       }
 
-      auth_params.merge!(user_ssn) if Settings.bgs.mock_response == true
+      auth_params.merge!(user_ssn) if Settings.bgs.mock_responses == true
 
       auth_params
     end
@@ -206,7 +206,8 @@ module BGS
         ptcpnt_id: @user.participant_id,
         txt: note_text
       }.merge!(bgs_auth).except!(:jrn_status_type_cd)
-
+      # Add a log warning with the option_hash as payload
+      Rails.logger.info("674 manual review #{option_hash.inspect}", option_hash)
       service.notes.create_note(option_hash)
     rescue => e
       notify_of_service_exception(e, __method__, 1, :warn)

@@ -10,18 +10,23 @@ describe VAOS::V2::PatientsService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#index' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+    end
+
     context 'with an patient' do
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_eligibility)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
+                                                    user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         it 'returns a patient' do
           VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata_vaos',
                            match_requests_on: %i[method path query]) do
             response = subject.get_patient_appointment_metadata('primaryCare', '100', 'direct')
-            expect(response[:eligible]).to eq(false)
+            expect(response[:eligible]).to be(false)
 
             expect(response[:ineligibility_reasons][0][:coding][0][:code]).to eq('facility-cs-direct-disabled')
           end
@@ -30,15 +35,15 @@ describe VAOS::V2::PatientsService do
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_eligibility)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         end
 
         it 'returns a patient' do
           VCR.use_cassette('vaos/v2/patients/get_patient_appointment_metadata_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_patient_appointment_metadata('primaryCare', '100', 'direct')
-            expect(response[:eligible]).to eq(false)
+            expect(response[:eligible]).to be(false)
 
             expect(response[:ineligibility_reasons][0][:coding][0][:code]).to eq('facility-cs-direct-disabled')
           end
@@ -49,8 +54,9 @@ describe VAOS::V2::PatientsService do
     context 'when the upstream server returns a 500' do
       context 'using VAOS' do
         before do
-          Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.disable(:va_online_scheduling_enable_OH_eligibility)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
+                                                    user).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
         end
 
         it 'raises a backend exception' do
@@ -65,8 +71,8 @@ describe VAOS::V2::PatientsService do
 
       context 'using VPG' do
         before do
-          Flipper.enable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_enable_OH_eligibility)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(true)
         end
 
         it 'raises a backend exception' do

@@ -83,7 +83,7 @@ describe SignIn::Idme::Service do
     end
 
     before do
-      allow(Settings.idme).to receive(:oauth_url).and_return(base_path)
+      allow(IdentitySettings.idme).to receive(:oauth_url).and_return(base_path)
     end
 
     it 'logs information to rails logger' do
@@ -154,11 +154,11 @@ describe SignIn::Idme::Service do
   describe '#user_info' do
     let(:test_client_cert_path) { 'spec/fixtures/sign_in/oauth_test.crt' }
     let(:test_client_key_path) { 'spec/fixtures/sign_in/oauth_test.key' }
-    let(:expected_jwks_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
+    let(:expected_jwks_fetch_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
 
     before do
-      allow(Settings.idme).to receive_messages(client_cert_path: test_client_cert_path,
-                                               client_key_path: test_client_key_path)
+      allow(IdentitySettings.idme).to receive_messages(client_cert_path: test_client_cert_path,
+                                                       client_key_path: test_client_key_path)
     end
 
     it 'returns user attributes', vcr: { cassette_name: 'identity/idme_200_responses' } do
@@ -252,27 +252,60 @@ describe SignIn::Idme::Service do
     context 'when the public JWK response is not cached' do
       it 'logs information to rails logger' do
         VCR.use_cassette('identity/idme_200_responses') do
-          expect(Rails.logger).to receive(:info).with(expected_jwks_log)
+          expect(Rails.logger).to receive(:info).with(expected_jwks_fetch_log)
           subject.user_info(token)
         end
       end
     end
 
-    context 'when the public JWK response is cached' do
+    context 'when the public JWKs response is cached' do
       let(:cache_key) { 'idme_public_jwks' }
       let(:cache_expiration) { 30.minutes }
       let(:response) { double(body: 'some-body') }
+      let(:redis_store) { ActiveSupport::Cache::RedisCacheStore.new(redis: MockRedis.new) }
 
       before do
-        allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: cache_expiration).and_return(response)
-        allow(JWT).to receive(:decode).and_return([])
-        allow(JWT::JWK::Set).to receive(:new).and_return([])
+        allow(Rails).to receive(:cache).and_return(redis_store)
+        Rails.cache.clear
+        allow(Rails.logger).to receive(:info)
       end
 
-      it 'does not log expected_jwks_log' do
+      after do
+        Rails.cache.clear
+      end
+
+      it 'uses the cached JWK response' do
         VCR.use_cassette('identity/idme_200_responses') do
-          expect(Rails.logger).not_to receive(:info).with(expected_jwks_log)
           subject.user_info(token)
+          expect(Rails.logger).to have_received(:info).with(expected_jwks_fetch_log)
+        end
+
+        VCR.use_cassette('identity/idme_200_responses') do
+          subject.user_info(token)
+          expect(Rails.logger).not_to receive(:info).with(expected_jwks_fetch_log)
+        end
+      end
+
+      context 'when the JWK is not found in the cached JWKs' do
+        let(:rsa_key) { OpenSSL::PKey::RSA.new(2048) }
+        let(:jwks) { JWT::JWK::Set.new([JWT::JWK::RSA.new(rsa_key)]) }
+        let(:expected_jwk_reload_log) { '[SignIn][Idme][Service] JWK not found, reloading public JWKs' }
+
+        before do
+          allow(Rails.cache).to receive(:delete_matched).and_call_original
+        end
+
+        it 'clears the cache and fetches the public JWKs again' do
+          Rails.cache.write(cache_key, jwks, expires_in: cache_expiration)
+
+          VCR.use_cassette('identity/idme_200_responses') do
+            subject.user_info(token)
+
+            expect(Rails.cache).to have_received(:delete_matched).with(cache_key)
+            expect(Rails.logger).to have_received(:info).with(expected_jwk_reload_log)
+            expect(Rails.logger).to have_received(:info).with(expected_jwks_fetch_log)
+            expect(Rails.cache.read(cache_key)).not_to eq(jwks)
+          end
         end
       end
     end
@@ -358,7 +391,7 @@ describe SignIn::Idme::Service do
         let(:street) { nil }
 
         it 'does not return an address object' do
-          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to eq(nil)
+          expect(subject.normalized_attributes(user_info, credential_level)[:address]).to be_nil
         end
       end
     end
@@ -423,7 +456,7 @@ describe SignIn::Idme::Service do
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
             email:,
-            mhv_uuid: mhv_correlation_id,
+            mhv_uuid: mhv_credential_uuid,
             mhv_icn:,
             mhv_assurance:,
             level_of_assurance: 3,
@@ -434,12 +467,12 @@ describe SignIn::Idme::Service do
           }
         )
       end
-      let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+      let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
       let(:mhv_icn) { 'some-mhv-icn' }
       let(:mhv_assurance) { 'some-mhv-assurance' }
       let(:expected_attributes) do
         expected_standard_attributes.merge({ mhv_icn:,
-                                             mhv_correlation_id:,
+                                             mhv_credential_uuid:,
                                              mhv_assurance: })
       end
 

@@ -13,7 +13,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
     end
 
     shared_examples 'status updater' do |status, start_time, end_time, expected_state, error_message = nil|
-      # Lighthouse returns datetimes as UNIX timestamps
+      # Lighthouse returns datetimes as UNIX timestamps in milliseconds
       let(:unix_start_time) { start_time }
       let(:unix_end_time) { end_time }
       let(:document_status) do
@@ -39,14 +39,14 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
       it 'saves a lighthouse_processing_started_at time' do
         expect { status_updater.update_status }.to change(
           lighthouse526_document_upload, :lighthouse_processing_started_at
-        ).to(Time.at(unix_start_time).utc.to_datetime)
+        ).to(Time.at(unix_start_time / 1000).utc.to_datetime)
       end
 
       it 'saves a lighthouse_processing_ended_at time' do
         if unix_end_time
           expect { status_updater.update_status }.to change(
             lighthouse526_document_upload, :lighthouse_processing_ended_at
-          ).to(Time.at(unix_end_time).utc.to_datetime)
+          ).to(Time.at(unix_end_time / 1000).utc.to_datetime)
         end
       end
 
@@ -62,6 +62,12 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
       it 'logs the latest_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
+          expect(Rails.logger).to receive(:info) do |message, _details|
+            expect(message).to equal?(
+              'SavedClaim::DisabilityCompensation::Form526AllClaim Skipping tracking PDF overflow'
+            )
+          end
+
           expect(Rails.logger).to receive(:info).with(
             'BenefitsDocuments::Form526::UploadStatusUpdater',
             status:,
@@ -126,7 +132,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
         expect do
           status_updater.update_status
         end.to change(lighthouse526_new_document_upload, :lighthouse_processing_started_at)
-          .to(Time.at(499_152_060).utc.to_datetime)
+          .to(Time.at(499_152_060 / 1000).utc.to_datetime)
       end
 
       it 'saves the last_status_response' do
@@ -143,6 +149,12 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
 
       it 'logs the latest_status_response to the Rails logger' do
         Timecop.freeze(past_date_time) do
+          expect(Rails.logger).to receive(:info) do |message, _details|
+            expect(message).to equal?(
+              'SavedClaim::DisabilityCompensation::Form526AllClaim Skipping tracking PDF overflow'
+            )
+          end
+
           expect(Rails.logger).to receive(:info).with(
             'BenefitsDocuments::Form526::UploadStatusUpdater',
             status: 'IN_PROGRESS',
@@ -203,11 +215,11 @@ RSpec.describe BenefitsDocuments::Form526::UploadStatusUpdater do
     end
 
     context 'when the document has been in progress for more than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', DateTime.new(1985, 10, 23).to_time.to_i, true)
+      it_behaves_like('processing timeout', 'IN_PROGRESS', (DateTime.new(1985, 10, 23).utc.to_i * 1000).to_i, true)
     end
 
     context 'when the document has been in progress for less than 24 hours' do
-      it_behaves_like('processing timeout', 'IN_PROGRESS', DateTime.new(1985, 10, 25, 20).utc.to_time.to_i, false)
+      it_behaves_like('processing timeout', 'IN_PROGRESS', (DateTime.new(1985, 10, 25, 20).utc.to_i * 1000).to_i, false)
     end
   end
 end

@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://<ADDRESS_VALIDATION>/services/address-validation/v3/candidate
+    body:
+      encoding: UTF-8
+      string: '{"address":{"addressLine1":"37 1st st","cityName":"Brooklyn","zipCode5":"11249","country":{"countryCodeISO3":"USA","countryName":"USA"},"state":{"stateCode":"NY"},"province":{},"addressPOU":"RESIDENCE"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Apikey:
+      - "<AV_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Fri, 18 Oct 2024 18:31:28 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Expires:
+      - '0'
+      Pragma:
+      - no-cache
+      - no-cache
+      Vet360txauditid:
+      - 836ed881-66db-47d5-9c89-02b65abdf20c
+      Via:
+      - kong/3.0.2
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '136'
+      X-Ratelimit-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '500'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '499'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      X-Ratelimit-Reset-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '60000'
+      X-Ratelimit-Sla-Limit-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '250'
+      X-Ratelimit-Sla-Remaining-Edge-Gateway-Address-Validation-Vagovli-Address-V2-Candidate-Address:
+      - '249'
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+    body:
+      encoding: ASCII-8BIT
+      string: '{"candidateAddresses":[{"addressLine1":"37 N 1st St","cityName":"Brooklyn","zipCode5":"11249","zipCode4":"3939",
+        "state":{"stateName":"New York", "stateCode":"NY"},"country":{"countryName":"United States", "countryCodeFips":"US",
+        "countryCodeIso2":"US", "countryCodeIso3":"USA"},"addressPou":"RESIDENCE","county":{"countyName":"Kings", "countyCode":"36047"},
+        "geocode":{"calcDate":"2024-10-18T18:16:23.870Z", "locationPrecision":31, "latitude":40.717029, "longitude":-73.964956},
+        "deliveryPointValidation":"UNDELIVERABLE","addressType":"Domestic","confidence":100},{"addressLine1":"37 S 1st St","cityName":"Brooklyn","zipCode5":"11249","zipCode4":"4101",
+        "state":{"stateName":"New York", "stateCode":"NY"},"country":{"countryName":"United States", "countryCodeFips":"US",
+        "countryCodeIso2":"US", "countryCodeIso3":"USA"},"addressPou":"RESIDENCE","county":{"countyName":"Kings", "countyCode":"36047"},
+        "geocode":{"calcDate":"2024-10-18T18:16:23.870Z", "locationPrecision":31, "latitude":40.715367, "longitude":-73.965369},
+        "deliveryPointValidation":"CONFIRMED","addressType":"Domestic","confidence":100}],"overrideValidationKey":"-646932106"}'
+  recorded_at: Fri, 18 Oct 2024 18:31:28 GMT
+recorded_with: VCR 6.3.1

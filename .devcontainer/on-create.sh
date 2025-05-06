@@ -44,6 +44,8 @@ if [ ! -f config/settings.local.yml ]; then
   cat <<EOT >> config/settings.local.yml
 database_url: postgis://postgres:password@localhost:5432/vets_api_development?pool=4
 test_database_url: postgis://postgres:password@localhost:5432/vets_api_test?pool=4
+audit_db:
+  url: postgis://postgres:password@localhost:5432/vets_api_audit
 
 redis:
   host: localhost
@@ -71,7 +73,8 @@ pg_isready -t 60
 sudo -u root sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'password';"
 
 # Install gems and setup DB
-./bin/setup
+bundle install
+rails db:setup
 
 # Prewarm Bootsnap
 bundle exec bootsnap precompile --gemfile app/ lib/

@@ -30,14 +30,13 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject).to validate_presence_of(:veteran_country) }
     it { expect(subject).to validate_length_of(:veteran_country).is_equal_to(2) }
     it { expect(subject).to validate_presence_of(:veteran_state_code) }
-    it { expect(subject).to validate_length_of(:veteran_state_code).is_equal_to(2) }
+    it { expect(subject).to validate_length_of(:veteran_state_code).is_at_least(2) }
+    it { expect(subject).to allow_value('Kansas').for(:veteran_state_code) }
+    it { expect(subject).not_to allow_value('K').for(:veteran_state_code) }
     it { expect(subject).to validate_presence_of(:veteran_zip_code) }
-    it { expect(subject).to validate_length_of(:veteran_zip_code).is_equal_to(5) }
     it { expect(subject).to allow_value('12345').for(:veteran_zip_code) }
-    it { expect(subject).not_to allow_value('1234A').for(:veteran_zip_code) }
-    it { expect(subject).not_to allow_value('12345').for(:veteran_zip_code_suffix) }
     it { expect(subject).to allow_value('1234').for(:veteran_zip_code_suffix) }
-    it { expect(subject).to validate_length_of(:veteran_zip_code_suffix).is_equal_to(4) }
+    it { expect(subject).to allow_value('').for(:veteran_zip_code_suffix) }
     it { expect(subject).to allow_value('1234567890').for(:veteran_phone) }
     it { expect(subject).not_to allow_value('123456789A').for(:veteran_phone) }
     it { expect(subject).not_to allow_value('123456789').for(:veteran_phone) }
@@ -57,17 +56,124 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_country) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_country).is_equal_to(2) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_state_code) }
-    it { expect(subject_with_claimant).to validate_length_of(:claimant_state_code).is_equal_to(2) }
+    it { expect(subject_with_claimant).to validate_length_of(:claimant_state_code).is_at_least(2) }
+    it { expect(subject_with_claimant).to allow_value('Kansas').for(:claimant_state_code) }
+    it { expect(subject_with_claimant).not_to allow_value('K').for(:claimant_state_code) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_zip_code) }
-    it { expect(subject_with_claimant).to validate_length_of(:claimant_zip_code).is_equal_to(5) }
     it { expect(subject_with_claimant).to allow_value('12345').for(:claimant_zip_code) }
-    it { expect(subject_with_claimant).not_to allow_value('1234A').for(:claimant_zip_code) }
-    it { expect(subject_with_claimant).not_to allow_value('12345').for(:claimant_zip_code_suffix) }
     it { expect(subject_with_claimant).to allow_value('1234').for(:claimant_zip_code_suffix) }
-    it { expect(subject_with_claimant).to validate_length_of(:claimant_zip_code_suffix).is_equal_to(4) }
+    it { expect(subject_with_claimant).to allow_value('').for(:claimant_zip_code_suffix) }
     it { expect(subject_with_claimant).to allow_value('1234567890').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789A').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789').for(:claimant_phone) }
+
+    describe 'representative_phone' do
+      context 'when representative is an instance of AccreditedIndividual' do
+        it 'returns #phone of the representative' do
+          representative = create(:accredited_individual, phone: '5555555555')
+          subject.representative_id = representative.id
+          expect(subject.representative_phone).to eq(representative.phone)
+        end
+      end
+
+      context 'when representative is an instance of Veteran::Service::Representative' do
+        it 'returns #phone_number of the representative' do
+          representative = create(:representative, phone_number: '5555555555')
+          subject.representative_id = representative.representative_id
+          expect(subject.representative_phone).to eq(representative.phone_number)
+        end
+      end
+    end
+
+    describe 'representative_individual_type' do
+      context 'when representative is an instance of AccreditedIndividual' do
+        it 'returns #individual_type of the representative' do
+          representative = create(:accredited_individual, individual_type: 'attorney')
+          subject.representative_id = representative.id
+          expect(subject.representative_individual_type).to eq(representative.individual_type)
+        end
+
+        it 'returns "agent" if individual_type includes "agent"' do
+          representative = create(:accredited_individual, individual_type: 'claims_agent')
+          subject.representative_id = representative.id
+          expect(subject.representative_individual_type).to eq('agent')
+        end
+      end
+
+      context 'when representative is an instance of Veteran::Service::Representative' do
+        it 'returns the first element in the user_types array' do
+          representative = create(:representative, user_types: %w[attorney claim_agents])
+          subject.representative_id = representative.representative_id
+          expect(subject.representative_individual_type).to eq(representative.user_types.first)
+        end
+
+        it 'returns nil if user_types is empty' do
+          representative = create(:representative, user_types: [])
+          subject.representative_id = representative.representative_id
+          expect(subject.representative_individual_type).to be_nil
+        end
+      end
+    end
+
+    describe 'veteran_state_code_truncated' do
+      it 'truncates the state code to 2 characters if it is longer' do
+        subject.veteran_state_code = 'Kansas'
+        expect(subject.veteran_state_code_truncated).to eq('Ka')
+      end
+
+      it 'does not truncate the state code if it is 2 characters' do
+        subject.veteran_state_code = 'KS'
+        expect(subject.veteran_state_code_truncated).to eq('KS')
+      end
+    end
+
+    describe 'claimant_state_code_truncated' do
+      it 'truncates the state code to 2 characters if it is longer' do
+        subject.claimant_state_code = 'Kansas'
+        expect(subject.claimant_state_code_truncated).to eq('Ka')
+      end
+
+      it 'does not truncate the state code if it is 2 characters' do
+        subject.claimant_state_code = 'KS'
+        expect(subject.claimant_state_code_truncated).to eq('KS')
+      end
+    end
+
+    describe 'veteran_zip_code_expanded' do
+      it 'returns the zip code and suffix as separate elements if suffix is present' do
+        subject.veteran_zip_code = '12345'
+        subject.veteran_zip_code_suffix = '6789'
+        expect(subject.veteran_zip_code_expanded).to eq(%w[12345 6789])
+      end
+
+      it 'returns the zip code and suffix as separate elements if suffix is not present' do
+        subject.veteran_zip_code = '12345'
+        expect(subject.veteran_zip_code_expanded).to eq(['12345', ''])
+      end
+
+      it 'overflows zip/postal codes longer than 5 characters into the suffix' do
+        subject.veteran_zip_code = '123456'
+        expect(subject.veteran_zip_code_expanded).to eq(%w[12345 6])
+      end
+    end
+
+    describe 'claimant_zip_code_expanded' do
+      it 'returns the zip code and suffix as separate elements if suffix is present' do
+        subject.claimant_zip_code = '12345'
+        subject.claimant_zip_code_suffix = '6789'
+        expect(subject.claimant_zip_code_expanded).to eq(%w[12345 6789])
+      end
+
+      it 'returns the zip code and suffix as separate elements if suffix is not present' do
+        subject.claimant_zip_code = '12345'
+        expect(subject.claimant_zip_code_expanded).to eq(['12345', ''])
+      end
+
+      it 'overflows zip/postal codes longer than 5 characters into the suffix' do
+        subject.claimant_zip_code = '123456'
+        expect(subject.claimant_zip_code_expanded).to eq(%w[12345 6])
+      end
+    end
 
     # Custom validation tests
     context 'consent_limits_must_contain_valid_values' do

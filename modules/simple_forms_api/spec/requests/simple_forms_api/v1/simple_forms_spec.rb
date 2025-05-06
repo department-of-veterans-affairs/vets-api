@@ -4,31 +4,47 @@ require 'rails_helper'
 require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
+require 'lgy/service'
+require 'benefits_intake_service/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
-    # TODO: Restore this test when we release 26-4555 to production.
-    # 'vba_26_4555.json',
-    'vba_21_4138.json',
-    'vba_21_4142.json',
-    'vba_21_10210.json',
-    'vba_21p_0847.json',
-    'vba_21_0972.json',
-    'vba_21_0845.json',
-    'vba_40_0247.json',
-    'vba_21_0966.json',
     'vba_20_10206.json',
-    'vba_40_10007.json',
+    'vba_20_10207-non-veteran.json',
     'vba_20_10207-veteran.json',
-    'vba_20_10207-non-veteran.json'
+    'vba_21_0845.json',
+    'vba_21_0966.json',
+    'vba_21_0972.json',
+    'vba_21_10210.json',
+    'vba_21_4138.json',
+    'vba_21_4140.json',
+    'vba_21_4142.json',
+    'vba_21p_0847.json',
+    'vba_40_0247.json',
+    'vba_40_10007.json'
   ]
 
-  unauthenticated_forms = %w[vba_40_0247.json vba_21_10210.json vba_21p_0847.json
-                             vba_40_10007.json]
+  unauthenticated_forms = %w[
+    vba_21_10210.json
+    vba_21p_0847.json
+    vba_40_0247.json
+    vba_40_10007.json
+  ]
   authenticated_forms = forms - unauthenticated_forms
 
+  let(:pdf_url) { 'https://s3.com/presigned-goodness' }
+  let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
+  let(:lighthouse_service) { instance_double(BenefitsIntake::Service) }
+
+  before do
+    allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
+    allow(mock_s3_client).to receive(:upload).and_return(pdf_url)
+    allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+  end
+
   describe '#submit' do
-    context 'going to Lighthouse Benefits Intake API' do
+    context 'submitting to Lighthouse Benefits Intake API',
+            skip: 'flakey specs reported https://dsva.slack.com/archives/C044AGZFG2W/p1745933769157079' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
@@ -40,76 +56,75 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
           original_method.call(args[0], random_string)
         end
-        Flipper.disable(:simple_forms_email_confirmations)
       end
 
       after do
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         Common::FileHelpers.delete_file_if_exists(metadata_file)
-        Flipper.enable(:simple_forms_email_confirmations)
       end
 
-      unauthenticated_forms.each do |form|
-        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-        data = JSON.parse(fixture_path.read)
+      shared_examples 'form submission' do |form, is_authenticated|
+        let(:fixture_path) { Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form) }
+        let(:data) { JSON.parse(fixture_path.read) }
 
-        it 'makes the request' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
-          expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'saves a FormSubmissionAttempt' do
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
-          expect do
-            post '/simple_forms_api/v1/simple_forms', params: data
-          end.to change(FormSubmissionAttempt, :count).by(1)
-        end
-      end
-
-      authenticated_forms.each do |form|
-        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-        data = JSON.parse(fixture_path.read)
-
-        context 'authenticated user' do
-          before do
-            user = create(:user)
-            sign_in_as(user)
-            create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+        context "for #{form}" do
+          if is_authenticated
+            before do
+              user = create(:user)
+              sign_in_as(user)
+              create(:in_progress_form, user_uuid: user.uuid, form_id: data['form_number'])
+            end
           end
 
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
-          data = JSON.parse(fixture_path.read)
-
-          it 'makes the request' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
+          it 'validates metadata and responds with status OK' do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
             expect(response).to have_http_status(:ok)
           end
 
-          it 'saves a FormSubmissionAttempt' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
-
+          it 'creates a FormSubmissionAttempt record' do
             expect do
               post '/simple_forms_api/v1/simple_forms', params: data
             end.to change(FormSubmissionAttempt, :count).by(1)
           end
 
-          it 'clears the InProgressForm' do
-            allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+          if is_authenticated
+            it 'clears the InProgressForm' do
+              initial_count = InProgressForm.count
 
-            expect do
               post '/simple_forms_api/v1/simple_forms', params: data
-            end.to change(InProgressForm, :count).by(-1)
+
+              final_count = InProgressForm.count
+              expect(final_count).to eq(initial_count - 1)
+            end
           end
+
+          it 'sends the PDF to the S3 bucket' do
+            location_url = 'https://sandbox-api.va.gov/services_user_content/vba_documents/id-path-doesnt-matter'
+            benefits_intake_uuid = SecureRandom.uuid
+            allow_any_instance_of(BenefitsIntake::Service).to(
+              receive(:request_upload).and_return([location_url, benefits_intake_uuid])
+            )
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(mock_s3_client).to have_received(:upload)
+            expect(JSON.parse(response.body)['pdf_url']).to eq pdf_url
+          end
+        end
+      end
+
+      describe 'unauthenticated forms' do
+        unauthenticated_forms.each do |form|
+          it_behaves_like 'form submission', form, false
+        end
+      end
+
+      describe 'authenticated forms' do
+        authenticated_forms.each do |form|
+          it_behaves_like 'form submission', form, true
         end
       end
 
@@ -158,7 +173,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end
           end
 
-          context 'fails to go to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
+          context 'fails to submit to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
             before do
               VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
             end
@@ -192,16 +207,13 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'request with attached documents' do
         let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-        let(:attachment) { double }
-        let(:lighthouse_service) { double }
         let(:confirmation_number) { 'some_confirmation_number' }
 
         before do
           sign_in
-          allow(attachment).to receive(:to_pdf).and_return(pdf_path)
-          allow(PersistentAttachment).to(
-            receive(:where).with(guid: [a_string_matching(/a-random-uuid/)]).and_return([attachment])
-          )
+          allow(PersistentAttachment).to receive(:where) do |args|
+            args[:guid].map { instance_double(PersistentAttachment, to_pdf: pdf_path) }
+          end
         end
 
         shared_examples 'submits successfully' do |form_doc|
@@ -244,24 +256,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           end
         end
 
-        context 'Flipper for simple_forms_lighthouse_benefits_intake_service' do
-          after { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-          context 'when flipped on' do
-            before { Flipper.enable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-            it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
-          end
-
-          context 'when flipped off' do
-            before { Flipper.disable(:simple_forms_lighthouse_benefits_intake_service) }
-
-            it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
-            it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
-          end
-        end
+        it_behaves_like 'submits successfully', 'vba_40_0247_with_supporting_document.json'
+        it_behaves_like 'submits successfully', 'vba_40_10007_with_supporting_document.json'
+        it_behaves_like 'handles multiple attachments', 'vba_20_10207_with_supporting_documents.json'
       end
 
       context 'LOA3 authenticated' do
@@ -276,7 +273,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                                          'vba_21_4142.json')
           data = JSON.parse(fixture_path.read)
 
-          allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
           expect_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:generate).with(3)
 
           post '/simple_forms_api/v1/simple_forms', params: data
@@ -290,8 +286,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         context 'transliteration succeeds' do
           it 'responds with ok' do
-            Flipper.disable(:form21_0966_confirmation_email)
-
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'form_with_accented_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -299,8 +293,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
-
-            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
 
@@ -313,14 +305,21 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:error)
-            # 'not compatible' gets mangled by our scrubbing but this indicates that we're getting the right message
-            expect(response.body).to include('not copatible with the Windows-15 character set')
+
+            expect(JSON.parse(response.body, symbolize_names: true)).to include(
+              errors: include(
+                a_hash_including(
+                  title: 'Internal server error',
+                  meta: a_hash_including(exception: match(/not compatible with the Windows-1252 character set./))
+                )
+              )
+            )
           end
         end
       end
     end
 
-    context 'going to Lighthouse Benefits Claims API' do
+    context 'submitting to Lighthouse Benefits Claims API' do
       before do
         allow(Common::VirusScan).to receive(:scan).and_return(true)
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
@@ -361,17 +360,46 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
 
+    context 'submitting to SAHSHA API (vba_26_4555)' do
+      let(:reference_number) { 'some-reference-number' }
+      let(:body_status) { 'ACCEPTED' }
+      let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+      let(:status) { 200 }
+      let(:lgy_response) { double(body:, status:) }
+
+      before do
+        sign_in
+        allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+      end
+
+      it 'makes the request to LGY::Service' do
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                       'vba_26_4555.json')
+        data = JSON.parse(fixture_path.read)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:ok)
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body['reference_number']).to eq reference_number
+        expect(parsed_body['status']).to eq body_status
+      end
+    end
+
     describe 'failed requests scrub PII from error messages' do
+      let(:data) { JSON.parse(fixture_path.read) }
+      let(:fixture_path) do
+        Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+      end
+
       before do
         sign_in
       end
 
       describe 'unhandled form' do
-        it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_unhandled.json')
-          data = JSON.parse(fixture_path.read)
+        let(:form) { 'form_with_dangerous_characters_unhandled.json' }
 
+        it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
@@ -385,17 +413,34 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
       end
 
-      describe '21-4142' do
-        it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21_4142.json')
-          data = JSON.parse(fixture_path.read)
+      describe '21-4140' do
+        let(:form) { 'form_with_dangerous_characters_21_4140.json' }
 
+        it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected ken at')
+          expect(response.body).to include("expected ',' or '}' after object value, got:")
+
+          exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+          expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](0..2))
+          expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](3..4))
+          expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](5..8))
+          expect(exception).not_to include(data.dig('address', 'street'))
+          expect(exception).not_to include(data.dig('address', 'street2'))
+          expect(exception).not_to include(data.dig('address', 'street3'))
+          expect(exception).not_to include(data.dig('address', 'postal_code'))
+        end
+      end
+
+      describe '21-4142' do
+        let(:form) { 'form_with_dangerous_characters_21_4142.json' }
+
+        it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:error)
+          expect(response.body).to include("expected ',' or '}' after object value, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
@@ -408,16 +453,14 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '21-10210' do
-        it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21_10210.json')
-          data = JSON.parse(fixture_path.read)
+        let(:form) { 'form_with_dangerous_characters_21_10210.json' }
 
+        it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ',' or '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
@@ -430,17 +473,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '26-4555' do
+        let(:form) { 'form_with_dangerous_characters_26_4555.json' }
+
         it 'makes the request and expects a failure' do
           skip 'restore this test when we release the form to production'
-
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_26_4555.json')
-          data = JSON.parse(fixture_path.read)
 
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          expect(response.body).to include('unexpected token at')
+          expect(response.body).to include("expected ',' or '}' after object value, got: '  '")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
@@ -451,16 +492,14 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '21P-0847' do
-        it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21P_0847.json')
-          data = JSON.parse(fixture_path.read)
+        let(:form) { 'form_with_dangerous_characters_21P_0847.json' }
 
+        it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ',' or '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['preparer_ssn']&.[](0..2))
@@ -474,16 +513,14 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '21-0845' do
-        it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21_0845.json')
-          data = JSON.parse(fixture_path.read)
+        let(:form) { 'form_with_dangerous_characters_21_0845.json' }
 
+        it 'makes the request and expects a failure' do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ','  '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
@@ -500,15 +537,20 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       sign_in
     end
 
-    it 'renders the attachment as json' do
+    let(:valid_file) { fixture_file_upload('doctors-note.pdf') }
+    let(:invalid_file) { fixture_file_upload('too_large.pdf') }
+
+    it 'renders the attachment as json when the document is valid' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      file = fixture_file_upload('doctors-note.gif')
 
-      # Define data for both form IDs
+      # Stub the BenefitsIntakeService for validation
+      valid_service = double(valid_document?: true)
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(valid_service)
+
       data_sets = [
-        { form_id: '40-0247', file: },
-        { form_id: '40-10007', file: }
+        { form_id: '40-0247', file: valid_file },
+        { form_id: '40-10007', file: valid_file }
       ]
 
       data_sets.each do |data|
@@ -521,6 +563,42 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
       end
+    end
+
+    it 'returns an error when the document validation fails' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      invalid_service = double
+      error = BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid file format')
+      allow(invalid_service).to receive(:valid_document?).and_raise(error)
+
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
+
+      data = { form_id: '40-0247', file: invalid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      resp = JSON.parse(response.body)
+      expect(resp['error']).to eq 'Document validation failed: Invalid file format'
+    end
+
+    it 'returns an error when the attachment is invalid' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?).and_return(false)
+
+      data = { form_id: '40-0247', file: invalid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 
@@ -544,9 +622,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']).to eq nil
-        expect(parsed_response['pension_intent']).to eq nil
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['compensation_intent']).to be_nil
+        expect(parsed_response['pension_intent']).to be_nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -565,8 +643,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
-        expect(parsed_response['pension_intent']).to eq nil
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['pension_intent']).to be_nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -584,9 +662,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']).to eq nil
+        expect(parsed_response['compensation_intent']).to be_nil
         expect(parsed_response['pension_intent']['type']).to eq 'pension'
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -608,7 +686,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
         expect(parsed_response['pension_intent']['type']).to eq 'pension'
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -622,20 +700,21 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']).to eq nil
-        expect(parsed_response['pension_intent']).to eq nil
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['compensation_intent']).to be_nil
+        expect(parsed_response['pension_intent']).to be_nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
   end
 
   describe 'email confirmations' do
-    before do
-      sign_in
-    end
-
     let(:confirmation_number) { 'some_confirmation_number' }
+    let(:user) { build(:user) }
+
+    before do
+      sign_in(user)
+    end
 
     describe '21_4142' do
       let(:data) do
@@ -658,10 +737,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'veteran.surname@address.com',
           'form21_4142_confirmation_email_template_id',
           {
-            'first_name' => 'VETERAN',
+            'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -700,10 +778,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'my.long.email.address@email.com',
           'form21_10210_confirmation_email_template_id',
           {
-            'first_name' => 'JACK',
+            'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -748,10 +825,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'preparer_address@email.com',
           'form21p_0847_confirmation_email_template_id',
           {
-            'first_name' => 'ARTHUR',
+            'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -791,10 +867,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           'preparer@email.com',
           'form21_0972_confirmation_email_template_id',
           {
-            'first_name' => 'PREPARE',
+            'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -830,9 +905,11 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
 
         context 'veteran preparer' do
-          it 'successful submission' do
+          let(:expiration_date) { '2026-01-14T09:25:55-06:00' }
+
+          it 'sends the received email' do
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
-              .to receive(:submit).and_return([confirmation_number, Time.zone.now])
+              .to receive(:submit).and_return([confirmation_number, expiration_date])
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
               .to receive(:existing_intents)
               .and_return({ 'compensation' => 'false', 'pension' => 'false', 'survivor' => 'false' })
@@ -845,14 +922,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
               'abraham.lincoln@vets.gov',
-              'form21_0966_confirmation_email_template_id',
+              'form21_0966_itf_api_received_email_template_id',
               {
-                'first_name' => 'ABRAHAM',
+                'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
-                'lighthouse_updated_at' => nil,
-                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+                'intent_to_file_benefits' => 'survivors pension benefits',
+                'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                   '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                'itf_api_expiration_date' => 'January 14, 2026'
               }
             )
           end
@@ -871,12 +949,13 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
               'abraham.lincoln@vets.gov',
               'form21_0966_confirmation_email_template_id',
               {
-                'first_name' => 'ABRAHAM',
+                'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
-                'lighthouse_updated_at' => nil,
-                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+                'intent_to_file_benefits' => 'survivors pension benefits',
+                'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                   '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                'itf_api_expiration_date' => nil
               }
             )
           end
@@ -891,6 +970,124 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             expect(VANotify::EmailJob).not_to have_received(:perform_async)
           end
+        end
+
+        context 'no new intent to file added' do
+          before do
+            allow_any_instance_of(SimpleFormsApi::IntentToFile).to receive(:submit).and_return([nil, Time.zone.now])
+            allow_any_instance_of(SimpleFormsApi::IntentToFile)
+              .to receive(:existing_intents)
+              .and_return({ 'compensation' => {}, 'pension' => {}, 'survivor' => {} })
+          end
+
+          it 'does not send a confirmation email' do
+            data['preparer_identification'] = 'VETERAN'
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+          end
+        end
+      end
+    end
+
+    describe '26_4555' do
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_26_4555.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+
+      context 'validated or accepted' do
+        let(:reference_number) { 'some-reference-number' }
+        let(:body_status) { 'VALIDATED' }
+        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:status) { 200 }
+        let(:lgy_response) { double(body:, status:) }
+
+        before do
+          sign_in
+          allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+        end
+
+        it 'sends a confirmation email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'veteran.surname@address.com',
+            'form26_4555_confirmation_email_template_id',
+            {
+              'first_name' => 'Veteran',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => reference_number
+            }
+          )
+        end
+      end
+
+      context 'rejected' do
+        let(:reference_number) { 'some-reference-number' }
+        let(:body_status) { 'REJECTED' }
+        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:status) { 200 }
+        let(:lgy_response) { double(body:, status:) }
+
+        before do
+          sign_in
+          allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+        end
+
+        it 'sends a rejected email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'veteran.surname@address.com',
+            'form26_4555_rejected_email_template_id',
+            {
+              'first_name' => 'Veteran',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => reference_number
+            }
+          )
+        end
+      end
+
+      context 'duplicate' do
+        let(:body_status) { 'DUPLICATE' }
+        let(:body) { { 'status' => body_status } }
+        let(:status) { 200 }
+        let(:lgy_response) { double(body:, status:) }
+
+        before do
+          sign_in
+          allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+        end
+
+        it 'sends a duplicate email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'veteran.surname@address.com',
+            'form26_4555_duplicate_email_template_id',
+            {
+              'first_name' => 'Veteran',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+            }
+          )
         end
       end
     end

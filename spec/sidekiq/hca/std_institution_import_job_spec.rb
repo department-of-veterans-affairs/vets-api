@@ -4,6 +4,35 @@ require 'rails_helper'
 require 'csv'
 
 RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
+  describe '#fetch_csv_data' do
+    let(:job) { described_class.new }
+
+    context 'when CSV fetch is successful' do
+      it 'returns the CSV data' do
+        csv_data = <<~CSV
+          header1,header2
+          value1,value2
+        CSV
+        stub_request(:get, 'https://sitewide-public-websites-income-limits-data.s3-us-gov-west-1.amazonaws.com/std_institution.csv')
+          .to_return(status: 200, body: csv_data)
+
+        result = job.fetch_csv_data
+        expect(result).to eq(csv_data)
+      end
+    end
+
+    context 'when CSV fetch fails' do
+      it 'logs an error and returns nil' do
+        stub_request(:get, 'https://sitewide-public-websites-income-limits-data.s3-us-gov-west-1.amazonaws.com/std_institution.csv')
+          .to_return(status: 404)
+
+        expect(Rails.logger).to receive(:info).with('CSV retrieval failed with response code 404')
+        result = job.fetch_csv_data
+        expect(result).to be_nil
+      end
+    end
+  end
+
   describe '#perform' do
     context 'actual records' do
       it 'populates institutions with the relevant attributes' do
@@ -73,6 +102,33 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
         expect(facility.updated).to eq '2021-04-12 14:58:11 +0000'
         expect(facility.created_by).to eq 'Initial Load'
         expect(facility.updated_by).to eq 'DataBroker - CQ# 0998 3/02/2021'
+      end
+    end
+
+    context 'when fetch_csv_data returns nil' do
+      it 'raises an error' do
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(nil)
+
+        expect do
+          described_class.new.perform
+        end.to raise_error(RuntimeError, 'Failed to fetch CSV data.')
+      end
+    end
+
+    context 'HealthFacilitiesImportJob' do
+      let(:csv_data) do
+        <<~CSV
+          ID,ACTIVATIONDATE,DEACTIVATIONDATE,NAME,STATIONNUMBER,VISTANAME,AGENCY_ID,STREETCOUNTRY_ID,STREETADDRESSLINE1,STREETADDRESSLINE2,STREETADDRESSLINE3,STREETCITY,STREETSTATE_ID,STREETCOUNTY_ID,STREETPOSTALCODE,MAILINGCOUNTRY_ID,MAILINGADDRESSLINE1,MAILINGADDRESSLINE2,MAILINGADDRESSLINE3,MAILINGCITY,MAILINGSTATE_ID,MAILINGCOUNTY_ID,MAILINGPOSTALCODE,FACILITYTYPE_ID,MFN_ZEG_RECIPIENT,PARENT_ID,REALIGNEDFROM_ID,REALIGNEDTO_ID,VISN_ID,VERSION,CREATED,UPDATED,CREATEDBY,UPDATEDBY
+          1001304,2001-05-21 00:00:00 +0000,2015-06-30 00:00:00 +0000,ZZ-SENECA CLINIC,589GT,ZZ-SENECA CLINIC,1009121,1006840,1600 COMMUNITY DRIVE,,,SENECA,1009320,,66538-9739,1006840,1600 COMMUNITY DRIVE,,,SENECA,1009320,,66538-9739,1009148,0,1001263,1001956,,1002215,0,2004-06-04 13:18:48 +0000,2021-04-12 14:58:11 +0000,Initial Load,DataBroker - CQ# 0998 3/02/2021
+        CSV
+      end
+
+      it 'enqueues HCA::HealthFacilitiesImportJob' do
+        allow_any_instance_of(HCA::StdInstitutionImportJob).to receive(:fetch_csv_data).and_return(csv_data)
+
+        expect(HCA::HealthFacilitiesImportJob).to receive(:perform_async)
+
+        described_class.new.perform
       end
     end
   end

@@ -17,6 +17,7 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
                  'code' => 'active' }
              ]
            },
+           'category' => ['environment'],
            'code' => {
              'coding' => [
                {
@@ -43,7 +44,6 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
            'recorder' => {
              'reference' => 'https://sandbox-api.va.gov/services/fhir/v0/r4/Practitioner/I2-4ZXYC2SQAZCHMOWPPFNLOY65GE000000',
              'display' => 'DR. THOMAS359 REYNOLDS206 PHD'
-
            },
            'reactions' => [{
              'substance' => {
@@ -71,18 +71,74 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
            }] } }]
   end
 
+  let(:allergy_intolerance_response_empty_fields) do
+    [{ 'id' => 'I2-FY4N5GUAQ4IZQVQZUPDFN43S4A000000',
+       'type' => 'allergy_intolerance',
+       'attributes' =>
+         { 'resourceType' => 'AllergyIntolerance',
+           'type' => 'allergy',
+           'clinicalStatus' => { 'coding' => [] },
+           'category' => ['environment'],
+           'code' => {
+             'coding' => [
+               {
+                 'system' => 'http://snomed.info/sct',
+                 'code' => '300916003',
+                 'display' => 'Latex allergy'
+               }
+             ],
+             'text' => 'Latex allergy'
+           },
+           'recordedDate' => nil,
+           'patient' => {
+             'reference' => nil,
+             'display' => nil
+           },
+           'notes' => [],
+           'recorder' => {
+             'reference' => nil,
+             'display' => nil
+           },
+           'reactions' => [] } }]
+  end
+
   context 'when legacy is used' do
     before { Flipper.disable(:mobile_allergy_intolerance_model) }
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
-        VCR.use_cassette('rrd/lighthouse_allergy_intolerances') do
-          get '/mobile/v0/health/allergy-intolerances', headers: sis_headers
-        end
+      VCR.use_cassette('rrd/lighthouse_allergy_intolerances') do
+        get '/mobile/v0/health/allergy-intolerances', headers: sis_headers
       end
 
       expect(response).to be_successful
       expect(response.parsed_body['data']).to eq(allergy_intolerance_response)
+
+      body = JSON.parse(response.body)
+
+      expect(body['data']).to be_an(Array)
+      expect(body['data'].size).to be 1
+
+      item = body['data'][0]
+      expect(item['type']).to eq('allergy_intolerance')
+      expect(item['attributes']['category'][0]).to eq('environment')
+    end
+
+    it 'handles empty fields gracefully' do
+      VCR.use_cassette('rrd/lighthouse_allergy_intolerances_empty_fields') do
+        get '/mobile/v0/health/allergy-intolerances', headers: sis_headers
+      end
+
+      expect(response).to be_successful
+      expect(response.parsed_body['data']).to eq(allergy_intolerance_response_empty_fields)
+
+      body = JSON.parse(response.body)
+
+      expect(body['data']).to be_an(Array)
+      expect(body['data'].size).to be 1
+
+      item = body['data'][0]
+      expect(item['type']).to eq('allergy_intolerance')
+      expect(item['attributes']['category'][0]).to eq('environment')
     end
   end
 
@@ -91,14 +147,20 @@ RSpec.describe 'Mobile::V0::Health::AllergyIntolerances', type: :request do
     after { Flipper.disable(:mobile_allergy_intolerance_model) }
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
-        VCR.use_cassette('rrd/lighthouse_allergy_intolerances') do
-          get '/mobile/v0/health/allergy-intolerances', headers: sis_headers
-        end
+      VCR.use_cassette('rrd/lighthouse_allergy_intolerances') do
+        get '/mobile/v0/health/allergy-intolerances', headers: sis_headers
       end
 
       expect(response).to be_successful
       expect(response.parsed_body['data']).to eq(allergy_intolerance_response)
+      body = JSON.parse(response.body)
+
+      expect(body['data']).to be_an(Array)
+      expect(body['data'].size).to be 1
+
+      item = body['data'][0]
+      expect(item['type']).to eq('allergy_intolerance')
+      expect(item['attributes']['category'][0]).to eq('environment')
     end
   end
 end

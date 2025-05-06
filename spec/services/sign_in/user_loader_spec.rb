@@ -7,7 +7,10 @@ RSpec.describe SignIn::UserLoader do
     subject { SignIn::UserLoader.new(access_token:, request_ip:).perform }
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle:) }
-    let!(:user) { create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn) }
+    let!(:user) do
+      create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn, session_handle: user_session_handle,
+                           needs_accepted_terms_of_use:)
+    end
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
     let(:user_verification) { create(:idme_user_verification, user_account:) }
@@ -15,7 +18,14 @@ RSpec.describe SignIn::UserLoader do
     let(:user_icn) { user_account.icn }
     let(:session) { create(:oauth_session, user_account:, user_verification:) }
     let(:session_handle) { session.handle }
+    let(:user_session_handle) { session_handle }
     let(:request_ip) { '123.456.78.90' }
+    let(:vha_facility_ids) { %w[450MH] }
+    let(:needs_accepted_terms_of_use) { false }
+    let!(:terms_of_use_agreement) do
+      create(:terms_of_use_agreement, user_account:, response: tou_response)
+    end
+    let(:tou_response) { 'accepted' }
 
     shared_examples 'reloaded user' do
       context 'and associated session cannot be found' do
@@ -47,9 +57,11 @@ RSpec.describe SignIn::UserLoader do
             auth_broker:,
             client_id: }
         end
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
 
         before do
-          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn))
+          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, deceased_date:, id_theft_flag:, vha_facility_ids:))
         end
 
         context 'and user is authenticated with dslogon' do
@@ -58,6 +70,18 @@ RSpec.describe SignIn::UserLoader do
           it 'reloads user object with expected backing idme uuid' do
             expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
           end
+
+          context 'and the user has an unverified idme user_verification' do
+            let(:unverified_user_account) { create(:user_account, icn: nil) }
+            let!(:idme_user_verification) do
+              create(:idme_user_verification, idme_uuid: user_verification.backing_idme_uuid, verified_at: nil,
+                                              user_account: unverified_user_account)
+            end
+
+            it 'reloads the user object with the expected user_verification' do
+              expect(subject.user_verification).to eq user_verification
+            end
+          end
         end
 
         context 'and user is authenticated with mhv' do
@@ -65,6 +89,40 @@ RSpec.describe SignIn::UserLoader do
 
           it 'reloads user object with expected backing idme uuid' do
             expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
+          end
+
+          context 'and the user has an unverified idme user_verification' do
+            let(:unverified_user_account) { create(:user_account, icn: nil) }
+            let!(:idme_user_verification) do
+              create(:idme_user_verification, idme_uuid: user_verification.backing_idme_uuid, verified_at: nil,
+                                              user_account: unverified_user_account)
+            end
+
+            it 'reloads the user object with the expected user_verification' do
+              expect(subject.user_verification).to eq user_verification
+            end
+          end
+        end
+
+        context 'when validating the user\'s MPI profile' do
+          context 'and the MPI profile has a deceased date' do
+            let(:deceased_date) { '20020202' }
+            let(:expected_error) { MPI::Errors::AccountLockedError }
+            let(:expected_error_message) { 'Death Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
+          end
+
+          context 'and the MPI profile has an id theft flag' do
+            let(:id_theft_flag) { true }
+            let(:expected_error) { MPI::Errors::AccountLockedError }
+            let(:expected_error_message) { 'Theft Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
           end
         end
 
@@ -81,10 +139,24 @@ RSpec.describe SignIn::UserLoader do
           expect(reloaded_user.identity_sign_in).to eq(sign_in)
           expect(reloaded_user.multifactor).to eq(multifactor)
           expect(reloaded_user.fingerprint).to eq(request_ip)
+          expect(reloaded_user.user_verification).to eq(user_verification)
         end
 
         it 'reloads user object so that MPI can be called for additional attributes' do
           expect(subject.edipi).to be edipi
+        end
+
+        context 'when the user can create MHV account' do
+          let(:enabled) { true }
+
+          before do
+            allow(MHV::AccountCreatorJob).to receive(:perform_async)
+          end
+
+          it 'enqueues an MHV::AccountCreatorJob' do
+            subject
+            expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
+          end
         end
       end
     end
@@ -93,8 +165,16 @@ RSpec.describe SignIn::UserLoader do
       let(:user_uuid) { user_account.id }
 
       context 'and user identity record exists in redis' do
-        it 'returns existing user redis record' do
-          expect(subject.uuid).to eq(user_uuid)
+        context 'and session handle on access token matches session handle on user record' do
+          it 'returns existing user redis record' do
+            expect(subject.uuid).to eq(user_uuid)
+          end
+        end
+
+        context 'and session handle on access token does not match session handle on user record' do
+          let(:user_session_handle) { 'some-user-session-handle' }
+
+          it_behaves_like 'reloaded user'
         end
       end
 

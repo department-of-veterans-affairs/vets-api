@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - code
 properties:
   data:
     type: object
+    additionalProperties: false
     properties:
       id:
         type: string
@@ -14,11 +16,13 @@ properties:
         example: "GenderIdentityOptions"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - options
         properties:
           options:
             type: object
+            additionalProperties: false
             example:
               M: "Man"
               B: "Non-binary"

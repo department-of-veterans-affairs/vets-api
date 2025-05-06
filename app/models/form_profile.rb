@@ -4,10 +4,11 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
+require 'vets/model'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
-  include Virtus.model
+  include Vets::Model
 
   attribute :first, String
   attribute :middle, String
@@ -16,51 +17,51 @@ class FormFullName
 end
 
 class FormDate
-  include Virtus.model
+  include Vets::Model
 
   attribute :from, Date
   attribute :to, Date
 end
 
 class FormMilitaryInformation
-  include Virtus.model
+  include Vets::Model
 
-  attribute :service_episodes_by_date, Array
+  attribute :service_episodes_by_date, VAProfile::Models::ServiceHistory, array: true
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
-  attribute :post_nov111998_combat, Boolean
-  attribute :sw_asia_combat, Boolean
-  attribute :tours_of_duty, Array
-  attribute :currently_active_duty, Boolean
+  attribute :post_nov111998_combat, Bool, default: false
+  attribute :sw_asia_combat, Bool, default: false
+  attribute :tours_of_duty, Hash, array: true
+  attribute :currently_active_duty, Bool, default: false
   attribute :currently_active_duty_hash, Hash
-  attribute :vic_verified, Boolean
-  attribute :service_branches, Array[String]
-  attribute :service_periods, Array
-  attribute :guard_reserve_service_history, Array[FormDate]
+  attribute :vic_verified, Bool, default: false
+  attribute :service_branches, String, array: true
+  attribute :service_periods, Hash, array: true
+  attribute :guard_reserve_service_history, FormDate, array: true
   attribute :latest_guard_reserve_service_period, FormDate
 end
 
 class FormAddress
-  include Virtus.model
+  include Vets::Model
 
-  attribute :street
-  attribute :street2
-  attribute :city
-  attribute :state
-  attribute :country
-  attribute :postal_code
+  attribute :street, String
+  attribute :street2, String
+  attribute :city, String
+  attribute :state, String
+  attribute :country, String
+  attribute :postal_code, String
 end
 
 class FormIdentityInformation
-  include Virtus.model
+  include Vets::Model
 
   attribute :full_name, FormFullName
   attribute :date_of_birth, Date
   attribute :gender, String
-  attribute :ssn
+  attribute :ssn, String
 
   def hyphenated_ssn
     StringHelpers.hyphenated_ssn(ssn)
@@ -72,7 +73,7 @@ class FormIdentityInformation
 end
 
 class FormContactInformation
-  include Virtus.model
+  include Vets::Model
 
   attribute :address, FormAddress
   attribute :home_phone, String
@@ -82,72 +83,96 @@ class FormContactInformation
 end
 
 class FormProfile
-  include Virtus.model
+  include Vets::Model
   include SentryLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
+    acc_rep_management: %w[21-22 21-22A],
+    adapted_housing: ['26-4555'],
+    coe: ['26-1880'],
+    decision_review: %w[20-0995 20-0996 10182],
+    dependents: %w[686C-674 686C-674-V2],
+    dispute_debt: ['DISPUTE-DEBT'],
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
-    hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
-    dependents: ['686C-674'],
-    decision_review: %w[20-0995 20-0996 10182],
-    mdot: ['MDOT'],
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    form_upload: %w[
+      21-0779-UPLOAD
+      21-4192-UPLOAD
+      21-509-UPLOAD
+      21-8940-UPLOAD
+      21P-0516-1-UPLOAD
+      21P-0517-1-UPLOAD
+      21P-0518-1-UPLOAD
+      21P-0519C-1-UPLOAD
+      21P-0519S-1-UPLOAD
+      21P-530a-UPLOAD
+      21P-8049-UPLOAD
+    ],
     fsr: ['5655'],
-    vre_counseling: ['28-8832'],
-    vre_readiness: ['28-1900'],
-    coe: ['26-1880'],
-    adapted_housing: ['26-4555'],
+    hca: %w[1010ez 10-10EZR],
     intent_to_file: ['21-0966'],
     ivc_champva: ['10-7959C'],
-    form_upload_flow: ['FORM-UPLOAD-FLOW'],
-    acc_rep_management: %w[21-22 21-22A],
-    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
+    mdot: ['MDOT'],
+    pension_burial: %w[21P-530EZ 21P-527EZ],
+    vre_counseling: ['28-8832'],
+    vre_readiness: ['28-1900']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
-    '1010EZ' => ::FormProfiles::VA1010ez,
     '10-10EZR' => ::FormProfiles::VA1010ezr,
     '10-7959C' => ::FormProfiles::VHA107959c,
+    '1010EZ' => ::FormProfiles::VA1010ez,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
+    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0966' => ::FormProfiles::VA210966,
+    '21-22' => ::FormProfiles::VA2122,
+    '21-22A' => ::FormProfiles::VA2122a,
+    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21-686C' => ::FormProfiles::VA21686c,
+    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
+    '22-0993' => ::FormProfiles::VA0993,
+    '22-0994' => ::FormProfiles::VA0994,
+    '22-10203' => ::FormProfiles::VA10203,
     '22-1990' => ::FormProfiles::VA1990,
-    '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1990EMEB' => ::FormProfiles::VA1990emeb,
+    '22-1990EZ' => ::FormProfiles::VA1990ez,
+    '22-1990N' => ::FormProfiles::VA1990n,
+    '22-1990S' => ::FormProfiles::VA1990s,
     '22-1995' => ::FormProfiles::VA1995,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
-    '21P-530' => ::FormProfiles::VA21p530,
-    '21P-530V2' => ::FormProfiles::VA21p530v2,
-    '21-686C' => ::FormProfiles::VA21686c,
-    '686C-674' => ::FormProfiles::VA686c674,
-    '40-10007' => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '22-0993' => ::FormProfiles::VA0993,
-    '22-0994' => ::FormProfiles::VA0994,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
-    'MDOT' => ::FormProfiles::MDOT,
-    '22-10203' => ::FormProfiles::VA10203,
-    '22-1990S' => ::FormProfiles::VA1990s,
-    '5655' => ::FormProfiles::VA5655,
-    '28-8832' => ::FormProfiles::VA288832,
-    '28-1900' => ::FormProfiles::VA281900,
-    '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
-    '21-0966' => ::FormProfiles::VA210966,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
-    '21-22' => ::FormProfiles::VA2122,
-    '21-22A' => ::FormProfiles::VA2122a,
-    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
+    '28-1900' => ::FormProfiles::VA281900,
+    '28-8832' => ::FormProfiles::VA288832,
+    '40-10007' => ::FormProfiles::VA4010007,
+    '5655' => ::FormProfiles::VA5655,
+    '686C-674-V2' => ::FormProfiles::VA686c674v2,
+    '686C-674' => ::FormProfiles::VA686c674,
+    'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
+    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'MDOT' => ::FormProfiles::MDOT
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -164,10 +189,35 @@ class FormProfile
     forms
   end
 
+  # Prepends the appropriate form class namespace based on the given form_class, form_id and Flipper settings
+  #
+  # @param form_class [Class] The name of the Class (e.g., ::FormProfiles::VA21p527ez).
+  # @param form_id [String] The name of the Form (e.g., '21P-527EZ').
+  # @return [Module] The corresponding namespace module for form profiles, defaulting to FormProfiles.
+  #
+  # @example Usage
+  #   prepend_module(::FormProfiles::VA21p527ez, '21P-527EZ') #=> Pensions::FormProfiles::VA21p527ez
+  #   prepend_module(::FormProfiles::VA21p530ez', '21P-530EZ')  #=> Burials::FormProfiles::VA21p530ez
+  #   prepend_module(::FormProfiles::VA4010007, '40-10007')  #=> ::FormProfiles::VA4010007 (no flipper)
+  #
+  def self.prepend_module(form_class, form_id)
+    namespaces = {
+      '21P-527EZ' => 'Pensions'
+    }
+
+    namespace = namespaces[form_id]
+    if namespace && Flipper.enabled?(:"#{namespace.singularize.downcase}_form_profile_module_enabled", @user)
+      "#{namespace}::#{form_class}".constantize
+    else
+      form_class
+    end
+  end
+
   # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
   def self.for(form_id:, user:)
     form_id = form_id.upcase
-    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id:, user:)
+    form_class = FORM_ID_TO_CLASS.fetch(form_id, self)
+    prepend_module(form_class, form_id).new(form_id:, user:)
   end
 
   def initialize(form_id:, user:)
@@ -181,8 +231,6 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
-    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 
@@ -206,6 +254,7 @@ class FormProfile
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
+
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
 
@@ -280,21 +329,28 @@ class FormProfile
     return_val
   end
 
+  def pciu_disabled?
+    Flipper.enabled?(:remove_pciu, user)
+  end
+
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-
-    opt[:address] ||= user_address_hash
-    opt[:email] ||= extract_pciu_data(:pciu_email)
-    if opt[:home_phone].nil?
-      opt[:home_phone] = pciu_primary_phone
-      opt[:us_phone] = pciu_us_phone
+    if pciu_disabled?
+      # Monitor logs to validate the presence of Contact Information V2 user data
+      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
+        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    else
+      # The following pciu lines need to removed when tearing down the EVSS PCIU service.
+      opt[:email] ||= extract_pciu_data(:pciu_email)
+      if opt[:home_phone].nil?
+        opt[:home_phone] = pciu_primary_phone
+        opt[:us_phone] = pciu_us_phone
+      end
     end
+    opt[:address] ||= user_address_hash
 
     format_for_schema_compatibility(opt)
-
     FormContactInformation.new(opt)
   end
 
@@ -303,7 +359,9 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
+    if pciu_disabled?
+      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+    elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
       Rails.logger.info('Vet360 Contact Info Null')
@@ -331,7 +389,6 @@ class FormProfile
       opt[:address][:street2] = apt[1]
       opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
-
     %i[home_phone us_phone mobile_phone].each do |phone|
       opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
     end
@@ -358,10 +415,15 @@ class FormProfile
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
-    return mobile if mobile&.area_code && mobile&.phone_number
+    return mobile if mobile&.area_code && mobile.phone_number
 
     home = vet360_contact_info&.home_phone
-    return home if home&.area_code && home&.phone_number
+    return home if home&.area_code && home.phone_number
+
+    if pciu_disabled?
+      # Track precense of home and mobile
+      Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
+    end
 
     phone_struct = Struct.new(:area_code, :phone_number)
 
@@ -418,15 +480,15 @@ class FormProfile
     when Hash
       clean_hash!(value)
     when Array
-      value.map { |v| clean!(v) }.delete_if(&:blank?)
+      value.map { |v| clean!(v) }.compact_blank!
     else
       value
     end
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
-    hash.delete_if { |_k, v| v.blank? }
+    hash.compact_blank!
   end
 end

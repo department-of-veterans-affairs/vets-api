@@ -5,9 +5,11 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v1'
+require 'bgs/power_of_attorney_verifier'
+require 'bgs_service/person_web_service'
 
 Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
-  let(:pws) { ClaimsApi::LocalBGS }
+  let(:pws) { ClaimsApi::PersonWebService }
 
   path '/forms/2122' do
     get 'Gets schema for POA form.' do
@@ -49,14 +51,30 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
-        The endpoint establishes POA for a representative.
-        Once ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:
-        \n - poaCode\n - Signature, which can be a:
-        \n   - Base64-encoded image or signature block, allowing the API to auto-populate
-        and attach the VA 21-22 form to the request without requiring a PDF upload, or
-        \n   - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint
-        \n\nA 200 response means the submission was successful, but does not mean the POA is effective.
-        Check the status of a POA submission by using the GET /forms/2122/{id} endpoint.\n
+        Signature images\n\n
+
+        If the request includes signature images for both the Veteran and the representative, the API will:\n
+           - Generate VA Form 21-22 PDF for organizations or VA Form 21-22a PDF for individual representatives.\n
+           - Automatically establish POA for the representative.\n\n
+
+        The signature can be provided in either of these formats:\n
+           - Base64-encoded image or signature block. This allows the API to auto-populate and attach the VA Form
+           21-22 without requiring a manual PDF upload.\n
+           - PDF of VA Form 21-22 with an ink signature. This should be attached using the PUT /forms/2122/{id}
+           endpoint.\n\n
+
+           If signature images are not included in the initial request, the response will return an id which must be
+           used to submit the signed PDF via the PUT /forms/2122/{id} endpoint.\n\n
+
+        Dependent claimant information:\n
+           - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran
+           will be validated.\n
+           - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
+
+        Response information:\n
+           - A successful submission returns a 200 response, indicating that the request was successfully processed.\n
+           - A 200 response does not confirm that the POA has been appointed.\n
+           - To check the status of a POA submission, use the GET /forms/2122/{id} endpoint.\n
       VERBIAGE
       description post_description
 
@@ -73,7 +91,37 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
-      parameter SwaggerSharedComponents::V1.body_examples[:power_of_attorney]
+      claimant_data = {
+        'firstName' => 'Mary',
+        'lastName' => 'Lincoln',
+        'address' => {
+          'numberAndStreet' => '123 anystreet',
+          'city' => 'anytown',
+          'state' => 'OR',
+          'country' => 'USA',
+          'zipFirstFive' => '12345'
+        },
+        'relationship' => 'Spouse'
+      }
+
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                    'form_2122_json_api.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                                   'form_2122_json_api.json').read)
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V1.body_examples[:power_of_attorney][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
@@ -87,6 +135,11 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
             temp
           end
+
+          let(:power_of_attorney_request) do
+            data
+          end
+
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
           before do |example|
@@ -135,6 +188,10 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
           end
           let(:Authorization) { nil }
 
+          let(:power_of_attorney_request) do
+            data
+          end
+
           before do |example|
             stub_poa_verification
 
@@ -170,6 +227,10 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
             temp['data']['attributes']['serviceOrganization']['poaCode'] = nil
 
             temp
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           before do |example|
@@ -251,7 +312,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'power_of_attorney', 'upload.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -291,7 +352,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -370,7 +431,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -407,7 +468,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
                                             'default.json').read)
 
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -445,7 +506,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                             'default.json').read)
           let(:scopes) { %w[claim.read claim.write] }
-          let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+          let(:power_of_attorney) { create(:power_of_attorney) }
           let(:attachment) { nil }
           let(:id) { power_of_attorney.id }
 

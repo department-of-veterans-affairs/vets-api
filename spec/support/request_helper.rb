@@ -16,7 +16,7 @@ module RequestHelper
   def errors_for(response)
     parsed_body = JSON.parse(response.body)
 
-    parsed_body['errors'].map { |error| error['detail'] }
+    parsed_body['errors'].pluck('detail')
   end
 
   # Returns a JSON object with the contents of the response body 'data' attribute

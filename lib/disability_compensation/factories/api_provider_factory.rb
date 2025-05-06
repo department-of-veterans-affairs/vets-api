@@ -1,22 +1,17 @@
 # frozen_string_literal: true
 
-require 'disability_compensation/providers/rated_disabilities/evss_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_disabilities_provider'
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
-require 'disability_compensation/providers/intent_to_file/evss_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/intent_to_file_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
-require 'disability_compensation/providers/ppiu_direct_deposit/evss_ppiu_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_provider'
 require 'disability_compensation/providers/claims_service/claims_service_provider'
-require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
 require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
 require 'disability_compensation/providers/brd/brd_provider'
-require 'disability_compensation/providers/brd/evss_brd_provider'
 require 'disability_compensation/providers/brd/lighthouse_brd_provider'
+require 'disability_compensation/providers/brd/lighthouse_staging_brd_provider'
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
-require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
 require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
 require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
@@ -28,7 +23,8 @@ class ApiProviderFactory
 
   API_PROVIDER = {
     evss: :evss,
-    lighthouse: :lighthouse
+    lighthouse: :lighthouse,
+    lighthouse_staging: :lighthouse_staging
   }.freeze
 
   FACTORIES = {
@@ -41,22 +37,9 @@ class ApiProviderFactory
     supplemental_document_upload: :supplemental_document_upload
   }.freeze
 
-  # Splitting the rated disabilities functionality into two use cases:
-  # 1. foreground tasks (i.e. web requests)
-  # 2. the background jobs (i.e. submit526 job)
-  FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND =
-    'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
-  FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
-    'disability_compensation_lighthouse_rated_disabilities_provider_background'
-  FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
-  FEATURE_TOGGLE_CLAIMS_SERVICE = 'disability_compensation_lighthouse_claims_service_provider'
-
-  # PPIU calls out to Direct Deposit APIs in Lighthouse
-  FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
-  FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
-  FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
-
-  FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT = 'disability_compensation_lighthouse_upload_supplemental_document'
+  FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
+  FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
+  FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'
 
   attr_reader :type
 
@@ -81,7 +64,7 @@ class ApiProviderFactory
     new(**).call
   end
 
-  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {})
+  def initialize(type:, current_user:, feature_toggle: nil, provider: nil, options: {})
     @type = type
     @api_provider = provider
     @options = options
@@ -116,8 +99,6 @@ class ApiProviderFactory
 
   def rated_disabilities_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssRatedDisabilitiesProvider.new(@options[:auth_headers])
     when API_PROVIDER[:lighthouse]
       LighthouseRatedDisabilitiesProvider.new(@options[:icn])
     else
@@ -127,8 +108,6 @@ class ApiProviderFactory
 
   def intent_to_file_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssIntentToFileProvider.new(@current_user, nil)
     when API_PROVIDER[:lighthouse]
       LighthouseIntentToFileProvider.new(@current_user)
     else
@@ -138,8 +117,6 @@ class ApiProviderFactory
 
   def ppiu_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssPPIUProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
       LighthousePPIUProvider.new(@current_user)
     else
@@ -149,8 +126,6 @@ class ApiProviderFactory
 
   def claims_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssClaimsServiceProvider.new(@options[:auth_headers])
     when API_PROVIDER[:lighthouse]
       LighthouseClaimsServiceProvider.new(@options[:icn])
     else
@@ -160,10 +135,10 @@ class ApiProviderFactory
 
   def brd_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      EvssBRDProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
       LighthouseBRDProvider.new(@current_user)
+    when API_PROVIDER[:lighthouse_staging]
+      LighthouseStagingBRDProvider.new(@current_user)
     else
       raise NotImplementedError, 'No known BRD Api Provider type provided'
     end
@@ -171,14 +146,6 @@ class ApiProviderFactory
 
   def generate_pdf_service_provider
     case api_provider
-    when API_PROVIDER[:evss]
-      if @options[:auth_headers].nil? || @options[:auth_headers]&.empty?
-        raise StandardError, 'options[:auth_headers] is required to create a generate an EVSS pdf provider'
-      end
-
-      # provide options[:breakered] = false if this needs to use the non-breakered configuration
-      # for instance, in the backup process
-      EvssGeneratePdfProvider.new(@options[:auth_headers], breakered: @options[:breakered])
     when API_PROVIDER[:lighthouse]
       LighthouseGeneratePdfProvider.new(@current_user[:icn])
     else
@@ -187,11 +154,18 @@ class ApiProviderFactory
   end
 
   def supplemental_document_upload_service_provider
+    provider_options = [
+      @options[:form526_submission],
+      @options[:document_type],
+      @options[:statsd_metric_prefix],
+      @options[:supporting_evidence_attachment]
+    ]
+
     case api_provider
     when API_PROVIDER[:evss]
-      EVSSSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+      EVSSSupplementalDocumentUploadProvider.new(*provider_options)
     when API_PROVIDER[:lighthouse]
-      LighthouseSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+      LighthouseSupplementalDocumentUploadProvider.new(*provider_options)
     else
       raise NotImplementedError, 'No known Supplemental Document Upload Api Provider type provided'
     end

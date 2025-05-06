@@ -39,6 +39,8 @@ module ClaimsApi
         raise ::Common::Exceptions::ServiceError.new(
           detail: 'PtcpntIdA has open claims.'
         )
+      elsif record_not_found?
+        raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Record not found.')
       else
         soap_logging('500')
         raise ::Common::Exceptions::ServiceError.new(detail: 'An external server is experiencing difficulty.')
@@ -71,6 +73,13 @@ module ClaimsApi
     def participant_has_open_claims?
       has_error = @fault_string.include?('PtcpntIdA has open claims')
       soap_logging('422') if has_error
+
+      has_error
+    end
+
+    def record_not_found?
+      has_error = @fault_string.include?('No Record Found')
+      soap_logging('404') if has_error
 
       has_error
     end

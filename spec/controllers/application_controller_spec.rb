@@ -93,11 +93,6 @@ RSpec.describe ApplicationController, type: :controller do
       before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
       describe '#log_message_to_sentry' do
-        it 'error logs to Rails logger' do
-          expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
-          subject.log_message_to_sentry('blah', :error, { extra: 'context' }, tags: 'tagging')
-        end
-
         it 'logs to Sentry' do
           expect(Sentry).to receive(:set_tags)
           expect(Sentry).to receive(:set_extras)
@@ -106,15 +101,24 @@ RSpec.describe ApplicationController, type: :controller do
         end
       end
 
-      describe '#log_exception_to_sentry' do
-        it 'warn logs to Rails logger' do
-          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
-          subject.log_exception_to_sentry(exception)
+      describe '#log_message_to_rails' do
+        it 'error logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
+          subject.log_message_to_rails('blah', :error, { extra: 'context' })
         end
+      end
 
+      describe '#log_exception_to_sentry' do
         it 'logs to Sentry' do
           expect(Sentry).to receive(:capture_exception).with(exception, level: 'error').once
           subject.log_exception_to_sentry(exception)
+        end
+      end
+
+      describe '#log_exception_to_rails' do
+        it 'warn logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+          subject.log_exception_to_rails(exception)
         end
       end
     end
@@ -405,7 +409,7 @@ RSpec.describe ApplicationController, type: :controller do
         it 'renders json object with developer attributes' do
           get :not_authorized
 
-          expect(response.status).to eq(403)
+          expect(response).to have_http_status(:forbidden)
           expect(subject.keys).to eq(keys_for_all_env)
         end
 
@@ -432,7 +436,7 @@ RSpec.describe ApplicationController, type: :controller do
             get :not_authorized
           end
 
-          expect(response.status).to eq(403)
+          expect(response).to have_http_status(:forbidden)
           expect(subject.keys).to eq(keys_for_all_env)
         end
       end
@@ -444,7 +448,7 @@ RSpec.describe ApplicationController, type: :controller do
             .and_return(ActiveSupport::StringInquirer.new('production'))
 
           get :not_authorized
-          expect(response.status).to eq(403)
+          expect(response).to have_http_status(:forbidden)
           expect(subject.keys)
             .to eq(keys_for_all_env)
         end

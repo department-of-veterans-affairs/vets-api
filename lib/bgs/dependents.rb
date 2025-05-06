@@ -11,6 +11,7 @@ module BGS
       @dependents_application = @payload['dependents_application']
       @user = user
       @views = payload['view:selectable686_options']
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     def create_all
@@ -22,15 +23,20 @@ module BGS
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def report_deaths
-      @dependents_application['deaths'].each do |death_info|
+      @dependents_application['deaths']&.each do |death_info|
         death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
 
         # next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
 
         formatted_info = death.format_info
-        death_info['location']['state_code'] = death_info['location'].delete('state')
+        if @is_v2
+          death_info['dependent_death_location']['location']['state_code'] = death_info['dependent_death_location']['location'].delete('state') # rubocop:disable Layout/LineLength
+        else
+          death_info['location']['state_code'] = death_info['location'].delete('state')
+        end
         participant = bgs_service.create_participant(@proc_id)
         bgs_service.create_person(person_params(death, participant, formatted_info))
         # Need to add death location once BGS adds support for this functionality
@@ -47,6 +53,7 @@ module BGS
         )
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def report_divorce
       divorce = BGSDependents::Divorce.new(@dependents_application['report_divorce'])

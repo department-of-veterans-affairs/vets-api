@@ -14,10 +14,10 @@
           "addressLine1": "1234 Couch Street",
           "addressLine2": "Unit 4",
           "addressLine3": "Room 1",
-          "city": "Portland",
-          "state": "OR",
+          "city": "Schenectady",
+          "state": "NY",
           "country": "USA",
-          "zipFirstFive": "41726",
+          "zipFirstFive": "12345",
           "zipLastFour": "1234"
         },
         "emailAddress": {
@@ -31,10 +31,10 @@
         "addressLine1": "10 Peach St",
         "addressLine2": "Unit 4",
         "addressLine3": "Room 1",
-        "city": "Atlanta",
-        "state": "GA",
+        "city": "Schenectady",
+        "state": "NY",
         "country": "USA",
-        "zipFirstFive": "42220",
+        "zipFirstFive": "12345",
         "zipLastFour": "9897",
         "dates": {
           "beginDate": "2023-06-04",
@@ -177,7 +177,7 @@
         },
         "federalActivation": {
           "activationDate": "2023-10-01",
-          "anticipatedSeparationDate": "2024-10-31"
+          "anticipatedSeparationDate": "2025-10-31"
         },
         "confinements": [
           {

@@ -105,7 +105,14 @@ module EducationForm
           contents = records.map(&:text).join(EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK)
 
           begin
-            writer.write(contents, filename)
+            log_info("Uploading #{contents.size} bytes to region: #{region}") if Settings.hostname.eql?('api.va.gov')
+            bytes_sent = writer.write(contents, filename)
+
+            if bytes_sent.eql?(contents.size) && Settings.hostname.eql?('api.va.gov')
+              log_info("Successfully uploaded #{bytes_sent} bytes to region: #{region}")
+            elsif Settings.hostname.eql?('api.va.gov')
+              log_info("Warning: Uploaded #{bytes_sent} bytes to region: #{region}")
+            end
 
             ## Testing to see if writer is the cause for retry attempt failures
             ## If we get to this message, it's not the writer object
@@ -114,13 +121,8 @@ module EducationForm
             # send copy of staging spool files to testers
             # This mailer is intended to only work for development, staging and NOT production
             # Rails.env will return 'production' on the development & staging servers and  which
-            # will trip the unwary. To be safe, use ENV['HOSTNAME']
-            email_staging_spool_files(contents) if
-              # local developer development
-              Rails.env.eql?('development') ||
-
-              # VA Staging environment where we really want this to work.
-              ENV['HOSTNAME'].eql?('staging-api.va.gov')
+            # will trip the unwary. To be safe, use Settings.hostname
+            email_staging_spool_files(contents) if local_or_staging_env?
 
             # track and update the records as processed once the file has been successfully written
             track_submissions(region_id)
@@ -238,6 +240,10 @@ module EducationForm
 
     def email_staging_spool_files(contents)
       CreateStagingSpoolFilesMailer.build(contents).deliver_now
+    end
+
+    def local_or_staging_env?
+      Rails.env.eql?('development') || Settings.hostname.eql?('staging-api.va.gov')
     end
   end
 end

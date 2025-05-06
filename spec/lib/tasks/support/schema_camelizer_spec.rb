@@ -31,7 +31,7 @@ describe SchemaCamelizer do
   def create_source_schema(name, hash)
     schema_file = "#{TEST_SCHEMA_DIRECTORY}/#{name}.json"
 
-    File.open(schema_file, 'w') { |file| file.write(JSON.pretty_generate(hash)) }
+    File.write(schema_file, JSON.pretty_generate(hash))
     schema_file
   end
 
@@ -152,7 +152,7 @@ describe SchemaCamelizer do
     it 'raises an exception when it is not in a schemas directory' do
       schema_file_in_weird_location = "#{TEST_DIRECTORY}/bad_location.json"
       schema = { 'signficant_data' => 'no' }
-      File.open(schema_file_in_weird_location, 'w') { |file| file.write(JSON.pretty_generate(schema)) }
+      File.write(schema_file_in_weird_location, JSON.pretty_generate(schema))
 
       subject = SchemaCamelizer.new(schema_file_in_weird_location)
       exception_text = 'expected `#camel_path` (tmp/camel_schema_tests/bad_location.json) ' \

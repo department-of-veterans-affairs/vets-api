@@ -5,19 +5,13 @@ module VBADocuments
     def initialize(month:, year:)
       @month = month&.to_i
       @year = year&.to_i
-      @stats = {}
 
       raise ArgumentError, 'Month and year not provided' if @month.nil? || @year.nil?
       raise ArgumentError, 'Month and year not valid' unless valid_month? && valid_year?
     end
 
     def generate_and_save_stats
-      generate_summary_stats
-      generate_page_count_stats
-      generate_upload_size_stats
-      generate_status_timing_stats
-
-      VBADocuments::MonthlyStat.find_or_create_by(month: @month, year: @year).update(stats: @stats)
+      VBADocuments::MonthlyStat.find_or_create_by(month: @month, year: @year).update(stats:)
     end
 
     private
@@ -30,104 +24,113 @@ module VBADocuments
       /^2\d{3}$/.match(@year.to_s)
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def generate_summary_stats
-      expired = by_status('expired')
-      errored = by_status('error')
-      processing = by_status(%w[pending uploaded received processing])
-      success = by_status('success')
-      vbms = by_status('vbms')
-      all = records_in_date_range
-
-      if all.count.zero?
-        @stats['summary_stats'] = { 'expired_count' => 0, 'errored_count' => 0, 'processing_count' => 0,
-                                    'success_count' => 0, 'vbms_count' => 0, 'total' => 0, 'error_percent' => 0 }
-      else
-        @stats['summary_stats'] = {
-          'expired_count' => expired.count,
-          'errored_count' => errored.count,
-          'processing_count' => processing.count,
-          'success_count' => success.count,
-          'vbms_count' => vbms.count,
-          'total' => all.count,
-          'error_percent' => (errored.count.to_f / all.count).round(2)
-        }
-      end
-      # rubocop:enable Metrics/MethodLength
-
-      generate_consumer_stats(expired, errored, processing, success, vbms, all)
+    def stats
+      {
+        summary_stats:,
+        consumer_stats:,
+        page_count_stats:,
+        upload_size_in_mb_stats:,
+        status_elapsed_time_stats:
+      }.deep_stringify_keys
     end
 
-    # rubocop:disable Metrics/ParameterLists
-    def generate_consumer_stats(expired, errored, processing, success, vbms, all)
-      @stats['consumer_stats'] = []
+    def summary_stats
+      records_count = records_in_date_range.size
+      error_percent = (errored_records.size.to_f / records_count).round(2)
 
-      all.pluck(:consumer_name).uniq.compact.sort.each do |consumer|
-        errored_count = errored.for_consumer(consumer).count
-        total = all.for_consumer(consumer).count
-
-        @stats['consumer_stats'] << {
-          'consumer_name' => consumer,
-          'expired_count' => expired.for_consumer(consumer).count,
-          'errored_count' => errored_count,
-          'processing_count' => processing.for_consumer(consumer).count,
-          'success_count' => success.for_consumer(consumer).count,
-          'vbms_count' => vbms.for_consumer(consumer).count,
-          'total' => total,
-          'error_percent' => (errored_count.to_f / total).round(2)
-        }
-      end
-    end
-    # rubocop:enable Metrics/ParameterLists
-
-    def generate_page_count_stats
-      page_counts = records_in_date_range.where("uploaded_pdf->'total_pages' is not null")
-                                         .pluck(Arel.sql("uploaded_pdf->'total_pages'")).map(&:to_i)
-
-      @stats['page_count_stats'] = {
-        'total' => page_counts.sum,
-        'maximum' => page_counts.max,
-        'average' => calculate_average(page_counts),
-        'median' => calculate_median(page_counts),
-        'mode' => calculate_mode(page_counts)
+      {
+        expired_count: expired_records.size,
+        errored_count: errored_records.size,
+        processing_count: processing_records.size,
+        success_count: success_records.size,
+        vbms_count: success_records.size,
+        total: records_count,
+        error_percent:
       }
     end
 
-    def generate_upload_size_stats
+    # consider moving to scope on VBADocuments::UploadSubmission
+    def expired_records
+      @expired_records ||= records_in_date_range.where(status: 'expired')
+    end
+
+    def errored_records
+      @error_records ||= records_in_date_range.where(status: 'error')
+    end
+
+    def processing_records
+      statuses = %w[pending uploaded received processing]
+      @processing_records ||= records_in_date_range.where(status: statuses)
+    end
+
+    def success_records
+      @success_records ||= records_in_date_range.where(status: 'success')
+    end
+
+    def vbms_records
+      @vbms_records ||= records_in_date_range.where(status: 'vbms')
+    end
+
+    def consumer_stats
+      consumer_names = records_in_date_range.pluck(:consumer_name)
+
+      consumer_names.uniq.compact.sort.map do |consumer|
+        errored_count = errored_records.for_consumer(consumer).count
+        total = records_in_date_range.for_consumer(consumer).count
+        error_percent = (errored_count.to_f / total).round(2)
+
+        {
+          consumer_name: consumer,
+          expired_count: expired_records.for_consumer(consumer).count,
+          errored_count:,
+          processing_count: processing_records.for_consumer(consumer).count,
+          success_count: success_records.for_consumer(consumer).count,
+          vbms_count: vbms_records.for_consumer(consumer).count,
+          total:,
+          error_percent:
+        }
+      end
+    end
+
+    def page_count_stats
+      page_counts = records_in_date_range.where("uploaded_pdf->'total_pages' IS NOT NULL")
+                                         .pluck(Arel.sql("uploaded_pdf->'total_pages'"))
+                                         .map(&:to_i)
+      {
+        total: page_counts.sum,
+        maximum: page_counts.max,
+        average: calculate_average(page_counts),
+        median: calculate_median(page_counts),
+        mode: calculate_mode(page_counts)
+      }
+    end
+
+    def upload_size_in_mb_stats
       upload_sizes_in_mb = records_in_date_range.where("metadata->'size' is not null")
                                                 .pluck(Arel.sql("metadata->'size'"))
-                                                .map(&:to_i).map { |size| (size / (1024.0 * 1024.0)).round(2) }
+                                                .map(&:to_i)
+                                                .map { |size| (size / (1024.0 * 1024.0)).round(2) }
 
-      @stats['upload_size_in_mb_stats'] = {
-        'maximum' => upload_sizes_in_mb.max,
-        'average' => calculate_average(upload_sizes_in_mb),
-        'median' => calculate_median(upload_sizes_in_mb),
-        'mode' => calculate_mode(upload_sizes_in_mb)
+      {
+        maximum: upload_sizes_in_mb.max,
+        average: calculate_average(upload_sizes_in_mb),
+        median: calculate_median(upload_sizes_in_mb),
+        mode: calculate_mode(upload_sizes_in_mb)
       }
     end
 
-    def generate_status_timing_stats
-      @stats['status_elapsed_time_stats'] = {}
-
-      statuses = %w[pending uploaded received processing success]
-      statuses.each do |status|
-        @stats['status_elapsed_time_stats'][status] = status_elapsed_times(status)
-      end
-
-      status_transitions = [
-        { from: 'pending', to: 'error' },
-        { from: 'pending', to: 'success' },
-        { from: 'pending', to: 'vbms' },
-        { from: 'success', to: 'vbms' }
-      ]
-      status_transitions.each do |transition|
-        status = "#{transition[:from]}_to_#{transition[:to]}"
-        @stats['status_elapsed_time_stats'][status] = status_transition_times(transition[:from], transition[:to])
-      end
-    end
-
-    def by_status(status)
-      records_in_date_range.where(status:)
+    def status_elapsed_time_stats
+      {
+        pending: status_elapsed_times('pending'),
+        uploaded: status_elapsed_times('uploaded'),
+        received: status_elapsed_times('received'),
+        processing: status_elapsed_times('processing'),
+        success: status_elapsed_times('success'),
+        pending_to_error: status_transition_times('pending', 'error'),
+        pending_to_success: status_transition_times('pending', 'success'),
+        pending_to_vbms: status_transition_times('pending', 'vbms'),
+        success_to_vbms: status_transition_times('success', 'vbms')
+      }
     end
 
     def start_date
@@ -182,17 +185,13 @@ module VBADocuments
       timings_in_seconds = valid_records.pluck(Arel.sql(sanitized_keys))
       elapsed_times = timings_in_seconds.map { |r| r[1] - r[0] }
 
-      if elapsed_times.empty?
-        { 'total' => 0, 'minimum' => nil, 'maximum' => nil, 'average' => nil, 'median' => nil }
-      else
-        {
-          'total' => elapsed_times.size,
-          'minimum' => seconds_to_hms(elapsed_times.min),
-          'maximum' => seconds_to_hms(elapsed_times.max),
-          'average' => seconds_to_hms(calculate_average(elapsed_times)),
-          'median' => seconds_to_hms(calculate_median(elapsed_times))
-        }
-      end
+      {
+        total: elapsed_times.size,
+        minimum: seconds_to_hms(elapsed_times.min),
+        maximum: seconds_to_hms(elapsed_times.max),
+        average: seconds_to_hms(calculate_average(elapsed_times)),
+        median: seconds_to_hms(calculate_median(elapsed_times))
+      }
     end
 
     def status_transition_times(from_status, to_status)
@@ -204,19 +203,17 @@ module VBADocuments
       timings_in_seconds = valid_records.pluck(Arel.sql(sanitized_keys))
       transition_times = timings_in_seconds.map { |r| r[1] - r[0] }
 
-      if transition_times.empty?
-        { 'total' => 0, 'minimum' => nil, 'maximum' => nil, 'average' => nil }
-      else
-        {
-          'total' => transition_times.size,
-          'minimum' => seconds_to_hms(transition_times.min),
-          'maximum' => seconds_to_hms(transition_times.max),
-          'average' => seconds_to_hms(calculate_average(transition_times))
-        }
-      end
+      {
+        total: transition_times.size,
+        minimum: seconds_to_hms(transition_times.min),
+        maximum: seconds_to_hms(transition_times.max),
+        average: seconds_to_hms(calculate_average(transition_times))
+      }
     end
 
     def seconds_to_hms(total_seconds)
+      return nil unless total_seconds
+
       seconds = total_seconds % 60
       minutes = (total_seconds / 60) % 60
       hours = total_seconds / (60 * 60)

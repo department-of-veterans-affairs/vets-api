@@ -1,0 +1,433 @@
+<Page 1>
+
+Department of the Treasury
+Internal Revenue Service
+OMB No. 1545-2252
+560118
+
+Form 1095-B
+2024
+Health Coverage
+
+-- VOID
+%{corrected} CORRECTED
+
+ Do not attach to your tax return. Keep for your records.
+ Go to www.irs.gov/Form1095B for instructions and the latest information.
+
+Part I Responsible Individual
+
+1 Name of responsible individual-First name, middle name, last name ---- %{first_name} %{middle_name} %{last_name}
+2 Social security number (SSN) or other TIN ---- %{last_4_ssn}
+3 Date of birth (if SSN or other TIN is not available) ---- %{birth_date_field}
+4 Street address (including apartment no.) ---- %{address}
+5 City or town ---- %{city}
+6 State or province ---- %{state_or_province}
+7 Country and ZIP or foreign postal code ---- %{country_and_zip}
+8 Enter letter identifying Origin of the Health Coverage (see instructions for codes): ---- C
+9 Reserved shaded
+
+Part II Information About Certain Employer-Sponsored Coverage (see instructions)
+
+10 Employer name ----
+11 Employer identification number (EIN) ----
+12 Street address (including room or suite no.) ----
+13 City or town ----
+14 State or province ----
+15 Country and ZIP or foreign postal code ----
+
+Part III Issuer or Other Coverage Provider (see instructions)
+
+16 Name ---- US Department of Veterans Affairs
+17 Employer identification number (EIN) ---- 74-1612229
+18 Contact telephone number ---- 877-222-8387
+19 Street address (including room or suite no.) ---- P.O. BOX 149975
+20 City or town ---- AUSTIN
+21 State or province ---- TX
+22 Country and ZIP or foreign postal code ---- 78714-8957
+
+Part IV Covered Individuals (Enter the information for each covered individual.)
+
+23
+(a) Name of covered individual(s) First name, middle initial, last name ---- %{first_name} %{middle_init} %{last_name}
+(b) SSN or other TIN ---- %{last_4_ssn}
+(c) DOB (if SSN or other TIN is not available) ---- %{birth_date_field}
+(d) Covered all 12 months %{coverage_month_0}
+(e) Months of coverage
+%{coverage_month_1} Jan
+%{coverage_month_2} Feb
+%{coverage_month_3} Mar
+%{coverage_month_4} Apr
+%{coverage_month_5} May
+%{coverage_month_6} Jun
+%{coverage_month_7} Jul
+%{coverage_month_8} Aug
+%{coverage_month_9} Sep
+%{coverage_month_10} Oct
+%{coverage_month_11} Nov
+%{coverage_month_12} Dec
+24
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+25
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+26
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+27
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+28
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+
+For Privacy Act and Paperwork Reduction Act Notice, see separate instructions.
+Cat. No. 60704B
+Form 1095-B (2024)
+
+<Page 2>
+
+560220
+Form 1095-B (2024)
+Page 2
+
+Instructions for Recipient
+
+This Form 1095-B provides information about the individuals in your tax family (yourself, spouse, and dependents) who had certain health coverage (referred to as "minimum essential coverage") for some or all months during the year. Minimum essential coverage includes government-sponsored programs, eligible employer-sponsored plans, individual market plans, and other coverage the Department of Health and Human Services designates as minimum essential coverage.
+
+If individuals in your tax family are eligible for certain types of minimum essential coverage, you may not be eligible for the premium tax credit. For more information on the premium tax credit, see Pub. 974, Premium Tax Credit (PTC).
+
+TIP Providers of minimum essential coverage are required to furnish only one Form 1095-B for all individuals whose coverage is reported on that form. As the recipient of this Form 1095-B, you should provide a copy to other individuals covered under the policy if they request it for their records.
+
+Additional information. For additional information about the tax provisions of the Affordable Care Act (ACA) and the premium tax credit, see www.irs.gov/ACA or call the IRS Healthcare Hotline for ACA questions (800-919-0452).
+
+Part I. Responsible Individual, lines 1-9. Part I reports information about you and the coverage.
+
+Lines 2 and 3. Line 2 reports your social security number (SSN) or other taxpayer identification number (TIN), if applicable. For your protection, this form may show only the last four digits. However, the coverage provider is required to report your complete SSN or other TIN, if applicable, to the IRS. Your date of birth will be entered on line 3 only if line 2 is blank.
+
+Line 8. This is the code for the type of coverage in which you or other covered individuals were enrolled. Only one letter will be entered on this line.
+
+A. Small Business Health Options Program (SHOP)
+B. Employer-sponsored coverage
+C. Government-sponsored program
+D. Individual market insurance
+E. Multiemployer plan
+F. Other designated minimum essential coverage
+G. Individual coverage health reimbursement arrangement (HRA)
+
+TIP If you or another family member received health insurance coverage through a Health Insurance Marketplace (also known as an Exchange), that coverage will generally be reported on a Form 1095-A rather than a Form 1095-B. If you or another family member received employer-sponsored coverage, that coverage may be reported on a Form 1095-C (Part III) rather than a Form 1095-B. For more information, see www.irs.gov/Affordable-Care-Act/Questions-and-Answers-About-Health-Care-Information-Forms-for-Individuals.
+
+Line 9. Reserved.
+
+Part II. Information About Certain Employer-Sponsored Coverage, lines 10-15. If you had employer-sponsored health coverage, this part may provide information about the employer sponsoring the coverage. This part may show only the last four digits of the employer's EIN. This part may also be left blank, even if you had employer-sponsored health coverage. If this part is blank, you do not need to fill in the information or return it to your employer or other coverage provider.
+
+Part III. Issuer or Other Coverage Provider, lines 16-22. This part reports information about the coverage provider (insurance company, employer providing self-insured coverage, government agency sponsoring coverage under a government program such as Medicaid or Medicare, or other coverage sponsor). Line 18 reports a telephone number for the coverage provider that you can call if you have questions about the information reported on the form.
+
+Part IV. Covered Individuals, lines 23-28. This part reports the name, SSN or other TIN, and coverage information for each covered individual. A date of birth will be entered in column (c) only if the SSN or other TIN is not entered in column (b). Column (d) will be checked if the individual was covered for at least 1 day in every month of the year. For individuals who were covered for some but not all months, information will be entered in column (e) indicating the months for which these individuals were covered. If there are more than six covered individuals, see Part IV, Continuation Sheet(s), for information about the additional covered individuals.
+
+<Page 3>
+
+560318
+Form 1095-B (2024)
+Page 3
+
+Name of responsible individual-First name, middle name, last name ----
+Social security number (SSN) or other TIN ----
+Date of birth (if SSN or other TIN is not available) ----
+
+Part IV Covered Individuals - Continuation Sheet
+
+29
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+30
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+31
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+32
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+33
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+34
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+35
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+36
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+37
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+38
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+39
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+40
+(a) Name of covered individual(s) First name, middle initial, last name ----
+(b) SSN or other TIN ----
+(c) DOB (if SSN or other TIN is not available) ----
+(d) Covered all 12 months --
+(e) Months of coverage
+-- Jan
+-- Feb
+-- Mar
+-- Apr
+-- May
+-- Jun
+-- Jul
+-- Aug
+-- Sep
+-- Oct
+-- Nov
+-- Dec
+
+Form 1095-B (2024)

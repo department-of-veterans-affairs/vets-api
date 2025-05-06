@@ -5,11 +5,7 @@ require 'va_profile/v2/contact_information/transaction_response'
 
 describe VAProfile::V2::ContactInformation::TransactionResponse do
   before do
-    Flipper.enable(:va_v3_contact_information_service)
-  end
-
-  after do
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
   end
 
   describe '.from' do
@@ -33,7 +29,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
 
       context 'with a residence address change' do
         before do
-          body['tx_output'][0]['address_pou'] = VAProfile::Models::V2::BaseAddress::RESIDENCE
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::V3::BaseAddress::RESIDENCE
         end
 
         it 'has the correct changed field' do
@@ -43,7 +39,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
 
       context 'with a correspondence address change' do
         before do
-          body['tx_output'][0]['address_pou'] = VAProfile::Models::V2::BaseAddress::CORRESPONDENCE
+          body['tx_output'][0]['address_pou'] = VAProfile::Models::V3::BaseAddress::CORRESPONDENCE
         end
 
         it 'has the correct changed field' do
@@ -136,7 +132,7 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
           end
 
           it 'returns nil' do
-            expect(subject.new_email).to eq(nil)
+            expect(subject.new_email).to be_nil
           end
         end
       end
@@ -227,10 +223,12 @@ describe VAProfile::V2::ContactInformation::TransactionResponse do
       end
 
       it 'logs that error to sentry' do
+        redacted_response_body = described_class.redact_response_body(body)
+
         expect(described_class).to receive(:log_message_to_sentry).with(
-          'VAProfile transaction error',
+          'VAProfile contact info transaction error',
           :error,
-          { response_body: body },
+          { response_body: redacted_response_body },
           error: :va_profile
         )
         subject

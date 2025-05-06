@@ -51,7 +51,42 @@ RSpec.describe BenefitsClaims::Service do
         it 'filters out claims with certain statuses' do
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
-            expect(response['data'].length).to eq(5)
+            expect(response['data'].length).to eq(6)
+          end
+        end
+      end
+
+      describe 'when requesting one single benefit claim' do
+        before { allow(Flipper).to receive(:enabled?).and_call_original }
+
+        context 'when the PMR Pending override flipper is enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(true)
+          end
+
+          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              response = @service.get_claim('600383363')
+              # In the cassette, the status is NEEDED_FROM_YOU
+              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
+              expect(response.dig('data', 'attributes', 'trackedItems', 0,
+                                  'displayName')).to eq('Private Medical Record')
+            end
+          end
+        end
+
+        context 'when the PMR Pending override flipper is disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:cst_override_pmr_pending_tracked_items).and_return(false)
+          end
+
+          it 'has overridden PMR Pending tracked items to the NEEDED_FROM_OTHERS status and readable name' do
+            VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
+              response = @service.get_claim('600383363')
+              # In the cassette, the status is NEEDED_FROM_YOU
+              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_YOU')
+              expect(response.dig('data', 'attributes', 'trackedItems', 0, 'displayName')).to eq('PMR Pending')
+            end
           end
         end
       end
@@ -77,8 +112,34 @@ RSpec.describe BenefitsClaims::Service do
         end
       end
 
+      describe "when retrieving a user's power of attorney request status" do
+        context 'when the user has submitted the form' do
+          it 'retrieves the power of attorney request status from the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/200_response') do
+              response = @service.get_2122_submission('29b7c214-4a61-425e-97f2-1a56de869524')
+              expect(response.dig('data', 'type')).to eq('claimsApiPowerOfAttorneys')
+              expect(response.dig('data', 'attributes', 'dateRequestAccepted')).to eq '2025-01-16'
+              expect(response.dig(
+                       'data', 'attributes', 'representative', 'representative', 'poaCode'
+                     )).to eq '067'
+            end
+          end
+        end
+
+        context 'when the id does not exist' do
+          it 'returns an 404 error' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/404_response') do
+              expect do
+                @service.get_2122_submission('491b878a-d977-40b8-8de9-7ba302307a48')
+              end.to raise_error(Common::Exceptions::ResourceNotFound)
+            end
+          end
+        end
+      end
+
       describe 'when posting a form526' do
         it 'has formatted request body data correctly' do
+          transaction_id = 'vagov'
           body = @service.send(:prepare_submission_body,
                                {
                                  'serviceInformation' => {
@@ -93,7 +154,7 @@ RSpec.describe BenefitsClaims::Service do
                                      }
                                    }
                                  }
-                               })
+                               }, transaction_id)
 
           expect(body).to eq({
                                'data' => {
@@ -109,6 +170,9 @@ RSpec.describe BenefitsClaims::Service do
                                      }
                                    }
                                  }
+                               },
+                               'meta' => {
+                                 'transactionId' => 'vagov'
                                }
                              })
         end
@@ -198,6 +262,68 @@ RSpec.describe BenefitsClaims::Service do
             VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
               raw_response = @service.submit526({}, '', '', { generate_pdf: true })
               expect(raw_response.body).to eq('No example available')
+            end
+          end
+        end
+      end
+
+      describe 'when submitting a 2122' do
+        let(:lh_config) { double }
+        let(:attributes) do
+          {
+            veteran: {
+              address: {
+                addressLine1: '936 Gus Points',
+                city: 'Watersborough',
+                countryCode: 'US',
+                stateCode: 'CO',
+                zipCode: '36090'
+              }
+            },
+            recordConsent: true,
+            consentLimits: %w[DRUG_ABUSE ALCOHOLISM HIV SICKLE_CELL],
+            serviceOrganization: {
+              poaCode: '095',
+              registrationNumber: '999999999999'
+            }
+          }
+        end
+        let(:expected_data) { { data: { attributes: } } }
+        let(:expected_response) do
+          {
+            'data' => {
+              'id' => '12beb731-3440-44d2-84ba-473bd75201aa',
+              'type' => 'organization',
+              'attributes' => {
+                'code' => '095',
+                'name' => 'Italian American War Veterans of the US, Inc.',
+                'phoneNumber' => '440-233-6527'
+              }
+            }
+          }
+        end
+
+        context 'successful submit' do
+          it 'submits the correct data to lighthouse' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette(
+              'lighthouse/benefits_claims/power_of_attorney_decision/202_response',
+              match_requests_on: %i[method uri headers body]
+            ) do
+              expect(
+                @service.submit2122(attributes, 'lh_client_id', 'key_path').body
+              ).to eq expected_response
+            end
+          end
+        end
+
+        context 'rep does not have poa for veteran' do
+          it 'returns a not_found response' do
+            @service = BenefitsClaims::Service.new('1012666183V089914')
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_decision/404_response') do
+              expect do
+                @service.submit2122(attributes, 'lh_client_id', 'key_path')
+              end.to raise_error(Common::Exceptions::ResourceNotFound)
             end
           end
         end

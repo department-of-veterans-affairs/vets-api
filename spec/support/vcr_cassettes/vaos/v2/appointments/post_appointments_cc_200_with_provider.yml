@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments
     body:
       encoding: UTF-8
       string: '{"kind":"cc","status":"proposed","locationId":"983","serviceType":"podiatry","reasonCode":{"text":"string"},"contact":{"telecom":[{"type":"phone","value":"2762740095"},{"type":"email","value":"jacqueline.morgan@id.me"}]},"requestedPeriods":[{"start":"2023-01-17T07:00:00Z","end":"2023-01-17T18:59:00Z"}],"preferredTimesForPhoneCall":["Morning"],"preferredLanguage":"English","preferredLocation":{"city":"Palm Bay","state":"FL"},"practitioners":[{"identifier":[{"system":"http://hl7.org/fhir/sid/us-npi","value":"1174506877"}],"address":{"line":["590 MALABAR RD SE STE 5"],"city":"PALM BAY","state":"FL","postalCode":"32907-3108"}}]}'

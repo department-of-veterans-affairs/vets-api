@@ -166,7 +166,7 @@ class AppealsApi::SwaggerSharedComponents
         in: :header,
         name: 'X-VA-Receipt-Date',
         required: true,
-        description: '(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.',
+        description: '(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified. This date must be after 2019-02-19, the Appeals Modernization Act (AMA) Activation Date.',
         example: '2022-01-01',
         schema: { '$ref' => '#/components/schemas/X-VA-Receipt-Date' }
       }

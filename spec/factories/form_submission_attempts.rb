@@ -4,6 +4,9 @@ FactoryBot.define do
   factory :form_submission_attempt do
     form_submission
 
+    benefits_intake_uuid { SecureRandom.uuid }
+    created_at { Time.zone.now }
+
     trait :pending do
       created_at { Time.zone.now }
       aasm_state { 'pending' }
@@ -24,6 +27,10 @@ FactoryBot.define do
     trait :stale do
       created_at { 99.days.ago }
       aasm_state { 'pending' }
+    end
+
+    trait :nil_form_data do
+      association :form_submission, form_data: nil
     end
   end
 end

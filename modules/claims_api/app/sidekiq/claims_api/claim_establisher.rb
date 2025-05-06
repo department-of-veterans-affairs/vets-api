@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
 require 'evss_service/base'
@@ -42,20 +43,33 @@ module ClaimsApi
 
       queue_flash_updater(auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
-    rescue ::Common::Exceptions::BackendServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_errors(e)
-      auto_claim.form_data = orig_form_data
-      auto_claim.save
+    rescue ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException,
+           ::Common::Exceptions::BackendServiceException => e
+      handle_exception(auto_claim:, orig_form_data:, e:)
+      raise e if expectation_failed_error?(e)
     rescue => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_errors(e)
-      auto_claim.form_data = orig_form_data
-      auto_claim.save
+      handle_exception(auto_claim:, orig_form_data:, e:)
       raise e
     end
 
     private
+
+    def expectation_failed_error?(e)
+      error_messages = get_error_message(e)
+
+      return error_messages.include?('417') if error_messages.is_a?(String)
+
+      return false if error_messages&.dig(:messages).nil?
+
+      error_messages[:messages].any? { |msg| msg[:text]&.include?('417') }
+    end
+
+    def handle_exception(auto_claim:, orig_form_data:, e:)
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.evss_response = get_errors(e)
+      auto_claim.form_data = orig_form_data
+      auto_claim.save
+    end
 
     def veteran_from_headers(auth_headers)
       vet = ClaimsApi::Veteran.new(

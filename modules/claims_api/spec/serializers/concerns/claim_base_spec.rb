@@ -53,7 +53,7 @@ describe ClaimsApi::Concerns::ClaimBase, type: :concern do
   end
 
   it 'includes :documents_needed' do
-    expect(attributes['documents_needed']).to eq true
+    expect(attributes['documents_needed']).to be true
   end
 
   it 'includes :open' do

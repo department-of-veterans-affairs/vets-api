@@ -7,7 +7,7 @@
         "address": {
           "addressLine1":  "123 Main St",
           "city": "New York",
-          "country":  "USA",
+          "countryCode":  "US",
           "stateCode": "NY",
           "zipCode": "12323"
         },
@@ -18,10 +18,8 @@
         "email": "test@example.com",
         "insuranceNumber": "678678987"
       },
-      "poa": {
-        "poaCode": "AG3",
-        "registrationNumber": "999999999999",
-        "jobTitle": "Best Rep Ever"
+      "representative": {
+        "poaCode": "AG3"
       },
       "recordConsent": true,
       "consentAddressChange": true,

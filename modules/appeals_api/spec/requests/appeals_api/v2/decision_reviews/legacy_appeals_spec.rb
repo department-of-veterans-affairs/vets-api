@@ -4,6 +4,7 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 Rspec.describe 'AppealsApi::V2::DecisionReviews::LegacyAppeals', type: :request do
+  let(:path) { '/services/appeals/v2/decision_reviews/legacy_appeals' }
   let(:headers) { {} }
   let(:ssn) { nil }
   let(:file_number) { nil }
@@ -157,6 +158,14 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::LegacyAppeals', type: :request 
         get_legacy_appeals
         expect(response.status).to be status
         expect(JSON.parse(response.body)).to eq body
+      end
+    end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers', headers: { 'X-VA-SSN': '123456789' } do
+      def make_request(headers)
+        VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+          get(path, params: nil, headers:)
+        end
       end
     end
   end

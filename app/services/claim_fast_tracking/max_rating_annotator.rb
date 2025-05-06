@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'virtual_regional_office/client'
+require 'disability_max_ratings/client'
 
 module ClaimFastTracking
   class MaxRatingAnnotator
-    SELECT_DISABILITIES = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
     EXCLUDED_DIGESTIVE_CODES = [7318, 7319, 7327, 7336, 7346].freeze
 
     def self.annotate_disabilities(rated_disabilities_response)
@@ -31,10 +30,12 @@ module ClaimFastTracking
 
     def self.log_hyphenated_diagnostic_codes(rated_disabilities)
       rated_disabilities.each do |dis|
-        Rails.logger.info('Max CFI rated disability',
-                          diagnostic_code: dis&.diagnostic_code,
-                          diagnostic_code_type: diagnostic_code_type(dis),
-                          hyphenated_diagnostic_code: dis&.hyphenated_diagnostic_code)
+        StatsD.increment('api.max_cfi.rated_disability',
+                         tags: [
+                           "diagnostic_code:#{dis&.diagnostic_code}",
+                           "diagnostic_code_type:#{diagnostic_code_type(dis)}",
+                           "hyphenated_diagnostic_code:#{dis&.hyphenated_diagnostic_code}"
+                         ])
       end
     end
 
@@ -56,21 +57,20 @@ module ClaimFastTracking
     end
 
     def self.get_ratings(diagnostic_codes)
-      vro_client = VirtualRegionalOffice::Client.new
-      response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
+      disability_max_ratings_client = DisabilityMaxRatings::Client.new
+      response = disability_max_ratings_client.post_for_max_ratings(diagnostic_codes)
       response.body['ratings']
+    rescue Faraday::TimeoutError
+      Rails.logger.error 'Get Max Ratings Failed: Request timed out.'
+      nil
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "Get Max Ratings Failed  #{e.message}.", backtrace: e.backtrace
       nil
     end
 
     def self.eligible_for_request?(rated_disability)
-      return false if %i[infectious_disease missing_diagnostic_code].include?(diagnostic_code_type(rated_disability))
-
-      dc = rated_disability.diagnostic_code
-      return false if EXCLUDED_DIGESTIVE_CODES.include?(dc)
-
-      Flipper.enabled?(:disability_526_maximum_rating_api_all_conditions) || SELECT_DISABILITIES.include?(dc)
+      %i[infectious_disease missing_diagnostic_code].exclude?(diagnostic_code_type(rated_disability)) &&
+        EXCLUDED_DIGESTIVE_CODES.exclude?(rated_disability.diagnostic_code)
     end
 
     private_class_method :get_ratings

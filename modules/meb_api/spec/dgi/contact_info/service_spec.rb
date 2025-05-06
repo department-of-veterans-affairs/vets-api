@@ -23,7 +23,7 @@ Rspec.describe MebApi::DGI::ContactInfo::Service do
         }
       end
 
-      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:user) { create(:user, :loa3) }
       let(:service) { MebApi::DGI::ContactInfo::Service.new(user) }
       let(:faraday_response) { double('faraday_connection') }
 

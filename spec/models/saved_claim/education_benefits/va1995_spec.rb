@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
 RSpec.describe SavedClaim::EducationBenefits::VA1995 do
-  let(:instance) { FactoryBot.build(:va1995) }
+  let(:instance) { build(:va1995) }
 
   it_behaves_like 'saved_claim'
 
@@ -12,6 +12,11 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
 
   describe '#after_submit' do
     let(:user) { create(:user) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).and_call_original
+      allow(Flipper).to receive(:enabled?).with(:form1995_confirmation_email).and_return(true)
+    end
 
     describe 'sends confirmation email for the 1995' do
       it 'with benefit selected' do

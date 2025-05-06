@@ -7,6 +7,7 @@ module Gibft
   class Service < Salesforce::Service
     configuration Gibft::Configuration
 
+    # Settings.salesforce-gibft
     CONSUMER_KEY = Settings['salesforce-gibft'].consumer_key
     SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
     SALESFORCE_USERNAMES = {

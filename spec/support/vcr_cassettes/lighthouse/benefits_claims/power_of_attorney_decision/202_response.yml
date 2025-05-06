@@ -1,0 +1,77 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/2122"
+    body:
+      encoding: UTF-8
+      string: '{"data":{"attributes":{"veteran":{"address":{"addressLine1":"936 Gus
+        Points","city":"Watersborough","countryCode":"US","stateCode":"CO","zipCode":"36090"}},"recordConsent":true,"consentLimits":["DRUG_ABUSE","ALCOHOLISM","HIV","SICKLE_CELL"],"serviceOrganization":{"poaCode":"095","registrationNumber":"999999999999"}}}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer fake_access_token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 202
+      message: Accepted
+    headers:
+      Date:
+      - Fri, 14 Feb 2025 17:35:29 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '188'
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '32'
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Ratelimit-Limit:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Location:
+      - "<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>/services/claims/v2/veterans/1012666183V089914/power-of-attorney?id=12beb731-3440-44d2-84ba-473bd75201aa"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Timing-Allow-Origin:
+      - https://sandbox.vets.gov,https://department-of-veterans-affairs.github.io,https://preview.va.gov,http://preview-sandbox.vfs.va.gov
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 756b2d5b5ef9eedb49807cf853d734a527114a67
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 42abc36c-c5f5-4674-8c91-f33fab51f4c3
+      X-Runtime:
+      - '1.768422'
+      X-Xss-Protection:
+      - '0'
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"12beb731-3440-44d2-84ba-473bd75201aa","type":"organization","attributes":{"code":"095","name":"Italian
+        American War Veterans of the US, Inc.","phoneNumber":"440-233-6527"}}}'
+  recorded_at: Fri, 14 Feb 2025 17:35:29 GMT
+recorded_with: VCR 6.3.1

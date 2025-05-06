@@ -2,23 +2,24 @@
 
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
-require 'pension_burial/tag_sentry'
+require 'pcpg/monitor'
 require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
     include Sidekiq::Job
     include SentryLogging
+
     class BenefitsIntakeClaimError < StandardError; end
 
     FOREIGN_POSTALCODE = '00000'
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_benefits_intake_claim'
 
-    # Sidekiq has built in exponential back-off functionality for retries
-    # A max retry attempt of 14 will result in a run time of ~25 hours
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     sidekiq_options retry: RETRY
 
@@ -29,14 +30,12 @@ module Lighthouse
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
 
-    def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength
+    def perform(saved_claim_id)
       init(saved_claim_id)
 
-      @pdf_path = if @claim.form_id == '21P-530V2'
-                    process_record(@claim, @claim.created_at, @claim.form_id)
-                  else
-                    process_record(@claim)
-                  end
+      # Create document stamps
+      @pdf_path = process_record(@claim)
+
       @attachment_paths = @claim.persistent_attachments.map { |record| process_record(record) }
 
       create_form_submission_attempt
@@ -70,36 +69,33 @@ module Lighthouse
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
 
-      metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
-        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['postalCode'],
-        'source' => "#{@claim.class} va.gov",
-        'docType' => @claim.form_id,
-        'businessLine' => @claim.business_line
-      }
-
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
+      # also validates/manipulates the metadata
+      ::BenefitsIntake::Metadata.generate(
+        veteran_full_name['first'],
+        veteran_full_name['last'],
+        form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        address['postalCode'],
+        "#{@claim.class} va.gov",
+        @claim.form_id,
+        @claim.business_line
+      )
     end
 
-    def process_record(record, timestamp = nil, form_id = nil)
+    def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      # coordinates 0, 0 is bottom left of the PDF
+      # This is the bottom left of the form, right under the form date, e.g. "AUG 2022"
+      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,
+                                                                   timestamp: record.created_at)
+      # This is the top right of the PDF, above "OMB approved line"
       stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
-      document = if form_id.present? && ['21P-530V2'].include?(form_id)
-                   stamped_pdf_with_form(form_id, stamped_path2,
-                                         timestamp)
-                 else
-                   stamped_path2
-                 end
 
-      @lighthouse_service.valid_document?(document:)
+      @lighthouse_service.valid_document?(document: stamped_path2)
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error")
       raise e
@@ -120,25 +116,12 @@ module Lighthouse
       }
     end
 
-    def stamped_pdf_with_form(form_id, path, timestamp)
-      PDFUtilities::DatestampPdf.new(path).run(
-        text: 'Application Submitted on va.gov',
-        x: 425,
-        y: 675,
-        text_only: true, # passing as text only because we override how the date is stamped in this instance
-        timestamp:,
-        page_number: 5,
-        size: 9,
-        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
-        multistamp: true
-      )
-    end
-
     def generate_log_details(e = nil)
       details = {
         claim_id: @claim&.id,
         benefits_intake_uuid: @lighthouse_service&.uuid,
-        confirmation_number: @claim&.confirmation_number
+        confirmation_number: @claim&.confirmation_number,
+        form_id: @claim&.form_id
       }
       details['error'] = e.message if e
       details
@@ -150,14 +133,16 @@ module Lighthouse
                           benefits_intake_uuid: @lighthouse_service.uuid,
                           confirmation_number: @claim.confirmation_number
                         })
-      form_submission = FormSubmission.create(
-        form_type: @claim.form_id,
-        form_data: @claim.to_json,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        saved_claim: @claim,
-        saved_claim_id: @claim.id
-      )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: @claim.form_id,
+          form_data: @claim.to_json,
+          saved_claim: @claim,
+          saved_claim_id: @claim.id
+        )
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
+                                                                benefits_intake_uuid: @lighthouse_service.uuid)
+      end
     end
 
     def cleanup_file_paths

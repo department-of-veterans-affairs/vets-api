@@ -5,8 +5,8 @@ require_relative '../../rails_helper'
 require './modules/claims_api/app/services/claims_api/disability_compensation/pdf_generation_service'
 
 describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
-  let(:pdf_generation_service) { ClaimsApi::DisabilityCompensation::PdfGenerationService.new }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:pdf_generation_service) { described_class.new }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -23,7 +23,7 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
     temp['data']['attributes']
   end
   let(:claim) do
-    claim = create(:auto_established_claim, form_data:)
+    claim = create(:auto_established_claim, :pending, form_data:)
     claim.auth_headers = auth_headers
     claim.transaction_id = '00000000-0000-0000-000000000000'
     claim.save
@@ -35,12 +35,12 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
   end
 
   describe '#generate' do
-    it 'has a generate method that returns a claim id' do
+    it 'returns the claim status' do
       VCR.use_cassette('claims_api/pdf_client') do
         allow(pdf_generation_service).to receive(:generate_mapped_claim).with(claim,
                                                                               middle_initial).and_return(mapped_claim)
 
-        expect(pdf_generation_service.send(:generate, claim.id, middle_initial)).to be_a(String)
+        expect(pdf_generation_service.send(:generate, claim.id, middle_initial)).to eq('pending')
       end
     end
 
@@ -51,6 +51,20 @@ describe ClaimsApi::DisabilityCompensation::PdfGenerationService do
                                                                               middle_initial).and_return(mapped_claim)
         pdf_generation_service.send(:generate, claim.id, middle_initial)
         expect(Rails.logger).to have_received(:info).with(/#{claim.transaction_id}/).at_least(:once)
+      end
+    end
+
+    context 'when the pdf string is empty' do
+      before do
+        allow(pdf_generation_service).to receive(:generate_mapped_claim).with(claim,
+                                                                              middle_initial).and_return(mapped_claim)
+        allow(pdf_generation_service).to receive(:generate_526_pdf).with(mapped_claim).and_return('')
+      end
+
+      it 'returns the errored claim status' do
+        VCR.use_cassette('claims_api/pdf_client') do
+          expect(pdf_generation_service.send(:generate, claim.id, middle_initial)).to eq('errored')
+        end
       end
     end
   end

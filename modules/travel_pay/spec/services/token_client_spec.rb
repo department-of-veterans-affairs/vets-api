@@ -5,6 +5,8 @@ require 'rails_helper'
 describe TravelPay::TokenClient do
   let(:user) { build(:user) }
 
+  expected_log_prefix = 'travel_pay.token.response_time'
+
   before do
     @stubs = Faraday::Adapter::Test::Stubs.new
 
@@ -15,6 +17,7 @@ describe TravelPay::TokenClient do
     end
 
     allow_any_instance_of(TravelPay::TokenClient).to receive(:connection).and_return(conn)
+    allow(StatsD).to receive(:measure)
   end
 
   context 'request_veis_token' do
@@ -27,9 +30,13 @@ describe TravelPay::TokenClient do
           '{"access_token": "fake_veis_token"}'
         ]
       end
-      token_client = TravelPay::TokenClient.new
+      token_client = TravelPay::TokenClient.new(123)
       token = token_client.request_veis_token
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:veis'])
       expect(token).to eq('fake_veis_token')
       @stubs.verify_stubbed_calls
     end
@@ -43,7 +50,7 @@ describe TravelPay::TokenClient do
     end
 
     it 'returns btsss token from proper endpoint' do
-      @stubs.post('api/v1/Auth/access-token') do
+      @stubs.post('api/v1.2/Auth/access-token') do
         [
           200,
           { 'Content-Type': 'application/json' },
@@ -51,9 +58,13 @@ describe TravelPay::TokenClient do
         ]
       end
 
-      token_client = TravelPay::TokenClient.new
+      token_client = TravelPay::TokenClient.new(123)
       token = token_client.request_btsss_token('veis_token', user)
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:btsss'])
       expect(token).to eq('fake_btsss_token')
       @stubs.verify_stubbed_calls
     end
@@ -83,7 +94,7 @@ describe TravelPay::TokenClient do
     after { Timecop.return }
 
     it 'builds sts assertion and requests sts token' do
-      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key_file = IdentitySettings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
       jwt = JWT.encode(assertion, private_key, 'RS256')
       @stubs.post("http:/v0/sign_in/token?assertion=#{jwt}&grant_type=#{grant_type}") do
@@ -93,8 +104,12 @@ describe TravelPay::TokenClient do
           '{"data": {"access_token": "fake_sts_token"}}'
         ]
       end
-      token_client = TravelPay::TokenClient.new
+      token_client = TravelPay::TokenClient.new(123)
       sts_token = token_client.request_sts_token(user)
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:sts'])
       expect(sts_token).to eq('fake_sts_token')
       @stubs.verify_stubbed_calls
     end

@@ -40,6 +40,35 @@ module ClaimsApi
 
     protected
 
+    def form_logger_consent_detail(poa, poa_code)
+      "Updating Access. recordConsent: #{poa.form_data['recordConsent'] || false}" \
+        "#{poa.form_data['consentLimits'] ? ', consentLimits included' : nil}" \
+        " for representative #{poa_code}"
+    end
+
+    def dependent_filing?(poa)
+      poa.auth_headers.key?('dependent')
+    end
+
+    def slack_alert_on_failure(job_name, msg)
+      notify_on_failure(
+        job_name,
+        msg
+      )
+    end
+
+    def notify_on_failure(job_name, notification_message)
+      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                             channel: '#api-benefits-claims-alerts',
+                                             username: "Failed #{job_name}")
+      slack_client.notify(notification_message)
+    end
+
+    def set_state_for_submission(submission, state)
+      submission.status = state
+      submission.save!
+    end
+
     def preserve_original_form_data(form_data)
       form_data.deep_dup.freeze
     end
@@ -59,6 +88,11 @@ module ClaimsApi
 
     def set_pending_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::PENDING)
+    end
+
+    def set_errored_state_on_poa(poa)
+      poa.status = poa_errored_state
+      poa.save!
     end
 
     def save_auto_claim!(auto_claim, status)
@@ -88,6 +122,15 @@ module ClaimsApi
       auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
+    end
+
+    def allow_poa_access?(poa_form_data:)
+      poa_form_data['recordConsent'] == true && poa_form_data['consentLimits'].blank?
+    end
+
+    def set_vbms_error_message(poa, error)
+      poa.vbms_error_message = get_error_message(error)
+      poa.save!
     end
 
     def get_error_message(error)
@@ -145,6 +188,10 @@ module ClaimsApi
       NO_RETRY_ERROR_CODES.exclude?(msg)
     end
 
+    def allow_address_change?(poa_form)
+      poa_form.form_data['consentAddressChange']
+    end
+
     def will_retry_status_code?(error)
       status = get_original_status_code(error)
       RETRY_STATUS_CODES.include?(status.to_s)
@@ -166,6 +213,11 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim::ERRORED
     end
 
+    def save_poa_errored_state(poa)
+      poa.status = ClaimsApi::PowerOfAttorney::ERRORED
+      poa.save!
+    end
+
     def log_job_progress(claim_id, detail, transaction_id = nil)
       log_data = { claim_id:, detail:, transaction_id: }
       log_data.compact!
@@ -182,6 +234,12 @@ module ClaimsApi
       elsif poa_form_data.key?('representative') # V2 2122a
         poa_form_data['representative']['poaCode']
       end
+    end
+
+    def vanotify?(auth_headers, rep_id)
+      rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
+      Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify) &&
+        auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
     end
 
     def evss_mapper_service(auto_claim)

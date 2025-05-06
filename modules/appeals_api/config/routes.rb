@@ -5,9 +5,11 @@ AppealsApi::Engine.routes.draw do
   get '/decision_reviews/metadata', to: 'metadata#decision_reviews'
   get '/v0/healthcheck', to: 'metadata#healthcheck' # Appeals Status v0
   get '/v1/healthcheck', to: 'metadata#healthcheck_s3' # Decision Reviews v1
+  # TODO: Remove in favor of /v2/decision_reviews/healthcheck once routing changes made in API Gateway
   get '/v2/healthcheck', to: 'metadata#healthcheck_s3' # Decision Reviews v2
   get '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck' # Appeals Status v0
   get '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck' # Decision Reviews v1
+  # TODO: Remove in favor of /v2/decision_reviews/upstream_healthcheck once routing changes made in API Gateway
   get '/v2/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck' # Decision Reviews v2
   get '/v0/appeals', to: 'v0/appeals#index' # Appeals Status v0
 
@@ -28,6 +30,10 @@ AppealsApi::Engine.routes.draw do
 
   namespace :v2, defaults: { format: 'json' } do
     namespace :decision_reviews do
+      get 'docs', to: '/appeals_api/docs/v2/docs#decision_reviews'
+      get 'healthcheck', to: '/appeals_api/metadata#healthcheck_s3'
+      get 'upstream_healthcheck', to: '/appeals_api/metadata#decision_reviews_upstream_healthcheck'
+
       get 'contestable_issues/:decision_review_type', to: 'contestable_issues#index'
 
       namespace :higher_level_reviews do
@@ -79,6 +85,7 @@ AppealsApi::Engine.routes.draw do
       get 'decision_reviews', to: 'docs#decision_reviews'
     end
 
+    # TODO: Remove in favor of /v2/decision_reviews/docs once routing changes made in API Gateway
     namespace :v2, defaults: { format: 'json' } do
       get 'decision_reviews', to: 'docs#decision_reviews'
     end

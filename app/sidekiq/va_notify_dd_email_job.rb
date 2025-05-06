@@ -5,7 +5,9 @@ require 'sentry_logging'
 class VANotifyDdEmailJob
   include Sidekiq::Job
   extend SentryLogging
-  sidekiq_options retry: 14
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16
 
   STATSD_ERROR_NAME = 'worker.direct_deposit_confirmation_email.error'
   STATSD_SUCCESS_NAME = 'worker.direct_deposit_confirmation_email.success'
@@ -40,8 +42,7 @@ class VANotifyDdEmailJob
   end
 
   def template_type(dd_type)
-    return 'direct_deposit_edu' if dd_type&.to_sym == :ch33
-    return 'direct_deposit_comp_pen' if %i[comp_pen comp_and_pen].include? dd_type&.to_sym
+    return 'direct_deposit_comp_pen' if use_comp_pen_email_template?(dd_type)
 
     'direct_deposit'
   end
@@ -51,5 +52,13 @@ class VANotifyDdEmailJob
     StatsD.increment(STATSD_ERROR_NAME)
 
     raise ex if ex.status_code.between?(500, 599)
+  end
+
+  def use_direct_deposit_email_template?
+    Flipper.enabled?(:only_use_direct_deposit_email_template)
+  end
+
+  def use_comp_pen_email_template?(dd_type)
+    %i[comp_pen comp_and_pen].include?(dd_type&.to_sym) && !use_direct_deposit_email_template?
   end
 end

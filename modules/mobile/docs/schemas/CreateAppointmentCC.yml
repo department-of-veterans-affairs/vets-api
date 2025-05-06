@@ -1,5 +1,6 @@
 description: A request to create a new appointment.
 type: object
+additionalProperties: false
 required:
   - kind
   - status

@@ -1,0 +1,24 @@
+{
+    "veteranFullName": {
+      "first": "Mark",
+      "last": "Olson"
+    },
+    "veteranDesc": "veteran",
+    "contactInfo": {
+      "mobilePhone": "1234567890",
+      "email": "test@sample.com"
+    },
+    "country": "United States",
+    "state": "FL",
+    "originRace": {
+      "isBlackOrAfricanAmerican": true
+    },
+    "gender": "M",
+    "highestLevelOfEducation": {
+      "level": "MD"
+    },
+    "currentlyEmployed": true,
+    "currentAnnualSalary": "moreThanSeventyFive",
+    "isWorkingInTechIndustry": true,
+    "techIndustryFocusArea": "CP"
+  }

@@ -18,7 +18,7 @@ describe ClaimsApi::EvidenceWaiver do
     Timecop.return
   end
 
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
 
   context 'normal name' do
     it 'construct pdf' do
@@ -31,7 +31,7 @@ describe ClaimsApi::EvidenceWaiver do
   end
 
   context 'long name' do
-    xit 'construct truncated pdf' do
+    it 'construct truncated pdf', skip: 'Unknown reason for skip' do
       ews.auth_headers['va_eauth_lastName'] = 'Ellis-really-long-truncated-name-here'
       constructor = ClaimsApi::EvidenceWaiver.new(auth_headers: ews.auth_headers)
       expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', '5103',

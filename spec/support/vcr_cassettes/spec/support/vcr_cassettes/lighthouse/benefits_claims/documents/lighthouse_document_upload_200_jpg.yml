@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/benefits-documents/v1/documents
+    body:
+      encoding: UTF-8
+      string: "-------------RubyMultipartPost-df0d2963cae91f474acdb54a4edbdcde\r\nContent-Disposition:
+        form-data; name=\"parameters\"\r\nContent-Type: application/json\r\n\r\n{\"data\":{\"systemName\":\"VA.gov\",\"docType\":\"L023\",\"claimId\":1,\"participantId\":\"69982911\",\"fileName\":\"filewithspaces20240808-47971-qirfg0.jpg\",\"trackedItemIds\":null}}\r\n-------------RubyMultipartPost-df0d2963cae91f474acdb54a4edbdcde\r\nContent-Disposition:
+        form-data; name=\"file\"; filename=\"filewithspaces20240808-47971-qirfg0.jpg20240808-47971-j0caun\"\r\nContent-Length:
+        4\r\nContent-Type: image/jpeg\r\nContent-Transfer-Encoding: binary\r\n\r\ntest\r\n-------------RubyMultipartPost-df0d2963cae91f474acdb54a4edbdcde--\r\n"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost-df0d2963cae91f474acdb54a4edbdcde
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Content-Length:
+      - '653'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Thu, 08 Aug 2024 17:13:36 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '24'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Www-Authenticate:
+      - Bearer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: "{ \n  \"status\": 401,\n  \"error\": \"Invalid token.\",\n  \"path\":
+        \"/benefits-documents/v1/documents\"\n}\n"
+  recorded_at: Thu, 08 Aug 2024 17:13:36 GMT
+recorded_with: VCR 6.2.0

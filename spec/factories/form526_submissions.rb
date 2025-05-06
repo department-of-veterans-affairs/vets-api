@@ -3,9 +3,11 @@
 FactoryBot.define do
   factory :form526_submission do
     transient do
-      user { create(:disabilities_compensation_user) }
-      submissions_path { ::Rails.root.join(*'/spec/support/disability_compensation_form/submissions'.split('/')).to_s }
+      user_verification { create(:idme_user_verification) }
+      user { create(:disabilities_compensation_user, idme_uuid: user_verification.idme_uuid) }
+      submissions_path { Rails.root.join(*'/spec/support/disability_compensation_form/submissions'.split('/')).to_s }
     end
+    user_account { user_verification.user_account }
     user_uuid { user.uuid }
     saved_claim { create(:va526ez) }
     submitted_claim_id { nil }
@@ -44,6 +46,18 @@ FactoryBot.define do
     end
   end
 
+  trait :with_0781 do # rubocop:disable Naming/VariableNumber
+    form_json do
+      File.read("#{submissions_path}/with_0781.json")
+    end
+  end
+
+  trait :with_0781v2 do
+    form_json do
+      File.read("#{submissions_path}/with_0781v2.json")
+    end
+  end
+
   trait :with_everything_toxic_exposure do
     form_json do
       File.read("#{submissions_path}/with_everything_toxic_exposure.json")
@@ -75,23 +89,35 @@ FactoryBot.define do
   end
 
   trait :hypertension_claim_for_increase do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{submissions_path}/only_526_hypertension.json")
     end
   end
 
-  trait :asthma_claim_for_increase do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+  trait :als_claim_for_increase do
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
-      File.read(::Rails.root.join(
-        *'/spec/support/disability_compensation_form/submissions/only_526_asthma.json'.split('/')
-      ).to_s)
+      File.read("#{submissions_path}/only_526_als.json")
+    end
+  end
+
+  trait :als_claim_for_increase_terminally_ill do
+    user { create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      File.read("#{submissions_path}/only_526_als_terminally_ill.json")
+    end
+  end
+
+  trait :asthma_claim_for_increase do
+    user { create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      File.read("#{submissions_path}/only_526_asthma.json")
     end
   end
 
   trait :hypertension_claim_for_increase_with_uploads do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       json = JSON.parse(File.read("#{submissions_path}/only_526_hypertension.json"))
       uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))
@@ -101,7 +127,7 @@ FactoryBot.define do
   end
 
   trait :asthma_claim_for_increase_with_uploads do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       json = JSON.parse(File.read("#{submissions_path}/only_526_asthma.json"))
       uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))
@@ -182,21 +208,21 @@ FactoryBot.define do
       json_string = File.read("#{submissions_path}/only_526.json")
       json = JSON.parse json_string
       disabilities = json.dig('form526', 'form526', 'disabilities')
-      disabilities.concat([{
-                            'name' => 'Sleep Apnea',
-                            'classificationCode' => '8935',
-                            'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '2',
-                            'diagnosticCode' => 6847,
-                            'secondaryDisabilities' => []
-                          }, {
-                            'name' => 'Rhinitis',
-                            'classificationCode' => '8935',
-                            'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '3',
-                            'diagnosticCode' => 6522,
-                            'secondaryDisabilities' => []
-                          }])
+      disabilities.push({
+                          'name' => 'Sleep Apnea',
+                          'classificationCode' => '8935',
+                          'disabilityActionType' => 'INCREASE',
+                          'ratedDisabilityId' => '2',
+                          'diagnosticCode' => 6847,
+                          'secondaryDisabilities' => []
+                        }, {
+                          'name' => 'Rhinitis',
+                          'classificationCode' => '8935',
+                          'disabilityActionType' => 'INCREASE',
+                          'ratedDisabilityId' => '3',
+                          'diagnosticCode' => 6522,
+                          'secondaryDisabilities' => []
+                        })
       json.to_json
     end
   end
@@ -212,18 +238,18 @@ FactoryBot.define do
       json_string = File.read("#{submissions_path}/only_526.json")
       json = JSON.parse json_string
       disabilities = json.dig('form526', 'form526', 'disabilities')
-      disabilities.concat([{
-                            "name": 'hypertension',
-                            "classificationCode": '3460',
-                            "disabilityActionType": 'NEW'
-                          }, {
-                            'name' => 'Rhinitis',
-                            'classificationCode' => 'string',
-                            'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '2',
-                            'diagnosticCode' => 6522,
-                            'secondaryDisabilities' => []
-                          }])
+      disabilities.push({
+                          name: 'hypertension',
+                          classificationCode: '3460',
+                          disabilityActionType: 'NEW'
+                        }, {
+                          'name' => 'Rhinitis',
+                          'classificationCode' => 'string',
+                          'disabilityActionType' => 'INCREASE',
+                          'ratedDisabilityId' => '2',
+                          'diagnosticCode' => 6522,
+                          'secondaryDisabilities' => []
+                        })
       json.to_json
     end
   end
@@ -321,6 +347,25 @@ FactoryBot.define do
              form526_submission: submission,
              lifecycle: ['i am no longer remediated'],
              success: false)
+    end
+  end
+
+  trait :with_uploads_and_ancillary_forms do
+    form_json do
+      with_ancillary = JSON.parse(File.read("#{submissions_path}/with_everything.json"))
+      with_uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))['form526_uploads']
+      with_uploads.each do |upload|
+        create(:supporting_evidence_attachment, :with_file_data, guid: upload['confirmationCode'])
+      end
+
+      with_ancillary['form526_uploads'] = with_uploads
+      with_ancillary.to_json
+    end
+  end
+
+  trait :with_empty_disabilities do
+    form_json do
+      File.read("#{submissions_path}/only_526_empty_disabilities.json")
     end
   end
 end

@@ -36,7 +36,7 @@ describe AppealsApi::DecisionReviewReportDaily, type: :job do
     end
 
     it 'does not send email when no recipients are received' do
-      messager_instance = instance_double('AppealsApi::Slack::Messager')
+      messager_instance = instance_double(AppealsApi::Slack::Messager)
       with_settings(Settings.modules_appeals_api.reports.daily_decision_review, enabled: true) do
         allow(YAML).to receive(:load_file).and_return({})
         allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)

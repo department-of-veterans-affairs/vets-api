@@ -3,6 +3,7 @@
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'medical_records/phr_mgr/client'
+require 'medical_records/lighthouse_client'
 
 module MyHealth
   class MrController < ApplicationController
@@ -12,15 +13,28 @@ module MyHealth
     # skip_before_action :authenticate
     before_action :authenticate_bb_client
 
-    rescue_from ::MedicalRecords::PatientNotFound do |_exception|
-      render body: nil, status: :accepted
-    end
-
     protected
 
+    def render_resource(resource)
+      if resource == :patient_not_found
+        render plain: '', status: :accepted
+      else
+        render json: resource.to_json
+      end
+    end
+
     def client
-      @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                        icn: current_user.icn })
+      use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_enabled, @current_user) &&
+                         params[:use_oh_data_path].to_i == 1
+      if @client.nil?
+        @client ||= if use_oh_data_path
+                      MedicalRecords::LighthouseClient.new(current_user.icn)
+                    else
+                      MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                            icn: current_user.icn })
+                    end
+      end
+      @client
     end
 
     def phrmgr_client
@@ -28,7 +42,8 @@ module MyHealth
     end
 
     def bb_client
-      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id })
+      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                       icn: current_user.icn })
     end
 
     def authenticate_bb_client

@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "required": [
+    "errors"
+  ],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "detail",
+          "status"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "source": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "422"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,18 +17,18 @@ namespace :mockdata_synchronize do
         method: :post,
         body: Nokogiri::XML(env.body).root.to_xml,
         headers: {
-          'connection': 'close',
-          'date': Time.zone.now.strftime('%a, %d %b %Y %H:%M:%S %Z'),
+          connection: 'close',
+          date: Time.zone.now.strftime('%a, %d %b %Y %H:%M:%S %Z'),
           'content-type' => 'text/xml'
         },
         status: 200
       }
 
-      File.open(file_path, 'w') { |f| f.write(response.to_yaml) }
+      File.write(file_path, response.to_yaml)
     end
 
     def create_curl(icn)
-      uri = URI.parse(Settings.mvi.url)
+      uri = URI.parse(IdentitySettings.mvi.url)
       request = Net::HTTP::Post.new(uri)
       request.content_type = 'text/xml;charset=UTF-8'
       request['Connection'] = 'close'

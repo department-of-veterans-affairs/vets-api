@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/addresses
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
     body:
       encoding: UTF-8
-      string: '{"bio":{"addressId":138225,"addressLine1":"4041 Victoria Way","addressLine2":null,"addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Lexington","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":null,"county":{"countyCode":"21067","countyName":"Fayette County"},"intPostalCode":null,"provinceName":null,"stateCode":"KY","zipCode5":"40515","zipCode4":"4655","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2020-02-13T20:47:45.000Z","vet360Id":"1","effectiveStartDate":"2020-02-13T20:47:45.000Z","effectiveEndDate":"2020-02-13T20:47:45.000Z","badAddress":false}}'
+      string: '{"bio":{"addressId":138225,"addressLine1":"4041 Victoria Way","addressLine2":null,"addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Lexington","country":{"countryName":null,"countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":"21067","countyName":"Fayette County"},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"KY"},"intPostalCode":null,"zipCode5":"40515","zipCode4":"4655","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2020-02-13T20:47:45.000Z","effectiveStartDate":"2020-02-13T20:47:45.000Z","effectiveEndDate":"2020-02-13T20:47:45.000Z","badAddress":false}}'
     headers:
       Accept:
       - application/json

@@ -41,7 +41,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
     it 'loads a vso rep with the poa code' do
       VCR.use_cassette('veteran/ogc_vso_rep_data') do
         Veteran::VSOReloader.new.reload_vso_reps
-        expect(Veteran::Service::Representative.last.poa_codes).to include('091')
+        expect(Veteran::Service::Representative.last.poa_codes).to include('095')
         expect(Veteran::Service::Representative.where(representative_id: '').count).to eq 0
       end
     end
@@ -129,7 +129,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    context 'with an client error' do
+    context 'with a client error' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Common::Client::Errors::ClientError)
       end
@@ -140,25 +140,32 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    context 'with multiple first names' do
-      it 'handles it correctly' do
+    context 'handling names' do
+      before do
         VCR.use_cassette('veteran/ogc_vso_rep_data') do
           Veteran::VSOReloader.new.reload_vso_reps
+        end
+      end
 
+      context 'with multiple first names' do
+        it 'handles it correctly' do
           veteran_rep = Veteran::Service::Representative.find_by!(representative_id: '82390')
           expect(veteran_rep.first_name).to eq('Anna Mae')
           expect(veteran_rep.middle_initial).to eq('B')
         end
       end
-    end
 
-    context 'invalid name' do
-      it 'handles it correctly' do
-        VCR.use_cassette('veteran/ogc_vso_rep_data') do
-          Veteran::VSOReloader.new.reload_vso_reps
-
+      context 'invalid name' do
+        it 'handles it correctly' do
           veteran_rep = Veteran::Service::Representative.find_by(representative_id: '82391')
           expect(veteran_rep).to be_nil
+        end
+      end
+
+      context 'when the last_name has trailing white space' do
+        it 'removes the trailing white space' do
+          veteran_rep = Veteran::Service::Representative.find_by(representative_id: '8240')
+          expect(veteran_rep.last_name).to eq('Good')
         end
       end
     end

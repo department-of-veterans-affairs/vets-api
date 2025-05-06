@@ -57,7 +57,7 @@ RSpec.describe 'MyHealth::V1::Messaging::MessageDrafts', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('message')
+        expect(response).to match_response_schema('my_health/messaging/v1/message')
         expect(response).to have_http_status(:created)
       end
 
@@ -68,7 +68,7 @@ RSpec.describe 'MyHealth::V1::Messaging::MessageDrafts', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
         expect(response).to have_http_status(:created)
       end
 
@@ -95,7 +95,7 @@ RSpec.describe 'MyHealth::V1::Messaging::MessageDrafts', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('message')
+        expect(response).to match_response_schema('my_health/messaging/v1/message')
         expect(response).to have_http_status(:created)
       end
 
@@ -107,7 +107,7 @@ RSpec.describe 'MyHealth::V1::Messaging::MessageDrafts', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('message')
+        expect(response).to match_camelized_response_schema('my_health/messaging/v1/message')
         expect(response).to have_http_status(:created)
       end
 

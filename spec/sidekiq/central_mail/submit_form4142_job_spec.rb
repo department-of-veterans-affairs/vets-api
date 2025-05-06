@@ -22,12 +22,13 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.disable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user_account) { user.user_account }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
     let(:evss_claim_id) { 123_456_789 }
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
 
     describe '.perform_async' do
       let(:form_json) do
@@ -35,6 +36,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json:,
@@ -120,6 +122,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: missing_postalcode_form_json,
@@ -138,7 +141,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
     context 'catastrophic failure state' do
       describe 'when all retries are exhausted' do
-        let!(:form526_submission) { create(:form526_submission) }
+        let!(:form526_submission) { create(:form526_submission, user_account:) }
         let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
         it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -151,6 +154,39 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           end
           form526_job_status.reload
           expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
+        end
+
+        describe 'when an error occurs during exhaustion handling and FailureEmail fails to enqueue' do
+          let!(:zsf_tag) { Form526Submission::ZSF_DD_TAG_SERVICE }
+          let!(:zsf_monitor) { ZeroSilentFailures::Monitor.new(zsf_tag) }
+          let!(:failure_email) { EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail }
+
+          before do
+            Flipper.enable(:form526_send_4142_failure_notification)
+            allow(ZeroSilentFailures::Monitor).to receive(:new).with(zsf_tag).and_return(zsf_monitor)
+          end
+
+          it 'logs a silent failure' do
+            expect(zsf_monitor).to receive(:log_silent_failure).with(
+              {
+                job_id: form526_job_status.job_id,
+                error_class: nil,
+                error_message: 'An error occurred',
+                timestamp: instance_of(Time),
+                form526_submission_id: form526_submission.id
+              },
+              user_account.id,
+              call_location: instance_of(Logging::CallLocation)
+            )
+
+            args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+
+            expect do
+              subject.within_sidekiq_retries_exhausted_block(args) do
+                allow(failure_email).to receive(:perform_async).and_raise(StandardError, 'Simulated error')
+              end
+            end.to raise_error(StandardError, 'Simulated error')
+          end
         end
       end
     end
@@ -168,12 +204,13 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.enable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user_account) { user.user_account }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
     let(:evss_claim_id) { 123_456_789 }
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
 
     describe '.perform_async' do
       let(:form_json) do
@@ -181,6 +218,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json:,
@@ -204,13 +242,62 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           end.to change(subject.jobs, :size).by(1)
         end
 
+        it 'Creates a form 4142 submission polling record, when enabled' do
+          Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          expect do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                subject.perform_async(submission.id)
+                described_class.drain
+              end
+            end
+          end.to change(FormSubmission, :count).by(1)
+                                               .and change(FormSubmissionAttempt, :count).by(1)
+          fs_record = FormSubmission.last
+          fs_attempt_record = FormSubmissionAttempt.last
+          expect(Form526Submission.find_by(saved_claim_id: fs_record.saved_claim_id).id).to eq(submission.id)
+          expect(fs_attempt_record.pending?).to be(true)
+        end
+
+        it 'Returns successfully after creating polling record' do
+          Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                allow_any_instance_of(SemanticLogger::Logger).to receive(:info).and_return(true)
+                jid = subject.perform_async(submission.id)
+                subject.drain
+                job_status_record = submission.form526_job_statuses.find_by(job_id: jid)
+                Rails.logger.level
+                expect(job_status_record).not_to be_nil
+                expect(job_status_record.job_class).to eq('SubmitForm4142Job')
+                expect(job_status_record.status).to eq('success')
+              end
+            end
+          end
+        end
+
+        it 'Does not create a form 4142 submission polling record, when disabled' do
+          Flipper.disable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          expect do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                subject.perform_async(submission.id)
+                described_class.drain
+              end
+            end
+          end.to not_change(FormSubmission, :count)
+            .and not_change(FormSubmissionAttempt, :count)
+        end
+
         it 'submits successfully' do
-          skip 'The VCR cassette needs to be changed to contain Lighthouse specific data.'
-          VCR.use_cassette('central_mail/submit_4142') do
-            subject.perform_async(submission.id)
-            jid = subject.jobs.last['jid']
-            described_class.drain
-            expect(jid).not_to be_empty
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              subject.perform_async(submission.id)
+              jid = subject.jobs.last['jid']
+              described_class.drain
+              expect(jid).not_to be_empty
+            end
           end
         end
 
@@ -267,6 +354,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: missing_postalcode_form_json,
@@ -276,7 +364,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       context 'with a client error' do
         it 'raises a central mail response error' do
           skip 'The VCR cassette needs to be changed to contain Lighthouse specific data.'
-          VCR.use_cassette('central_mail/submit_4142_400') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
             subject.perform_async(submission.id)
             expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
           end

@@ -1,0 +1,37 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: http://api.va.gov/v0/banners?path=/some-va-path
+      body:
+        encoding: US-ASCII
+        string: ""
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |
+          {
+            "banners": [
+              {
+                "id": 123,
+                "entity_bundle": "full_width_banner_alert",
+                "context": [
+                  {
+                    "entity": {
+                      "entityUrl": {
+                        "path": "/some-va-path"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "path": "/some-va-path",
+            "banner_type": "full_width_banner_alert"
+          }

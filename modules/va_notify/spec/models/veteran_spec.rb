@@ -76,8 +76,11 @@ RSpec.describe VANotify::Veteran, type: :model do
   end
 
   it '#user_uuid, #uuid' do
-    expect(subject.user_uuid).to eq(in_progress_form.user_uuid)
-    expect(subject.uuid).to eq(in_progress_form.user_uuid)
+    # rubocop:disable Layout/LineLength
+    formatted_uuid = "#{in_progress_form.user_uuid[0..7]}-#{in_progress_form.user_uuid[8..11]}-#{in_progress_form.user_uuid[12..15]}-#{in_progress_form.user_uuid[16..19]}-#{in_progress_form.user_uuid[20..31]}"
+    # rubocop:enable Layout/LineLength
+    expect(subject.user_uuid).to eq(formatted_uuid)
+    expect(subject.uuid).to eq(formatted_uuid)
   end
 
   describe '#verified, loa3?' do
@@ -122,7 +125,7 @@ RSpec.describe VANotify::Veteran, type: :model do
       let(:user_account) { nil }
 
       it 'returns nil if no matching account is found' do
-        expect(subject.icn).to eq(nil)
+        expect(subject.icn).to be_nil
       end
     end
 
@@ -130,7 +133,7 @@ RSpec.describe VANotify::Veteran, type: :model do
       let(:icn) { nil }
 
       it 'returns nil if no icn is found' do
-        expect(subject.icn).to eq(nil)
+        expect(subject.icn).to be_nil
       end
     end
   end

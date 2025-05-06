@@ -11,7 +11,7 @@ module SAML
       include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name gender ssn birth_date
                                    uuid idme_uuid logingov_uuid verified_at sec_id mhv_icn
-                                   mhv_correlation_id mhv_account_type edipi loa sign_in multifactor icn].freeze
+                                   mhv_credential_uuid mhv_account_type edipi loa sign_in multifactor icn].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :tracker_uuid, :warnings
@@ -95,7 +95,7 @@ module SAML
         safe_attr('va_eauth_icn')
       end
 
-      def mhv_correlation_id
+      def mhv_credential_uuid
         safe_attr('va_eauth_mhvuuid') || mvi_ids[:mhv_ien]
       end
 
@@ -215,7 +215,7 @@ module SAML
         check_id_mismatch([safe_attr('va_eauth_icn'), safe_attr('va_eauth_mhvicn')], :mhv_icn_mismatch)
         check_id_mismatch(mvi_ids[:vba_corp_ids], :multiple_corp_ids)
         check_id_mismatch(edipi_ids[:edipis], :multiple_edipis)
-        check_id_mismatch(mhv_iens, :multiple_mhv_ids)
+        check_id_mismatch(mhv_iens, :multiple_mhv_ids, raise_error: false)
         if sec_id_mismatch?
           log_message_to_sentry('User attributes contains multiple sec_id values',
                                 'warn',
@@ -241,9 +241,7 @@ module SAML
       def edipi_ids
         @edipi_ids ||= begin
           gcids = safe_attr('va_eauth_gcIds')
-          return {} unless gcids
-
-          parse_string_gcids(gcids, DOD_ROOT_OID)
+          gcids ? parse_string_gcids(gcids, DOD_ROOT_OID) : {}
         end
       end
 
@@ -253,28 +251,31 @@ module SAML
 
       def mhv_iens
         mhv_iens = mvi_ids[:mhv_iens] || []
-        mhv_iens.append(safe_attr('va_eauth_mhvuuid')).reject(&:nil?).uniq
+        mhv_iens.append(safe_attr('va_eauth_mhvuuid')).compact.uniq
       end
 
       def mhv_outbound_redirect(mismatched_ids_error)
         return false if mismatched_ids_error[:tag] == :multiple_edipis
 
-        @mhv_outbound_redirect ||= %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
+        %w[mhv myvahealth].include?(tracker&.payload_attr(:application))
       end
 
-      def check_id_mismatch(ids, multiple_ids_error_type)
+      def check_id_mismatch(ids, multiple_ids_error_type, raise_error: true)
         return if ids.blank?
+        return if ids.compact.uniq.count <= 1
 
-        if ids.reject(&:nil?).uniq.size > 1
-          mismatched_ids_error = SAML::UserAttributeError::ERRORS[multiple_ids_error_type]
-          error_data = { mismatched_ids: ids, icn: mhv_icn }
-          Rails.logger.warn("[SAML::UserAttributes::SSOe] #{mismatched_ids_error[:message]}, #{error_data}")
-          unless mhv_outbound_redirect(mismatched_ids_error)
-            raise SAML::UserAttributeError.new(message: mismatched_ids_error[:message],
-                                               code: mismatched_ids_error[:code],
-                                               tag: mismatched_ids_error[:tag])
-          end
-        end
+        mismatched_ids_error = SAML::UserAttributeError::ERRORS[multiple_ids_error_type]
+        error_data = { mismatched_ids: ids, icn: mhv_icn }
+
+        Rails.logger.warn("[SAML::UserAttributes::SSOe] #{mismatched_ids_error[:message]}", error_data)
+
+        return if mhv_outbound_redirect(mismatched_ids_error) || !raise_error
+
+        raise SAML::UserAttributeError.new(
+          message: mismatched_ids_error[:message],
+          code: mismatched_ids_error[:code],
+          tag: mismatched_ids_error[:tag]
+        )
       end
 
       def sec_id_mismatch?
@@ -283,7 +284,7 @@ module SAML
 
       def attribute_has_multiple_values?(attribute)
         var = safe_attr(attribute)&.split(',') || []
-        var.reject(&:nil?).uniq.size > 1
+        var.compact.uniq.size > 1
       end
 
       def csid

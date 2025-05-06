@@ -117,7 +117,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
         subject
         health_care_application.reload
 
-        expect(health_care_application.success?).to eq(true)
+        expect(health_care_application.success?).to be(true)
         expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
         expect(health_care_application.timestamp).to eq(result[:timestamp])
       end

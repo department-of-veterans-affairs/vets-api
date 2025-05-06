@@ -123,8 +123,8 @@ describe SignIn::Logingov::Service do
   end
 
   describe '#render_logout' do
-    let(:client_id) { Settings.logingov.client_id }
-    let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+    let(:client_id) { IdentitySettings.logingov.client_id }
+    let(:logout_redirect_uri) { IdentitySettings.logingov.logout_redirect_uri }
     let(:expected_url_params) do
       {
         client_id:,
@@ -140,7 +140,7 @@ describe SignIn::Logingov::Service do
       }
     end
     let(:seed) { 'some-seed' }
-    let(:expected_url_host) { Settings.logingov.oauth_url }
+    let(:expected_url_host) { IdentitySettings.logingov.oauth_url }
     let(:expected_url_path) { 'openid_connect/logout' }
     let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
     let(:client_logout_redirect_uri) { 'some-client-logout-redirect-uri' }
@@ -169,6 +169,8 @@ describe SignIn::Logingov::Service do
   end
 
   describe '#token' do
+    let(:expected_jwks_fetch_log) { '[SignIn][Logingov][Service] Get Public JWKs Success' }
+
     before do
       Timecop.freeze(Time.zone.at(current_time))
     end
@@ -178,13 +180,12 @@ describe SignIn::Logingov::Service do
     end
 
     context 'when the request is successful' do
-      let(:expected_jwks_log) { '[SignIn][Logingov][Service] Get Public JWKs Success' }
       let(:expected_token_log) { "[SignIn][Logingov][Service] Token Success, code: #{code}" }
       let(:expected_access_token) { 'mHO_gU3WooLm0xoDxIAulw' }
       let(:expected_logingov_acr) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
 
       it 'logs information to rails logger', vcr: { cassette_name: 'identity/logingov_200_responses' } do
-        expect(Rails.logger).to receive(:info).with(expected_jwks_log)
+        expect(Rails.logger).to receive(:info).with(expected_jwks_fetch_log)
         expect(Rails.logger).to receive(:info).with(expected_token_log)
         subject.token(code)
       end
@@ -195,26 +196,6 @@ describe SignIn::Logingov::Service do
 
       it 'returns a logingov acr', vcr: { cassette_name: 'identity/logingov_200_responses' } do
         expect(subject.token(code)[:logingov_acr]).to eq(expected_logingov_acr)
-      end
-
-      context 'when the public JWK response is cached' do
-        let(:cache_key) { 'logingov_public_jwks' }
-        let(:cache_expiration) { 30.minutes }
-        let(:response) { double(body: 'some-body') }
-
-        before do
-          allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: cache_expiration).and_return(response)
-          allow(JWT).to receive(:decode).and_return([{ 'acr' => 'some-acr' }])
-          allow(JWT::JWK::Set).to receive(:new).and_return([])
-        end
-
-        it 'does not log expected_jwks_log' do
-          VCR.use_cassette('identity/logingov_200_responses') do
-            expect(Rails.logger).to receive(:info).with(expected_token_log)
-            expect(Rails.logger).not_to receive(:info).with(expected_jwks_log)
-            subject.token(code)
-          end
-        end
       end
     end
 
@@ -274,6 +255,73 @@ describe SignIn::Logingov::Service do
       it 'raises a jwt malformed error with expected message',
          vcr: { cassette_name: 'identity/logingov_jwks_malformed' } do
         expect { subject.token(code) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the public JWKs response is not cached' do
+      let(:expected_jwks_fetch_log) { '[SignIn][Logingov][Service] Get Public JWKs Success' }
+
+      before do
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'fetches the public JWKs' do
+        VCR.use_cassette('identity/logingov_200_responses') do
+          subject.token(code)
+
+          expect(Rails.logger).to have_received(:info).with(expected_jwks_fetch_log)
+        end
+      end
+    end
+
+    context 'when the public JWKs response is cached' do
+      let(:cache_key) { 'logingov_public_jwks' }
+      let(:cache_expiration) { 30.minutes }
+      let(:redis_store) { ActiveSupport::Cache::RedisCacheStore.new(redis: MockRedis.new) }
+
+      before do
+        allow(Rails).to receive(:cache).and_return(redis_store)
+        Rails.cache.clear
+        allow(Rails.logger).to receive(:info)
+      end
+
+      after do
+        Rails.cache.clear
+      end
+
+      it 'uses the cached JWKs response' do
+        VCR.use_cassette('identity/logingov_200_responses') do
+          subject.token(code)
+
+          expect(Rails.logger).to have_received(:info).with(expected_jwks_fetch_log)
+        end
+        VCR.use_cassette('identity/logingov_200_responses') do
+          expect(Rails.logger).not_to receive(:info).with(expected_jwks_fetch_log)
+          subject.token(code)
+        end
+      end
+
+      context 'when the JWK is not found in the cached JWKs' do
+        let(:rsa_key) { OpenSSL::PKey::RSA.new(2048) }
+        let(:jwks) { JWT::JWK::Set.new([JWT::JWK::RSA.new(rsa_key)]) }
+        let(:expected_jwk_reload_log) { '[SignIn][Logingov][Service] JWK not found, reloading public JWKs' }
+
+        before do
+          allow(Rails.cache).to receive(:delete_matched).and_call_original
+        end
+
+        it 'clears the cache and fetches the public JWKs again' do
+          Rails.cache.write(cache_key, jwks)
+
+          VCR.use_cassette('identity/logingov_200_responses') do
+            subject.token(code)
+
+            expect(Rails.cache).to have_received(:delete_matched).with(cache_key)
+            expect(Rails.logger).to have_received(:info).with(expected_jwk_reload_log)
+            expect(Rails.logger).to have_received(:info).with(expected_jwks_fetch_log)
+            expect(Rails.cache.read(cache_key)).not_to eq(jwks)
+          end
+        end
       end
     end
   end

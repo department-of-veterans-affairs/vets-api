@@ -227,30 +227,29 @@ FactoryBot.define do
       form_id { '1010ez' }
       form_data do
         {
-          "email": 'email@email.com',
-          "view:email_confirmation": 'email@email.com',
-          "veteran_address": { "street": 'hgjghj', "city": 'hjkhjk', "postal_code": '44444', "country": 'USA',
-                               "state": 'AL' },
-          "view:does_mailing_match_home_address": true,
-          "view:application_description": {},
-          "view:place_of_birth": { "city_of_birth": 'fghfgh' },
-          "veteran_full_name": { "first": 'Colder', "middle": 'Tux', "last": 'Polarbear', "suffix": 'Jr.' },
-          "veteran_social_security_number": '141557840',
-          "veteran_date_of_birth": '1950-01-01',
-          "gender": 'M',
-          "view:demographic_categories": { "is_spanish_hispanic_latino": false },
-          "veteran_home_address": { "country": 'USA' },
-          "view:comp_desc": {},
-          "last_service_branch": 'coast guard',
-          "last_entry_date": '1970-07-13',
-          "last_discharge_date": '1998-08-31',
-          "discharge_type": 'honorable',
-          "view:text_object": {},
-          "spouse_full_name": {},
-          "is_essential_aca_coverage": false,
-          "view:preferred_facility": {},
-          "view:locator": {},
-          "view:is_user_in_mvi": true
+          email: 'email@email.com',
+          veteran_address: { street: 'hgjghj', city: 'hjkhjk', postal_code: '44444', country: 'USA',
+                             state: 'AL' },
+          'view:does_mailing_match_home_address': true,
+          'view:application_description': {},
+          'view:place_of_birth': { city_of_birth: 'fghfgh' },
+          veteran_full_name: { first: 'Colder', middle: 'Tux', last: 'Polarbear', suffix: 'Jr.' },
+          veteran_social_security_number: '141557840',
+          veteran_date_of_birth: '1950-01-01',
+          gender: 'M',
+          'view:demographic_categories': { is_spanish_hispanic_latino: false },
+          veteran_home_address: { country: 'USA' },
+          'view:comp_desc': {},
+          last_service_branch: 'coast guard',
+          last_entry_date: '1970-07-13',
+          last_discharge_date: '1998-08-31',
+          discharge_type: 'honorable',
+          'view:text_object': {},
+          spouse_full_name: {},
+          is_essential_aca_coverage: false,
+          'view:preferred_facility': {},
+          'view:locator': {},
+          'view:is_user_in_mvi': true
         }.to_json
       end
     end
@@ -335,6 +334,7 @@ FactoryBot.define do
 
     factory :in_progress_686c_form do
       user_uuid { SecureRandom.uuid }
+      user_account_id { nil }
       form_id { '686C-674' }
       metadata do
         {

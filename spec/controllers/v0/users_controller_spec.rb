@@ -17,6 +17,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before do
       sign_in_as(user)
+      create(:user_verification, idme_uuid: user.idme_uuid)
       create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
     end
 
@@ -75,7 +76,7 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(response).to be_successful
 
       claims = json.dig('attributes', 'profile', 'claims')
-      expect(claims).to be(nil)
+      expect(claims).to be_nil
     end
 
     context 'onboarding' do
@@ -95,7 +96,7 @@ RSpec.describe V0::UsersController, type: :controller do
         json = json_body_for(response)
         expect(response).to be_successful
         onboarding = json.dig('attributes', 'onboarding')
-        expect(onboarding['show']).to be(nil)
+        expect(onboarding['show']).to be_nil
       end
     end
 
@@ -145,6 +146,53 @@ RSpec.describe V0::UsersController, type: :controller do
         get :icn
 
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
+  describe '#credential_emails' do
+    let(:user) { build(:user, :loa3) }
+    let(:user_account) { create(:user_account) }
+    let(:user_credential_email1) { create(:user_credential_email, credential_email: 'email1@example.com') }
+    let(:user_credential_email2) { create(:user_credential_email, credential_email: 'email2@example.com') }
+    let!(:idme_user_verification) do
+      create(:user_verification, idme_uuid: user.idme_uuid, user_credential_email: user_credential_email1,
+                                 user_account_id: user_account.id)
+    end
+    let!(:logingov_user_verification) do
+      create(:user_verification, logingov_uuid: user.logingov_uuid, user_credential_email: user_credential_email2,
+                                 user_account_id: user_account.id)
+    end
+    let(:expected_response) do
+      { idme_user_verification.credential_type => user_credential_email1.credential_email,
+        logingov_user_verification.credential_type => user_credential_email2.credential_email }
+    end
+
+    before do
+      sign_in user
+    end
+
+    it 'returns the users credential emails' do
+      get :credential_emails
+      expect(response).to be_successful
+      expect(JSON.parse(response.body)).to eq(expected_response)
+    end
+
+    context 'when a user verification does not have a credential email' do
+      let!(:logingov_user_verification) do
+        create(:user_verification,
+               logingov_uuid: user.logingov_uuid,
+               user_credential_email: nil,
+               user_account_id: user_account.id)
+      end
+      let(:expected_response) do
+        { idme_user_verification.credential_type => user_credential_email1.credential_email }
+      end
+
+      it 'returns the users credential emails that are not nil' do
+        get :credential_emails
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)).to eq(expected_response)
       end
     end
   end

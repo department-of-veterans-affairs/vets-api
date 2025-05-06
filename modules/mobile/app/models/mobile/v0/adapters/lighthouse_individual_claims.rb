@@ -135,7 +135,8 @@ module Mobile
               tracked_item_id: document['trackedItemId'],
               upload_date: document['uploadDate'],
               file_type: document['documentTypeLabel'],
-              filename: document['originalFileName']
+              filename: document['originalFileName'],
+              document_id: document['documentId']
             )
           end
         end
@@ -173,7 +174,8 @@ module Mobile
               # no document type field available
               document_type: nil,
               filename: document['originalFileName'],
-              upload_date: document['uploadDate']
+              upload_date: document['uploadDate'],
+              document_id: document['documentId']
             }
             ClaimDocument.new(document_hash)
           end

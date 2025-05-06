@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/vitals/summary/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:05:07 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"userProfileId":11375034,"bloodPreassureReadings":[],"bloodSugarReadings":[{"dateEntered":"05/09/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1494388740000,"dashboardDate":"Tue
+        05/09/2017","bloodSugarId":14221549,"comments":null,"testingMethod":"CLT","bloodSugarCount":180,"userprofileId":11375034},{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","bloodSugarId":14168638,"comments":null,"testingMethod":"I","bloodSugarCount":12,"userprofileId":11375034},{"dateEntered":"02/10/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1486789140000,"dashboardDate":"Fri
+        02/10/2017","bloodSugarId":13984647,"comments":"this is a comment\r\n","testingMethod":"SL","bloodSugarCount":646,"userprofileId":11375034}],"bodyTemperatureReadings":[{"dateEntered":"09/06/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1504756740000,"dashboardDate":"Wed
+        09/06/2017","bodyTemperatureId":14569457,"comments":null,"bodyTemperature":120,"userprofileId":11375034,"measure":"C","bodyTemperatureMethod":"M"},{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","bodyTemperatureId":14168636,"comments":"test","bodyTemperature":98,"userprofileId":11375034,"measure":"F","bodyTemperatureMethod":"M"}],"bodyWeightReadings":[{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","bodyweightID":14168635,"bodyweight":123,"comments":null,"userprofileId":11375034,"bodyweightMeasure":"P"}],"cholesterolReadings":null,"heartRateReadings":[{"dateEntered":"04/06/2018","timeEntered":"23:59","hour":null,"minute":null,"reading":1523073540000,"dashboardDate":"Fri
+        04/06/2018","heartRateId":14944770,"comments":null,"heartRate":123,"userprofileId":11375034},{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","heartRateId":14168634,"comments":null,"heartRate":123,"userprofileId":11375034}],"inrReadings":[{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","inrId":14168642,"inr":0.2,"lowendTargetRange":"NONE","highendTragetRange":"NONE","location":null,"provider":null,"comments":null,"userprofileId":11375034}],"lipidReadings":[{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","lipidsId":14168639,"fast":"N","total":655,"hdl":345,"ldl":null,"triglycerides":null,"location":"test","provider":null,"comments":"trest","userprofileId":null}],"painReadings":[{"dateEntered":"11/27/2018","timeEntered":"09:00","hour":null,"minute":null,"reading":1543327200000,"dashboardDate":"Tue
+        11/27/2018","painId":15282976,"comments":" Test comment% , test comment^&*()+#!\r\n
+        Test comment% , test ^&*()+#!()@~[]{ brace}","painLevel":3,"userprofileId":11375034},{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","painId":14168637,"comments":"edgdff","painLevel":3,"userprofileId":11375034}],"pulseOximetryReadings":[{"dateEntered":"04/13/2017","timeEntered":"23:59","hour":null,"minute":null,"reading":1492142340000,"dashboardDate":"Thu
+        04/13/2017","pulseOximetryId":14168641,"comments":"test","suppOxygenDevice":"FM","oxygenSetting":3,"respiratoryRate":67,"oximeterReading":65,"otherSymptoms":null,"symptoms":"D","userprofileId":11375034}]}'
+  recorded_at: Thu, 21 Nov 2024 00:05:07 GMT
+recorded_with: VCR 6.3.1

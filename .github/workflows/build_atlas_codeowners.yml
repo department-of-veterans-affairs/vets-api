@@ -30,7 +30,7 @@ jobs:
 
       - name:  Check codeowner changes
         id: check-codeowner-changes
-        uses: tj-actions/changed-files@v45 # v36.3.0
+        uses: tj-actions/changed-files@v46.0.5 # v46 has a CVE
         with:
           files: |
             .github/CODEOWNERS
@@ -45,6 +45,6 @@ jobs:
           destination_repo: 'department-of-veterans-affairs/platform-atlas'
           destination_folder: '/lib/codeowners/vets-api'
           destination_branch: 'master'
-          user_email: 'devops@va.gov'
+          user_email: '70344339+va-vsp-bot@users.noreply.github.com'
           user_name: 'va-vsp-bot'
           commit_message: 'Auto update Atlas with Vets-API CODEOWNERS'

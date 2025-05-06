@@ -25,16 +25,16 @@ RSpec.describe UserSessionForm, type: :model do
       build(:ssoe_idme_mhv_premium, va_eauth_gcIds: va_eauth_gc_ids)
     end
     let(:va_eauth_gc_ids) do
-      ['1012853550V207686^NI^200M^USVHA^P|'\
-       '552151510^PI^989^USVHA^A|'\
-       '943571^PI^979^USVHA^A|'\
-       '12345748^PI^200MH^USVHA^A|'\
-       '1012853550^PN^200PROV^USDVA^A|'\
-       '7219295^PI^983^USVHA^A|'\
-       '552161765^PI^984^USVHA^A|'\
-       '2107307560^NI^200DOD^USDOD^A|'\
-       '7b9b5861203244f0b99b02b771159044^PN^200VIDM^USDVA^A|'\
-       '0e1bb5723d7c4f0686f46ca4505642ad^PN^200VIDM^USDVA^A|'\
+      ['1012853550V207686^NI^200M^USVHA^P|' \
+       '552151510^PI^989^USVHA^A|' \
+       '943571^PI^979^USVHA^A|' \
+       '12345748^PI^200MH^USVHA^A|' \
+       '1012853550^PN^200PROV^USDVA^A|' \
+       '7219295^PI^983^USVHA^A|' \
+       '552161765^PI^984^USVHA^A|' \
+       '2107307560^NI^200DOD^USDOD^A|' \
+       '7b9b5861203244f0b99b02b771159044^PN^200VIDM^USDVA^A|' \
+       '0e1bb5723d7c4f0686f46ca4505642ad^PN^200VIDM^USDVA^A|' \
        '12345748^PI^200MHS^USVHA^A']
     end
 
@@ -56,14 +56,14 @@ RSpec.describe UserSessionForm, type: :model do
 
     context 'and ID.me UUID not in SAML GCids' do
       let(:va_eauth_gc_ids) do
-        ['1012853550V207686^NI^200M^USVHA^P|'\
-         '552151510^PI^989^USVHA^A|'\
-         '943571^PI^979^USVHA^A|'\
-         '12345748^PI^200MH^USVHA^A|'\
-         '1012853550^PN^200PROV^USDVA^A|'\
-         '7219295^PI^983^USVHA^A|'\
-         '552161765^PI^984^USVHA^A|'\
-         '2107307560^NI^200DOD^USDOD^A|'\
+        ['1012853550V207686^NI^200M^USVHA^P|' \
+         '552151510^PI^989^USVHA^A|' \
+         '943571^PI^979^USVHA^A|' \
+         '12345748^PI^200MH^USVHA^A|' \
+         '1012853550^PN^200PROV^USDVA^A|' \
+         '7219295^PI^983^USVHA^A|' \
+         '552161765^PI^984^USVHA^A|' \
+         '2107307560^NI^200DOD^USDOD^A|' \
          '12345748^PI^200MHS^USVHA^A']
       end
       let(:add_person_response) do

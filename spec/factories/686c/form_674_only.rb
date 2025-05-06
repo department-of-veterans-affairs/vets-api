@@ -138,4 +138,113 @@ FactoryBot.define do
       }
     end
   end
+
+  factory :form_674_only_v2, class: Hash do
+    initialize_with do
+      {
+        'view:selectable686_options' => {
+          'report674' => true
+        },
+        'dependents_application' => {
+          'household_income' => true,
+          'veteran_contact_information' => {
+            'phone_number' => '5555555555',
+            'international_phone_number' => '5555555556',
+            'email_address' => 'test@test.com',
+            'electronic_correspondence' => true,
+            'veteran_address' => {
+              'country' => 'USA',
+              'street' => '123 fake street',
+              'street2' => 'test2',
+              'street3' => 'test3',
+              'city' => 'portland',
+              'state' => 'ME',
+              'postal_code' => '04102'
+            }
+          },
+          'student_information' => [{
+            'remarks' => 'test additional information',
+            'student_networth_information' => {
+              'savings' => '500',
+              'securities' => '400',
+              'real_estate' => '300',
+              'other_assets' => '200',
+              'total_value' => '1400'
+            },
+            'student_expected_earnings_next_year' => {
+              'earnings_from_all_employment' => '56000',
+              'annual_social_security_payments' => '0',
+              'other_annuities_income' => '145',
+              'all_other_income' => '50'
+            },
+            'student_earnings_from_school_year' => {
+              'earnings_from_all_employment' => '56000',
+              'annual_social_security_payments' => '0',
+              'other_annuities_income' => '123',
+              'all_other_income' => '20'
+            },
+            'claims_or_receives_pension' => true,
+            'school_information' => {
+              'last_term_school_information' => {
+                'term_begin' => '2024-01-01',
+                'date_term_ended' => '2024-03-05'
+              },
+              'student_did_attend_school_last_term' => true,
+              'current_term_dates' => {
+                'official_school_start_date' => '2025-01-01',
+                'expected_student_start_date' => '2025-01-02',
+                'expected_graduation_date' => '2026-03-01'
+              },
+              'is_school_accredited' => true,
+              'student_is_enrolled_full_time' => true,
+              'name' => 'name of trade program'
+            },
+            'benefit_payment_date' => '2024-03-01',
+            'type_of_program_or_benefit' => { 'ch35' => true, 'fry' => true, 'feca' => true, 'other' => true },
+            'other_program_or_benefit' => 'all the programs!',
+            'tuition_is_paid_by_gov_agency' => true,
+            'marriage_date' => '2024-03-03',
+            'was_married' => true,
+            'address' => {
+              'country' => 'USA',
+              'street' => '123 fake street',
+              'street2' => 'line2',
+              'street3' => 'line3',
+              'city' => 'portland',
+              'state' => 'ME',
+              'postal_code' => '04102'
+            },
+            'student_income' => true,
+            'ssn' => '987654321',
+            'is_parent' => true,
+            'full_name' => { 'first' => 'test', 'middle' => 'middle', 'last' => 'student' },
+            'birth_date' => '2005-01-01'
+          }],
+          'veteran_information' => {
+            'birth_date' => '1809-02-12',
+            'full_name' => {
+              'first' => 'Wesley',
+              'last' => 'Ford',
+              'middle' => nil
+            },
+            'ssn' => '987654321',
+            'va_file_number' => '987654321'
+          },
+          'use_v2' => true,
+          'days_till_expires' => 365,
+          'privacy_agreement_accepted' => true
+        },
+        'veteran_information' => {
+          'birth_date' => '1809-02-12',
+          'full_name' => {
+            'first' => 'Wesley',
+            'last' => 'Ford',
+            'middle' => nil
+          },
+          'ssn' => '987654321',
+          'va_file_number' => '987654321'
+        }
+      }
+    end
+  end
 end

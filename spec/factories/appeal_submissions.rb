@@ -2,16 +2,25 @@
 
 FactoryBot.define do
   factory :appeal_submission do
-    user_uuid do
-      user = create(:user, :loa3, ssn: '212222112')
-      user.uuid
+    transient do
+      user_verification { create(:idme_user_verification) }
+      user { create(:user, :loa3, ssn: '212222112', idme_uuid: user_verification.idme_uuid) }
     end
+    user_uuid { user.uuid }
+    user_account { user_verification.user_account }
     submitted_appeal_uuid { SecureRandom.uuid }
     type_of_appeal { 'NOD' }
     board_review_option { 'evidence_submission' }
     upload_metadata do
       user = User.find(user_uuid)
-      DecisionReviewV1::Service.file_upload_metadata(user)
+      {
+        'veteranFirstName' => user.first_name,
+        'veteranLastName' => user.last_name,
+        'zipCode' => user.postal_code.to_s,
+        'fileNumber' => user.ssn.to_s.strip,
+        'source' => 'va.gov',
+        'businessLine' => 'BVA'
+      }.to_json
     end
   end
 

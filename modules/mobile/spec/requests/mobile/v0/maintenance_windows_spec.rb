@@ -26,7 +26,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
       before do
         Timecop.freeze('2021-05-26 22:33:39')
 
-        FactoryBot.create(:mobile_maintenance_evss_first)
+        create(:mobile_maintenance_evss_first)
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
@@ -44,10 +44,10 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
     context 'when a maintenance with many dependent services and a window not in the service map is active' do
       before do
         Timecop.freeze('2021-05-25T03:33:39Z')
-        FactoryBot.create(:mobile_maintenance_evss_first)
-        FactoryBot.create(:mobile_maintenance_mpi)
-        FactoryBot.create(:mobile_maintenance_dslogon)
-        FactoryBot.create(:mobile_maintenance_vbms)
+        create(:mobile_maintenance_evss_first)
+        create(:mobile_maintenance_mpi)
+        create(:mobile_maintenance_dslogon)
+        create(:mobile_maintenance_vbms)
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
@@ -95,6 +95,15 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
                 'startTime' => '2021-05-25T23:33:39.000Z',
                 'endTime' => '2021-05-26T01:45:00.000Z'
               }
+            },
+            {
+              'id' => 'c07d7af4-b54a-5b82-b94c-3366f79cc500',
+              'type' => 'maintenance_window',
+              'attributes' => {
+                'service' => 'efolder',
+                'startTime' => '2021-05-25T23:33:39.000Z',
+                'endTime' => '2021-05-27T01:45:00.000Z'
+              }
             }
           ]
         )
@@ -104,7 +113,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
     context 'when BGS is down' do
       before do
         Timecop.freeze('2021-05-25T03:33:39Z')
-        FactoryBot.create(:mobile_maintenance_bgs_first)
+        create(:mobile_maintenance_bgs_first)
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
@@ -130,9 +139,9 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
     end
 
     context 'when there are multiple windows for same service with different time spans' do
-      let!(:earliest_evss_starting) { FactoryBot.create(:mobile_maintenance_evss_first) }
-      let!(:middle_evss_starting) { FactoryBot.create(:mobile_maintenance_evss_second) }
-      let!(:latest_evss_starting) { FactoryBot.create(:mobile_maintenance_evss_third) }
+      let!(:earliest_evss_starting) { create(:mobile_maintenance_evss_first) }
+      let!(:middle_evss_starting) { create(:mobile_maintenance_evss_second) }
+      let!(:latest_evss_starting) { create(:mobile_maintenance_evss_third) }
 
       before { Timecop.freeze('2021-05-25T03:33:39Z') }
       after { Timecop.return }
@@ -175,10 +184,10 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
     end
 
     context 'when there are multiple windows for various services with different time spans' do
-      let!(:earliest_evss_starting) { FactoryBot.create(:mobile_maintenance_evss_first) }
-      let!(:latest_evss_starting) { FactoryBot.create(:mobile_maintenance_evss_second) }
-      let!(:earliest_bgs_starting) { FactoryBot.create(:mobile_maintenance_bgs_first) }
-      let!(:latest_bgs_starting) { FactoryBot.create(:mobile_maintenance_bgs_second) }
+      let!(:earliest_evss_starting) { create(:mobile_maintenance_evss_first) }
+      let!(:latest_evss_starting) { create(:mobile_maintenance_evss_second) }
+      let!(:earliest_bgs_starting) { create(:mobile_maintenance_bgs_first) }
+      let!(:latest_bgs_starting) { create(:mobile_maintenance_bgs_second) }
       let(:evss_services) { %w[disability_rating letters_and_documents].freeze }
       let(:bgs_services) { %w[payment_history appeals].freeze }
 

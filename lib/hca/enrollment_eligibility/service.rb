@@ -6,6 +6,7 @@ require_relative 'configuration'
 
 module HCA
   module EnrollmentEligibility
+    # rubocop:disable Metrics/ClassLength
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
@@ -28,12 +29,27 @@ module HCA
         'groupNumber' => 'insuranceGroupCode'
       }.freeze
 
-      MARITAL_STATUSES = %w[
-        Married
-        Never Married
-        Separated
-        Widowed
-        Divorced
+      MARITAL_STATUSES = [
+        'Married',
+        'Never Married',
+        'Separated',
+        'Widowed',
+        'Divorced'
+      ].freeze
+
+      CONTACT_TYPES = [
+        'Primary Next of Kin',
+        'Other Next of Kin',
+        'Emergency Contact',
+        'Other emergency contact'
+      ].freeze
+
+      ADDRESS_MAPPINGS = [
+        %i[street line1],
+        %i[street2 line2],
+        %i[street3 line3],
+        %i[city city],
+        %i[country country]
       ].freeze
 
       MEDICARE = 'Medicare'
@@ -43,17 +59,25 @@ module HCA
           lookup_user_req(icn)
         end
 
+        financial_info = parse_financial_info(response)
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
-        OpenStruct.new(
-          convert_insurance_hash(
-            response, providers
-          ).merge(
-            dependents.present? ? { dependents: } : {}
-          ).merge(spouse)
-        )
+        ezr_data = financial_info.merge(convert_insurance_hash(response, providers).except!(:providers)).merge(spouse)
+
+        if Flipper.enabled?(:ezr_form_prefill_with_providers_and_dependents)
+          ezr_data = financial_info.merge(convert_insurance_hash(response, providers))
+          ezr_data[:dependents] = dependents if dependents.present?
+          ezr_data.merge!(spouse)
+        end
+
+        if Flipper.enabled?(:ezr_prefill_contacts)
+          contacts = parse_contacts(response)
+          ezr_data.merge!({ veteranContacts: contacts }) if contacts.present?
+        end
+
+        OpenStruct.new(ezr_data)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -135,6 +159,74 @@ module HCA
         marital_status
       end
 
+      def find_financial_node(parent_node, node_value)
+        parent_node.nodes.select { |node| node.value == node_value }.first&.nodes&.first
+      end
+
+      def get_income(response, xpath)
+        income = {}
+
+        response.locate(xpath)&.each do |i|
+          type = find_financial_node(i, 'type')
+          amount = find_financial_node(i, 'amount')
+
+          case type
+          when 'Total Employment Income'
+            income[:grossIncome] = amount
+          when 'Net Income from Farm, Ranch, Property, Business'
+            income[:netIncome] = amount
+          when 'All Other Income'
+            income[:otherIncome] = amount
+          end
+        end
+
+        income
+      end
+
+      def get_expenses(response, xpath)
+        expenses = {}
+
+        response.locate(xpath)&.each do |i|
+          type = find_financial_node(i, 'expenseType')
+          amount = find_financial_node(i, 'amount')
+
+          case type
+          when 'Funeral and Burial Expenses'
+            expenses[:deductibleFuneralExpenses] = amount
+          when 'Total Non-Reimbursed Medical Expenses'
+            expenses[:deductibleMedicalExpenses] = amount
+          when "Veteran's Educational Expenses"
+            expenses[:deductibleEducationExpenses] = amount
+          end
+        end
+
+        expenses
+      end
+
+      def parse_financial_info(response)
+        financial_info_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
+        spouse_financial_info_xpath = "#{financial_info_xpath}spouseFinancialsList/spouseFinancials/"
+
+        Common::HashHelpers.deep_compact(
+          {
+            previousFinancialInfo: {
+              veteranFinancialInfo: get_income(
+                response, "#{financial_info_xpath}incomes/income"
+              ).merge(
+                get_expenses(response, "#{financial_info_xpath}expenses/expense").merge(
+                  incomeYear: get_locate_value(response, "#{financial_info_xpath}incomeYear")
+                )
+              ),
+              spouseFinancialInfo: get_income(
+                response, "#{spouse_financial_info_xpath}incomes/income"
+              ).merge(
+                incomeYear: get_locate_value(response, "#{spouse_financial_info_xpath}incomeYear")
+              )
+            }
+          }
+        )
+      end
+
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)
         spouse_financials_xpath =
@@ -205,6 +297,25 @@ module HCA
         dependents
       end
 
+      def parse_contacts(response)
+        contacts = []
+        response.locate("#{XPATH_PREFIX}associations/association").each do |association|
+          contact_type = get_locate_value(association, 'contactType')
+          next unless contact_type.in?(CONTACT_TYPES)
+
+          contact = {
+            fullName: {},
+            relationship: get_locate_value(association, 'relationship'),
+            contactType: get_locate_value(association, 'contactType'),
+            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()\-]/, ''),
+            address: get_address_from_association(association)
+          }
+          fill_contact_full_name_from_association(contact, association)
+          contacts << Common::HashHelpers.deep_compact(contact)
+        end
+        contacts
+      end
+
       def get_locate_value_date(node, key)
         parse_es_date(get_locate_value(node, key))
       end
@@ -218,6 +329,53 @@ module HCA
         return if res.nil?
 
         res.nodes[0]
+      end
+
+      def get_address_from_association(association)
+        address = {}
+        fill_address_mappings_from_association(address, association)
+        fill_address_region_from_association(address, association)
+        address
+      end
+
+      def fill_address_mappings_from_association(address, association)
+        ADDRESS_MAPPINGS.each do |address_map|
+          address[address_map.first] = get_locate_value(association, "address/#{address_map.last}")
+        end
+      end
+
+      def fill_address_region_from_association(address, association)
+        case address[:country]
+        when 'MEX'
+          fill_mexico_address_from_association(address, association)
+        when 'USA'
+          fill_usa_address_from_association(address, association)
+        else
+          fill_other_address_from_association(address, association)
+        end
+      end
+
+      def fill_mexico_address_from_association(address, association)
+        address[:state] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address[:state]]
+        address[:postalCode] = get_locate_value(association, 'address/postalCode')
+      end
+
+      def fill_usa_address_from_association(address, association)
+        address[:state] = get_locate_value(association, 'address/state')
+        zip_code = get_locate_value(association, 'address/zipCode')
+        zip_plus4 = get_locate_value(association, 'address/zipPlus4')
+        address[:postalCode] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
+      end
+
+      def fill_other_address_from_association(address, association)
+        address[:state] = get_locate_value(association, 'address/provinceCode')
+        address[:postalCode] = get_locate_value(association, 'address/postalCode')
+      end
+
+      def fill_contact_full_name_from_association(contact, association)
+        NAME_MAPPINGS.each do |mapping|
+          contact[:fullName][mapping.first] = get_locate_value(association, mapping.last.to_s)
+        end
       end
 
       def parse_insurance_providers(response)
@@ -335,5 +493,6 @@ module HCA
       end
       # rubocop:enable Metrics/MethodLength
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

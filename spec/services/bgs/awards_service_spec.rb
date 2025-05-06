@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::AwardsService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
 
   describe '#get_awards' do
     context 'with a valid participant id' do
@@ -20,7 +20,7 @@ RSpec.describe BGS::AwardsService do
       it 'does not return rewards amounts' do
         service = BGS::AwardsService.new(user)
         response = service.get_awards
-        expect(response).to eq(false)
+        expect(response).to be(false)
       end
     end
   end

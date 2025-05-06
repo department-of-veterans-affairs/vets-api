@@ -28,6 +28,19 @@ The supporting_document_ids method retrieves the IDs of any supporting documents
 ### Generate files for new forms
 `rails ivc_champva:generate\['path to PDF file'\]`
 
+### Updating expired forms
+Form PDFs have an expiration date found in the upper right corner below the OMB control number.
+To update a form with the latest PDF:
+1. Locate the latest version of the form PDF via VA.gov
+2. Save the PDF somewhere on disk
+3. Run `rails ivc_champva:generate_mapping\['path to PDF file'\]` - a file will be generated:
+    - A JSON.erb mapping file in `modules/ivc_champva/app/form_mappings` (it will have "latest" in the name)
+4. Compare the new mapping file with the existing one, updating mappings as appropriate.
+5. When the mapping file is complete, replace the original mapping file with the new one. 
+6. Replace the existing form PDF found in `modules/ivc_champva/templates/vha_{FORM NUMBER}.pdf` with the new one
+7. Verify stamping behavior by running ivc_champva unit tests locally and observing the generated PDFs in the `tmp` directory.
+8. Adjust the form OMB expiration unit test found in `modules/ivc_champva/spec/models/vha_{FORM NUMBER}_spec.rb`
+
 ### Installation
 Ensure the following line is in the root project's Gemfile:
 

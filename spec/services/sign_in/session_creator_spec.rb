@@ -129,7 +129,7 @@ RSpec.describe SignIn::SessionCreator do
           let(:device_sso) { false }
 
           it 'returns nil for device_secret field on access token' do
-            expect(subject.session.hashed_device_secret).to eq(nil)
+            expect(subject.session.hashed_device_secret).to be_nil
           end
         end
 
@@ -248,7 +248,7 @@ RSpec.describe SignIn::SessionCreator do
           let(:device_sso) { false }
 
           it 'returns nil for device_secret field on access token' do
-            expect(subject.access_token.device_secret_hash).to eq(nil)
+            expect(subject.access_token.device_secret_hash).to be_nil
           end
         end
 
@@ -300,6 +300,21 @@ RSpec.describe SignIn::SessionCreator do
 
       context 'when validated credential is not set up to enable device_sso' do
         let(:device_sso) { false }
+      end
+
+      context 'when the validated_credential has a web_sso_session' do
+        let(:web_sso_session) { create(:oauth_session) }
+        let(:validated_credential) do
+          create(:validated_credential, client_config:, device_sso:, web_sso_session_id: web_sso_session.id)
+        end
+
+        it 'creates a new session with refresh_creation as the web_sso_creation' do
+          expect(subject.session.refresh_creation).to eq(web_sso_session.refresh_creation)
+        end
+
+        it 'sets the web_sso_client to true in the session container' do
+          expect(subject.web_sso_client).to be(true)
+        end
       end
     end
   end

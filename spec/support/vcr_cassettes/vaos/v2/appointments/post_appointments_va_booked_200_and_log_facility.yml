@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments
     body:
       encoding: UTF-8
       string: '{"kind":"clinic","status":"booked","locationId":"983","clinic":"999","slot":{"id":"3230323231313330323034353A323032323131333032313030"},"reasonCode":{"text":"testing","coding":[{"code":"Routine

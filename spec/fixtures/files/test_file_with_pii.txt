@@ -1,0 +1,47 @@
+# Bad Logs with PII (Thse Should be Filtered)
+
+Processing by TestParamsController#create as JSON
+  Parameters: {"file"=>
+    #<ActionDispatch::Http::UploadedFile:0x00007f9342f1a3c0
+      @tempfile=#<File:/tmp/RackMultipart20250110-1234-xyz.png>,
+      @original_filename="sensitive_document.pdf",
+      @content_type="application/pdf",
+      @headers="Content-Disposition: form-data; name=\"attachment\"; filename=\"sensitive_document.pdf\"\r\nContent-Type: application/pdf\r\n">
+  }
+
+  Parameters: {"attachment"=>
+    {
+      "file"=>"Sensitive binary content here",
+      "original_filename"=>"private_file.docx",
+      "headers"=>"Content-Disposition: form-data; name=\"attachment\"; filename=\"private_file.docx\"\r\nContent-Type: application/msword\r\n",
+      "tempfile"=>"#<Tempfile:/tmp/RackMultipart20241231-96-nixrw6.pdf (closed)>",
+      "content_type"=>"application/pdf"
+    }
+  }
+
+TestParamsController -- Completed #create --
+{ :controller => "TestParamsController", :action => "create", :params =>
+  { "upload" => #<ActionDispatch::Http::UploadedFile:0x000072113126d950
+    @tempfile=#<Tempfile:/tmp/RackMultipart20250130-142160-hlocps.txt>,
+    @content_type="text/plain",
+    @original_filename="PII FILENAME",
+    @headers="PII HEADERS">
+  },
+  :format => "HTML",
+  :method => "POST",
+  :path => "/test_params",
+  :status => 200,
+  :view_runtime => 0.18,
+  :db_runtime => 0.0,
+  :queries_count => 0,
+  :cached_queries_count => 0,
+  :allocations => 325,
+  :status_message => "OK"
+}
+
+User Information:
+  Name: John Doe
+  SSN: 123-45-6789
+  Email: johndoe@example.com
+
+Request Completed 200 OK

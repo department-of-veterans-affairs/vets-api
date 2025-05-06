@@ -10,61 +10,36 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "type",
         "attributes"
       ],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "powerOfAttorneyRequestDecision"
-          ]
-        },
         "attributes": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "status",
-            "decliningReason",
-            "createdBy"
+            "decision",
+            "representativeId"
           ],
           "properties": {
-            "status": {
+            "decision": {
               "type": "string",
-              "description": "TODO",
+              "description": "The decision of the request.",
               "enum": [
-                "accepting",
-                "declining"
+                "ACCEPTED",
+                "DECLINED"
               ]
             },
-            "decliningReason": {
+            "declinedReason": {
               "type": [
                 "string",
                 "null"
               ],
-              "description": "TODO",
+              "description": "The reason for declining the request.",
               "nullable": true
             },
-            "createdBy": {
-              "type": "object",
-              "description": "TODO",
-              "additionalProperties": false,
-              "required": [
-                "firstName",
-                "lastName",
-                "email"
-              ],
-              "properties": {
-                "firstName": {
-                  "type": "string"
-                },
-                "lastName": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                }
-              }
+            "representativeId": {
+              "type": "string",
+              "description": "The unique identifier of the requestʼs representative."
             }
           }
         }

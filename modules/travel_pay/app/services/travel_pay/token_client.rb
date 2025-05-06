@@ -5,6 +5,11 @@ require_relative './base_client'
 
 module TravelPay
   class TokenClient < TravelPay::BaseClient
+    def initialize(client_number)
+      super()
+      @client_number = client_number
+    end
+
     # HTTP POST call to the VEIS Auth endpoint to get the access token
     #
     # @return [Faraday::Response]
@@ -12,13 +17,14 @@ module TravelPay
     def request_veis_token
       auth_url = Settings.travel_pay.veis.auth_url
       tenant_id = Settings.travel_pay.veis.tenant_id
+      log_to_statsd('token', 'veis') do
+        response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
+          req.headers[:content_type] = 'application/x-www-form-urlencoded'
+          req.body = URI.encode_www_form(veis_params)
+        end
 
-      response = connection(server_url: auth_url).post("#{tenant_id}/oauth2/token") do |req|
-        req.headers[:content_type] = 'application/x-www-form-urlencoded'
-        req.body = URI.encode_www_form(veis_params)
+        response.body['access_token']
       end
-
-      response.body['access_token']
     end
 
     ##
@@ -30,53 +36,50 @@ module TravelPay
       sts_token = request_sts_token(user)
 
       btsss_url = Settings.travel_pay.base_url
-      client_number = Settings.travel_pay.client_number
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
-      response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
-        req.headers['Authorization'] = "Bearer #{veis_token}"
-        req.headers['BTSSS-API-Client-Number'] = client_number.to_s
-        req.headers['X-Correlation-ID'] = correlation_id
-        req.headers.merge!(claim_headers)
-        req.body = { authJwt: sts_token }
+      log_to_statsd('token', 'btsss') do
+        response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+          req.body = { authJwt: sts_token }
+        end
+
+        response.body['data']['accessToken']
       end
-
-      response.body['data']['accessToken']
     end
 
     def request_sts_token(user)
-      return nil if mock_enabled?
-
-      host_baseurl = build_host_baseurl({ ip_form: false })
-      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key_file = IdentitySettings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
 
       assertion = build_sts_assertion(user)
       jwt = JWT.encode(assertion, private_key, 'RS256')
+      log_to_statsd('token', 'sts') do
+        # send to sis
+        response = connection(server_url: host).post('/v0/sign_in/token') do |req|
+          req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
+          req.params['assertion'] = jwt
+        end
 
-      # send to sis
-      response = connection(server_url: host_baseurl).post('/v0/sign_in/token') do |req|
-        req.params['grant_type'] = 'urn:ietf:params:oauth:grant-type:jwt-bearer'
-        req.params['assertion'] = jwt
+        response.body['data']['access_token']
       end
-
-      response.body['data']['access_token']
     end
 
     def build_sts_assertion(user)
       service_account_id = Settings.travel_pay.sts.service_account_id
-      host_baseurl = build_host_baseurl({ ip_form: false })
-      audience_baseurl = build_host_baseurl({ ip_form: true })
       scopes = Settings.travel_pay.sts.scope.blank? ? [] : [Settings.travel_pay.sts.scope]
 
       current_time = Time.now.to_i
       jti = SecureRandom.uuid
 
       {
-        'iss' => host_baseurl,
+        'iss' => host,
         'sub' => user.email,
-        'aud' => "#{audience_baseurl}/v0/sign_in/token",
+        'aud' => "#{host}/v0/sign_in/token",
         'iat' => current_time,
         'exp' => current_time + 300,
         'scopes' => scopes,
@@ -98,19 +101,11 @@ module TravelPay
       }
     end
 
-    def build_host_baseurl(config)
+    def host
       env = Settings.vsp_environment
-      host = Settings.hostname
+      protocol = env == 'localhost' ? 'http' : 'https'
 
-      if env == 'localhost'
-        if config[:ip_form]
-          return 'http://127.0.0.1:3000'
-        else
-          return 'http://localhost:3000'
-        end
-      end
-
-      "https://#{host}"
+      "#{protocol}://#{Settings.hostname}"
     end
   end
 end

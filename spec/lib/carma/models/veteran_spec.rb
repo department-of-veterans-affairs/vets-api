@@ -14,7 +14,7 @@ RSpec.describe CARMA::Models::Veteran, type: :model do
   describe '#is_veteran' do
     it 'is accessible' do
       subject.is_veteran = true
-      expect(subject.is_veteran).to eq(true)
+      expect(subject.is_veteran).to be(true)
     end
   end
 
@@ -22,7 +22,7 @@ RSpec.describe CARMA::Models::Veteran, type: :model do
     it 'is :is_veteran, :icn' do
       subject = described_class.new(icn: 'ABCD1234', is_veteran: true)
       expect(subject.icn).to eq('ABCD1234')
-      expect(subject.is_veteran).to eq(true)
+      expect(subject.is_veteran).to be(true)
     end
   end
 

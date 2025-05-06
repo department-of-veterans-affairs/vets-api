@@ -8,10 +8,7 @@ module Vye
 
     validates(:source_ind, presence: true)
 
-    enum(
-      source_ind: { web: 'W', phone: 'P' },
-      _prefix: :source
-    )
+    enum :source_ind, { web: 'W', phone: 'P' }, prefix: :source
 
     scope :export_ready, lambda {
       self

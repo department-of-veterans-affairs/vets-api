@@ -25,6 +25,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
           expect(response).to have_http_status(:ok)
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
+
           expect(claim_ids).to eq(expected_claim_ids)
         end
       end
@@ -64,40 +65,132 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
   describe '#show' do
     before do
-      Flipper.enable(:travel_pay_view_claim_details)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
     end
 
-    it 'returns a single claim on success' do
-      VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
-        # This claim ID matches a claim ID in the cassette.
-        claim_id = '33016896-ed7f-4d4f-a81b-cc4f2ca0832c'
-        expected_claim_num = 'TC092809828275'
+    it 'returns expanded claim details on success' do
+      VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        expected_claim_num = 'TC0000000000001'
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
         actual_claim_num = JSON.parse(response.body)['claimNumber']
+        documents_array = JSON.parse(response.body)['documents']
 
         expect(response).to have_http_status(:ok)
+        expect(documents_array).to be_empty
         expect(actual_claim_num).to eq(expected_claim_num)
       end
     end
 
-    it 'returns a Not Found response if claim number valid but claim not found' do
-      VCR.use_cassette('travel_pay/show/success', match_requests_on: %i[method path]) do
-        # This claim ID matches a claim ID in the cassette.
-        claim_id = SecureRandom.uuid
+    it 'returns a Bad Request response if claim ID valid but claim not found' do
+      VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[method path]) do
+        claim_id = 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e'
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
 
-        expect(response).to have_http_status(:not_found)
+        # TODO: This doesn't seem quite right, but it's what the other 404 test returns
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    it 'appends document information if claims management flipper is on' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(true)
+
+      VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+        get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+        documents_array = JSON.parse(response.body)['documents']
+
+        expect(response).to have_http_status(:ok)
+        expect(documents_array).not_to be_empty
       end
     end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do
-      Flipper.disable(:travel_pay_view_claim_details)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
 
       get '/travel_pay/v0/claims/123', headers: { 'Authorization' => 'Bearer vagov_token' }
+      expect(response).to have_http_status(:service_unavailable)
+    end
+  end
+
+  describe '#create' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+    end
+
+    it 'returns a ServiceUnavailable response if feature flag turned off' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_submit_mileage_expense, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+
+      headers = { 'Authorization' => 'Bearer vagov_token' }
+      params = {}
+
+      post('/travel_pay/v0/claims', headers:, params:)
 
       expect(response).to have_http_status(:service_unavailable)
+    end
+
+    it 'returns a successfully submitted claim response' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        post('/travel_pay/v0/claims', headers:, params:)
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    it 'returns a BadRequest response if an invalid appointment date time is given' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointment_date_time' => 'My birthday, 4 years ago',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        post('/travel_pay/v0/claims', headers:, params:)
+
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    it 'returns a server error response if a request to the Travel Pay API fails' do
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
+        .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
+
+      # The cassette doesn't matter here as I'm mocking the submit_claim method
+      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
+        headers = { 'Authorization' => 'Bearer vagov_token' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
+
+        post('/travel_pay/v0/claims', headers:, params:)
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
   end
 end

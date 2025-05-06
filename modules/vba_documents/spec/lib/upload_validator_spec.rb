@@ -10,7 +10,7 @@ RSpec.describe VBADocuments::UploadValidations do
   include VBADocuments::UploadValidations
 
   let(:valid_doc) { get_fixture('valid_multipart_pdf_attachments.blob').path }
-  let(:upload_submission) { FactoryBot.create(:upload_submission, :status_uploaded) }
+  let(:upload_submission) { create(:upload_submission, :status_uploaded) }
   let(:timestamp) { DateTime.now }
   let(:parts) { VBADocuments::MultipartParser.parse(valid_doc) }
 
@@ -134,7 +134,7 @@ RSpec.describe VBADocuments::UploadValidations do
       end
 
       describe 'when the file size exceeds the limit' do
-        let(:pdf_validator_options) { { size_limit_in_bytes: 1_000 } }
+        let(:pdf_validator_options) { { size_limit_in_bytes: 1.kilobyte } }
 
         it 'raises the correct UploadError' do
           expect(error).to be_instance_of(VBADocuments::UploadError)

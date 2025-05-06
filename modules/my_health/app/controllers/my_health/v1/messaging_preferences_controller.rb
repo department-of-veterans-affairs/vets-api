@@ -36,6 +36,25 @@ module MyHealth
         resource = client.update_triage_team_preferences(sanitized_triage_teams)
         render json: resource
       end
+
+      def signature
+        resource = client.get_signature
+        render_signature(resource)
+      end
+
+      def update_signature
+        updated_signature = params.require(:messaging_preference).permit(:signature_name, :signature_title,
+                                                                         :include_signature)
+        resource = client.post_signature(updated_signature)
+        render_signature(resource)
+      end
+
+      private
+
+      def render_signature(resource)
+        resource[:data] ||= { signature_name: nil, include_signature: false, signature_title: nil }
+        render json: MyHealth::V1::MessageSignatureSerializer.new(resource[:data]).to_json
+      end
     end
   end
 end

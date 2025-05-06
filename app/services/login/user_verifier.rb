@@ -2,14 +2,20 @@
 
 module Login
   class UserVerifier
-    def initialize(user)
-      @login_type = user.sign_in&.dig(:service_name)
-      @auth_broker = user.sign_in&.dig(:auth_broker)
-      @mhv_uuid = user.mhv_correlation_id
-      @idme_uuid = user.idme_uuid
-      @dslogon_uuid = user.edipi
-      @logingov_uuid = user.logingov_uuid
-      @icn = user.icn.presence
+    def initialize(login_type:, # rubocop:disable Metrics/ParameterLists
+                   auth_broker:,
+                   mhv_uuid:,
+                   idme_uuid:,
+                   dslogon_uuid:,
+                   logingov_uuid:,
+                   icn:)
+      @login_type = login_type
+      @auth_broker = auth_broker
+      @mhv_uuid = mhv_uuid
+      @idme_uuid = idme_uuid
+      @dslogon_uuid = dslogon_uuid
+      @logingov_uuid = logingov_uuid
+      @icn = icn.presence
       @deprecated_log = nil
       @user_account_mismatch_log = nil
     end
@@ -158,7 +164,7 @@ module Login
     end
 
     def type_with_backing_idme_uuid
-      type == MHV_TYPE || type == DSLOGON_TYPE
+      [MHV_TYPE, DSLOGON_TYPE].include?(type)
     end
 
     def type

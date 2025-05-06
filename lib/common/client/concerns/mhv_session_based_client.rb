@@ -45,11 +45,25 @@ module Common
           env = get_session_tagged
           req_headers = env.request_headers
           res_headers = env.response_headers
-          new_session = @session.class.new(user_id: req_headers['mhvCorrelationId'],
-                                           expires_at: res_headers['expires'],
-                                           token: res_headers['token'])
-          new_session.save
-          new_session
+
+          # Gather new attributes from headers
+          new_attributes = {
+            user_id: req_headers['mhvCorrelationId'],
+            expires_at: res_headers['expires'],
+            token: res_headers['token']
+          }
+
+          # Preserve existing session or initialize if none exists
+          @session ||= @session.class.new
+
+          # Add/update new attributes while preserving existing values from params
+          new_attributes.each do |key, value|
+            session.public_send("#{key}=", value) if value
+          end
+
+          # Save and return the session
+          session.save
+          session
         end
 
         private
@@ -66,7 +80,8 @@ module Common
         end
 
         def auth_headers
-          config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => session.user_id.to_s)
+          config.base_request_headers.merge('appToken' => config.app_token,
+                                            'mhvCorrelationId' => session.user_id.to_s)
         end
       end
     end

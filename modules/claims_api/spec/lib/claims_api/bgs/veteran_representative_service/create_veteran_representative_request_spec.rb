@@ -4,25 +4,11 @@ require 'rails_helper'
 require 'bgs_service/veteran_representative_service'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'bgs_client_spec_helpers.rb')
 
-metadata = {
-  bgs: {
-    service: 'veteran_representative_service',
-    action: 'create_veteran_representative'
-  }
-}
-
-describe ClaimsApi::VeteranRepresentativeService, metadata do
+describe ClaimsApi::VeteranRepresentativeService do
   describe '#create_veteran_representative' do
     subject do
-      service = described_class.new(**header_params)
+      service = described_class.new(external_uid: 'xUid', external_key: 'xKey')
       service.create_veteran_representative(**params)
-    end
-
-    let(:header_params) do
-      {
-        external_uid: 'keyHere',
-        external_key: 'keyHere'
-      }
     end
 
     describe 'with valid request params' do
@@ -61,7 +47,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
           'city' => 'Bridgeport',
           'claimantPtcpntId' => '182358',
           'claimantRelationship' => nil,
-          'formTypeCode' => '21-22',
+          'formTypeCode' => '21-22 ',
           'insuranceNumbers' => nil,
           'limitationAlcohol' => 'false',
           'limitationDrugAbuse' => 'false',
@@ -90,7 +76,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
           'claimantMiddleName' => nil,
           'declinedBy' => nil,
           'declinedReason' => nil,
-          'secondaryStatus' => nil,
+          'secondaryStatus' => 'Obsolete',
           'veteranFirstName' => 'VERNON',
           'veteranLastName' => 'WAGNER',
           'veteranMiddleName' => nil,
@@ -100,7 +86,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
       end
 
       it 'returns a response with expected body' do
-        use_bgs_cassette('valid_params') do
+        VCR.use_cassette('claims_api/bgs/veteran_representative_service/create_veteran_representative/valid_params') do
           expect(subject).to eq(expected_response)
         end
       end
@@ -135,7 +121,7 @@ describe ClaimsApi::VeteranRepresentativeService, metadata do
         end
 
         it 'raises Common::Exceptions::ServiceError' do
-          use_bgs_cassette('mpi_ptcpnt_id_instead_of_vnp_ptcpnt_id') do
+          VCR.use_cassette('mpi_ptcpnt_id_instead_of_vnp_ptcpnt_id') do
             expect { subject }.to raise_error(
               Common::Exceptions::ServiceError
             )

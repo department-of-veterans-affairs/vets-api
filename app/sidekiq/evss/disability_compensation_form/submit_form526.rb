@@ -15,10 +15,9 @@ module EVSS
       attr_accessor :submission_id
 
       # Sidekiq has built in exponential back-off functionality for retries
-      # A max retry attempt of 15 will result in a run time of ~36 hours
-      # Changed from 15 -> 14 ~ Jan 19, 2023
-      # This change reduces the run-time from ~36 hours to ~24 hours
-      RETRY = 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      RETRY = 16
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       wrap_with_logging(
@@ -75,7 +74,6 @@ module EVSS
       # submission service (currently EVSS)
       #
       # @param submission_id [Integer] The {Form526Submission} id
-      #
       def perform(submission_id)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
@@ -88,36 +86,36 @@ module EVSS
         # be addressed to make this service and test more robust and readable.
         service = service(submission.auth_headers)
 
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?,
+                      service_provider) do
           submission.mark_birls_id_as_tried!
 
           return unless successfully_prepare_submission_for_evss?(submission)
 
           begin
-            # send submission data to either EVSS or Lighthouse (LH)
-            response = if submission.claims_api? # not needed once fully migrated to LH
-                         send_submission_data_to_lighthouse(submission, submission_account(submission).icn)
-                       else
-                         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-                       end
-
+            response = choose_service_provider(submission, service)
             response_handler(response)
             send_post_evss_notifications(submission, true)
           rescue => e
             send_post_evss_notifications(submission, false)
-            conditionally_handle_errors(e)
+            handle_errors(submission, e)
           end
         end
       end
 
       private
 
-      def conditionally_handle_errors(e)
-        if submission.claims_api?
-          handle_lighthouse_errors(submission, e)
+      # send submission data to either EVSS or Lighthouse (LH)
+      def choose_service_provider(submission, service)
+        if submission.claims_api? # not needed once fully migrated to LH
+          send_submission_data_to_lighthouse(submission, submission.account.icn)
         else
-          handle_errors(submission, e)
+          service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
         end
+      end
+
+      def service_provider
+        submission.claims_api? ? 'lighthouse' : 'evss'
       end
 
       def fail_submission_feature_enabled?(submission)
@@ -141,17 +139,14 @@ module EVSS
         false
       end
 
-      def submission_account(submission)
-        UserAccount.find_by(id: submission.user_account_id) || Account.lookup_by_user_uuid(submission.user_uuid)
-      end
-
       def send_submission_data_to_lighthouse(submission, icn)
         # 1. transform submission data to LH format
         transform_service = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+        transaction_id = submission.system_transaction_id
         body = transform_service.transform(submission.form['form526'])
         # 2. send transformed submission data to LH endpoint
         benefits_claims_service = BenefitsClaims::Service.new(icn)
-        raw_response = benefits_claims_service.submit526(body)
+        raw_response = benefits_claims_service.submit526(body, nil, nil, { transaction_id: })
         raw_response_body = if raw_response.body.is_a? String
                               JSON.parse(raw_response.body)
                             else
@@ -174,6 +169,8 @@ module EVSS
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
         submission.save
+        # send "Submitted" email with claim id here for primary path
+        submission.send_submitted_email("#{self.class}#response_handler primary path")
       end
 
       def send_post_evss_notifications(submission, send_notifications)
@@ -188,28 +185,7 @@ module EVSS
       end
 
       def handle_errors(submission, error)
-        raise error
-      rescue Common::Exceptions::BackendServiceException,
-             Common::Exceptions::GatewayTimeout,
-             Breakers::OutageException,
-             EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
-        retryable_error_handler(submission, e)
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        # retry submitting the form for specific upstream errors
-        retry_form526_error_handler!(submission, e)
-      rescue => e
-        non_retryable_error_handler(submission, e)
-      end
-
-      def handle_lighthouse_errors(submission, error) # rubocop:disable Metrics/MethodLength
-        if error.instance_of?(Common::Exceptions::UnprocessableEntity)
-          error_clone = error.deep_dup
-          upstream_error = error_clone.errors.first.stringify_keys
-          unless (upstream_error['source'].present? && upstream_error['source']['pointer'].present?) ||
-                 upstream_error['detail'].downcase.include?('retries will fail')
-            error = Common::Exceptions::UpstreamUnprocessableEntity.new(errors: error.errors)
-          end
-        end
+        error = retries_will_fail_error(error)
         raise error
       rescue Common::Exceptions::BackendServiceException,
              Common::Exceptions::Unauthorized, # 401 (UnauthorizedError?)
@@ -220,8 +196,8 @@ module EVSS
              Common::Exceptions::ExternalServerInternalServerError, # 500
              Common::Exceptions::NotImplemented, # 501
              Common::Exceptions::BadGateway, # 502
-             Common::Exceptions::ServiceUnavailable, # 503 (ServiceUnavailableException?)
-             Common::Exceptions::GatewayTimeout, # 504 (already here)
+             Common::Exceptions::ServiceUnavailable, # 503 (ServiceUnavailableException)
+             Common::Exceptions::GatewayTimeout, # 504
              Breakers::OutageException => e
         retryable_error_handler(submission, e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
@@ -229,6 +205,19 @@ module EVSS
         retry_form526_error_handler!(submission, e)
       rescue => e
         non_retryable_error_handler(submission, e)
+      end
+
+      # check if this error from the provider will fail retires
+      def retries_will_fail_error(error)
+        if error.instance_of?(Common::Exceptions::UnprocessableEntity)
+          error_clone = error.deep_dup
+          upstream_error = error_clone.errors.first.stringify_keys
+          unless (upstream_error['source'].present? && upstream_error['source']['pointer'].present?) ||
+                 upstream_error['detail'].downcase.include?('retries will fail')
+            error = Common::Exceptions::UpstreamUnprocessableEntity.new(errors: error.errors)
+          end
+        end
+        error
       end
 
       def retryable_error_handler(_submission, error)

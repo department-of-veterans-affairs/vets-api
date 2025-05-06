@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA2010207
-    include Virtus.model(nullify_blank: true)
+  class VBA2010207 < BaseForm
     STATS_KEY = 'api.simple_forms_api.20_10207'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
@@ -70,6 +63,42 @@ module SimpleFormsApi
       }
     end
 
+    def notification_first_name
+      if data['preparer_type'] == 'veteran'
+        data.dig('veteran_full_name', 'first')
+      elsif data['preparer_type'] == 'non-veteran'
+        data.dig('non_veteran_full_name', 'first')
+      else
+        data.dig('third_party_full_name', 'first')
+      end
+    end
+
+    def notification_last_name
+      if data['preparer_type'] == 'veteran'
+        data.dig('veteran_full_name', 'last')
+      elsif data['preparer_type'] == 'non-veteran'
+        data.dig('non_veteran_full_name', 'last')
+      else
+        data.dig('third_party_full_name', 'last')
+      end
+    end
+
+    def notification_email_address
+      return data['point_of_contact_email'] if should_send_to_point_of_contact?
+
+      if data['preparer_type'] == 'veteran'
+        data['veteran_email_address']
+      elsif data['preparer_type'] == 'non-veteran'
+        data['non_veteran_email_address']
+      else
+        data['third_party_email_address']
+      end
+    end
+
+    def notification_point_of_contact_name
+      data['point_of_contact_name']
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran_mailing_address', 'country') == 'USA' ||
         @data.dig('non_veteran_mailing_address', 'country') == 'USA'
@@ -117,24 +146,21 @@ module SimpleFormsApi
     end
 
     def get_attachments
-      [].tap do |attachments|
-        %w[
-          als_documents
-          financial_hardship_documents
-          medal_award_documents
-          pow_documents
-          terminal_illness_documents
-          vsi_documents
-        ].each do |doc_type|
-          next unless @data[doc_type]
+      PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
 
-          confirmation_codes = @data[doc_type].pluck('confirmation_code')
-          attachments.concat(PersistentAttachment.where(guid: confirmation_codes).map(&:to_pdf))
-        end
-      end
+    def should_send_to_point_of_contact?
+      preparer_is_not_third_party? && living_situation_is_none?
     end
 
     private
+
+    def attachment_guids
+      doc_types = %w[als_documents financial_hardship_documents medal_award_documents pow_documents
+                     terminal_illness_documents vsi_documents]
+
+      doc_types.flat_map { |type| @data[type]&.pluck('confirmation_code') }.compact
+    end
 
     def veteran_ssn
       [
@@ -189,6 +215,14 @@ module SimpleFormsApi
         data['non_veteran_phone']&.gsub('-', '')&.[](3..5),
         data['non_veteran_phone']&.gsub('-', '')&.[](6..9)
       ]
+    end
+
+    def preparer_is_not_third_party?
+      %w[third-party-veteran third-party-non-veteran].exclude?(data['preparer_type'])
+    end
+
+    def living_situation_is_none?
+      data.dig('living_situation', 'NONE')
     end
   end
 end

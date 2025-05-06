@@ -17,7 +17,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/Message.yml
+                $ref: ./schemas/EndpointDiscovery.yml
           description: OK
       summary: /
     post:
@@ -81,7 +81,7 @@ paths:
                 Docket 2:
                   value:
                     $ref: ./examples/appeals/appeal_docket_2.yml
-                Null Docket:
+                Empty Docket:
                   value:
                     $ref: ./examples/appeals/appeal_docket_null.yml
               schema:
@@ -157,7 +157,7 @@ paths:
           name: sort
           schema:
             type: string
-        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
           example: pending
           in: query
           name: include[]
@@ -165,7 +165,7 @@ paths:
             type: array
             items:
               type: string
-        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `include[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
           example: pending
           in: query
           name: included[]
@@ -197,13 +197,20 @@ paths:
                 VA Appointment Request:
                   value:
                     $ref: ./examples/appointments/va_appointment_request.yml
+              schema:
+                $ref: ./schemas/Appointments.yml
+          description: OK
+        '207':
+          content:
+            application/json:
+              examples:
                 Partial Appointments:
                   description: For cases when 1 or more errors are returned from upstream, an error message with source `VA Service` is added within the meta
                   value:
                     $ref: ./examples/appointments/partial_appointments.yml
               schema:
                 $ref: ./schemas/Appointments.yml
-          description: OK
+          description: Multi Status
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -223,6 +230,8 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
+        '418':
+          $ref: '#/components/responses/418'
         '422':
           $ref: '#/components/responses/422'
         '500':
@@ -332,7 +341,7 @@ paths:
       parameters:
         - description: Unique location identifier
           in: query
-          name: locationId
+          name: location_id
           required: true
           schema:
             type: string
@@ -355,7 +364,10 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -372,7 +384,7 @@ paths:
           application/json:
             schema:
               properties:
-                locationId:
+                location_id:
                   type: string
                 demographicConfirmations:
                   type: object
@@ -408,7 +420,10 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -424,7 +439,7 @@ paths:
       parameters:
         - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
           in: path
-          name: serviceType
+          name: service_type
           required: true
           schema:
             type: string
@@ -436,6 +451,8 @@ paths:
               schema:
                 $ref: ./schemas/CommunityCaresEligibility.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -712,78 +729,6 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
-  /v0/appointments/preferences:
-    get:
-      description: Returns VAOS appointment contact preferences
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/AppointmentPreferences.yml
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: [ ]
-      summary: /v0/appointments/preferences
-    put:
-      description: updates VAOS appointment preferences
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: ./schemas/AppointmentPreferencesRequest.yml
-        description: Preferences data to update
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/AppointmentPreferences.yml
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/appointments/preferences
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
@@ -1187,6 +1132,8 @@ paths:
               schema:
                 $ref: ./schemas/CreatePreneedBurialResponse.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1323,7 +1270,10 @@ paths:
         '500':
           $ref: '#/components/responses/500'
         '502':
-          $ref: '#/components/responses/502'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClaimsAndAppealsOverview502.yml
         '503':
           $ref: '#/components/responses/503'
         '504':
@@ -1520,7 +1470,7 @@ paths:
             schema:
               $ref: ./schemas/CreateDependents.yml
       responses:
-        '200':
+        '202':
           content:
             application/json:
               schema:
@@ -1735,6 +1685,88 @@ paths:
       security:
         - Bearer: []
       summary: /v0/disability-rating
+  /v0/efolder/documents:
+    get:
+      description: Returns the user's list of documents in efolder
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Efolder.yml
+          description: OK
+        '400':
+          $ref: '#/components/responses/401'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/efolder/documents
+  /v0/efolder/documents/{document_id}/download:
+    post:
+      description: returns requested document
+      parameters:
+        - description: File name of the document to be returned.
+          in: query
+          name: file_name
+          required: true
+          schema:
+            type: string
+        - description: ID of the document to be returned.
+          in: path
+          name: document_id
+          required: true
+          schema:
+            type: string
+            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/efolder/documents/{documentId}/download
   /v0/enrollment-status:
     get:
       description: Returns the user's VA enrollment status.
@@ -3337,7 +3369,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/SecureMessageList.yml
+                $ref: ./schemas/v1/SecureMessageListV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -3396,6 +3428,44 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/recipients
+  /v0/messaging/health/allrecipients:
+    get:
+      description: List available recipients to which messages may be sent with advanced attributes
+      parameters:
+        - description: Whether or not to use this API's cache or fetch records from
+                       the upstream service. Defaults to true.
+          example: true
+          in: query
+          name: useCache
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessagingAllRecipients.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/messaging/health/allrecipients
   /v0/military-service-history:
     get:
       description: Returns user's service history
@@ -3744,6 +3814,56 @@ paths:
       security:
         - Bearer: []
       summary: /v0/push/send
+  /v0/translations/download:
+    get:
+      description: Downloads translations file.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+        - description: |
+            When this endpoint responds with a 200, it includes a Content-Version header. The frontend is expected to store that value and include it as the `current_version` query param. When the `current_version` is omited or does not match the server's current version, the server responds with a 200 status, the newest version of the translations file, and the header including the newest version id. If the `current_version` matches the server's current version, the server responds with 204 and no content.
+          in: query
+          name: current_version
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                format: binary
+                type: string
+          headers:
+            Content-Disposition:
+              description: |
+                This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
+              schema:
+                type: string
+            Content-Type:
+              description: Describes the file format.
+              schema:
+                type: string
+                enum: [ application/json ]
+            Content-Version:
+              description: Current version of the file being downloaded.
+              schema:
+                type: string
+          description: OK
+        '204':
+          description: No Content.
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v0/translations/download
   /v0/user:
     get:
       description: |
@@ -3877,7 +3997,7 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: ./schemas/v1/User.yml
+                    $ref: ./schemas/v1/UserV1.yml
                   meta:
                     properties:
                       availableServices:
@@ -3929,7 +4049,7 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: ./schemas/v2/User.yml
+                    $ref: ./schemas/v2/UserV2.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -4179,7 +4299,7 @@ paths:
                     $ref: ./examples/addresses/validation_multiple_matches.yml
                 Single match:
                   value:
-                    $ref: ./examples/addresses/validation_single_matches.yml
+                    $ref: ./examples/addresses/validation_single_match.yml
               schema:
                 $ref: ./schemas/AddressResponse.yml
           description: OK
@@ -4378,8 +4498,6 @@ paths:
         description: The new gender identity key
         required: true
       responses:
-        '204':
-          description: No Content
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -4388,6 +4506,8 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
+        '410':
+          $ref: '#/components/responses/410'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -4641,6 +4761,37 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/phones
+  /v0/vet_verification_status:
+    get:
+      description: Returns the veteran's Title 38 status as 'confirmed' or 'not confirmed'.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/VetVerificationStatus.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/vet_verification_status
   /v1/health/immunizations:
     get:
       description: Returns a paginated list of immunization records for given user
@@ -4670,7 +4821,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/v1/Immunizations.yml
+                $ref: ./schemas/v1/ImmunizationsV1.yml
           description: OK
         '401':
           $ref: '#/components/responses/401'
@@ -4742,6 +4893,18 @@ components:
           schema:
             $ref: ./schemas/Errors.yml
       description: The response from this API timed out.
+    '410':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/Errors.yml
+      description: The Target resource is no longer available.
+    '418':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/CustomErrors.yml
+      description: Custom Error Message
     '422':
       content:
         application/json:

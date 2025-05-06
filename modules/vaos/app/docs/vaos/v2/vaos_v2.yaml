@@ -63,7 +63,7 @@ paths:
         - name: _include
           in: query
           description:
-            A comma delimted list list of the desired appointment statuses to fetch/filter
+            A comma delimited list list of the desired appointment statuses to fetch/filter
             by.
           schema:
             "$ref": "#/components/schemas/AppointmentIncludes"
@@ -71,7 +71,7 @@ paths:
           explode: false
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -127,7 +127,7 @@ paths:
               $ref: "#/components/schemas/CreateAppointmentRequest"
       responses:
         "201":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -147,6 +147,61 @@ paths:
                         type: string
                       attributes:
                         $ref: "#/components/schemas/Appointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/appointments/submit":
+    post:
+      tags:
+        - appointments
+      summary: Submit a draft appointment
+      operationId: submitDraftAppointment
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitDraftAppointmentRequest"
+      responses:
+        "201":
+          description: The submitted draft appointment
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/DraftAppointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -326,7 +381,63 @@ paths:
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
-          $ref: "#/components/responses/GatewayTimeout"  
+          $ref: "#/components/responses/GatewayTimeout"
+  "/eps_appointments/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve eps appointment by id
+      operationId: fetchAppointment
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          required: true
+          name: "id"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/EpsAppointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/facilities":
     get:
       tags:
@@ -357,6 +468,11 @@ paths:
           schema:
             type: boolean
           description: Indicates whether returned facilities should be filtered on those that are accepting appointments.
+        - in: query
+          name: sort_by
+          schema:
+            type: string
+          description: Indicates how returned facilities should be sorted if specified. Currently options are ['recentLocations'].
       responses:
         '200':
           description: Success
@@ -478,7 +594,7 @@ paths:
             type: integer
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -580,7 +696,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Retrives a list of available appointment slots for a given clinic
+          description: Retrieves a list of available appointment slots for a given clinic
           content:
             application/json:
               schema:
@@ -766,7 +882,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -836,7 +952,7 @@ paths:
                       properties:
                         type:
                           type: string
-                          example: relationships
+                          example: relationship
                         attributes:
                           $ref: "#/components/schemas/PatientProviderRelationship"
         "400":
@@ -997,6 +1113,15 @@ components:
         cancellable:
           type: boolean
           description: If true then this logical appointment can be cancelled.
+        past:
+          type: boolean
+          description: If true then this appointment is in the past.
+        upcoming:
+          type: boolean
+          description: If true then this appointment is in the future.
+        pending:
+          type: boolean
+          description: If true then this appointment is pending.
         patientInstruction:
           type: string
           description: 'Detailed information and instructions for the patient. See: https://www.hl7.org/fhir/appointment-definitions.html#Appointment.patientInstruction'
@@ -1009,6 +1134,8 @@ components:
         avsPath:
           type: string
           description: URL path for the After Visit Summary, for past booked appointments.
+        modality:
+          "$ref": "#/components/schemas/AppointmentModality"
     AppointmentExtensions:
       type: object
       properties:
@@ -1040,6 +1167,17 @@ components:
       enum:
         - facilities
         - clinics
+    AppointmentModality:
+      type: string
+      enum:
+        - vaInPerson
+        - vaInPersonVaccine
+        - vaVideoCareAtHome
+        - vaVideoCareAtAVaLocation
+        - vaVideoCareAtAnAtlasLocation
+        - vaPhone
+        - communityCare
+        - claimExamAppointment
     AppointmentStatus:
       type: string
       enum:
@@ -1152,7 +1290,7 @@ components:
           properties:
             eligible:
               type: "boolean"
-              example: true           
+              example: true
     ClinicalServiceType:
       type: "string"
       enum:
@@ -1219,7 +1357,7 @@ components:
           type: string
         practitioners:
           type: array
-          description: The practioners participating in this appointment.
+          description: The practitioners participating in this appointment.
           items:
             "$ref": "#/components/schemas/PractitionerIds"
         requestedPeriods:
@@ -1245,6 +1383,44 @@ components:
             A free-form comment section to provide additional information about an appointment request.
           type: string
         preferredLanguage:
+          type: string
+    SubmitDraftAppointmentRequest:
+      description: A request to create a new referral appointment.
+      type: object
+      properties:
+        id:
+          description: The EPS appointment ID
+          type: string
+          nullable: false
+        networkId:
+          description: The EPS network ID
+          type: string
+          nullable: false
+        providerServiceId:
+          description: The EPS provider service ID
+          type: string
+          nullable: false
+        referralNumber:
+          description: The appointment referral number
+          type: string
+          nullable: false
+        slotId:
+          description: The EPS slot ID
+          type: string
+          nullable: false
+        name:
+          $ref: "#/components/schemas/HumanName"
+        address:
+          $ref: '#/components/schemas/Address'
+        birthDate:
+          description: The birth date of the patient.
+          type: string
+          format: date
+        email:
+          type: string
+        gender:
+          type: string
+        phoneNumber:
           type: string
     HumanName:
       type: object
@@ -1305,7 +1481,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/CodeableConcept'
-      description: The response for a patient scheduing eligibility request.
+      description: The response for a patient scheduling eligibility request.
     PatientProviderRelationship:
       type: object
       required:
@@ -1590,6 +1766,106 @@ components:
         enrollmentCoordinator:
           type: string
           example: 202-555-1212
+    DraftAppointment:
+      type: object
+      description: 'Draft appointment'
+      properties:
+        provider:
+          "$ref": "#/components/schemas/Provider"
+        slots:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              start:
+                type: string
+                format: date-time
+        drivetime:
+          type: object
+          properties:
+            origin:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+            destination:
+              type: object
+              properties:
+                distanceInMiles:
+                  type: integer
+                driveTimeInSecondsWithoutTraffic:
+                  type: number
+                driveTimeInSecondsWithTraffic:
+                  type: number
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+    EpsAppointment:
+      type: object
+      description: 'EPS appointment'
+      properties:
+        appointment:
+          "$ref": "#/components/schemas/Appointment"
+        provider:
+          "$ref": "#/components/schemas/Provider"
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        isActive:
+          type: boolean
+        individualProviders:
+          type: array
+          items:
+            type: string
+        providerOrganization:
+          type: string
+        location:
+          type: object
+          properties:
+            address:
+              type: string
+        networkIds:
+          type: array
+          items:
+            type: string
+        schedulingNotes:
+          type: string
+        appointmentTypes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              isSelfSchedulable:
+                type: boolean
+        specialties:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+        visitMode:
+          type: string
+        features:
+          type: object
+          properties:
+            isDigital:
+              type: boolean
     SchedulingConfiguration:
       type: object
       required:
@@ -1710,6 +1986,9 @@ components:
         url:
           description: The meeting URL.
           type: string
+        displayLink:
+          description: If true, the URL should be displayed to the user.  If false, it should not be.
+          type: boolean
         group:
           type: string
         vvsKind:
@@ -1794,4 +2073,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Errors" 
+            $ref: "#/components/schemas/Errors"

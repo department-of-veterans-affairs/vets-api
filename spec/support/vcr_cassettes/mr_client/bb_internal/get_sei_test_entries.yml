@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/healthhistory/testEntry/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Fri, 22 Nov 2024 21:57:16 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '984'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"success":true,"failure":false,"pojoObject":[{"testEntryId":18725331,"comments":"Release
+        20.1.9.0","eventDate":"2020-11-16T23:59:00","results":"Pass","testName":"Reg
+        test","userprofileId":11375034},{"testEntryId":13984648,"eventDate":"2017-02-10T23:59:00","testName":"lamp","userprofileId":11375034},{"testEntryId":13984652,"eventDate":"2017-02-10T23:59:00","testName":"ice
+        cream","userprofileId":11375034},{"testEntryId":13984631,"eventDate":"2017-02-10T23:59:00","testName":"Urine","userprofileId":11375034},{"testEntryId":13984635,"eventDate":"2017-02-10T23:59:00","testName":"Mug","userprofileId":11375034},{"testEntryId":13984565,"eventDate":"2017-02-10T23:59:00","testName":"Blood
+        Pressure2","userprofileId":11375034},{"testEntryId":13984630,"provider":"Holyoak","eventDate":"2017-02-10T23:59:00","testName":"Blood
+        test","userprofileId":11375034},{"testEntryId":13984629,"provider":"Holyoak","eventDate":"2017-02-10T23:59:00","testName":"Blood
+        test","userprofileId":11375034}]}'
+  recorded_at: Fri, 22 Nov 2024 21:57:16 GMT
+recorded_with: VCR 6.3.1

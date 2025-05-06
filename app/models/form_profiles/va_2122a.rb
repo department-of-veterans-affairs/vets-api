@@ -6,6 +6,7 @@ module VA2122a
 
     attribute :has_icn, Boolean
     attribute :has_participant_id, Boolean
+    attribute :is_loa3, Boolean
   end
 end
 
@@ -22,7 +23,7 @@ class FormProfiles::VA2122a < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/claimant-information'
+      returnUrl: '/claimant-type'
     }
   end
 
@@ -31,7 +32,8 @@ class FormProfiles::VA2122a < FormProfile
   def prefill_identity_validation
     @identity_validation = VA2122::IdentityValidation.new(
       has_icn: user.icn.present?,
-      has_participant_id: user.participant_id.present?
+      has_participant_id: user.participant_id.present?,
+      is_loa3: user.loa3?
     )
   end
 end

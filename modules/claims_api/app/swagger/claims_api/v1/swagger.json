@@ -4,8 +4,7 @@
     "title": "Benefits Claims",
     "version": "v1",
     "termsOfService": "https://developer.va.gov/terms-of-service",
-    "description": "This API automatically establishes and submits these VA forms.\n| Form number       | Form name     | Description     |\n| :------------- | :----------: | -----------: |\n| [21-526EZ](https://www.va.gov/find-forms/about-form-21-526ez/) | Application for Disability Compensation and Related Compensation Benefits | Used to apply for VA disability compensation and related benefits. |\n| [21-0966](https://www.va.gov/find-forms/about-form-21-0966/) | Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC | Submits an intent to file to secure the earliest possible effective date for any retroactive payments. |\n| [21-22](https://www.va.gov/find-forms/about-form-21-22/) | Appointment of Veterans Service Organization as Claimant's Representative | Used to assign a Veterans Service Organization as a POA to help a Veteran with benefits or claims. |\n| [21-22a](https://www.va.gov/find-forms/about-form-21-22a/) | Appointment of Individual As Claimant's Representative | Used to assign an individual as a POA to help a Veteran with benefits or claims. |\n\nIt also lets Veterans or their authorized representatives:\n - Digitally submit supporting documentation for disability compensation claims\n - Retrieve information such as status for any claim, including pension and burial\n - Retrieve power of attorney (POA) status for individuals and Veterans Service Organizations (VSOs)\n - Retrieve intent to file status\n\n## Background\nThe Benefits Claims API offers faster establishment and enhanced reporting for several VA claims and forms. Using this API provides many benefits, such as:\n - Automatic claim and POA establishment\n - Direct establishment of disability compensation claims in Veterans Benefits Management System (VBMS) to avoid unnecessary manual processing and entry by Veteran Service Representatives (VSRs)\n - Faster claims processing by several days\n - End-to-end claims status and result tracking by claim ID\n\nForms not supported by the Benefits Claims API are submitted using the [Benefits Intake API](https://developer.va.gov/explore/benefits/docs/benefits?version=current), which places uploaded PDFs into the Centralized Mail Portal to be manually processed.\n\n## Technical Overview\nThis API accepts a payload of requests and responses on a per-form basis, with the payload identifying the form and Veteran. Trackable responses provide a unique ID which is used with the appropriate GET endpoint to track a submission’s processing status.\n\n### Attachment and file size limits\nThere is no limit on the number of files a payload can contain, but size limits do apply.\n - Uploaded documents cannot be larger than 11\" x 11\"\n - The entire payload cannot exceed 5 GB\n - No single file in a payload can exceed 100 MB\n\n### Authentication and authorization\nTo make an API request, follow our [authentication process](https://developer.va.gov/explore/api/benefits-claims/authorization-code) to receive an [OAuth token](https://oauth.net/2/).\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n#### Representative authorization\nRepresentatives seeking authorization for a Veteran must first [authenticate](https://developer.va.gov/explore/api/benefits-claims/authorization-code) and then pass the Veteran’s information in the right header:\n - SSN in X-VA-SSN\n - First name in X-VA-First-Name\n - Last name in X-VA-Last-Name\n - Date of birth in X-VA-Birth-Date\n\nOmitting the information will cause the API to treat the representative as the claimant.\n\n#### Veteran authorization\nVeterans seeking authorization do not need to include headers such as X-VA-First-Name since the token authentication via ID.me, MyHealtheVet, or DSLogon provides this information.\n\n### POA Codes\nVeteran representatives receive their organization’s POA code. If they are the assigned POA for a Veteran, that Veteran will have a matching POA code. When a claim is submitted, this API verifies that the representative and Veteran codes match against each other and the codes in the [Office of General Council (OGC) Database](https://www.va.gov/ogc/apps/accreditation/index.asp).\n\nUse the [Power of Attorney endpoint](#operations-Power_of_Attorney-post2122) to assign or update POA status. A newly appointed representative may not be able to submit forms for a Veteran until a day after their POA code is first associated with the OGC data set.\n\n### Test data for sandbox environment use\n[Test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md) is used for all forms in the sandbox environment and for 21-526 submissions in the staging environment.\n\n### Claim and form processing\nClaims and forms are first submitted by this API and then established in VBMS. A 200 response means only that your claim or form was submitted successfully. To see if your submission is processed or has reached VBMS, you must check its status using the appropriate GET endpoint and the ID returned with your submission response.\n\nA “claim established” status means the claim has reached VBMS. In sandbox, submissions can take over an hour to reach “claim established” status. In production, this may take over two days.\n"
-  },
+"description": "This API automatically establishes and submits these VA forms.\n| Form number | Form name | Description |\n| :------------- | :----------: | -----------: |\n| [21-526EZ](https://www.va.gov/find-forms/about-form-21-526ez/) | Application for Disability Compensation and Related Compensation Benefits | Used to apply for VA disability compensation and related benefits. |\n| [21-0966](https://www.va.gov/find-forms/about-form-21-0966/) | Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC | Submits an intent to file to secure the earliest possible effective date for any retroactive payments. |\n| [21-22](https://www.va.gov/find-forms/about-form-21-22/) | Appointment of Veterans Service Organization as Claimant's Representative | Used to assign a Veterans Service Organization as a POA to help a Veteran or dependent with benefits or claims. |\n| [21-22a](https://www.va.gov/find-forms/about-form-21-22a/) | Appointment of Individual As Claimant's Representative | Used to assign an individual as a POA to help a Veteran with benefits or claims. |\n\nIt also lets claimants or their authorized representatives:\n - Digitally submit supporting documentation for disability compensation claims.\n - Retrieve information such as status for any claim, including pension and burial.\n - Retrieve power of attorney (POA) status for individuals and Veterans Service Organizations (VSOs).\n - Retrieve intent to file status.\n\n## Background\nThe Benefits Claims API offers faster establishment and enhanced reporting for several VA claims and forms. Using this API provides many benefits, such as:\n - Automatic claim and POA establishment\n - Direct establishment of disability compensation claims in Veterans Benefits Management System (VBMS) to avoid unnecessary manual processing and entry by Veteran Service Representatives (VSRs)\n - Faster claims processing by several days\n - End-to-end claims status and result tracking by claim ID\n\nForms not supported by the Benefits Claims API are submitted using the [Benefits Intake API](https://developer.va.gov/explore/benefits/docs/benefits?version=current), which places uploaded PDFs into the Centralized Mail Portal to be manually processed.\n\n## Appointing an accredited representative for dependents\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\nThis API accepts a payload of requests and responses on a per-form basis, with the payload identifying the form and Veteran. Trackable responses provide a unique ID which is used with the appropriate GET endpoint to track a submission’s processing status.\n\n### Attachment and file size limits\nThere is no limit on the number of files a payload can contain, but size limits do apply.\n - Uploaded documents cannot be larger than 11\" x 11\"\n - The entire payload cannot exceed 100 MB\n - No single file in a payload can exceed 25 MB\n\n### Authentication and authorization\nTo make an API request, follow our [authentication process](https://developer.va.gov/explore/api/benefits-claims/authorization-code) to receive an [OAuth token](https://oauth.net/2/).\n\n#### Representative authorization\nRepresentatives seeking authorization for a claimant must first [authenticate](https://developer.va.gov/explore/api/benefits-claims/authorization-code) and then pass the Veteran’s information in the right header:\n - SSN in X-VA-SSN\n - First name in X-VA-First-Name\n - Last name in X-VA-Last-Name\n - Date of birth in X-VA-Birth-Date\n\nOmitting the information will cause the API to treat the representative as the claimant.\n\n#### Veteran authorization\nVeterans seeking authorization do not need to include headers such as X-VA-First-Name since the token authentication via ID.me, MyHealtheVet, or DSLogon provides this information.\n\n### POA Codes\nVeteran representatives receive their organization’s POA code. If they are the assigned POA for a claimant, that claimant will have a matching POA code. When a claim is submitted, this API verifies that the representative and Veteran codes match against each other and the codes in the [Office of General Council (OGC) Database](https://www.va.gov/ogc/apps/accreditation/index.asp).\n\nUse the [Power of Attorney endpoint](#operations-Power_of_Attorney-post2122) to assign or update POA status. A newly appointed representative may not be able to submit forms for a Veteran until a day after their POA code is first associated with the OGC data set.\n\n### Test data for sandbox environment use\n[Test data](https://developer.va.gov/explore/api/benefits-claims/test-users/2671/f1097c9772b447bb755b26dcd3e652aecad632389a28f0e19a7ebb082808db39) is used for all forms in the sandbox environment and for 21-526 submissions in the staging environment.\n\n### Claim and form processing\nClaims and forms are first submitted by this API and then established in VBMS. A 200 response means only that your claim or form was submitted successfully. To see if your submission is processed or has reached VBMS, you must check its status using the appropriate GET endpoint and the ID returned with your submission response.\n\nA “claim established” status means the claim has reached VBMS. In sandbox, submissions can take over an hour to reach “claim established” status. In production, this may take over two days.\n"},
   "tags": [
     {
       "name": "Claims",
@@ -1565,13 +1564,13 @@
                                     "example": "1980-02-05"
                                   },
                                   "activeDutyEndDate": {
-                                    "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                    "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                     "type": "string",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "example": "1990-01-02"
                                   },
                                   "separationLocationCode": {
-                                    "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
+                                    "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                     "type": "string",
                                     "example": "98283"
                                   }
@@ -3045,7 +3044,7 @@
                                     "example": "DOMESTIC"
                                   },
                                   "state": {
-                                    "description": "State Veteran resides in.",
+                                    "description": "State or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -3197,7 +3196,7 @@
                                     "type": "string"
                                   },
                                   "state": {
-                                    "description": "New state Veteran resides in.",
+                                    "description": "New state or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -3287,12 +3286,12 @@
                                           "areaCode": {
                                             "description": "Area code of Point of Contact.",
                                             "type": "string",
-                                            "example": "123"
+                                            "example": "555"
                                           },
                                           "phoneNumber": {
                                             "description": "Primary phone of Point of Contact.",
                                             "type": "string",
-                                            "example": "1231234"
+                                            "example": "5555555"
                                           }
                                         }
                                       }
@@ -3429,13 +3428,13 @@
                                       "example": "1980-02-05"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "1990-01-02"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
+                                      "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "example": "98283"
                                     }
@@ -3517,10 +3516,12 @@
                                     ],
                                     "properties": {
                                       "areaCode": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "555"
                                       },
                                       "phoneNumber": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "5555555"
                                       }
                                     }
                                   },
@@ -5303,7 +5304,7 @@
                                     "example": "DOMESTIC"
                                   },
                                   "state": {
-                                    "description": "State Veteran resides in.",
+                                    "description": "State or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -5455,7 +5456,7 @@
                                     "type": "string"
                                   },
                                   "state": {
-                                    "description": "New state Veteran resides in.",
+                                    "description": "New state or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -5687,13 +5688,13 @@
                                       "example": "1980-02-05"
                                     },
                                     "activeDutyEndDate": {
-                                      "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
+                                      "description": "Date Completed Active Duty. If in the future, 'separationLocationCode' is required. Cannot be more than 180 days in the future, unless past service is also included.",
                                       "type": "string",
                                       "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                       "example": "1990-01-02"
                                     },
                                     "separationLocationCode": {
-                                      "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
+                                      "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                                       "type": "string",
                                       "example": "98283"
                                     }
@@ -8270,16 +8271,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "areaCode",
                                 "phoneNumber"
                               ],
                               "properties": {
                                 "countryCode": {
+                                  "description": "Country code of the phone number. Required for international phone numbers.",
                                   "type": "string",
                                   "pattern": "^[0-9]+$"
                                 },
                                 "areaCode": {
-                                  "description": "Area code of the phone number.",
+                                  "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                   "type": "string",
                                   "pattern": "^[2-9][0-9]{2}$",
                                   "example": "555"
@@ -8294,6 +8295,39 @@
                                   "type": "string",
                                   "pattern": "^[a-zA-Z0-9]{1,10}$"
                                 }
+                              },
+                              "if": {
+                                "properties": {
+                                  "countryCode": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "enum": [
+                                          "1"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "areaCode"
+                                ]
+                              },
+                              "else": {
+                                "anyOf": [
+                                  {
+                                    "required": [
+                                      "countryCode"
+                                    ]
+                                  },
+                                  {
+                                    "required": [
+                                      "areaCode"
+                                    ]
+                                  }
+                                ]
                               }
                             },
                             "email": {
@@ -8413,16 +8447,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "areaCode",
                                 "phoneNumber"
                               ],
                               "properties": {
                                 "countryCode": {
+                                  "description": "Country code of the phone number. Required for international phone numbers.",
                                   "type": "string",
                                   "pattern": "^[0-9]+$"
                                 },
                                 "areaCode": {
-                                  "description": "Area code of the phone number.",
+                                  "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                   "type": "string",
                                   "pattern": "^[2-9][0-9]{2}$",
                                   "example": "555"
@@ -8437,6 +8471,39 @@
                                   "type": "string",
                                   "pattern": "^[a-zA-Z0-9]{1,10}$"
                                 }
+                              },
+                              "if": {
+                                "properties": {
+                                  "countryCode": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "enum": [
+                                          "1"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "areaCode"
+                                ]
+                              },
+                              "else": {
+                                "anyOf": [
+                                  {
+                                    "required": [
+                                      "countryCode"
+                                    ]
+                                  },
+                                  {
+                                    "required": [
+                                      "areaCode"
+                                    ]
+                                  }
+                                ]
                               }
                             },
                             "email": {
@@ -8634,7 +8701,7 @@
             ]
           }
         ],
-        "description": "The endpoint establishes POA for a representative.\nOnce ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:\n\n - poaCode\n - Signature, which can be a:\n\n   - Base64-encoded image or signature block, allowing the API to auto-populate\nand attach the VA 21-22 form to the request without requiring a PDF upload, or\n\n   - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint\n\n\nA 200 response means the submission was successful, but does not mean the POA is effective.\nCheck the status of a POA submission by using the GET /forms/2122/{id} endpoint.\n\n",
+        "description": "Signature images\n\n\n\nIf the request includes signature images for both the Veteran and the representative, the API will:\n\n   - Generate VA Form 21-22 PDF for organizations or VA Form 21-22a PDF for individual representatives.\n\n   - Automatically establish POA for the representative.\n\n\n\nThe signature can be provided in either of these formats:\n\n   - Base64-encoded image or signature block. This allows the API to auto-populate and attach the VA Form\n   21-22 without requiring a manual PDF upload.\n\n   - PDF of VA Form 21-22 with an ink signature. This should be attached using the PUT /forms/2122/{id}\n   endpoint.\n\n\n\n   If signature images are not included in the initial request, the response will return an id which must be\n   used to submit the signed PDF via the PUT /forms/2122/{id} endpoint.\n\n\n\nDependent claimant information:\n\n   - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n   - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse information:\n\n   - A successful submission returns a 200 response, indicating that the request was successfully processed.\n\n   - A 200 response does not confirm that the POA has been appointed.\n\n   - To check the status of a POA submission, use the GET /forms/2122/{id} endpoint.\n\n",
         "parameters": [
           {
             "in": "header",
@@ -8904,14 +8971,6 @@
                     "required": [
                       "attributes"
                     ],
-                    "example": {
-                      "type": "form/21-22",
-                      "attributes": {
-                        "serviceOrganization": {
-                          "poaCode": "A1Q"
-                        }
-                      }
-                    },
                     "properties": {
                       "attributes": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -8935,8 +8994,23 @@
                                 "required": [
                                   "numberAndStreet",
                                   "city",
-                                  "country",
-                                  "zipFirstFive"
+                                  "country"
+                                ],
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "country": {
+                                          "const": "US"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "zipFirstFive"
+                                      ]
+                                    }
+                                  }
                                 ],
                                 "properties": {
                                   "numberAndStreet": {
@@ -8961,23 +9035,23 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
                                   },
                                   "zipLastFour": {
-                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "description": "Zip code (Last 4 digits) of the address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
@@ -8989,16 +9063,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -9013,6 +9087,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -9075,8 +9182,23 @@
                                 "required": [
                                   "numberAndStreet",
                                   "city",
-                                  "country",
-                                  "zipFirstFive"
+                                  "country"
+                                ],
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "country": {
+                                          "const": "US"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "zipFirstFive"
+                                      ]
+                                    }
+                                  }
                                 ],
                                 "properties": {
                                   "numberAndStreet": {
@@ -9101,23 +9223,23 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
                                   },
                                   "zipLastFour": {
-                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "description": "Zip code (Last 4 digits) of the address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
@@ -9132,16 +9254,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -9156,6 +9278,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -9211,8 +9366,23 @@
                                 "required": [
                                   "numberAndStreet",
                                   "city",
-                                  "country",
-                                  "zipFirstFive"
+                                  "country"
+                                ],
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "country": {
+                                          "const": "US"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "zipFirstFive"
+                                      ]
+                                    }
+                                  }
                                 ],
                                 "properties": {
                                   "numberAndStreet": {
@@ -9237,23 +9407,23 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
                                   },
                                   "zipLastFour": {
-                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "description": "Zip code (Last 4 digits) of the address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
@@ -9319,6 +9489,44 @@
                               }
                             }
                           }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "POA for Veteran": {
+                  "value": {
+                    "data": {
+                      "type": "form/21-22",
+                      "attributes": {
+                        "serviceOrganization": {
+                          "poaCode": "A1Q"
+                        }
+                      }
+                    }
+                  }
+                },
+                "POA for Dependent Claimant": {
+                  "value": {
+                    "data": {
+                      "type": "form/21-22",
+                      "attributes": {
+                        "serviceOrganization": {
+                          "poaCode": "A1Q"
+                        },
+                        "claimant": {
+                          "firstName": "Mary",
+                          "lastName": "Lincoln",
+                          "address": {
+                            "numberAndStreet": "123 anystreet",
+                            "city": "anytown",
+                            "state": "OR",
+                            "country": "USA",
+                            "zipFirstFive": "12345"
+                          },
+                          "relationship": "Spouse"
                         }
                       }
                     }
@@ -10765,8 +10973,23 @@
                                 "required": [
                                   "numberAndStreet",
                                   "city",
-                                  "country",
-                                  "zipFirstFive"
+                                  "country"
+                                ],
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "country": {
+                                          "const": "US"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "zipFirstFive"
+                                      ]
+                                    }
+                                  }
                                 ],
                                 "properties": {
                                   "numberAndStreet": {
@@ -10791,23 +11014,23 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
                                   },
                                   "zipLastFour": {
-                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "description": "Zip code (Last 4 digits) of the address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
@@ -10819,16 +11042,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -10843,6 +11066,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -10905,8 +11161,23 @@
                                 "required": [
                                   "numberAndStreet",
                                   "city",
-                                  "country",
-                                  "zipFirstFive"
+                                  "country"
+                                ],
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "country": {
+                                          "const": "US"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "zipFirstFive"
+                                      ]
+                                    }
+                                  }
                                 ],
                                 "properties": {
                                   "numberAndStreet": {
@@ -10931,23 +11202,23 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
                                   },
                                   "zipLastFour": {
-                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "description": "Zip code (Last 4 digits) of the address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
@@ -10962,16 +11233,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -10986,6 +11257,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -11041,8 +11345,23 @@
                                 "required": [
                                   "numberAndStreet",
                                   "city",
-                                  "country",
-                                  "zipFirstFive"
+                                  "country"
+                                ],
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "country": {
+                                          "const": "US"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "zipFirstFive"
+                                      ]
+                                    }
+                                  }
                                 ],
                                 "properties": {
                                   "numberAndStreet": {
@@ -11067,23 +11386,23 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
                                   },
                                   "zipLastFour": {
-                                    "description": "Zipcode (Last 4 digits) of the address.",
+                                    "description": "Zip code (Last 4 digits) of the address.",
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"

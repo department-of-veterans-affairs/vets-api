@@ -4,24 +4,27 @@ require 'common/file_helpers'
 
 module IvcChampva
   class PdfFiller
-    attr_accessor :form, :form_number, :name
+    attr_accessor :form, :form_number, :name, :uuid
 
     TEMPLATE_BASE = Rails.root.join('modules', 'ivc_champva', 'templates')
 
-    def initialize(form_number:, form:, name: nil)
+    def initialize(form_number:, form:, name: nil, uuid: nil)
       raise 'form_number is required' if form_number.blank?
       raise 'form needs a data attribute' unless form&.data
 
       @form = form
       @form_number = form_number
       @name = name || form_number
+      @uuid = uuid
     end
 
     def generate(current_loa = nil)
-      template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-      generated_form_path = "tmp/#{name}-tmp.pdf"
-      stamped_template_path = "tmp/#{name}-stamped.pdf"
-      FileUtils.copy(template_form_path, stamped_template_path)
+      generated_form_path = Rails.root.join("tmp/#{@uuid}_#{name}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{@uuid}_#{name}-stamped.pdf").to_s
+
+      tempfile = create_tempfile
+      FileUtils.touch(tempfile)
+      FileUtils.copy_file(tempfile.path, stamped_template_path)
 
       if File.exist? stamped_template_path
         begin
@@ -34,6 +37,19 @@ module IvcChampva
         end
       else
         raise "stamped template file does not exist: #{stamped_template_path}"
+      end
+    ensure
+      tempfile&.close!
+    end
+
+    def create_tempfile
+      # Tempfile workaround inspired by this:
+      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
+      template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
+      Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
+        IO.copy_stream(template_form_path, tmpfile)
+        tmpfile.flush
+        tmpfile.close
       end
     end
 

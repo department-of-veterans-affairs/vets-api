@@ -1,0 +1,201 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<BGS_BASE_URL>/VetRecordServiceBean/VetRecordWebService"
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://services.share.benefits.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Header>
+          <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:UsernameToken>
+              <wsse:Username>VAgovAPI</wsse:Username>
+            </wsse:UsernameToken>
+            <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+              <vaws:CLIENT_MACHINE>127.0.0.1</vaws:CLIENT_MACHINE>
+              <vaws:STN_ID>281</vaws:STN_ID>
+              <vaws:applicationName>VAgovAPI</vaws:applicationName>
+              <vaws:ExternalUid>xUid</vaws:ExternalUid>
+              <vaws:ExternalKey>xKey</vaws:ExternalKey>
+            </vaws:VaServiceHeaders>
+          </wsse:Security>
+        </env:Header>
+
+          <env:Body>
+            <tns:updateBirlsRecord><birlsUpdateInput>
+          <CLAIM_NUMBER>not-a-number</CLAIM_NUMBER>
+          <SOC_SEC_NUM>not-ssn</SOC_SEC_NUM>
+          <POWER_OF_ATTY_CODE1>not-a-code</POWER_OF_ATTY_CODE1>
+          <POWER_OF_ATTY_CODE2>still-not-a-code</POWER_OF_ATTY_CODE2>
+          <PAYEE_NUMBER>00</PAYEE_NUMBER>
+        </birlsUpdateInput>
+        </tns:updateBirlsRecord>
+          </env:Body>
+          </env:Envelope>
+    headers:
+      User-Agent:
+      - "<FARADAY_VERSION>"
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"updateBirlsRecord"'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 24 Jan 2025 18:08:57 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Oracle-Dms-Ecid:
+      - 7a854824-3ceb-46d3-b5e5-d8e774448dd9-0001bc7d
+      X-Oracle-Dms-Rid:
+      - '0'
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4yAAA=</work:WorkContext></env:Header><S:Body><ns0:updateBirlsRecordResponse
+        xmlns:ns0="http://services.share.benefits.vba.va.gov/"><return><RETURN_CODE>BPNQ0100</RETURN_CODE><RETURN_MESSAGE>No
+        BIRLS record found</RETURN_MESSAGE><SPACE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CLAIM_NUMBER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SOC_SEC_NUMBER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INS_PREFIX xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INS_NUMBER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><LAST_NAME xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><FIRST_NAME xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><MIDDLE_NAME xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><NAME_SUFFIX xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BIRTH_MONTH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BIRTH_DAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BIRTH_CENTURY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BIRTH_YEAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DATE_OF_BIRTH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DEATH_MONTH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DEATH_DAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DEATH_CENTURY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DEATH_YEAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DATE_OF_DEATH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><POW_NUMBER_OF_DAYS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><TOTAL_ACTIVE_SERVICE_YEARS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><TOTAL_ACTIVE_SERVICE_MONTHS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><TOTAL_ACTIVE_SERVICE_DAYS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DISABILITY_SEVERANCE_PAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><LUMP_SUM_READJUSTMENT_PAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SEPARATION_PAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CLAIM_FOLDER_LOCATION xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VET_HAS_BENE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VET_IS_BENE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PURPLE_HEART_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VERIFIED_SOC_SEC_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VA_EMPLOYEE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VIETNAM_SERVICE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DISABILITY_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><MEDAL_OF_HONOR_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><TRANSFER_TO_RESERVES_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><ACTIVE_DUTY_TRAINING_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><REENLISTED_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BURIAL_FLAG_ISSUE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SEX_CODE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CONTESTED_DATA_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><GUARDIANSHIP_CASE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INCOMPETENT_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CP_VET_CP_BENE_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VADS_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VERIFIED_SVC_DATA_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH30_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH32_BANK_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH32_BEN_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH34_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH106_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH31_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH32_903_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><IND_901 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><JOBS_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VARMS_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DIAGS_VERIFIED_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><HOMELESS_VET_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><RET_SVR_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PERSIAN_GULF_SVC_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SVC_MED_RECORD_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BANKRUPTCY_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CAUSE_OF_DEATH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DEATH_IN_SVC xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><POWER_OF_ATTY_CODE1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><POWER_OF_ATTY_CODE2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CLOTHING_ALLOWANCE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><NUM_OF_SVC_CON_DIS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BURIAL_AWARD_PLOT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BURIAL_AWARD_TRANSPORT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><HEADSTONE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PAYMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><APPLICATION_FOR_PLOT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><ADAPTIVE_EQUIPMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SPECIAL_ADAPTIVE_HOUSING xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><REASON_FOR_TERM_DISALLOW xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><ENTITLEMENT_CODE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SPECIAL_LAW_CODE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CP_EFFCTVE_DATE_OF_TERM xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BURIAL_AWD_SVC_CONNECT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BURIAL_AWD_NONSVC_CON xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><AUTOMOBILE_ALLOWANCE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><COMBINED_DEGREE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><ADD_DIA_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><EMPLOYEE_NUMBER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><EMPLOYEE_STATION_NUMBER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><UPDATE_MONTH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><UPDATE_DAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><UPDATE_CENTURY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><UPDATE_YEAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DATE_OF_UPDATE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><NUMBER_OF_DISCLOSURES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INSURANCE_JURIS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INS_LAPSED_PURGE_MONTH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INS_LAPSED_PURGE_CENTURY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><INS_LAPSED_PURGE_YEAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DATE_OF_INS_LAPSED_PURGE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><CH30_OVERPAYMENT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DMDC_RETIRE_PAY_SBP_AMT_C xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DMDC_RETIRE_PAY_SBP_MM_C xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DMDC_RETIRE_PAY_SBP_YEAR_C xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DATE_OF_DMDC_RETIRE_PAY_C xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DMDC_RETIRE_PAY_SBP_AMT_P xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DMDC_RETIRE_PAY_SBP_MM_P xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DMDC_RETIRE_PAY_SBP_YEAR_P xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><DATE_OF_DMDC_RETIRE_PAY_P xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VADS_IND2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VADS_IND3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VERIFIED_SVC_DATA_IND2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><VERIFIED_SVC_DATA_IND3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><SVC_NUM_EDIT_FILLER xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PVR_MONTH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PVR_DAY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PVR_CENTURY xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PVR_YEAR xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><PVR_FILLER1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><APPEALS_IND xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><IN_THEATER_START_DATE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><IN_THEATER_END_DATE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><IN_THEATER_DAYS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><NUMBER_OF_RECORDS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/><BENE_RECORD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true"/></return></ns0:updateBirlsRecordResponse></S:Body></S:Envelope>
+  recorded_at: Fri, 24 Jan 2025 18:08:57 GMT
+recorded_with: VCR 6.3.1

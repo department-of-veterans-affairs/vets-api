@@ -14,7 +14,7 @@ RSpec.describe UserAccount, type: :model do
         let(:icn) { nil }
 
         it 'returns nil' do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
       end
 

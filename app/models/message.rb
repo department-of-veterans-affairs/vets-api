@@ -76,6 +76,7 @@ class Message < Common::Base
   attribute :attachment2_id, Integer
   attribute :attachment3_id, Integer
   attribute :attachment4_id, Integer
+  attribute :suggested_name_display, String
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, Array[ActionDispatch::Http::UploadedFile]
@@ -83,6 +84,10 @@ class Message < Common::Base
   alias attachment? attachment
 
   def initialize(attributes = {})
+    # temporarily coerce attachments to Attachment class
+    # this will be removed when Message is switched to Vets::Model
+    attributes[:attachments] = attributes[:attachments].map { |a| Attachment.new(a) } if attributes[:attachments]
+
     super(attributes)
     self.subject = subject ? Nokogiri::HTML.parse(subject) : nil
     self.body = body ? Nokogiri::HTML.parse(body) : nil

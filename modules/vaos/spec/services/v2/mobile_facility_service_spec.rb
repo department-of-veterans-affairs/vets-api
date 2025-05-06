@@ -10,6 +10,7 @@ describe VAOS::V2::MobileFacilityService do
   let(:cassette_options) { { match_requests_on: %i[method path query] } }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
@@ -212,10 +213,10 @@ describe VAOS::V2::MobileFacilityService do
           response = subject.get_facilities_with_cache('541QB', '541QA', '541QE', '541QC')
           facilities = response[:data]
           expect(facilities.size).to eq(4)
-          expect(Rails.cache.exist?('vaos_facility_541QB')).to eq(true)
-          expect(Rails.cache.exist?('vaos_facility_541QA')).to eq(true)
-          expect(Rails.cache.exist?('vaos_facility_541QE')).to eq(true)
-          expect(Rails.cache.exist?('vaos_facility_541QC')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QB')).to be(true)
+          expect(Rails.cache.exist?('vaos_facility_541QA')).to be(true)
+          expect(Rails.cache.exist?('vaos_facility_541QE')).to be(true)
+          expect(Rails.cache.exist?('vaos_facility_541QC')).to be(true)
         end
       end
     end
@@ -231,10 +232,10 @@ describe VAOS::V2::MobileFacilityService do
           response = subject.get_facilities_with_cache(%w[541QB 541QA 541QE 541QC])
           facilities = response[:data]
           expect(facilities.size).to eq(4)
-          expect(Rails.cache.exist?('vaos_facility_541QB')).to eq(true)
-          expect(Rails.cache.exist?('vaos_facility_541QA')).to eq(true)
-          expect(Rails.cache.exist?('vaos_facility_541QE')).to eq(true)
-          expect(Rails.cache.exist?('vaos_facility_541QC')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QB')).to be(true)
+          expect(Rails.cache.exist?('vaos_facility_541QA')).to be(true)
+          expect(Rails.cache.exist?('vaos_facility_541QE')).to be(true)
+          expect(Rails.cache.exist?('vaos_facility_541QC')).to be(true)
         end
       end
     end
@@ -293,11 +294,11 @@ describe VAOS::V2::MobileFacilityService do
     context 'with a valid request and clinic is not in the cache' do
       it 'returns the clinic information and stores it in the cache' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
-          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(false)
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to be(false)
           clinic = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(clinic[:station_id]).to eq('983')
           expect(clinic[:id]).to eq('455')
-          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to be(true)
         end
       end
 
@@ -305,7 +306,7 @@ describe VAOS::V2::MobileFacilityService do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200', cassette_options) do
           expect_any_instance_of(described_class).to receive(:get_clinic!).once.and_call_original
           subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
-          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to be(true)
         end
       end
     end
@@ -322,7 +323,7 @@ describe VAOS::V2::MobileFacilityService do
           # rubocop:enable RSpec/SubjectStub
           cached_response = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(response).to eq(cached_response)
-          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to be(true)
         end
       end
     end
@@ -333,7 +334,7 @@ describe VAOS::V2::MobileFacilityService do
           expect { subject.get_clinic_with_cache(station_id: '983', clinic_id: 'does_not_exist') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
-          expect(Rails.cache.exist?('vaos_clinic_983_does_not_exist')).to eq(false)
+          expect(Rails.cache.exist?('vaos_clinic_983_does_not_exist')).to be(false)
         end
       end
     end
@@ -351,11 +352,11 @@ describe VAOS::V2::MobileFacilityService do
       VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_500', cassette_options) do
         expect_any_instance_of(described_class).to receive(:get_clinic_with_cache).and_call_original
         response = subject.get_clinic('983', 'does_not_exist')
-        expect(response).to eq(nil)
+        expect(response).to be_nil
       end
       expect_any_instance_of(described_class).not_to receive(:get_clinic_with_cache)
       response = subject.get_clinic('983', 'does_not_exist')
-      expect(response).to eq(nil)
+      expect(response).to be_nil
     end
   end
 
@@ -456,14 +457,14 @@ describe VAOS::V2::MobileFacilityService do
     context 'with a valid request and facility is not in the cache' do
       it 'retrieves the facility from MFS and stores the facility in the cache' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', cassette_options) do
-          expect(Rails.cache.exist?('vaos_facility_983')).to eq(false)
+          expect(Rails.cache.exist?('vaos_facility_983')).to be(false)
 
           response = subject.get_facility_with_cache('983')
 
           expect(response[:id]).to eq('983')
           expect(response[:type]).to eq('va_facilities')
           expect(response[:name]).to eq('Cheyenne VA Medical Center')
-          expect(Rails.cache.exist?('vaos_facility_983')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_983')).to be(true)
         end
       end
     end
@@ -489,7 +490,7 @@ describe VAOS::V2::MobileFacilityService do
           # rubocop:enable RSpec/SubjectStub
           cached_response = subject.get_facility_with_cache('983')
           expect(response).to eq(cached_response)
-          expect(Rails.cache.exist?('vaos_facility_983')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_983')).to be(true)
         end
       end
     end
@@ -500,7 +501,7 @@ describe VAOS::V2::MobileFacilityService do
           expect { subject.get_facility_with_cache('983') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
-          expect(Rails.cache.exist?('vaos_facility_983')).to eq(false)
+          expect(Rails.cache.exist?('vaos_facility_983')).to be(false)
         end
       end
     end
@@ -518,11 +519,11 @@ describe VAOS::V2::MobileFacilityService do
       VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_500', cassette_options) do
         expect_any_instance_of(described_class).to receive(:get_facility_with_cache).and_call_original
         response = subject.get_facility('983')
-        expect(response).to eq(nil)
+        expect(response).to be_nil
       end
       expect_any_instance_of(described_class).not_to receive(:get_facility_with_cache)
       response = subject.get_facility('983')
-      expect(response).to eq(nil)
+      expect(response).to be_nil
     end
   end
 

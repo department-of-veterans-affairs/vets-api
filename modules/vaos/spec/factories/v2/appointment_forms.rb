@@ -18,20 +18,20 @@ FactoryBot.define do
           {
             identifier: [
               {
-                'system': 'http://hl7.org/fhir/sid/us-npi',
-                'value': '1407938061'
+                system: 'http://hl7.org/fhir/sid/us-npi',
+                value: '1407938061'
               }
             ],
             address: {
-              'type': 'postal',
-              'line': [
+              type: 'postal',
+              line: [
                 '38143 Martha Ave'
               ],
-              'city': 'Fremont',
-              'state': 'CA',
-              'postal_code': '94536',
-              'country': 'USA',
-              'text': 'test'
+              city: 'Fremont',
+              state: 'CA',
+              postal_code: '94536',
+              country: 'USA',
+              text: 'test'
             }
           }
         ]
@@ -48,8 +48,8 @@ FactoryBot.define do
       preferred_language { 'English' }
       preferred_location do
         {
-          'city': 'Helena',
-          'state': 'MT'
+          city: 'Helena',
+          state: 'MT'
         }
       end
     end
@@ -58,7 +58,7 @@ FactoryBot.define do
       community_cares_base
       status { 'proposed' }
       reason_code do
-        { 'text': 'test request' }
+        { text: 'colon:in:comment' }
       end
     end
 
@@ -69,12 +69,12 @@ FactoryBot.define do
         {
           'telecom' => [
             {
-              'type': 'phone',
-              'value': '2125688887'
+              type: 'phone',
+              value: '2125688887'
             },
             {
-              'type': 'email',
-              'value': 'judymorisooooooooooooon@gmail.com'
+              type: 'email',
+              value: 'judymorisooooooooooooon@gmail.com'
             }
           ]
         }
@@ -83,10 +83,10 @@ FactoryBot.define do
         {
           'coding' => [
             {
-              'code': 'Routine Follow-up'
+              code: 'Routine Follow-up'
             }
           ],
-          'text': 'string'
+          text: 'string'
         }
       end
     end
@@ -96,12 +96,12 @@ FactoryBot.define do
       requested_periods do
         [
           {
-            'start': '2024-08-28T06:00:00Z',
-            'end': '2024-08-28T17:59:00Z'
+            start: '2024-08-28T06:00:00Z',
+            end: '2024-08-28T17:59:00Z'
           },
           {
-            'start': '2024-08-28T18:00:00Z',
-            'end': '2024-08-29T05:59:00Z'
+            start: '2024-08-28T18:00:00Z',
+            end: '2024-08-29T05:59:00Z'
           }
         ]
       end
@@ -125,20 +125,20 @@ FactoryBot.define do
           {
             identifier: [
               {
-                'system': 'http://hl7.org/fhir/sid/us-npi',
-                'value': '1174506877'
+                system: 'http://hl7.org/fhir/sid/us-npi',
+                value: '1174506877'
               }
             ],
             address: {
-              'type': 'postal',
-              'line': [
+              type: 'postal',
+              line: [
                 '590 MALABAR RD SE STE 5'
               ],
-              'city': 'PALM BAY',
-              'state': 'FL',
-              'postal_code': '32907-3108',
-              'country': 'USA',
-              'text': 'test'
+              city: 'PALM BAY',
+              state: 'FL',
+              postal_code: '32907-3108',
+              country: 'USA',
+              text: 'test'
             }
           }
         ]
@@ -147,12 +147,12 @@ FactoryBot.define do
         {
           'telecom' => [
             {
-              'type': 'phone',
-              'value': '2762740095'
+              type: 'phone',
+              value: '2762740095'
             },
             {
-              'type': 'email',
-              'value': 'jacqueline.morgan@id.me'
+              type: 'email',
+              value: 'jacqueline.morgan@id.me'
             }
           ]
         }
@@ -169,18 +169,18 @@ FactoryBot.define do
       preferred_language { 'English' }
       preferred_location do
         {
-          'city': 'Palm Bay',
-          'state': 'FL'
+          city: 'Palm Bay',
+          state: 'FL'
         }
       end
       reason_code do
         {
           'coding' => [
             {
-              'code': 'Routine Follow-up'
+              code: 'Routine Follow-up'
             }
           ],
-          'text': 'string'
+          text: 'string'
         }
       end
     end
@@ -191,12 +191,12 @@ FactoryBot.define do
       clinic { '999' } # this is the clinic id for audiology
       slot do
         {
-          'id': '3230323231313330323034353A323032323131333032313030'
+          id: '3230323231313330323034353A323032323131333032313030'
         }
       end
       extension do
         {
-          'desired_date': DateTime.new(2022, 11, 30)
+          desired_date: DateTime.new(2022, 11, 30)
         }
       end
     end
@@ -206,9 +206,9 @@ FactoryBot.define do
       status { 'booked' }
       reason_code do
         { 'coding' => [
-            'code': 'Routine Follow-up'
+            code: 'Routine Follow-up'
           ],
-          'text': 'testing' }
+          text: 'testing' }
       end
     end
 
@@ -216,7 +216,7 @@ FactoryBot.define do
       va_base
       status { 'booked' }
       reason_code do
-        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+        { text: 'reasonCode:ROUTINEVISIT|comments:colon:in:comment' }
       end
     end
 
@@ -224,7 +224,7 @@ FactoryBot.define do
       va_base
       status { 'cancelled' }
       reason_code do
-        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+        { text: 'reasonCode:ROUTINEVISIT|comments:colon:in:comment' }
       end
     end
 
@@ -236,8 +236,8 @@ FactoryBot.define do
       requested_periods do
         [
           {
-            'end': '2022-01-04T11:59:00Z',
-            'start': '2022-01-04T00:00:00Z'
+            end: '2022-01-04T11:59:00Z',
+            start: '2022-01-04T00:00:00Z'
           }
         ]
       end
@@ -247,7 +247,7 @@ FactoryBot.define do
       va_proposed_base
       kind { 'clinic' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { text: 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:colon:in:comment' } # rubocop:disable Layout/LineLength
       end
     end
 
@@ -255,14 +255,14 @@ FactoryBot.define do
       va_proposed_base
       kind { 'clinic' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code|comments:|test:gwef:fwege' } # rubocop:disable Layout/LineLength
+        { text: 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code|comments:|test:gwef:fwege' } # rubocop:disable Layout/LineLength
       end
     end
 
     trait :va_proposed_invalid_reason_code_text do
       va_proposed_base
       reason_code do
-        { 'text': 'invalidkeyvaluepair|invalid:key:value:pair||' }
+        { text: 'invalidkeyvaluepair|invalid:key:value:pair||' }
       end
     end
 
@@ -270,20 +270,20 @@ FactoryBot.define do
       va_proposed_base
       reason_code do
         { 'codeing' => [
-            'code': 'Routine Follow-up'
+            code: 'Routine Follow-up'
           ],
-          'text': 'testing' }
+          text: 'testing' }
       end
       contact do
         {
           'telecom' => [
             {
-              'type': 'phone',
-              'value': '2125688889'
+              type: 'phone',
+              value: '2125688889'
             },
             {
-              'type': 'email',
-              'value': 'judymorisooooooooooooon@gmail.com'
+              type: 'email',
+              value: 'judymorisooooooooooooon@gmail.com'
             }
           ]
         }
@@ -291,8 +291,8 @@ FactoryBot.define do
       requested_periods do
         [
           {
-            'end': '2022-01-04T11:59:00Z',
-            'start': '2022-01-04T00:00:00Z'
+            end: '2022-01-04T11:59:00Z',
+            start: '2022-01-04T00:00:00Z'
           }
         ]
       end
@@ -322,7 +322,7 @@ FactoryBot.define do
       with_direct_scheduling_base
 
       reason_code do
-        { 'text': 'test booked' }
+        { text: 'colon:in:comment' }
       end
     end
 
@@ -333,12 +333,12 @@ FactoryBot.define do
         {
           'telecom' => [
             {
-              'type': 'phone',
-              'value': '2125688889'
+              type: 'phone',
+              value: '2125688889'
             },
             {
-              'type': 'email',
-              'value': 'judymorisooooooooooooon@gmail.com'
+              type: 'email',
+              value: 'judymorisooooooooooooon@gmail.com'
             }
           ]
         }
@@ -357,6 +357,17 @@ FactoryBot.define do
     trait :with_empty_slot_hash do
       community_cares
       slot { {} }
+    end
+
+    trait :telehealth do
+      va_proposed_base
+      kind { 'telehealth' }
+
+      telehealth do
+        {
+          vvs_kind: 'CLINIC_BASED'
+        }
+      end
     end
   end
 end

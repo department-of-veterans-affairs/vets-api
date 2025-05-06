@@ -26,6 +26,7 @@ module SignIn
         sub: service_account_access_token.user_identifier,
         exp: service_account_access_token.expiration_time.to_i,
         iat: service_account_access_token.created_time.to_i,
+        nbf: service_account_access_token.created_time.to_i,
         version: service_account_access_token.version,
         scopes: service_account_access_token.scopes,
         service_account_id: service_account_access_token.service_account_id,
@@ -34,7 +35,7 @@ module SignIn
     end
 
     def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
+      OpenSSL::PKey::RSA.new(File.read(IdentitySettings.sign_in.jwt_encode_key))
     end
   end
 end

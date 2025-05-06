@@ -19,6 +19,8 @@ module PagerDuty
 
     def get_all_raw(options = {})
       resp = get_raw(options)
+      return [] if resp.nil?
+
       windows = resp['maintenance_windows']
       while resp['more']
         offset = resp['offset'] + resp['limit']
@@ -34,7 +36,20 @@ module PagerDuty
         'filter' => 'open',
         'service_ids' => PagerDuty::Configuration.service_ids
       }.merge(options)
-      perform(:get, 'maintenance_windows', query).body
+
+      begin
+        perform(:get, 'maintenance_windows', query).body
+      rescue => e
+        if e&.original_status == 400
+          # Dadadog monitor for this error message https://vagov.ddog-gov.com/monitors/296944
+          Rails.logger.error(
+            "Invalid arguments sent to PagerDuty. One of the following Service IDs is bad: #{query['service_ids']}"
+          )
+        else
+          Rails.logger.error("Querying PagerDuty for maintenance windows failed with the error: #{e.message}")
+        end
+        nil
+      end
     end
 
     def convert(raw_mws)

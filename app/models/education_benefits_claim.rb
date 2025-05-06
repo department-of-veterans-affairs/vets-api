@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EducationBenefitsClaim < ApplicationRecord
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s].freeze
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s 10282 10216 10215].freeze
 
   APPLICATION_TYPES = %w[
     chapter33

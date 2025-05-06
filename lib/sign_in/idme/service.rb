@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'sign_in/public_jwks'
 require 'sign_in/idme/configuration'
 require 'sign_in/idme/errors'
 require 'mockdata/writer'
@@ -7,11 +8,13 @@ require 'mockdata/writer'
 module SignIn
   module Idme
     class Service < Common::Client::Base
+      include SignIn::PublicJwks
       configuration Configuration
 
       attr_accessor :type
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1, operation: Constants::Auth::AUTHORIZE)
+      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1,
+                      operation: Constants::Auth::AUTHORIZE)
         Rails.logger.info('[SignIn][Idme][Service] Rendering auth, ' \
                           "state: #{state}, acr: #{acr}, operation: #{operation}")
         RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, operation)).perform
@@ -48,23 +51,6 @@ module SignIn
       end
 
       private
-
-      def public_jwks
-        @public_jwks ||= Rails.cache.fetch(config.jwks_cache_key, expires_in: config.jwks_cache_expiration) do
-          response = perform(:get, config.public_jwks_path, nil, nil)
-          Rails.logger.info('[SignIn][Idme][Service] Get Public JWKs Success')
-
-          parse_public_jwks(response:)
-        end
-      rescue Common::Client::Errors::ClientError => e
-        raise_client_error(e, 'Get Public JWKs')
-      end
-
-      def parse_public_jwks(response:)
-        jwks = JWT::JWK::Set.new(response.body)
-        jwks.select! { |key| key[:use] == 'sig' }
-        jwks
-      end
 
       def auth_params(acr, state, operation)
         {
@@ -140,7 +126,7 @@ module SignIn
 
       def mhv_attributes(user_info)
         {
-          mhv_correlation_id: user_info.mhv_uuid,
+          mhv_credential_uuid: user_info.mhv_uuid,
           mhv_icn: user_info.mhv_icn,
           mhv_assurance: user_info.mhv_assurance
         }
@@ -174,11 +160,12 @@ module SignIn
 
       def jwt_decode(encoded_jwt)
         verify_expiration = true
+
         decoded_jwt = JWT.decode(
           encoded_jwt,
           nil,
           verify_expiration,
-          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: public_jwks }
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: method(:jwks_loader) }
         ).first
         log_parsed_credential(decoded_jwt) if config.log_credential
 

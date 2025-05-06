@@ -4,45 +4,32 @@ require 'rails_helper'
 require 'common/models/concerns/cache_aside'
 
 describe Common::CacheAside do
-  let(:user) { build :user, :loa3 }
+  let(:user) { build(:user, :loa3) }
 
-  if Flipper.enabled?(:va_v3_contact_information_service)
-    let(:person) { build :person_v2 }
-  else
-    let(:person) { build :person }
-  end
+  let(:person) { build(:person_v2) }
 
   before do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      allow(VAProfile::Models::V2::Person).to receive(:build_from).and_return(person)
-    else
-      allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
-    end
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
+    allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
   describe '#do_cached_with' do
     let(:person_response) do
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        VAProfile::V2::ContactInformation::PersonResponse.from(
-          OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-        )
-      else
-        VAProfile::ContactInformation::PersonResponse.from(
-          OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-        )
-      end
+      VAProfile::V2::ContactInformation::PersonResponse.from(
+        OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+      )
     end
 
     it 'sets the attributes needed to perform redis actions', :aggregate_failures do
-      instance1 = VAProfileRedis::ContactInformation.for_user(user)
+      instance1 = VAProfileRedis::V2::ContactInformation.for_user(user)
       instance1.do_cached_with(key: 'test') { person_response }
-      expect(instance1.attributes[:uuid]).not_to be(nil)
-      expect(instance1.attributes[:response]).not_to be(nil)
+      expect(instance1.attributes[:uuid]).not_to be_nil
+      expect(instance1.attributes[:response]).not_to be_nil
 
-      instance2 = VAProfileRedis::ContactInformation.for_user(user)
+      instance2 = VAProfileRedis::V2::ContactInformation.for_user(user)
       instance2.do_cached_with(key: 'test') { raise 'value was not cached!' }
-      expect(instance2.attributes[:uuid]).not_to be(nil)
-      expect(instance2.attributes[:response]).not_to be(nil)
+      expect(instance2.attributes[:uuid]).not_to be_nil
+      expect(instance2.attributes[:response]).not_to be_nil
     end
   end
 end

@@ -14,6 +14,7 @@
       ":first_name": "Abraham",
       ":middle_name": null,
       ":last_name": "Lincoln",
+      ":preferred_name": "abe",
       ":gender": "M",
       ":birth_date": "1809-02-12",
       ":zip": null,
@@ -35,10 +36,13 @@
       ":response": {
         "^o": "MPI::Responses::FindProfileResponse",
         "status": "OK",
-        "profile": {
+      "profile": {
           "^o": "MPI::Models::MviProfile",
           "given_names": [
             "Abraham"
+          ],
+          "preferred_names": [
+            "abe"
           ],
           "family_name": "Lincoln",
           "suffix": "Jr",
@@ -118,6 +122,9 @@
             "Jebediah"
           ],
           "family_name": "Simpson",
+          "preferred_names": [
+            "abe"
+          ],
           "suffix": null,
           "gender": "M",
           "birth_date": "19690406",

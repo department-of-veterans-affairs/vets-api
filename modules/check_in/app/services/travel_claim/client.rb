@@ -12,16 +12,17 @@ module TravelClaim
     CLAIMANT_ID_TYPE = 'icn'
     TRIP_TYPE = 'RoundTrip'
 
-    attr_reader :settings, :check_in
+    attr_reader :settings, :check_in, :client_number
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
-                   :client_number, :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
+                   :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
 
     ##
     # Builds a Client instance
     #
     # @param opts [Hash] options to create a Client
     # @option opts [CheckIn::V2::Session] :check_in the check_in session object
+    # @option opts [String] :client_number the client number to use for the claim
     #
     # @return [TravelClaim::Client] an instance of this class
     #
@@ -32,6 +33,7 @@ module TravelClaim
     def initialize(opts)
       @settings = Settings.check_in.travel_reimbursement_api_v2
       @check_in = opts[:check_in]
+      @client_number = opts[:client_number] || settings.client_number
     end
 
     ##
@@ -134,7 +136,7 @@ module TravelClaim
     #
     def connection(server_url:)
       Faraday.new(url: server_url) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.response :raise_custom_error, error_prefix: service_name
         conn.response :betamocks if mock_enabled?
 

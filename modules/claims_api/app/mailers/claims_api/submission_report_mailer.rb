@@ -3,13 +3,15 @@
 module ClaimsApi
   class SubmissionReportMailer < ApplicationMailer
     RECIPIENTS = %w[
-      alex.wilson@oddball.io
+      drew.fisher@adhocteam.us
       emily.goodrich@oddball.io
       jennica.stiehl@oddball.io
       kayla.watanabe@adhocteam.us
       matthew.christianson@adhocteam.us
       rockwell.rice@oddball.io
       tyler.coleman@oddball.io
+      Janet.Coutinho@va.gov
+      Michael.Harlow@va.gov
     ].freeze
 
     def build(date_from, date_to, data)

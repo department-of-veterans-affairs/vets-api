@@ -7,13 +7,13 @@ RSpec.describe Sidekiq::Form526HistoricalDataExporter::Queuer, type: :job do
   subject { described_class }
 
   describe 'queue_chunks' do
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
 
     context 'with submission after exporter start_date' do
-      let(:saved_claim) { FactoryBot.create(:va526ez) }
+      let(:saved_claim) { create(:va526ez) }
       let(:submission) do
         create(:form526_submission,
                user_uuid: user.uuid,
@@ -56,7 +56,7 @@ RSpec.describe Sidekiq::Form526HistoricalDataExporter::Queuer, type: :job do
       end
 
       context 'a second submission' do
-        let(:saved_claim2) { FactoryBot.create(:va526ez) }
+        let(:saved_claim2) { create(:va526ez) }
         let(:submission2) do
           create(:form526_submission,
                  user_uuid: user.uuid,

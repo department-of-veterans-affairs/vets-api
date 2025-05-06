@@ -8,7 +8,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     skip_before_action :authenticate, only: %w[index_optional_auth access_token_auth access_token_optional_auth]
     before_action :load_user, only: %(index_optional_auth)
     before_action lambda {
-                    access_token_authenticate(skip_error_handling: params[:skip_error_handling] == 'true')
+                    access_token_authenticate(skip_render_error: params[:skip_render_error] == 'true')
                   }, only: %(access_token_auth)
 
     attr_reader :payload
@@ -95,7 +95,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'user.fingerprint does not match request IP' do
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let!(:user) do
+          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+        end
         let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
@@ -107,6 +109,34 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'does not prevent authentication' do
           expect(subject).to have_http_status(:ok)
+        end
+      end
+    end
+
+    shared_context 'mpi profile validation' do
+      before { allow_any_instance_of(SignIn::UserLoader).to receive(:find_valid_user).and_return(nil) }
+
+      context 'and the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_error) { 'Death Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
+        end
+      end
+
+      context 'and the MPI profile has an id theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_error) { 'Theft Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
         end
       end
     end
@@ -138,7 +168,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an expired JWT' do
           let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expiration_time) { 1.day.ago }
           let(:expected_error) { 'Access token has expired' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -156,12 +186,23 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
           let!(:user) do
-            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
+            create(:user,
+                   :loa3,
+                   uuid: access_token_object.user_uuid,
+                   fingerprint: request.remote_ip,
+                   session_handle: access_token_object.session_handle)
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+          let(:deceased_date) { nil }
+          let(:id_theft_flag) { false }
+          let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+          before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
           it_behaves_like 'user fingerprint validation'
+
+          it_behaves_like 'mpi profile validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -190,7 +231,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expiration_time) { 1.day.ago }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -212,8 +253,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+        before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
         it_behaves_like 'user fingerprint validation'
+
+        it_behaves_like 'mpi profile validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -240,7 +288,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'user.fingerprint does not match request IP' do
-        let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
+        let!(:user) do
+          create(:user, :loa3, uuid: access_token_object.user_uuid, session_handle: access_token_object.session_handle)
+        end
         let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
         let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
@@ -251,6 +301,32 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'does not prevent authentication' do
           expect(subject).to have_http_status(:ok)
+        end
+      end
+    end
+
+    shared_context 'mpi profile validation' do
+      context 'and the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_error) { 'Death Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
+        end
+      end
+
+      context 'and the MPI profile has an id theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_error) { 'Theft Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
         end
       end
     end
@@ -281,7 +357,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an expired JWT' do
           let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expiration_time) { 1.day.ago }
           let(:expected_error) { 'Access token has expired' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -303,8 +379,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+          let(:deceased_date) { nil }
+          let(:id_theft_flag) { false }
+          let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+          before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
           it_behaves_like 'user fingerprint validation'
+
+          it_behaves_like 'mpi profile validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -337,7 +420,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expiration_time) { 1.day.ago }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -359,8 +442,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+        before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
         it_behaves_like 'user fingerprint validation'
+
+        it_behaves_like 'mpi profile validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -375,9 +465,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
   end
 
   describe '#access_token_authenticate' do
-    subject { get :access_token_auth, params: { skip_error_handling: } }
+    subject { get :access_token_auth, params: { skip_render_error: } }
 
-    let(:skip_error_handling) { false }
+    let(:skip_render_error) { false }
 
     shared_context 'error response' do
       let(:expected_error) { 'Access token JWT is malformed' }
@@ -392,7 +482,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'when skip_error_handling is true' do
-        let(:skip_error_handling) { true }
+        let(:skip_render_error) { true }
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -419,7 +509,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'when skip_error_handling is true' do
-        let(:skip_error_handling) { true }
+        let(:skip_render_error) { true }
 
         it 'does not log an error to sentry' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry)
@@ -454,7 +544,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         context 'and access_token is an expired JWT' do
           let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-          let(:expiration_time) { Time.zone.now - 1.day }
+          let(:expiration_time) { 1.day.ago }
           let(:expected_error) { 'Access token has expired' }
           let(:expected_error_json) { { 'errors' => expected_error } }
 
@@ -504,7 +594,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'and access_token is an expired JWT' do
         let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-        let(:expiration_time) { Time.zone.now - 1.day }
+        let(:expiration_time) { 1.day.ago }
         let(:expected_error) { 'Access token has expired' }
         let(:expected_error_json) { { 'errors' => expected_error } }
 

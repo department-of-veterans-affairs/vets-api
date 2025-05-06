@@ -67,6 +67,75 @@ http_interactions:
       - origin; dur=46
     body:
       encoding: UTF-8
-      string: '{"access_token":"eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Im9hdXRoLWNsaWVudCIsInN1YiI6ImM3ZDZlMGZjOWEzOSIsImF1dGhlbnRpY2F0ZWQiOnRydWUsImF1dGhlbnRpY2F0aW9uQXV0aG9yaXR5IjoiZ292LnZhLm1vYmlsZS5vYXV0aC52MSIsImlkVHlwZSI6Ik1PQklMRV9PQVVUSF9TVFNfQ0xJRU5UX0lEIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJvbkJlaGFsZk9mIjp7ImlkVHlwZSI6ImljbiIsImlkIjoiMTAxMjcwNDY4NlYxNTk4ODcifSwidmFtZi5hdXRoLnJlc291cmNlcyI6WyJeLiooXC8pP3NpdGVbc10_XC8oZGZuLSk_NDUzXC9wYXRpZW50W3NdP1wvMzUxODVcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvRURJUElcLzE2MDc2OTQ5MDMoXC8uKik_JCIsIl4uKihcLyk_cGF0aWVudFtzXT9cLyhJQ05cLyk_MTAxMjcwNDY4NlYxNTk4ODcoXC8uKik_JCJdLCJ2ZXJzaW9uIjoyLjgsImZpcnN0TmFtZSI6IlZBLmdvdiBTaWdudXAgKFNRQSkiLCJhdWQiOiJjN2Q2ZTBmYzlhMzkiLCJuYmYiOjE2OTI5MjExMTMsInNzdCI6MTY5MjkyMTI5MywidmFtZi5hdXRoLnJvbGVzIjpbInZldGVyYW4iXSwidXNlclR5cGUiOiJvbi1iZWhhbGYtb2YiLCJleHAiOjE2OTI5MjIxOTMsImlhdCI6MTY5MjkyMTI5MywianRpIjoiMzQ2M2I4YjQtM2Y5Zi00ZTZiLWIzYjItNzBlMGEwOGM4OTE4In0.LXAxWbzCmVZEothmkV3CFi5Jitx8MYnmkPSIqOkWghOz2wZJV7SX96bBhZ3zK5xUYlxwQ_ElwKU3otb47IeWK3XflbW1K1m8HbZ5qtKgfofv4sk0xM7UEafRQdmLGQOX0ClqbmMrNss12z5Ay0BSBpltoBGekKyRcwRerhP35o4d0uHKDY8JanhljylZupfO8e5Kpx8R0UfL1rXRXjhAWTbf23oJOB8onvJ_RZz1YHXQU-M34-faj_iHKrms3t9h7n3fhJKYciYOAfxN2feeOpFJ95Zt-mJGARUY3ryeIXFm5HJjL1KTjZ1eB9NmX7H2ST3uqax0PY5biYiiwX1a2g","token_type":"Bearer","expires_in":899}'
+      string: '{"access_token":"eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Im9hdXRoLWNsaWVudCIsInN1YiI6ImM3ZDZlMGZjOWEzOSIsImF1dGhlbnRpY2F0ZWQiOnRydWUsImF1dGhlbnRpY2F0aW9uQXV0aG9yaXR5IjoiZ292LnZhLm1vYmlsZS5vYXV0aC52MSIsImlkVHlwZSI6Ik1PQklMRV9PQVVUSF9TVFNfQ0xJRU5UX0lEIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJvbkJlaGFsZk9mIjp7ImlkVHlwZSI6ImljbiIsImlkIjoiMTAxMjcwNDY4NlYxNTk4ODcifSwidmFtZi5hdXRoLnJlc291cmNlcyI6WyJeLiooLyk_c2l0ZVtzXT8vKGRmbi0pPzQ1My9wYXRpZW50W3NdPy8zNTE4NS9hcHBvaW50bWVudHMoLy4qKT8kIiwiXi4qKC8pP3BhdGllbnRbc10_L0VESVBJLzE2MDc2OTQ5MDMoLy4qKT8kIiwiXi4qKC8pP3BhdGllbnRbc10_LyhJQ04vKT8xMDEyNzA0Njg2VjE1OTg4NygvLiopPyQiXSwidmVyc2lvbiI6Mi44LCJmaXJzdE5hbWUiOiJWQS5nb3YgU2lnbnVwIChTUUEpIiwiYXVkIjoiYzdkNmUwZmM5YTM5IiwibmJmIjoxNjkyOTIxMTEzLCJzc3QiOjE2OTI5MjEyOTMsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInVzZXJUeXBlIjoib24tYmVoYWxmLW9mIiwiZXhwIjoyMDkyOTIyMTkzLCJpYXQiOjE2OTI5MjEyOTMsImp0aSI6IjM0NjNiOGI0LTNmOWYtNGU2Yi1iM2IyLTcwZTBhMDhjODkxOCJ9.Hbl4IWvV6zsPS9oeFAtzeCTMxPvlPkmJy11WzOLk4TV3-XEwn3c5rRz1ZISpOGiFsnmOq4faYpiLS8g3QCyjetJSbH9JU1QSXU9s6xGbBTGg1rmWzUyePUbvMukPsF5Ig-oqdTs_K58J3ylUOANJKv6DRd3PsYjlWvMqpyiNH63NCqmvN2RyhUO_Q4sRw-lA-sFhGBvuUeeiZL9kt9UeuwTvKJLR5eYhwB_aZI4XLoF3Cmlnje4p8hxaRMzGF6h_9WbA0j8M0GP1r5NkAoVqgmZ2Cs9WwTViOd7xKFLkdX67ZYRyvbjvoejrvkl85Vi2cWTAH7piCeQSRx3r_Dg-fw-53iu5IHC_0nhwhx-VdvSIoSGya_qRowzEzOaITQv5JxXZzgh2Cb5HdzcFBPb6k-MB_rSZh6htSpF9g64vzHGlJjOwa4zUQcab6QnIayJcg8OjF0JK5rtUe3_Vl3Y2_S-0RdogORNW61swjlG7UcZxUegn4Ac3XOxlHKEBUDCeZK_6nWzPmYJzUSPlVU_vQCnF04kCE34dlH3LGgpaT_s_aysyILl7J76hvl526muHx_3dyoliGgDB08LAJtXn56NeqrGzmnv_sli0V-spB4h6bnvMdqc1YSXARpoRiKms9l8SLspyWRikhreMzzon1ajUdXS0mEroxPPJZCq_s9c","token_type":"Bearer","expires_in":899}'
+  recorded_at: Wed, 26 Oct 2022 18:30:02 GMT
+- request:
+    method: get
+    uri: https://veteran.apps-staging.va.gov/sts/oauth/v1/jwks
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Frame-Options:
+      - allow-from https://nextgenid-mbetenantworkflow.azurewebsites.net
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - frame-ancestors https://nextgenid-mbetenantworkflow.azurewebsites.net
+      Etag:
+      - W/"dba68a519b00d7f452e79971a398650f"
+      X-Request-Id:
+      - 5b1d220c-4b01-4409-b9a5-367ab3c99ca9
+      X-Runtime:
+      - '0.026178'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      X-Node:
+      - sandbox-core-02.idmeinc.net
+      Vary:
+      - Accept-Encoding
+      Expires:
+      - Wed, 26 Jul 2023 19:56:07 GMT
+      Cache-Control:
+      - max-age=0, no-cache, no-store
+      Pragma:
+      - no-cache
+      Date:
+      - Wed, 26 Jul 2023 19:56:07 GMT
+      Content-Length:
+      - '14658'
+      Connection:
+      - keep-alive
+      Server-Timing:
+      - ak_p; desc="1690401366974_1752320020_1303469004_11342_12901_31_-_-";dur=1
+      - cdn-cache; desc=MISS
+      - edge; dur=68
+      - origin; dur=46
+    body:
+      encoding: UTF-8
+      string: '{"keys":[{"kty":"RSA","e":"AQAB","use":"sig","kid":"c9233bd7a62406b325c3cbf9778ea1ec75fa6de587640ee6d522e1bda2251277","alg":"RS512","n":"rGRLjxGb2ygtXWEEC99h5Z__PrAAqf0_wXQcFDnbV1bCp2rfv1xprPS-Mhi_mLh4YVBVKfD5vz0X9eHq1ieua_prgIgloT4doOzphkPTVoALQcm7HmBEWOs3r_nOIZMyOomPb-i4EqNITqD-qEdxGce5-GuopT1BotKzwtX5m7YlqviLFvyCQIRxr1C8GspAjyrODZVTTiKN0nyQKO3EUQZ2ietC52sbnSlnFOHbIpRP1mBrRvkELYIk8gfInMNvSk98SeWd2dDGe48OKNAzR2zGWYwIvxChBAoxahQ1Rh89WF1zKWIRTxYTuBJP3owBJdcfDcvTxovW5y6ciL0KyJKkZgyRJuBvIt8P9tEus8ef9s_3dRnKJi46uRolre5snXWIAAf-fUZvHdnwPLfANgqpNauVPwjtC_MGvbXYALdyCpIUmuRhWX_OHWYl7PTjllMezjVNylSK-2QVc6M7U3OXt00Q8poRKEUquowNPgbNaQnBzOtOEnpqCNIl0_86Qf8QLoSbdF4B0Yr2LJPraPsFxT3xdbcg9bS8vvGWJ2a2KmLqDKmpm6e9Cr3QZ-2-rUBn4KURjnV2KWQM-6tYwUTV0o467OaCNwkUSOqaPUuMbRHR7L5YTuA8BkJsPv_6pZe3VD74N9kbSMlt7RC2Qo2FCyxRwUtdSzTjheJwrvs"}]}'
   recorded_at: Wed, 26 Oct 2022 18:30:02 GMT
 recorded_with: VCR 6.1.0

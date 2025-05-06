@@ -12,6 +12,7 @@ jobs:
     name: Audit Service Tags
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
       CI: true
       RAILS_ENV: test
       TERM: xterm-256color
@@ -20,14 +21,6 @@ jobs:
     runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Remove Review label
-        if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
 
       - uses: docker/login-action@v3
         with:
@@ -53,6 +46,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=${{ steps.ecr-login.outputs.registry }}/moby/buildkit:buildx-stable-1
 
       - name: Build Docker Image
         uses: docker/build-push-action@v6
@@ -70,7 +65,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Database
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           timeout_minutes: 20
           retry_wait_seconds: 3 # Seconds
@@ -88,7 +83,7 @@ jobs:
 
       - name: Run service tags audit controllers task
         timeout-minutes: 20
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           timeout_minutes: 20
           retry_wait_seconds: 3 # Seconds

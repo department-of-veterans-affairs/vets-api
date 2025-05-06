@@ -4,17 +4,18 @@ require 'evss/disability_compensation_form/service'
 require 'evss/pciu_address/service'
 require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
+require 'vets/model'
 
 module VA526ez
   class FormSpecialIssue
-    include Virtus.model
+    include Vets::Model
 
     attribute :code, String
     attribute :name, String
   end
 
   class FormRatedDisability
-    include Virtus.model
+    include Vets::Model
 
     attribute :name, String
     attribute :rated_disability_id, String
@@ -27,13 +28,13 @@ module VA526ez
   end
 
   class FormRatedDisabilities
-    include Virtus.model
+    include Vets::Model
 
-    attribute :rated_disabilities, Array[FormRatedDisability]
+    attribute :rated_disabilities, FormRatedDisability, array: true
   end
 
   class FormPaymentAccountInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :account_type, String
     attribute :account_number, String
@@ -42,19 +43,19 @@ module VA526ez
   end
 
   class FormAddress
-    include Virtus.model
+    include Vets::Model
 
-    attribute :country
-    attribute :city
-    attribute :state
-    attribute :zip_code
-    attribute :address_line_1
-    attribute :address_line_2
-    attribute :address_line_3
+    attribute :country, String
+    attribute :city, String
+    attribute :state, String
+    attribute :zip_code, String
+    attribute :address_line_1, String
+    attribute :address_line_2, String
+    attribute :address_line_3, String
   end
 
   class FormContactInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :mailing_address, FormAddress
     attribute :primary_phone, String
@@ -62,7 +63,7 @@ module VA526ez
   end
 
   class FormVeteranContactInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :veteran, FormContactInformation
   end
@@ -70,9 +71,10 @@ module VA526ez
   # internal form prefill
   # does not reach out to external services
   class Form526Prefill
-    include Virtus.model
+    include Vets::Model
 
     attribute :started_form_version, String
+    attribute :sync_modern_0781_flow, Bool
   end
 end
 
@@ -124,21 +126,21 @@ class FormProfiles::VA526ez < FormProfile
 
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
-      provider: nil,
+      provider: :lighthouse,
       options: {
         icn: user.icn.to_s,
         auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
       },
       current_user: user,
-      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
+      feature_toggle: nil
     )
-
-    response = api_provider.get_rated_disabilities
+    invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
+    response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
     ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
-      rated_disabilities: response.rated_disabilities
+      rated_disabilities: response.rated_disabilities.map(&:to_h)
     )
   end
 
@@ -166,9 +168,8 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_form526_prefill
     VA526ez::Form526Prefill.new(
-      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
-      # '2022' means the Toxic Exposure 1.0 flag.
-      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil
+      started_form_version: '2022',
+      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
     )
   end
 
@@ -186,25 +187,26 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_veteran_contact_information
-    return {} unless user.authorize :evss, :access?
+    if Flipper.enabled?(:remove_pciu, user)
+      return {} unless user.authorize :va_profile, :access_to_v2?
 
-    contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu, user)
-                     initialize_vets360_contact_info
-                   else
-                     # fill in blank values with PCIU data
-                     initialize_vets360_contact_info.merge(
-                       mailing_address: get_common_address,
-                       email_address: extract_pciu_data(:pciu_email),
-                       primary_phone: pciu_us_phone
-                     ) { |_, old_val, new_val| old_val.presence || new_val }
-                   end
+      contact_info = initialize_vets360_contact_info
+    else
+      return {} unless user.authorize :evss, :access?
+
+      contact_info = initialize_vets360_contact_info.merge(
+        mailing_address: get_common_address,
+        email_address: extract_pciu_data(:pciu_email),
+        primary_phone: pciu_us_phone
+      ) { |_, old_val, new_val| old_val.presence || new_val }
+
+    end
     # Logging was added below to contrast/compare completeness of contact information returned
     # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
-                                                                              user)}," \
-                        "mailing_address=#{contact_info[:mailing_address].present?}," \
-                        "email_address=#{contact_info[:email_address].present?}," \
-                        "primary_phone=#{contact_info[:primary_phone].present?}")
+    Rails.logger.info("remove_pciu=#{Flipper.enabled?(:remove_pciu, user)}," \
+                      "mailing_address=#{contact_info[:mailing_address].present?}," \
+                      "email_address=#{contact_info[:email_address].present?}," \
+                      "primary_phone=#{contact_info[:primary_phone].present?}")
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 
@@ -280,11 +282,12 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_payment_information
-    return {} unless user.authorize(:ppiu, :access?) && user.authorize(:evss, :access?)
+    return {} unless user.authorize(:lighthouse, :direct_deposit_access?) && user.authorize(:evss, :access?)
 
     provider = ApiProviderFactory.call(type: ApiProviderFactory::FACTORIES[:ppiu],
+                                       provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
                                        current_user: user,
-                                       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+                                       feature_toggle: nil)
     response = provider.get_payment_information
     raw_account = response.responses.first&.payment_account
 
@@ -299,13 +302,13 @@ class FormProfiles::VA526ez < FormProfile
       {}
     end
   rescue => e
-    log_ppiu_error(e, provider)
+    lighthouse_direct_deposit_error(e, provider)
     {}
   end
 
-  def log_ppiu_error(e, provider)
+  def lighthouse_direct_deposit_error(e, provider)
     method_name = '#initialize_payment_information'
-    error_message = "#{method_name} Failed to retrieve PPIU data from #{provider.class}: #{e.message}"
+    error_message = "#{method_name} Failed to retrieve DirectDeposit data from #{provider.class}: #{e.message}"
     Rails.logger.error(error_message)
   end
 

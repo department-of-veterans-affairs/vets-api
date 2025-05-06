@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"addressId":null,"addressLine1":"37 1st st","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE/CHOICE","addressType":"Domestic","cityName":"Brooklyn","country":{"countryName":"USA","countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":null,"countyName":null},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"NY"},"intPostalCode":null,"zipCode5":"11249","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":null,"sourceDate":"2024-08-27T18:51:06.012Z","effectiveStartDate":null,"effectiveEndDate":null}}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1250650972", dtSInfo;desc="0"
+      - dtRpid;desc="1655972544", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 39f1eab3-5e9a-4217-8091-de513ce9ad53
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 22:32:49 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"d8156f9f-06c0-4b0c-b0f7-9203b6cda078","status":"RECEIVED"}'
+  recorded_at: Thu, 12 Sep 2024 22:32:49 GMT
+recorded_with: VCR 6.3.1

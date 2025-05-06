@@ -1,0 +1,67 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter1606/claimants/claimantId
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"796121200"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 15 Jun 2022 18:42:37 GMT
+    body:
+      encoding: UTF-8
+      string: '{"claimantId":600000001}'
+  recorded_at: Wed, 15 Jun 2022 18:42:36 GMT
+- request:
+    method: get
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimant/600000001/claimType/Chapter1606/claimstatus?latest=false
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 15 Jun 2022 18:42:37 GMT
+    body:
+      encoding: UTF-8
+      string: '{"claimantId":600000001,"claimServiceId":99000000113358369,"claimStatus":"ELIGIBLE","confirmationNumber":null,"receivedDate":"2022-06-13"}'
+  recorded_at: Mon, 11 Jul 2022 20:49:28 GMT
+recorded_with: VCR 6.1.0

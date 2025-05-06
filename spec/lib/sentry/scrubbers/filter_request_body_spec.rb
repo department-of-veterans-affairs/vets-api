@@ -36,7 +36,7 @@ RSpec.describe Sentry::Scrubbers::FilterRequestBody do
         }
       result = @scrubber.process(sentry_request)
 
-      expect(result['request']['data']).to be(nil)
+      expect(result['request']['data']).to be_nil
     end
   end
 

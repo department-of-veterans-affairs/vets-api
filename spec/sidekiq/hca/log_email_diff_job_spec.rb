@@ -7,6 +7,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
   let!(:user) { create(:user, :loa3) }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     in_progress_form.update!(user_uuid: user.uuid)
     allow(User).to receive(:find).with(user.uuid).and_return(user)
   end
@@ -14,9 +15,12 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
   def self.expect_does_nothing
     it 'does nothing' do
       expect(StatsD).not_to receive(:increment)
-      expect($redis).not_to receive(:set)
 
       subject
+
+      expect(FormEmailMatchesProfileLog).not_to receive(:create).with(
+        user_uuid: user.uuid, in_progress_form_id: in_progress_form.id
+      )
     end
   end
 
@@ -26,7 +30,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
         subject
       end.to trigger_statsd_increment("api.1010ez.in_progress_form_email.#{tag}")
 
-      expect($redis.get("HCA::LogEmailDiffJob:#{user.uuid}")).to eq('t')
+      expect(InProgressForm.where(user_uuid: user.uuid, id: in_progress_form.id)).to exist
     end
   end
 
@@ -42,16 +46,6 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
     end
 
     context 'when form email is present' do
-      context 'when email confirmation is different' do
-        before do
-          in_progress_form.update!(
-            form_data: JSON.parse(in_progress_form.form_data).except('view:email_confirmation').to_json
-          )
-        end
-
-        expect_does_nothing
-      end
-
       context 'when va profile email is different' do
         expect_email_tag('different')
       end
@@ -63,9 +57,9 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
         expect_email_tag('same')
 
-        context 'when redis key for the user is already set' do
+        context 'when FormEmailMatchesProfileLog already exists' do
           before do
-            $redis.set("HCA::LogEmailDiffJob:#{user.uuid}", 't')
+            FormEmailMatchesProfileLog.create(user_uuid: user.uuid, in_progress_form_id: in_progress_form.id)
           end
 
           expect_does_nothing

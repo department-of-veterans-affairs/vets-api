@@ -32,7 +32,13 @@ module EVSS
       def get_letters
         with_monitoring do
           raw_response = perform(:get, '')
-          EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
+          response = EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
+          if Flipper.enabled?(:letters_hide_service_verification_letter)
+            response.letters.reject! do |l|
+              l.letter_type == 'service_verification'
+            end
+          end
+          response
         end
       rescue => e
         handle_error(e)

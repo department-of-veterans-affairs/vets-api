@@ -1,0 +1,76 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://api.wellhive.com/care-navigation/v1/appointments/J9BhspdR/submit
+      body:
+        encoding: UTF-8
+        string: '{"networkId":"sandbox-network-5vuTac8v","providerServiceId":"9mN718pH","slotIds":["5vuTac8v-practitioner-4-role-1|2a82f6c9-e693-4091-826d-97b392958301|2024-11-04T17:00:00Z|30m0s|1732735998236|ov"],"referral":{"referralNumber":"12345"},"additionalPatientAttributes":{"name":{"family":"Smith","given":["Sarah","Elizabeth"]},"phone":"407-555-8899","email":"sarah.smith@email.com","birthDate":"1985-03-15","gender":"female","address":{"line":["742
+          Sunshine Boulevard","Apt 15B"],"city":"Orlando","state":"FL","country":"USA","postalCode":"32801","type":"both"}}}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization: Bearer <TOKEN>
+        X-Request-Id:
+          - '06104806-3b72-46f3-809b-aa73ac82a2fe'
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 03 Jan 2025 18:37:45 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - '71'
+        Connection:
+          - keep-alive
+        Content-Security-Policy:
+          - frame-ancestors 'none'
+        Strict-Transport-Security:
+          - max-age=6307200; includeSubDomains; preload
+        Traceparent:
+          - 00-d0dd452c145554577bd09a839de81928-3ec20ee445d7c8f9-01
+        X-Content-Type-Options:
+          - nosniff
+        X-Request-Id:
+          - 248de48e-2d88-4b12-b114-c83e3c5d5abe
+        X-Wellhive-Trace-Id:
+          - d0dd452c145554577bd09a839de81928
+      body:
+        encoding: UTF-8
+        string: |
+          {
+            "appointmentDetails": {
+              "cancelReason": {
+                "id": "930c8a9f-ce78-449c-8dda-d5428d183ec8",
+                "name": "Patient"
+              },
+              "isLatest": true,
+              "lastRetrieved": "2002-01-31T04:51:25Z",
+              "phone": "555-555-1000",
+              "start": "2026-01-01T17:00:00Z",
+              "status": "booked"
+            },
+            "error": "conflict",
+            "id": "J9BhspdR",
+            "networkId": "00eff3f3-ecfb-41ff-9ebc-78ed811e17f9",
+            "patientId": "b6cc1875-5313-4ca8-af8b-74adac0c5d0c",
+            "providerServiceId": "69cd9203-5e92-47a3-aa03-94b03752872a",
+            "referral": {
+              "referralNumber": "12345"
+            },
+            "slotIds": [
+              "dba0855e-5681-411d-801c-036f4f046988"
+            ],
+            "state": "submitted"
+          }
+    recorded_at: Tue, 07 Jan 2025 18:36:41 GMT
+recorded_with: VCR 6.3.1

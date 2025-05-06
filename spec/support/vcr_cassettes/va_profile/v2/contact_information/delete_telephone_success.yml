@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/telephones
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-06-06T15:35:55.000Z","sourceSystemUser":"64762895576664260","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":"2018-06-06T15:35:55.000Z"}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.000Z","sourceSystemUser":"123498767V234859","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":false,"voiceMailAcceptableInd":true,"effectiveStartDate":"2024-08-27T18:51:06.000Z","effectiveEndDate":"2024-08-27T18:51:06.000Z"}}'
     headers:
       Accept:
       - application/json

@@ -5,8 +5,8 @@ require 'sm/client'
 
 describe 'sm client' do
   describe 'messages' do
-    before(:all) do
-      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+    before do
+      VCR.use_cassette 'sm_client/session' do
         @client ||= begin
           client = SM::Client.new(session: { user_id: '10616687' })
           client.authenticate
@@ -58,7 +58,7 @@ describe 'sm client' do
     end
 
     context 'creates' do
-      before(:all) do
+      before do
         VCR.use_cassette 'sm_client/messages/creates/a_new_message_without_attachments' do
           message_attributes = attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration')
           @params = message_attributes.slice(:subject, :category, :recipient_id, :body)

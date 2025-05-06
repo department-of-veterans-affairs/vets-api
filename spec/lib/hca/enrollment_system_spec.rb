@@ -174,9 +174,7 @@ describe HCA::EnrollmentSystem do
   %w[veteran result].each do |file|
     let("test_#{file}") do
       JSON.parse(
-        File.read(
-          Rails.root.join('spec', 'fixtures', 'hca', "#{file}.json")
-        )
+        Rails.root.join('spec', 'fixtures', 'hca', "#{file}.json").read
       )
     end
   end
@@ -1554,6 +1552,10 @@ describe HCA::EnrollmentSystem do
       [
         'application/octet-stream',
         'PDF'
+      ],
+      [
+        'application/unknown-mime',
+        'PDF'
       ]
     ]
   )
@@ -1867,6 +1869,16 @@ describe HCA::EnrollmentSystem do
         end
 
         should_return_user_id
+      end
+
+      context 'when the user has no icn or edipi' do
+        before do
+          allow(current_user).to receive_messages(icn: nil, edipi: nil)
+        end
+
+        it 'returns the form template for an EZ submission' do
+          expect(ez_form_with_user).to eq(described_class.form_template('10-10EZ'))
+        end
       end
     end
   end

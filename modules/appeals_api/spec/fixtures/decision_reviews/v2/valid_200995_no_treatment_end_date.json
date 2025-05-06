@@ -1,0 +1,202 @@
+{
+  "data": {
+    "type": "supplementalClaim",
+    "attributes": {
+      "benefitType": "compensation",
+      "claimantType": "other",
+      "claimantTypeOtherValue": "Veteran Attorney",
+      "homeless": true,
+      "homelessLivingSituation": [
+        "I LIVE OR SLEEP IN A PLACE THAT IS NOT MEANT FOR REGULAR SLEEPING",
+        "I LIVE IN A SHELTER",
+        "I AM STAYING WITH A FRIEND OR FAMILY MEMBER, BECAUSE I AM UNABLE TO OWN A HOME RIGHT NOW",
+        "IN THE NEXT 30 DAYS, I WILL HAVE TO LEAVE A FACILITY, LIKE A HOMELESS SHELTER",
+        "IN THE NEXT 30 DAYS, I WILL LOSE MY HOME",
+        "NONE OF THESE SITUATIONS APPLY TO ME",
+        "OTHER"
+      ],
+      "homelessLivingSituationOther": "random words for other living situation ",
+      "homelessPointOfContact": "Shawn Hobkens Veteran Care Network",
+
+      "mstUpcomingEventDisclosure": "NOT APPLICABLE AND/OR NOT ENROLLED IN VHA HEALTHCARE",
+      
+      "homelessPointOfContactPhone": {"areaCode": "777", "phoneNumber": "9957023"},      
+      "veteran": {
+        "address": {
+          "addressLine1": "123 Main St",
+          "addressLine2": "Suite #1200",
+          "addressLine3": "Box 4",
+          "city": "New York",
+          "countryCodeISO2": "US",
+          "stateCode": "NY",
+          "zipCode5": "30012"
+        },
+        "phone": {
+          "countryCode": "03",
+          "areaCode": "555",
+          "phoneNumber": "8001111"
+        },
+        "email": "bobsemail@bobbytablesemail.com",
+        "timezone": "America/Chicago"
+      },
+      "claimant": {
+        "address": {
+          "addressLine1": "456 First St",
+          "addressLine2": "Apt 5",
+          "addressLine3": "Box 1",
+          "city": "Montreal",
+          "countryCodeISO2": "CA",
+          "zipCode5": "00000",
+          "internationalPostalCode": "A9999AAA"
+        },
+        "phone": {
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8111100",
+          "phoneNumberExt": "4"
+        },
+        "email": "joe@email.com",
+        "timezone": "America/Detroit"
+      },
+      "socOptIn": true,
+      "form5103Acknowledged": true,
+      "evidenceSubmission": {
+        "treatmentLocations": ["PRIVATE HEALTH CARE PROVIDER", "VA VET CENTER", "COMMUNITY CARE", "VA MEDICAL CENTERS (VAMC) AND COMMUNITY-BASED OUTPATIENT CLINICS (CBOC)", "DEPARTMENT OF DEFENSE (DOD) MILITARY TREATMENT FACILITY(IES) (MTF)"],
+        "treatmentLocationOther": "hospital that is not standard other more words more words hospital that is not standard other more words more words",
+        "evidenceType": ["upload", "retrieval"],
+        "retrieveFrom": [
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "X-Ray VAMC",
+              "evidenceDates": [
+                { "startDate": "2020-04-10"},
+                { "startDate": "2020-01-02", "endDate": "2020-02-01" },
+                { "startDate": "2020-02-20", "endDate": "2020-02-22" },
+                { "startDate": "2019-02-02", "endDate": "2020-02-03" }
+              ],
+              "noTreatmentDates": true
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "Blood Lab VA Facility",
+              "evidenceDates": [
+                { "startDate": "2020-02-20", "endDate": "2020-02-22" },
+                { "startDate": "2020-02-02", "endDate": "2020-02-07" }
+              ],
+              "noTreatmentDates": true
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "Doctor's Notes VAMC",
+              "evidenceDates": [
+                { "startDate": "2020-04-10", "endDate": "2020-04-10" }
+              ],
+              "noTreatmentDates": true
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "CT scan VA Medical Facility",
+              "evidenceDates": [
+                { "startDate": "2020-07-19", "endDate": "2020-07-19" },
+                { "startDate": "2018-03-06", "endDate": "2019-02-12" }
+              ],
+              "noTreatmentDates": true
+            }
+          },
+          {
+            "type": "retrievalEvidence",
+            "attributes": {
+              "locationAndName": "Lab work VAMC",
+              "evidenceDates": [
+                { "startDate": "2018-03-06", "endDate": "2018-03-06" },
+                { "startDate": "2018-01-15" }
+              ],
+              "noTreatmentDates": false
+            }
+          }
+        ]
+      }
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "right shoulder",
+        "decisionDate": "2000-01-08",
+        "socDate": "2020-04-30"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "lower back",
+        "decisionDate": "1900-01-06",
+        "socDate": "2021-02-24"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "torn rotator cuff",
+        "decisionDate": "1989-03-07",
+        "socDate": "2020-04-30"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "hearing loss",
+        "decisionDate": "1930-10-20",
+        "socDate": "2016-05-30"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "sciatica",
+        "decisionDate": "2007-01-19",
+        "socDate": "2012-01-02"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "bowel obstruction",
+        "decisionDate": "1999-12-29",
+        "socDate": "2019-08-13"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "right eye",
+        "decisionDate": "1920-04-02",
+        "socDate": "2019-11-19"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "left index finger",
+        "decisionDate": "2018-08-17",
+        "socDate": "2021-03-20"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "spinal compression",
+        "decisionDate": "2013-09-11",
+        "socDate": "2020-08-24"
+      }
+    }
+  ]
+}

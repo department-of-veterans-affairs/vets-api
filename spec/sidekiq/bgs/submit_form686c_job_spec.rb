@@ -5,9 +5,9 @@ require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
   let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
   let(:client_stub) { instance_double(BGS::Form686c) }
   let(:vet_info) do
@@ -60,20 +60,59 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       expect { job }.not_to raise_error
     end
 
-    it 'sends confirmation email' do
-      expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
-      expect(client_stub).to receive(:submit).once
+    context 'with separate emails by form' do
+      it 'sends confirmation email for 686c only' do
+        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+        expect(client_stub).to receive(:submit).once
+        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
 
-      expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user.va_profile_email,
-        'fake_template_id',
-        {
-          'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY'
-        }
-      )
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          user.va_profile_email,
+          'fake_received686',
+          { 'confirmation_number' => dependency_claim.confirmation_number,
+            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'VeteranFacingServices::NotificationCallback::SavedClaim',
+            callback_metadata: { email_template_id: 'fake_received686',
+                                 email_type: :received686,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim.id,
+                                 service_name: 'dependents' } }
+        )
 
-      expect { job }.not_to raise_error
+        expect { job }.not_to raise_error
+      end
+
+      it 'does not send confirmation email for 686c_674 combo' do
+        allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
+        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+        expect(client_stub).to receive(:submit).once
+        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(true)
+
+        expect(VANotify::EmailJob).not_to receive(:perform_async)
+
+        expect { job }.not_to raise_error
+      end
+    end
+
+    context 'without separate emails by form' do
+      it 'sends confirmation email' do
+        expect(BGS::Form686c).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+        expect(client_stub).to receive(:submit).once
+        allow(Flipper).to receive(:enabled?).with(:dependents_separate_confirmation_email).and_return(false)
+
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          user.va_profile_email,
+          'fake_template_id',
+          {
+            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY'
+          }
+        )
+
+        expect { job }.not_to raise_error
+      end
     end
 
     context 'Claim is submittable_674' do

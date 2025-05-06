@@ -7,31 +7,31 @@ module SignIn
   module Logingov
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.logingov.oauth_url
+        IdentitySettings.logingov.oauth_url
       end
 
       def client_id
-        Settings.logingov.client_id
+        IdentitySettings.logingov.client_id
       end
 
       def redirect_uri
-        Settings.logingov.redirect_uri
+        IdentitySettings.logingov.redirect_uri
       end
 
       def logout_redirect_uri
-        Settings.logingov.logout_redirect_uri
+        IdentitySettings.logingov.logout_redirect_uri
       end
 
       def client_key_path
-        Settings.logingov.client_key_path
+        IdentitySettings.logingov.client_key_path
       end
 
       def client_cert_path
-        Settings.logingov.client_cert_path
+        IdentitySettings.logingov.client_cert_path
       end
 
       def single_sign_out_uri
-        Settings.logingov.sign_out_uri
+        IdentitySettings.logingov.sign_out_uri
       end
 
       def client_assertion_type
@@ -102,6 +102,10 @@ module SignIn
         30.minutes
       end
 
+      def log_prefix
+        '[SignIn][Logingov][Service]'
+      end
+
       def connection
         @connection ||= Faraday.new(
           base_path,
@@ -110,7 +114,7 @@ module SignIn
           ssl: { client_cert: ssl_cert,
                  client_key: ssl_key }
         ) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.response :snakecase
           conn.response :json, content_type: /\bjson$/

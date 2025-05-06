@@ -76,7 +76,7 @@ module SignIn
         refresh_token_hash:,
         parent_refresh_token_hash:,
         anti_csrf_token:,
-        last_regeneration_time: refresh_creation,
+        last_regeneration_time:,
         user_attributes: JSON.parse(user_attributes)
       )
     end
@@ -106,7 +106,11 @@ module SignIn
     end
 
     def refresh_expiration_time
-      @refresh_expiration_time ||= refresh_creation + client_config.refresh_token_duration
+      @refresh_expiration_time ||= last_regeneration_time + client_config.refresh_token_duration
+    end
+
+    def last_regeneration_time
+      @last_regeneration_time ||= Time.zone.now
     end
 
     def get_hash(object)

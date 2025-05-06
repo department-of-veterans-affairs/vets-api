@@ -37,8 +37,8 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
 
   context 'for a single claim' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
-                                     user_uuid: user.uuid)
+      create(:evss_claim, id: 1, evss_id: 600_118_851,
+                          user_uuid: user.uuid)
     end
 
     it 'sets 5103 waiver when requesting a decision' do
@@ -68,8 +68,8 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
 
     it 'user cannot access claim of another user' do
       sign_in_as(evss_user)
-      FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
-                                     user_uuid: 'xyz')
+      create(:evss_claim, id: 2, evss_id: 189_625,
+                          user_uuid: 'xyz')
       # check tagging of EVSSClaimsController.show RecordNotFound error
       allow(Sentry).to receive(:set_tags)
       expect(Sentry).to receive(:set_tags).with(team: 'benefits-memorial-1')
@@ -84,9 +84,9 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
         claim.requested_decision = false
         claim.save
 
-        expect(claim.requested_decision).to eq(false)
+        expect(claim.requested_decision).to be(false)
         post '/v0/evss_claims/600118851/request_decision'
-        expect(claim.reload.requested_decision).to eq(true)
+        expect(claim.reload.requested_decision).to be(true)
       end
     end
   end

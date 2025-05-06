@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'i18n'
+require 'support/codeowners_parser'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
+require 'support/excel_helpers'
 require 'support/fixture_helpers'
 require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
@@ -33,18 +35,22 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/ihub/appointments/response.rb'
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/va_profile/address_validation/configuration.rb'
+    add_filter 'lib/va_profile/v3/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
+    add_filter 'lib/search_gsa/response.rb'
     add_filter 'lib/va_profile/exceptions/builder.rb'
     add_filter 'lib/va_profile/response.rb'
     add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
+    add_filter 'modules/burials/lib/benefits_intake/submission_handler.rb'
     add_filter 'modules/check_in/config/initializers/statsd.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/health_quest/lib/health_quest.rb'
     add_filter 'modules/health_quest/lib/health_quest/engine.rb'
     add_filter 'modules/pensions/app/swagger'
+    add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
@@ -54,13 +60,15 @@ unless ENV['NOCOVERAGE']
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
+    add_group 'Banners', 'modules/banners/'
+    add_group 'Burials', 'modules/burials/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
-    add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IncomeAndAssets', 'modules/income_and_assets/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
@@ -77,13 +85,18 @@ unless ENV['NOCOVERAGE']
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
     add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
+    add_group 'VRE', 'modules/vre/'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
-    add_group 'VAForms', 'modules/va_forms/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     # End Modules
+
+    # Team Groups
+    codeowners_parser = CodeownersParser.new
+    octo_identity_files = codeowners_parser.perform('octo-identity')
+    add_group 'OctoIdentity', octo_identity_files
 
     if ENV['CI']
       SimpleCov.minimum_coverage 90
@@ -95,6 +108,14 @@ unless ENV['NOCOVERAGE']
       result = SimpleCov.result
       result.format! if ParallelTests.number_of_running_processes <= 1
     end
+  end
+end
+
+# @see https://medium.com/@petro.yakubiv/testing-time-and-date-in-rspec-98483ce7a138
+RSpec::Matchers.define :be_the_same_time_as do |expected|
+  match do |actual|
+    formatted = '%d/%m/%Y %H:%M:%S'
+    expect(expected.strftime(formatted)).to eq(actual.strftime(formatted))
   end
 end
 
@@ -163,6 +184,7 @@ RSpec.configure do |config|
 
   config.include SpecBuilders
   config.include SpoolHelpers
+  config.include ExcelHelpers
   config.include FixtureHelpers
 
   config.around(:example, :run_at) do |example|
@@ -175,7 +197,7 @@ RSpec.configure do |config|
   # in those modules have explicitly skipped the CSRF protection functionality
   lighthouse_dirs = %r{
     modules/
-    (appeals_api|apps_api|claims_api|openid_auth|va_forms|vba_documents|
+    (appeals_api|apps_api|claims_api|openid_auth|vba_documents|
       veteran|veteran_confirmation|veteran_verification)/
   }x
   config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|

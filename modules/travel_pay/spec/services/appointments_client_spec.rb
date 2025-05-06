@@ -67,6 +67,7 @@ describe TravelPay::AppointmentsClient do
     end
 
     allow_any_instance_of(TravelPay::AppointmentsClient).to receive(:connection).and_return(conn)
+    allow(StatsD).to receive(:measure)
   end
 
   context 'prod settings' do
@@ -88,14 +89,11 @@ describe TravelPay::AppointmentsClient do
   end
 
   context '/appointments' do
-    before do
-      allow_any_instance_of(TravelPay::TokenService)
-        .to receive(:get_tokens)
-        .and_return(*tokens)
-    end
+    expected_log_prefix = 'travel_pay.appointments.response_time'
+    expected_log_tag = ['travel_pay:get_all']
 
     it 'returns a response only with appointments with no claims' do
-      @stubs.get('/api/v1.1/appointments?excludeWithClaims=true') do
+      @stubs.get('/api/v1.2/appointments?excludeWithClaims=true') do
         [
           200,
           {},
@@ -111,11 +109,15 @@ describe TravelPay::AppointmentsClient do
       appts_response = client.get_all_appointments(*tokens, { 'excludeWithClaims' => true })
       actual_appt_ids = appts_response.body['data'].pluck('id')
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: expected_log_tag)
       expect(actual_appt_ids).to eq(expected_ids)
     end
 
     it 'returns a response with all appointments' do
-      @stubs.get('/api/v1.1/appointments') do
+      @stubs.get('/api/v1.2/appointments') do
         [
           200,
           {},
@@ -131,6 +133,10 @@ describe TravelPay::AppointmentsClient do
       appts_response = client.get_all_appointments(*tokens)
       actual_appt_ids = appts_response.body['data'].pluck('id')
 
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: expected_log_tag)
       expect(actual_appt_ids).to eq(expected_ids)
     end
   end

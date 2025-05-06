@@ -18,7 +18,7 @@
         "attributes": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["status", "dateRequestAccepted", "representative"],
+          "required": ["status", "createdAt", "representative"],
           "properties": {
             "status": {
               "type": "string",
@@ -30,33 +30,86 @@
                 "errored"
               ]
             },
-            "dateRequestAccepted": {
+            "createdAt": {
               "type": "string",
               "description": "Date request was first accepted",
               "format": "date"
             },
-            "representative": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["serviceOrganization"],
-              "properties": {
-                "serviceOrganization": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "required": ["poaCode"],
-                  "properties": {
-                    "poa_code": {
-                      "type": "string",
-                      "description": "Power of Attorney Code submitted for Veteran"
-                    }
+            "errors": {
+              "type": "array",
+              "description": "Error details if applicable",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string",
+                    "enum": [
+                      "PDF_SUBMISSION",
+                      "POA_UPDATE",
+                      "POA_ACCESS_UPDATE",
+                      "CLAIMANT_NOTIFICATION"
+                    ]
                   }
                 }
               }
             },
-            "previousPoa": {
-              "type": "string",
-              "nullable": true,
-              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "PDF_SUBMISSION",
+                      "POA_UPDATE",
+                      "POA_ACCESS_UPDATE",
+                      "CLAIMANT_NOTIFICATION"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "NOT_STARTED",
+                      "IN_PROGRESS",
+                      "SUCCESS",
+                      "FAILED"
+                    ]
+                  },
+                  "completedAt": {
+                    "type": ["string", "null"],
+                    "format": "date"
+                  },
+                  "nextStep": {
+                    "type": ["string", "null"],
+                    "enum": [
+                      "POA_UPDATE",
+                      "POA_ACCESS_UPDATE",
+                      "CLAIMANT_NOTIFICATION",
+                      null
+                    ]
+                  }
+                }
+              }
+            },
+            "representative": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["poaCode"],
+              "properties": {
+                "poaCode": {
+                  "type": "string",
+                  "description": "Power of Attorney Code submitted for Veteran"
+                }
+              }
             }
           }
         }

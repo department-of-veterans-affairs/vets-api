@@ -5,7 +5,7 @@ http_interactions:
     uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
     body:
       encoding: US-ASCII
-      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheGtwMGFlWEVKa01GdzJwNyIsInN1YiI6IjBvYWF4a3AwYWVYRUprTUZ3MnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2NDE4NzE1MDZ9.MNpLgdQsH3SKnuJECvSU9VHx07JHRdnblcGD4di5RioNWN0pfrXFf2chm8--iMlxVoJnVhc3pOjxbnbV68BlTFGixc2WZeZjqj1gyZu8JC4xydzeCu2MNP7K_BM2s7z0ASqJ55T5zHQHZDO120_QyoFxRgNwTyyn_rpCM4ihvY41ujxCEZQxR391uqBWd4RFJOqqbXSWJ6J97DToKvl-HI5FEovXhzw3PrH6nWp1xd1zHJ6oVrjzgEhPNb5pmJKKSExcu7-ahYbyZhGd065lFhNNG2bfz2Ysz0852fIWA78y4wXutUx_QI7P9zy7l1li1gWmf6kA1cOyVuAo5cukWdTw_yBWFD9ARtnG957OMjNSxispH3YfQiEJwHn2yue1flh0MO70tq75GnRBYGJuoWdEsrt8G7MkCqZRlfaEaxTPEBLPXhSIuNLBOKiDmgrcFlgjL6YyaAFe0FhWkptMWtpvEImcSmYortKl8P0bZaAAn2EO0n_4EcotHriC18VaRFO_yreMjKzJriZnZ5_fa6QjihuTpwmkrtnU7GJnx35N42VVb1CQ2EUue8VPau08BFHhJ1RLIzszHFkjPwz2LausdALxmoIeJbCU-MkgwXzB8WA3Xe_3oYNEX8ausS_B2L-VE-Ht1r55IJMgu1Mv1x0ATB0WZ-XheW91ND9EyHU&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjMyMDAwMjI1In0%3D
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=<TOKEN>&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjMyMDAwMjI1In0%3D
     headers:
       Accept:
       - application/json
@@ -39,7 +39,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnZIYlBtU0JOR3NnOXQwTHdHbEZqZFBsZHo5T3YzVWJxR3hCby1oOFdaUGMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzA2MDcsImV4cCI6MTY0MTg3MDkwNywiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.DSgQt4xC6FgqXuHo1OarhhFAR3jwnVfuZ9a_zI31cVGnG59IlfKMSCfPFnl-kDx-_snjcPkTg5sVMcxY8z8-oy5AWI3LKCW5fHPVea1UWD6OV_lEs07z1oGms6yjj7fhgBdak-utJdDElLeNLes7WScAf2M8kt7mKdfffepd6odaNTP7VR8pHkfx0VFGe-tdUGeXe6-359PtQsJz2jLJ9Fw0QxdawLVjsnCZLVBiHl6zENJHxLHNxL16V9ZPSpABuQlLBCDOnJbr5moeaUP9Ubmym4bVyYMJGqNcL1B5vKenyMdzHyYw2t92f2nsNTL_6QLUG_-adqkdioDZj2alRw","token_type":"Bearer","scope":"launch
+      string: '{"access_token":"<TOKEN>","token_type":"Bearer","scope":"launch
         patient/Patient.read patient/Practitioner.read patient/Observation.read patient/MedicationRequest.read
         system/Patient.read","expires_in":300,"state":null,"patient":"32000225"}'
   recorded_at: Tue, 11 Jan 2022 03:10:08 GMT
@@ -143,6 +143,9 @@ http_interactions:
           ]
         },
         "type": "allergy",
+        "category": [
+          "environment"
+        ],
         "code": {
           "coding": [
             {

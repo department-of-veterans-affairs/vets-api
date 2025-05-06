@@ -7,7 +7,7 @@ module MHV
   module AccountCreation
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.mhv.account_creation.host
+        IdentitySettings.mhv.account_creation.host
       end
 
       def service_name
@@ -39,16 +39,16 @@ module MHV
       end
 
       def access_key
-        Settings.mhv.account_creation.access_key
+        IdentitySettings.mhv.account_creation.access_key
       end
 
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-          conn.use :breakers
+          conn.use(:breakers, service_name:)
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
           conn.response :json
-          conn.response :betamocks if Settings.mhv.account_creation.mock
+          conn.response :betamocks if IdentitySettings.mhv.account_creation.mock
         end
       end
 
@@ -68,7 +68,7 @@ module MHV
         SignInService::Sts.new(
           service_account_id: mhv_sts_settings.service_account_id,
           issuer: mhv_sts_settings.issuer,
-          private_key_path: Settings.sign_in.sts_client.key_path,
+          private_key_path: IdentitySettings.sign_in.sts_client.key_path,
           scopes: sts_scopes,
           user_identifier:,
           user_attributes: { icn: user_identifier }
@@ -80,7 +80,7 @@ module MHV
       end
 
       def mhv_sts_settings
-        Settings.mhv.account_creation.sts
+        IdentitySettings.mhv.account_creation.sts
       end
     end
   end

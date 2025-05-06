@@ -16,7 +16,6 @@ require 'pdf_fill/filler'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ApplicationRecord
-  self.ignored_columns += %w[itf_datetime]
   include SetGuid
 
   validates(:form, presence: true)
@@ -28,14 +27,19 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
+  has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
+  has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
+  has_many :claim_va_notifications, dependent: :destroy
 
-  after_create ->(claim) { StatsD.increment('saved_claim.create', tags: ["form_id:#{claim.form_id}"]) }
-  after_destroy ->(claim) { StatsD.increment('saved_claim.destroy', tags: ["form_id:#{claim.form_id}"]) }
+  belongs_to :user_account, optional: true
+
+  after_create :after_create_metrics
+  after_destroy :after_destroy_metrics
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless instance_of?(::SavedClaim::Burial)
+    self.form_id = self.class::FORM.upcase unless [SavedClaim::DependencyClaim].any? { |k| instance_of?(k) }
   end
 
   def self.add_form_and_validation(form_id)
@@ -51,16 +55,6 @@ class SavedClaim < ApplicationRecord
     files.find_each { |f| f.update(saved_claim_id: id) }
 
     Lighthouse::SubmitBenefitsIntakeClaim.perform_async(id)
-  end
-
-  def submit_to_structured_data_services!
-    # Only 21P-530 burial forms are supported at this time
-    unless %w[21P-530 21P-530V2].include?(form_id)
-      err_message = "Unsupported form id: #{form_id}"
-      raise Common::Exceptions::UnprocessableEntity.new(detail: err_message), err_message
-    end
-
-    StructuredData::ProcessDataJob.perform_async(id)
   end
 
   def confirmation_number
@@ -91,9 +85,27 @@ class SavedClaim < ApplicationRecord
   def form_matches_schema
     return unless form_is_string
 
-    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form).each do |v|
-      errors.add(:form, v.to_s)
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    clear_cache = false
+
+    schema_errors = validate_schema(schema)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+                         { form_id:, errors: schema_errors })
+      clear_cache = true
     end
+
+    validation_errors = validate_form(schema, clear_cache)
+    validation_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+
+    unless validation_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation', { form_id:, guid:, errors: validation_errors })
+    end
+
+    schema_errors.empty? && validation_errors.empty?
   end
 
   def to_pdf(file_name = nil)
@@ -110,9 +122,106 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
+  def email
+    nil
+  end
+
+  ##
+  # insert notifcation after VANotify email send
+  #
+  # @see ClaimVANotification
+  #
+  def insert_notification(email_template_id)
+    claim_va_notifications.create!(
+      form_type: form_id,
+      email_sent: true,
+      email_template_id:
+    )
+  end
+
+  ##
+  # Find notifcation by args*
+  #
+  # @param email_template_id
+  # @see ClaimVANotification
+  #
+  def va_notification?(email_template_id)
+    claim_va_notifications.find_by(
+      form_type: form_id,
+      email_template_id:
+    )
+  end
+
+  def regional_office
+    []
+  end
+
   private
+
+  def validate_schema(schema)
+    errors = JSONSchemer.validate_schema(schema).to_a
+    return [] if errors.empty?
+
+    reformatted_schemer_errors(errors)
+  end
+
+  def validate_form(schema, _clear_cache)
+    errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
+    return [] if errors.empty?
+
+    reformatted_schemer_errors(errors)
+  end
+
+  # This method exists to change the json_schemer errors
+  # to be formatted like json_schema errors, which keeps
+  # the error logging smooth and identical for both options.
+  def reformatted_schemer_errors(errors)
+    errors.map!(&:symbolize_keys)
+    errors.each do |error|
+      error[:fragment] = error[:data_pointer]
+      error[:message] = error[:error]
+    end
+    errors
+  end
 
   def attachment_keys
     []
+  end
+
+  def after_create_metrics
+    tags = ["form_id:#{form_id}"]
+    StatsD.increment('saved_claim.create', tags:)
+    if form_start_date
+      claim_duration = created_at - form_start_date
+      StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
+    end
+
+    pdf_overflow_tracking if Flipper.enabled?(:saved_claim_pdf_overflow_tracking)
+  end
+
+  def after_destroy_metrics
+    StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
+  end
+
+  def pdf_overflow_tracking
+    tags = ["form_id:#{form_id}"]
+
+    # TODO: 686C-674 will require special handling
+    return if form_id.start_with? '686C-674'
+
+    form_class = PdfFill::Filler::FORM_CLASSES[form_id]
+    unless form_class
+      return Rails.logger.info("#{self.class} Skipping tracking PDF overflow", form_id:, saved_claim_id: id)
+    end
+
+    filename = to_pdf
+
+    # @see PdfFill::Filler
+    # https://github.com/department-of-veterans-affairs/vets-api/blob/96510bd1d17b9e5c95fb6c09d74e53f66b0a25be/lib/pdf_fill/filler.rb#L88
+    StatsD.increment('saved_claim.pdf.overflow', tags:) if filename.end_with?('_final.pdf')
+  rescue => e
+    Rails.logger.warn("#{self.class} Error tracking PDF overflow", form_id:, saved_claim_id: id, error: e)
+  ensure
+    Common::FileHelpers.delete_file_if_exists(filename)
   end
 end

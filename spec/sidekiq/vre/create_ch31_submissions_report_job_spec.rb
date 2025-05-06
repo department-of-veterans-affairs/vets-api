@@ -7,34 +7,34 @@ describe VRE::CreateCh31SubmissionsReportJob do
   let(:time) { ActiveSupport::TimeZone[zone].parse('2021-11-15 00:00:00') }
 
   let(:vre_claim1) do
-    Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '377 - San Diego' }
+    Timecop.freeze(time) { create(:veteran_readiness_employment_claim, regional_office: '377 - San Diego') }
   end
 
   let(:vre_claim2) do
-    Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '349 - Waco' }
+    Timecop.freeze(time) { create(:veteran_readiness_employment_claim, regional_office: '349 - Waco') }
   end
 
   let(:vre_claim3) do
-    Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '351 - Muskogee' }
+    Timecop.freeze(time) { create(:veteran_readiness_employment_claim, regional_office: '351 - Muskogee') }
   end
 
   let(:vre_claim4) do
-    Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '377 - San Diego' }
+    Timecop.freeze(time) { create(:veteran_readiness_employment_claim, regional_office: '377 - San Diego') }
   end
 
   let(:vre_claim5) do
-    Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '349 - Waco' }
+    Timecop.freeze(time) { create(:veteran_readiness_employment_claim, regional_office: '349 - Waco') }
   end
 
   let(:vre_claim6) do
-    Timecop.freeze(time) { create :veteran_readiness_employment_claim, regional_office: '351 - Muskogee' }
+    Timecop.freeze(time) { create(:veteran_readiness_employment_claim, regional_office: '351 - Muskogee') }
   end
 
   describe 'raises an exception' do
     it 'when queue is exhausted' do
       VRE::CreateCh31SubmissionsReportJob.within_sidekiq_retries_exhausted_block do
         expect(Rails.logger).to receive(:error).exactly(:once).with(
-          'Failed all retries on VRE::CreateCh31SubmissionsReportJob, last error: An error occured'
+          'Failed all retries on VRE::CreateCh31SubmissionsReportJob, last error: An error occurred'
         )
         expect(StatsD).to receive(:increment).with('worker.vre.create_ch31_submissions_report_job.exhausted')
       end
@@ -76,7 +76,7 @@ describe VRE::CreateCh31SubmissionsReportJob do
         subject
       end
 
-      it 'does not send if FeatureFlipper.staging_email?  is true' do
+      it 'does not send if FeatureFlipper.staging_email? is true' do
         RSpec::Mocks.space.proxy_for(Ch31SubmissionsReportMailer).reset
         RSpec::Mocks.space.proxy_for(FeatureFlipper).reset
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)

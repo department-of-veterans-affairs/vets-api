@@ -8,26 +8,29 @@ permissions:
   contents: read
   checks: write
 jobs:
+  compare_sha:
+    runs-on: ubuntu-latest
+    name: Compare sha
+    steps:
+      - name: Compare commit ids
+        run: |
+          echo "github.sha: ${{ github.sha }}"
+          echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
+          echo "github.event.pull_request.merge_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}"
+          echo "github.event.head_commit.id: ${{ github.event.head_commit.id }}"
+
   linting_and_security:
     name: Linting and Security
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     permissions: write-all
-    runs-on: ubuntu-16-cores-latest
+    runs-on: ubuntu-32-cores-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae # v1.183.0
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Remove Review label
-        if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
 
       - name: Run bundle-audit (checks gems for CVE issues)
         run: bundle exec bundle-audit check --update --ignore CVE-2024-27456
@@ -43,27 +46,29 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            lint-failure
+          labels: lint-failure
 
       - name: Remove Lint Failure label
         if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'lint-failure')
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            lint-failure
+          labels: lint-failure
   tests:
     name: Test
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
       CI: true
       RAILS_ENV: test
       TERM: xterm-256color
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
+      COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
     permissions: write-all
-    runs-on: ubuntu-16-cores-latest
+    runs-on: ubuntu-32-cores-latest
+    outputs:
+      status: ${{ steps.test-status.outputs.status }}
     steps:
       - uses: actions/checkout@v4
 
@@ -91,22 +96,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Remove Review label
-        if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-        uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
-
-      - name: Remove Test Passing label
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-passing
+          driver-opts: image=${{ steps.ecr-login.outputs.registry }}/moby/buildkit:buildx-stable-1
 
       - name: Build Docker Image
         uses: docker/build-push-action@v6
@@ -124,20 +115,30 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Database
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
-          timeout_minutes: 20
+          timeout_minutes: 10
           retry_wait_seconds: 3 # Seconds
           max_attempts: 3
-          command: |
-            docker compose -f docker-compose.test.yml run web bash \
-              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
+          command: >
+             ${{ env.COMPOSE_BASH_CMD }}
+             "bundle exec rake parallel:setup[24]"
 
       - name: Run Specs
-        timeout-minutes: 20
+        timeout-minutes: 15
+        run: >
+          ${{ env.COMPOSE_BASH_CMD }}
+          "bundle exec rake 'parallel:spec[24, , , modules\/]'"
+
+      - name: Set Test Status
+        id: test-status
+        if: always()
         run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -155,74 +156,45 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
-      - name: Add Test Failure label
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-failure
-
+  update_labels:
+    name: Update Test Status Labels
+    needs: tests
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
       - name: Remove Test Failure label
-        if: success() && github.event_name == 'pull_request'
+        if: needs.tests.outputs.status == 'success' && contains(github.event.pull_request.labels.*.name, 'test-failure')
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-failure
+          labels: test-failure
+
+      - name: Add Test Failure label
+        if: needs.tests.outputs.status == 'failure'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+
+      - name: Remove Test Passing label
+        if: needs.tests.outputs.status == 'failure' && contains(github.event.pull_request.labels.*.name, 'test-passing')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-passing
 
       - name: Add Test Passing label
-        if: success() && github.event_name == 'pull_request'
+        if: needs.tests.outputs.status == 'success'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-passing
-
-      - name: Add omit-backend-approval label
-        if: |
-          github.event_name == 'pull_request' && github.event.pull_request.draft == false &&
-          (
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-          )
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            omit-backend-approval
-
-      - name: Add require-backend-approval label
-        uses: actions-ecosystem/action-add-labels@v1
-        if: |
-            github.event_name == 'pull_request' && github.event.pull_request.draft == false &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            require-backend-approval
-
-      - name: Add Review label
-        uses: actions-ecosystem/action-add-labels@v1
-        if: |
-          github.event_name == 'pull_request' && success() && github.event.pull_request.draft == false &&
-          !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'lint-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'test-failure')
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
+          labels: test-passing
 
   publish_results:
     name: Publish Test Results and Coverage
     if: always()
-    needs: [tests]
+    needs: tests
     permissions: write-all
     runs-on: ubuntu-16-cores-latest
 

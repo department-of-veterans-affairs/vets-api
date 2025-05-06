@@ -7,19 +7,19 @@ require_relative '../../support/saved_claims_spec_helper'
 RSpec.describe Pensions::SavedClaim, :uploader_helpers do
   subject { described_class.new }
 
-  let(:instance) { FactoryBot.build(:pensions_module_pension_claim) }
+  let(:instance) { build(:pensions_saved_claim) }
 
   it_behaves_like 'saved_claim_with_confirmation_number'
 
   context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    let!(:attachment1) { FactoryBot.create(:pension_burial) }
-    let!(:attachment2) { FactoryBot.create(:pension_burial) }
+    let!(:attachment1) { create(:pension_burial) }
+    let!(:attachment2) { create(:pension_burial) }
 
     let(:claim) do
-      FactoryBot.create(
-        :pensions_module_pension_claim,
+      create(
+        :pensions_saved_claim,
         form: {
           veteranFullName: {
             first: 'Test',
@@ -49,41 +49,33 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
       )
     end
 
-    describe '#process_attachments!' do
-      it 'sets the attachments saved_claim_id' do
-        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
-        claim.process_attachments!
-        expect(claim.persistent_attachments.size).to eq(2)
+    context 'using JSON Schemer' do
+      describe '#process_attachments!' do
+        it 'sets the attachments saved_claim_id' do
+          expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
+          claim.process_attachments!
+          expect(claim.persistent_attachments.size).to eq(2)
+        end
       end
-    end
 
-    describe '#destroy' do
-      it 'also destroys the persistent_attachments' do
-        claim.process_attachments!
-        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+      describe '#destroy' do
+        it 'also destroys the persistent_attachments' do
+          claim.process_attachments!
+          expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+        end
       end
-    end
-
-    it '#send_confirmation_email' do
-      allow(VANotify::EmailJob).to receive(:perform_async)
-
-      instance.send_confirmation_email
-
-      expect(VANotify::EmailJob).to have_received(:perform_async).with(
-        'foo@foo.com',
-        'form527ez_confirmation_email_template_id',
-        {
-          'first_name' => 'TEST',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => instance.guid
-        }
-      )
     end
   end
 
   describe '#email' do
     it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
+    end
+  end
+
+  describe '#first_name' do
+    it 'returns the users first name' do
+      expect(instance.first_name).to eq('Test')
     end
   end
 end

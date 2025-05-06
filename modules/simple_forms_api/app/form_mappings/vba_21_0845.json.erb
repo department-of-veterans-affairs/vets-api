@@ -40,7 +40,7 @@
   "F[0].Page_2[0].ADDRESS_OF_PERSON_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('person_address', 'postal_code')&.[](5..8) %>",
 
   "F[0].Page_2[0].International_Telephone_Number_If_Applicable[1]": "<%= (form.data['organization_name'] || '') + '\n' + (form.data['organization_representatives']&.map { |rep| rep['representative_name'] }&.join(', ') || '') %>",
-  
+
   "F[0].#subform[2].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data['veteran_ssn']&.[](0..2) %>",
   "F[0].#subform[2].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
   "F[0].#subform[2].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
@@ -83,11 +83,11 @@
   "F[0].#subform[2].International_Telephone_Number_If_Applicable[3]": "<%= form.data['security_answer'] && form.data['security_question'] == 'favoriteTeacherName' ? form.data['security_answer'] : '' %>",
   "F[0].#subform[2].International_Telephone_Number_If_Applicable[4]": "<%= form.data['security_answer'] && form.data['security_question'] == 'fatherMiddleName' ? form.data['security_answer'] : '' %>",
 
-  "F[0].#subform[2].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
-  "F[0].#subform[2].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
-  "F[0].#subform[2].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  
+  "F[0].#subform[2].Date_Signed_Year[0]": "<%= form&.signature_date&.strftime('%Y') %>",
+  "F[0].#subform[2].Date_Signed_Day[0]": "<%= form&.signature_date&.strftime('%d') %>",
+  "F[0].#subform[2].Date_Signed_Month[0]": "<%= form&.signature_date&.strftime('%m') %>",
+
   "F[0].#subform[2].Digital_Signature[0]": "<%= form.data['statement_of_truth_signature'] %>",
-  
+
   "F[0]": "<%= form.data.dig('F') %>"
 }

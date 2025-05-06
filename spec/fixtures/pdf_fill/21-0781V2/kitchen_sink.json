@@ -1,0 +1,106 @@
+{
+  "vaFileNumber": "12345678",
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranFullName": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson"
+  },
+  "veteranDateOfBirth": "1981-11-05",
+  "veteranServiceNumber": "987654321",
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": "2123456789",
+  "veteranSecondaryPhone": "3133456789",
+  "additionalInformation": "Lorem ipsum dolor sit amet",
+  "eventTypes": {
+    "combat": true,
+    "mst": false,
+    "nonMst": true,
+    "other": false
+  },
+  "events": [
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "timing": "Summer of '70",
+      "militaryReports": {
+        "restricted": true,
+        "unrestricted": false,
+        "pre2005": false
+      },
+      "otherReports": {
+        "police": true
+      },
+      "agency": "SVI",
+      "city": "Dallas",
+      "state": "TX",
+      "township": "",
+      "country": "USA"    
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "timing": "June 2007",
+      "unlistedReport": "incident report"
+    }
+  ],
+  "behaviors": {
+    "reassignment": true,
+    "performance": true,
+    "consultations": false,
+    "episodes": true,
+    "selfMedication": true,
+    "appetite": true,
+    "screenings": true,
+    "relationships": true,
+    "unlisted": true
+  },
+  "behaviorsDetails": {
+    "reassignment": "requested duty assignment",
+    "performance": "poor evaluations",
+    "episodes": "severe depression",
+    "selfMedication": "stopped treating headaches",
+    "appetite": "skipping meals",
+    "screenings": "positive tests",
+    "relationships": "separation",
+    "unlisted": "Lorem ipsum dolor sit amet."
+  },
+  "evidence": {
+    "crisisCenter": true,
+    "counseling": true,
+    "family": true,
+    "faculty": true,
+    "police": true,
+    "medical": true,
+    "clergy": true,
+    "peers": true,
+    "journal": true,
+    "none": true,
+    "other": true,
+    "otherDetails": "photographic evidence"
+  },
+  "treatmentNoneCheckbox": {
+    "none": false
+  },
+  "treatmentProviders": {
+    "nonVa": true,
+    "medicalCenter": true,
+    "dod": true
+  },
+  "treatmentProvidersDetails": [
+    {
+      "facilityInfo": "Walter Reed, Bethesda, MD",
+      "treatmentMonth": "02",
+      "treatmentYear": "2014"
+    },
+    {
+      "facilityInfo": "Cedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN",
+      "treatmentYear": "2024"
+    },
+    {
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL"
+    }
+  ],
+  "optionIndicator": "notEnrolled",
+  "signatureDate": "2016-01-31"
+}

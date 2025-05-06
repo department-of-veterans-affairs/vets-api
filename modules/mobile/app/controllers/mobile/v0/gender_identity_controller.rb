@@ -2,6 +2,8 @@
 
 require 'va_profile/demographics/service'
 
+# NOTE: Endpoints remain for backwards compatibility with mobile clients. They should be removed in the future.
+
 module Mobile
   module V0
     class GenderIdentityController < ApplicationController
@@ -9,21 +11,23 @@ module Mobile
       before_action { authorize :mpi, :queryable? }
 
       def edit
-        options = VAProfile::Models::GenderIdentity::OPTIONS
+        options = {}
 
         render json: Mobile::V0::GenderIdentityOptionsSerializer.new(@current_user.uuid, options)
       end
 
       def update
-        gender_identity = VAProfile::Models::GenderIdentity.new gender_identity_params
-
-        if gender_identity.valid?
-          service.save_gender_identity gender_identity
-
-          head :no_content
-        else
-          raise Common::Exceptions::ValidationErrors, gender_identity
-        end
+        render json: {
+          errors: [
+            {
+              detail: 'This field no longer exists and cannot be updated',
+              source: 'Mobile::V0::GenderIdentityController#update',
+              code: '410',
+              status: '410',
+              title: 'Gone'
+            }
+          ]
+        }, status: :gone
       end
 
       private

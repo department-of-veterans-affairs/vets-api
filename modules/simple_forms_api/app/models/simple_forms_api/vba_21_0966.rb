@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA210966
-    include Virtus.model(nullify_blank: true)
+  class VBA210966 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_0966'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def populate_veteran_data(user)
       @data['veteran_full_name'] ||= {
@@ -44,6 +37,22 @@ module SimpleFormsApi
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def notification_first_name
+      if data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        data.dig('surviving_dependent_full_name', 'first')
+      else
+        data.dig('veteran_full_name', 'first')
+      end
+    end
+
+    def notification_email_address
+      if data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        data['surviving_dependent_email']
+      else
+        data['veteran_email']
+      end
     end
 
     def zip_code_is_us_based

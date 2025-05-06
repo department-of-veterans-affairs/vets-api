@@ -7,6 +7,7 @@ RSpec.describe Form526Submission do
   subject do
     Form526Submission.create(
       user_uuid: user.uuid,
+      user_account:,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
       form_json:,
@@ -15,12 +16,17 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles') }
-  let(:user_account) { create(:user_account, icn: user.icn, id: user.user_account_uuid) }
+  let(:user_account) { create(:user_account) }
+  let(:user) do
+    create(:user, :loa3, first_name: 'Beyonce',
+                         last_name: 'Knowles',
+                         icn: user_account.icn,
+                         idme_uuid: SecureRandom.uuid)
+  end
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { create(:va526ez) }
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
@@ -28,7 +34,7 @@ RSpec.describe Form526Submission do
   let(:backup_submitted_claim_status) { nil }
 
   before do
-    Flipper.disable(:disability_compensation_production_tester)
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   describe 'associations' do
@@ -220,7 +226,9 @@ RSpec.describe Form526Submission do
       end
 
       it 'returns Lighthouse submissions with a found PDF with a submitted_claim_id' do
-        expect(Form526Submission.accepted_to_lighthouse_primary_path).to contain_exactly(happy_lighthouse_path_success)
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to contain_exactly(
+          happy_lighthouse_path_success
+        )
       end
 
       it 'returns both an EVSS submission and a Lighthouse submission with a found PDF and a submitted_claim_id' do
@@ -230,7 +238,9 @@ RSpec.describe Form526Submission do
       end
 
       it 'does not return the LH submission when the PDF is not found' do
-        happy_lighthouse_path_success.form526_job_statuses.last.update(status: Form526JobStatus::STATUS[:pdf_not_found])
+        happy_lighthouse_path_success.form526_job_statuses.last.update(
+          status: Form526JobStatus::STATUS[:pdf_not_found]
+        )
 
         expect(Form526Submission.accepted_to_lighthouse_primary_path).to be_empty
       end
@@ -361,15 +371,29 @@ RSpec.describe Form526Submission do
       before do
         allow(StatsD).to receive(:increment)
         allow(Rails.logger).to receive(:info)
-        Flipper.disable(:disability_526_maximum_rating)
       end
 
-      def expect_max_cfi_logged(max_cfi_enabled, disability_claimed, diagnostic_code, total_increase_conditions)
+      def expect_submit_log(num_max_rated, num_max_rated_cfi, total_cfi)
         expect(Rails.logger).to have_received(:info).with(
           'Max CFI form526 submission',
-          { id: subject.id, max_cfi_enabled:, disability_claimed:, diagnostic_code:, total_increase_conditions:,
+          { id: subject.id,
+            num_max_rated:,
+            num_max_rated_cfi:,
+            total_cfi:,
             cfi_checkbox_was_selected: false }
         )
+      end
+
+      def expect_max_cfi_logged(disability_claimed, diagnostic_code)
+        expect(StatsD).to have_received(:increment).with('api.max_cfi.submit',
+                                                         tags: ["diagnostic_code:#{diagnostic_code}",
+                                                                "claimed:#{disability_claimed}"])
+      end
+
+      def expect_no_max_cfi_logged(diagnostic_code)
+        expect(StatsD).not_to have_received(:increment).with('api.max_cfi.submit',
+                                                             tags: ["diagnostic_code:#{diagnostic_code}",
+                                                                    anything])
       end
 
       context 'the submission is for tinnitus' do
@@ -386,45 +410,24 @@ RSpec.describe Form526Submission do
         end
         let(:rating_percentage) { 0 }
 
-        context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating, user) }
+        context 'Rated Tinnitus is at maximum' do
+          let(:rating_percentage) { 10 }
 
-          context 'Rated Tinnitus is at maximum' do
-            let(:rating_percentage) { 10 }
-
-            it 'logs CFI metric upon submission' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect_max_cfi_logged('on', true, 6260, 1)
-            end
-          end
-
-          context 'Rated Tinnitus is not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
-            end
+          it 'logs CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 6260)
+            expect_submit_log(1, 1, 1)
           end
         end
 
-        context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating, user) }
-
-          context 'Rated Tinnitus is at maximum' do
-            let(:rating_percentage) { 10 }
-
-            it 'logs CFI metric upon submission' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect_max_cfi_logged('off', true, 6260, 1)
-            end
-          end
-
-          context 'Rated Tinnitus is not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
-            end
+        context 'Rated Tinnitus is not at maximum' do
+          it 'logs CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:false', 'has_max_rated:false'])
+            expect_no_max_cfi_logged(6260)
           end
         end
       end
@@ -441,26 +444,74 @@ RSpec.describe Form526Submission do
           ]
         end
 
-        context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating, user) }
+        it 'logs CFI metric upon submission' do
+          subject.start
+          expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                           tags: ['claimed:false', 'has_max_rated:false'])
+          expect_no_max_cfi_logged(7101)
+          expect_submit_log(0, 0, 1)
+        end
+      end
 
-          it 'does not log CFI metric upon submission' do
+      context 'the submission for single cfi for a Veteran with multiple rated conditions' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+        end
+        let(:rated_disabilities) do
+          [
+            { name: 'Tinnitus',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::TINNITUS,
+              rating_percentage: rating_percentage_tinnitus,
+              maximum_rating_percentage: 10 },
+            { name: 'Hypertension',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION,
+              rating_percentage: rating_percentage_hypertension,
+              maximum_rating_percentage: 60 }
+          ]
+        end
+        let(:rating_percentage_tinnitus) { 0 }
+        let(:rating_percentage_hypertension) { 0 }
+
+        context 'Rated Disabilities are not at maximum' do
+          it 'logs CFI metric upon submission for only hypertension' do
             subject.start
-            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:false', 'has_max_rated:false'])
+            expect_no_max_cfi_logged(6260)
+            expect_no_max_cfi_logged(7101)
+            expect_submit_log(0, 0, 1)
           end
         end
 
-        context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating, user) }
+        context 'Rated Disabilities of cfi is at maximum' do
+          let(:rating_percentage_hypertension) { 60 }
 
-          it 'does not log CFI metric upon submission' do
+          it 'logs CFI metric upon submission for only hypertension' do
             subject.start
-            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 7101)
+            expect_submit_log(1, 1, 1)
+            expect_no_max_cfi_logged(6260)
+          end
+        end
+
+        context 'All Rated Disabilities at maximum' do
+          let(:rating_percentage_tinnitus) { 10 }
+          let(:rating_percentage_hypertension) { 60 }
+
+          it 'logs CFI metric upon submission for only hypertension' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 7101)
+            expect_max_cfi_logged(false, 6260)
+            expect_submit_log(2, 1, 1)
           end
         end
       end
 
-      context 'the submission is from a Veteran with rated tinnitus and hypertension' do
+      context 'the submission for multiple cfi for a Veteran with multiple rated conditions' do
         let(:form_json) do
           File.read('spec/support/disability_compensation_form/submissions/only_526_two_cfi_with_max_ratings.json')
         end
@@ -479,104 +530,54 @@ RSpec.describe Form526Submission do
         let(:rating_percentage_tinnitus) { 0 }
         let(:rating_percentage_hypertension) { 0 }
 
-        context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating, user) }
-
-          context 'Rated Disabilities are not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-            end
-          end
-
-          context 'Rated Disabilities are at maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
-            let(:rating_percentage_hypertension) { 60 }
-
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-              expect_max_cfi_logged('on', true, 6260, 2)
-            end
-
-            context 'when the submission omits tinnitus' do
-              let(:form_json) do
-                File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
-              end
-
-              it 'logs CFI metric upon submission for tinnitus being omitted' do
-                subject.start
-                expect_max_cfi_logged('on', false, 6260, 1)
-              end
-            end
-          end
-
-          context 'Only Tinnitus is rated at the maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
-
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-              expect_max_cfi_logged('on', true, 6260, 2)
-            end
-          end
-
-          context 'Only Hypertension is rated at the maximum' do
-            let(:rating_percentage_hypertension) { 60 }
-
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-            end
+        context 'Rated Disabilities are not at maximum' do
+          it 'does not log CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:false', 'has_max_rated:false'])
+            expect_no_max_cfi_logged(6260)
+            expect_no_max_cfi_logged(7101)
+            expect_submit_log(0, 0, 2)
           end
         end
 
-        context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating, user) }
+        context 'Rated Disabilities are at maximum' do
+          let(:rating_percentage_tinnitus) { 10 }
+          let(:rating_percentage_hypertension) { 60 }
 
-          context 'Rated Disabilities are not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-            end
+          it 'logs CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 6260)
+            expect_max_cfi_logged(true, 7101)
+            expect_submit_log(2, 2, 2)
           end
+        end
 
-          context 'Rated Disabilities are at maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
-            let(:rating_percentage_hypertension) { 60 }
+        context 'Only Tinnitus is rated at the maximum' do
+          let(:rating_percentage_tinnitus) { 10 }
 
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-              expect_max_cfi_logged('off', true, 6260, 2)
-            end
+          it 'logs CFI metric upon submission only for tinnitus' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 6260)
+            expect_no_max_cfi_logged(7101)
+            expect_submit_log(1, 1, 2)
           end
+        end
 
-          context 'Only Tinnitus is rated at the maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
+        context 'Only Hypertension is rated at the maximum' do
+          let(:rating_percentage_hypertension) { 60 }
 
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-              expect_max_cfi_logged('off', true, 6260, 2)
-            end
-          end
-
-          context 'Only Hypertension is rated at the maximum' do
-            let(:rating_percentage_hypertension) { 60 }
-
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-            end
+          it 'does not log CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 7101)
+            expect_no_max_cfi_logged(6260)
+            expect_submit_log(1, 1, 2)
           end
         end
       end
@@ -594,8 +595,8 @@ RSpec.describe Form526Submission do
         expect(subject.birls_ids.count).to eq 1
         subject.birls_ids_tried = { subject.birls_id => ['some timestamp'] }.to_json
         subject.save!
-        expect { subject.submit_with_birls_id_that_hasnt_been_tried_yet! }.to(
-          change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(0)
+        expect { subject.submit_with_birls_id_that_hasnt_been_tried_yet! }.not_to(
+          change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size)
         )
         next_birls_id = "#{subject.birls_id}cat"
         subject.add_birls_ids next_birls_id
@@ -662,6 +663,7 @@ RSpec.describe Form526Submission do
       headers = JSON.parse auth_headers.to_json
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -746,6 +748,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -772,6 +775,7 @@ RSpec.describe Form526Submission do
       subject do
         Form526Submission.new(
           user_uuid: user.uuid,
+          user_account:,
           saved_claim_id: saved_claim.id,
           form_json:,
           birls_ids_tried: birls_ids_tried.to_json
@@ -798,6 +802,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -840,6 +845,7 @@ RSpec.describe Form526Submission do
       headers['va_eauth_birlsfilenumber'] = birls_id
       Form526Submission.new(
         user_uuid: user.uuid,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
         form_json:,
@@ -1007,7 +1013,7 @@ RSpec.describe Form526Submission do
         it 'queues flashes job' do
           expect do
             subject.perform_ancillary_jobs(first_name)
-          end.to change(BGS::FlashUpdater.jobs, :size).by(0)
+          end.not_to change(BGS::FlashUpdater.jobs, :size)
         end
       end
     end
@@ -1025,6 +1031,13 @@ RSpec.describe Form526Submission do
     end
 
     context 'with form 4142' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                                  anything).and_return(false)
+      end
+
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
       end
@@ -1065,28 +1078,14 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      context 'when feature enabled' do
-        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
-
-        it 'queues polling job' do
-          expect do
-            form = subject.saved_claim.parsed_form
-            form['startedFormVersion'] = '2022'
-            subject.update(submitted_claim_id: 1)
-            subject.saved_claim.update(form: form.to_json)
-            subject.perform_ancillary_jobs(first_name)
-          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
-        end
-      end
-
-      context 'when feature disabled' do
-        before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
-
-        it 'does not queue polling job' do
-          expect do
-            subject.perform_ancillary_jobs(first_name)
-          end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
-        end
+      it 'queues polling job' do
+        expect do
+          form = subject.saved_claim.parsed_form
+          form['startedFormVersion'] = '2022'
+          subject.update(submitted_claim_id: 1)
+          subject.saved_claim.update(form: form.to_json)
+          subject.perform_ancillary_jobs(first_name)
+        end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
       end
     end
   end
@@ -1132,7 +1131,7 @@ RSpec.describe Form526Submission do
         subject { build(:form526_submission, :with_empty_auth_headers) }
 
         it 'returns nil' do
-          expect(subject.get_first_name).to be nil
+          expect(subject.get_first_name).to be_nil
         end
       end
     end
@@ -1291,7 +1290,15 @@ RSpec.describe Form526Submission do
       context 'with submission confirmation email when successful job statuses' do
         subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
-        it 'returns one job triggered' do
+        it 'does not trigger job when disability_526_call_received_email_from_polling enabled' do
+          Flipper.enable(:disability_526_call_received_email_from_polling)
+          expect do
+            subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          end.not_to change(Form526ConfirmationEmailJob.jobs, :size)
+        end
+
+        it 'returns one job triggered when disability_526_call_received_email_from_polling disabled' do
+          Flipper.disable(:disability_526_call_received_email_from_polling)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
@@ -1328,7 +1335,7 @@ RSpec.describe Form526Submission do
         it 'returns zero jobs triggered' do
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-          end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+          end.not_to change(Form526ConfirmationEmailJob.jobs, :size)
         end
       end
 
@@ -1345,57 +1352,24 @@ RSpec.describe Form526Submission do
 
     before { create(:idme_user_verification, idme_uuid: user.idme_uuid, user_account:) }
 
+    let(:user_account) { create(:user_account, icn: '123498767V234859') }
     let(:form_526_submission) do
       Form526Submission.create(
         user_uuid: user.uuid,
-        user_account: user.user_account,
+        user_account:,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: File.read("spec/support/disability_compensation_form/submissions/#{form_json_filename}")
       )
     end
 
-    context 'evss provider' do
-      before { VCR.insert_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
-      after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
-
-      context 'when all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-        let(:form_json_filename) { 'only_526_asthma.json' }
-
-        it 'returns true' do
-          expect(subject).to be_truthy
-        end
-      end
-
-      context 'when some but not all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-        let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
-
-        it 'returns false' do
-          expect(subject).to be_falsey
-        end
-      end
-
-      context 'when some disabilities do not have a ratedDisabilityId yet' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
-        let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
-
-        it 'returns false' do
-          expect(subject).to be_falsey
-        end
-      end
-    end
-
     context 'Lighthouse provider' do
       before do
-        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.insert_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
 
       after do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         VCR.eject_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
       end
 
@@ -1467,7 +1441,7 @@ RSpec.describe Form526Submission do
 
     context 'when there are form526_submission_remediations' do
       let(:remediation) do
-        FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+        create(:form526_submission_remediation, form526_submission: subject)
       end
 
       it 'returns true if the most recent remediation was successful' do
@@ -1491,16 +1465,16 @@ RSpec.describe Form526Submission do
 
     context 'when there are form526_submission_remediations' do
       let(:remediation) do
-        FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+        create(:form526_submission_remediation, form526_submission: subject)
       end
 
-      it 'returns true if the most recent remediation ignored_as_duplicate value is true' do
-        remediation.update(ignored_as_duplicate: true)
+      it 'returns true if the most recent remediation_type is ignored_as_duplicate' do
+        remediation.update(remediation_type: :ignored_as_duplicate)
         expect(subject).to be_duplicate
       end
 
-      it 'returns false if the most recent remediation ignored_as_duplicate value is false' do
-        remediation.update(ignored_as_duplicate: false)
+      it 'returns false if the most recent remediation_type is not ignored_as_duplicate' do
+        remediation.update(remediation_type: :manual)
         expect(subject).not_to be_duplicate
       end
     end
@@ -1508,7 +1482,7 @@ RSpec.describe Form526Submission do
 
   describe '#success_type?' do
     let(:remediation) do
-      FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+      create(:form526_submission_remediation, form526_submission: subject)
     end
 
     context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
@@ -1596,6 +1570,261 @@ RSpec.describe Form526Submission do
 
       it 'returns true' do
         expect(subject).to be_failure_type
+      end
+    end
+  end
+
+  describe 'ICN retrieval' do
+    let(:user) { create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    end
+    let(:submission) do
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id)
+    end
+    let!(:form526_submission) { create(:form526_submission) }
+    let(:expected_log_payload) { { user_uuid: user.uuid, submission_id: submission.id } }
+
+    context 'when the submission includes a UserAccount with an ICN, as expected' do
+      it 'uses the submission\'s user account ICN' do
+        submission.user_account = UserAccount.new(icn: '123498767V222222')
+        account = submission.account
+        expect(account.icn).to eq('123498767V222222')
+      end
+    end
+
+    context 'when the submission does not have a UserAccount with an ICN' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:mpi_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+      let(:edipi_profile_response) { mpi_profile_response }
+      let(:no_user_account_icn_message) { 'Form526Submission::account - no UserAccount ICN found' }
+
+      before do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).and_return(edipi_profile_response)
+      end
+
+      it 'uses the auth_headers EDIPI to look up account information from MPI' do
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        expect(Rails.logger).to receive(:info).with(no_user_account_icn_message, expected_log_payload)
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+        account = submission.account
+        expect(account.icn).to eq(mpi_profile.icn)
+      end
+
+      context 'when the MPI lookup by EDIPI fails' do
+        let(:edipi_profile_response) { create(:find_profile_not_found_response) }
+        let(:attributes_profile_response) { mpi_profile_response }
+        let(:no_mpi_by_edipi_message) { 'Form526Submission::account - unable to look up MPI profile with EDIPI' }
+
+        before do
+          allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                     expected_log_payload).and_call_original
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
+                                             .and_return(attributes_profile_response)
+        end
+
+        it 'uses the auth_headers user attributes to look up account information from MPI' do
+          submission.user_account = UserAccount.create!(icn: nil)
+          submission.save!
+          expect(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload)
+          expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+            first_name: user.first_name,
+            last_name: user.last_name,
+            ssn: user.ssn,
+            birth_date: user.birth_date
+          )
+          account = submission.account
+          expect(account.icn).to eq(mpi_profile.icn)
+        end
+
+        context 'when the MPI lookup by attributes fails' do
+          let(:attributes_profile_response) { create(:find_profile_not_found_response) }
+          let(:no_icn_found_message) { 'Form526Submission::account - no ICN present' }
+
+          before do
+            allow(Rails.logger).to receive(:info).with(no_user_account_icn_message,
+                                                       expected_log_payload).and_call_original
+            allow(Rails.logger).to receive(:info).with(no_mpi_by_edipi_message, expected_log_payload).and_call_original
+          end
+
+          it 'does not return a UserAccount with an ICN' do
+            submission.user_account = UserAccount.create!(icn: nil)
+            submission.save!
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_edipi).with(edipi: user.edipi)
+            expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).with(
+              first_name: user.first_name,
+              last_name: user.last_name,
+              ssn: user.ssn,
+              birth_date: user.birth_date
+            )
+            expect(Rails.logger).to receive(:info).with(no_icn_found_message, expected_log_payload)
+            account = submission.account
+            expect(account.icn).to be_nil
+          end
+        end
+      end
+    end
+  end
+
+  context 'Upload document type metrics logging' do
+    let!(:in_progress_form) do
+      ipf = create(:in_progress_526_form, user_uuid: user.uuid)
+      fd = ipf.form_data
+      fd = JSON.parse(fd)
+      fd['privateMedicalRecordAttachments'] = private_medical_record_attachments
+      fd['additionalDocuments'] = additional_documents
+      ipf.update!(form_data: fd)
+      ipf
+    end
+    let(:private_medical_record_attachments) { [] }
+    let(:additional_documents) { [] }
+
+    before do
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
+    end
+
+    def expect_log_statement(additional_docs_by_type, private_medical_docs_by_type)
+      return if additional_docs_by_type.blank? && private_medical_docs_by_type.blank?
+
+      expect(Rails.logger).to have_received(:info).with(
+        'Form526 evidence document type metrics',
+        {
+          id: subject.id,
+          additional_docs_by_type:,
+          private_medical_docs_by_type:
+        }
+      )
+    end
+
+    def expect_documents_metrics(group_name, docs_by_type)
+      return if docs_by_type.blank?
+
+      docs_by_type.each do |type, count|
+        expect(StatsD).to have_received(:increment).with(
+          "worker.document_type_metrics.#{group_name}_document_type",
+          count,
+          tags: ["document_type:#{type}", 'source:form526']
+        )
+      end
+    end
+
+    context 'when form data has no documents' do
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has empty documents element' do
+      let(:additional_documents) { [{}] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect(Rails.logger).not_to have_received(:info).with(
+          'Form526 evidence document type metrics',
+          anything
+        )
+      end
+    end
+
+    context 'when form data has unexpected documents element' do
+      let(:additional_documents) { ["something's up"] }
+
+      it 'logs empty document type breakdowns' do
+        subject.start
+
+        expect_log_statement({ 'unknown' => 1 }, {})
+        expect_documents_metrics('additional_documents', { 'unknown' => 1 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
+
+    context 'when form data has additional documents' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type1' },
+          { 'name' => 'doc2', 'attachmentId' => 'type2' },
+          { 'name' => 'doc3', 'attachmentId' => 'type2' }
+        ]
+      end
+
+      it 'logs document type metrics for additional documents' do
+        subject.start
+        expect_log_statement({ 'type1' => 1, 'type2' => 2 }, {})
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', {})
+      end
+    end
+
+    context 'when form data has private medical records' do
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type3' },
+          { 'name' => 'doc2', 'attachmentId' => 'type3' },
+          { 'name' => 'doc3', 'attachmentId' => 'type4' }
+        ]
+      end
+
+      it 'logs document type metrics for private medical records' do
+        subject.start
+        expect_log_statement({}, { 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', {})
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
+      end
+    end
+
+    context 'when form data has both additional documents and private medical records' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1', 'attachmentId' => 'type1' },
+          { 'name' => 'doc2', 'attachmentId' => 'type2' },
+          { 'name' => 'doc3', 'attachmentId' => 'type2' }
+        ]
+      end
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc4', 'attachmentId' => 'type3' },
+          { 'name' => 'doc5', 'attachmentId' => 'type3' },
+          { 'name' => 'doc6', 'attachmentId' => 'type4' }
+        ]
+      end
+
+      it 'logs summary metrics with document type breakdowns' do
+        subject.start
+        expect_log_statement({ 'type1' => 1, 'type2' => 2 }, { 'type3' => 2, 'type4' => 1 })
+        expect_documents_metrics('additional_documents', { 'type1' => 1, 'type2' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'type3' => 2, 'type4' => 1 })
+      end
+    end
+
+    context 'when documents have no attachmentId' do
+      let(:additional_documents) do
+        [
+          { 'name' => 'doc1' },
+          { 'name' => 'doc2' }
+        ]
+      end
+      let(:private_medical_record_attachments) do
+        [
+          { 'name' => 'doc3' }
+        ]
+      end
+
+      it 'uses "unknown" as the attachment type' do
+        subject.start
+        expect_log_statement({ 'unknown' => 2 }, { 'unknown' => 1 })
+        expect_documents_metrics('additional_documents', { 'unknown' => 2 })
+        expect_documents_metrics('private_medical_record_attachments', { 'unknown' => 1 })
       end
     end
   end

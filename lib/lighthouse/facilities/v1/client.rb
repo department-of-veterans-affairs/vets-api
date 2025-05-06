@@ -27,6 +27,11 @@ module Lighthouse
           facilities.reject!(&:mobile?) if params['exclude_mobile']
           facilities
         end
+
+        def get_paginated_facilities(params)
+          response = perform(:get, '/services/va_facilities/v1/facilities', params)
+          Lighthouse::Facilities::V1::Response.new(response.body, response.status)
+        end
       end
     end
   end

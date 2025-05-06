@@ -3,8 +3,8 @@
 require 'ostruct'
 
 module VSPDanger
-  HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
-  BASE_SHA = 'origin/master'
+  HEAD_SHA = ENV.fetch('GITHUB_HEAD_REF', '').empty? ? `git rev-parse --abbrev-ref HEAD`.chomp.freeze : "origin/#{ENV.fetch('GITHUB_HEAD_REF')}"
+  BASE_SHA = ENV.fetch('GITHUB_BASE_REF', '').empty? ? 'origin/master' : "origin/#{ENV.fetch('GITHUB_BASE_REF')}"
 
   class Runner
     def self.run
@@ -166,7 +166,7 @@ module VSPDanger
     end
 
     def file_git_diff(file_name)
-      `git diff #{BASE_SHA}...#{HEAD_SHA} -- #{file_name}`
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -w --ignore-blank-lines -- #{file_name}`
     end
   end
 
@@ -186,8 +186,11 @@ module VSPDanger
     def run
       required_group = '@department-of-veterans-affairs/backend-review-group'
       exception_groups = %w[@department-of-veterans-affairs/octo-identity
-                            @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot
-                            @department-of-veterans-affairs/lighthouse-banana-peels]
+                            @department-of-veterans-affairs/lighthouse-dash
+                            @department-of-veterans-affairs/lighthouse-pivot
+                            @department-of-veterans-affairs/lighthouse-banana-peels
+                            @department-of-veterans-affairs/accredited-representatives-admin
+                            @department-of-veterans-affairs/benefits-admin]
 
       diff = fetch_git_diff
 

@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - type
   - id
@@ -14,6 +15,7 @@ properties:
     description: Upstream identifier
   attributes:
     type: object
+    additionalProperties: false
     required:
       - messageId
       - category
@@ -75,6 +77,7 @@ properties:
         example: "SMITH, JOHN"
   links:
     type: object
+    additionalProperties: false
     required:
       - self
     properties:

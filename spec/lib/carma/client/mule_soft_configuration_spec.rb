@@ -6,6 +6,28 @@ require 'carma/client/mule_soft_configuration'
 describe CARMA::Client::MuleSoftConfiguration do
   subject { described_class.instance }
 
+  let(:host) { 'https://www.somesite.gov' }
+
+  describe 'connection' do
+    let(:faraday) { double('Faraday::Connection') }
+
+    it 'creates a new Faraday connection with the correct base path' do
+      allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
+      expect(Faraday).to receive(:new).with("#{host}/va-carma-caregiver-papi/api/")
+      subject.connection
+    end
+
+    it 'creates the connection' do
+      allow(Faraday).to receive(:new).and_yield(faraday)
+
+      expect(faraday).to receive(:use).once.with(:breakers, { service_name: subject.service_name })
+      expect(faraday).to receive(:request).once.with(:instrumentation, { name: 'CARMA::Client::MuleSoftConfiguration' })
+      expect(faraday).to receive(:adapter).once.with(Faraday.default_adapter)
+
+      subject.connection
+    end
+  end
+
   describe 'id and secret' do
     before do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive_messages(client_id: fake_id, client_secret: fake_secret)
@@ -24,6 +46,10 @@ describe CARMA::Client::MuleSoftConfiguration do
         end
       end
     end
+  end
+
+  it 'returns class name as service_name' do
+    expect(subject.service_name).to eq('CARMA::Client::MuleSoftConfiguration')
   end
 
   describe 'timeout' do
@@ -63,8 +89,6 @@ describe CARMA::Client::MuleSoftConfiguration do
   end
 
   describe 'base_path' do
-    let(:host) { 'https://www.somesite.gov' }
-
     before do
       allow(Settings.form_10_10cg.carma.mulesoft).to receive(:host).and_return(host)
     end

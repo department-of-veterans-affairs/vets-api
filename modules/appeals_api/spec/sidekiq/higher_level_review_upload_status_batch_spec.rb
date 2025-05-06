@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 describe AppealsApi::HigherLevelReviewUploadStatusBatch, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
   let(:upload) { create(:higher_level_review_v2, status: :submitted) }
   let!(:uploads) { [upload] }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:cmp_status) { 'In Process' }
 
   describe '#perform' do
@@ -35,11 +35,9 @@ describe AppealsApi::HigherLevelReviewUploadStatusBatch, type: :job do
         let(:upload) { create(:higher_level_review_v1, status: 'received') }
 
         it 'ignores them' do
-          with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
-            Sidekiq::Testing.inline! { AppealsApi::HigherLevelReviewUploadStatusBatch.new.perform }
-            upload.reload
-            expect(upload.status).to eq('received')
-          end
+          Sidekiq::Testing.inline! { AppealsApi::HigherLevelReviewUploadStatusBatch.new.perform }
+          upload.reload
+          expect(upload.status).to eq('received')
         end
       end
 

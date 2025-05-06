@@ -60,7 +60,7 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
           expect(reloaded_user.last_name).to eq(session.user_attributes_hash['last_name'])
           expect(reloaded_user.icn).to eq(user_icn)
           expect(reloaded_user.idme_uuid).to eq(idme_uuid)
-          expect(reloaded_user.logingov_uuid).to eq(nil)
+          expect(reloaded_user.logingov_uuid).to be_nil
           expect(reloaded_user.fingerprint).to eq(request_ip)
           expect(reloaded_user.last_signed_in).to eq(session.created_at)
           expect(reloaded_user.authn_context).to eq(authn_context)

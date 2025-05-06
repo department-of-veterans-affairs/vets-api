@@ -126,7 +126,7 @@ describe MAP::SignUp::Service do
       let(:expected_log_message) { "#{log_prefix} agreements accept success, icn: #{icn}" }
 
       before do
-        Timecop.freeze(Time.zone.local(2023, 1, 1, 12, 0, 0))
+        Timecop.freeze(Time.zone.local(2024, 9, 1, 12, 0, 0))
         allow(Rails.logger).to receive(:info)
       end
 

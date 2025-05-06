@@ -8,15 +8,11 @@ require 'disability_compensation/factories/api_provider_factory'
 RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:disabilities_compensation_user) }
+  let(:user) { build(:disabilities_compensation_user, :with_terms_of_use_agreement) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
-  let(:feature_toggle_rated_disabilities) do
-    'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
-  end
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
     Flipper.disable('disability_compensation_prevent_submission_job')
     sign_in_as(user)
   end
@@ -24,7 +20,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   describe 'Get /v0/disability_compensation_form/rated_disabilities' do
     context 'Lighthouse api provider' do
       before do
-        Flipper.enable(feature_toggle_rated_disabilities)
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
 
@@ -78,102 +73,6 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
         end
       end
     end
-
-    context 'EVSS api provider' do
-      before do
-        Flipper.disable(feature_toggle_rated_disabilities)
-      end
-
-      context 'with a valid 200 evss response' do
-        it 'matches the rated disabilities schema' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-            get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('rated_disabilities')
-          end
-        end
-
-        it 'matches the rated disabilities schema when camel-inflected' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-            get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('rated_disabilities')
-          end
-        end
-      end
-
-      context 'with a 500 response' do
-        it 'returns a bad gateway response' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-            get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
-
-        it 'returns a bad gateway response with camel-inflection' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-            get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response).to match_camelized_response_schema('evss_errors', strict: false)
-          end
-        end
-      end
-
-      context 'with a 401 response' do
-        it 'returns a bad gateway response' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
-            get('/v0/disability_compensation_form/submit_all_claim', params: nil, headers:)
-            expect(response).to have_http_status(:not_found)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
-
-        it 'returns a bad gateway response with camel-inflection' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
-            get '/v0/disability_compensation_form/submit_all_claim', params: nil, headers: headers_with_camel
-            expect(response).to have_http_status(:not_found)
-            expect(response).to match_camelized_response_schema('evss_errors', strict: false)
-          end
-        end
-      end
-
-      context 'with a 403 unauthorized response' do
-        it 'returns a not authorized response' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-            get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
-            expect(response).to have_http_status(:forbidden)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
-
-        it 'returns a not authorized response with camel-inflection' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-            get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
-            expect(response).to have_http_status(:forbidden)
-            expect(response).to match_camelized_response_schema('evss_errors', strict: false)
-          end
-        end
-      end
-
-      context 'with a generic 400 response' do
-        it 'returns a bad request response' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-            get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
-
-        it 'returns a bad request response with camel-inflection' do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-            get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_camelized_response_schema('evss_errors', strict: false)
-          end
-        end
-      end
-    end
   end
 
   describe 'Post /v0/disability_compensation_form/suggested_conditions/:name_part' do
@@ -217,14 +116,15 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   describe 'Post /v0/disability_compensation_form/submit_all_claim' do
     before do
       VCR.insert_cassette('va_profile/military_personnel/post_read_service_history_200')
-      VCR.insert_cassette('evss/ppiu/payment_information')
-      VCR.insert_cassette('evss/intent_to_file/active_compensation')
+      VCR.insert_cassette('lighthouse/direct_deposit/show/200_valid')
+      VCR.insert_cassette('lighthouse/direct_deposit/update/200_valid')
     end
 
     after do
+      VCR.eject_cassette('lighthouse/direct_deposit/update/200_valid')
       VCR.eject_cassette('va_profile/military_personnel/post_read_service_history_200')
-      VCR.eject_cassette('evss/ppiu/payment_information')
-      VCR.eject_cassette('evss/intent_to_file/active_compensation')
+      VCR.eject_cassette('lighthouse/direct_deposit/show/200_valid')
+      VCR.eject_cassette('lighthouse/direct_deposit/update/200_valid')
     end
 
     context 'with a valid 200 evss response' do
@@ -244,6 +144,112 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
           expect(response).to match_response_schema('submit_disability_form')
         end
 
+        describe 'temp_toxic_exposure_optional_dates_fix' do
+          # Helper that handles POST + response check + returning the submission form
+          def post_and_get_submission(payload)
+            post('/v0/disability_compensation_form/submit_all_claim',
+                 params: JSON.generate(payload),
+                 headers:)
+            expect(response).to have_http_status(:ok)
+            Form526Submission.last.form
+          end
+
+          # Helper to build the "optional_xx_dates" mapping
+          def build_optional_xx_dates
+            Form526Submission::TOXIC_EXPOSURE_DETAILS_MAPPING.transform_values do |exposures|
+              if exposures.empty?
+                {
+                  'description' => 'some description or fallback field',
+                  'startDate' => 'XXXX-03-XX',
+                  'endDate' => 'XXXX-01-XX'
+                }
+              else
+                exposures.index_with do
+                  {
+                    'startDate' => 'XXXX-03-XX',
+                    'endDate' => 'XXXX-01-XX'
+                  }
+                end
+              end
+            end
+          end
+
+          context 'when flipper feature disability_compensation_temp_toxic_exposure_optional_dates_fix is enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_compensation_temp_toxic_exposure_optional_dates_fix, anything)
+                .and_return(true)
+              # make sure the submission job is triggered even if there are bad dates in the toxic exposure section
+              expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
+            end
+
+            it 'maximal' do
+              parsed_payload = JSON.parse(all_claims_form)
+              # Replace the toxicExposure section with all "XXXX-XX-XX" data
+              parsed_payload['form526']['toxicExposure'] = build_optional_xx_dates
+
+              submission = post_and_get_submission(parsed_payload)
+              toxic_exposure = submission.dig('form526', 'form526', 'toxicExposure')
+
+              toxic_exposure.each do |tek, tev|
+                tev.each_value do |value|
+                  # Expect all optional date attributes to be removed, leaving an empty hash
+                  # except for otherHerbicideLocations / specifyOtherExposures which keep description
+                  expect(value).to eq({}) unless %w[otherHerbicideLocations specifyOtherExposures].include?(tek)
+                end
+
+                if %w[otherHerbicideLocations specifyOtherExposures].include?(tek)
+                  expect(tev).to eq({ 'description' => 'some description or fallback field' })
+                end
+              end
+            end
+
+            it 'minimal' do
+              parsed_payload = JSON.parse(all_claims_form)
+
+              # Only one date is "XXXX-03-XX", the rest are valid
+              parsed_payload['form526']['toxicExposure']['gulfWar1990Details']['iraq'] = {
+                'startDate' => 'XXXX-03-XX',
+                'endDate' => '1991-01-01'
+              }
+
+              submission = post_and_get_submission(parsed_payload)
+              toxic_exposure = submission.dig('form526', 'form526', 'toxicExposure')
+              gulf_war_details_iraq = toxic_exposure['gulfWar1990Details']['iraq']
+
+              # It should have only removed the malformed startDate
+              expect(gulf_war_details_iraq).to eq({ 'endDate' => '1991-01-01' })
+
+              # The rest remain untouched
+              gulf_war_details_qatar = toxic_exposure['gulfWar1990Details']['qatar']
+              expect(gulf_war_details_qatar).to eq({
+                                                     'startDate' => '1991-02-12',
+                                                     'endDate' => '1991-06-01'
+                                                   })
+            end
+          end
+
+          context 'when flipper feature disability_compensation_temp_toxic_exposure_optional_dates_fix is disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?)
+                .with(:disability_compensation_temp_toxic_exposure_optional_dates_fix, anything)
+                .and_return(false)
+            end
+
+            it 'fails validation' do
+              parsed_payload = JSON.parse(all_claims_form)
+              # Replace the toxicExposure section with all "XXXX-XX-XX" data
+              parsed_payload['form526']['toxicExposure'] = build_optional_xx_dates
+
+              post('/v0/disability_compensation_form/submit_all_claim',
+                   params: JSON.generate(parsed_payload),
+                   headers:)
+
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'where the startedFormVersion indicator is true' do
           it 'creates a submission that includes a toxic exposure component' do
             post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
@@ -251,7 +257,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             expect(response).to match_response_schema('submit_disability_form')
             expect(Form526Submission.count).to eq(1)
             form = Form526Submission.last.form
-            expect(form.dig('form526', 'form526', 'startedFormVersion')).not_to eq(nil)
+            expect(form.dig('form526', 'form526', 'startedFormVersion')).not_to be_nil
           end
         end
 
@@ -265,7 +271,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             expect(response).to match_response_schema('submit_disability_form')
             expect(Form526Submission.count).to eq(1)
             form = Form526Submission.last.form
-            expect(form.dig('form526', 'form526', 'startedFormVersion')).to eq(nil)
+            expect(form.dig('form526', 'form526', 'startedFormVersion')).to eq('2019')
           end
         end
 
@@ -283,6 +289,14 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
       context 'with an `bdd` claim' do
         let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
+        let(:user) do
+          build(:disabilities_compensation_user, :with_terms_of_use_agreement, icn: '1012666073V986297',
+                                                                               idme_uuid: SecureRandom.uuid)
+        end
+
+        before do
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+        end
 
         it 'matches the rated disabilities schema' do
           post('/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers:)
@@ -301,6 +315,16 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
     context 'with invalid json body' do
       it 'returns a 422' do
         post('/v0/disability_compensation_form/submit_all_claim', params: { 'form526' => nil }.to_json, headers:)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns a 422 when no new or increase disabilities are submitted' do
+        all_claims_form = File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json'
+        json_object = JSON.parse(all_claims_form)
+        json_object['form526'].delete('newPrimaryDisabilities')
+        json_object['form526'].delete('newSecondaryDisabilities')
+        updated_form = JSON.generate(json_object)
+        post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end

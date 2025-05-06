@@ -7,6 +7,7 @@ describe PagerDuty::MaintenanceClient do
   let(:subject) { described_class.new }
 
   before(:all) do
+    VCR.eject_cassette if VCR.current_cassette
     VCR.turn_off!
   end
 
@@ -77,6 +78,40 @@ describe PagerDuty::MaintenanceClient do
     before { allow(Settings.maintenance).to receive(:services).and_return(nil) }
 
     it 'returns empty results' do
+      windows = subject.get_all
+      expect(windows).to be_empty
+    end
+  end
+
+  context 'with bad requests' do
+    before { allow(Settings.maintenance).to receive(:services).and_return({ evss: 'XBADXX' }) }
+
+    it 'returns empty results and error with bad service IDs' do
+      stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
+        .with(query: hash_including('service_ids' => %w[XBADXX], 'offset' => '0'))
+        .to_return(
+          status: 400
+        )
+
+      expect(Rails.logger).to receive(:error)
+        .with('Invalid arguments sent to PagerDuty. One of the following Service IDs is bad: ["XBADXX"]')
+
+      windows = subject.get_all
+      expect(windows).to be_empty
+    end
+
+    it 'returns empty results and custom error message on 429 error' do
+      stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
+        .with(query: hash_including('service_ids' => %w[XBADXX], 'offset' => '0'))
+        .to_return(
+          status: 429
+        )
+
+      # rubocop:disable Layout/LineLength
+      error_message = 'Querying PagerDuty for maintenance windows failed with the error: BackendServiceException: {:status=>429, :detail=>nil, :code=>"PAGERDUTY_429", :source=>nil}'
+      # rubocop:enable Layout/LineLength
+      expect(Rails.logger).to receive(:error).with(error_message)
+
       windows = subject.get_all
       expect(windows).to be_empty
     end

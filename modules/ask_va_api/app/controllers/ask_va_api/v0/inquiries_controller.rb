@@ -4,8 +4,8 @@ module AskVAApi
   module V0
     class InquiriesController < ApplicationController
       around_action :handle_exceptions
-      skip_before_action :authenticate, only: %i[unauth_create upload_attachment status]
-      skip_before_action :verify_authenticity_token, only: %i[unauth_create upload_attachment]
+      before_action :require_loa3!, except: %i[unauth_create status]
+      skip_before_action :authenticate, only: %i[unauth_create status]
 
       def index
         inquiries = retriever.call
@@ -13,7 +13,11 @@ module AskVAApi
       end
 
       def show
-        inq = retriever(icn: nil).fetch_by_id(id: params[:id])
+        if Settings.vsp_environment == 'production'
+          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
+        end
+
+        inq = retriever.fetch_by_id(id: params[:id])
         render json: Inquiries::Serializer.new(inq).serializable_hash, status: :ok
       end
 
@@ -22,20 +26,22 @@ module AskVAApi
       end
 
       def unauth_create
-        render json: process_inquiry(nil).to_json, status: :created
-      end
-
-      def upload_attachment
-        attachment_translation_map = fetch_parameters('attachment')
-        result = Attachments::Uploader.new(
-          convert_keys_to_camel_case(attachment_params, attachment_translation_map)
-        ).call
-        render json: result.to_json, status: :ok
+        render json: process_inquiry.to_json, status: :created
       end
 
       def download_attachment
+        if Settings.vsp_environment == 'production'
+          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
+        end
+
         entity_class = Attachments::Entity
-        att = Attachments::Retriever.new(id: params[:id], service: mock_service, entity_class:).call
+        att = Attachments::Retriever.new(
+          icn: current_user.icn,
+          id: params[:id],
+          service: mock_service,
+          user_mock_data: nil,
+          entity_class:
+        ).call
 
         raise InvalidAttachmentError if att.blank?
 
@@ -55,16 +61,14 @@ module AskVAApi
       end
 
       def create_reply
-        response = Correspondences::Creator.new(message: params[:reply], inquiry_id: params[:id], service: nil).call
+        response = Correspondences::Creator.new(params: reply_params, inquiry_id: params[:id], service: nil).call
         render json: response.to_json, status: :ok
       end
 
       private
 
-      def process_inquiry(icn = current_user.icn)
-        inquiry_translation_map = fetch_parameters('inquiry')
-        converted_inquiry_params = convert_keys_to_camel_case(inquiry_params, inquiry_translation_map)
-        Inquiries::Creator.new(icn:).call(payload: converted_inquiry_params)
+      def process_inquiry
+        Inquiries::Creator.new(user: current_user).call(inquiry_params:)
       end
 
       def retriever(icn: current_user.icn)
@@ -72,38 +76,37 @@ module AskVAApi
         @retriever ||= Inquiries::Retriever.new(icn:, user_mock_data: params[:user_mock_data], entity_class:)
       end
 
-      def convert_keys_to_camel_case(params, translation_map)
-        params.each_with_object({}) do |(key, value), result_hash|
-          if key == 'school_obj'
-            school_translation_map = fetch_parameters('school')
-            value = convert_keys_to_camel_case(value, school_translation_map)
-          end
-          camel_case_key = translation_map[key.to_sym]
-          result_hash[camel_case_key.to_sym] = value
-        end
-      end
-
       def mock_service
         DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
       end
 
-      def attachment_params
-        params.permit(fetch_parameters('attachment').keys).to_h
+      def inquiry_params
+        params.require(:inquiry).permit(
+          *fetch_parameters('fields'),
+          pronouns: fetch_parameters('nested_fields.pronouns'),
+          address: fetch_parameters('nested_fields.address'),
+          about_yourself: fetch_parameters('nested_fields.about_yourself'),
+          about_the_veteran: fetch_parameters('nested_fields.about_the_veteran'),
+          about_the_family_member: fetch_parameters('nested_fields.about_the_family_member'),
+          state_or_residency: fetch_parameters('nested_fields.state_or_residency'),
+          files: fetch_parameters('nested_fields.files'),
+          school_obj: fetch_parameters('nested_fields.school_obj')
+        ).to_h
       end
 
-      def inquiry_params
+      def reply_params
         params.permit(
-          *fetch_parameters('inquiry').keys,
-          school_obj: fetch_parameters('school').keys
+          :reply,
+          files: fetch_parameters('nested_fields.files')
         ).to_h
       end
 
       def fetch_parameters(key)
-        I18n.t("ask_va_api.parameters.#{key}")
+        I18n.t("ask_va_api.parameters.inquiry.#{key}")
       end
 
-      def resource_path(options)
-        v0_inquiries_url(options)
+      def require_loa3!
+        raise Common::Exceptions::Unauthorized unless current_user&.loa&.fetch(:current, nil) == 3
       end
 
       class InvalidAttachmentError < StandardError; end

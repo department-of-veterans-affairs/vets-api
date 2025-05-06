@@ -62,7 +62,9 @@ module ClaimsApi
               'Claim does not belong to this veteran')
           end
 
-          if @pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
+          @dependent_filing = @pctpnt_vet_id != pctpnt_clmant_id && target_veteran.participant_id == pctpnt_clmant_id
+
+          if @dependent_filing
             claims_v2_logging('EWS_submit', level: :info,
                                             message: '5103 filed by dependent claimant')
           end
@@ -83,6 +85,7 @@ module ClaimsApi
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
           # ensure that in the case of a dependent claimant this gets into the correct folder
           new_ews.auth_headers['target_veteran_folder_id'] = @pctpnt_vet_id
+          new_ews.auth_headers['dependent'] = @dependent_filing
           new_ews.save
           new_ews
         end
@@ -110,7 +113,7 @@ module ClaimsApi
         def find_bgs_claim!(claim_id:)
           return if claim_id.blank?
 
-          local_bgs_service.find_benefit_claim_details_by_benefit_claim_id(
+          bgs_claim_status_service.find_benefit_claim_details_by_benefit_claim_id(
             claim_id
           )
         end

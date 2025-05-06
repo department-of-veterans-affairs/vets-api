@@ -54,9 +54,10 @@ module AppsApi
         directory_service = Okta::DirectoryService.new
         begin
           parsed_scopes = directory_service.scopes(params[:category])
-          if parsed_scopes.any?
+          unique_scopes = parsed_scopes.uniq { |scope| scope['displayName'] }
+          if unique_scopes.any?
             render json: {
-              data: parsed_scopes
+              data: unique_scopes
             }
           else
             head :no_content

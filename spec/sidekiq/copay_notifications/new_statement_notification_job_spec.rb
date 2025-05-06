@@ -123,9 +123,10 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
           Backtrace: #{exception.backtrace.join("\n")}
         LOG
 
-        expect(StatsD).to receive(:increment).with(
-          "#{CopayNotifications::NewStatementNotificationJob::STATSD_KEY_PREFIX}.failure"
-        )
+        statsd_key = CopayNotifications::NewStatementNotificationJob::STATSD_KEY_PREFIX
+        ["#{statsd_key}.failure", "#{statsd_key}.retries_exhausted"].each do |key|
+          expect(StatsD).to receive(:increment).with(key)
+        end
         expect(Rails.logger).to receive(:error).with(expected_log_message)
         config.sidekiq_retries_exhausted_block.call(msg, exception)
       end

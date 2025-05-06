@@ -59,7 +59,7 @@
   "form1[0].#subform[4].NONE_OF_THESE_SITUATIONS_APPLY_TO_ME[0]": "<%= form.data.dig('living_situation', 'none') ? 1 : 0 %>",
   "form1[0].#subform[4].OTHER_Specify[0]": "<%= form.data.dig('living_situation', 'other_risk') ? 1 : 0 %>",
   "form1[0].#subform[4].Other1[0]": "<%= form.data['other_housing_risks'] %>",
-  
+
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_LastFourNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](5..8) %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](3..4) %>",
   "form1[0].#subform[4].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]": "<%= form.data.dig('veteran_id', 'ssn')&.[](0..2) %>",
@@ -108,18 +108,18 @@
   "form1[0].#subform[4].DateOfTreatment_Year4[0]": "<%= form.facility_year(4) %>",
 
   "form1[0].#subform[5].RequesterSignature[0]": "<%= form.requester_signature %>",
-  "form1[0].#subform[5].RequesterDateSigned_Month[0]": "<%= form.requester_signature ? Time.current.in_time_zone('America/Chicago').strftime('%m') : nil %>",
-  "form1[0].#subform[5].RequesterDateSigned_Day[0]": "<%= form.requester_signature ? Time.current.in_time_zone('America/Chicago').strftime('%d') : nil %>",
-  "form1[0].#subform[5].RequesterDateSigned_Year[0]": "<%= form.requester_signature ? Time.current.in_time_zone('America/Chicago').strftime('%Y') : nil %>",
+  "form1[0].#subform[5].RequesterDateSigned_Month[0]": "<%= form.requester_signature ? form&.signature_date&.strftime('%m') : nil %>",
+  "form1[0].#subform[5].RequesterDateSigned_Day[0]": "<%= form.requester_signature ? form&.signature_date&.strftime('%d') : nil %>",
+  "form1[0].#subform[5].RequesterDateSigned_Year[0]": "<%= form.requester_signature ? form&.signature_date&.strftime('%Y') : nil %>",
   "form1[0].#subform[5].ThirdPartySignature[0]": "<%= form.third_party_signature %>",
-  "form1[0].#subform[5].ThirdPartyDateSigned_Month[0]": "<%= form.third_party_signature ? Time.current.in_time_zone('America/Chicago').strftime('%m') : nil %>",
-  "form1[0].#subform[5].ThirdPartyDateSigned_Day[0]": "<%= form.third_party_signature ? Time.current.in_time_zone('America/Chicago').strftime('%d') : nil %>",
-  "form1[0].#subform[5].ThirdPartyDateSigned_Year[0]": "<%= form.third_party_signature ? Time.current.in_time_zone('America/Chicago').strftime('%Y') : nil %>",
+  "form1[0].#subform[5].ThirdPartyDateSigned_Month[0]": "<%= form.third_party_signature ? form&.signature_date&.strftime('%m') : nil %>",
+  "form1[0].#subform[5].ThirdPartyDateSigned_Day[0]": "<%= form.third_party_signature ? form&.signature_date&.strftime('%d') : nil %>",
+  "form1[0].#subform[5].ThirdPartyDateSigned_Year[0]": "<%= form.third_party_signature ? form&.signature_date&.strftime('%Y') : nil %>",
   "form1[0].#subform[5].POASignature[0]": "<%= form.power_of_attorney_signature %>",
-  "form1[0].#subform[5].POADateSigned_Month[0]": "<%= form.power_of_attorney_signature ? Time.current.in_time_zone('America/Chicago').strftime('%m') : nil %>",
-  "form1[0].#subform[5].POADateSigned_Day[0]": "<%= form.power_of_attorney_signature ? Time.current.in_time_zone('America/Chicago').strftime('%d') : nil %>",
-  "form1[0].#subform[5].POADateSigned_Year[0]": "<%= form.power_of_attorney_signature ? Time.current.in_time_zone('America/Chicago').strftime('%Y') : nil %>",
-  
+  "form1[0].#subform[5].POADateSigned_Month[0]": "<%= form.power_of_attorney_signature ? form&.signature_date&.strftime('%m') : nil %>",
+  "form1[0].#subform[5].POADateSigned_Day[0]": "<%= form.power_of_attorney_signature ? form&.signature_date&.strftime('%d') : nil %>",
+  "form1[0].#subform[5].POADateSigned_Year[0]": "<%= form.power_of_attorney_signature ? form&.signature_date&.strftime('%Y') : nil %>",
+
   "form1[0].#subform[5].Veterans_SocialSecurityNumber_LastFourNumbers[2]": "<%= form.data.dig('veteran_id', 'ssn')&.[](5..8) %>",
   "form1[0].#subform[5].Veterans_SocialSecurityNumber_SecondTwoNumbers[2]": "<%= form.data.dig('veteran_id', 'ssn')&.[](3..4) %>",
   "form1[0].#subform[5].Veterans_SocialSecurityNumber_FirstThreeNumbers[2]": "<%= form.data.dig('veteran_id', 'ssn')&.[](0..2) %>",

@@ -157,7 +157,8 @@ module PdfFill
             }
           },
           'incidentDescription' => {
-            key: "incidentDescription[#{ITERATOR}]"
+            key: "incidentDescription[#{ITERATOR}]",
+            limit: 536
           },
           'combinedName0' => {
             limit: 80,

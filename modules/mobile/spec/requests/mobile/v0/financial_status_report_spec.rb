@@ -28,7 +28,7 @@ RSpec.describe 'Mobile::V0::FinancialStatusReports', :skip_json_api_validation, 
       it 'returns not found error' do
         post '/mobile/v0/financial-status-reports/download', headers: sis_headers
         expect(response).to have_http_status(:not_found)
-        expect(response.parsed_body).to eq(nil)
+        expect(response.parsed_body).to be_nil
       end
     end
   end

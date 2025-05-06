@@ -79,16 +79,37 @@ RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
         expect(response).to have_http_status(:created)
       end
 
-      it 'responds to PUT #update' do
-        VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
-          params[:subject] = 'Updated Subject'
-          params[:id] = created_draft_id
+      describe 'PUT #update' do
+        it 'responds to PUT #update' do
+          VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
+            params[:subject] = 'Updated Subject'
+            params[:id] = created_draft_id
 
-          put "/mobile/v0/messaging/health/message_drafts/#{created_draft_id}", params:, headers: sis_headers
+            put "/mobile/v0/messaging/health/message_drafts/#{created_draft_id}", params:, headers: sis_headers
+          end
+
+          expect(response).to be_successful
+          expect(response).to have_http_status(:no_content)
         end
 
-        expect(response).to be_successful
-        expect(response).to have_http_status(:no_content)
+        context 'when message does not exist' do
+          it 'responds to PUT #update' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_thread_id_error') do
+              params[:subject] = 'Updated Subject'
+              params[:id] = 999_999
+
+              put '/mobile/v0/messaging/health/message_drafts/999999', params:, headers: sis_headers
+            end
+
+            expected_error = { 'errors' => [{ 'title' => 'Operation failed',
+                                              'detail' => 'Message requested could not be found',
+                                              'code' => 'SM904',
+                                              'source' => 'Severity[Error]:message.not.found;',
+                                              'status' => '404' }] }
+            expect(response).to have_http_status(:not_found)
+            expect(response.parsed_body).to eq(expected_error)
+          end
+        end
       end
     end
 

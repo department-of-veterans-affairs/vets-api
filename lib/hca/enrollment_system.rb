@@ -30,16 +30,6 @@ module HCA
       'exposureToOther' => 'Other'
     }.freeze
 
-    SIGI_CODES = {
-      'M' => 'M',
-      'F' => 'F',
-      'TF' => 'TF',
-      'TM' => 'TM',
-      'O' => 'O',
-      'NA' => 'N',
-      'NB' => 'B'
-    }.freeze
-
     SERVICE_BRANCH_CODES = {
       'army' => 1,
       'air force' => 2,
@@ -431,14 +421,6 @@ module HCA
       }
     end
 
-    def convert_sigi(sigi_genders)
-      return {} if sigi_genders.blank?
-
-      {
-        'selfIdentifiedGenderIdentity' => SIGI_CODES[sigi_genders]
-      }
-    end
-
     def veteran_to_person_info(veteran)
       convert_full_name(veteran['veteranFullName']).merge({
         'gender' => veteran['gender'],
@@ -454,9 +436,7 @@ module HCA
           nullable: true
         ),
         'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
-      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber']))).merge(
-        convert_sigi(veteran['sigiGenders'])
-      )
+      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
     end
 
     def convert_birth_state(birth_state)
@@ -773,7 +753,7 @@ module HCA
         result = value.map do |item|
           convert_value!(item)
         end
-        result.delete_if(&:blank?)
+        result.compact_blank!
       elsif value.in?([true, false]) || value.is_a?(Numeric)
         value.to_s
       else
@@ -785,7 +765,7 @@ module HCA
       hash.each do |k, v|
         hash[k] = convert_value!(v)
       end
-      hash.delete_if { |_k, v| v.blank? }
+      hash.compact_blank!
     end
 
     def get_user_variables(user_identifier)
@@ -840,9 +820,9 @@ module HCA
 
     def get_va_format(content_type)
       # ES only accepts these strings for 'va:format': PDF,WORD,JPG,RTF
-      extension = MIME::Types[content_type].first.extensions.first
+      extension = MIME::Types[content_type]&.first&.extensions&.first
 
-      if extension.include?('doc')
+      if extension&.include?('doc')
         'WORD'
       elsif extension == 'jpeg'
         'JPG'
@@ -865,18 +845,18 @@ module HCA
     end
 
     # @param [Hash] veteran data in JSON format
-    # @param [Account] current_user
+    # @param [Hash] user_identifier
     # @param [String] form_id
     def veteran_to_save_submit_form(
       veteran,
-      current_user,
+      user_identifier,
       form_id
     )
       return {} if veteran.blank?
 
       copy_spouse_address!(veteran)
 
-      request = build_form_for_user(current_user, form_id)
+      request = build_form_for_user(user_identifier, form_id)
 
       veteran['attachments']&.each_with_index do |attachment, i|
         guid = attachment['confirmationCode']

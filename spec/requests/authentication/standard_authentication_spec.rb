@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 # Note these specs MUST be run in order
-RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
+RSpec.describe 'authenticating loa3 user', order: :defined, type: :request do
   OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
   # rubocop:disable Lint/StructNewOverride
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
@@ -20,10 +20,10 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
     end
   end
 
-  xit 'does the tests', :aggregate_failures, :skip_mvi do
+  it 'does the tests', :aggregate_failures, :skip_mvi, skip: 'Unknown reason for skip' do
     EPISODES.each_with_index do |episode, _index|
       Timecop.freeze(episode.recorded_at) do
-        VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
+        VCR.use_cassette(OUTBOUND_CASSETTE) do
           SecureRandom.with_disabled_randomness do
             make_request(episode)
           end

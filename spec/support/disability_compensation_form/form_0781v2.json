@@ -1,0 +1,120 @@
+{
+  "form0781v2": {
+    "vaFileNumber": "796068949",
+    "veteranSocialSecurityNumber": "796068949",
+    "veteranFullName": {
+      "first": "Beyonce",
+      "middle": null,
+      "last": "Knowles"
+    },
+    "veteranDateOfBirth": "1809-02-12",
+    "email": "test@email.com",
+    "veteranPhone": "2024561111",
+    "veteranSecondaryPhone": "",
+    "veteranServiceNumber": "",
+    "eventTypes": [
+      { "combat": true },
+      { "mst": true },
+      { "nonMst": true },
+      { "other": true }
+    ],
+    "events": [
+      {
+        "details": "Lorem ipsum dolor sit amet.",
+        "location": "Stationed on U.S.S. XYZ",
+        "timing": "2000"
+      },
+      {
+        "details": "Lorem ipsum dolor sit amet.", 
+        "location": "Back alley in Big Town, USA",
+        "timing": "2001",
+        "otherReports": { "police": true },
+        "agency": "SVI",
+        "city": "Dallas",
+        "state": "Texas",
+        "township": "",
+        "country": "USA"   
+      },
+      {
+        "details": "Lorem ipsum dolor sit amet.",
+        "location": "Greenwich Township, N Jersey",
+        "timing": "2002",
+        "militaryReports": { "restricted": true },
+        "unlistedReport": "incident report"
+      },
+      {
+        "location": "Springfield, Hampden County",
+        "timing": "2003"
+      },
+      {
+        "details": "Lorem ipsum dolor sit amet.",
+        "location": "Assigned to U.S. Army unit, Vietnam"
+      },
+      {
+        "details": "Lorem ipsum dolor sit amet.",
+        "location": "Onboard U.S.S. Intrepid, South China Sea",
+        "timing": "2004"
+      }
+    ],
+    "behaviors": {
+      "reassignment": true,
+      "performance": true,
+      "consultations": true,
+      "episodes": true,
+      "selfMedication": true,
+      "substances": true,
+      "appetite": true,
+      "screenings": true,
+      "relationships": true,
+      "unlisted": true
+    },
+    "behaviorsDetails": {
+      "reassignment": "Lorem ipsum dolor sit amet.",
+      "performance": "Lorem ipsum dolor sit amet.",
+      "episodes": "Lorem ipsum dolor sit amet.",
+      "selfMedication": "Lorem ipsum dolor sit amet.",
+      "appetite": "Lorem ipsum dolor sit amet.",
+      "screenings": "Lorem ipsum dolor sit amet.",
+      "relationships": "Lorem ipsum dolor sit amet.",
+      "unlisted": "Lorem ipsum dolor sit amet."
+    },
+    "evidence": {
+      "police": true,
+      "medical": true,
+      "counseling": true,
+      "family": true,
+      "service": true,
+      "personal": true,
+      "other": true,
+      "otherDetails": "Lorem ipsum dolor sit amet."
+    },
+    "treatmentNoneCheckbox": {
+      "none": true
+    },
+    "treatmentProviders": {
+      "nonVa": true,
+      "medicalCenter": true,
+      "dod": true
+    },
+    "treatmentProvidersDetails": [
+      {
+        "facilityInfo": "Walter Reed, Bethesda, MD",
+        "treatmentMonth": "02",
+        "treatmentYear": "2014"
+      },
+      {
+        "facilityInfo": "Cedarwood Behavioral Health Center",
+        "treatmentYear": "2024"
+      },
+      {
+        "facilityInfo": "Silver Oak Recovery Center"
+      },
+      {
+        "facilityInfo": "Silver Oak Recovery Center"
+      }
+    ],
+    "optionIndicator": "notEnrolled",
+    "additionalInformation": "Lorem ipsum dolor sit amet."
+  }
+}
+  

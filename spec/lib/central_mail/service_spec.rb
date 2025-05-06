@@ -374,4 +374,25 @@ RSpec.describe CentralMail::Service do
       end
     end
   end
+
+  describe '.service_is_up?' do
+    context 'when there is no current breakers outage' do
+      it 'returns true' do
+        expect(described_class.service_is_up?).to be(true)
+      end
+    end
+
+    context 'when there is a current breakers outage' do
+      before do
+        Timecop.freeze
+        CentralMail::Configuration.instance.breakers_service.begin_forced_outage!
+      end
+
+      after { Timecop.return }
+
+      it 'returns false' do
+        expect(described_class.service_is_up?).to be(false)
+      end
+    end
+  end
 end

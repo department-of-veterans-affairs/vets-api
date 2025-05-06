@@ -1,0 +1,32 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals?status=INVALID"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      CACHE-CONTROL:
+      - no-cache
+      CONTENT-ENCODING:
+      - gzip
+      CONTENT-LENGTH:
+      - '0'
+      Connection:
+      - Keep-Alive
+      Content-Security-Policy:
+      - default-src 'self' 'unsafe-inline' 'unsafe-eval';
+      Date:
+      - Tue, 26 Nov 2024 17:05:45 GMT
+    body:
+      encoding: UTF-8
+      string: '[]'
+    http_version: 
+  recorded_at: Tue, 26 Nov 2024 17:05:45 GMT 

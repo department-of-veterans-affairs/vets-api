@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.4.349/dd681e7d6dea41ad8b80f8d39284ef29%5EPN%5E200VIDM%5EUSDVA
+    uri: <VETS360_URL>/profile-service/profile/v3/2.16.840.1.113883.4.349/dd681e7d6dea41ad8b80f8d39284ef29%5EPN%5E200VIDM%5EUSDVA
     body:
       encoding: UTF-8
       string: '{"bios":[{"bioPath":"healthBenefit"}]}'

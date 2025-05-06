@@ -1,0 +1,87 @@
+{
+    "veteranFullName": {
+      "first": "first",
+      "middle": "middle",
+      "last": "last"
+    },
+    "veteranSocialSecurityNumber": "223334444",
+    "newSchool": {
+      "name": "school name",
+      "address": {
+        "city": "Milwaukee",
+        "country": "USA",
+        "postalCode": "53135",
+        "state": "WI",
+        "street": "111 Uni Drive"
+      }
+    },
+    "sponsorSocialSecurityNumber": "444433322",
+    "sponsorFullName": {
+      "first": "John",
+      "last": "Smith"
+    },
+    "oldSchool": {
+      "name": "old school name",
+      "address": {
+        "city": "Anytown",
+        "country": "USA",
+        "postalCode": "41414",
+        "state": "MA",
+        "street": "2222 Uni Drive"
+      }
+    },
+    "preferredContactMethod": "email",
+    "trainingEndDate": "2007-06-XX",
+    "reasonForChange": "reason for change",
+    "vaFileNumber": "c12345679",
+    "homePhone": "5551110000",
+    "mobilePhone": "5551110001",
+    "veteranAddress": {
+      "city": "Milwaukee",
+      "country": "USA",
+      "postalCode": "53130",
+      "state": "WI",
+      "street": "123 Main St"
+    },
+    "applicantGender": "F",
+    "dateOfBirth": "1970-01-01",
+    "civilianBenefitsAssistance": true,
+    "email": "test@sample.com",
+    "benefit": "chapter33Post911",
+    "benefitUpdate": "chapter33Post911",
+    "rudisillReview": "No",
+    "educationType": "tuitionTopUp",
+    "educationTypeUpdate": "prepCourseForLoC",
+    "educationObjective": "bachelor's degree",
+    "bankAccountChange": "startUpdate",
+    "bankAccountChangeUpdate": "startUpdate",
+    "bankAccount": {
+      "accountNumber": "88888888888",
+      "accountType": "checking",
+      "bankName": "First Bank of JSON",
+      "routingNumber": "123456789"
+    },
+    "serviceBefore1977": {
+      "haveDependents": true,
+      "married": true,
+      "parentDependent": false
+    },
+    "applicantServed": "Yes",
+    "toursOfDuty": [{
+      "dateRange": {
+        "from": "2012-06-26",
+        "to": "2013-04-10"
+      },
+      "serviceBranch": "Army Reserve"
+    }, {
+      "dateRange": {
+        "from": "2013-04-22",
+        "to": "2013-06-14"
+      },
+      "serviceBranch": "navy"
+    }],
+    "nonVaAssistance": true,
+    "remarks": "remarks",
+    "programName": "program name",
+    "privacyAgreementAccepted": true
+  }

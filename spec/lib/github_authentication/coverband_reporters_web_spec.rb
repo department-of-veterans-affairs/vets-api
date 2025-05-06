@@ -22,7 +22,7 @@ describe GithubAuthentication::CoverbandReportersWeb do
   before do
     allow_any_instance_of(Warden::Proxy).to receive(:authenticate!).and_return(user)
     allow_any_instance_of(Warden::Proxy).to receive(:user).and_return(user)
-    allow_any_instance_of(ActionDispatch::Request).to receive(:session) { { "coverband_user": user } }
+    allow_any_instance_of(ActionDispatch::Request).to receive(:session) { { coverband_user: user } }
   end
 
   context 'the user is not an organization member with coverband permissions' do

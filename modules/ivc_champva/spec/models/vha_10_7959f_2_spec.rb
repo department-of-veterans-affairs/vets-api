@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe IvcChampva::VHA107959f2 do
   let(:data) do
     {
-      'form_number' => '10-7959F-2',
       'primary_contact_info' => {
         'name' => {
           'first' => 'Veteran',
@@ -13,25 +12,28 @@ RSpec.describe IvcChampva::VHA107959f2 do
         },
         'email' => 'email@address.com'
       },
-      'veteran_full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
-      'veteran_social_security_number' => {
-        'ssn' => '123123123',
-        'va_file_number' => '123123123'
+      'veteran' => {
+        'full_name' => { 'first' => 'John', 'middle' => 'P', 'last' => 'Doe' },
+        'va_claim_number' => '123456789',
+        'ssn' => '123456789',
+        'mailing_address' => { 'country' => 'USA', 'postal_code' => '12345' },
+        'physical_address' => { 'country' => 'USA', 'postal_code' => '12345' },
+        'send_payment' => 'Veteran'
       },
-      'veteran_address' => {
-        'country' => 'USA',
-        'street' => '123 Street Lane',
-        'city' => 'Cityburg',
-        'state' => 'AL',
-        'postal_code' => '12312'
-      },
-      'supporting_docs' => [
+      'form_number' => '10-7959F-2',
+      'veteran_supporting_documents' => [
         { 'confirmation_code' => 'abc123' },
         { 'confirmation_code' => 'def456' }
       ]
     }
   end
   let(:vha107959f2) { described_class.new(data) }
+  let(:uuid) { SecureRandom.uuid }
+  let(:instance) { IvcChampva::VHA107959f2.new(data) }
+
+  before do
+    allow(instance).to receive_messages(uuid:, get_attachments: [])
+  end
 
   describe '#metadata' do
     it 'returns metadata for the form' do
@@ -41,9 +43,9 @@ RSpec.describe IvcChampva::VHA107959f2 do
         'veteranFirstName' => 'John',
         'veteranMiddleName' => 'P',
         'veteranLastName' => 'Doe',
-        'fileNumber' => '123123123',
-        'ssn_or_tin' => '123123123',
-        'zipCode' => '12312',
+        'fileNumber' => '123456789',
+        'ssn_or_tin' => '123456789',
+        'zipCode' => '12345',
         'country' => 'USA',
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959F-2',
@@ -54,8 +56,57 @@ RSpec.describe IvcChampva::VHA107959f2 do
             'last' => 'Surname'
           },
           'email' => 'email@address.com'
-        }
+        },
+        'primaryContactEmail' => 'email@address.com'
       )
     end
+  end
+
+  describe '#handle_attachments' do
+    let(:file_path) { "#{uuid}_vha_10_7959f_2-tmp.pdf" }
+
+    it 'renames the file and returns the new file path' do
+      allow(File).to receive(:rename)
+      result = instance.handle_attachments(file_path)
+      expect(result).to eq(["#{uuid}_vha_10_7959f_2-tmp.pdf"])
+    end
+  end
+
+  # rubocop:disable Naming/VariableNumber
+  describe '#track_email_usage' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_7959f_2' }
+    let(:vha_10_7959f_2) { described_class.new(data) }
+
+    context 'when email is used' do
+      let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
+
+      it 'increments the StatsD for email used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.yes")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959F-2 Email Used', email_used: 'yes')
+        vha_10_7959f_2.track_email_usage
+      end
+    end
+
+    context 'when email is not used' do
+      let(:data) { { 'primary_contact_info' => {} } }
+
+      it 'increments the StatsD for email not used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.no")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959F-2 Email Used', email_used: 'no')
+        vha_10_7959f_2.track_email_usage
+      end
+    end
+  end
+  # rubocop:enable Naming/VariableNumber
+
+  it 'is not past OMB expiration date' do
+    # Update this date string to match the current PDF OMB expiration date:
+    omb_expiration_date = Date.strptime('03312027', '%m%d%Y')
+    error_message = <<~MSG
+      If this test is failing it likely means the form 10-7959f-2 PDF has reached
+      OMB expiration date. Please see ivc_champva module README for details on updating the PDF file.
+    MSG
+
+    expect(omb_expiration_date.past?).to be(false), error_message
   end
 end

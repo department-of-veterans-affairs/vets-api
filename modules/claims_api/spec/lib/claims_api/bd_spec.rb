@@ -7,11 +7,12 @@ describe ClaimsApi::BD do
   subject { described_class.new }
 
   let(:ews) do
-    create(:claims_api_evidence_waiver_submission, :with_full_headers_jesse, claim_id: '60897890',
-                                                                             id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
-                                                                             tracked_items: [234, 235])
+    create(:evidence_waiver_submission, :with_full_headers, claim_id: '60897890',
+                                                            id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
+                                                            tracked_items: [234, 235])
   end.freeze
   let(:claim) { create(:auto_established_claim, evss_id: 600_400_688, id: '581128c6-ad08-4b1e-8b82-c3640e829fb3') }
+  let(:body) { 'test body' }
 
   before do
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
@@ -25,6 +26,14 @@ describe ClaimsApi::BD do
       it 'uploads a document to BD' do
         VCR.use_cassette('claims_api/bd/upload') do
           result = subject.upload(claim:, pdf_path:, doc_type: 'L122')
+          expect(result).to be_a Hash
+          expect(result[:data][:success]).to be true
+        end
+      end
+
+      it 'uploads a document to BD using refactored #upload_document' do
+        VCR.use_cassette('claims_api/bd/upload') do
+          result = subject.upload_document(identifier: claim.evss_id, doc_type_name: 'claim', body:)
           expect(result).to be_a Hash
           expect(result[:data][:success]).to be true
         end
@@ -83,6 +92,7 @@ describe ClaimsApi::BD do
 
     describe 'power of attorney submissions (doc_type: L075, L190)' do
       let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
+      let(:poa_with_pctpnt_id_in_headers) { create(:power_of_attorney, :with_full_headers_tamara) }
 
       context 'when the doctype is L190' do
         let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
@@ -108,6 +118,24 @@ describe ClaimsApi::BD do
 
         it 'the claimId is not present' do
           expect(json_body['data']).not_to have_key('claimId')
+        end
+
+        it 'gets the participant vet id from the headers va_eauth_pid when it is not supplied for L190' do
+          poa_with_pctpnt_id_in_headers.auth_headers['va_eauth_pid']
+          expect_any_instance_of(described_class).to receive(:build_body).with(
+            {
+              doc_type: 'L190',
+              file_name: 'Tamara_Ellis_21-22.pdf',
+              participant_id: '600043201',
+              claim_id: nil,
+              file_number: nil,
+              system_name: 'Lighthouse',
+              tracked_item_ids: nil
+            }
+          )
+
+          subject.send(:generate_upload_body, claim: poa_with_pctpnt_id_in_headers, pdf_path:, action: 'post',
+                                              doc_type: 'L190')
         end
       end
 
@@ -209,7 +237,7 @@ describe ClaimsApi::BD do
                                                      pdf_path:, action: 'post', pctpnt_vet_id: '123456789')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['fileNumber']).not_to be_truthy
-        expect(js['data']['fileNumber']).to eq(nil)
+        expect(js['data']['fileNumber']).to be_nil
       end
     end
 
@@ -244,16 +272,22 @@ describe ClaimsApi::BD do
       let(:file_number) { '796378782' }
 
       before do
-        allow(Rails).to receive(:logger).and_return(double('Logger', info: true))
+        allow(ClaimsApi::Logger).to receive(:log)
         allow(Faraday).to receive(:new).and_return(client)
         allow(client).to receive(:post).and_return(response)
       end
 
-      it 'logs the error and returns an empty hash' do
+      it 'returns an empty hash' do
         result = subject.search(claim_id, file_number)
-        expect(Rails.logger).to have_received(:info)
-          .with(%r{benefits_documents :: {"detail":"/search failure for claimId #{claim_id}, Gateway timeout"}})
+
         expect(result).to eq({})
+      end
+
+      it 'logs the Gateway timeout' do
+        subject.search(claim_id, file_number)
+
+        expect(ClaimsApi::Logger).to have_received(:log)
+          .with('benefits_documents', { detail: "/search failure for claimId #{claim_id}, Gateway timeout" })
       end
     end
   end

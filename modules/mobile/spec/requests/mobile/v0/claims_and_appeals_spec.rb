@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
+require_relative '../../../support/helpers/committee_helper'
 
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 
 RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
+  include CommitteeHelper
+
   let(:good_claims_response_vcr_path) do
     lighthouse_flag ? 'mobile/lighthouse_claims/index/200_response' : 'mobile/claims/claims'
   end
@@ -35,7 +38,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   describe '#index is polled an unauthorized user' do
     it 'and not user returns a 401 status' do
       get '/mobile/v0/claims-and-appeals-overview'
-      expect(response).to have_http_status(:unauthorized)
+      assert_schema_conform(401)
     end
   end
 
@@ -48,7 +51,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             if lighthouse_flag
@@ -60,13 +63,13 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
               nil_dates_claim = parsed_response_contents.last
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2022-09-30')
               expect(open_claim.dig('attributes', 'phase')).to eq(4)
-              expect(open_claim.dig('attributes', 'documentsNeeded')).to eq(false)
-              expect(open_claim.dig('attributes', 'developmentLetterSent')).to eq(true)
+              expect(open_claim.dig('attributes', 'documentsNeeded')).to be(false)
+              expect(open_claim.dig('attributes', 'developmentLetterSent')).to be(true)
               expect(open_claim.dig('attributes', 'claimTypeCode')).to eq('400PREDSCHRG')
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
-              expect(nil_dates_claim.dig('attributes', 'updatedAt')).to eq(nil)
-              expect(nil_dates_claim.dig('attributes', 'dateFiled')).to eq(nil)
+              expect(nil_dates_claim.dig('attributes', 'updatedAt')).to be_nil
+              expect(nil_dates_claim.dig('attributes', 'dateFiled')).to be_nil
             else
               expect(parsed_response_contents.length).to eq(60)
               expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(3)
@@ -74,28 +77,26 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
               decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600096536' }[0]
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2017-09-28')
-              expect(open_claim.dig('attributes', 'phase')).to eq(nil)
-              expect(open_claim.dig('attributes', 'documentsNeeded')).to eq(nil)
-              expect(open_claim.dig('attributes', 'developmentLetterSent')).to eq(nil)
-              expect(open_claim.dig('attributes', 'claimTypeCode')).to eq(nil)
+              expect(open_claim.dig('attributes', 'phase')).to be_nil
+              expect(open_claim.dig('attributes', 'documentsNeeded')).to be_nil
+              expect(open_claim.dig('attributes', 'developmentLetterSent')).to be_nil
+              expect(open_claim.dig('attributes', 'claimTypeCode')).to be_nil
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2017-09-20')
             end
 
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
-            expect(open_claim.dig('attributes', 'completed')).to eq(false)
-            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
-            expect(open_appeal.dig('attributes', 'completed')).to eq(false)
+            expect(open_claim.dig('attributes', 'completed')).to be(false)
+            expect(closed_claim.dig('attributes', 'completed')).to be(true)
+            expect(open_appeal.dig('attributes', 'completed')).to be(false)
             expect(open_claim['type']).to eq('claim')
             expect(closed_claim['type']).to eq('claim')
             expect(open_appeal['type']).to eq('appeal')
             expect(open_appeal.dig('attributes', 'updatedAt')).to eq('2018-01-16')
             expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
-            expect(open_claim.dig('attributes', 'decisionLetterSent')).to eq(false)
-            expect(closed_claim.dig('attributes', 'decisionLetterSent')).to eq(false)
-            expect(open_appeal.dig('attributes', 'decisionLetterSent')).to eq(false)
-            expect(decision_letter_sent_claim.dig('attributes', 'decisionLetterSent')).to eq(true)
-
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            expect(open_claim.dig('attributes', 'decisionLetterSent')).to be(false)
+            expect(closed_claim.dig('attributes', 'decisionLetterSent')).to be(false)
+            expect(open_appeal.dig('attributes', 'decisionLetterSent')).to be(false)
+            expect(decision_letter_sent_claim.dig('attributes', 'decisionLetterSent')).to be(true)
           end
         end
       end
@@ -104,8 +105,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get '/mobile/v0/claims-and-appeals-overview'
-            expect(response).to have_http_status(:unauthorized)
-            expect(response.body).to match_json_schema('evss_errors')
+            assert_schema_conform(401)
           end
         end
       end
@@ -122,12 +122,11 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
 
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents.length).to eq(2)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -144,13 +143,12 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             parsed_response_contents.each do |entry|
-              expect(entry.dig('attributes', 'completed')).to eq(true)
+              expect(entry.dig('attributes', 'completed')).to be(true)
             end
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -167,13 +165,12 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             parsed_response_contents.each do |entry|
-              expect(entry.dig('attributes', 'completed')).to eq(false)
+              expect(entry.dig('attributes', 'completed')).to be(false)
             end
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -186,11 +183,10 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         VCR.use_cassette(error_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-
+            assert_schema_conform(207)
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents[0]['type']).to eq('appeal')
             expect(parsed_response_contents.last['type']).to eq('appeal')
-            expect(response).to have_http_status(:multi_status)
             claims_error_message = if lighthouse_flag
                                      'Resource not found'
                                    else
@@ -202,13 +198,12 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
             )
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
             closed_appeal = parsed_response_contents.select { |entry| entry['id'] == '2348605' }[0]
-            expect(open_appeal.dig('attributes', 'completed')).to eq(false)
-            expect(closed_appeal.dig('attributes', 'completed')).to eq(true)
+            expect(open_appeal.dig('attributes', 'completed')).to be(false)
+            expect(closed_appeal.dig('attributes', 'completed')).to be(true)
             expect(open_appeal['type']).to eq('appeal')
             expect(closed_appeal['type']).to eq('appeal')
             expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
             expect(closed_appeal.dig('attributes', 'displayTitle')).to eq('appeal')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -217,7 +212,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/server_error') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:multi_status)
+            assert_schema_conform(207)
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents[0]['type']).to eq('claim')
             expect(parsed_response_contents.last['type']).to eq('claim')
@@ -231,11 +226,10 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
             end
-            expect(open_claim.dig('attributes', 'completed')).to eq(false)
-            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
+            expect(open_claim.dig('attributes', 'completed')).to be(false)
+            expect(closed_claim.dig('attributes', 'completed')).to be(true)
             expect(open_claim['type']).to eq('claim')
             expect(closed_claim['type']).to eq('claim')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -253,7 +247,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(error_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/server_error') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:bad_gateway)
+            assert_schema_conform(502)
             claims_error_message = if lighthouse_flag
                                      'Resource not found'
                                    else
@@ -264,7 +258,6 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               [{ 'service' => 'claims', 'errorDetails' => claims_error_message },
                { 'service' => 'appeals', 'errorDetails' => 'Received a 500 response from the upstream server' }]
             )
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
           end
         end
       end
@@ -296,7 +289,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           end
         end
 
-        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
         expected_count = lighthouse_flag ? 7 : 6
         active_claims_count = response.parsed_body['data'].count do |item|
           item['attributes']['completed'] == false
@@ -312,7 +305,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           end
         end
 
-        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
         expected_count = lighthouse_flag ? 12 : 11
         active_claims_count = response.parsed_body['data'].count do |item|
           item['attributes']['completed'] == false
@@ -353,12 +346,11 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         Mobile::V0::ClaimOverview.set_cached(user, data)
 
         get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
         parsed_response_contents = response.parsed_body['data']
         open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
-        expect(open_claim.dig('attributes', 'completed')).to eq(false)
+        expect(open_claim.dig('attributes', 'completed')).to be(false)
         expect(open_claim['type']).to eq('claim')
-        expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
       end
 
       context 'when user is only authorized to access claims, not appeals' do
@@ -370,8 +362,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
 
-            expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(207)
             data = response.parsed_body['data']
             expect(data.dig(0, 'type')).to eq('claim')
             expect(data.count).to eq(claim_count)
@@ -381,7 +372,6 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
 
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
             expect(response.parsed_body['data'].count).to eq(claim_count)
             expect(response.parsed_body.dig('meta', 'errors', 0,
                                             'errorDetails')).to eq('Forbidden: User is not authorized for appeals')
@@ -392,9 +382,8 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           it 'returns error and does not cache' do
             VCR.use_cassette(error_claims_response_vcr_path) do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-              expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
-              expect(response).to have_http_status(:bad_gateway)
-              expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+              expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+              assert_schema_conform(502)
             end
           end
         end
@@ -409,8 +398,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             end
 
-            expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(207)
 
             data = response.parsed_body['data']
             expect(data.dig(0, 'type')).to eq('appeal')
@@ -420,8 +408,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
             expect(error).to eq('Forbidden: User is not authorized for claims')
 
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(207)
             expect(response.parsed_body['data'].count).to eq(5)
             expect(response.parsed_body.dig('meta', 'errors', 0,
                                             'errorDetails')).to eq('Forbidden: User is not authorized for claims')
@@ -432,9 +419,8 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           it 'returns error and does not cache' do
             VCR.use_cassette('mobile/appeals/server_error') do
               get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-              expect(Mobile::V0::ClaimOverview.get_cached(user)).to eq(nil)
-              expect(response).to have_http_status(:bad_gateway)
-              expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+              expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+              assert_schema_conform(502)
             end
           end
         end
@@ -448,8 +434,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(207)
           end
         end
       end
@@ -458,8 +443,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(error_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(502)
           end
         end
       end
@@ -474,8 +458,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:multi_status)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(207)
           end
         end
       end
@@ -484,8 +467,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/server_error') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response', strict: true)
+            assert_schema_conform(502)
           end
         end
       end
@@ -500,7 +482,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
-            expect(response).to have_http_status(:forbidden)
+            assert_schema_conform(403)
           end
         end
       end

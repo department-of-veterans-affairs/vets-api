@@ -15,11 +15,12 @@ RSpec.describe FormAttachment do
       let(:bad_password) { 'bad_pw' }
 
       context 'when provided password is incorrect' do
-        it 'logs a sanitized message to Sentry' do
+        it 'logs a sanitized message to Sentry and Rails' do
           error_message = nil
           allow_any_instance_of(FormAttachment).to receive(:log_message_to_sentry) do |_, message, _level|
             error_message = message
           end
+          allow(Rails.logger).to receive(:warn)
 
           tempfile = Tempfile.new(['', "-#{file_name}"])
           file = ActionDispatch::Http::UploadedFile.new(original_filename: file_name, type: 'application/pdf',
@@ -30,6 +31,7 @@ RSpec.describe FormAttachment do
           end.to raise_error(Common::Exceptions::UnprocessableEntity)
           expect(error_message).not_to include(file_name)
           expect(error_message).not_to include(bad_password)
+          expect(Rails.logger).to have_received(:warn)
         end
       end
     end
@@ -41,7 +43,7 @@ RSpec.describe FormAttachment do
       preneed_attachment2 = Preneeds::PreneedAttachment.find(preneed_attachment.id)
       file = preneed_attachment2.get_file
 
-      expect(file.exists?).to eq(true)
+      expect(file.exists?).to be(true)
     end
   end
 end

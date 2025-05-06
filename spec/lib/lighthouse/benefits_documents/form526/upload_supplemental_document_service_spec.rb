@@ -41,7 +41,7 @@ RSpec.describe BenefitsDocuments::Form526::UploadSupplementalDocumentService do
         response = subject.call(file_body, lighthouse_document)
 
         expect(response.status).to eq(200)
-        expect(response.body.dig('data', 'success')).to eq(true)
+        expect(response.body.dig('data', 'success')).to be(true)
       end
     end
   end
@@ -57,17 +57,45 @@ RSpec.describe BenefitsDocuments::Form526::UploadSupplementalDocumentService do
       )
     end
 
-    it 'logs the error via Lighthouse::ServiceException and re-raises the error' do
+    it 'logs the error via Lighthouse::ServiceException and does not swallow the exception' do
       VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400') do
         expect(Lighthouse::ServiceException).to receive(:send_error).with(
           an_instance_of(Faraday::BadRequestError),
           'benefits_documents/form526/upload_supplemental_document_service',
           nil,
           'services/benefits-documents/v1/documents'
-        )
+        ).and_raise(Common::Exceptions::BadRequest)
 
+        expect { subject.call(file_body, lighthouse_document) }.to raise_error(Common::Exceptions::BadRequest)
+      end
+    end
+  end
+
+  describe 'Lighthouse::ServiceException handling' do
+    # Lighthouse::ServiceException can either raise an error or return an error object,
+    # so we need to account for both cases
+    context 'when the service exception class returns an error object' do
+      before do
+        allow(Lighthouse::ServiceException).to receive(:send_error)
+          .and_return(Faraday::BadRequestError)
+      end
+
+      it 're-raises the error' do
         expect do
-          subject.call(file_body, lighthouse_document)
+          subject.call(file_body, LighthouseDocument.new)
+        end.to raise_error(Faraday::BadRequestError)
+      end
+    end
+
+    context 'when the service exception class raises an exception' do
+      before do
+        allow(Lighthouse::ServiceException).to receive(:send_error)
+          .and_raise(Faraday::BadRequestError)
+      end
+
+      it 'the exception gets raised' do
+        expect do
+          subject.call(file_body, LighthouseDocument.new)
         end.to raise_error(Faraday::BadRequestError)
       end
     end

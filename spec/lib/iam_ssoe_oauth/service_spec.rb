@@ -4,13 +4,7 @@ require 'rails_helper'
 require 'iam_ssoe_oauth/service'
 
 describe 'IAMSSOeOAuth::Service' do
-  let(:service) { IAMSSOeOAuth::Service.new }
-
-  before do
-    allow(IAMSSOeOAuth::Configuration.instance).to receive_messages(
-      ssl_cert: instance_double('OpenSSL::X509::Certificate'), ssl_key: instance_double('OpenSSL::PKey::RSA')
-    )
-  end
+  subject(:service) { IAMSSOeOAuth::Service.new }
 
   describe '#post_introspect' do
     context 'with an active user response' do
@@ -26,9 +20,9 @@ describe 'IAMSSOeOAuth::Service' do
 
       it 'includes a mvi correlation id string' do
         expect(response).to include(
-          fediam_gc_id: '1008596379V859838^NI^200M^USVHA^P|796121200^PI^200BRLS^USVBA^A'\
-                        '|0000028114^PN^200PROV^USDVA^A|1005079124^NI^200DOD^USDOD^A|32331150^PI^200CORP^USVBA^A'\
-                        '|85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|2810777^PI^200CORP^USVBA^A'\
+          fediam_gc_id: '1008596379V859838^NI^200M^USVHA^P|796121200^PI^200BRLS^USVBA^A' \
+                        '|0000028114^PN^200PROV^USDVA^A|1005079124^NI^200DOD^USDOD^A|32331150^PI^200CORP^USVBA^A' \
+                        '|85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|2810777^PI^200CORP^USVBA^A' \
                         '|32324397^PI^200CORP^USVBA^A|19798466a4b143748e664482c6b6b81b^PN^200VIDM^USDVA^A' \
                         '|796121200^AN^200CORP^USVBA^'
         )
