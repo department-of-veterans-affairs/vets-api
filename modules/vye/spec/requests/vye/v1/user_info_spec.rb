@@ -30,9 +30,15 @@ RSpec.describe 'Vye::V1 UserInfo', type: :request do
         end
 
         describe 'where current_user is not in VYE' do
-          it 'does not accept the request' do
+          it 'returns a 404 not found status' do
             get '/vye/v1'
-            expect(response).to have_http_status(:forbidden)
+            expect(response).to have_http_status(:not_found)
+            parsed_response = JSON.parse(response.body)
+            expect(parsed_response).to have_key('errors')
+            expect(parsed_response['errors']).to be_an(Array)
+            expect(parsed_response['errors'].first['title']).to eq('Resource not found')
+            expect(parsed_response['errors'].first['detail']).to include('No active VYE user information found')
+            expect(parsed_response['errors'].first['status']).to eq('404')
           end
         end
 
