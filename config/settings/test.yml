@@ -78,10 +78,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
-bip:
-  claims:
-    mock: false
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
