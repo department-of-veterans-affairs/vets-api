@@ -73,6 +73,7 @@ module Logging
       claim_id = claim.respond_to?(:id) ? claim.id : claim
       confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
       form_id = claim.respond_to?(:form_id) ? claim.form_id : nil
+      tags = @tags || options[:tags] || []
 
       payload = {
         confirmation_number:,
