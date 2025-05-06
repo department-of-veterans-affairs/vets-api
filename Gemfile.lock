@@ -233,7 +233,7 @@ GEM
       base64
       gyoku (>= 0.4.0)
       nokogiri
-    argon2-kdf (0.3.0)
+    argon2-kdf (0.3.1)
       fiddle
     ast (2.4.3)
     attr_extras (7.1.0)
@@ -244,8 +244,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1094.0)
-    aws-sdk-core (3.222.3)
+    aws-partitions (1.1096.0)
+    aws-sdk-core (3.223.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -258,11 +258,11 @@ GEM
     aws-sdk-kms (1.99.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.184.0)
+    aws-sdk-s3 (1.185.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.97.0)
+    aws-sdk-sns (1.98.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.11.0)
@@ -278,8 +278,8 @@ GEM
     bigdecimal (3.1.9)
     bigdecimal (3.1.9-java)
     bindex (0.8.1)
-    blind_index (2.6.2)
-      activesupport (>= 7)
+    blind_index (2.7.0)
+      activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
     bootsnap (1.18.4)
@@ -487,7 +487,7 @@ GEM
       date_time_precision (>= 0.8)
       mime-types (>= 3.0)
       nokogiri (>= 1.11.4)
-    fiddle (1.1.6)
+    fiddle (1.1.8)
     fitbit_api (1.0.0)
       oauth2 (~> 2.0)
     flipper (1.3.4)

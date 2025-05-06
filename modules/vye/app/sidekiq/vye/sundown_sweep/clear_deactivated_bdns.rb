@@ -8,6 +8,7 @@ module Vye
       def perform
         if Vye::CloudTransfer.holiday?
           logger.info("Vye::SundownSweep::ClearDeactivatedBdns: holiday detected, job run at: #{Time.zone.now}")
+          return
         end
 
         logger.info('Vye::SundownSweep::ClearDeactivatedBdns: starting delete deactivated bdns')
