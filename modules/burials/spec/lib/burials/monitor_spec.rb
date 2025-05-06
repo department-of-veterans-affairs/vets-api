@@ -345,7 +345,7 @@ RSpec.describe Burials::Monitor do
       end
     end
 
-    describe '#track_send_confirmation_email_failure' do
+    describe '#track_send_email_failure' do
       it 'logs sidekiq job send_confirmation_email error' do
         log = "#{message_prefix} send_confirmation_email failed"
         payload = {
@@ -366,11 +366,9 @@ RSpec.describe Burials::Monitor do
           **payload
         )
 
-        monitor.track_send_confirmation_email_failure(claim, lh_service, current_user.uuid, monitor_error)
+        monitor.track_send_email_failure(claim, lh_service, current_user.uuid, 'confirmation', monitor_error)
       end
-    end
 
-    describe '#track_send_submitted_email_failure' do
       it 'logs sidekiq job send_submitted_email error' do
         log = "#{message_prefix} send_submitted_email failed"
         payload = {
@@ -391,7 +389,7 @@ RSpec.describe Burials::Monitor do
           **payload
         )
 
-        monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
+        monitor.track_send_email_failure(claim, lh_service, current_user.uuid, 'submitted', monitor_error)
       end
     end
 

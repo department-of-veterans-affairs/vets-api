@@ -26,7 +26,7 @@ module Burials
     def initialize
       super('burial-application')
 
-      @tags = ['form_id:21P-530EZ']
+      @tags = ["form_id:#{form_id}"]
     end
 
     private
@@ -69,8 +69,8 @@ module Burials
     ##
     # Class name for notification email
     # @return [Class]
-    def notification_email_class
-      Burials::NotificationEmail
+    def send_email(claim_id, level)
+      Burials::NotificationEmail.new(claim_id).deliver(level)
     end
   end
 end

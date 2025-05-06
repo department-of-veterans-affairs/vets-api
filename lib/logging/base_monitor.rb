@@ -35,8 +35,23 @@ module Logging
       raise NotImplementedError, 'Subclasses must implement form_id'
     end
 
-    def notification_email_class
-      raise NotImplementedError, 'Subclasses must implement notification_email_class'
+    # Default implementation for sending emails
+    # Subclasses can override this method to provide custom email functionality
+    #
+    # @param claim_id [Integer] The ID of the claim
+    # @param level [Symbol] The severity level of the email (e.g., :error, :info)
+    def send_email(claim_id, level)
+      # Default implementation does nothing
+    end
+
+    ##
+    # Handles email notification for silent failures
+    #
+    # @param claim_id [Integer] The ID of the claim
+    def handle_silent_failure_email(claim_id)
+      send_email(claim_id, :error)
+    rescue NotImplementedError
+      Rails.logger.warn("Email notification not implemented for claim_id: #{claim_id}")
     end
 
     ##

@@ -96,8 +96,7 @@ module Logging
         )
 
         if claim
-          # silent failure tracking in email callback
-          notification_email_class.new(claim.id).deliver(:error)
+          handle_silent_failure_email(claim.id)
         else
           log_silent_failure(
             { user_account_uuid:, claim_id: msg['args'].first, message: msg, tags: },
@@ -113,33 +112,14 @@ module Logging
       # @param claim [SavedClaim]
       # @param lighthouse_service [LighthouseService]
       # @param user_account_uuid [UUID]
+      # @param email_type [String] 'submitted' or 'confirmation'
       # @param e [Exception]
       #
-      def track_send_confirmation_email_failure(claim, lighthouse_service, user_account_uuid, e)
+      def track_send_email_failure(claim, lighthouse_service, user_account_uuid, email_type, e)
         submit_event(
           :warn,
-          "#{message_prefix} send_confirmation_email failed",
-          "#{submission_stats_key}.send_confirmation_failed",
-          claim:,
-          user_account_uuid:,
-          benefits_intake_uuid: lighthouse_service&.uuid,
-          message: e&.message
-        )
-      end
-
-      ##
-      # Tracks the failure to send a Submission in Progress email for a claim.
-      #
-      # @param claim [SavedClaim]
-      # @param lighthouse_service [LighthouseService]
-      # @param user_account_uuid [UUID]
-      # @param e [Exception]
-      #
-      def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
-        submit_event(
-          :warn,
-          "#{message_prefix} send_submitted_email failed",
-          "#{submission_stats_key}.send_submitted_failed",
+          "#{message_prefix} send_#{email_type}_email failed",
+          "#{submission_stats_key}.send_#{email_type}_failed",
           claim:,
           user_account_uuid:,
           benefits_intake_uuid: lighthouse_service&.uuid,
