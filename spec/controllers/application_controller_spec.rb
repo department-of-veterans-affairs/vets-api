@@ -173,6 +173,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'does not log to sentry if Breakers::OutageException' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
       expect(Sentry).not_to receive(:capture_exception)
       expect(Sentry).not_to receive(:capture_message)
       get :breakers_outage
