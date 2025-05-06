@@ -5,17 +5,9 @@ require 'mobile/v0/exceptions/custom_errors'
 module Mobile
   module V0
     class TravelPayClaimsController < ApplicationController
-      # Ooo.... this checks for ICN and LOA3 - at the base Vets API level, not even Mobile level
-      # Unfortunately, it also checks for facilities, which we might not want to do??
-      include AppointmentAuthorization
-
-      # This is used for ApptsController, maybe helpful if we do want to check for facilities before allowing TP
-      # before_action :authorize_with_facilities
-
-      # This is all we check in TP
-      before_action :authorize
-
-      # This might solve the cache issue with the appointments!!
+      # Not sure if this is needed - all users must authenticate to use the app, correct?
+      # include AppointmentAuthorization
+      # before_action :authorize
       after_action :clear_appointments_cache, only: %i[create]
 
       def create # rubocop:disable Metrics/MethodLength
