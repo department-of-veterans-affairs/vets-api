@@ -27,6 +27,8 @@ RSpec.describe MHVLoggingService do
     let(:mhv_user) { create(:user, :mhv, :mhv_not_logged_in) }
 
     it 'posts audit log when not logged in' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
+
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
         expect(mhv_user.mhv_last_signed_in).to be_nil
         expect(login_service).to be(true)
@@ -51,6 +53,8 @@ RSpec.describe MHVLoggingService do
     end
 
     it 'does not logout when not logged in' do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
+
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_out') do
         expect(mhv_user.mhv_last_signed_in).to be_a(Time)
         expect(logout_service).to be(true)
