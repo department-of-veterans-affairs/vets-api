@@ -10,9 +10,9 @@ module Mobile
         rescue Chip::ServiceException
           raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
         end
-        parsed_response = Mobile::V0::Adapters::CheckInDemographics.new.parse(response)
+        demographics = Mobile::V0::Adapters::CheckInDemographics.new.parse(response, @current_user.uuid)
 
-        render json: Mobile::V0::CheckInDemographicsSerializer.new(@current_user.uuid, parsed_response)
+        render json: Mobile::V0::CheckInDemographicsSerializer.new(demographics)
       end
 
       def update
