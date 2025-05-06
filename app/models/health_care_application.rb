@@ -10,7 +10,6 @@ require 'hca/overrides_parser'
 require 'kafka/sidekiq/event_bus_submission_job'
 
 class HealthCareApplication < ApplicationRecord
-  include SentryLogging
   include VA1010Forms::Utils
   include FormValidation
 
@@ -83,7 +82,7 @@ class HealthCareApplication < ApplicationRecord
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue Common::Client::Errors::ClientError => e
-      log_exception_to_sentry(e)
+      Rails.logger.error('[10-10EZ] - Error synchronously submitting form', { exception: e, user_loa: user&.loa })
 
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
@@ -302,15 +301,14 @@ class HealthCareApplication < ApplicationRecord
       error_class: 'HealthCareApplication FailedWontRetry'
     )
 
-    log_message_to_sentry(
-      'HCA total failure',
+    Rails.logger.error(
+      '[10-10EZ] - HCA total failure',
       :error,
       {
         first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
         middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
         last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
-      },
-      hca: :total_failure
+      }
     )
   end
 
@@ -332,7 +330,7 @@ class HealthCareApplication < ApplicationRecord
     VANotify::EmailJob.perform_async(email, template_id, { 'salutation' => salutation }, api_key, metadata)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
-    log_exception_to_sentry(e)
+    Rails.logger.error('[10-10EZ] - Failure sending Submission Failure Email', { exception: e })
   end
 
   def form_matches_schema
