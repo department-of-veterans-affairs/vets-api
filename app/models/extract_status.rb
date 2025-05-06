@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'digest'
 
 # facility extract statuses, part of PHR refresh.
-class ExtractStatus < Common::Base
+class ExtractStatus
+  include Vets::Model
+
   attribute :extract_type, String
-  attribute :last_updated, Common::UTCTime
+  attribute :last_updated, Vets::Type::UTCTime
   attribute :status, String
-  attribute :created_on, Common::UTCTime
+  attribute :created_on, Vets::Type::UTCTime
   attribute :station_number, String
 
   def id

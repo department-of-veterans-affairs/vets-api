@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -e
+
+# bin/local-traefik — generate dynamic config and run Traefik locally
+# Usage:
+#   bin/local-traefik [--port PORT] [--version VERSION]
+#
+# Defaults:
+#   PORT=80
+#   VERSION=2.6.1
+
+PORT=80
+# For latest, see https://github.com/department-of-veterans-affairs/vsp-infra-traefik/tree/main/versions.json#L6
+TRAEFIK_VERSION="2.6.1"
+
+# parse flags
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --port)
+      PORT="$2"
+      shift 2
+      ;;
+    --version)
+      TRAEFIK_VERSION="$2"
+      shift 2
+      ;;
+    --help|-h)
+      echo "Usage: bin/local-traefik [--port PORT] [--version VERSION]"
+      echo ""
+      echo "Spins up a production-like Traefik locally," \
+           "using a generated dynamic file that routes / → localhost:3000." \
+           "Specify the Traefik image version with --version."
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      echo "Use --help to see available options."
+      exit 1
+      ;;
+  esac
+done
+
+# ensure Rails is already running on 3000
+if ! nc -z localhost 3000 >/dev/null 2>&1; then
+  echo "⚠️  No service listening on localhost:3000.  Start your API first (e.g. bin/prod)." >&2
+  exit 1
+fi
+
+# generate the dynamic file only if it doesn't exist
+DYNAMIC_FILE="tmp/traefik-dynamic.yml"
+if [[ ! -f "$DYNAMIC_FILE" ]]; then
+  mkdir -p tmp
+  cat > "$DYNAMIC_FILE" <<EOF
+http:
+  routers:
+    vets-api:
+      rule: PathPrefix(\`/\`)
+      entryPoints:
+        - web
+      service: vets-api
+
+  services:
+    vets-api:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:3000"
+EOF
+  echo "✅ Generated $DYNAMIC_FILE"
+fi
+
+# print Traefik version and port
+echo "🚀 Starting Traefik version $TRAEFIK_VERSION on port $PORT"
+
+# run Traefik
+docker run --rm --name traefik-local \
+  -p ${PORT}:80 \
+  -v "$(pwd)/tmp/traefik-dynamic.yml":/etc/traefik/dynamic.yml:ro \
+  traefik:${TRAEFIK_VERSION} \
+    --entryPoints.web.address=":80" \
+    --providers.file.filename="/etc/traefik/dynamic.yml"

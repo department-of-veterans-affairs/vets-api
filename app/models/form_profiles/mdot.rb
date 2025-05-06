@@ -4,18 +4,21 @@ require 'mdot/address'
 require 'mdot/client'
 require 'mdot/eligibility'
 require 'mdot/supply'
+require 'vets/model'
 
 module MDOT
   class FormContactInformation
-    include Virtus.model
+    include Vets::Model
+
     attribute :permanent_address, MDOT::Address
     attribute :temporary_address, MDOT::Address
     attribute :vet_email, String
   end
 
   class FormSupplyInformation
-    include Virtus.model
-    attribute :available, Array[MDOT::Supply]
+    include Vets::Model
+
+    attribute :available, MDOT::Supply, array: true
     attribute :eligibility, MDOT::Eligibility
   end
 end

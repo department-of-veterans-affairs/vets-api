@@ -7,7 +7,7 @@ module Ccra
                 :phone_number, :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
                 :referring_facility_address, :has_appointments,
-                :referral_date, :station_id
+                :referral_date, :station_id, :referral_consult_id
     attr_accessor :uuid
 
     ##
@@ -22,6 +22,7 @@ module Ccra
       @category_of_care = attributes[:category_of_care]
       @treating_facility = attributes[:treating_facility]
       @referral_number = attributes[:referral_number]
+      @referral_consult_id = attributes[:referral_consult_id]
       @referral_date = attributes[:referral_date]
       @station_id = attributes[:station_id]
       @uuid = nil # Will be set by controller
