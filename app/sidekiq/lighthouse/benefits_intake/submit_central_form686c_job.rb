@@ -171,9 +171,20 @@ module Lighthouse
       end
 
       def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-        stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+        # Add validation for the document
+        validate_document(pdf_path)
+
+        # PDF is generated, stamps are in PDF Utilities
+        stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: 'VA.GOV',
+          timestamp: timestamp || Time.current,
+          x: 5,
+          y: 5
+        )
+        # stamps 'FDC Reviewed - VA.gov Submission' in upper right of docment
         stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
           text: 'FDC Reviewed - va.gov Submission',
+          timestamp: timestamp || Time.current,
           x: 400,
           y: 770,
           text_only: true
@@ -183,6 +194,26 @@ module Lighthouse
         else
           stamped_path2
         end
+      end
+
+      # Validate document before processing
+      def validate_document(file_path)
+        extension = File.extname(file_path)
+        allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
+
+        if allowed_types.exclude?(extension)
+          raise BenefitsIntakeResponseError,
+            I18n.t('errors.messages.extension_allowlist_error', extension: extension, allowed_types: allowed_types)
+        elsif File.size(file_path) < PersistentAttachment::MINIMUM_FILE_SIZE
+          raise BenefitsIntakeResponseError, 'File size must not be less than 1.0 KB'
+        end
+
+        # Validate with Benefits Intake API
+        document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+        intake_service = BenefitsIntakeService::Service.new
+        intake_service.valid_document?(document: document)
+      rescue BenefitsIntake::Service::InvalidDocumentError => e
+        raise BenefitsIntakeResponseError, e.message
       end
 
       def get_hash_and_pages(file_path)
