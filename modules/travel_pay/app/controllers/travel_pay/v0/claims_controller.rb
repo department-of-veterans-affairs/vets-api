@@ -32,11 +32,8 @@ module TravelPay
         end
 
         if claim.nil?
-          # raise Common::Exceptions::ResourceNotFound, message: "Claim not found. ID provided: #{params[:id]}"
-          handle_resource_not_found_error(
-            "Claim not found. ID provided: #{params[:id]}",
-            e.response[:request][:headers]['X-Correlation-ID']
-          )
+          handle_resource_not_found_error("Claim not found. ID provided: #{params[:id]}",
+                                          e.response[:request][:headers]['X-Correlation-ID'])
           return
         end
 

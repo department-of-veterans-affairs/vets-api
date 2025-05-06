@@ -3812,7 +3812,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[host path method]) do
+        VCR.use_cassette('travel_pay/400_claims', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/v0/claims', 400, headers)
         end
       end
@@ -3837,13 +3837,13 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'returns 400 for missing claim' do
+      it 'returns 404 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
-            400,
+            404,
             headers.merge('id' => 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e')
           )
         end
@@ -3911,6 +3911,28 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             201,
             headers.merge(params)
           )
+        end
+      end
+    end
+
+    context 'documents' do
+      context 'index' do
+        let(:mhv_user) { build(:user, :loa3) }
+
+        it 'returns unauthorized for unauthed user' do
+          expect(subject).to validate(:get, '/travel_pay/v0/claims/{id}/documents', 401)
+        end
+
+        it 'returns 200 for successful response' do
+          headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
+          VCR.use_cassette('travel_pay/documents/success', match_requests_on: %i[path method]) do
+            expect(subject).to validate(
+              :get,
+              '/travel_pay/v0/claims/{id}/documents',
+              200,
+              headers.merge('id' => '8656')
+            )
+          end
         end
       end
     end
