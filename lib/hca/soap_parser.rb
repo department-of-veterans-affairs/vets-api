@@ -2,8 +2,6 @@
 
 module HCA
   class SOAPParser < Common::Client::Middleware::Response::SOAPParser
-    include SentryLogging
-
     class ValidationError < StandardError
     end
 
@@ -24,8 +22,7 @@ module HCA
         if el&.nodes.try(:[], 0) == 'formSubmissionException' &&
            doc.locate(FAULT_CODE_EL)[0]&.nodes.try(:[], 0) != 'VOA_0240'
           StatsD.increment(VALIDATION_FAIL_KEY)
-          Sentry.set_tags(validation: 'hca')
-          log_exception_to_sentry(e)
+          Rails.logger.error('[HCA] - Error in soap parser', { exception: e, validation: 'hca' })
 
           raise ValidationError
         end

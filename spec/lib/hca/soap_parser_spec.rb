@@ -25,7 +25,14 @@ describe HCA::SOAPParser do
 
       it 'tags and log validation errors' do
         expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
-        expect(Sentry).to receive(:set_tags).with(validation: 'hca')
+
+        expect(Rails.logger).to receive(:error).with(
+          '[HCA] - Error in soap parser',
+          {
+            exception: Common::Client::Errors::HTTPError,
+            validation: 'hca'
+          }
+        )
 
         subject
       end
