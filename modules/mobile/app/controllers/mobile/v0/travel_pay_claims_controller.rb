@@ -5,9 +5,7 @@ require 'mobile/v0/exceptions/custom_errors'
 module Mobile
   module V0
     class TravelPayClaimsController < ApplicationController
-      # Not sure if this is needed - all users must authenticate to use the app, correct?
-      # include AppointmentAuthorization
-      # before_action :authorize
+      before_action :authenticate
       after_action :clear_appointments_cache, only: %i[create]
 
       def create # rubocop:disable Metrics/MethodLength
