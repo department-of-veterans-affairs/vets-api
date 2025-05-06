@@ -57,7 +57,7 @@ RSpec.describe 'Mobile::V0::TravelPayClaims', type: :request do
                    'appointment_type' => 'Other',
                    'is_complete' => false }
 
-        post('//mobile/v0/travel-pay/claims', headers: sis_headers, params:)
+        post('/mobile/v0/travel-pay/claims', headers: sis_headers, params:)
 
         expect(response).to have_http_status(:internal_server_error)
       end
