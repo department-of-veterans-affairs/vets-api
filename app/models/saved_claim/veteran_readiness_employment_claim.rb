@@ -245,15 +245,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
 
     schema_errors = validate_schema(schema)
-    clear_cache = log_schema_errors(schema_errors)
-
-    schema_v2_errors = validate_schema(schema_v2)
-    clear_cache_v2 = log_schema_errors(schema_v2_errors)
-
-    validation_errors = validate_form(schema, clear_cache)
+    validation_errors = validate_form(schema)
 
     if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
-      v2_errors = validate_form(schema_v2, clear_cache_v2)
+      schema_v2_errors = validate_schema(schema_v2)
+      v2_errors = validate_form(schema_v2)
       add_errors_from_form_validation(v2_errors)
       return schema_v2_errors.empty? && v2_errors.empty?
     end
