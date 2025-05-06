@@ -252,7 +252,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     validation_errors = validate_form(schema, clear_cache)
 
-    if validation_errors.length.positive? && validation_errors.all? { |e| e[:fragment].end_with?('/country') }
+    if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
       v2_errors = validate_form(schema_v2, clear_cache_v2)
       add_errors_from_form_validation(v2_errors)
       return schema_v2_errors.empty? && v2_errors.empty?
