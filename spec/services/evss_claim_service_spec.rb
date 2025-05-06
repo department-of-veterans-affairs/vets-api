@@ -80,13 +80,7 @@ RSpec.describe EVSSClaimService do
         f = Tempfile.new(['file with spaces', '.txt'])
         f.write('test')
         f.rewind
-        rack_file = Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
-
-        ActionDispatch::Http::UploadedFile.new(
-          tempfile: rack_file.tempfile,
-          filename: rack_file.original_filename,
-          type: rack_file.content_type
-        )
+        Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
       end
 
       let(:document) do
@@ -135,15 +129,8 @@ RSpec.describe EVSSClaimService do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
       f.rewind
-      rack_file = Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
-
-      ActionDispatch::Http::UploadedFile.new(
-        tempfile: rack_file.tempfile,
-        filename: rack_file.original_filename,
-        type: rack_file.content_type
-      )
+      Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
     end
-
     let(:document) do
       EVSSClaimDocument.new(
         tracked_item_id: 1,
