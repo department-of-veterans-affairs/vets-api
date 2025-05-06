@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Pensions
-  ##
-  # Constants used for PDF mapping
-  #
   module PdfFill
+    ##
+    # Constants used for PDF mapping
+    #
     module Constants
       # The Recipients Type
       RECIPIENTS = {
