@@ -52,8 +52,8 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
         it 'logs schema failed error' do
           expect(Rails.logger).to receive(:error)
-            .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors,
-                                                                                       form_id: saved_claim.form_id })
+            .with('SavedClaim schema failed validation.', { errors: schema_errors,
+                                                            form_id: saved_claim.form_id })
 
           expect(saved_claim.validate).to be(true)
         end
