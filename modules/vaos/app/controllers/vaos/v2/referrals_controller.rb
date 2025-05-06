@@ -7,6 +7,7 @@ module VAOS
     class ReferralsController < VAOS::BaseController
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
+      # Filters out expired referrals and adds encrypted UUIDs for security
       def index
         response = referral_service.get_vaos_referral_list(
           current_user.icn,
@@ -15,7 +16,6 @@ module VAOS
 
         # Filter out expired referrals
         response = filter_expired_referrals(response)
-
         # Add encrypted UUIDs to the referrals for URL usage
         add_referral_uuids(response)
 
@@ -24,13 +24,13 @@ module VAOS
 
       # GET /v2/referrals/:uuid
       # Fetches a specific referral by its encrypted UUID
+      # Decrypts the UUID to retrieve the referral consult ID
       def show
         # Decrypt the referral UUID from the request parameters
         decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_uuid)
 
         response = referral_service.get_referral(
           decrypted_id,
-          referral_mode_param,
           current_user.icn
         )
 
@@ -51,7 +51,7 @@ module VAOS
 
         referrals.each do |referral|
           # Add encrypted UUID from the referral number
-          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_number)
+          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_consult_id)
         end
       end
 
@@ -59,13 +59,6 @@ module VAOS
       # @return [String] the referral UUID
       def referral_uuid
         params.require(:id)
-      end
-
-      # The referral mode parameter (defaults to 'C' if not provided)
-      # @return [String] the referral mode
-      def referral_mode_param
-        # TODO: Need to verify what modes we can allow. API spec is not clear.
-        params.fetch(:mode, 'C')
       end
 
       # CCRA Referral Status Codes:

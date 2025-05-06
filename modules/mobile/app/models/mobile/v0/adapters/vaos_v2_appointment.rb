@@ -118,6 +118,11 @@ module Mobile
             service_category_name: appointment.dig(:service_category, 0, :text)
           }
 
+          if appointment[:travelPayClaim]
+            adapted_appointment[:travelPayClaim] =
+              appointment[:travelPayClaim].deep_symbolize_keys
+          end
+
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
 
           Mobile::V0::Appointment.new(adapted_appointment)
