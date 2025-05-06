@@ -7,7 +7,7 @@ module Vye
         # Check if user_info is nil after being loaded by the before_action
         # If nil, it means the resource for the current user was not found
         if user_info.nil?
-          raise Vye::ResourceNotFound, { detail: "No active VYE user information found for the current user." }
+          raise Vye::ResourceNotFound, { detail: 'No active VYE user information found for the current user.' }
         end
 
         authorize user_info, policy_class: Vye::UserInfoPolicy

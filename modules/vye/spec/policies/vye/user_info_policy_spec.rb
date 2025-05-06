@@ -8,7 +8,7 @@ RSpec.describe Vye::UserInfoPolicy do
 
   let(:user) { build(:user, :loa3) }
   let(:user_profile) { build(:vye_user_profile, icn: user.icn) }
-  let(:user_info) { build(:vye_user_info, user_profile: user_profile) }
+  let(:user_info) { build(:vye_user_info, user_profile:) }
 
   describe '#show?' do
     context 'when user_info belongs to the current user' do
