@@ -1411,8 +1411,8 @@ vanotify:
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
       template_id:
-        evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
         decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
+        evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
     burials: *vanotify_services_burial
     check_in:
       api_key: <%= ENV['vanotify__services__check_in__api_key'] %>
