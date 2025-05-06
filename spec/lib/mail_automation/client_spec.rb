@@ -36,9 +36,11 @@ RSpec.describe MailAutomation::Client do
       let(:generic_response) do
         double('mail automation response', status: 200, body: { packetId: '12345' }.as_json)
       end
+      let(:flipper_enabled) { true }
 
       before do
         allow(client).to receive_messages(perform: generic_response, authenticate: bearer_token_object)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_send_mas_all_ancillaries).and_return(flipper_enabled)
       end
 
       it 'sets the headers to include the bearer token' do
@@ -47,9 +49,7 @@ RSpec.describe MailAutomation::Client do
       end
 
       context 'when sending all ancillaries is turned on' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:disability_526_send_mas_all_ancillaries).and_return(true)
-        end
+        let(:flipper_enabled) { true }
 
         it 'includes forms 4142 and 0781' do
           client.initiate_apcas_processing
@@ -63,9 +63,7 @@ RSpec.describe MailAutomation::Client do
       end
 
       context 'when sending all ancillaries is turned off' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:disability_526_send_mas_all_ancillaries).and_return(false)
-        end
+        let(:flipper_enabled) { false }
 
         it 'excludes forms 4142 and 0781' do
           client.initiate_apcas_processing
