@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :bpds_submission_attempt, class: 'BPDS::SubmissionAttempts' do
+  factory :bpds_submission_attempt, class: 'BPDS::SubmissionAttempt' do
     bpds_submission
 
     trait :pending do
