@@ -469,7 +469,7 @@ form526_export:
 form_10282:
   sftp:
     host: ~
-    key_data: ~
+    key_path: ~
     pass: ~
     port: ~
     relative_path: form_10282
