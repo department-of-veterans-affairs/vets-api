@@ -23,11 +23,13 @@ module IvcChampva
         'unable to find file'
       ].freeze
 
-      def submit
+      def submit(form_data = nil)
         Datadog::Tracing.trace('Start IVC File Submission') do
           form_id = get_form_id
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
-          parsed_form_data = JSON.parse(params.to_json)
+          # This allows us to call submit internally (for 10-10d/10-7959c merged
+          # form) without messing with the shared param object across functions
+          parsed_form_data = form_data || JSON.parse(params.to_json)
 
           response = handle_file_uploads_wrapper(form_id, parsed_form_data)
 
@@ -41,6 +43,27 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      def applicants_with_ohi(applicants)
+        applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
+      end
+
+      # This method handles generating OHI forms for all appropriate applicants
+      # when a user submits a 10-10d/10-7959c merged form.
+      def submit_champva_app_merged
+        parsed_form_data = JSON.parse(params.to_json)
+        apps = applicants_with_ohi(parsed_form_data['applicants'])
+
+        apps.each do |app|
+          ohi_form = generate_ohi_form(app, parsed_form_data)
+          ohi_supporting_doc = create_ohi_attachment(ohi_form)
+          add_supporting_doc(parsed_form_data, ohi_supporting_doc)
+        end
+
+        submit(parsed_form_data)
+      rescue => e
+        log_error_and_respond("Error submitting merged form: #{e.message}", e)
       end
 
       ##
@@ -190,6 +213,14 @@ module IvcChampva
         file.tempfile = tmpf
       end
 
+      # form_id
+      # password
+      # file
+
+      #
+      # attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
+      # attachment.save
+      # render json: PersistentAttachmentSerializer.new(attachment)
       def submit_supporting_documents
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
@@ -209,6 +240,66 @@ module IvcChampva
       end
 
       private
+
+      def generate_ohi_form(applicant, form_data)
+        # Create applicant-specific form data
+        applicant_data = form_data.except('applicants', 'raw_data').merge(applicant)
+        applicant_data['form_number'] = '10-7959C'
+
+        # Create and configure form
+        form = IvcChampva::VHA107959c.new(applicant_data)
+        form.data['form_number'] = '10-7959C'
+        form
+      end
+
+      def fill_ohi_and_return_path(form)
+        # Generate PDF
+        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        # Results in a file path, which is returned
+        if @current_user
+          filler.generate(@current_user.loa[:current])
+        else
+          filler.generate
+        end
+      end
+
+      def create_ohi_attachment(form)
+        file_path = fill_ohi_and_return_path(form)
+        # Create attachment
+        attachment = PersistentAttachments::MilitaryRecords.new(form_id: form.form_id)
+
+        begin
+          File.open(file_path, 'rb') do |file|
+            attachment.file = file
+            attachment.save
+          end
+
+          # Clean up the file
+          FileUtils.rm_f(file_path)
+
+          # Get serialized attachment data
+          PersistentAttachmentSerializer.new(attachment)
+                                        .serializable_hash
+                                        .dig(:data, :attributes)
+                                        .merge!('attachment_id' => 'VA form 10-7959c')
+                                        .stringify_keys!
+        rescue => e
+          Rails.logger.error "Failed to process OHI form: #{e.message}"
+          FileUtils.rm_f(file_path)
+          raise
+        end
+      end
+
+      def add_supporting_doc(form_data, doc)
+        form_data['supporting_docs'] ||= []
+        form_data['supporting_docs'] << doc
+      end
+
+      def log_error_and_respond(message, exception = nil)
+        Rails.logger.error message
+        Rails.logger.error exception.backtrace.join("\n") if exception
+        render json: { error_message: message }, status: :internal_server_error
+      end
 
       ##
       # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
@@ -398,6 +489,7 @@ module IvcChampva
         attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
+      # Start here to generate OHI
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
 
