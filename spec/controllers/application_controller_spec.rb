@@ -67,6 +67,7 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
     routes.draw do
       get 'test_logging' => 'anonymous#test_logging'
       get 'not_authorized' => 'anonymous#not_authorized'
