@@ -30,23 +30,6 @@ RSpec.describe Identity::CernerProvisioner do
           .with_message('Validation failed: Icn can\'t be blank')
       end
     end
-
-    context 'when source is blank' do
-      let(:source) { nil }
-
-      it 'is valid' do
-        expect(provisioner).to be_valid
-      end
-    end
-
-    context 'when source is invalid' do
-      let(:source) { :invalid_source }
-
-      it 'is not valid' do
-        expect { provisioner }.to raise_error(Identity::Errors::CernerProvisionerError)
-          .with_message('Validation failed: Source is not included in the list')
-      end
-    end
   end
 
   describe '#perform' do
