@@ -1832,6 +1832,3 @@ websockets:
   websocket_settings: <%= ENV['websockets__websocket_settings'] %>
 xlsx_file_fetcher:
   github_access_token: <%= ENV['xlsx_file_fetcher__github_access_token'] %>
-
-
-  
