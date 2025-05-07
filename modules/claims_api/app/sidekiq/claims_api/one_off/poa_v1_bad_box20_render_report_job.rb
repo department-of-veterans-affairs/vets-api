@@ -3,7 +3,7 @@
 module ClaimsApi
   module OneOff
     class PoaV1BadBox20RenderReportJob < ClaimsApi::ServiceBase
-      sidekiq_options expires_in: 1.hour, retry: true, unique_until: :success
+      sidekiq_options retry: 5 # Retry for ~10 mins
       LOG_TAG = 'claims_api_poa_box20_report_job'
 
       # rubocop:disable Metrics/MethodLength
