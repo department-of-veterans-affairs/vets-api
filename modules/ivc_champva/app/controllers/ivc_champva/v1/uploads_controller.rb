@@ -48,6 +48,8 @@ module IvcChampva
       # This method handles generating OHI forms for all appropriate applicants
       # when a user submits a 10-10d/10-7959c merged form.
       def submit_champva_app_merged
+        return unless Settings.vsp_environment != 'production'
+
         parsed_form_data = JSON.parse(params.to_json)
         apps = applicants_with_ohi(parsed_form_data['applicants'])
 
