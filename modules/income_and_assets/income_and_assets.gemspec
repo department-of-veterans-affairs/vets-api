@@ -9,8 +9,8 @@ require 'income_and_assets/version'
 Gem::Specification.new do |spec|
   spec.name        = 'income_and_assets'
   spec.version     = IncomeAndAssets::VERSION
-  spec.authors     = ['Bryan Alexander']
-  spec.email       = ['bryan.alexander@adhocteam.us']
+  spec.authors     = ['VA Benefits Lifestage']
+  spec.email       = []
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
   spec.description = 'This module was auto-generated please update this description'

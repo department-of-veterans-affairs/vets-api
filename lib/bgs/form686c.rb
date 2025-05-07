@@ -138,7 +138,7 @@ module BGS
       end
 
       # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
-      if selectable_options['report_death'] && dependents_app['deaths'].any? do |h|
+      if selectable_options['report_death'] && dependents_app['deaths']&.any? do |h|
            RELATIONSHIPS.include?(h['dependent_type'])
          end
         return set_to_manual_vagov('report_death')
@@ -156,7 +156,7 @@ module BGS
       # if any of the dependent_removal_options in selectable_options is set to true, we are removing a dependent
       removing_dependent = false
       if Flipper.enabled?(:dependents_removal_check)
-        dependent_removal_options = REMOVE_CHILD_OPTIONS.dup << ('report_death') << ('report_divorce')
+        dependent_removal_options = REMOVE_CHILD_OPTIONS.dup << 'report_death' << 'report_divorce'
         removing_dependent = dependent_removal_options.any? { |option| selectable_options[option] }
       end
 
