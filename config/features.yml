@@ -1560,6 +1560,14 @@ features:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
     enable_in_development: false
+  dslogon_interstitial_redirect:
+    actor_type: user
+    description: Enables DS Logon users to be redirected to the DS Logon deprecation interstitial page (Identity)
+    enable_in_development: false
+  dslogon_button_disabled:
+    actor_type: user
+    description: Hides the DS Logon button credential on sign-in page + modal (Identity)
+    enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
