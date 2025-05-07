@@ -173,13 +173,21 @@ class SavedClaim < ApplicationRecord
   # This method exists to change the json_schemer errors
   # to be formatted like json_schema errors, which keeps
   # the error logging smooth and identical for both options.
+  # This method also filters out the `data` key because it could
+  # potentially contain pii.
   def reformatted_schemer_errors(errors)
-    errors.map!(&:symbolize_keys)
-    errors.each do |error|
-      error[:fragment] = error[:data_pointer]
-      error[:message] = error[:error]
+    errors.map do |error|
+      symbolized = error.symbolize_keys
+      {
+        data_pointer: symbolized[:data_pointer],
+        error: symbolized[:error],
+        details: symbolized[:details],
+        schema: symbolized[:schema],
+        root_schema: symbolized[:root_schema],
+        message: symbolized[:error],
+        fragment: symbolized[:data_pointer]
+      }
     end
-    errors
   end
 
   def attachment_keys
