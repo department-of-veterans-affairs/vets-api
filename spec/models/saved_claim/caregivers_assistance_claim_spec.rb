@@ -98,48 +98,13 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe 'validations' do
     let(:claim) { build(:caregivers_assistance_claim) }
 
-    before do
-      allow(Flipper).to receive(:enabled?).and_call_original
-    end
+    context 'validation errors' do
+      it 'calls the parent method' do
+        allow(claim).to receive(:form_matches_schema).and_call_original
 
-    context 'caregiver_retry_form_validation disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver_retry_form_validation).and_return(false)
-      end
+        claim.validate
 
-      context 'no validation errors' do
-        before do
-          allow(JSON::Validator).to receive(:fully_validate).and_return([])
-        end
-
-        it 'returns true' do
-          expect(claim.validate).to be true
-        end
-      end
-
-      context 'validation errors' do
-        it 'calls the parent method when the toggle is off' do
-          allow(claim).to receive(:form_matches_schema).and_call_original
-
-          claim.validate
-
-          expect(claim).to have_received(:form_matches_schema)
-        end
-      end
-    end
-
-    context 'caregiver_retry_form_validation enabled' do
-      let(:schema) { 'schema_content' }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver_retry_form_validation).and_return(true)
-        allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
-      end
-
-      it 'calls the validate_form_with_retries method' do
-        expect(claim).to receive(:validate_form_with_retries).with(schema, claim.parsed_form).and_return([])
-
-        claim.form_matches_schema
+        expect(claim).to have_received(:form_matches_schema)
       end
     end
   end
