@@ -96,7 +96,7 @@ module Logging
         )
 
         if claim
-          handle_silent_failure_email(claim.id)
+          send_email(claim.id, :error)
         else
           log_silent_failure(
             { user_account_uuid:, claim_id: msg['args'].first, message: msg, tags: },

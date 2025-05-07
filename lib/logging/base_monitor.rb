@@ -39,25 +39,15 @@ module Logging
     # Subclasses can override this method to provide custom email functionality
     #
     # @param claim_id [Integer] The ID of the claim
-    # @param level [Symbol] The severity level of the email (e.g., :error, :info)
-    def send_email(claim_id, level)
+    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
+    def send_email(claim_id, email_type)
       # Default implementation does nothing
     end
-
-    ##
-    # Handles email notification for silent failures
-    #
-    # @param claim_id [Integer] The ID of the claim
-    def handle_silent_failure_email(claim_id)
-      send_email(claim_id, :error)
-    rescue NotImplementedError
-      Rails.logger.warn("Email notification not implemented for claim_id: #{claim_id}")
-    end
-
+    
     ##
     # Submits an event for tracking with standardized payload structure
     #
-    # @param level [String] The severity level of the event (e.g., 'error', 'info', 'warn')
+    # @param level [String] The severity level of the event (e.g., :error, :info, :warn)
     # @param message [String] The message describing the event
     # @param stats_key [String] The key used for stats tracking
     # @param options [Hash] Additional options for the event
