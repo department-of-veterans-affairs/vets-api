@@ -52,7 +52,7 @@ module Burials
             timestamp:,
             page_number: 5,
             size: 9,
-            template: "lib/pdf_fill/forms/pdfs/#{claim.form_id}.pdf",
+            template: "lib/pdf_fill/pdfs/#{claim.form_id}.pdf",
             multistamp: true
           }
         ]
