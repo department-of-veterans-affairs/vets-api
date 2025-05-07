@@ -93,7 +93,7 @@ class DependentsSerializer
       upcoming_removal = person[:upcoming_removal] = upcoming_removals(decisions)[person[:ptcpnt_id]]
       if upcoming_removal
         person[:upcoming_removal_date] = if upcoming_removal[:award_effective_date].present?
-                                           Time.zone.parse(upcoming_removal[:award_effective_date]&.to_s)
+                                           Time.zone.parse(upcoming_removal[:award_effective_date].to_s)
                                          end
         person[:upcoming_removal_reason] = trim_whitespace(upcoming_removal[:dependency_decision_type_description])
       end
