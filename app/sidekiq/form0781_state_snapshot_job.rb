@@ -63,49 +63,36 @@ class Form0781StateSnapshotJob
     InProgressForm.where(form_id: '21-526EZ').where("metadata->>'sync_modern0781_flow' = 'true'").pluck(:id)
   end
 
-  def new_mental_health_workflow?(ipf)
-    JSON.parse(ipf.form_data)['view:mental_health_workflow_choice'] == 'optForOnlineForm0781'
+  def new_0781_submissions_saved_claims 
+    @new_0781_submissions_saved_claims ||= SavedClaim::DisabilityCompensation::Form526AllClaim.where.not(metadata:nil)
   end
 
   def new_0781_submissions
-    form526_submissions
-      .where('created_at >= ?', STAT_START_DATE)
-      .select { |sub| new_0781_form?(sub) }
-      .pluck(:id)
+    new_0781_submissions_saved_claims.pluck(:id)
   end
 
   def new_0781_successful_submissions
-    form526_submissions
-      .where('created_at >= ?', STAT_START_DATE)
-      .select do |sub|
-        next unless new_0781_form?(sub)
-
-        form0781_job_success?(sub)
-      end.pluck(:id)
+    Form526Submission.where(
+      saved_claim_id: new_0781_submissions_saved_claims.pluck(:id)
+    ).where('submitted_claim_id IS NOT NULL OR backup_submitted_claim_id IS NOT NULL').pluck(:id)
   end
 
   def new_0781_failed_submissions
-    form526_submissions
-      .where('created_at >= ?', STAT_START_DATE)
-      .select do |sub|
-        next unless new_0781_form?(sub)
-
-        form0781_job_failure?(sub)
-      end.pluck(:id)
+    Form526Submission.where(
+      saved_claim_id: new_0781_submissions_saved_claims.pluck(:id)
+    ).where('submitted_claim_id IS NULL AND backup_submitted_claim_id IS NULL').pluck(:id)
   end
 
   def new_0781_primary_path_submissions
-    form526_submissions.where('created_at >= ?', STAT_START_DATE)
-                       .where.not(submitted_claim_id: nil)
-                       .select { |sub| new_0781_form?(sub) }
-                       .pluck(:id)
+    Form526Submission.where(
+      saved_claim_id: new_0781_submissions_saved_claims.pluck(:id)
+    ).where('submitted_claim_id IS NOT NULL').pluck(:id)
   end
 
   def new_0781_secondary_path_submissions
-    form526_submissions.where('created_at >= ?', STAT_START_DATE)
-                       .where(submitted_claim_id: nil)
-                       .select { |sub| new_0781_form?(sub) }
-                       .pluck(:id)
+    Form526Submission.where(
+      saved_claim_id: new_0781_submissions_saved_claims.pluck(:id)
+    ).where('backup_submitted_claim_id IS NOT NULL').pluck(:id)
   end
 
   # Helper methods for old 0781 form metrics
@@ -113,53 +100,22 @@ class Form0781StateSnapshotJob
     InProgressForm.where(form_id: '21-526EZ').where.not("metadata::jsonb ? 'sync_modern0781_flow'").pluck(:id)
   end
 
-  def old_ptsd_types_selected?(ipf)
-    !JSON.parse(ipf.form_data)['view:selectable_ptsd_types']&.values&.all?(false)
+  def old_0781_submissions_saved_claims
+    @old_0781_submissions_saved_claims ||= SavedClaim::DisabilityCompensation::Form526AllClaim.where(metadata:nil, created_at: new_0781_submissions_saved_claims.first.created_at..Time.current)
   end
 
   def old_0781_submissions
-    form526_submissions
-      .where('created_at >= ?', STAT_START_DATE)
-      .reject { |sub| new_0781_form?(sub) }
-      .pluck(:id)
+    old_0781_submissions_saved_claims.pluck(:id)
   end
-
   def old_0781_successful_submissions
-    form526_submissions
-      .where('created_at >= ?', STAT_START_DATE)
-      .select do |sub|
-        next if new_0781_form?(sub)
-
-        form0781_job_success?(sub)
-      end.pluck(:id)
+    Form526Submission.where(
+      saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
+    ).where('submitted_claim_id IS NOT NULL OR backup_submitted_claim_id IS NOT NULL').pluck(:id)
   end
-
   def old_0781_failed_submissions
-    form526_submissions
-      .where('created_at >= ?', STAT_START_DATE)
-      .select do |sub|
-        next if new_0781_form?(sub)
-
-        form0781_job_failure?(sub)
-      end.pluck(:id)
+    Form526Submission.where(
+      saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
+    ).where('submitted_claim_id IS NULL AND backup_submitted_claim_id IS NULL').pluck(:id)
   end
 
-  # Common helper methods
-  def form526_submissions
-    @form526_submissions ||= Form526Submission.all
-  end
-
-  def new_0781_form?(submission)
-    JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))&.keys&.include?('form0781v2')
-  end
-
-  def form0781_job_success?(submission)
-    job_statuses = submission.form526_job_statuses.where(job_class: 'SubmitForm0781')
-    job_statuses.first&.success?
-  end
-
-  def form0781_job_failure?(submission)
-    job_statuses = submission.form526_job_statuses.where(job_class: 'SubmitForm0781')
-    Form526JobStatus::FAILURE_STATUSES.include?(job_statuses.first&.status)
-  end
 end
