@@ -26,13 +26,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Fetch target branch
+        run: git fetch origin "${GITHUB_BASE_REF}" --depth=1
 
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Install pdftk
-        run: sudo apt-get update && sudo apt-get install -y pdftk-java
 
       - name: Run Yardoc
         run: bundle exec rake yardoc
