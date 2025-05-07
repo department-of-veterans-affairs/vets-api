@@ -1282,6 +1282,7 @@ token_validation:
 travel_pay:
   base_url: https://btsss.gov
   client_number: '12345'
+  mobile_client_number: '56789'
   mock: false
   service_name: BTSSS-API
   sts:

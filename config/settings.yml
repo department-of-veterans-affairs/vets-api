@@ -1269,6 +1269,7 @@ token_validation:
 travel_pay:
   base_url: <%= ENV['travel_pay__base_url'] %>
   client_number: <%= ENV['travel_pay__client_number'] %>
+  mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
   service_name: BTSSS-API
   sts:
