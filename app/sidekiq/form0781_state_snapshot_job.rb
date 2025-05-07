@@ -63,8 +63,8 @@ class Form0781StateSnapshotJob
     InProgressForm.where(form_id: '21-526EZ').where("metadata->>'sync_modern0781_flow' = 'true'").pluck(:id)
   end
 
-  def new_0781_submissions_saved_claims 
-    @new_0781_submissions_saved_claims ||= SavedClaim::DisabilityCompensation::Form526AllClaim.where.not(metadata:nil)
+  def new_0781_submissions_saved_claims
+    @new_0781_submissions_saved_claims ||= SavedClaim::DisabilityCompensation::Form526AllClaim.where.not(metadata: nil)
   end
 
   def new_0781_submissions
@@ -86,13 +86,13 @@ class Form0781StateSnapshotJob
   def new_0781_primary_path_submissions
     Form526Submission.where(
       saved_claim_id: new_0781_submissions_saved_claims.pluck(:id)
-    ).where('submitted_claim_id IS NOT NULL').pluck(:id)
+    ).where.not(submitted_claim_id: nil).pluck(:id)
   end
 
   def new_0781_secondary_path_submissions
     Form526Submission.where(
       saved_claim_id: new_0781_submissions_saved_claims.pluck(:id)
-    ).where('backup_submitted_claim_id IS NOT NULL').pluck(:id)
+    ).where.not(backup_submitted_claim_id: nil).pluck(:id)
   end
 
   # Helper methods for old 0781 form metrics
@@ -101,21 +101,25 @@ class Form0781StateSnapshotJob
   end
 
   def old_0781_submissions_saved_claims
-    @old_0781_submissions_saved_claims ||= SavedClaim::DisabilityCompensation::Form526AllClaim.where(metadata:nil, created_at: new_0781_submissions_saved_claims.first.created_at..Time.current)
+    @old_0781_submissions_saved_claims ||= SavedClaim::DisabilityCompensation::Form526AllClaim.where(
+      metadata: nil,
+      created_at: new_0781_submissions_saved_claims.first.created_at..Time.current
+    )
   end
 
   def old_0781_submissions
     old_0781_submissions_saved_claims.pluck(:id)
   end
+
   def old_0781_successful_submissions
     Form526Submission.where(
       saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
     ).where('submitted_claim_id IS NOT NULL OR backup_submitted_claim_id IS NOT NULL').pluck(:id)
   end
+
   def old_0781_failed_submissions
     Form526Submission.where(
       saved_claim_id: old_0781_submissions_saved_claims.pluck(:id)
     ).where('submitted_claim_id IS NULL AND backup_submitted_claim_id IS NULL').pluck(:id)
   end
-
 end
