@@ -5,7 +5,8 @@ require 'mhv_logging/client'
 
 describe 'mhv logging client' do
   describe 'audits' do
-    before(:all) do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
       VCR.use_cassette 'mhv_logging_client/session' do
         @client ||= begin
           client = MHVLogging::Client.new(session: { user_id: '12210827' })

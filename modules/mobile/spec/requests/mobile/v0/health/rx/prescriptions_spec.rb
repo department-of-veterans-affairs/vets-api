@@ -20,6 +20,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     Timecop.freeze(Time.zone.parse('2025-04-21T00:00:00.000Z'))
   end
