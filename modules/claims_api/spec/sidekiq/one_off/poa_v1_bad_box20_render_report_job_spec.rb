@@ -25,7 +25,7 @@ RSpec.describe ClaimsApi::OneOff::PoaV1BadBox20RenderReportJob, type: :job do
     it 'logs progress' do
       allow_any_instance_of(ApplicationMailer).to receive(:mail).and_return(
         double.tap do |mailer|
-          allow(mailer).to receive(:deliver_now!).once
+          allow(mailer).to receive(:deliver).once
         end
       )
       expect(ClaimsApi::Logger).to receive(:log).with(log_tag, detail: 'Started processing')

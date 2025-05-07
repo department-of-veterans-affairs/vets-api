@@ -43,7 +43,7 @@ module ClaimsApi
         ClaimsApi::Logger.log LOG_TAG, detail: 'Sending email'
         # rubocop:disable Rails/I18nLocaleTexts
         ApplicationMailer.new.mail(to: emails, subject: 'POA v1 Bad Box20 PDF Render Report', content_type: 'text/html',
-                                   body: memo).deliver_now!
+                                   body: memo).deliver
         # rubocop:enable Rails/I18nLocaleTexts
         ClaimsApi::Logger.log LOG_TAG, detail: 'Email sent. Job complete.'
       rescue => e
