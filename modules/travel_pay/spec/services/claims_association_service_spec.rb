@@ -285,9 +285,11 @@ describe TravelPay::ClaimAssociationService do
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
     before do
-      allow_any_instance_of(TravelPay::AuthManager)
-        .to receive(:authorize)
-        .and_return(tokens)
+      client_id = '12345'
+      allow(TravelPay::AuthManager)
+      .to receive(:new)
+        .with(client_id, user)
+        .and_return(double('AuthManager', authorize: tokens))
       allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
     end
 
@@ -311,6 +313,12 @@ describe TravelPay::ClaimAssociationService do
     end
 
     it 'instantiates auth_manager with mobile client number' do
+      client_id = '56789'
+      allow(TravelPay::AuthManager)
+      .to receive(:new)
+        .with(client_id, user)
+        .and_return(double('AuthManager', authorize: tokens)) 
+
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token],
@@ -319,8 +327,8 @@ describe TravelPay::ClaimAssociationService do
         .and_return(single_claim_success_response)
 
       # TODO: Figure out how to make this work :(
-      # expect(TravelPay::AuthManager).to receive(:new)
-      #   .with('56789', user)
+      expect(TravelPay::AuthManager).to receive(:new)
+        .with('56789', user)
 
       association_service = TravelPay::ClaimAssociationService.new(user, 'mobile')
       appt_with_claim = association_service.associate_single_appointment_to_claim(
@@ -338,8 +346,8 @@ describe TravelPay::ClaimAssociationService do
                 end_date: '2024-01-01T16:45:34Z' })
         .and_return(single_claim_success_response)
 
-      # expect(TravelPay::AuthManager).to receive(:new)
-      # .with('12345', user)
+      expect(TravelPay::AuthManager).to receive(:new)
+      .with('12345', user)
 
       association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
       appt_with_claim = association_service.associate_single_appointment_to_claim(
