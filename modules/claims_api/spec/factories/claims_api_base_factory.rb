@@ -40,6 +40,19 @@ FactoryBot.define do
     }
   end
 
+  trait :with_fuzzed_headers do
+    auth_headers do
+      # NOTE: Some attributes have been removed since they are redundant or never proved useful enough to generate
+      ssn = Faker::IdNumber.ssn_valid.tr('-', '')
+      { va_eauth_firstName: Faker::Name.first_name,
+        va_eauth_lastName: Faker::Name.last_name,
+        va_eauth_birthdate: Faker::Date.birthday(min_age: 18).iso8601,
+        va_eauth_birlsfilenumber: Faker::Number.number(digits: 10).to_s,
+        va_eauth_pid: ssn,
+        va_eauth_pnid: ssn }
+    end
+  end
+
   trait :errored do
     status { 'errored' }
   end

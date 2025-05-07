@@ -192,6 +192,9 @@ features:
   ezr_associations_api_enabled:
     actor_type: user
     description: Enables VES's Associations REST API
+  ezr_prefill_contacts:
+    actor_type: user
+    description: Adds Veteran contacts to ezr prefill data
     enable_in_development: true
   cerner_override_653:
     actor_type: user
@@ -412,6 +415,10 @@ features:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
     enable_in_development: true
+  fsr_zero_silent_errors_in_progress_email:
+    actor_type: user
+    description: Enables sending an email to the veteran when FSR form is in progress
+    enable_in_development: true
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
@@ -565,9 +572,12 @@ features:
   dependents_failure_callback_email:
     actor_type: user
     description: Enables the dependents action needed email callback to be used when an action needed email is triggered
+  dependents_submitted_email:
+    actor_type: cookie_id
+    description: Enables the dependents submitted email
   dependents_separate_confirmation_email:
     actor_type: cookie_id
-    description: Enables the dependents confirmation email to be differentiated by form
+    description: Enables the dependents confirmation/received email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -671,6 +681,9 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  filter_saved_claim_logs:
+    actor_type: user
+    description: Enabled filtering out attributes in saved claim validation logs
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
@@ -1049,17 +1062,9 @@ features:
   mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
     description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
-  mhv_transitional_medical_records_landing_page:
+  mhv_supply_reordering_enabled:
     actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
-  mhv_integration_medical_records_to_phase_1:
-    actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
-    enable_in_development: true
-  mhv_interstitial_enabled:
-    actor_type: user
-    descriptiom: Enables interstitial for upcoming mhv deprecation
-    enable_in_development: false
+    description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
@@ -1071,9 +1076,6 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
-  mhv_secure_messaging_edit_contact_list:
-    actor_type: user
-    description: Disables/Enables Secure Messaging edit contact list page
   mhv_secure_messaging_triage_group_plain_language:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
@@ -1085,14 +1087,9 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
-  mhv_secure_messaging_remove_landing_page:
+  mhv_secure_messaging_migrate_to_api_gateway:
     actor_type: user
-    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
-    enable_in_development: true
-  mhv_secure_messaging_signature_settings:
-    actor_type: user
-    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
-    enable_in_development: true
+    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
   mhv_secure_messaging_read_receipts:
     actor_type: user
     description: Disables/Enables Secure Messaging read receipts
@@ -1197,9 +1194,9 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
-  mhv_medications_client_test:
+  mhv_enable_aal_integration:
     actor_type: user
-    description: Toggles testing memoization medications client
+    description: Enables/disables integration with MHV's AAL-creation endpoint
     enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
@@ -1504,6 +1501,10 @@ features:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
     enable_in_development: false
+  show_meb_5490_1990e_text_update:
+    actor_type: user
+    description: Displays updated text to more clearly explain who needs to fill out form
+    enable_in_development: false
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
@@ -1640,10 +1641,6 @@ features:
     actor_type: user
     enable_in_development: false
     description: Toggle for the vaos module to use an alternate vaos-service route
-  va_online_scheduling_clinic_filter:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for VAOS direct scheduling & appointment request clinic filtering
   va_online_scheduling_breadcrumb_url_update:
     actor_type: user
     enable_in_development: true
@@ -1721,10 +1718,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_online_scheduling_patient_history_future_appts:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for including future appointments in the patient history retrieval.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -1909,6 +1902,9 @@ features:
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
+  virtual_agent_use_sts_authentication:
+    actor_type: user
+    description: Use STS authentication for the virtual agent chatbot application
   virtual_agent_voice:
     actor_type: user
     description: Enable the voice feature of the VA Chatbot
@@ -1985,6 +1981,14 @@ features:
   pension_kafka_event_bus_submission_enabled:
     actor_type: user
     description: Enable the EventBusSubmissionJob for Kafka
+  pension_itf_enabled:
+    actor_type: user
+    description: Enable the Intent to File for Pension
+    enable_in_development: true
+  pension_itf_show_alert:
+    actor_type: user
+    description: Show the alert on frontend for the Intent to File for Pension
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
@@ -2088,6 +2092,10 @@ features:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
     enable_in_development: true
+  override_address_pou:
+    actor_type: user
+    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
+    enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id
     description: Used to show yellow ribbon table in Comparison Tool
@@ -2151,13 +2159,13 @@ features:
     description: If enabled, show additional info about the yellow ribbon program
   accredited_representative_portal_sort_by:
     actor_type: user
-    description: Hides sort by in POA Request Search page
+    description: Enables sort by in POA Request Search page
   accredited_representative_portal_help:
     actor_type: user
-    description: Hides Get Help link on navigation
+    description: Enables Get Help link on navigation
   accredited_representative_portal_profile:
     actor_type: user
-    description: Hides Profile link on navigation dropdown
+    description: Enables Profile link on navigation dropdown
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
