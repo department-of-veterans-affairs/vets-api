@@ -24,11 +24,8 @@ module Rx
       Settings.mhv.rx.app_token
     end
 
-    ##
-    # @return [String] API GW key set in `settings.yml` via credstash
-    #
-    def x_api_key
-      Settings.mhv.rx.x_api_key
+    def app_token_va_gov
+      Settings.mhv.rx.app_token_va_gov
     end
 
     ##
