@@ -39,6 +39,10 @@ describe 'mhv account creation' do
   end
   let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT').utc }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
+  end
+
   it 'fetches a list of states', :vcr do
     client_response = client.get_states
     expect(client_response).to be_a(Hash)
