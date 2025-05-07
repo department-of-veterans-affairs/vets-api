@@ -476,7 +476,19 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+              expect(Rails.logger).to receive(:error).with(
+                '[10-10EZ] - Error synchronously submitting form',
+                { exception: error, user_loa: nil }
+              )
+              expect(Rails.logger).to receive(:error).with(
+                '[10-10EZ] - HCA total failure',
+                :error,
+                {
+                  first_initial: 'F',
+                  middle_initial: 'M',
+                  last_initial: 'Z'
+                }
+              )
               expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
               subject
@@ -534,7 +546,19 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
+              expect(Rails.logger).to receive(:error).with(
+                '[10-10EZ] - Error synchronously submitting form',
+                { exception: error, user_loa: nil }
+              )
+              expect(Rails.logger).to receive(:error).with(
+                '[10-10EZ] - HCA total failure',
+                :error,
+                {
+                  first_initial: 'F',
+                  middle_initial: 'M',
+                  last_initial: 'Z'
+                }
+              )
 
               subject
 
