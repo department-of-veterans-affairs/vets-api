@@ -9,8 +9,8 @@ module PensionBurial
         @id = data['id']
         @creation_date = data['attributes']['creationDate']
         @expiration_date = data['attributes']['expirationDate']
-        @source = ''
         @participant_id = 0
+        @source = ''
         @status = data['attributes']['status']
         @type = data['attributes']['type']
       end
