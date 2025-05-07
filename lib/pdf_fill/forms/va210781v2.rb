@@ -670,7 +670,7 @@ module PdfFill
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: [15]
+          question_nums: [16]
         }
       ].freeze
 
