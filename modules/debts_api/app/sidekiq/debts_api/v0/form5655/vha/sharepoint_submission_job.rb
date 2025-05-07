@@ -31,20 +31,19 @@ module DebtsApi
     #
     # @submission_id {Form5655Submission} - FSR submission record
     #
-    def perform(submission_id)
-      # Use advisory lock to prevent multiple workers from uploading the same FSR
-      DebtsApi::V0::Form5655Submission.with_advisory_lock("sharepoint-#{submission_id}", timeout_seconds: 15) do
+    def perform(submission_id, retry_count = 0)
+      locked = DebtsApi::V0::Form5655Submission.with_advisory_lock("sharepoint-#{submission_id}", timeout_seconds: 15) do
         form_submission = DebtsApi::V0::Form5655Submission.find(submission_id)
-
+        
         # Skip if already in final state
         if form_submission.submitted?
           Rails.logger.info('Skipping already submitted FSR', submission_id:)
-          return
+          return true
         end
-
+        
         sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
         Rails.logger.info('5655 Form Uploading to SharePoint API', submission_id:)
-
+        
         begin
           sharepoint_request.upload(
             form_contents: form_submission.form,
@@ -52,9 +51,25 @@ module DebtsApi
             station_id: form_submission.form['facilityNum']
           )
           StatsD.increment("#{STATS_KEY}.success")
+          true
         rescue => e
           Rails.logger.error("SharePoint submission failed: #{e.message}", submission_id:)
+          StatsD.increment("#{STATS_KEY}.failure")
           raise e
+        end
+      end
+      
+      unless locked
+        Rails.logger.warn("SharePoint job skipped: could not acquire advisory lock for submission #{submission_id} in 15s")
+        StatsD.increment("#{STATS_KEY}.lock_timeout")
+        
+        if retry_count < 3
+          retry_delay = 60.seconds
+          Rails.logger.info("Re-enqueueing SharePoint job for submission #{submission_id}, attempt #{retry_count + 1} of 3")
+          self.class.perform_in(retry_delay, submission_id, retry_count + 1)
+        else
+          Rails.logger.error("SharePoint job failed after 3 retry attempts for submission #{submission_id}")
+          StatsD.increment("#{STATS_KEY}.max_retries_exceeded")
         end
       end
     end
