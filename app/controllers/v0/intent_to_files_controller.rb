@@ -22,9 +22,7 @@ module V0
       }
     )
 
-    # currently, only `compensation` is supported. This will be expanded to
-    # include `pension` and `survivor` in the future.
-    TYPES = %w[compensation].freeze
+    TYPES = %w[compensation pension survivor].freeze
 
     def index
       intent_to_file_provider = ApiProviderFactory.call(
@@ -35,6 +33,13 @@ module V0
         feature_toggle: nil
       )
       type = params['itf_type'] || 'compensation'
+
+      if %w[pension survivor].include? type
+        service = BenefitsClaims::Service.new(@current_user.icn)
+        data = service.get_intent_to_file(type, nil, nil)['data']
+        return render json: IntentToFileSerializer.new(transform_response(data:))
+      end
+
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
         Rails.logger.info("ITF GET call skipped for user #{@current_user.uuid}")
         response = set_success_response
@@ -53,6 +58,13 @@ module V0
         feature_toggle: nil
       )
       type = params['itf_type'] || 'compensation'
+
+      if %w[pension survivor].include? type
+        service = BenefitsClaims::Service.new(@current_user.icn)
+        data = service.create_intent_to_file(type, @current_user.ssn, nil)['data']
+        return render json: IntentToFileSerializer.new(transform_response(data:, create: true))
+      end
+
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
         Rails.logger.info("ITF submit call skipped for user #{@current_user.uuid}")
         response = set_success_response
@@ -80,13 +92,28 @@ module V0
       )
     end
 
+    def transform_response(data:, create: false)
+      intent_to_file = DisabilityCompensation::ApiProvider::IntentToFile.new(
+        id: data['id'],
+        creation_date: data['attributes']['creationDate'],
+        expiration_date: data['attributes']['expirationDate'],
+        source: '',
+        participant_id: 0,
+        status: data['attributes']['status'],
+        type: data['attributes']['type']
+      )
+      intent_to_file = [intent_to_file] if create
+
+      DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(intent_to_file:)
+    end
+
     def authorize_service
       authorize :lighthouse, :itf_access?
     end
 
     def validate_type_param
-      raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
-        TYPES.include?(params[:type])
+      raise Common::Exceptions::InvalidFieldValue.new('itf_type', params[:itf_type]) unless
+        TYPES.include?(params[:itf_type])
     end
   end
 end

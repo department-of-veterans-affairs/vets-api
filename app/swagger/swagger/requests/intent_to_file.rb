@@ -24,7 +24,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/intent_to_file/{type}' do
+      swagger_path '/v0/intent_to_file/{itf_type}' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
@@ -35,9 +35,9 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :type
+            key :name, :itf_type
             key :in, :path
-            key :description, 'ITF type. Allowed values: compensation'
+            key :description, 'ITF type. Allowed values: compensation pension survivor'
             key :required, true
             key :type, :string
           end

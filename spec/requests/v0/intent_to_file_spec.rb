@@ -82,4 +82,24 @@ RSpec.describe 'V0::IntentToFile', type: :request do
       end
     end
   end
+
+  describe 'POST /v0/intent_to_file' do
+    shared_examples 'create intent to file with specified itf type' do |itf_type, file|
+      before do
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('test_token')
+      end
+
+      it "matches the #{itf_type} intent to file schema" do
+        VCR.use_cassette("lighthouse/benefits_claims/intent_to_file/#{file}") do
+          post "/v0/intent_to_file/#{itf_type}"
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('intent_to_file')
+        end
+      end
+    end
+
+    include_examples 'create intent to file with specified itf type', 'compensation', 'create_compensation_200_response'
+    include_examples 'create intent to file with specified itf type', 'pension', 'create_pension_200_response'
+    include_examples 'create intent to file with specified itf type', 'survivor', 'create_survivor_200_response'
+  end
 end

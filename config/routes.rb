@@ -182,7 +182,7 @@ Rails.application.routes.draw do
     end
 
     get 'intent_to_file', to: 'intent_to_files#index'
-    post 'intent_to_file/:type', to: 'intent_to_files#submit'
+    post 'intent_to_file/:itf_type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
