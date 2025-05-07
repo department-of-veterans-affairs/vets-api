@@ -43,7 +43,7 @@ module Logging
     def send_email(claim_id, email_type)
       # Default implementation does nothing
     end
-    
+
     ##
     # Submits an event for tracking with standardized payload structure
     #
