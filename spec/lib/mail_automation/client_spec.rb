@@ -22,7 +22,15 @@ RSpec.describe MailAutomation::Client do
           email: 'test@example.com'
         },
         form0781: nil,
-        form526_uploads: []
+        form526_uploads: [
+          {
+            name: 'test_filename.pdf',
+            confirmationCode: '01234567-89ab-cdef-0123-456789abcdef',
+            attachmentId: 'L023',
+            size: 9876,
+            isEncrypted: false
+          }
+        ]
       }.as_json,
       file_number:,
       claim_id:
@@ -50,6 +58,16 @@ RSpec.describe MailAutomation::Client do
 
       context 'when sending all ancillaries is turned on' do
         let(:flipper_enabled) { true }
+
+        it 'includes form 526 uploads' do
+          client.initiate_apcas_processing
+          expect(client).to have_received(:perform) do |_method, _path, params, _headers, _options|
+            expect(JSON.parse(params)['form526_uploads'][0]).to include(
+              'name' => 'test_filename.pdf',
+              'size' => 9876
+            )
+          end
+        end
 
         it 'includes forms 4142 and 0781' do
           client.initiate_apcas_processing
