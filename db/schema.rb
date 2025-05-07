@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_29_014133) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1345,6 +1345,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_29_014133) do
     t.string "error_details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_schema_contract_validations_on_user_account_id"
   end
 
   create_table "secondary_appeal_forms", force: :cascade do |t|
@@ -2016,6 +2018,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_29_014133) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"

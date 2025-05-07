@@ -39,4 +39,22 @@ describe Vye::MidnightRun::IngressTims, type: :worker do
       expect(Vye::MidnightRun::IngressTimsChunk).to have_enqueued_sidekiq_job.exactly(5).times
     end
   end
+
+  context 'when it is a holiday' do
+    before do
+      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it 'does not process TIMS' do
+      expect(Vye::BatchTransfer::TimsChunk).not_to receive(:build_chunks)
+
+      expect do
+        described_class.new.perform
+      end.not_to(change { Sidekiq::Worker.jobs.size })
+    end
+  end
 end

@@ -12,19 +12,19 @@ module IncomeAndAssets
         'unreportedAsset' => { key: 'F[0].#subform[8].DependentsHaveAssetsNotReported10a[0]' },
         'unreportedAssets' => {
           limit: 4,
-          first_key: 'assetOwnerRelationship',
+          first_key: 'otherRelationshipType',
           # 10b
           'assetOwnerRelationship' => { key: "F[0].RelationshipToVeteran10[#{ITERATOR}]" },
+          'assetOwnerRelationshipOverflow' => {
+            question_num: 10,
+            question_suffix: '(b)',
+            question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
+          },
           'otherRelationshipType' => {
             key: "F[0].OtherRelationship10[#{ITERATOR}]",
             question_num: 10,
             question_suffix: '(b)',
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN"
-          },
-          'assetOwnerRelationshipOverflow' => {
-            question_num: 10,
-            question_suffix: '(b)',
-            question_text: 'SPECIFY ASSET OWNER\'S RELATIONSHIP TO THE VETERAN'
           },
           # 10c
           'assetType' => {
