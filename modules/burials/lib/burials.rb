@@ -12,6 +12,8 @@ module Burials
   # The module path
   MODULE_PATH = 'modules/burials'
 
+  PDF_PATH = "#{MODULE_PATH}/lib/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
+
   # API Version 0
   module V0
   end
