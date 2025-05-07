@@ -15,13 +15,11 @@ RSpec.describe BenefitsDocuments::Configuration do
   describe 'BenefitsDocuments Configuration' do
     context 'when file is pdf' do
       let(:document_data) do
-        OpenStruct.new(
-          file_number: '796378881',
+        { file_number: '796378881',
           claim_id: '600423040',
           tracked_item_id: nil,
           document_type: 'L023',
-          file_name: 'doctors-note.jpg'
-        )
+          file_name: 'doctors-note.pdf' }
       end
       let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
 
@@ -36,13 +34,11 @@ RSpec.describe BenefitsDocuments::Configuration do
 
     context 'when file is jpg' do
       let(:document_data) do
-        OpenStruct.new(
-          file_number: '796378881',
+        { file_number: '796378881',
           claim_id: '600423040',
           tracked_item_id: nil,
           document_type: 'L023',
-          file_name: 'doctors-note.jpg'
-        )
+          file_name: 'doctors-note.jpg' }
       end
       let(:file_body) { File.read(fixture_file_upload('doctors-note.jpg', 'image/jpeg')) }
 
