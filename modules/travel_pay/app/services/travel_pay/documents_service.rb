@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 module TravelPay
-  class DocumentsService < TravelPay::BaseClient
+  class DocumentsService
     def initialize(auth_manager)
-      # NOTE: calling `super` without parentheses calls the super's initialize and passes the sub's arguments
-      super()
       @auth_manager = auth_manager
     end
 
