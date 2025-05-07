@@ -9,6 +9,7 @@ require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
 require 'vets/collections/finder'
 require 'vets/collections/pagination'
+require 'vets/collections/cacheable'
 
 # This will be a replacement for Common::Collection
 module Vets
@@ -16,12 +17,24 @@ module Vets
     DEFAULT_PER_PAGE = 10
     DEFAULT_MAX_PER_PAGE = 100
 
-    attr_accessor :records, :metadata
+    include Vets::Collections::Cacheable
 
-    def initialize(records, metadata: {})
+    attr_accessor :records, :metadata, :errors
+    attr_reader :model_class
+
+    alias members records
+    alias type model_class
+
+    def initialize(records, model_class = nil, metadata: {}, errors: {}, cache_key: nil)
       records = Array.wrap(records)
-      @model_class = records.empty? ? nil : records.first.class
+      @model_class = model_class || records.first&.class
       @metadata = metadata
+      @errors = errors
+      @cache_key = cache_key
+
+      records = records.collect do |record|
+        record.is_a?(Hash) ? model_class.new(record) : record
+      end
 
       unless records.all? { |record| record.is_a?(@model_class) }
         raise ArgumentError, "All records must be instances of #{@model_class}"
@@ -39,13 +52,7 @@ module Vets
       new(records)
     end
 
-    def self.from_hashes(model_class, records)
-      raise ArgumentError, 'Expected an array of hashes' unless records.all? { |r| r.is_a?(Hash) }
-
-      records = records.map { |record| model_class.new(**record) }
-      new(records)
-    end
-
+    # reviously sort on Common::Collection
     def order(clauses = {})
       validate_sort_clauses(clauses)
 
@@ -57,11 +64,13 @@ module Vets
       end
     end
 
+    # previously find_by on Common::Collection
     def where(conditions = {})
       results = Vets::Collections::Finder.new(data: @records).all(conditions)
-      Vets::Collection.new(results, metadata: { filter: conditions })
+      Vets::Collection.new(results, metadata: { filter: conditions }, errors:)
     end
 
+    # previously find_first_by on Common::Collection
     def find_by(conditions = {})
       Vets::Collections::Finder.new(data: @records).first(conditions)
     end
@@ -73,7 +82,11 @@ module Vets
         total_entries: @records.size,
         data: @records
       )
-      Vets::Collection.new(pagination.data, metadata: pagination.metadata)
+      Vets::Collection.new(pagination.data, metadata: pagination.metadata, errors:)
+    end
+
+    def serialize
+      { data: records, metadata:, errors: }.to_json
     end
 
     private

@@ -61,6 +61,38 @@ describe PdfFill::Forms::Va210781v2 do
     end
   end
 
+  describe '#process_treatment_dates' do
+    subject do
+      new_form_class.instance_variable_set(:@form_data, { 'treatmentProvidersDetails' => details })
+      new_form_class.send(:process_treatment_dates)
+    end
+
+    context 'when no treatment provider data is available' do
+      let(:details) { nil }
+
+      it 'returns successfully' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when treatment provider data is populated' do
+      let(:details) do
+        [
+          { 'treatmentMonth' => '', 'treatmentYear' => '' },
+          { 'treatmentMonth' => '02', 'treatmentYear' => '' },
+          { 'treatmentMonth' => '', 'treatmentYear' => '2014' },
+          { 'treatmentMonth' => '02', 'treatmentYear' => '2014' }
+        ]
+      end
+
+      it 'sets the treatment dates accordingly and returns successfully' do
+        subject
+        result_details = new_form_class.instance_variable_get(:@form_data)['treatmentProvidersDetails']
+        expect(result_details.pluck('treatmentDate')).to eq(['no response', '02-????', '2014', '02-2014'])
+      end
+    end
+  end
+
   describe '#set_treatment_selection' do
     context 'when treatment providers are present' do
       it 'sets treatment to 0 and noTreatment to 0' do

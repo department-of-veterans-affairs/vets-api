@@ -79,10 +79,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
-bip:
-  claims:
-    mock: <%= ENV['bip__claims__mock'] %>
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
@@ -475,7 +471,7 @@ form526_export:
 form_10282:
   sftp:
     host: <%= ENV['form_10282__sftp__host'] %>
-    key_data: <%= ENV['form_10282__sftp__key_data'] %>
+    key_path: <%= ENV['form_10282__sftp__key_path'] %>
     pass: <%= ENV['form_10282__sftp__pass'] %>
     port: <%= ENV['form_10282__sftp__port'] %>
     relative_path: <%= ENV['form_10282__sftp__relative_path'] %>
@@ -862,6 +858,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
+    travel_pay: PO9X8XN
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
@@ -1442,6 +1439,7 @@ vanotify:
       template_id:
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
         fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
+        fsr_step_1_submission_in_progress_email: <%= ENV['vanotify__services__dmc__template_id__fsr_step_1_submission_in_progress_email'] %>
         fsr_streamlined_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_streamlined_confirmation_email'] %>
         vha_fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__vha_fsr_confirmation_email'] %>
         vha_new_copay_statement_email: <%= ENV['vanotify__services__dmc__template_id__vha_new_copay_statement_email'] %>

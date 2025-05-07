@@ -79,10 +79,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
-bip:
-  claims:
-    mock: false
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -474,7 +470,7 @@ form526_export:
 form_10282:
   sftp:
     host: ~
-    key_data: ~
+    key_path: ~
     pass: ~
     port: ~
     relative_path: ~
@@ -870,6 +866,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
+    travel_pay: PO9X8XN
     vaos: ~
     vaosWarning: ~
     vaoswarning: ~
@@ -1461,6 +1458,7 @@ vanotify:
       template_id:
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
+        fsr_step_1_submission_in_progress_email: fake_template_id
         fsr_streamlined_confirmation_email: fake_template_id
         vha_fsr_confirmation_email: ~
         vha_new_copay_statement_email: fake_template_id

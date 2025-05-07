@@ -13,7 +13,7 @@ module IncomeAndAssets
         # 8b-8m (only space for one on form)
         'trusts' => {
           limit: 1,
-          first_key: 'establishedDate',
+          first_key: 'establishedDate', # No text fields in this section
           # 8b
           'establishedDate' => {
             'month' => { key: "F[0].Page_10[0].Month8b[#{ITERATOR}]" },
