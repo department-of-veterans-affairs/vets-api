@@ -1069,9 +1069,6 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
-  mhv_secure_messaging_edit_contact_list:
-    actor_type: user
-    description: Disables/Enables Secure Messaging edit contact list page
   mhv_secure_messaging_triage_group_plain_language:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
@@ -1083,14 +1080,6 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
-  mhv_secure_messaging_remove_landing_page:
-    actor_type: user
-    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
-    enable_in_development: true
-  mhv_secure_messaging_signature_settings:
-    actor_type: user
-    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
-    enable_in_development: true
   mhv_secure_messaging_migrate_to_api_gateway:
     actor_type: user
     description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
