@@ -7,7 +7,7 @@ require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, type: :request do
   let!(:user) { sis_user(icn: '1000123456V123456') }
-  let(:default_params) { { start_date: '2024-01-01', end_date: '2024-12-31' } }
+  let(:default_params) { { startDate: '2024-01-01', endDate: '2024-12-31' } }
   let(:path) { '/mobile/v1/health/labs-and-tests' }
   let(:labs_cassette) { 'mobile/unified_health_data/get_labs' }
   let(:labs_attachment_cassette) { 'mobile/unified_health_data/get_labs_value_attachment' }
@@ -42,7 +42,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(11)
+        expect(json_response.count).to eq(3)
         expect(json_response[0]).to eq(ch_response)
         expect(json_response[2]).to eq(sp_response)
       end
@@ -85,7 +85,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(10)
+        expect(json_response.count).to eq(2)
         expect(json_response[0]).to eq(ch_response)
       end
     end
