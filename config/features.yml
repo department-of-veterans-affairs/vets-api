@@ -113,9 +113,6 @@ features:
   caregiver_lookup_facility_name_db:
     actor_type: user
     description: Enables 1010CG pdf fill to lookup facility id in the database instead of vets-json-schema
-  caregiver_retry_form_validation:
-    actor_type: user
-    description: Enables 1010CG to retry schema validation
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
