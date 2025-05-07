@@ -251,6 +251,9 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  # Copied this test from the #submit endpoint tests above and adjusted to use
+  # the new endpoint. We'll need more tests in future, but wanted to have at
+  # least one verifying it wasn't throwing rampant errors
   describe '#submit_champva_app_merged' do
     fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
                                    'vha_10_10d_extended.json')

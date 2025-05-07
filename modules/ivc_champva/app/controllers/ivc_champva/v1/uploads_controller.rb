@@ -235,6 +235,18 @@ module IvcChampva
         applicants.select { |item| item.dig('applicant_has_ohi', 'has_ohi') == 'yes' }
       end
 
+      ##
+      # Directly generates an OHI form + fills it (via fill_ohi_and_return_path)
+      # rather than trying to just send an OHI through the default submit
+      # method.
+      # Main reason for this is because since the PDFs need to be saved
+      # as supporting docs on 10-10d, it would be a bit too complicated to rework the
+      # existing submit flow to not send the intermediate OHI forms to Pega, etc
+      #
+      # @param [Hash] applicant A hash comprising a 10-10d applicant (name, ssn, etc)
+      # @param [Hash] form_data complete form submission data object
+      #
+      # @return [IvcChampva::VHA107959c] A form instance with details from form_data included
       def generate_ohi_form(applicant, form_data)
         # Create applicant-specific form data
         applicant_data = form_data.except('applicants', 'raw_data').merge(applicant)
@@ -271,7 +283,10 @@ module IvcChampva
           # Clean up the file
           FileUtils.rm_f(file_path)
 
-          # Get serialized attachment data
+          # Get serialized attachment data -
+          # This is a lot chained together, but basically have to take the
+          # persistentattachment and turn it into the same hash structure as
+          # produced when the user directly uploads a supporting attachment.
           PersistentAttachmentSerializer.new(attachment)
                                         .serializable_hash
                                         .dig(:data, :attributes)
@@ -284,11 +299,15 @@ module IvcChampva
         end
       end
 
+      # Probably doesn't need to be its own method, but trying to keep methods
+      # short by splitting out as much as possible
       def add_supporting_doc(form_data, doc)
         form_data['supporting_docs'] ||= []
         form_data['supporting_docs'] << doc
       end
 
+      # Probably doesn't need to be its own method, but trying to keep methods
+      # short by splitting out as much as possible
       def log_error_and_respond(message, exception = nil)
         Rails.logger.error message
         Rails.logger.error exception.backtrace.join("\n") if exception
