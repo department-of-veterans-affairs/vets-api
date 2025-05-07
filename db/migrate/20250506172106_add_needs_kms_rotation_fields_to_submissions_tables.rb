@@ -6,10 +6,6 @@ class AddNeedsKmsRotationFieldsToSubmissionsTables < ActiveRecord::Migration[7.2
 
     tables.each do |table|
       add_column table, :needs_kms_rotation, :boolean, default: false, null: false
-      add_index table,
-                :needs_kms_rotation,
-                algorithm: :concurrently,
-                if_not_exists: true
     end
   end
 end
