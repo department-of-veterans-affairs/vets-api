@@ -158,11 +158,12 @@ jobs:
       
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
-          name: Test Artifacts (tmp folder)
+          name: Test Artifacts (tmp directory)
           path: tmp
           if-no-files-found: ignore
+          retention-days: 14
 
 
   update_labels:
