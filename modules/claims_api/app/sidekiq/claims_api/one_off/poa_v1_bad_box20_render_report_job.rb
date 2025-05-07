@@ -26,7 +26,7 @@ module ClaimsApi
         num_records = 0
 
         poas.find_each(batch_size: 75) do |poa|
-          next unless poa.form_data['recordConsent'] && poa.form_data['consentLimits'].blank?
+          next if poa.form_data['consentLimits'].present?
 
           memo << "\n<br>"
           memo << [poa.id, poa.auth_headers['va_eauth_pnid'], poa.created_at.iso8601].join(',')
