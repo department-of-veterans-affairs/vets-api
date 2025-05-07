@@ -8,7 +8,7 @@ module V0
 
       links = pagination_links(resource)
       options = { meta: resource.metadata, links: }
-      render json: FolderSerializer.new(resource.data, options)
+      render json: FolderSerializer.new(resource.records, options)
     end
 
     def show

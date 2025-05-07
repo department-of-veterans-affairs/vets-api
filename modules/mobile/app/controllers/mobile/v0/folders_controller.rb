@@ -8,7 +8,7 @@ module Mobile
         links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         options = { meta: resource.metadata, links: }
-        render json: Mobile::V0::FolderSerializer.new(resource.data, options)
+        render json: Mobile::V0::FolderSerializer.new(resource.records, options)
       end
 
       def show

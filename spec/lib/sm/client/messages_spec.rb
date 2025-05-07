@@ -45,7 +45,7 @@ describe 'sm client' do
 
     it 'gets a message thread', :vcr do
       thread = client.get_message_history(existing_message_id)
-      expect(thread).to be_a(Common::Collection)
+      expect(thread).to be_a(Vets::Collection)
       expect(thread.members.size).to eq(2)
     end
 

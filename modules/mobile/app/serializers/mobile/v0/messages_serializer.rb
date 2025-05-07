@@ -7,6 +7,7 @@ module Mobile
 
       set_id :id
       set_type :messages
+      set_key_transform :camel_lower
 
       attributes :category, :subject, :body, :attachment, :sent_date,
                  :sender_id, :sender_name, :recipient_id, :recipient_name, :read_receipt,

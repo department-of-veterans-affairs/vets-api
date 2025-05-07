@@ -10,14 +10,14 @@ module Mobile
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
         resource = resource.find_by(filter_params) if params[:filter].present?
-        resource = resource.sort(params[:sort])
+        resource = resource.order(params[:sort]) if params[:sort].present?
 
         links = pagination_links(resource)
         resource = resource.paginate(**pagination_params)
         resource.metadata.merge!(message_counts(resource))
 
         options = { meta: resource.metadata, links: }
-        render json: Mobile::V0::MessagesSerializer.new(resource.data, options)
+        render json: Mobile::V0::MessagesSerializer.new(resource.records, options)
       end
 
       def show
@@ -27,7 +27,7 @@ module Mobile
         raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
         user_triage_teams = client.get_triage_teams(@current_user.uuid, use_cache?)
-        user_in_triage_team = user_triage_teams.data.any? { |team| team.name == response.triage_group_name }
+        user_in_triage_team = user_triage_teams.records.any? { |team| team.name == response.triage_group_name }
 
         meta = response.metadata.merge(user_in_triage_team?: user_in_triage_team)
         options = { meta: }
@@ -73,7 +73,7 @@ module Mobile
 
         resource.metadata.merge!(message_counts(resource))
 
-        render json: Mobile::V0::MessagesSerializer.new(resource.data, { meta: resource.metadata })
+        render json: Mobile::V0::MessagesSerializer.new(resource.records, { meta: resource.metadata })
       end
 
       def reply
@@ -130,8 +130,8 @@ module Mobile
 
       def message_counts(resource)
         {
-          message_counts: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
-            if obj[:read_receipt] || obj.try(:read_receipt)
+          message_counts: resource.records.each_with_object(Hash.new(0)) do |obj, hash|
+            if obj.try(:read_receipt)
               hash[:read] += 1
             else
               hash[:unread] += 1

@@ -74,7 +74,7 @@ class Message
   attribute :attachment3_id, Integer
   attribute :attachment4_id, Integer
   attribute :suggested_name_display, String
-  attribute :metadata, Hash
+  attribute :metadata, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
 
   # This is only used for validating uploaded files, never rendered
   attribute :uploads, ActionDispatch::Http::UploadedFile, array: true
@@ -88,11 +88,21 @@ class Message
   alias attachment? attachment
 
   def subject=(data)
-    @subject = data ? Nokogiri::HTML.parse(data).text : nil
+    if data
+      doc = Nokogiri::HTML.fragment(data)
+      @subject = doc.to_html.gsub(/<\/?[^>]*>/, '')
+    else
+      @subject = nil
+    end
   end
 
   def body=(data)
-    @body = data ? Nokogiri::HTML.parse(data).text : nil
+    if data
+      doc = Nokogiri::HTML.fragment(data)
+      @body = doc.to_html.gsub(/<\/?[^>]*>/, '')
+    else
+      @body = nil
+    end
   end
 
   ##

@@ -7,22 +7,24 @@ module Mobile
         resource = client.get_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
-        resource = resource.sort(params[:sort])
+        resource = resource.order(params[:sort]) if params[:sort].present?
 
         # Even though this is a collection action we are not going to paginate
         options = { meta: resource.metadata }
-        render json: TriageTeamSerializer.new(resource.data, options)
+        json = TriageTeamSerializer.new(resource.records).serializable_hash.merge(options)
+        render json:
       end
 
       def all_recipients
         resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
         raise Common::Exceptions::ResourceNotFound if resource.blank?
 
-        resource = resource.sort(params[:sort])
+        resource = resource.order(params[:sort]) if params[:sort].present?
 
         # Even though this is a collection action we are not going to paginate
         options = { meta: resource.metadata }
-        render json: AllTriageTeamsSerializer.new(resource.data, options)
+        json = AllTriageTeamsSerializer.new(resource.records).serializable_hash.merge(options)
+        render json:
       end
     end
   end

@@ -19,7 +19,7 @@ module Vets
 
     include Vets::Collections::Cacheable
 
-    attr_accessor :records, :metadata, :errors
+    attr_accessor :records, :metadata, :errors, :size
     attr_reader :model_class
 
     alias members records
@@ -40,6 +40,7 @@ module Vets
         raise ArgumentError, "All records must be instances of #{@model_class}"
       end
 
+      @size = records.size
       @records = records.sort
     end
 
