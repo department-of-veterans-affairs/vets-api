@@ -5,6 +5,8 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
+require_relative 'constants'
+
 # rubocop:disable Metrics/ClassLength
 module Burials
   module PdfFill
@@ -20,13 +22,6 @@ module Burials
 
       # The path to the PDF template for the form
       TEMPLATE = "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
-
-      # A mapping of care facilities to their labels
-      PLACE_OF_DEATH_KEY = {
-        'vaMedicalCenter' => 'VA MEDICAL CENTER',
-        'stateVeteransHome' => 'STATE VETERANS HOME',
-        'nursingHome' => 'NURSING HOME UNDER VA CONTRACT'
-      }.freeze
 
       # Mapping of the filled out form into JSON
       # rubocop:disable Layout/LineLength
