@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 def basic_class
-  Burials::PdfFill::Forms::Va21p530ez.new({})
+  Burials::PdfFill::Va21p530ez.new({})
 end
 
-describe Burials::PdfFill::Forms::Va21p530ez do
+describe Burials::PdfFill::Va21p530ez do
   let(:form_data) do
     {}
   end
