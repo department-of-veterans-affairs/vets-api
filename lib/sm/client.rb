@@ -278,7 +278,7 @@ module SM
       path = 'message/category'
 
       json = perform(:get, path, nil, token_headers).body
-      Category.new(json)
+      Category.new(json[:data])
     end
 
     ##
@@ -290,7 +290,7 @@ module SM
     def get_message(id)
       path = "message/#{id}/read"
       json = perform(:get, path, nil, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -343,7 +343,7 @@ module SM
       validate_create_context(args)
 
       json = perform(:post, 'message', args.to_h, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -358,7 +358,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -373,7 +373,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -387,7 +387,7 @@ module SM
       validate_reply_context(args)
 
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
-      Message.new(json)
+      Message.new(json[:data])
     end
 
     ##
@@ -515,7 +515,46 @@ module SM
       end
     end
 
+    def get_session_tagged
+      Sentry.set_tags(error: 'mhv_sm_session')
+      current_user = User.find(session.user_uuid)
+
+      requires_oh_messages = '0'
+      if current_user.present? && Flipper.enabled?(:mhv_secure_messaging_cerner_pilot, current_user)
+        requires_oh_messages = '1'
+      end
+
+      Rails.logger.info("secure messaging session tagged with requiresOHMessages=#{requires_oh_messages}")
+      path = append_requires_oh_messages_query('session', requires_oh_messages)
+      env = perform(:get, path, nil, auth_headers)
+      Sentry.get_current_scope.tags.delete(:error)
+      env
+    end
+
     private
+
+    def auth_headers
+      headers = config.base_request_headers.merge(
+        'appToken' => config.app_token,
+        'mhvCorrelationId' => session.user_id.to_s
+      )
+      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
+      else
+        headers
+      end
+    end
+
+    def token_headers
+      headers = config.base_request_headers.merge(
+        'Token' => session.token
+      )
+      if Flipper.enabled?(:mhv_secure_messaging_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
+      else
+        headers
+      end
+    end
 
     def reply_draft?(id)
       get_message_history(id).data.present?

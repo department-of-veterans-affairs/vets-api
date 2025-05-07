@@ -12,8 +12,14 @@ module Mobile
           @user = user
         end
 
-        def get_appointments(start_date:, end_date:, include_pending:, pagination_params: {})
+        def get_appointments(start_date:, end_date:, include_pending:, include_claims: false, pagination_params: {})
           statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
+
+          include_params = {
+            clinics: true,
+            facilities: true,
+            travel_pay_claims: include_claims
+          }
 
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
           # or the upstream service does not use them.
@@ -24,7 +30,7 @@ module Mobile
 
           unless Flipper.enabled?(:appointments_consolidation, @user)
             filterer = VAOS::V2::AppointmentsPresentationFilter.new
-            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
+            appointments.keep_if { |appt| filterer.user_facing?(appt) }
           end
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
@@ -33,13 +39,6 @@ module Mobile
         end
 
         private
-
-        def include_params
-          {
-            clinics: true,
-            facilities: true
-          }
-        end
 
         def appointments_helper
           Mobile::AppointmentsHelper.new(@user)

@@ -2,8 +2,6 @@
 
 module VAOS
   class SessionService < VAOS::BaseService
-    STS_OAUTH_TOKEN = :va_online_scheduling_sts_oauth_token
-
     attr_accessor :user
 
     def initialize(user)
@@ -13,9 +11,7 @@ module VAOS
     private
 
     def perform(method, path, params, headers = nil, options = nil)
-      response = super(method, path, params, headers, options)
-      user_service.extend_session(@user.account_uuid) unless Flipper.enabled?(STS_OAUTH_TOKEN, @user)
-      response
+      super(method, path, params, headers, options)
     end
 
     def headers

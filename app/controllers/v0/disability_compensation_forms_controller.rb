@@ -4,7 +4,7 @@ require 'evss/common_service'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
-require 'evss/reference_data/response_strategy'
+require 'lighthouse/benefits_reference_data/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
 
 module V0
@@ -30,7 +30,7 @@ module V0
     end
 
     def separation_locations
-      response = EVSS::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
+      response = Lighthouse::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
         :all_users,
         :get_separation_locations
       ) do
@@ -46,7 +46,7 @@ module V0
         )
         api_provider.get_separation_locations
       end
-      render json: EVSSSeparationLocationSerializer.new(response)
+      render json: SeparationLocationSerializer.new(response)
     end
 
     def suggested_conditions
@@ -54,11 +54,26 @@ module V0
       render json: DisabilityContentionSerializer.new(results)
     end
 
+    def add_0781_metadata(form526)
+      if form526['syncModern0781Flow'].present?
+        { sync_modern0781_flow: form526['syncModern0781Flow'],
+          sync_modern0781_flow_answered_online: form526['form0781'].present? }.to_json
+      end
+    end
+
     def submit_all_claim
       temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
                                                        @current_user)
 
+      temp_toxic_exposure_optional_dates_fix if Flipper.enabled?(
+        :disability_compensation_temp_toxic_exposure_optional_dates_fix,
+        @current_user
+      )
+
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) && form_content['form526'].present?
+        saved_claim.metadata = add_0781_metadata(form_content['form526'])
+      end
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process
@@ -187,6 +202,55 @@ module V0
             separation_location_code.to_s
         end
       end
+    end
+
+    # [Toxic Exposure] Users are failing SavedClaim creation when exposure dates are incomplete, i.e. "XXXX-01-XX"
+    # #106340 - https://github.com/department-of-veterans-affairs/va.gov-team/issues/106340
+    # malformed dates are coming through because the forms date component does not validate data if the user
+    # backs out of any Toxic Exposure section
+    # This temporary fix:
+    # 1. removes the malformed dates from the Toxic Exposure section
+    # 2. logs which section had the bad date to track which sections users are backing out of
+    def temp_toxic_exposure_optional_dates_fix
+      return unless form_content.is_a?(Hash) && form_content['form526'].is_a?(Hash)
+
+      toxic_exposure = form_content.dig('form526', 'toxicExposure')
+      return unless toxic_exposure
+
+      transformer = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform.new
+      prefix = 'V0::DisabilityCompensationFormsController#submit_all_claim temp_toxic_exposure_optional_dates_fix:'
+
+      Form526Submission::TOXIC_EXPOSURE_DETAILS_MAPPING.each_key do |key|
+        next unless toxic_exposure[key].is_a?(Hash)
+
+        # Fix malformed dates for each sub-location
+        toxic_exposure[key].each do |location, values|
+          next unless values.is_a?(Hash)
+
+          fix_date_error(values, 'startDate', { prefix:, section: key, location: }, transformer)
+          fix_date_error(values, 'endDate',   { prefix:, section: key, location: }, transformer)
+        end
+
+        # Also fix malformed top-level dates if needed
+        next unless %w[otherHerbicideLocations specifyOtherExposures].include?(key)
+
+        fix_date_error(toxic_exposure[key], 'startDate', { prefix:, section: key }, transformer)
+        fix_date_error(toxic_exposure[key], 'endDate',   { prefix:, section: key }, transformer)
+      end
+    end
+
+    def fix_date_error(hash, date_key, context, transformer)
+      return if hash[date_key].blank?
+
+      date = transformer.send(:convert_date_no_day, hash[date_key])
+      return if date.present?
+
+      hash.delete(date_key)
+      # If `context[:location]` is nil, this squeezes out the extra space
+      Rails.logger.info(
+        "#{context[:prefix]} #{context[:section]} #{context[:location]} #{date_key} was malformed"
+          .squeeze(' ')
+      )
     end
     # END TEMPORARY
   end

@@ -3,10 +3,9 @@
 module RepresentationManagement
   module PowerOfAttorneyRequestService
     class Orchestrate
-      def initialize(data:, dependent:, form_data_object:, service_branch:, user:)
+      def initialize(data:, dependent:, service_branch:, user:)
         @data = data
         @dependent = dependent
-        @form_data_object = form_data_object
         @service_branch = service_branch
         @user = user
 
@@ -68,17 +67,10 @@ module RepresentationManagement
       end
 
       def enqueue_confirmation_email
-        email_data = RepresentationManagement::PowerOfAttorneyRequestEmailData.new(form_data: @form_data_object)
-        VANotify::EmailJob.perform_async(
-          email_data.email_address,
-          Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_submit_confirmation_email,
-          {
-            'first_name' => email_data.first_name,
-            'last_name' => email_data.last_name,
-            'submit_date' => email_data.submit_date,
-            'expiration_date' => email_data.expiration_date,
-            'representative name' => email_data.representative_name
-          }
+        poa_request = create_response[:request]
+        notification = poa_request.notifications.create!(type: 'requested')
+        AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob.perform_async(
+          notification.id
         )
       end
     end

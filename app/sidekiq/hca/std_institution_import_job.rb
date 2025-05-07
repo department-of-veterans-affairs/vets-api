@@ -69,24 +69,32 @@ module HCA
         data = fetch_csv_data
         raise 'Failed to fetch CSV data.' unless data
 
-        CSV.parse(data, headers: true) do |row|
-          id = row['ID'].to_i
-          std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id:)
-          Rails.logger.info("institution #{id} new? #{std_institution_facility.new_record?}")
+        import_institutions_from_csv(data)
 
-          created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
-          updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
-          string_attributes = STRING_ATTRIBUTES.transform_values { |string_field| row[string_field]&.to_s }
-          integer_attributes = INTEGER_ATTRIBUTES.transform_values { |integer_field| row[integer_field]&.to_i }
-          std_institution_facility.assign_attributes(
-            { created:, updated: }.merge(string_attributes).merge(integer_attributes)
-          )
-
-          std_institution_facility.save!
-        end
+        HCA::HealthFacilitiesImportJob.perform_async
         Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")
+    end
+
+    private
+
+    def import_institutions_from_csv(data)
+      CSV.parse(data, headers: true) do |row|
+        id = row['ID'].to_i
+        std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id:)
+        Rails.logger.info("institution #{id} new? #{std_institution_facility.new_record?}")
+
+        created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
+        updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
+        string_attributes = STRING_ATTRIBUTES.transform_values { |string_field| row[string_field]&.to_s }
+        integer_attributes = INTEGER_ATTRIBUTES.transform_values { |integer_field| row[integer_field]&.to_i }
+        std_institution_facility.assign_attributes(
+          { created:, updated: }.merge(string_attributes).merge(integer_attributes)
+        )
+
+        std_institution_facility.save!
+      end
     end
   end
 end

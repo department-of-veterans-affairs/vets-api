@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veterans.va.gov/vaos/v1/patients/1012845331V153043/appointments/180402
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012845331V153043/appointments/180402
     body:
       encoding: US-ASCII
       string: ''

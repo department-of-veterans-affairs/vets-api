@@ -17,6 +17,7 @@ RSpec.describe V0::InProgressFormsController do
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
+      allow(FormProfile).to receive(:load_form_mapping).and_call_original
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
         'veteran_full_name' => %w[identity_information full_name],
         'gender' => %w[identity_information gender],
@@ -194,6 +195,35 @@ RSpec.describe V0::InProgressFormsController do
         end
       end
 
+      context 'for an MDOT form sans addresses' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
+        end
+
+        let(:user_details) do
+          {
+            first_name: 'Greg',
+            last_name: 'Anderson',
+            middle_name: 'A',
+            birth_date: '19910405',
+            ssn: '000550237'
+          }
+        end
+
+        let(:user) { build(:user, :loa3, user_details) }
+
+        it 'returns the form as JSON' do
+          VCR.insert_cassette(
+            'mdot/get_supplies_null_addresses_200',
+            match_requests_on: %i[method uri headers],
+            erb: { icn: user.icn }
+          )
+          get v0_in_progress_form_url('MDOT'), params: nil
+          expect(response).to have_http_status(:ok)
+          VCR.eject_cassette
+        end
+      end
+
       context 'when a form is not found' do
         let(:street_check) { build(:street_check) }
         let(:expected_data) do
@@ -361,9 +391,18 @@ RSpec.describe V0::InProgressFormsController do
         end
 
         context 'when form type is pension' do
-          before { allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async) }
+          let(:itf_job) { Lighthouse::CreateIntentToFileJob.new }
 
-          it 'calls the CreateIntentToFileJob for newly created forms' do
+          before do
+            allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async)
+            allow(Lighthouse::CreateIntentToFileJob).to receive(:new).and_return(itf_job)
+            allow(itf_job).to receive(:perform)
+          end
+
+          it 'calls synchronous CreateIntentToFileJob for newly created forms' do
+            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
+                                                       instance_of(User)).and_return(true)
+
             put v0_in_progress_form_url('21P-527EZ'),
                 params: {
                   formData: new_form.form_data,
@@ -372,8 +411,8 @@ RSpec.describe V0::InProgressFormsController do
                 headers: { 'CONTENT_TYPE' => 'application/json' }
 
             latest_form = InProgressForm.last
-            expect(Lighthouse::CreateIntentToFileJob).to have_received(:perform_async).with(latest_form.id, user.icn,
-                                                                                            user.participant_id)
+            expect(itf_job).to have_received(:perform).with(latest_form.id, user.icn, user.participant_id)
+            expect(Lighthouse::CreateIntentToFileJob).not_to have_received(:perform_async)
           end
         end
       end

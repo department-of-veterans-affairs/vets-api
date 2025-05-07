@@ -155,9 +155,9 @@ class BenefitsIntakeStatusJob
               end
       if claim.present? && email.present?
         claim.send_failure_email(email)
-        Dependents::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+        Dependents::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
       else
-        Dependents::Monitor.new.log_silent_failure(context, nil, call_location:)
+        Dependents::Monitor.new.log_silent_failure(context, call_location:)
       end
     end
 
@@ -167,9 +167,9 @@ class BenefitsIntakeStatusJob
       email = claim.parsed_form.dig('claimantInformation', 'emailAddress') if claim.present?
       if claim.present? && email.present?
         claim.send_failure_email(email)
-        PCPG::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+        PCPG::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
       else
-        PCPG::Monitor.new.log_silent_failure(ocntext, nil, call_location:)
+        PCPG::Monitor.new.log_silent_failure(context, call_location:)
       end
     end
 
@@ -179,9 +179,9 @@ class BenefitsIntakeStatusJob
       email = claim.parsed_form['email'] if claim.present?
       if claim.present? && email.present?
         claim.send_failure_email(email)
-        VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+        VRE::Monitor.new.log_silent_failure_no_confirmation(context, call_location:)
       else
-        VRE::Monitor.new.log_silent_failure(context, nil, call_location:)
+        VRE::Monitor.new.log_silent_failure(context, call_location:)
       end
     end
   end

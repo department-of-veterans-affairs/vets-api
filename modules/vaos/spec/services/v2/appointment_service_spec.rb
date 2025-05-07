@@ -175,8 +175,6 @@ describe VAOS::V2::AppointmentsService do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
                                                   instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
       end
 
@@ -286,8 +284,6 @@ describe VAOS::V2::AppointmentsService do
     context 'using VPG' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_eligibility,
-                                                  instance_of(User)).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
                                                   instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_OH_direct_schedule,
@@ -426,8 +422,6 @@ describe VAOS::V2::AppointmentsService do
       before do
         Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
@@ -667,7 +661,6 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
@@ -872,22 +865,6 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    context 'when old appointments are available' do
-      before do
-        allow(instance_of_class)
-          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived,proposed')
-          .and_return({ data: [] })
-        allow(instance_of_class)
-          .to receive(:get_appointments).with(anything, anything, 'booked,fulfilled,arrived')
-          .and_return({ data: [mock_appointment_one, mock_appointment_two, mock_appointment_three] })
-      end
-
-      it 'returns the recent sorted clinic appointments' do
-        expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
-        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
-      end
-    end
-
     context 'when no appointments are available' do
       before do
         allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
@@ -895,7 +872,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns nil' do
         expect(subject.first).to be_nil
-        expect(instance_of_class).to have_received(:get_appointments).exactly(2).times
+        expect(instance_of_class).to have_received(:get_appointments).once
       end
     end
   end
@@ -936,7 +913,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
     end
 
@@ -1033,7 +1009,6 @@ describe VAOS::V2::AppointmentsService do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
@@ -1056,7 +1031,6 @@ describe VAOS::V2::AppointmentsService do
         it 'returns an appointment without a travel claim attached if claim does not exist' do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
@@ -1080,7 +1054,6 @@ describe VAOS::V2::AppointmentsService do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
         allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
         allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
       end
@@ -1184,7 +1157,6 @@ describe VAOS::V2::AppointmentsService do
                                                       user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
             allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
             allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
           end
@@ -1219,7 +1191,6 @@ describe VAOS::V2::AppointmentsService do
           before do
             allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations,
                                                       user).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
           end
 
           it 'returns a cancelled status and the cancelled appointment information' do
@@ -1252,7 +1223,6 @@ describe VAOS::V2::AppointmentsService do
     context 'when there is a server error in updating an appointment' do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_enable_OH_cancellations, user).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token, user).and_return(true)
       end
 
       it 'throws a BackendServiceException' do
@@ -1292,8 +1262,6 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointments merge' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
@@ -1420,8 +1388,6 @@ describe VAOS::V2::AppointmentsService do
       Timecop.freeze(DateTime.parse('2021-09-02T14:00:00Z'))
       allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg,
                                                 instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_sts_oauth_token,
-                                                instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
     end
 
@@ -2109,6 +2075,57 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#set_telehealth_visibility' do
+    let(:current_time) { '2022-09-21T12:00:00+00:00'.to_datetime }
+
+    before do
+      Timecop.freeze(current_time)
+      allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg).and_return(false)
+    end
+
+    after do
+      Timecop.unfreeze
+    end
+
+    it 'sets telehealth visibility to nil if appointment is not a telehealth type' do
+      appt = appt_med
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to be_nil
+    end
+
+    it 'sets telehealth visibility to true if current time is 30 minutes before start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T12:30:00+00:00'.to_datetime
+      appt[:modality] = 'vaVideoCareAtHome'
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+    end
+
+    it 'sets telehealth visibility to true if current time is within 4 hours of start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T08:00:00+00:00'.to_datetime
+      appt[:modality] = 'vaVideoCareAtHome'
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to be(true)
+    end
+
+    it 'sets telehealth visibility to false if current time is more than 30 minutes from start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T12:31:00+00:00'.to_datetime
+      appt[:modality] = 'vaVideoCareAtHome'
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+    end
+
+    it 'sets telehealth visibility to false if current time is more than 4 hours from start time' do
+      appt = build(:appointment_form_v2, :telehealth).attributes
+      appt[:start] = '2022-09-21T07:59:00+00:00'.to_datetime
+      appt[:modality] = 'vaVideoCareAtHome'
+      subject.send(:set_telehealth_visibility, appt)
+      expect(appt.dig(:telehealth, :displayLink)).to be(false)
+    end
+  end
+
   describe '#set_modality' do
     it 'is vaInPersonVaccine for covid service_type' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
@@ -2136,13 +2153,20 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
+    %w[MOBILE_ANY ADHOC].each do |input|
       it "is vaVideoCareAtHome for #{input} vvsKind" do
         appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
         appt[:telehealth][:vvs_kind] = input
         subject.send(:set_modality, appt)
         expect(appt[:modality]).to eq('vaVideoCareAtHome')
       end
+    end
+
+    it 'is vaInPerson for nil vvsKind' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = nil
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaInPerson')
     end
 
     it 'is nil for unrecognized vvsKind' do
@@ -2259,6 +2283,21 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#future' do
+    it 'sets future to true if the appointment is not a request and occurs within the past 60 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:start] = Time.now.utc - 30.minutes
+      expect(subject.send(:future?, appt)).to be(true)
+    end
+
+    it 'sets future to true if the appointment is telehealth and occurs within the past 240 minutes' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:type] = 'VA'
+      appt[:kind] = 'telehealth'
+      appt[:start] = Time.now.utc - 210.minutes
+      expect(subject.send(:future?, appt)).to be(true)
+    end
+
     it 'sets future to true if the appointment is not a request and occurs after the beginning of the current day' do
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:type] = 'VA'

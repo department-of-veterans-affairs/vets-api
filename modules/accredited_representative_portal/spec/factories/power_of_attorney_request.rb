@@ -9,15 +9,15 @@ FactoryBot.define do
       poa_code { Faker::Alphanumeric.alphanumeric(number: 3) }
       accredited_individual { nil }
       resolution_created_at { nil }
+      accredited_organization { nil }
     end
-
-    accredited_organization {
-      create(:organization)
-    }
 
     power_of_attorney_holder_type { 'veteran_service_organization' }
 
     after(:build) do |poa_request, evaluator|
+      poa_request.accredited_organization = evaluator.accredited_organization ||
+                                            create(:organization)
+
       if evaluator.accredited_individual
         poa_request.accredited_individual = evaluator.accredited_individual
       else
@@ -30,6 +30,10 @@ FactoryBot.define do
       end
 
       poa_request.power_of_attorney_holder_poa_code = evaluator.poa_code if evaluator.poa_code.present?
+    end
+
+    trait :unresolved do
+      # Default state, no resolution needed
     end
 
     trait :with_acceptance do

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sm/client'
 
 describe 'sm client' do
-  before(:all) do
+  before do
     VCR.use_cassette 'sm_client/session' do
       @client ||= begin
         client = SM::Client.new(session: { user_id: '10616687' })

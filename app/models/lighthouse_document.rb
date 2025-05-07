@@ -51,7 +51,7 @@ class LighthouseDocument < Common::Base
     'L149' => 'VA Form 21-8940 - Veterans Application for Increased Compensation Based on Un-employability',
     'L159' => 'VA Form 26-4555 - Application in Acquiring Specially Adapted Housing or Special Home Adaptation Grant',
     'L222' => 'VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance',
-    'L228' => 'VA Form 21-0781 - Statement in Support of Claim for PTSD',
+    'L228' => 'VA Form 21-0781 - Statement in Support of Claimed Mental Health Disorder(s) Due to an In-Service Traumatic Event(s)',
     'L229' => 'VA Form 21-0781a - Statement in Support of Claim for PTSD Secondary to Personal Assault',
     'L418' => 'Court papers / documents',
     'L450' => 'STR - Dental - Photocopy',
@@ -125,9 +125,11 @@ class LighthouseDocument < Common::Base
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
+    Rails.logger.info("Document for claim #{claim_id} is encrypted") if metadata.encrypted?
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
+    Rails.logger.info("MetadataReadError: Document for claim #{claim_id}")
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
     else
@@ -136,7 +138,7 @@ class LighthouseDocument < Common::Base
   end
 
   def set_file_extension
-    self.file_extension = file_name.split('.').last
+    self.file_extension = file_name.downcase.split('.').last
   end
 
   def normalize_text

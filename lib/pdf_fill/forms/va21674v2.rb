@@ -730,24 +730,23 @@ module PdfFill
             }
           }, # end of student information
           'child_marriage' => {
-            limit: 4,
             first_key: 'month',
             'month' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[0]',
               limit: 2,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             },
             'day' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[0]',
               limit: 2,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             },
             'year' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[0]',
               limit: 4,
               question_num: 7,
               question_suffix: 'B',
@@ -816,6 +815,8 @@ module PdfFill
 
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
+        student = options[:student]
+        @form_data['dependents_application']['student_information'] = [student]
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
@@ -837,6 +838,8 @@ module PdfFill
             last_term_school_information = school_information['last_term_school_information']
 
             student_information['birth_date'] = split_date(student_information['birth_date'])
+            marriage_date = student_information['marriage_date']
+            @form_data['dependents_application']['child_marriage'] = split_date(marriage_date)
 
             if last_term_school_information.present?
               last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
@@ -862,18 +865,10 @@ module PdfFill
 
         child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
         if child_stopped_attending_school.present?
-          child_stopped_attending_school.each do |child_stopped_attending_school|
-            child_stopped_attending_school['birth_date'] = split_date(child_stopped_attending_school['birth_date'])
-            child_stopped_attending_school['date_child_left_school'] =
-              split_date(child_stopped_attending_school['date_child_left_school'])
-          end
-        end
-
-        child_marriages = @form_data['dependents_application']['child_marriage']
-        if child_marriages.present?
-          child_marriages.each do |child_marriage|
-            child_marriage['date_married'] =
-              split_date(child_marriage['date_married'])
+          child_stopped_attending_school.each do |child|
+            child['birth_date'] = split_date(child['birth_date'])
+            child['date_child_left_school'] =
+              split_date(child['date_child_left_school'])
           end
         end
       end

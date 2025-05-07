@@ -36,7 +36,7 @@ module VBADocuments
         end
       end
 
-      response&.success? ? true : false
+      response&.success? || false
     end
 
     private
@@ -90,7 +90,7 @@ module VBADocuments
     def original_file_metadata(tempfile)
       {
         'size' => tempfile.size,
-        'base64_encoded' => VBADocuments::MultipartParser.base64_encoded?(tempfile.path),
+        'base64_encoded' => VBADocuments::MultipartParser.base64_encoded_file?(tempfile.path),
         'sha256_checksum' => Digest::SHA256.file(tempfile).hexdigest,
         'md5_checksum' => Digest::MD5.file(tempfile).hexdigest
       }

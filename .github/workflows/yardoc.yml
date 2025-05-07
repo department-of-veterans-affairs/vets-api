@@ -1,4 +1,5 @@
 name: Yardoc
+
 # check documentation in specified paths
 on: # `on` parses to `true` in ruby
   pull_request:
@@ -6,31 +7,34 @@ on: # `on` parses to `true` in ruby
       # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#patterns-to-match-file-paths
       - modules/burials/**/*.rb
       - modules/pensions/**/*.rb
+      - modules/income_and_assets/**/*.rb
+      
 permissions:
   contents: read
   pull-requests: write
   statuses: write
+
 jobs:
   yardoc:
     name: Yardoc
 
     env:
-      COVERBAND_DISABLE: true
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      COVERBAND_DISABLE_AUTO_START: true
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
+
+      - name: Fetch target branch
+        run: git fetch origin "${GITHUB_BASE_REF}" --depth=1
 
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Install pdftk
-        run: sudo apt-get update && sudo apt-get install -y pdftk-java
 
       - name: Run Yardoc
         run: bundle exec rake yardoc

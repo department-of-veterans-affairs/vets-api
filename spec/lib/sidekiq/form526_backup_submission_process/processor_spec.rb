@@ -28,8 +28,10 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
   end
 
   describe '#choose_provider' do
-    let(:account) { create(:account) }
-    let(:submission) { create(:form526_submission, user_uuid: account.idme_uuid, submit_endpoint: 'claims_api') }
+    let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+    let(:user_account) { user.user_account }
+    let(:icn) { user_account.icn }
+    let(:submission) { create(:form526_submission, user_account:, submit_endpoint: 'claims_api') }
 
     it 'delegates to the ApiProviderFactory with the correct data' do
       auth_headers = {}
@@ -38,7 +40,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers:, breakered: true },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: }),
           feature_toggle: nil
         }
       )
@@ -59,7 +61,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
           type: ApiProviderFactory::FACTORIES[:generate_pdf],
           provider: ApiProviderFactory::API_PROVIDER[:lighthouse],
           options: { auth_headers: submission.auth_headers, breakered: true },
-          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: account.icn }),
+          current_user: OpenStruct.new({ flipper_id: submission.user_uuid, icn: }),
           feature_toggle: nil
         }
       ).and_call_original
@@ -67,6 +69,33 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Processor do
       subject
         .new(submission.id, get_upload_location_on_instantiation: false)
         .get_form526_pdf
+    end
+  end
+
+  describe '#get_form0781_pdf' do
+    context 'generates a 0781 version 1 pdf' do
+      let(:submission) { create(:form526_submission, :with_0781, submit_endpoint: 'benefits_intake_api') } # rubocop:disable Naming/VariableNumber
+
+      it 'generates a 0781 v1 pdf and a 0781a pdf' do
+        form0781_pdfs = subject
+                        .new(submission.id, get_upload_location_on_instantiation: false)
+                        .get_form0781_pdf
+        expect(form0781_pdfs.count).to eq(2)
+        expect(form0781_pdfs.first[:type]).to eq('21-0781')
+        expect(form0781_pdfs.last[:type]).to eq('21-0781a')
+      end
+    end
+
+    context 'generates a 0781 version 2 pdf' do
+      let(:submission) { create(:form526_submission, :with_0781v2, submit_endpoint: 'benefits_intake_api') }
+
+      it 'generates a 0781 v2 pdf' do
+        form0781_pdfs = subject
+                        .new(submission.id, get_upload_location_on_instantiation: false)
+                        .get_form0781_pdf
+        expect(form0781_pdfs.count).to eq(1)
+        expect(form0781_pdfs.first[:type]).to eq('21-0781V2')
+      end
     end
   end
 end

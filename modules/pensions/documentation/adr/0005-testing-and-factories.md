@@ -10,7 +10,7 @@ Accepted
 `modules/pensions/spec/models/saved_claim/pension_spec.rb` is the test file for our Pension saved claim. Interesting enough it references some PensionBurial code. When the factories are used, they are designed to create a specific class type. Bringing in this pension spec, requires us to also create new module specific factories.
 
 ```rb
-  let(:instance) { build(:pensions_module_pension_claim) }
+  let(:instance) { build(:pensions_saved_claim) }
 ```
 We see that burial attachments are referenced here, perhaps these are supposed to just be attachment files upstream or we copied some technical debt.
 ```rb

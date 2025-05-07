@@ -60,11 +60,49 @@ module PdfFill
             question_suffix: 'C',
             question_text: 'DATE OF CALCULATION'
           }
+        },
+        'certifyingOfficial' => {
+          'fullName' => {
+            key: 'Text8',
+            limit: 50,
+            question_num: 8,
+            question_suffix: 'A',
+            question_text: 'CERTIFYING OFFICIAL NAME'
+          },
+          'title' => {
+            key: 'Text9',
+            limit: 30,
+            question_num: 9,
+            question_suffix: 'A',
+            question_text: 'CERTIFYING OFFICIAL TITLE'
+          }
+        },
+        'statementOfTruthSignature' => {
+          key: 'Text10',
+          limit: 50,
+          question_num: 10,
+          question_suffix: 'A',
+          question_text: 'STATEMENT OF TRUTH SIGNATURE'
+        },
+        'dateSigned' => {
+          key: 'Text11',
+          limit: 10,
+          question_num: 11,
+          question_suffix: 'A',
+          question_text: 'DATE SIGNED'
         }
       }.freeze
 
       def merge_fields(_)
-        @form_data
+        form_data = @form_data
+
+        # Combine first and last name into fullName
+        if form_data['certifyingOfficial']
+          official = form_data['certifyingOfficial']
+          official['fullName'] = "#{official['first']} #{official['last']}" if official['first'] && official['last']
+        end
+
+        form_data
       end
     end
   end

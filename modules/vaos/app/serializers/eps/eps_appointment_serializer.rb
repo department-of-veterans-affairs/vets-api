@@ -4,29 +4,27 @@ module Eps
   class EpsAppointmentSerializer
     include JSONAPI::Serializer
 
-    attribute :appointment do |object|
-      next if object.appointment.nil?
+    attribute :id, &:id
 
-      VAOS::V2::EpsAppointment.new(object.appointment).serializable_hash
+    attribute :status, &:status
+
+    attribute :start, &:start
+
+    attribute :type_of_care, &:type_of_care
+
+    attribute :is_latest, &:is_latest
+
+    attribute :last_retrieved, &:last_retrieved
+
+    attribute :modality do |_object|
+      # NOTE: this is intentionally hardcoded for now for prototype,
+      # will be updated once confirmed that the data will be available
+      # from the referral object
+      'OV'
     end
 
-    attribute :provider do |object|
-      next if object.provider.nil?
+    attribute :provider, &:provider_details
 
-      {
-        id: object.provider.id,
-        name: object.provider.name,
-        is_active: object.provider.is_active,
-        individual_providers: object.provider.individual_providers,
-        provider_organization: object.provider.provider_organization,
-        location: object.provider.location,
-        network_ids: object.provider.network_ids,
-        scheduling_notes: object.provider.scheduling_notes,
-        appointment_types: object.provider.appointment_types,
-        specialties: object.provider.specialties,
-        visit_mode: object.provider.visit_mode,
-        features: object.provider.features
-      }
-    end
+    attribute :referring_facility, &:referring_facility_details
   end
 end

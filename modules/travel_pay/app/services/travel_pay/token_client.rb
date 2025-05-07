@@ -37,7 +37,7 @@ module TravelPay
 
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
       log_to_statsd('token', 'btsss') do
         response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
@@ -53,7 +53,7 @@ module TravelPay
     end
 
     def request_sts_token(user)
-      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key_file = IdentitySettings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
 
       assertion = build_sts_assertion(user)

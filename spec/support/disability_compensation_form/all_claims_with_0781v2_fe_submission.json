@@ -137,6 +137,12 @@
     "hasTrainingPay": true,
     "syncModern0781Flow": true,
     "form0781": {
+      "eventTypes": [
+        { "combat": true },
+        { "mst": true },
+        { "nonMst": true },
+        { "other": true }
+      ],  
       "events": [
         {
           "details": "Lorem ipsum dolor sit amet.",
@@ -201,22 +207,34 @@
         "relationships": "Lorem ipsum dolor sit amet.",
         "unlisted": "Lorem ipsum dolor sit amet."
       },
-      "evidence": {
-        "counseling": true,
-        "family": true,
-        "police": true,
-        "medical": true,
-        "peers": true,
-        "journal": true,
-        "other": true,
-        "otherDetails": "Lorem ipsum dolor sit amet."
+      "supportingEvidenceReports": {
+        "police": true
       },
-      "traumaTreatment": true,
-      "treatmentProviders": {
-        "privateCare": true,
-        "communityCare": false,
-        "vamc": true,
-        "mtf": true
+      "supportingEvidenceRecords": {
+        "medical": true,
+        "counseling": true
+      },
+      "supportingEvidenceWitness": {
+        "family": true,
+        "service": true
+      },
+      "supportingEvidenceOther": {
+        "personal": true
+      },
+      "supportingEvidenceNoneCheckbox": {
+        "none": false
+      },
+      "supportingEvidenceUnlisted": "Lorem ipsum dolor sit amet.",
+      "treatmentNoneCheckbox": {
+        "none": true
+      },
+      "treatmentReceivedVaProvider": {
+        "vaPaid": false,
+        "medicalCenter": true,
+        "dod": true
+      },
+      "treatmentReceivedNonVaProvider": {
+        "nonVa": true
       },
       "treatmentProvidersDetails": [
         {
@@ -229,12 +247,10 @@
           "treatmentYear": "2024"
         },
         {
-          "facilityInfo": "Silver Oak Recovery Center",
-          "noDates": true
+          "facilityInfo": "Silver Oak Recovery Center"
         },
         {
-          "facilityInfo": "Silver Oak Recovery Center",
-          "noDates": true
+          "facilityInfo": "Silver Oak Recovery Center"
         }
       ],
       "optionIndicator": "notEnrolled",

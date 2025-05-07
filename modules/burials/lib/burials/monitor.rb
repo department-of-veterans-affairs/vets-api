@@ -257,8 +257,8 @@ module Burials
       call_location = caller_locations.first
 
       if claim
+        # silent failure tracking in email callback
         Burials::NotificationEmail.new(claim.id).deliver(:error)
-        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
       else
         log_silent_failure(additional_context, user_account_uuid, call_location:)
       end

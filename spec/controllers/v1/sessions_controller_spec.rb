@@ -61,6 +61,41 @@ RSpec.describe V1::SessionsController, type: :controller do
   # Helper variable
   let(:once) { { times: 1, value: 1 } }
 
+  shared_examples 'a successful UserAudit log' do
+    let(:user_verification) { user.user_verification }
+    let(:event) { :sign_in }
+    let!(:user_action_event) { create(:user_action_event, identifier: event) }
+    let(:icn) { user.icn }
+    let(:remote_ip) { Faker::Internet.ip_v4_address }
+    let(:user_agent) { Faker::Internet.user_agent }
+    let(:expected_log_payload) do
+      {
+        event: :sign_in,
+        user_verification_id: user_verification.id,
+        status: :success
+      }
+    end
+    let(:expected_log_tags) { { remote_ip:, user_agent: } }
+    let(:expected_audit_log_message) do
+      expected_log_payload.merge(acting_ip_address: remote_ip, acting_user_agent: user_agent).as_json
+    end
+
+    before do
+      allow(SemanticLogger).to receive(:named_tags).and_return(expected_log_tags)
+      allow(UserAudit.logger).to receive(:success).and_call_original
+    end
+
+    it 'creates a user audit log' do
+      expect { call_endpoint }.to change(Audit::Log, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event:, user_verification:)
+    end
+
+    it 'creates a user action' do
+      expect { call_endpoint }.to change(UserAction, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event: :sign_in, user_verification:)
+    end
+  end
+
   def verify_session_cookie
     token = session[:token]
     expect(token).not_to be_nil
@@ -78,6 +113,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   before do
     request.host = request_host
+    request.remote_ip = Faker::Internet.ip_v4_address
+    request.user_agent = Faker::Internet.user_agent
+
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
@@ -638,9 +676,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+        context 'and authentication occurred with a application in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
           context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
@@ -660,9 +698,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+        context 'and auth occurred with an application not in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
           end
 
           it 'redirects to expected auth page' do
@@ -675,6 +713,10 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
         end
+      end
+
+      context 'after redirecting the client' do
+        it_behaves_like 'a successful UserAudit log'
       end
     end
 
@@ -691,9 +733,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: })
         end
 
-        context 'and authentication occurred with a application in Settings.terms_of_use.enabled_clients' do
+        context 'and authentication occurred with a application in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
           context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
@@ -713,9 +755,9 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'and authentication occurred with an application not in Settings.terms_of_use.enabled_clients' do
+        context 'and auth occurred with an application not in IdentitySettings.terms_of_use.enabled_clients' do
           before do
-            allow(Settings.terms_of_use).to receive(:enabled_clients).and_return('')
+            allow(IdentitySettings.terms_of_use).to receive(:enabled_clients).and_return('')
           end
 
           it 'redirects to expected auth page' do
@@ -728,6 +770,10 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
         end
+      end
+
+      context 'after redirecting the client' do
+        it_behaves_like 'a successful UserAudit log'
       end
     end
 

@@ -1,8 +1,16 @@
 # frozen_string_literal: true
 
 MyHealth::Engine.routes.draw do
+  namespace :v2 do
+    scope :medical_records do
+      resources :labs_and_tests, only: %i[index], defaults: { format: :json }
+    end
+  end
+
   namespace :v1 do
     resources :tooltips, only: %i[index create update], controller: 'tooltips', defaults: { format: :json }
+
+    resources :aal, only: %i[create], controller: 'aal', defaults: { format: :json }
 
     scope :medical_records do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
@@ -29,7 +37,7 @@ MyHealth::Engine.routes.draw do
         get :status, on: :collection
       end
       resources :military_service, only: %i[index]
-      resources :self_entered, only: [], defaults: { format: :json } do
+      resources :self_entered, only: %i[index], defaults: { format: :json } do
         get :vitals, on: :collection
         get :allergies, on: :collection
         get :family_history, on: :collection
@@ -43,6 +51,7 @@ MyHealth::Engine.routes.draw do
         get :food_journal, on: :collection
         get :activity_journal, on: :collection
         get :medications, on: :collection
+        get :emergency_contacts, on: :collection
       end
       resources :patient, only: %i[index] do
         get :demographic, on: :collection

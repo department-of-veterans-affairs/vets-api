@@ -12,6 +12,12 @@
     "veteranPhone": "2024561111",
     "veteranSecondaryPhone": "",
     "veteranServiceNumber": "",
+    "eventTypes": [
+      { "combat": true },
+      { "mst": true },
+      { "nonMst": true },
+      { "other": true }
+    ],
     "events": [
       {
         "details": "Lorem ipsum dolor sit amet.",
@@ -50,19 +56,15 @@
         "timing": "2004"
       }
     ],
-    "workBehaviors": {
+    "behaviors": {
       "reassignment": true,
-      "performance": true
-    },
-    "healthBehaviors": {
+      "performance": true,
       "consultations": true,
       "episodes": true,
       "selfMedication": true,
       "substances": true,
       "appetite": true,
-      "screenings": true
-    },
-    "otherBehaviors": {
+      "screenings": true,
       "relationships": true,
       "unlisted": true
     },
@@ -77,21 +79,22 @@
       "unlisted": "Lorem ipsum dolor sit amet."
     },
     "evidence": {
-      "counseling": true,
-      "family": true,
       "police": true,
       "medical": true,
-      "peers": true,
-      "journal": true,
+      "counseling": true,
+      "family": true,
+      "service": true,
+      "personal": true,
       "other": true,
       "otherDetails": "Lorem ipsum dolor sit amet."
     },
-    "traumaTreatment": true,
+    "treatmentNoneCheckbox": {
+      "none": true
+    },
     "treatmentProviders": {
-      "privateCare": true,
-      "communityCare": false,
-      "vamc": true,
-      "mtf": true
+      "nonVa": true,
+      "medicalCenter": true,
+      "dod": true
     },
     "treatmentProvidersDetails": [
       {
@@ -104,12 +107,10 @@
         "treatmentYear": "2024"
       },
       {
-        "facilityInfo": "Silver Oak Recovery Center",
-        "noDates": true
+        "facilityInfo": "Silver Oak Recovery Center"
       },
       {
-        "facilityInfo": "Silver Oak Recovery Center",
-        "noDates": true
+        "facilityInfo": "Silver Oak Recovery Center"
       }
     ],
     "optionIndicator": "notEnrolled",

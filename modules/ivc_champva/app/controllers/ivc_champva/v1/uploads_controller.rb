@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'datadog'
+require 'ves_api/client'
 
 module IvcChampva
   module V1
@@ -15,24 +16,23 @@ module IvcChampva
         '10-7959A' => 'vha_10_7959a'
       }.freeze
 
+      RETRY_ERROR_CONDITIONS = [
+        'failed to generate',
+        'no such file',
+        'an error occurred while verifying stamp:',
+        'unable to find file'
+      ].freeze
+
       def submit
         Datadog::Tracing.trace('Start IVC File Submission') do
           form_id = get_form_id
           Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
-          statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          response = build_json(statuses, error_message)
+          response = handle_file_uploads_wrapper(form_id, parsed_form_data)
 
           if @current_user && response[:status] == 200
             InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
-            # TODO: Add feature toggle around this
-            # TODO: Make call to VES with parsed_form_data e.g.,
-
-            # ves_client = IvcChampva::VesApi::Client.new
-            # ves_client.submit_1010d('fake-id', 'fake-user', parsed_form_data)
-
-            # TODO: Add error handling for VES failures.
           end
 
           render json: response[:json], status: response[:status]
@@ -41,6 +41,123 @@ module IvcChampva
         Rails.logger.error "Error: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+      end
+
+      ##
+      # Handles PEGA/S3 file uploads and VES submission
+      #
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Hash] parsed_form_data complete form submission data object
+      #
+      # @return [Hash] response from build_json
+      def handle_file_uploads_wrapper(form_id, parsed_form_data)
+        if Flipper.enabled?(:champva_send_to_ves, @current_user) &&
+           Settings.vsp_environment != 'production' && form_id == 'vha_10_10d'
+          # first, prepare and validate the VES request
+          ves_request = prepare_ves_request(parsed_form_data)
+
+          # get file_paths and metadata so we can use the metadata to update the VES records
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+
+          # call handle_file_uploads with new signature
+          statuses, error_messages = call_upload_form(form_id, file_paths, metadata)
+
+          response = build_json(statuses, error_messages)
+
+          # if the response is successful, submit the VES request
+          submit_ves_request(ves_request, metadata) if response[:status] == 200
+
+          response
+        else
+          statuses, error_messages = call_handle_file_uploads(form_id, parsed_form_data)
+
+          build_json(statuses, error_messages)
+        end
+      end
+
+      # Prepares data for VES, raising an exception if this cannot be done
+      # @param [Hash] parsed_form_data complete form submission data object
+      # @return [IvcChampva::VesRequest, nil] the formatted request data
+      def prepare_ves_request(parsed_form_data)
+        # Format data for VES submission.  If this is unsuccessful an error will be thrown, do not proceed.
+        ves_request = IvcChampva::VesDataFormatter.format_for_request(parsed_form_data)
+        raise 'Failed to format data for VES submission' if ves_request.nil?
+
+        ves_request
+      end
+
+      # Submits data to VES while ignoring any errors that occur
+      #
+      # @param [IvcChampva::VesRequest, nil] ves_request the formatted request data
+      # @param [Hash] metadata the metadata for the form
+      def submit_ves_request(ves_request, metadata) # rubocop:disable Metrics/MethodLength
+        unless ves_request.nil?
+          ves_client = IvcChampva::VesApi::Client.new
+          on_failure = lambda { |e, attempt|
+            Rails.logger.error "Ignoring error when submitting to VES (attempt #{attempt}): #{e.message}"
+          }
+
+          response = nil
+
+          begin
+            # omitting retry_on to always retry for now
+            IvcChampva::Retry.do(1, on_failure:) do
+              ves_request.transaction_uuid = SecureRandom.uuid
+              response = ves_client.submit_1010d(ves_request.transaction_uuid, 'fake-user', ves_request)
+            end
+
+            begin
+              update_ves_records(metadata['uuid'], ves_request.application_uuid, response, ves_request.to_json)
+            rescue => e
+              Rails.logger.error "Ignoring error updating VES records: #{e.message}"
+            end
+          rescue => e
+            # Log but don't propagate the error so the form submission can still succeed
+            Rails.logger.error "Error in VES submission: #{e.message}"
+          end
+
+          response
+        end
+      end
+
+      def update_ves_records(form_uuid, application_uuid, ves_response, ves_request_data)
+        # this should be unique
+        persisted_forms = IvcChampvaForm.where(form_uuid:)
+
+        # ves_response in the db is freeform text and hard to parse
+        # so only put the response body in the db if the response is not 200
+        ves_status = if ves_response.nil?
+                       'internal_server_error'
+                     else
+                       ves_response.status == 200 ? 'ok' : ves_response.body
+                     end
+
+        persisted_forms.each do |form|
+          form.update(
+            application_uuid:,
+            ves_status:,
+            ves_request_data:
+          )
+        end
+      end
+
+      def call_handle_file_uploads(form_id, parsed_form_data)
+        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
+          handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        else
+          handle_file_uploads(form_id, parsed_form_data)
+        end
+      end
+
+      ##
+      # Wrapper around handle_file_uploads that allows us to use the new retry logic
+      # based on the feature flag
+      def call_upload_form(form_id, file_paths, metadata)
+        if Flipper.enabled?(:champva_retry_logic_refactor, @current_user)
+          upload_form_with_refactored_retry(form_id, file_paths, metadata)
+        else
+          upload_form(form_id, file_paths, metadata)
+        end
       end
 
       # Modified from claim_documents_controller.rb:
@@ -77,13 +194,8 @@ module IvcChampva
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
 
-          if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
-            unlocked = unlock_file(params['file'], params['password'])
-            attachment.file = params['password'] ? unlocked : params['file']
-          else
-            attachment.file = params['file']
-          end
-
+          unlocked = unlock_file(params['file'], params['password'])
+          attachment.file = params['password'] ? unlocked : params['file']
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -101,6 +213,9 @@ module IvcChampva
       ##
       # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
       #
+      # TODO: Remove this method once `champva_send_to_ves` feature flag is removed
+      # also consider renaming new 'upload_form' methods back to 'handle_file_uploads'
+      #
       # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
       # @param [Hash] parsed_form_data complete form submission data object
       #
@@ -112,6 +227,43 @@ module IvcChampva
 
         begin
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        rescue => e
+          attempt += 1
+          error_message_downcase = e.message.downcase
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+
+          if should_retry?(error_message_downcase, attempt, max_attempts)
+            Rails.logger.error 'Retrying in 1 seconds...'
+            sleep 1
+            retry
+          end
+        end
+
+        [statuses, error_messages]
+      end
+
+      ##
+      # Wraps handle_uploads and includes retry logic when file uploads get non-200s.
+      #
+      # TODO: Rename this method once `champva_send_to_ves` feature flag is removed back to 'handle_file_uploads'
+      #
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Array<String>] file_paths The file paths of the files to upload
+      # @param [Hash] metadata The metadata for the form
+      #
+      # @return [Array<Integer, String>] An array with 1 or more http status codes
+      #   and an array with 1 or more message strings.
+      def upload_form(form_id, file_paths, metadata)
+        attempt = 0
+        max_attempts = 1
+
+        begin
           hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
           # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
           statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
@@ -129,6 +281,65 @@ module IvcChampva
             retry
           end
         end
+
+        [statuses, error_messages]
+      end
+
+      ##
+      # Handles file uploads with a refactored retry logic
+      #
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Hash] parsed_form_data complete form submission data object
+      #
+      # @return [Array<Integer, String>] An array with 1 or more http status codes
+      #   and an array with 1 or more message strings.
+      def handle_file_uploads_with_refactored_retry(form_id, parsed_form_data)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+        }
+
+        statuses = nil
+        error_messages = nil
+
+        IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true, @current_user).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        end
+
+        [statuses, error_messages]
+      end
+
+      ##
+      # Handles file uploads with a refactored retry logic
+      #
+      # @param [String] form_id The ID of the current form, e.g., 'vha_10_10d' (see FORM_NUMBER_MAP)
+      # @param [Array<String>] file_paths The file paths of the files to upload
+      # @param [Hash] metadata The metadata for the form
+      #
+      # @return [Array<Integer, String>] An array with 1 or more http status codes
+      #   and an array with 1 or more message strings.
+      def upload_form_with_refactored_retry(form_id, file_paths, metadata)
+        on_failure = lambda { |e, attempt|
+          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+        }
+
+        statuses = nil
+        error_messages = nil
+
+        IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
+          hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          # convert [[200, nil], [400, 'error']] -> [200, 400] and [nil, 'error'] arrays
+          statuses, error_messages = hu_result[0].is_a?(Array) ? hu_result.transpose : hu_result.map { |i| Array(i) }
+
+          # Since some or all of the files failed to upload to S3, trigger retry
+          raise StandardError, error_messages if error_messages.compact.length.positive?
+        end
+
         [statuses, error_messages]
       end
 

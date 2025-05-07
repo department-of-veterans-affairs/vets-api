@@ -19,8 +19,8 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
 
     it 'responds with attributes' do
       options[:vnp_ptcpnt_addrs_id] = nil
-      options[:vnp_proc_id] = '3854596'
-      options[:vnp_ptcpnt_id] = '182057'
+      options[:vnp_proc_id] = '3860232'
+      options[:vnp_ptcpnt_id] = '189015'
       options[:efctv_dt] = '2020-07-16T18:20:18Z'
       options[:addrs_one_txt] = '76 Crowther Ave'
       options[:addrs_three_txt] = nil
@@ -35,11 +35,6 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       options[:fms_addrs_code_txt] = nil
       options[:frgn_postal_cd] = nil
       options[:group_1_verifd_type_cd] = nil
-      options[:jrn_dt] = '2020-07-16T18:20:17Z'
-      options[:jrn_lctn_id] = 281
-      options[:jrn_obj_id] = 'VAgovAPI'
-      options[:jrn_status_type_cd] = 'U'
-      options[:jrn_user_id] = 'VAgovAPI'
       options[:lctn_nm] = nil
       options[:mlty_postal_type_cd] = nil
       options[:mlty_post_office_type_cd] = nil
@@ -62,21 +57,16 @@ describe ClaimsApi::VnpPtcpntAddrsService, metadata do
       VCR.use_cassette('claims_api/bgs/vnp_ptcpnt_addrs_service/vnp_ptcpnt_addrs_create') do
         response = subject.vnp_ptcpnt_addrs_create(options)
         expect(response).to include(
-          { vnp_ptcpnt_addrs_id: '144757',
-            efctv_dt: '2024-05-13T18:58:48Z',
-            vnp_ptcpnt_id: '182766',
-            vnp_proc_id: '3855183',
-            addrs_one_txt: '2719 Hyperion Ave',
-            city_nm: 'Los Angeles',
-            jrn_dt: '2024-05-13T18:58:48Z',
-            jrn_lctn_id: '281',
-            jrn_obj_id: 'VAgovAPI',
-            jrn_status_type_cd: 'U',
-            jrn_user_id: 'VAgovAPI',
-            postal_cd: 'CA',
+          { vnp_ptcpnt_addrs_id: '151270',
+            efctv_dt: '2020-07-16T18:20:18Z',
+            vnp_ptcpnt_id: '189015',
+            vnp_proc_id: '3860232',
+            addrs_one_txt: '76 Crowther Ave',
+            city_nm: 'Bridgeport',
+            postal_cd: 'CT',
             ptcpnt_addrs_type_nm: 'Mailing',
             shared_addrs_ind: 'N',
-            zip_prefix_nbr: '92264' }
+            zip_prefix_nbr: '06605' }
         )
       end
     end

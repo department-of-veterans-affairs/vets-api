@@ -8,6 +8,7 @@ describe Eps::AppointmentService do
   let(:user) { double('User', account_uuid: '1234', icn:) }
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
+  let(:response_headers) { { 'Content-Type' => 'application/json' } }
 
   let(:appointment_id) { 'appointment-123' }
   let(:icn) { '123ICN' }
@@ -21,7 +22,8 @@ describe Eps::AppointmentService do
     let(:success_response) do
       double('Response', status: 200, body: { 'id' => appointment_id,
                                               'state' => 'submitted',
-                                              'patientId' => icn })
+                                              'patientId' => icn },
+                         response_headers:)
     end
 
     context 'when the request is successful' do
@@ -52,7 +54,8 @@ describe Eps::AppointmentService do
 
     context 'when the endpoint fails to return appointments' do
       let(:failed_appt_response) do
-        double('Response', status: 500, body: 'Unknown service exception')
+        double('Response', status: 500, body: 'Unknown service exception',
+                           response_headers:)
       end
       let(:exception) do
         Common::Exceptions::BackendServiceException.new(nil, {}, failed_appt_response.status,
@@ -80,7 +83,8 @@ describe Eps::AppointmentService do
                                                     'state' => 'booked',
                                                     'patientId' => icn
                                                   }
-                                                ] })
+                                                ] },
+                           response_headers:)
       end
 
       before do
@@ -90,7 +94,8 @@ describe Eps::AppointmentService do
 
     context 'when the endpoint fails to return appointments' do
       let(:failed_appt_response) do
-        double('Response', status: 500, body: 'Unknown service exception')
+        double('Response', status: 500, body: 'Unknown service exception',
+                           response_headers:)
       end
       let(:exception) do
         Common::Exceptions::BackendServiceException.new(nil, {}, failed_appt_response.status,
@@ -113,7 +118,8 @@ describe Eps::AppointmentService do
     let(:successful_draft_appt_response) do
       double('Response', status: 200, body: { 'id' => appointment_id,
                                               'state' => 'draft',
-                                              'patientId' => icn })
+                                              'patientId' => icn },
+                         response_headers:)
     end
 
     context 'when creating draft appointment for a given referral_id' do
@@ -130,7 +136,8 @@ describe Eps::AppointmentService do
 
     context 'when the endpoint fails' do
       let(:failed_response) do
-        double('Response', status: 500, body: 'Unknown service exception')
+        double('Response', status: 500, body: 'Unknown service exception',
+                           response_headers:)
       end
       let(:exception) do
         Common::Exceptions::BackendServiceException.new(nil, {}, failed_response.status,
@@ -144,8 +151,7 @@ describe Eps::AppointmentService do
       it 'throws exception' do
         expect do
           service.create_draft_appointment(referral_id:)
-        end.to raise_error(Common::Exceptions::BackendServiceException,
-                           /VA900/)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
   end
@@ -164,7 +170,8 @@ describe Eps::AppointmentService do
       let(:successful_response) do
         double('Response', status: 200, body: { 'id' => appointment_id,
                                                 'state' => 'draft',
-                                                'patientId' => icn })
+                                                'patientId' => icn },
+                           response_headers:)
       end
 
       it 'submits the appointment successfully' do
@@ -240,7 +247,10 @@ describe Eps::AppointmentService do
     end
 
     context 'when API returns an error' do
-      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:response) do
+        double('Response', status: 500, body: 'Unknown service exception',
+                           response_headers:)
+      end
       let(:exception) do
         Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
       end

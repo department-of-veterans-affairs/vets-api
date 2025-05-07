@@ -73,4 +73,22 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
       # rubocop:enable RSpec/ChangeByZero
     end
   end
+
+  context 'when it is a holiday' do
+    before do
+      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it 'does not process deactivated BDNs' do
+      expect(Vye::CloudTransfer).not_to receive(:delete_inactive_bdns)
+
+      expect do
+        described_class.new.perform
+      end.not_to(change { Sidekiq::Worker.jobs.size })
+    end
+  end
 end

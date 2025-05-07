@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            required: true # for now
+            required: true
 
     # TODO: Enforce this in the DB.
     has_one :power_of_attorney_form_submission
@@ -16,6 +16,10 @@ module AccreditedRepresentativePortal
     has_one :resolution,
             class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
+
+    has_many :notifications,
+             class_name: 'PowerOfAttorneyRequestNotification',
+             inverse_of: :power_of_attorney_request
 
     belongs_to :accredited_organization, class_name: 'Veteran::Service::Organization',
                                          foreign_key: :power_of_attorney_holder_poa_code,
@@ -99,12 +103,29 @@ module AccreditedRepresentativePortal
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
 
-    scope :not_expired, lambda {
-      where.not(
-        resolution: {
-          resolving_type: PowerOfAttorneyRequestExpiration.to_s
-        }
-      )
+    scope :decisioned, lambda {
+      joins(:resolution)
+        .where(
+          resolution: {
+            resolving_type: PowerOfAttorneyRequestDecision.to_s
+          }
+        )
+    }
+
+    scope :sorted_by, lambda { |sort_column, direction|
+      direction = direction&.to_s&.downcase
+      normalized_order = %w[asc desc].include?(direction) ? direction : 'asc'
+      null_treatment = normalized_order == 'asc' ? 'NULLS LAST' : 'NULLS FIRST'
+
+      case sort_column&.to_s
+      when 'created_at'
+        order(created_at: normalized_order)
+      when 'resolved_at'
+        left_outer_joins(:resolution)
+          .order(Arel.sql("resolution.created_at #{normalized_order} #{null_treatment}"))
+      else
+        raise ArgumentError, "Invalid sort column: #{sort_column}"
+      end
     }
 
     concerning :ProcessedScopes do

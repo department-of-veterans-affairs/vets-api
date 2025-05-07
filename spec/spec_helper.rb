@@ -51,7 +51,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/health_quest/lib/health_quest/engine.rb'
     add_filter 'modules/pensions/app/swagger'
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
-    add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
     # Modules
@@ -68,6 +67,7 @@ unless ENV['NOCOVERAGE']
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IncomeAndAssets', 'modules/income_and_assets/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
@@ -84,6 +84,7 @@ unless ENV['NOCOVERAGE']
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
     add_group 'TravelPay', 'modules/travel_pay/'
     add_group 'Uploaders', 'app/uploaders'
+    add_group 'VRE', 'modules/vre/'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'

@@ -94,7 +94,7 @@ describe TravelPay::TokenClient do
     after { Timecop.return }
 
     it 'builds sts assertion and requests sts token' do
-      private_key_file = Settings.sign_in.sts_client.key_path
+      private_key_file = IdentitySettings.sign_in.sts_client.key_path
       private_key = OpenSSL::PKey::RSA.new(File.read(private_key_file))
       jwt = JWT.encode(assertion, private_key, 'RS256')
       @stubs.post("http:/v0/sign_in/token?assertion=#{jwt}&grant_type=#{grant_type}") do

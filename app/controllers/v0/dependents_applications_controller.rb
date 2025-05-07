@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/dependents/retrieved_info'
+
 module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
@@ -22,6 +24,10 @@ module V0
         claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
       end
 
+      # Populate the form_start_date from the IPF if available
+      in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
+      claim.form_start_date = in_progress_form.created_at if in_progress_form
+
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
         Sentry.set_tags(team: 'vfs-ebenefits') # tag sentry logs with team name
@@ -32,6 +38,8 @@ module V0
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      claim.send_submitted_email(current_user) if Flipper.enabled?(:dependents_submitted_email)
+
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
       render json: SavedClaimSerializer.new(claim)

@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VA_MOBILE_URL>/vaos/v1/patients/1012846043V576341/appointments/75105
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 12 Feb 2025 19:44:28 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"75105","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/ars/id","value":"8a4890c47da65e2b017db59b20500000"}],"kind":"telehealth","status":"booked","serviceType":"socialWork","reasonCode":{"text":"text"},"patientIcn":"1012846043V576341","locationId":"983GB","telehealth":{"url":"https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VAC000415414@care2.evn.va.gov&pin=464790#&aid=878261c8-8581-4ab9-a166-623fc0ba8453", "vvs_kind":"ADHOC" },"created":"2021-12-13T14:03:02Z","start":"2023-10-13T15:00:00Z","end":"2023-10-13T16:00:00Z","contact":{"telecom":[{"type":"email","value":"C_Natalie.Yun@cerner.com"},{"type":"phone","value":"2566832029"}]},"preferredTimesForPhoneCall":["Morning"],"cancellationReason":{"code":"other"},"cancellable":true,"extension":{"ccLocation":{"address":{}}}}}'
+  recorded_at: Wed, 12 Feb 2025 19:44:28 GMT
+recorded_with: VCR 6.3.1

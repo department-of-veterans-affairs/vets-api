@@ -44,7 +44,7 @@ module V0
       else
         render_error(action: 'accept_and_provision', message: 'Failed to accept and provision')
       end
-    rescue TermsOfUse::Errors::AcceptorError, TermsOfUse::Errors::ProvisionerError => e
+    rescue TermsOfUse::Errors::AcceptorError, Identity::Errors::CernerProvisionerError => e
       render_error(action: 'accept_and_provision', message: e.message)
     end
 
@@ -60,7 +60,7 @@ module V0
       provisioner.perform
       create_cerner_cookie
       render_success(action: 'update_provisioning', body: { provisioned: true }, status: :ok)
-    rescue TermsOfUse::Errors::ProvisionerError => e
+    rescue Identity::Errors::CernerProvisionerError => e
       render_error(action: 'update_provisioning', message: e.message)
     end
 
@@ -75,7 +75,7 @@ module V0
     end
 
     def provisioner
-      TermsOfUse::Provisioner.new(icn: @user_account.icn)
+      Identity::CernerProvisioner.new(icn: @user_account.icn, source: :tou)
     end
 
     def recache_user
@@ -84,11 +84,11 @@ module V0
     end
 
     def create_cerner_cookie
-      cookies[TermsOfUse::Constants::PROVISIONER_COOKIE_NAME] = {
-        value: TermsOfUse::Constants::PROVISIONER_COOKIE_VALUE,
-        expires: TermsOfUse::Constants::PROVISIONER_COOKIE_EXPIRATION.from_now,
-        path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
-        domain: TermsOfUse::Constants::PROVISIONER_COOKIE_DOMAIN
+      cookies[Identity::CernerProvisioner::COOKIE_NAME] = {
+        value: Identity::CernerProvisioner::COOKIE_VALUE,
+        expires: Identity::CernerProvisioner::COOKIE_EXPIRATION.from_now,
+        path: Identity::CernerProvisioner::COOKIE_PATH,
+        domain: Identity::CernerProvisioner::COOKIE_DOMAIN
       }
     end
 

@@ -40,7 +40,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       user_uuid: @user.uuid,
       user_account: @user.user_account,
       auth_headers_json: EVSS::AuthHeaders.new(@user).to_h.to_json,
-      poa: get_user_poa,
       remaining_entitlement:
     ).save
   end
@@ -48,16 +47,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   def email_sent(sco_email_sent)
     update_form('scoEmailSent', sco_email_sent)
     save
-  end
-
-  def get_user_poa
-    # stem_automated_decision feature disables EVSS call  for POA which will be removed in a future PR
-    return nil if Flipper.enabled?(:stem_automated_decision, @user)
-
-    @user.power_of_attorney.present? ? true : nil
-  rescue => e
-    log_exception_to_sentry(Submit10203Error.new("Failed to retrieve VSOSearch data: #{e.message}"))
-    nil
   end
 
   private

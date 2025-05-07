@@ -37,10 +37,6 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
           expect(StatsD).to receive(:increment).with(key)
         end
 
-        expect(StatsD).to receive(:increment).with(
-          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
-        )
-
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
       end
 

@@ -1,12 +1,12 @@
 {
   "isMedicaidEligible": 1,
-  "spouseAddress": "4444 Elm St, Houston, TX, 77388, USA 2122122121",
+  "spouseAddress": "4444 Elm St, Apt 1, Floor 2, Houston, TX, 77388, USA 2122122121",
   "spousePhone": "2122122121",
   "cohabitedLastYear": true,
   "sameAddress": false,
   "medicarePartAEffectiveDate": "01/01/2000",
   "medicareClaimNumber": "0123456",
-  "isEnrolledMedicarePartA": 1,
+  "isEnrolledMedicarePartA": 2,
   "isCoveredByHealthInsurance": true,
   "providers": [
     {
@@ -78,7 +78,9 @@
   "homePhone": "3462636183",
   "mobilePhone": "3462636184",
   "veteranAddress": {
-    "street": "321 Elm St",
+    "street": "321 Elm St, Apt 1, Floor 2",
+    "street2": "Apt 1",
+    "street3": "Floor 2",
     "city": "Houston",
     "postalCode": "77388",
     "country": "USA",
@@ -109,7 +111,9 @@
     }
   ],
   "veteranHomeAddress": {
-    "street": "888 Elm St",
+    "street": "888 Elm St, Apt 2, Floor 3",
+    "street2": "Apt 2",
+    "street3": "Floor 3",
     "city": "Houston",
     "postalCode": "77388",
     "country": "USA",
