@@ -687,7 +687,7 @@
     # Get referral list
     - :method: :get
       :path: "/vaos/v1/patients/*/referrals"
-      :file_path: "vaos/ccra/referrals/referral_list"
+      :file_path: "vaos/referrals/referral_list"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/vaos\/v1\/patients\/(.+)\/referrals'
@@ -695,7 +695,7 @@
     # Get referral details
     - :method: :get
       :path: "/vaos/v1/patients/*/referrals/*"
-      :file_path: "vaos/ccra/referrals/get_referral"
+      :file_path: "vaos/referrals/get_referral"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/vaos\/v1\/patients\/(?:.+)\/referrals\/(.+)'
