@@ -2,6 +2,7 @@
 
 require 'disability_compensation/factories/api_provider_factory'
 require 'logging/third_party_transaction'
+require 'pension_burial/intent_to_file_response'
 
 module V0
   class IntentToFilesController < ApplicationController
@@ -35,9 +36,9 @@ module V0
       type = params['itf_type'] || 'compensation'
 
       if %w[pension survivor].include? type
-        service = BenefitsClaims::Service.new(@current_user.icn)
-        data = service.get_intent_to_file(type, nil, nil)['data']
-        return render json: IntentToFileSerializer.new(transform_response(data:))
+        itf = BenefitsClaims::Service.new(@current_user.icn).get_intent_to_file(type, nil, nil)
+        response = PensionBurial::ApiResponse::IntentToFileGetResponse.new(itf['data'])
+        return render json: IntentToFileSerializer.new(response)
       end
 
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
@@ -60,9 +61,9 @@ module V0
       type = params['itf_type'] || 'compensation'
 
       if %w[pension survivor].include? type
-        service = BenefitsClaims::Service.new(@current_user.icn)
-        data = service.create_intent_to_file(type, @current_user.ssn, nil)['data']
-        return render json: IntentToFileSerializer.new(transform_response(data:, create: true))
+        itf = BenefitsClaims::Service.new(@current_user.icn).create_intent_to_file(type, @current_user.ssn, nil)
+        response = PensionBurial::ApiResponse::IntentToFileCreateResponse.new(itf['data'])
+        return render json: IntentToFileSerializer.new(response)
       end
 
       if Flipper.enabled?(:disability_compensation_production_tester, @current_user)
@@ -90,21 +91,6 @@ module V0
           )
         ]
       )
-    end
-
-    def transform_response(data:, create: false)
-      intent_to_file = DisabilityCompensation::ApiProvider::IntentToFile.new(
-        id: data['id'],
-        creation_date: data['attributes']['creationDate'],
-        expiration_date: data['attributes']['expirationDate'],
-        source: '',
-        participant_id: 0,
-        status: data['attributes']['status'],
-        type: data['attributes']['type']
-      )
-      intent_to_file = [intent_to_file] if create
-
-      DisabilityCompensation::ApiProvider::IntentToFilesResponse.new(intent_to_file:)
     end
 
     def authorize_service
