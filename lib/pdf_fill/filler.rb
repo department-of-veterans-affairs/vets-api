@@ -156,8 +156,7 @@ module PdfFill
 
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-
-      (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+      (form_id.in?([SavedClaim::CaregiversAssistanceClaim::FORM, '21-0781V2']) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
