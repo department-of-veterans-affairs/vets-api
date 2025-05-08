@@ -26,7 +26,6 @@ module TravelPay
       # The content type comes across as the type of the binary data,
       # but the actual content type of the response is application/json
 
-      byebug
       {
         body: response.body['data'],
         disposition: response.headers['Content-Disposition'],
