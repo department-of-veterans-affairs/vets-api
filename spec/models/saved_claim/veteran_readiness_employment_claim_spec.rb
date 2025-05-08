@@ -177,6 +177,13 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#form_matches_schema' do
+    it 'rejects invalid country format' do
+      claim = build(:veteran_readiness_employment_claim, country: 'Invalid')
+
+      expect(claim).not_to be_valid
+      expect(claim.errors.attribute_names).to contain_exactly(:'/veteranAddress/country', :'/newAddress/country')
+    end
+
     ['USA', 'United States'].each do |country|
       context "with #{country} format" do
         let(:claim) { build(:veteran_readiness_employment_claim, country:) }
@@ -184,16 +191,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         describe 'country validation' do
           it 'accepts valid country format' do
             expect(claim).to be_valid
-          end
-
-          it 'rejects invalid country format' do
-            claim = build(:veteran_readiness_employment_claim, country: 'Invalid')
-
-            claim_data = JSON.parse(claim.form)
-            claim.form = claim_data.to_json
-
-            expect(claim).not_to be_valid
-            expect(claim.errors.attribute_names).to contain_exactly(:'/veteranAddress/country', :'/newAddress/country')
           end
 
           it 'validates other fields independently of country format' do
