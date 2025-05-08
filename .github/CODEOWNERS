@@ -981,6 +981,7 @@ lib/mail_automation @department-of-veterans-affairs/va-api-engineers @department
 lib/map @department-of-veterans-affairs/octo-identity
 lib/mdot @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 lib/medical_records @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/mhv/aal @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/mhv/account_creation @department-of-veterans-affairs/octo-identity
 lib/mhv_ac @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/mhv_logging @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1564,6 +1565,7 @@ spec/lib/mail_automation @department-of-veterans-affairs/va-api-engineers @depar
 spec/lib/map @department-of-veterans-affairs/octo-identity
 spec/lib/mdot @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/lib/medical_records @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/mhv/aal @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv/account_creation @department-of-veterans-affairs/octo-identity
 spec/lib/mhv_ac @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/mhv_ac/client_spec.rb @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

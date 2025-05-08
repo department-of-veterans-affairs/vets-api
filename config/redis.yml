@@ -55,7 +55,7 @@ development: &defaults
     each_ttl: 1200
   bb_internal_store:
     namespace: bb-internal-service
-    each_ttl: 3600
+    each_ttl: 600 # 10 minutes
   mhv_mr_fhir_session_lock:
     namespace: mhv-mr-fhir-session-lock
     each_ttl: 10
@@ -65,21 +65,24 @@ development: &defaults
   mhv_mr_bb_session_lock:
     namespace: mhv-mr-bb-session-lock
     each_ttl: 10
+  mhv_aal_log_store:
+    namespace: mhv-aal-logs
+    each_ttl: 86400
   aal_mr_store:
     namespace: aal-mr-service
-    each_ttl: 3600
+    each_ttl: 600 # 10 minutes
   mhv_aal_mr_session_lock:
     namespace: mhv-aal-mr-session-lock
     each_ttl: 10
   aal_rx_store:
     namespace: aal-rx-service
-    each_ttl: 3600
+    each_ttl: 600 # 10 minutes
   mhv_aal_rx_session_lock:
     namespace: mhv-aal-rx-session-lock
     each_ttl: 10
   aal_sm_store:
     namespace: aal-sm-service
-    each_ttl: 3600
+    each_ttl: 600 # 10 minutes
   mhv_aal_sm_session_lock:
     namespace: mhv-aal-sm-session-lock
     each_ttl: 10
