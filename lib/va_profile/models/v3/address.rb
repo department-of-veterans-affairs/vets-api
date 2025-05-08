@@ -54,8 +54,8 @@ module VAProfile
 
           key = @override_validation_key.presence || @validation_key
           if key
-            address_attributes[:override_validation_key] ||= key
-            address_attributes[:validation_key] ||= key
+            address_attributes[:overrideValidationKey] ||= key
+            address_attributes[:validationKey] ||= key
           end
 
           address_attributes[:badAddress] = false if correspondence?
