@@ -11,10 +11,10 @@ module MyHealth
                 "Triage teams for user ID #{@current_user.uuid} not found"
         end
 
-        resource = resource.sort(params.permit(:sort)[:sort])
+        resource = resource.order(params.permit(:sort)[:sort]) if params[:sort].present?
 
         # Even though this is a collection action we are not going to paginate
-        render json: AllTriageTeamsSerializer.new(resource.data, { meta: resource.metadata })
+        render json: AllTriageTeamsSerializer.new(resource.records, { meta: resource.metadata })
       end
     end
   end

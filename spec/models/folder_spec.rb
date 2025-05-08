@@ -48,8 +48,8 @@ RSpec.describe Folder do
     let(:other) { described_class.new(attributes_for(:folder, id: 1)) }
 
     it 'populates attributes' do
-      expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :name, :count, :unread_count,
-                                                                           :system_folder)
+      expect(described_class.attribute_set).to contain_exactly(:id, :name, :count, :unread_count,
+                                                                           :system_folder, :metadata)
       expect(subject.id).to eq(params[:id])
       expect(subject.name).to eq(params[:name])
       expect(subject.count).to eq(params[:count])

@@ -10,7 +10,7 @@ RSpec.describe TriageTeam do
     let(:other) { described_class.new(attributes_for(:triage_team, triage_team_id: 101)) }
 
     it 'populates attributes' do
-      expect(described_class.attribute_set.map(&:name)).to contain_exactly(:triage_team_id, :name, :relation_type,
+      expect(described_class.attribute_set).to contain_exactly(:triage_team_id, :name, :relation_type,
                                                                            :preferred_team)
       expect(subject.triage_team_id).to eq(params[:triage_team_id])
       expect(subject.name).to eq(params[:name])

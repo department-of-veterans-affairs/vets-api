@@ -9,7 +9,7 @@ module MyHealth
         resource = resource.paginate(**pagination_params)
 
         options = { meta: resource.metadata, links: }
-        render json: MyHealth::V1::FolderSerializer.new(resource.data, options)
+        render json: MyHealth::V1::FolderSerializer.new(resource.records, options)
       end
 
       def show
@@ -46,7 +46,7 @@ module MyHealth
         resource = client.post_search_folder(params[:id], params[:page], params[:per_page], message_search,
                                              requires_oh_messages)
         options = { meta: resource.metadata }
-        render json: MessagesSerializer.new(resource.data, options)
+        render json: MessagesSerializer.new(resource.records, options)
       end
 
       private
