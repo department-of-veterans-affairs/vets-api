@@ -20,6 +20,11 @@ module PdfFill
         @overflow = false
       end
 
+      def numbered_label_markup
+        prefix = @number.to_i == @number ? "#{@number}. " : ''
+        "<h3>#{prefix}#{@text}</h3>"
+      end
+
       def add_text(value, metadata)
         @subquestions << { value:, metadata: }
         @overflow ||= metadata.fetch(:overflow, true)
@@ -97,7 +102,7 @@ module PdfFill
       end
 
       def render(pdf, list_format: false)
-        pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
+        pdf.markup(numbered_label_markup) unless list_format
         pdf.markup(['<table>', sorted_subquestions_markup, '</table>'].flatten.join, text: { margin_bottom: 10 })
       end
 
@@ -180,7 +185,7 @@ module PdfFill
       def render(pdf, list_format: false)
         return 0 unless should_render?
 
-        pdf.markup("<h3>#{@number}. #{@text}</h3>") unless list_format
+        pdf.markup(numbered_label_markup) unless list_format
 
         desc_options = @description&.dig(:format_options) || {}
         info_options = @additional_info&.dig(:format_options) || {}
@@ -226,7 +231,7 @@ module PdfFill
 
       # Render the title of the list question
       def render_title(pdf)
-        pdf.markup("<h3>#{@number}. #{@text}</h3>")
+        pdf.markup(numbered_label_markup)
       end
 
       # Render a single item from the list

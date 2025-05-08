@@ -137,7 +137,6 @@ class FormProfile
     '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-686C' => ::FormProfiles::VA21686c,
     '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
@@ -184,7 +183,7 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007 0873]
+    forms = %w[40-10007 0873]
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end

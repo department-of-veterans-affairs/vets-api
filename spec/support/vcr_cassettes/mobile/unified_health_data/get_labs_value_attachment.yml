@@ -54,7 +54,7 @@ http_interactions:
   recorded_at: Mon, 24 Feb 2025 22:20:49 GMT
 - request:
     method: get
-    uri: https://example.myhealth.va.gov/mhvapi/v1/medicalrecords/labs?end-date=2024-12-31&patient-id=1000123456V123456&start-date=2024-01-01
+    uri: https://example.myhealth.va.gov/mhvapi/v1/medicalrecords/labs?endDate=2024-12-31&patientId=1000123456V123456&startDate=2024-01-01
     body:
       encoding: US-ASCII
       string: ''

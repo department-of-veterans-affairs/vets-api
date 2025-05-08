@@ -61,6 +61,38 @@ describe PdfFill::Forms::Va210781v2 do
     end
   end
 
+  describe '#process_treatment_dates' do
+    subject do
+      new_form_class.instance_variable_set(:@form_data, { 'treatmentProvidersDetails' => details })
+      new_form_class.send(:process_treatment_dates)
+    end
+
+    context 'when no treatment provider data is available' do
+      let(:details) { nil }
+
+      it 'returns successfully' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when treatment provider data is populated' do
+      let(:details) do
+        [
+          { 'treatmentMonth' => '', 'treatmentYear' => '' },
+          { 'treatmentMonth' => '02', 'treatmentYear' => '' },
+          { 'treatmentMonth' => '', 'treatmentYear' => '2014' },
+          { 'treatmentMonth' => '02', 'treatmentYear' => '2014' }
+        ]
+      end
+
+      it 'sets the treatment dates accordingly and returns successfully' do
+        subject
+        result_details = new_form_class.instance_variable_get(:@form_data)['treatmentProvidersDetails']
+        expect(result_details.pluck('treatmentDate')).to eq(['no response', '02-????', '2014', '02-2014'])
+      end
+    end
+  end
+
   describe '#set_treatment_selection' do
     context 'when treatment providers are present' do
       it 'sets treatment to 0 and noTreatment to 0' do
@@ -167,6 +199,66 @@ describe PdfFill::Forms::Va210781v2 do
           expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['police']).to eq(
             'Local Police Department, Springfield, IL, USA'
           )
+        end
+
+        context 'when police location details overflow the text field' do
+          let(:event_with_police_report) do
+            {
+              'events' => [
+                {
+                  'otherReports' => {
+                    'police' => true
+                  },
+                  'agency' => 'Local Police Department',
+                  'city' => 'Springfield',
+                  'state' => 'IL',
+                  'country' => 'USA'
+                },
+                {
+                  'otherReports' => {
+                    'police' => true
+                  },
+                  'agency' => 'Local Police Department',
+                  'township' => 'Lower Alloways Creek Township',
+                  'state' => 'NJ',
+                  'country' => 'USA'
+                }
+              ]
+            }
+          end
+
+          context 'when using the legacy overflow generator' do
+            it 'does not populate the police report overflow data structure' do
+              new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+              new_form_class.send(:process_reports)
+
+              expect(new_form_class.instance_variable_get(:@form_data)).not_to have_key('policeReportOverflow')
+            end
+          end
+
+          context 'when using the redesigned overflow generator' do
+            it 'fills in the police report overflow data structure correctly' do
+              new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+              new_form_class.send(:process_reports, extras_redesign: true)
+
+              expect(new_form_class.instance_variable_get(:@form_data)['policeReportOverflow']).to eq(
+                [
+                  {
+                    'agency' => 'Local Police Department',
+                    'city' => 'Springfield',
+                    'state' => 'IL',
+                    'country' => 'USA'
+                  },
+                  {
+                    'agency' => 'Local Police Department',
+                    'township' => 'Lower Alloways Creek Township',
+                    'state' => 'NJ',
+                    'country' => 'USA'
+                  }
+                ]
+              )
+            end
+          end
         end
       end
 

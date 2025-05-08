@@ -481,6 +481,12 @@ class User < Common::RedisStore
     MHV::AccountCreatorJob.perform_async(user_verification_id)
   end
 
+  def provision_cerner_async(source: nil)
+    return unless loa3? && cerner_id.present?
+
+    Identity::CernerProvisionerJob.perform_async(icn, source)
+  end
+
   def can_create_mhv_account?
     loa3? && !needs_accepted_terms_of_use
   end

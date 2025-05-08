@@ -6,8 +6,14 @@ require 'common/client/middleware/response/raise_custom_error'
 module IvcChampva
   module VesApi
     class Configuration < Common::Client::Configuration::REST
+      def settings
+        Settings.ivc_champva_ves_api
+      end
+
+      delegate :host, to: :settings
+
       def base_path
-        'https://dev.ves.va.gov/ves-vfmp-app-svc'
+        settings.host
       end
 
       def service_name

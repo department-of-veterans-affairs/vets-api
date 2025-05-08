@@ -9,5 +9,15 @@ FactoryBot.define do
     access_token_duration { SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
     access_token_user_attributes { [] }
     certificates { [] }
+
+    trait :with_certificates do
+      ignore do
+        certs_count { 1 }
+      end
+
+      after(:create) do |service_account_config, evaluator|
+        create_list(:sign_in_config_certificate, evaluator.certs_count, config: service_account_config)
+      end
+    end
   end
 end

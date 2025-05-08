@@ -29,6 +29,7 @@ ALLOWLIST = %w[
   reply_id
   ids
   code
+  grant_type
   endpoint_sid
   message_id
   os_name

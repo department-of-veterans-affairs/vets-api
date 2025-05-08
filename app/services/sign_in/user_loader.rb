@@ -34,6 +34,7 @@ module SignIn
       current_user.invalidate_mpi_cache
       current_user.validate_mpi_profile
       current_user.create_mhv_account_async
+      current_user.provision_cerner_async(source: :sis)
 
       current_user
     end

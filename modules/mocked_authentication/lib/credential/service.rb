@@ -73,11 +73,7 @@ module MockedAuthentication
       end
 
       def idme_auth_service(type)
-        @idme_auth_service ||= begin
-          @idme_auth_service = SignIn::Idme::Service.new
-          @idme_auth_service.type = type
-          @idme_auth_service
-        end
+        @idme_auth_service ||= SignIn::Idme::Service.new(type:)
       end
 
       def logingov_auth_service

@@ -132,7 +132,7 @@ identity_dashboard_service_account_config.update!(service_account_id: vaid_servi
 chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '88a6d94a3182fd63279ea5565f26bcb4')
 chatbot.update!(
   description: 'Chatbot',
-  scopes: ['http://localhost:3000/v0/map_services/chatbot/token'],
+  scopes: ['http://localhost:3000/v0/map_services/chatbot/token', 'http://localhost:3000/v0/virtual_agent/user'],
   access_token_audience: 'http://localhost:3978/api/messages',
   access_token_user_attributes: ['icn'],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,

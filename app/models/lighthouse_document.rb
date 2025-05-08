@@ -138,7 +138,7 @@ class LighthouseDocument < Common::Base
   end
 
   def set_file_extension
-    self.file_extension = file_name.split('.').last
+    self.file_extension = file_name.downcase.split('.').last
   end
 
   def normalize_text

@@ -139,14 +139,7 @@ module BGS
     end
 
     def send_686c_confirmation_email
-      return if user&.va_profile_email.blank?
-
-      VANotify::ConfirmationEmail.send(
-        email_address: user.va_profile_email,
-        template_id: Settings.vanotify.services.va_gov.template_id.form686c_only_confirmation_email,
-        first_name: user&.first_name&.upcase,
-        user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
-      )
+      claim.send_received_email(user)
     end
 
     def send_confirmation_email

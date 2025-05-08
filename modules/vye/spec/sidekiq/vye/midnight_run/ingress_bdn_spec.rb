@@ -49,25 +49,18 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
 
   context 'when it is a holiday' do
     before do
-      Timecop.freeze(Time.zone.local(2024, 7, 2))
-      allow(holiday_checker).to receive(:holiday?).and_return(true)
-      allow(Vye::BdnClone).to receive(:create!).and_return(bdn_clone)
-      allow(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return(chunks)
+      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
     end
 
     after do
       Timecop.return
     end
 
-    it 'logs holiday message and processes normally' do
-      worker = described_class.new
-      expect(Rails.logger).to receive(:info).with(/holiday detected, job run at:/).ordered
-      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: starting').ordered
-      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: finished').ordered
+    it 'does not process BDNs' do
+      expect(Vye::BdnClone).not_to receive(:create!)
+      expect(Vye::BatchTransfer::BdnChunk).not_to receive(:build_chunks)
 
-      worker.perform
-
-      expect(Vye::MidnightRun::IngressBdnChunk).to have_enqueued_sidekiq_job.exactly(5).times
+      described_class.new.perform
     end
   end
 

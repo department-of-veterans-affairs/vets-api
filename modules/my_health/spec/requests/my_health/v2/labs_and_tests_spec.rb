@@ -47,7 +47,7 @@ RSpec.describe 'MyHealth::V2::LabsAndTestsController', :skip_json_api_validation
 
       it 'returns the correct lab records' do
         json_response = JSON.parse(response.body)
-        expect(json_response.count).to eq(11)
+        expect(json_response.count).to eq(3)
         expect(json_response[0]).to eq(ch_response)
         expect(json_response[2]).to eq(sp_response)
       end

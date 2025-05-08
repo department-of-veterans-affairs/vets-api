@@ -1,10 +1,10 @@
 {
-  "id": "e9513940-bf84-4120-ac9c-718f537b00e0",
+  "id": "0e8fbc99-62da-44c7-b758-6e61b58d49be",
   "type": "DiagnosticReport",
   "attributes": {
     "display": "CH",
     "testCode": "CH",
-    "dateCompleted": "2025-01-23T22:06:02Z",
+    "dateCompleted": "2025-01-23T21:06:02Z",
     "sampleTested": "SERUM",
     "encodedData": "",
     "location": "CHYSHR TEST LAB",
@@ -13,87 +13,66 @@
     "observations": [
       {
         "testCode": "GLUCOSE",
-        "value": {
-          "text": "99 mg/dL",
-          "type": "quantity"
-        },
+        "value": { "text": "99.0 mg/dL", "type": "quantity" },
         "referenceRange": "70 - 110",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       },
       {
         "testCode": "UREA NITROGEN",
-        "value": {
-          "text": "200 mg/dL",
-          "type": "quantity"
-        },
+        "value": { "text": "200.0 mg/dL", "type": "quantity" },
         "referenceRange": "7 - 18",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       },
       {
         "testCode": "CREATININE",
-        "value": {
-          "text": "5 mg/dL",
-          "type": "quantity"
-        },
+        "value": { "text": "5.0 mg/dL", "type": "quantity" },
         "referenceRange": "0.6 - 1.3",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       },
       {
         "testCode": "SODIUM",
-        "value": {
-          "text": "8 meq/L",
-          "type": "quantity"
-        },
+        "value": { "text": "8.0 meq/L", "type": "quantity" },
         "referenceRange": "136 - 145",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       },
       {
         "testCode": "POTASSIUM",
-        "value": {
-          "text": "24 meq/L",
-          "type": "quantity"
-        },
+        "value": { "text": "24.0 meq/L", "type": "quantity" },
         "referenceRange": "3.5 - 5.1",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       },
       {
         "testCode": "CHLORIDE",
-        "value": {
-          "text": "2 meq/L",
-          "type": "quantity"
-        },
+        "value": { "text": "2.0 meq/L", "type": "quantity" },
         "referenceRange": "98 - 107",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       },
       {
         "testCode": "CO2",
-        "value": {
-          "text": "2 meq/L",
-          "type": "quantity"
-        },
+        "value": { "text": "2.0 meq/L", "type": "quantity" },
         "referenceRange": "22 - 29",
         "status": "final",
         "comments": "",
-        "sampleTested": "SERUM",
-        "bodySite": ""
+        "bodySite": "",
+        "sampleTested": "SERUM"
       }
     ]
   }

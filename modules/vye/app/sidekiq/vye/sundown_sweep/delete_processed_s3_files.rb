@@ -7,6 +7,7 @@ module Vye
       def perform
         if Vye::CloudTransfer.holiday?
           logger.info("Vye::SundownSweep::DeleteProcessedS3Files: holiday detected, job run at: #{Time.zone.now}")
+          return
         end
 
         logger.info('Vye::SundownSweep::DeleteProcessedS3Files: starting remove_aws_files_from_s3_buckets')

@@ -7,6 +7,9 @@ module SignIn
     attribute :access_token_duration, :interval
     attribute :refresh_token_duration, :interval
 
+    has_many :config_certificates, as: :config, dependent: :destroy
+    has_many :certs, through: :config_certificates, class_name: 'SignIn::Certificate'
+
     validates :anti_csrf, inclusion: [true, false]
     validates :redirect_uri, presence: true
     validates :access_token_duration,

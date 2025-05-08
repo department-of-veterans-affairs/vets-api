@@ -45,6 +45,11 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     it_behaves_like 'implements certifiable concern'
   end
 
+  describe 'associations' do
+    it { is_expected.to have_many(:config_certificates).dependent(:destroy) }
+    it { is_expected.to have_many(:certs).through(:config_certificates).class_name('SignIn::Certificate') }
+  end
+
   describe 'validations' do
     subject { client_config }
 

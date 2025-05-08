@@ -15,7 +15,7 @@ module IncomeAndAssets
         # 7b-7d (only space for three on form)
         'assetTransfers' => {
           limit: 3,
-          first_key: 'originalOwnerRelationship',
+          first_key: 'otherOriginalOwnerRelationshipType',
           # Q1
           'originalOwnerRelationship' => {
             key: "F[0].RelationshiptoVeteran7[#{ITERATOR}]"

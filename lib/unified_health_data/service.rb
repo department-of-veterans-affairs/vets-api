@@ -21,7 +21,7 @@ module UnifiedHealthData
       with_monitoring do
         token = fetch_access_token
         patient_id = @user.icn
-        path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
+        path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, { 'Authorization' => token })
         body = parse_response_body(response.body)
 

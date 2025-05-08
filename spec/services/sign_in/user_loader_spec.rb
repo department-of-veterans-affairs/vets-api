@@ -158,6 +158,17 @@ RSpec.describe SignIn::UserLoader do
             expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
           end
         end
+
+        context 'when the user can provision cerner' do
+          before do
+            allow(Identity::CernerProvisionerJob).to receive(:perform_async)
+          end
+
+          it 'enqueues a Cerner::ProvisionerJob' do
+            subject
+            expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user_icn, :sis)
+          end
+        end
       end
     end
 

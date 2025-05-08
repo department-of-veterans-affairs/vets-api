@@ -56,6 +56,8 @@ Rails.application.routes.draw do
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
+    get 'virtual_agent/user', to: 'virtual_agent/users#show'
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
@@ -171,7 +173,6 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
-    resources :evss_claims_async, only: %i[index show]
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]

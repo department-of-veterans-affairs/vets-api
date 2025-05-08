@@ -320,15 +320,31 @@ module PdfFill
           key: 'F[0].#subform[4].Report_No[0]'
         },
         'restrictedReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Restricted military incident report',
+          question_type: 'checklist_group',
+          checked_values: ['0'],
           key: 'F[0].#subform[4].Restricted[0]'
         },
         'unrestrictedReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Unrestricted military incident report',
+          question_type: 'checklist_group',
+          checked_values: ['1'],
           key: 'F[0].#subform[4].Unrestricted[0]'
         },
         'neitherReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Military incident report (unspecified restriction)',
+          question_type: 'checklist_group',
+          checked_values: ['2'],
           key: 'F[0].#subform[4].Neither[0]'
         },
         'policeReport' => { # question_num: 11
+          question_num: 11,
+          question_label: 'Police report',
+          question_type: 'checklist_group',
+          checked_values: ['3'],
           key: 'F[0].#subform[4].Police[0]'
         },
         'otherReport' => { # question_num: 11
@@ -353,6 +369,8 @@ module PdfFill
             limit: 194,
             question_num: 11,
             question_suffix: 'B',
+            question_label: 'Other',
+            question_type: 'checklist_group',
             question_text: 'Other Report'
           },
           'otherOverflow' => {
@@ -360,6 +378,38 @@ module PdfFill
             question_num: 11,
             question_suffix: 'B',
             question_text: 'Other Report'
+          }
+        },
+        'policeReportOverflow' => { # question 11.5 (number hidden) only when reportsDetails.police overflows
+          limit: 0,
+          item_label: 'Location',
+          'agency' => {
+            question_suffix: 'A',
+            question_num: 11.5,
+            question_text: 'Agency',
+            format_options: {
+              label_width: 140
+            }
+          },
+          'city' => {
+            question_suffix: 'B',
+            question_num: 11.5,
+            question_text: 'City'
+          },
+          'township' => {
+            question_suffix: 'C',
+            question_num: 11.5,
+            question_text: 'Township'
+          },
+          'state' => {
+            question_suffix: 'D',
+            question_num: 11.5,
+            question_text: 'State/Province/Region'
+          },
+          'country' => {
+            question_suffix: 'E',
+            question_num: 11.5,
+            question_text: 'Country'
           }
         },
         'evidence' => { # question_num: 12
@@ -400,7 +450,7 @@ module PdfFill
           },
           'physicians' => {
             question_num: 12,
-            question_label: 'Medical reports from civilian physicians or caregivers who treated you immediately following the incident or sometime later',
+            question_label: 'Medical reports from civilian physicians or caregivers',
             question_type: 'checklist_group',
             checked_values: ['1'],
             key: 'F[0].#subform[4].Medical_Reports_From_Civilian_Physicians_Or_Caregivers_Who_Treated_You_Immediately_Following_The_Incident_Or_Sometime_Later[0]'
@@ -555,21 +605,24 @@ module PdfFill
             limit: 2,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 2 digit month.'
+            question_text: 'DATE SIGNED. Enter 2 digit month.',
+            hide_from_overflow: true
           },
           'day' => {
             key: 'F[0].#subform[5].Date_Signed_Day[0]',
             limit: 2,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 2 digit day.'
+            question_text: 'DATE SIGNED. Enter 2 digit day.',
+            hide_from_overflow: true
           },
           'year' => {
             key: 'F[0].#subform[5].Date_Signed_Year[0]',
             limit: 4,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 4 digit Year.'
+            question_text: 'DATE SIGNED. Enter 4 digit Year.',
+            hide_from_overflow: true
           }
         }
       }.freeze
@@ -587,6 +640,7 @@ module PdfFill
         9 => 'Traumatic event(s) information',
         10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
         11 => 'Was an official report filed?',
+        11.5 => 'Police report location(s)',
         12 => 'Possible sources of evidence following the traumatic event(s)',
         13 => 'Treatment information',
         14 => 'Remarks',
@@ -604,7 +658,7 @@ module PdfFill
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: [10, 11, 12]
+          question_nums: [10, 11, 11.5, 12]
         },
         {
           label: 'Section IV: Treatment Information',
@@ -631,7 +685,7 @@ module PdfFill
         set_option_indicator
 
         if @form_data['events']&.any?
-          process_reports
+          process_reports(extras_redesign: options[:extras_redesign])
           expand_collection('events', :format_event, 'eventOverflow') unless options[:extras_redesign]
         end
 
@@ -684,7 +738,7 @@ module PdfFill
         @form_data['noTreatment'] = not_treated ? 1 : 0
       end
 
-      def process_reports
+      def process_reports(extras_redesign: false)
         report_filed = false
         no_report = false
         police_reports = []
@@ -710,17 +764,33 @@ module PdfFill
         @form_data['reportFiled'] = report_filed ? 0 : nil
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
 
-        reports_details['police'] = police_reports.join('; ') unless police_reports.empty?
+        process_police_reports(police_reports, extras_redesign)
         reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
       end
 
+      def process_police_reports(police_reports, extras_redesign)
+        return if police_reports.empty?
+
+        joined_report = police_reports.join('; ')
+        @form_data['reportsDetails']['police'] = joined_report
+        return if joined_report.length <= (KEY['reportsDetails']['police'][:limit] || 0) || !extras_redesign
+
+        police_events = @form_data['events'].filter { |event| event.dig('otherReports', 'police') }
+        @form_data['policeReportOverflow'] = police_events.map do |event|
+          event.slice(*%w[agency city state township country])
+        end
+      end
+
       def process_treatment_dates
-        @form_data['treatmentProvidersDetails'].each do |item|
+        @form_data['treatmentProvidersDetails']&.each do |item|
           item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
           item['treatmentDate'] = if item['noDates']
                                     'no response'
                                   else
-                                    [item['treatmentMonth'], item['treatmentYear'] || '????'].compact.join('-')
+                                    [
+                                      item['treatmentMonth'],
+                                      item['treatmentYear'].presence || '????'
+                                    ].compact_blank.join('-')
                                   end
         end
       end
@@ -751,7 +821,7 @@ module PdfFill
         additional = { 'additionalInfo' => behaviors_details['unlisted'] }
         if extras_redesign
           additional['checked'] = true
-          additional['description'] = 'Additional Behavioral Changes'
+          additional['description'] = 'Additional behavioral changes'
           @form_data['additionalBehaviorsDetails'] = [additional]
         else
           @form_data['additionalBehaviorsDetails'] = additional

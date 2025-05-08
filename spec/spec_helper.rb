@@ -51,7 +51,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/health_quest/lib/health_quest/engine.rb'
     add_filter 'modules/pensions/app/swagger'
     add_filter 'modules/pensions/lib/benefits_intake/submission_handler.rb'
-    add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
     # Modules

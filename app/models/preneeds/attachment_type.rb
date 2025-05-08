@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module Preneeds
   # Models an attachment type from the EOAS service.
@@ -11,9 +11,13 @@ module Preneeds
   # @!attribute description
   #   @return [String] attachment type description
   #
-  class AttachmentType < Common::Base
+  class AttachmentType
+    include Vets::Model
+
     attribute :attachment_type_id, Integer
     attribute :description, String
+
+    default_sort_by description: :asc
 
     # Alias for :attachment_type_id attribute
     #
@@ -21,15 +25,6 @@ module Preneeds
     #
     def id
       attachment_type_id
-    end
-
-    # Sort operator
-    # Default sort should be by description ascending
-    #
-    # @return [Integer] -1, 0, or 1
-    #
-    def <=>(other)
-      description <=> other.description
     end
   end
 end

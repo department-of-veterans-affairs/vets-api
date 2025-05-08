@@ -9,8 +9,8 @@ asdf global ruby $( cat .ruby-version )
 echo "Ensuring packages are up to date..."
 bundle install
 
-echo "Starting redis..."
-nohup /home/linuxbrew/.linuxbrew/opt/redis@6.2/bin/redis-server /home/linuxbrew/.linuxbrew/etc/redis.conf >> log/redis.log 2>&1 &
+echo "Starting Redis ..."
+sudo /etc/init.d/redis-server restart
 
 echo "Starting postgres..."
 sudo /etc/init.d/postgresql restart

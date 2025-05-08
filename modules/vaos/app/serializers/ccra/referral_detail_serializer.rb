@@ -13,6 +13,7 @@ module Ccra
     attribute :category_of_care
     attribute :expiration_date
     attribute :referral_number
+    attribute :referral_consult_id
     attribute :uuid
     attribute :has_appointments
     attribute :referral_date

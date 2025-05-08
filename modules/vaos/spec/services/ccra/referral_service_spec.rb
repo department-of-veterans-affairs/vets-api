@@ -36,6 +36,7 @@ describe Ccra::ReferralService do
           expect(result.first).to be_a(Ccra::ReferralListEntry)
           expect(result.first.referral_number).to eq('VA0000005681')
           expect(result.first.category_of_care).to eq('CARDIOLOGY')
+          expect(result.first.referral_consult_id).to eq('984_646372')
         end
       end
     end

@@ -83,7 +83,7 @@ module Vye
     end
 
     def load_profile(attributes)
-      attributes || {} => {ssn:, file_number:} # this shouldn't throw NoMatchingPatternKeyError
+      attributes || {} => { ssn:, file_number: } # this shouldn't throw NoMatchingPatternKeyError
       user_profile = UserProfile.produce(attributes)
 
       unless user_profile.new_record? || user_profile.changed?

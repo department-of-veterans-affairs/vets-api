@@ -549,5 +549,17 @@ describe PdfFill::HashConverter do
 
       converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
     end
+
+    it 'prevents text from going to extras generator if hide_from_overflow is set' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        hide_from_overflow: true
+      }
+
+      expect(extras_generator).not_to receive(:add_text)
+
+      converter.add_to_extras(key_data, 'test value', nil)
+    end
   end
 end

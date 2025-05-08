@@ -32,6 +32,10 @@ FactoryBot.define do
       poa_request.power_of_attorney_holder_poa_code = evaluator.poa_code if evaluator.poa_code.present?
     end
 
+    trait :unresolved do
+      # Default state, no resolution needed
+    end
+
     trait :with_acceptance do
       after(:build) do |poa_request, evaluator|
         poa_request.resolution = build(

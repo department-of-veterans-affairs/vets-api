@@ -14,6 +14,12 @@ module IvcChampva
     class Client < Common::Client::Base
       configuration IvcChampva::VesApi::Configuration
 
+      def settings
+        Settings.ivc_champva_ves_api
+      end
+
+      delegate :api_key, to: :settings
+
       ##
       # HTTP POST call to the VES VFMP CHAMPVA Application service to submit a 10-10d application.
       #
@@ -29,6 +35,8 @@ module IvcChampva
         monitor.track_ves_response(transaction_uuid, resp.status, resp.body)
 
         raise "response code: #{resp.status}, response body: #{resp.body}" unless resp.status == 200
+
+        resp
       rescue => e
         raise VesApiError, e.message.to_s
       end
@@ -42,7 +50,7 @@ module IvcChampva
       def headers(transaction_uuid, acting_user)
         {
           :content_type => 'application/json',
-          'apiKey' => Settings.ivc_champva.ves_api.api_key.to_s,
+          'apiKey' => settings.api_key,
           'transactionUUId' => transaction_uuid.to_s,
           'acting-user' => acting_user.to_s
         }
