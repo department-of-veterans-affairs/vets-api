@@ -15,11 +15,10 @@ RSpec.describe Vets::Collections::Pagination do
       end
 
       it 'raises an error for out-of-bounds page' do
-        expect {
+        expect do
           described_class.new(page: 6, per_page: 10, total_entries: data.size, data:)
-        }.to raise_error(Common::Exceptions::InvalidPaginationParams)
+        end.to raise_error(Common::Exceptions::InvalidPaginationParams)
       end
-
 
       context 'when data is nil' do
         it 'returns an empty array and total_pages is 1' do
