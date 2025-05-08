@@ -19,7 +19,7 @@ describe Ccra::ReferralService do
     Settings.vaos.ccra ||= OpenStruct.new
     Settings.vaos.ccra.tap do |ccra|
       ccra.api_url = 'http://ccra.api.example.com'
-      ccra.base_path = 'csp/healthshare/ccraint/rest'
+      ccra.base_path = 'vaos/v1/patients'
     end
   end
 
@@ -34,8 +34,9 @@ describe Ccra::ReferralService do
           expect(result).to be_an(Array)
           expect(result.size).to eq(3)
           expect(result.first).to be_a(Ccra::ReferralListEntry)
-          expect(result.first.referral_id).to eq('5682')
-          expect(result.first.type_of_care).to eq('CARDIOLOGY')
+          expect(result.first.referral_number).to eq('VA0000005681')
+          expect(result.first.category_of_care).to eq('CARDIOLOGY')
+          expect(result.first.referral_consult_id).to eq('984_646372')
         end
       end
     end
@@ -66,14 +67,14 @@ describe Ccra::ReferralService do
 
   describe '#get_referral' do
     let(:id) { '984_646372' }
-    let(:mode) { '2' }
+    let(:icn) { '1012845331V153043' }
 
     context 'with successful response', :vcr do
       it 'returns a ReferralDetail object' do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-          result = subject.get_referral(id, mode)
+          result = subject.get_referral(id, icn)
           expect(result).to be_a(Ccra::ReferralDetail)
-          expect(result.type_of_care).to eq('CARDIOLOGY')
+          expect(result.category_of_care).to eq('CARDIOLOGY')
           expect(result.referral_number).to eq('VA0000005681')
         end
       end
@@ -84,7 +85,7 @@ describe Ccra::ReferralService do
 
       it 'raises not found error' do
         VCR.use_cassette('vaos/ccra/post_get_referral_not_found') do
-          expect { subject.get_referral(id, mode) }
+          expect { subject.get_referral(id, icn) }
             .to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
@@ -95,7 +96,7 @@ describe Ccra::ReferralService do
 
       it 'raises a BackendServiceException' do
         VCR.use_cassette('vaos/ccra/post_get_referral_error') do
-          expect { subject.get_referral(id, mode) }
+          expect { subject.get_referral(id, icn) }
             .to raise_error(Common::Exceptions::BackendServiceException)
         end
       end

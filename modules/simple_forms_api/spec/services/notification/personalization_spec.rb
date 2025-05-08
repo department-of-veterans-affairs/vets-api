@@ -31,6 +31,32 @@ describe SimpleFormsApi::Notification::Personalization do
       end
     end
 
+    context 'should send to point of contact' do
+      let(:form) do
+        SimpleFormsApi::VBA2010207.new(
+          {
+            'veteran_full_name' => { 'first' => 'John', 'last' => 'Doe' },
+            'preparer_type' => 'veteran',
+            'living_situation' => { 'NONE' => true },
+            'point_of_contact_name' => 'Pointy McContact'
+          }
+        )
+      end
+
+      it 'returns a hash with point of contact fields' do
+        personalization = described_class.new(form:, config:)
+
+        expect(personalization.to_hash).to eq(
+          {
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'date_submitted' => date_submitted,
+            'poc_first_name_last_name' => 'Pointy McContact'
+          }
+        )
+      end
+    end
+
     context 'other forms' do
       let(:form) { SimpleFormsApi::VBA2010206.new({ 'full_name' => { 'first' => 'john' } }) }
 

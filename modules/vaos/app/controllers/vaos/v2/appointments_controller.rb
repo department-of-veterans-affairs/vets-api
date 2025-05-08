@@ -7,7 +7,9 @@ module VAOS
     class AppointmentsController < VAOS::BaseController # rubocop:disable Metrics/ClassLength
       before_action :authorize_with_facilities
 
-      STATSD_KEY = 'api.vaos.va_mobile.response.partial'
+      PARTIAL_RESPONSE_METRIC = 'api.vaos.va_mobile.response.partial'
+      APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
+      APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -20,7 +22,6 @@ module VAOS
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
-      PROVIDER_SLOTS_ERROR_MSG = 'Error fetching provider slots'
 
       rescue_from Redis::BaseError, with: :handle_redis_error
 
@@ -37,14 +38,15 @@ module VAOS
         if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
           render json: { data: serialized, meta: appointments[:meta] }, status: :ok
         else
-          StatsDMetric.new(key: STATSD_KEY).save
-          StatsD.increment(STATSD_KEY, tags: ["failures:#{appointments[:meta][:failures]}"])
+          StatsDMetric.new(key: PARTIAL_RESPONSE_METRIC).save
+          StatsD.increment(PARTIAL_RESPONSE_METRIC, tags: ["failures:#{appointments[:meta][:failures]}"])
           render json: { data: serialized, meta: appointments[:meta] }, status: :multi_status
         end
       end
 
       def show
-        appointment
+        appointment = appointment_show_params[:_include] == 'eps' ? eps_appointment : vaos_appointment
+
         set_facility_error_msg(appointment)
 
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
@@ -68,30 +70,32 @@ module VAOS
 
       def create_draft
         referral_id = draft_params[:referral_id]
-        # TODO: validate referral_id and other needed referral data from the cache from prior referrals response
-
         cached_referral_data = eps_redis_client.fetch_referral_attributes(referral_number: referral_id)
 
-        referral_validation = check_referral_data_validation(cached_referral_data)
-        unless referral_validation[:success]
-          render json: referral_validation[:json], status: referral_validation[:status] and return
+        validation = check_referral_data_validation(cached_referral_data)
+        return render(json: validation[:json], status: validation[:status]) unless validation[:success]
+
+        usage = check_referral_usage(referral_id)
+        return render(json: usage[:json], status: usage[:status]) unless usage[:success]
+
+        provider = find_provider(npi: cached_referral_data[:npi])
+        return render(json: provider_not_found_error, status: :not_found) unless provider&.id
+
+        slots = fetch_provider_slots(cached_referral_data, provider.id)
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+
+        unless draft&.id
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+          return render(json: appt_creation_failed_error, status: :unprocessable_entity)
         end
 
-        referral_usage = check_referral_usage(referral_id)
-        render json: referral_usage[:json], status: referral_usage[:status] and return unless referral_usage[:success]
+        drive_time = fetch_drive_times(provider)
 
-        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id:)
-        provider = eps_provider_service.get_provider_service(provider_id: cached_referral_data[:provider_id])
-
-        response_data = OpenStruct.new(
-          id: draft_appointment.id,
-          provider:,
-          slots: fetch_provider_slots(cached_referral_data),
-          drive_time: fetch_drive_times(provider)
-        )
-
-        serialized = Eps::DraftAppointmentSerializer.new(response_data)
-        render json: serialized, status: :created
+        response_data = build_draft_response(draft, provider, slots, drive_time)
+        Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
+                          "Response: #{response_data.inspect}")
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
+        render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
 
       def update
@@ -114,7 +118,15 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        render json: Eps::DraftAppointmentSerializer.new(appointment), status: :created
+        unless appointment&.id
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+          render json: appt_creation_failed_error, status: :unprocessable_entity and return
+        end
+
+        Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
+                          "Response: #{appointment.inspect}")
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
+        render json: { data: { id: appointment.id } }, status: :created
       end
 
       private
@@ -158,9 +170,14 @@ module VAOS
           appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_index_params)
       end
 
-      def appointment
+      def vaos_appointment
         @appointment ||=
           appointments_service.get_appointment(appointment_id, include_show_params)
+      end
+
+      def eps_appointment
+        @eps_appointment ||=
+          eps_appointment_service.get_appointment(appointment_id:, retrieve_latest_details: true)
       end
 
       def new_appointment
@@ -452,6 +469,40 @@ module VAOS
         }
       end
 
+      ##
+      # Searches for a provider using the NPI from the referral data.
+      #
+      # @param referral_data [Hash] The referral data containing provider information
+      # @option referral_data [String] :npi The National Provider Identifier (NPI) to search for
+      # @return [Object, nil] The provider service object if found, nil otherwise
+      #
+      def find_provider(npi:)
+        eps_provider_service.search_provider_services(npi:)
+      end
+
+      ##
+      # Constructs a response object for a draft appointment with associated provider,
+      # slots, and drive time information.
+      #
+      # @param draft_appointment [Object] The draft appointment object containing the appointment ID
+      # @param provider [Object] The provider object associated with the appointment
+      # @param slots [Object] The available appointment slots for the provider
+      # @param drive_time [Object, nil] The calculated drive time to the provider's location, if available
+      # @return [OpenStruct] A structured response containing:
+      #   - id [String] The draft appointment ID
+      #   - provider [Object] The provider details
+      #   - slots [Object] Available appointment slots
+      #   - drive_time [Object, nil] Drive time information
+      #
+      def build_draft_response(draft_appointment, provider, slots, drive_time)
+        OpenStruct.new(
+          id: draft_appointment.id,
+          provider:,
+          slots:,
+          drive_time:
+        )
+      end
+
       # Fetches available provider slots using referral data.
       #
       # @param referral_data [Hash] Includes:
@@ -462,9 +513,9 @@ module VAOS
       #
       # @return [Array, nil] Available slots array or nil if error occurs
       #
-      def fetch_provider_slots(referral_data)
+      def fetch_provider_slots(referral_data, provider_id)
         eps_provider_service.get_provider_slots(
-          referral_data[:provider_id],
+          provider_id,
           {
             appointmentTypeId: referral_data[:appointment_type_id],
             startOnOrAfter: referral_data[:start_date],
@@ -526,7 +577,7 @@ module VAOS
       # @see Redis::BaseError
       def handle_redis_error(error)
         Rails.logger.error("Redis error: #{error.message}")
-        StatsD.increment("#{STATSD_KEY}.redis_error")
+        StatsD.increment("#{PARTIAL_RESPONSE_METRIC}.redis_error")
         render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
                status: :bad_gateway
       end
@@ -539,7 +590,7 @@ module VAOS
       def validate_referral_data(referral_data)
         return { valid: false, missing_attributes: ['all required attributes'] } if referral_data.nil?
 
-        required_attributes = %i[provider_id appointment_type_id start_date end_date]
+        required_attributes = %i[npi appointment_type_id start_date end_date]
         missing_attributes = required_attributes.select { |attr| referral_data[attr].blank? }
 
         {
@@ -575,28 +626,31 @@ module VAOS
       end
 
       ##
-      # Fetches provider slots and builds a formatted response object
+      # Formats a standardized error response when a provider cannot be found
       #
-      # @param referral_data [Hash] The referral data containing appointment details
-      # @return [Hash] Result hash:
-      #   - If slots are retrieved: { success: true, slots: [...] }
-      #   - If slots cannot be retrieved: { success: false, json: { errors: [...] }, status: :bad_gateway }
-      def build_provider_slots_response(referral_data)
-        slots = fetch_provider_slots(referral_data)
-        if slots.nil?
-          {
-            success: false,
-            json: {
-              errors: [{
-                title: PROVIDER_SLOTS_ERROR_MSG,
-                detail: 'Unable to retrieve available appointment slots'
-              }]
-            },
-            status: :bad_gateway
-          }
-        else
-          { success: true, slots: }
-        end
+      # @return [Hash] Error object with title and detail for JSON rendering
+      #
+      def provider_not_found_error
+        {
+          errors: [{
+            title: 'Provider not found',
+            detail: 'Unable to find provider with given details'
+          }]
+        }
+      end
+
+      ##
+      # Formats a standardized error response when appointment creation fails
+      #
+      # @return [Hash] Error object with title and detail for JSON rendering
+      #
+      def appt_creation_failed_error
+        {
+          errors: [{
+            title: 'Appointment creation failed',
+            detail: 'Could not create appointment'
+          }]
+        }
       end
     end
   end

@@ -204,14 +204,19 @@ module Rx
     private
 
     def auth_headers
-      get_headers(config.base_request_headers.merge('appToken' => config.app_token,
-                                                    'mhvCorrelationId' => session.user_id.to_s))
+      headers = get_headers(
+        config.base_request_headers.merge(
+          'appToken' => config.app_token,
+          'mhvCorrelationId' => session.user_id.to_s
+        )
+      )
+      get_headers(headers)
     end
 
     def get_headers(headers)
       headers = headers.dup
       if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
-        headers.merge('x-api-key' => Settings.mhv_mobile.x_api_key)
+        headers.merge('x-api-key' => config.x_api_key)
       else
         headers
       end

@@ -169,9 +169,12 @@ describe Rx::Client do
   describe 'Test new API gateway methods' do
     before do
       allow(Settings.mhv.rx).to receive(:use_new_api).and_return(use_new_api)
-      allow(Settings.mhv_mobile).to receive(:x_api_key).and_return('test-api-key')
+      allow(Settings.mhv_mobile.rx).to receive(:x_api_key).and_return('fake-x-api-key')
       allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
                                                                   app_token: 'test-app-token'))
+      allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
+                                                                  app_token: 'test-app-token',
+                                                                  x_api_key: 'fake-x-api-key'))
     end
 
     describe '#auth_headers' do
@@ -179,7 +182,7 @@ describe Rx::Client do
 
       it 'returns headers with appToken and mhvCorrelationId' do
         result = client.send(:auth_headers)
-        expect(result).to include('x-api-key' => 'test-api-key')
+        expect(result).to include('x-api-key' => 'fake-x-api-key')
       end
     end
 
@@ -191,7 +194,7 @@ describe Rx::Client do
 
         it 'adds x-api-key to headers' do
           result = client.send(:get_headers, headers)
-          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'test-api-key')
+          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'fake-x-api-key')
         end
       end
 

@@ -65,6 +65,14 @@ RSpec.describe BGSDependents::Death do
         expect(formatted_info).to eq(formatted_params_result)
       end
     end
+
+    describe '#format_info for spouse' do
+      it 'formats death params for submission' do
+        formatted_info = described_class.new(death_info.merge({ 'dependent_type' => 'SPOUSE' })).format_info
+
+        expect(formatted_info).to eq(formatted_params_result.merge({ 'marriage_termination_type_code' => 'death' }))
+      end
+    end
   end
 
   context 'with va_dependents_v2 on' do
@@ -77,6 +85,14 @@ RSpec.describe BGSDependents::Death do
         formatted_info = described_class.new(death_info_v2).format_info
 
         expect(formatted_info).to eq(formatted_params_result_v2)
+      end
+    end
+
+    describe '#format_info for spouse' do
+      it 'formats death params for submission' do
+        formatted_info = described_class.new(death_info_v2.merge({ 'dependent_type' => 'SPOUSE' })).format_info
+
+        expect(formatted_info).to eq(formatted_params_result_v2.merge({ 'marriage_termination_type_code' => 'death' }))
       end
     end
   end

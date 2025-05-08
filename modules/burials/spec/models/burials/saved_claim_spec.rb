@@ -123,15 +123,25 @@ RSpec.describe Burials::SavedClaim do
     end
   end
 
-  describe '#claimaint_first_name' do
+  describe '#claimant_first_name' do
     it 'returns the first name of the claimant from parsed_form' do
       allow(instance).to receive(:parsed_form).and_return({ 'claimantFullName' => { 'first' => 'Derrick' } })
-      expect(instance.claimaint_first_name).to eq('Derrick')
+      expect(instance.claimant_first_name).to eq('Derrick')
     end
 
     it 'returns nil if the key does not exist' do
       allow(instance).to receive(:parsed_form).and_return({})
-      expect(instance.claimaint_first_name).to be_nil
+      expect(instance.claimant_first_name).to be_nil
+    end
+  end
+
+  context 'after create' do
+    it 'tracks pdf overflow' do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
+      allow(StatsD).to receive(:increment)
+      instance.save!
+
+      expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', tags: ['form_id:21P-530EZ'])
     end
   end
 end

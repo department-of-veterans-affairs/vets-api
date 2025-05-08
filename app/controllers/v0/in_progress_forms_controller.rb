@@ -22,6 +22,14 @@ module V0
       form.user_account = @current_user.user_account
       form.real_user_uuid = @current_user.uuid
 
+      if Flipper.enabled?(:disability_compensation_sync_modern0781_flow_metadata) &&
+         (form_id == FormProfiles::VA526ez::FORM_ID) &&
+         params[:metadata].present? &&
+         params[:form_data].present?
+        form_hash = params[:form_data].is_a?(String) ? JSON.parse(params[:form_data]) : params[:form_data]
+        params[:metadata][:sync_modern0781_flow] = form_hash[:sync_modern0781_flow] || false
+      end
+
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
@@ -64,21 +72,16 @@ module V0
 
     def itf_creation(form)
       itf_valid_form = Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
-      itf_lighthouse = Flipper.enabled?(:intent_to_file_lighthouse_enabled, @current_user)
       itf_synchronous = Flipper.enabled?(:intent_to_file_synchronous_enabled, @current_user)
 
-      if itf_valid_form && (itf_lighthouse || itf_synchronous)
+      if itf_valid_form && itf_synchronous
         itf_monitor.track_create_itf_initiated(form.form_id, form.created_at, @current_user.uuid, form.id)
 
-        if itf_synchronous
-          begin
-            Lighthouse::CreateIntentToFileJob.new.perform(form.id, @current_user.icn, @current_user.participant_id)
-          rescue Common::Exceptions::ResourceNotFound
-            # prevent false error being reported to user - ICN present but not found by BenefitsClaims
-            # todo: update to handle itf process from frontend
-          end
-        elsif itf_lighthouse
-          Lighthouse::CreateIntentToFileJob.perform_async(form.id, @current_user.icn, @current_user.participant_id)
+        begin
+          Lighthouse::CreateIntentToFileJob.new.perform(form.id, @current_user.icn, @current_user.participant_id)
+        rescue Common::Exceptions::ResourceNotFound
+          # prevent false error being reported to user - ICN present but not found by BenefitsClaims
+          # todo: handle itf process from frontend
         end
       end
     end

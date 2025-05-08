@@ -220,6 +220,7 @@ RSpec.describe V0::InProgressFormsController do
           )
           get v0_in_progress_form_url('MDOT'), params: nil
           expect(response).to have_http_status(:ok)
+          VCR.eject_cassette
         end
       end
 
@@ -396,23 +397,6 @@ RSpec.describe V0::InProgressFormsController do
             allow(Lighthouse::CreateIntentToFileJob).to receive(:perform_async)
             allow(Lighthouse::CreateIntentToFileJob).to receive(:new).and_return(itf_job)
             allow(itf_job).to receive(:perform)
-          end
-
-          it 'calls aync CreateIntentToFileJob for newly created forms' do
-            expect(Flipper).to receive(:enabled?).with(:intent_to_file_synchronous_enabled,
-                                                       instance_of(User)).and_return(false)
-
-            put v0_in_progress_form_url('21P-527EZ'),
-                params: {
-                  formData: new_form.form_data,
-                  metadata: new_form.metadata
-                }.to_json,
-                headers: { 'CONTENT_TYPE' => 'application/json' }
-
-            latest_form = InProgressForm.last
-            expect(itf_job).not_to have_received(:perform)
-            expect(Lighthouse::CreateIntentToFileJob).to have_received(:perform_async).with(latest_form.id, user.icn,
-                                                                                            user.participant_id)
           end
 
           it 'calls synchronous CreateIntentToFileJob for newly created forms' do

@@ -13,13 +13,6 @@ RSpec.describe Rx::Configuration do
     end
   end
 
-  describe '#app_token_va_gov' do
-    it 'returns the VA.gov app token from settings' do
-      allow(Settings.mhv.rx).to receive(:app_token_va_gov).and_return('va_gov_token')
-      expect(configuration.app_token_va_gov).to eq('va_gov_token')
-    end
-  end
-
   describe '#base_path' do
     context 'when use_new_api is true' do
       it 'returns the new API base path' do

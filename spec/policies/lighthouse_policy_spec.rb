@@ -35,6 +35,54 @@ describe LighthousePolicy do
     end
   end
 
+  permissions :access_vet_status? do
+    context 'user has ICN and Participant ID' do
+      let(:user) { build(:user, :loa3) }
+
+      it 'grants access' do
+        expect(subject).to permit(user, :lighthouse)
+      end
+    end
+
+    context 'user without ICN' do
+      let(:user) { build(:user, :loa3) }
+
+      before { allow(user).to receive(:icn).and_return(nil) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :lighthouse)
+      end
+
+      it 'logs access denied' do
+        expect(Rails.logger).to receive(:info).with(
+          'Vet Status Lighthouse access denied',
+          icn_present: false,
+          participant_id_present: true
+        )
+        subject.new(user, :lighthouse).access_vet_status?
+      end
+    end
+
+    context 'user without Participant ID' do
+      let(:user) { build(:user, :loa3) }
+
+      before { allow(user).to receive(:participant_id).and_return(nil) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :lighthouse)
+      end
+
+      it 'logs access denied' do
+        expect(Rails.logger).to receive(:info).with(
+          'Vet Status Lighthouse access denied',
+          icn_present: true,
+          participant_id_present: false
+        )
+        subject.new(user, :lighthouse).access_vet_status?
+      end
+    end
+  end
+
   permissions :direct_deposit_access? do
     let(:user) { build(:evss_user) }
 

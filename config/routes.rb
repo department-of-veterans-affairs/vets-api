@@ -48,13 +48,15 @@ Rails.application.routes.draw do
     resources :debts, only: %i[index show]
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
-    resources :user_action_events, only: [:index]
+    resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
     resource :virtual_agent_token_nlu, only: [:create], controller: :virtual_agent_token_nlu
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
+
+    get 'virtual_agent/user', to: 'virtual_agent/users#show'
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
@@ -171,7 +173,6 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
-    resources :evss_claims_async, only: %i[index show]
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
@@ -192,6 +193,8 @@ Rails.application.routes.draw do
 
     get 'ppiu/payment_information', to: 'ppiu#index'
     put 'ppiu/payment_information', to: 'ppiu#update'
+
+    post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
     resources :maintenance_windows, only: [:index]
 
@@ -475,6 +478,8 @@ Rails.application.routes.draw do
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
   end
+
+  get '/apple-touch-icon-:size.png', to: redirect('/apple-touch-icon.png')
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
