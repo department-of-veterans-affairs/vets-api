@@ -187,7 +187,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           end
 
           it 'rejects invalid country format' do
-            claim = build(:veteran_readiness_employment_claim, country: "Invalid")
+            claim = build(:veteran_readiness_employment_claim, country: 'Invalid')
 
             claim_data = JSON.parse(claim.form)
             claim.form = claim_data.to_json
