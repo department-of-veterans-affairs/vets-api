@@ -31,7 +31,6 @@ describe 'ClientRequestSpec', type: :request do
 
   describe 'error handling' do
     it 'converts 400 optimistic locking errors to 409' do
-      allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
       VCR.use_cassette('rx_client/prescriptions/gets_optimistic_locking_error') do
         get '/rx_test_index'
         expect(response).to have_http_status(:conflict)

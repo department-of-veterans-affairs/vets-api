@@ -19,7 +19,6 @@ RSpec.describe 'Breakers Integration', type: :request do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)

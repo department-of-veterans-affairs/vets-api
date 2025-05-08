@@ -13,7 +13,6 @@ end
 
 describe Rx::Client do
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
     VCR.use_cassette 'rx_client/session' do
       @client = Rx::Client.new(session: { user_id: '12210827' },
                                upstream_request: UpstreamRequest)

@@ -15,7 +15,6 @@ RSpec.describe MHVLoggingService do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(false)
     Sidekiq::Testing.inline!
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
   end
