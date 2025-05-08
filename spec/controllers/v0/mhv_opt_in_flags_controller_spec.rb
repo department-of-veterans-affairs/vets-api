@@ -37,7 +37,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
 
     describe '#show' do
       before do
-        MHVOptInFlag.create(user_account_id: user.account_uuid, feature:)
+        MHVOptInFlag.create(user_account_id: user.user_account_uuid, feature:)
         get :show, params: { feature: }
       end
 
@@ -94,7 +94,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
 
       context 'requested opt in flag exists' do
         before do
-          MHVOptInFlag.create(user_account_id: user.account_uuid, feature:)
+          MHVOptInFlag.create(user_account_id: user.user_account_uuid, feature:)
           post :create, params: { feature: }
         end
 
