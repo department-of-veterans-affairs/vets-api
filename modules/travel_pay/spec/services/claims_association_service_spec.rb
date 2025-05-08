@@ -286,7 +286,7 @@ describe TravelPay::ClaimAssociationService do
 
     before do
       allow(TravelPay::AuthManager)
-      .to receive(:new)
+        .to receive(:new)
         .and_return(double('AuthManager', authorize: tokens))
       allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
     end
@@ -338,7 +338,7 @@ describe TravelPay::ClaimAssociationService do
         .and_return(single_claim_success_response)
 
       expect(TravelPay::AuthManager).to receive(:new)
-      .with('12345', user)
+        .with('12345', user)
 
       association_service = TravelPay::ClaimAssociationService.new(user, 'vagov')
       appt_with_claim = association_service.associate_single_appointment_to_claim(
