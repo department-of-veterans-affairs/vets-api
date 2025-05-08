@@ -144,7 +144,7 @@ RSpec.describe Vets::Collection do
     end
 
     it 'sort by default order if no clauses are provided' do
-      sorted_collection = collection.order()
+      sorted_collection = collection.order
       expect(sorted_collection.records).to eq([record1, record2, record3, record4])
     end
 
