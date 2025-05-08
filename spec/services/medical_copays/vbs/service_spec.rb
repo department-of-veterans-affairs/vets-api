@@ -43,22 +43,27 @@ RSpec.describe MedicalCopays::VBS::Service do
       it 'logs that a cached response was returned' do
         allow_any_instance_of(MedicalCopays::VBS::Service)
           .to receive(:get_user_cached_response)
-                .and_return(Faraday::Response.new(status: 200, body: []))
+          .and_return(Faraday::Response.new(status: 200, body: []))
 
         expect { subject.get_copays }
           .to trigger_statsd_increment('api.mcp.vbs.init_cached_copays.fired')
-                .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.cached_response_returned')
+          .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.cached_response_returned')
       end
     end
 
     context 'with an empty copay response' do
-      it 'logs that an empty response was cached' do
+      before do
         empty_response = Faraday::Response.new(status: 200, body: [])
-        allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_response).and_return(empty_response)
+        allow(subject.request).to receive(:post).with(
+          "#{Settings.mcp.vbs_v2.base_path}/GetStatementsByEDIPIAndVistaAccountNumber",
+          anything
+        ).and_return(empty_response)
+      end
 
+      it 'logs that an empty response was cached' do
         expect { subject.get_copays }
           .to trigger_statsd_increment('api.mcp.vbs.init_cached_copays.fired')
-                .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.empty_response_cached')
+          .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.empty_response_cached')
       end
     end
 
@@ -66,7 +71,7 @@ RSpec.describe MedicalCopays::VBS::Service do
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(false)
 
       expect { subject.get_copays }.to raise_error(MedicalCopays::VBS::InvalidVBSRequestError)
-                                         .and trigger_statsd_increment('api.mcp.vbs.failure')
+        .and trigger_statsd_increment('api.mcp.vbs.failure')
     end
 
     it 'returns a response hash' do
@@ -103,12 +108,14 @@ RSpec.describe MedicalCopays::VBS::Service do
       it 'includes zero balance statements if available' do
         url = '/vbsapi/GetStatementsByEDIPIAndVistaAccountNumber'
         data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
-        response = Faraday::Response.new(status: 200, body: [
-          {
-            'foo_bar' => 'bar',
-            'pS_STATEMENT_DATE' => today_date
-          }
-        ])
+        response = Faraday::Response.new(
+          status: 200, body: [
+            {
+              'foo_bar' => 'bar',
+              'pS_STATEMENT_DATE' => today_date
+            }
+          ]
+        )
         zero_balance_response = [
           {
             'bar_baz' => 'baz',
@@ -124,19 +131,20 @@ RSpec.describe MedicalCopays::VBS::Service do
 
         VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
           expect(subject.get_copays).to eq(
-                                          {
-                                             status: 200,
-                                             data: [
-                                               {
-                                                 'fooBar' => 'bar',
-                                                 'pSStatementDate' => today_date
-                                               },
-                                               {
-                                                 'barBaz' => 'baz',
-                                                 'pSStatementDate' => today_date
-                                               }
-                                             ]
-                                           })
+            {
+              status: 200,
+              data: [
+                {
+                  'fooBar' => 'bar',
+                  'pSStatementDate' => today_date
+                },
+                {
+                  'barBaz' => 'baz',
+                  'pSStatementDate' => today_date
+                }
+              ]
+            }
+          )
         end
       end
     end
@@ -155,10 +163,10 @@ RSpec.describe MedicalCopays::VBS::Service do
           { edipi: '123456789', vistaAccountNumbers: [36_546] }
         )
         allow_any_instance_of(MedicalCopays::Request).to receive(:post)
-                                                           .and_return(Faraday::Response.new(status: 200, body: []))
+          .and_return(Faraday::Response.new(status: 200, body: []))
 
         expect(Rails.logger).to receive(:info).with(
-          a_string_including('MedicalCopays::VBS::Service#get_copay_response request data: ')
+          a_string_including('MedicalCopays::VBS::Service#get_copays request data: ')
         )
         VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
           subject.get_copays

@@ -45,7 +45,7 @@ module MedicalCopays
         raise InvalidVBSRequestError, request_data.errors unless request_data.valid?
 
         if Flipper.enabled?(:debts_copay_logging)
-          Rails.logger.info("MedicalCopays::VBS::Service#get_copay_response request data: #{@user.uuid}")
+          Rails.logger.info("MedicalCopays::VBS::Service#get_copays request data: #{@user.uuid}")
         end
 
         response = get_cached_copay_response
