@@ -3,15 +3,51 @@
 require 'mhv/aal/client'
 
 module MyHealth
+  ##
+  # Module to support AAL logging. By design, the methods here do not block execution of the request
+  # if there is an error. They simply log the error instead.
+  #
   module AALClientConcerns
     extend ActiveSupport::Concern
 
     included do
-      before_action :authorize_aal
-      before_action :authenticate_aal_client
+      before_action :authenticate_aal_client, unless: :_aal_public_controller?
     end
 
     protected
+
+    ##
+    # Convenience method to create an AAL entry. It injects a unique identifier for the VA.gov
+    # session. This method will NOT raise errors, allowing requests to continue.
+    #
+    # Use this method in controllers where logging is a side-effect, rather than the primary
+    # function.
+    #
+    def create_aal(attributes, once_per_session: false)
+      create_aal!(attributes, once_per_session:)
+    rescue => e
+      Rails.logger.error "Failed to create AAL entry. #{e.message}", e.backtrace
+    end
+
+    ##
+    # Convenience method to create an AAL entry. It injects a unique identifier for the VA.gov
+    # session. This method WILL raise errors, blocking request execution.
+    #
+    def create_aal!(attributes, once_per_session: false)
+      aal_client.create_aal(attributes, once_per_session, current_user&.last_signed_in)
+    end
+
+    def authenticate_aal_client
+      authenticate_aal_client!
+    rescue => e
+      Rails.logger.error "Failed to authenticate AAL client. #{e.message}", e.backtrace
+    end
+
+    def authenticate_aal_client!
+      aal_client.authenticate
+    end
+
+    private
 
     def aal_client
       @aal_client ||= build_aal_client
@@ -38,19 +74,16 @@ module MyHealth
       { user_id: current_user&.mhv_correlation_id }
     end
 
-    def authorize_aal
-      if current_user.mhv_correlation_id.blank?
-        raise Common::Exceptions::Forbidden,
-              detail: 'You do not have access to the AAL service'
-      end
-    end
-
-    def authenticate_aal_client
-      aal_client.authenticate
-    end
-
+    ##
+    # Pull the product from the request. Alternatively, override this in your controller and hard
+    # code the value. Value should be one of [:mr, :rx, :sm]
+    #
     def product
       params[:product]&.to_sym
+    end
+
+    def _aal_public_controller?
+      self.class <= MyHealth::V1::AALController
     end
   end
 end

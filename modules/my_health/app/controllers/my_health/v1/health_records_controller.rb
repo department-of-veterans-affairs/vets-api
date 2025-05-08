@@ -56,12 +56,12 @@ module MyHealth
       end
 
       def log_aal_action(action, status)
-        aal_client.create_aal(
-          activity_type: 'VA Health Record',
-          action:,
-          performer_type: 'Self',
-          status:
-        )
+        create_aal({
+                     activity_type: 'VA Health Record',
+                     action:,
+                     performer_type: 'Self',
+                     status:
+                   })
       end
     end
   end
