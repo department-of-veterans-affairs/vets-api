@@ -170,16 +170,31 @@ describe PdfFill::ExtrasGeneratorV2 do
       let(:add_text_calls) do
         [
           ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
-          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }],
+          ['no response', { question_suffix: 'C', question_text: 'Other', question_type: 'free_text' }],
+          ['bold', {
+            question_suffix: 'D',
+            question_text: 'Bold',
+            question_type: 'free_text',
+            format_options: { bold_value: true }
+          }],
+          ['longer line that should generate two lines because it is too long', {
+            question_suffix: 'E',
+            question_text: 'Longer Line',
+            question_type: 'free_text',
+            format_options: { question_width: 150 }
+          }]
         ]
       end
 
       it 'renders correctly' do
-        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
         expect(subject.sorted_subquestions_markup).to eq(
           [
-            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
-            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+            ['foo', Prawn::Text::NBSP, 'bar'],
+            ['bar'],
+            ['<i>no response</i>'],
+            ['<b>bold</b>'],
+            ['longer line that should generate', 'two lines because it is too long']
           ]
         )
       end
