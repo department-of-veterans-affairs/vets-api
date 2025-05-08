@@ -50,7 +50,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Recipients', type: :request do
       before do
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'triage_teams.json')
         data = Common::Collection.new(TriageTeam, data: JSON.parse(File.read(path)))
-        TriageTeam.set_cached("#{user.uuid}-triage-teams", data)
+        TriageTeam.set_cached("#{user.uuid}-triage-teams", data.records)
       end
 
       it 'retrieve cached triage teams rather than hitting the service' do

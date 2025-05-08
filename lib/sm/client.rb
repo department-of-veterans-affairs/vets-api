@@ -99,7 +99,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-        Folder.set_cached(cache_key, data)
+        Folder.set_cached(cache_key, data.records)
         data
       end
     end
@@ -172,7 +172,7 @@ module SM
           page += 1
         end
         messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-        Message.set_cached(cache_key, messages)
+        Message.set_cached(cache_key, messages.records)
         messages
       end
     end
@@ -222,7 +222,7 @@ module SM
 
       json = perform(:post,
                      path,
-                     args.to_h,
+                     args.attributes,
                      token_headers).body
       Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
     end
@@ -459,7 +459,7 @@ module SM
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
         data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-        TriageTeam.set_cached(cache_key, data)
+        TriageTeam.set_cached(cache_key, data.records)
         data
       end
     end
@@ -481,7 +481,7 @@ module SM
         end
         json = perform(:get, path, nil, token_headers).body
         data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-        AllTriageTeams.set_cached(cache_key, data)
+        AllTriageTeams.set_cached(cache_key, data.records)
         data
       end
     end

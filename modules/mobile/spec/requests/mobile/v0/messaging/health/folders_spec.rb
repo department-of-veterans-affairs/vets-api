@@ -70,7 +70,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
         before do
           path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'folders.json')
           data = Vets::Collection.new(JSON.parse(File.read(path)), Folder)
-          Folder.set_cached("#{user.uuid}-folders", data)
+          Folder.set_cached("#{user.uuid}-folders", data.records)
         end
 
         it 'retrieve cached folders rather than hitting the service' do
@@ -181,7 +181,7 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validati
         before do
           path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'folder_messages.json')
           data = Vets::Collection.new(JSON.parse(File.read(path)), Message)
-          Message.set_cached("#{user.uuid}-folder-messages-#{inbox_id}", data)
+          Message.set_cached("#{user.uuid}-folder-messages-#{inbox_id}", data.records)
         end
 
         it 'retrieve cached messages rather than hitting the service' do
