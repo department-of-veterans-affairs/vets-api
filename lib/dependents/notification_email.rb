@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dependents/notification_callback'
 require 'veteran_facing_services/notification_email/saved_claim'
 
 module Dependents
@@ -38,6 +39,11 @@ module Dependents
       }
 
       default.merge(dependents)
+    end
+
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_klass
+    def callback_klass
+      Dependents::NotificationCallback.to_s
     end
   end
 end
