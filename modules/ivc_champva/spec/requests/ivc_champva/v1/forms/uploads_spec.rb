@@ -279,6 +279,18 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    # Also taken from the main #submit endpoint tests as they function the same at this level
+    it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+
+      # Actual supporting_docs should exist as records in the DB. This test
+      # ensures that if they aren't present we won't have a silent failure
+      data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data_with_docs
+
+      expect(response).to have_http_status(:internal_server_error)
+    end
   end
 
   describe 'stored ves data is encrypted' do
