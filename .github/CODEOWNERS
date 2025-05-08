@@ -339,7 +339,7 @@ app/policies/coe_policy.rb @department-of-veterans-affairs/benefits-non-disabili
 app/policies/communication_preferences_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/debt_letters_policy.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/policies/debt_policy.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
-app/policies/demographics_policy.rb @department-of-veterans-affairs/mobile-api-team
+app/policies/demographics_policy.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 app/policies/form1095_policy.rb @department-of-veterans-affairs/vfs-1095-b @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/hca_disability_rating_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/lighthouse_policy.rb @department-of-veterans-affairs/backend-review-group
