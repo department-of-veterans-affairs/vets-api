@@ -17,13 +17,11 @@ module MailAutomation
     #   claim_id: 1234
     #   file_number: 1234
     #   form526: {}
-    #   form526_uploads: []
     # })
     def initialize(params)
       @claim_id = params[:claim_id]
       @file_number = params[:file_number]
       @form526 = params[:form526]
-      @form526_uploads = params[:form526_uploads]
 
       raise ArgumentError, 'no file_number passed in for API request.' if @file_number.blank?
       raise ArgumentError, 'no claim_id passed in for API request.' if @claim_id.blank?
@@ -36,8 +34,7 @@ module MailAutomation
       params = {
         file_number: @file_number,
         claim_id: @claim_id,
-        form526: @form526['form526'],
-        form526_uploads: @form526_uploads
+        form526: @form526['form526']
       }
       if Flipper.enabled?(:disability_526_send_mas_all_ancillaries)
         params.merge!(@form526.slice(*%w[form526_uploads form4142 form0781]).symbolize_keys)
