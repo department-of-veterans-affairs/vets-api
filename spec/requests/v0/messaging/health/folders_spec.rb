@@ -144,7 +144,7 @@ RSpec.describe 'V0::Messaging::Health::Folders', type: :request do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/v0/messaging/health/folders/#{inbox_id}/messages"
         end
-        binding.pry
+
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('messages')
