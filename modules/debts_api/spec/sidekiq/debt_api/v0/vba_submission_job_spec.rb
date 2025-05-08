@@ -67,10 +67,6 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         }
       end
 
-      before do
-        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(false)
-      end
-
       it 'handles MissingUserAttributesError' do
         expected_log_message = <<~LOG
           V0::Form5655::VBASubmissionJob retries exhausted:

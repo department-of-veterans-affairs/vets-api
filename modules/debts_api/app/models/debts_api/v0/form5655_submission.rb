@@ -102,20 +102,18 @@ module DebtsApi
     end
 
     def send_failed_form_email
-      if Flipper.enabled?(:debts_silent_failure_mailer)
-        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
-        submission_email = ipf_form['personal_data']['email_address'].downcase
+      StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
+      submission_email = ipf_form['personal_data']['email_address'].downcase
 
-        jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
-          24.hours,
-          submission_email,
-          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
-          failure_email_personalization_info,
-          { id_type: 'email', failure_mailer: true }
-        )
+      jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
+        24.hours,
+        submission_email,
+        SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
+        failure_email_personalization_info,
+        { id_type: 'email', failure_mailer: true }
+      )
 
-        Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
-      end
+      Rails.logger.info("Failed 5655 email enqueued form: #{id} email scheduled with jid: #{jid}")
     end
 
     def failure_email_personalization_info
