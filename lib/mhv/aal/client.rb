@@ -50,7 +50,7 @@ module AAL
                 .except(:completion_time)
                 .merge(session_id:)
 
-      fingerprint = Digest::MD5.hexdigest(
+      fingerprint = Digest::SHA256.hexdigest(
         track_h.sort.to_h.to_json
       )
 
