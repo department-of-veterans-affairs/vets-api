@@ -32,6 +32,14 @@ describe VAOS::ReferralEncryptionService do
       expect(described_class.encrypt(nil)).to be_nil
       expect(described_class.encrypt('')).to be_nil
     end
+
+    it 'handles encryption errors gracefully' do
+      allow_any_instance_of(Aes256CbcEncryptor).to receive(:encrypt).and_raise(StandardError.new('Encryption failed'))
+      expect(Rails.logger).to receive(:error).with(/Configuration Error: Encryption failed/)
+      expect(Rails.logger).to receive(:error)
+
+      expect { described_class.encrypt(referral_id) }.to raise_error(VAOS::Exceptions::ConfigurationError)
+    end
   end
 
   describe '.decrypt' do
@@ -42,6 +50,13 @@ describe VAOS::ReferralEncryptionService do
     it 'returns nil for blank input' do
       expect(described_class.decrypt(nil)).to be_nil
       expect(described_class.decrypt('')).to be_nil
+    end
+
+    it 'handles decryption errors gracefully' do
+      expect(Rails.logger).to receive(:error).with(/Configuration Error/)
+      expect(Rails.logger).to receive(:error)
+
+      expect { described_class.decrypt('invalid-base64!') }.to raise_error(VAOS::Exceptions::ConfigurationError)
     end
   end
 
@@ -55,6 +70,14 @@ describe VAOS::ReferralEncryptionService do
       second_call = described_class.encryptor
       expect(first_call).to be(second_call)
       expect(Thread.current[:vaos_referral_encryptor]).to be(first_call)
+    end
+
+    it 'handles configuration errors gracefully' do
+      allow(Settings).to receive(:vaos).and_raise(StandardError.new('Missing settings'))
+      expect(Rails.logger).to receive(:error).with(/Configuration Error: Missing settings/)
+      expect(Rails.logger).to receive(:error)
+
+      expect { described_class.encryptor }.to raise_error(VAOS::Exceptions::ConfigurationError)
     end
   end
 end

@@ -82,7 +82,7 @@ describe Common::JwtWrapper do
         end
 
         it 'logs the error and raises a VAOS::Exceptions::ConfigurationError' do
-          expect(Rails.logger).to receive(:error).with(/Service Configuration Error: RSA key file not found/)
+          expect(Rails.logger).to receive(:error).with(/Configuration Error: RSA key file not found/)
           expect { wrapper_with_error.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
         end
       end
@@ -100,7 +100,7 @@ describe Common::JwtWrapper do
         let(:wrapper_with_nil_path) { described_class.new(settings_with_nil_path, service_config) }
 
         it 'logs the error and raises a VAOS::Exceptions::ConfigurationError' do
-          expect(Rails.logger).to receive(:error).with(/Service Configuration Error: RSA key path is not configured/)
+          expect(Rails.logger).to receive(:error).with(/Configuration Error: RSA key path is not configured/)
           expect { wrapper_with_nil_path.sign_assertion }.to raise_error(VAOS::Exceptions::ConfigurationError)
         end
       end
