@@ -679,13 +679,14 @@ RSpec.describe HealthCareApplication, type: :model do
         it 'logs exception and raises BackendServiceException' do
           expect(Rails.logger).to receive(:error).with('[10-10EZ] - Error synchronously submitting form',
                                                        { exception: client_error, user_loa: nil })
-          expect(Rails.logger).to receive(:error).with('[10-10EZ] - HCA total failure',
-                                                       :error,
-                                                       {
-                                                         first_initial: 'F',
-                                                         middle_initial: 'M',
-                                                         last_initial: 'Z'
-                                                       })
+          expect(Rails.logger).to receive(:info).with(
+            '[10-10EZ] - HCA total failure',
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
           expect do
             health_care_application.process!
           end.to raise_error(Common::Exceptions::BackendServiceException)
@@ -782,9 +783,8 @@ RSpec.describe HealthCareApplication, type: :model do
               '[10-10EZ] - Failure sending Submission Failure Email',
               { exception: standard_error }
             )
-            expect(Rails.logger).to receive(:error).with(
+            expect(Rails.logger).to receive(:info).with(
               '[10-10EZ] - HCA total failure',
-              :error,
               {
                 first_initial: 'F',
                 middle_initial: 'M',
@@ -829,9 +829,8 @@ RSpec.describe HealthCareApplication, type: :model do
                 '[10-10EZ] - Failure sending Submission Failure Email',
                 { exception: standard_error }
               )
-              expect(Rails.logger).to receive(:error).with(
+              expect(Rails.logger).to receive(:info).with(
                 '[10-10EZ] - HCA total failure',
-                :error,
                 {
                   first_initial: 'no initial provided',
                   middle_initial: 'no initial provided',
@@ -909,13 +908,14 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'logs message' do
-          expect(Rails.logger).to receive(:error).with('[10-10EZ] - HCA total failure',
-                                                       :error,
-                                                       {
-                                                         first_initial: 'F',
-                                                         middle_initial: 'M',
-                                                         last_initial: 'Z'
-                                                       })
+          expect(Rails.logger).to receive(:info).with(
+            '[10-10EZ] - HCA total failure',
+            {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
 
           subject
         end
@@ -971,9 +971,8 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'logs message' do
-            expect(Rails.logger).to receive(:error).with(
+            expect(Rails.logger).to receive(:info).with(
               '[10-10EZ] - HCA total failure',
-              :error,
               {
                 first_initial: 'no initial provided',
                 middle_initial: 'no initial provided',

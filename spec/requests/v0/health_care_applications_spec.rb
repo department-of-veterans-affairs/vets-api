@@ -285,6 +285,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       )
     end
 
+    before do
+      allow(Rails.logger).to receive(:info).and_call_original
+      allow(Rails.logger).to receive(:error).and_call_original
+    end
+
     context 'with invalid params' do
       before do
         allow(Settings.sentry).to receive(:dsn).and_return('asdf')
@@ -476,19 +481,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Rails.logger).to receive(:error).with(
-                '[10-10EZ] - Error synchronously submitting form',
-                { exception: error, user_loa: nil }
-              )
-              expect(Rails.logger).to receive(:error).with(
-                '[10-10EZ] - HCA total failure',
-                :error,
-                {
-                  first_initial: 'F',
-                  middle_initial: 'M',
-                  last_initial: 'Z'
-                }
-              )
               expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
               subject
@@ -546,20 +538,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Rails.logger).to receive(:error).with(
-                '[10-10EZ] - Error synchronously submitting form',
-                { exception: error, user_loa: nil }
-              )
-              expect(Rails.logger).to receive(:error).with(
-                '[10-10EZ] - HCA total failure',
-                :error,
-                {
-                  first_initial: 'F',
-                  middle_initial: 'M',
-                  last_initial: 'Z'
-                }
-              )
-
               subject
 
               expect(response).to have_http_status(:bad_request)

@@ -301,9 +301,8 @@ class HealthCareApplication < ApplicationRecord
       error_class: 'HealthCareApplication FailedWontRetry'
     )
 
-    Rails.logger.error(
+    Rails.logger.info(
       '[10-10EZ] - HCA total failure',
-      :error,
       {
         first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
         middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
