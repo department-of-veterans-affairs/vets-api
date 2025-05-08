@@ -104,7 +104,6 @@ PATH
       rails (>= 7.1.4.1)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
-    health_quest (0.1.0)
     income_and_assets (0.1.0)
     income_limits (0.1.0)
     ivc_champva (0.1.0)
@@ -1268,7 +1267,6 @@ DEPENDENCIES
   guard-rspec
   guard-rubocop
   gyoku
-  health_quest!
   hexapdf
   holidays
   httpclient
