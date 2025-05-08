@@ -507,7 +507,7 @@ module SM
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
         statsd_cache_hit
-        Common::Collection.new(model, data:)
+        Vets::Collection.new(data, model)
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
         statsd_cache_miss

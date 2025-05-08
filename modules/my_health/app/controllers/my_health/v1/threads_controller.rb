@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'vets/collection'
-
 module MyHealth
   module V1
     class ThreadsController < SMController
@@ -10,7 +8,7 @@ module MyHealth
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
         options = { meta: resource.metadata }
-        render json: ThreadsSerializer.new(resource.records, options)
+        render json: ThreadsSerializer.new(resource.data, options)
       end
 
       def move
@@ -37,7 +35,9 @@ module MyHealth
       def handle_error(e)
         error = e.errors.first
         if error.status.to_i == 400 && error.detail == 'No messages in the requested folder'
-          Vets::Collection.new([], MessageThread)
+          Common::Collection.new(
+            MessageThread, data: []
+          )
         else
           raise e
         end

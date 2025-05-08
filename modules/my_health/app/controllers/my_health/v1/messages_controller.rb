@@ -10,12 +10,12 @@ module MyHealth
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
         resource = resource.find_by(filter_params) if params[:filter].present?
-        resource = resource.order(params[:sort]) if params[:sort].present?
+        resource = resource.sort(params[:sort])
         resource = resource.paginate(**pagination_params) if pagination_params[:per_page] != '-1'
 
         links = pagination_links(resource)
         options = { meta: resource.metadata, links: }
-        render json: MessagesSerializer.new(resource.records, options)
+        render json: MessagesSerializer.new(resource.data, options)
       end
 
       def show

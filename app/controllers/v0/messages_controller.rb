@@ -9,12 +9,12 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
       resource = resource.find_by(filter_params) if params[:filter].present?
-      resource = resource.order(params[:sort])  if params[:sort].present?
+      resource = resource.sort(params[:sort])
       resource = resource.paginate(**pagination_params)
 
       links = pagination_links(resource)
       options = { meta: resource.metadata, links: }
-      render json: MessagesSerializer.new(resource.records, options)
+      render json: MessagesSerializer.new(resource.data, options)
     end
 
     def show
@@ -57,7 +57,7 @@ module V0
       raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
       options = { meta: resource.metadata }
-      render json: MessagesSerializer.new(resource.records, options)
+      render json: MessagesSerializer.new(resource.data, options)
     end
 
     def reply

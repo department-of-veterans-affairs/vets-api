@@ -22,6 +22,7 @@ module Vets
     attr_accessor :records, :metadata, :errors, :size
     attr_reader :model_class
 
+    alias data records
     alias members records
     alias type model_class
 
@@ -53,16 +54,26 @@ module Vets
       new(records)
     end
 
-    # reviously sort on Common::Collection
+    # need to "alias" until all modules have switched over
+    def sort(clauses = {})
+      order(clauses)
+    end
+
+    # previously sort on Common::Collection
     def order(clauses = {})
+      clauses = model_class.default_sort_criteria if clauses.to_h.empty?
       validate_sort_clauses(clauses)
 
-      @records.sort_by do |record|
+      results = @records.sort_by do |record|
         clauses.map do |attribute, direction|
           value = record.public_send(attribute)
           direction == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
         end
       end
+
+      fields = clauses.transform_keys(&:to_s).transform_values { |v| v.to_s.upcase }
+      metadata = @metadata.merge(sort: fields)
+      Vets::Collection.new(results, metadata:, errors:)
     end
 
     # previously find_by on Common::Collection
