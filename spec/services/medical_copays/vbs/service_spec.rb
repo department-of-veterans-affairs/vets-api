@@ -95,35 +95,49 @@ RSpec.describe MedicalCopays::VBS::Service do
       end
     end
 
-    it 'includes zero balance statements if available' do
-      url = '/vbsapi/GetStatementsByEDIPIAndVistaAccountNumber'
-      data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
-      response = Faraday::Response.new(status: 200, body:
-        [
+    context 'with medical_copays_zero_debt flipper enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(true)
+      end
+
+      it 'includes zero balance statements if available' do
+        url = '/vbsapi/GetStatementsByEDIPIAndVistaAccountNumber'
+        data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
+        response = Faraday::Response.new(status: 200, body: [
           {
             'foo_bar' => 'bar',
             'pS_STATEMENT_DATE' => today_date
           }
         ])
-      zero_balance_response = [{ 'bar_baz' => 'baz', 'pS_STATEMENT_DATE' => today_date }]
+        zero_balance_response = [
+          {
+            'bar_baz' => 'baz',
+            'pS_STATEMENT_DATE' => today_date
+          }
+        ]
 
-      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
-      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
-      allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
-      allow_any_instance_of(MedicalCopays::ZeroBalanceStatements).to receive(:list).and_return(zero_balance_response)
+        allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
+        allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
+        allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
+        allow_any_instance_of(MedicalCopays::ZeroBalanceStatements).to receive(:list).and_return(zero_balance_response)
+        allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_user_cached_response).and_return(nil)
 
-      VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
-        expect(subject.get_copays).to eq({ status: 200, data:
-          [
-            {
-              'fooBar' => 'bar',
-              'pSStatementDate' => today_date
-            },
-            {
-              'barBaz' => 'baz',
-              'pSStatementDate' => today_date
-            }
-          ] })
+        VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
+          expect(subject.get_copays).to eq(
+                                          {
+                                             status: 200,
+                                             data: [
+                                               {
+                                                 'fooBar' => 'bar',
+                                                 'pSStatementDate' => today_date
+                                               },
+                                               {
+                                                 'barBaz' => 'baz',
+                                                 'pSStatementDate' => today_date
+                                               }
+                                             ]
+                                           })
+        end
       end
     end
 

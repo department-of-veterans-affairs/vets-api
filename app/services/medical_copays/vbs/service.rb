@@ -74,7 +74,7 @@ module MedicalCopays
         response = request.post(
           "#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash
         )
-        binding.pry
+
         response_body = response.body
 
         if response_body.is_a?(Array) && response_body.empty?
