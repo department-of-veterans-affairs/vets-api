@@ -107,7 +107,8 @@ describe Mobile::AppointmentsCacheInterface do
       expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
         start_date: subject.latest_allowable_cache_start_date,
         end_date: subject.earliest_allowable_cache_end_date,
-        include_pending: true
+        include_pending: true,
+        include_claims: false
       )
       subject.fetch_appointments(user:)
     end
@@ -117,7 +118,7 @@ describe Mobile::AppointmentsCacheInterface do
       query_end_date = DateTime.now.utc + 2.years
 
       expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
-        start_date: query_start_date, end_date: query_end_date, include_pending: true
+        start_date: query_start_date, end_date: query_end_date, include_pending: true, include_claims: false
       )
       subject.fetch_appointments(user:, start_date: query_start_date, end_date: query_end_date)
     end
@@ -129,7 +130,8 @@ describe Mobile::AppointmentsCacheInterface do
       expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
         start_date: subject.latest_allowable_cache_start_date,
         end_date: subject.earliest_allowable_cache_end_date,
-        include_pending: true
+        include_pending: true,
+        include_claims: false
       )
       subject.fetch_appointments(user:, start_date: query_start_date, end_date: query_end_date)
     end

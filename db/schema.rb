@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
+ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -362,7 +362,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.string "power_of_attorney_holder_type", null: false
     t.string "accredited_individual_registration_number"
     t.string "power_of_attorney_holder_poa_code"
+    t.datetime "redacted_at"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["redacted_at"], name: "index_ar_power_of_attorney_requests_on_redacted_at"
   end
 
   create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -454,12 +456,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "bpds_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the bpds submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the bpds submission"
     t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
     t.string "bpds_id", comment: "ID of the submission in BPDS"
-    t.enum "status", default: "pending", enum_type: "bpds_submission_status"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
   end
@@ -1345,6 +1347,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.string "error_details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_schema_contract_validations_on_user_account_id"
   end
 
   create_table "secondary_appeal_forms", force: :cascade do |t|
@@ -1375,6 +1379,22 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
     t.datetime "updated_at", null: false
     t.string "access_token_user_attributes", default: [], array: true
     t.index ["service_account_id"], name: "index_service_account_configs_on_service_account_id", unique: true
+  end
+
+  create_table "sign_in_certificates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "pem", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "sign_in_config_certificates", force: :cascade do |t|
+    t.string "config_type", null: false
+    t.integer "config_id", null: false
+    t.uuid "certificate_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["certificate_id"], name: "index_sign_in_config_certificates_on_certificate_id"
+    t.index ["config_type", "config_id"], name: "index_sign_in_config_certificates_on_config"
   end
 
   create_table "spool_file_events", force: :cascade do |t|
@@ -2000,6 +2020,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_22_190711) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"

@@ -101,6 +101,14 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(6)',
             question_text: 'CAN THIS ASSET BE SOLD?'
+          },
+          # Q7
+          'mitigatingCircumstances' => {
+            limit: 172,
+            question_num: 6,
+            question_suffix: '(7)',
+            question_text: 'EXPLAIN ANY MITIGATING CIRCUMSTANCES THAT PREVENT THE SALE OF THIS ASSET',
+            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]"
           }
         }
       }.freeze

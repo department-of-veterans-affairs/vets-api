@@ -408,11 +408,10 @@ module VAOS
 
         clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
         if clinic&.[](:service_name)
-          appt[:service_name] = clinic[:service_name]
           # In VAOS Service there is no dedicated clinic friendlyName field.
           # If the clinic is configured with a patient-friendly name then that will be the value
           # in the clinic service name; otherwise it will be the internal clinic name.
-          appt[:friendly_name] = clinic[:service_name]
+          appt[:service_name] = clinic[:service_name]
         end
 
         appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)

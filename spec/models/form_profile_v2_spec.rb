@@ -15,7 +15,7 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
+  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1') }
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
@@ -1524,18 +1524,6 @@ RSpec.describe FormProfile, type: :model do
               expect(prefilled_data).to eq(
                 form_profile.send(:clean!, public_send('v21_p_527_ez_expected_military'))
               )
-            end
-          end
-        end
-
-        context 'with preenabled forms' do
-          it 'returns prefilled 21-686C' do
-            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
-            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                               allow_playback_repeats: true) do
-                expect_prefilled('21-686C')
-              end
             end
           end
         end

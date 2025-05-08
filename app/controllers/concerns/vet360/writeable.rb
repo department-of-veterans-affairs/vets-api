@@ -26,6 +26,9 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
+      if Settings.vsp_environment == 'staging'
+        Rails.logger.info("ContactInformationV2 #{type} #{http_verb} Request Initiated")
+      end
       response = write_valid_record!(http_verb, type, record)
       create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES[type].present?
       render_new_transaction!(type, response)
@@ -45,6 +48,10 @@ module Vet360
       # This needs to be refactored after V2 upgrade is complete
       if type == 'address' && Flipper.enabled?(:remove_pciu, @current_user)
         model = 'VAProfile::Models::V3::Address'
+
+        # Validation Key was deprecated with ContactInformationV2
+        params[:override_validation_key] = params[:validation_key] if params[:validation_key].present?
+
         # Ensures the address_pou is valid
         params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
       else
