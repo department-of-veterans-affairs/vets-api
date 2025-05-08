@@ -441,7 +441,6 @@ Rails.application.routes.draw do
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
-  mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
