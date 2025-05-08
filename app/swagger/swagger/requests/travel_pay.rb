@@ -8,7 +8,6 @@ module Swagger
       swagger_path '/travel_pay/v0/claims' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
-          extend Swagger::Responses::InternalServerError
 
           key :description, 'Get a list of travel reimbursment claim summaries'
           key :operationId, 'getTravelPayClaims'

@@ -3916,23 +3916,19 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     context 'documents' do
-      context 'index' do
-        let(:mhv_user) { build(:user, :loa3) }
+      # doc summaries included in claim details
 
+      context 'show' do
         it 'returns unauthorized for unauthed user' do
-          expect(subject).to validate(:get, '/travel_pay/v0/claims/{id}/documents', 401)
-        end
-
-        it 'returns 200 for successful response' do
-          headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-          VCR.use_cassette('travel_pay/documents/success', match_requests_on: %i[path method]) do
-            expect(subject).to validate(
-              :get,
-              '/travel_pay/v0/claims/{id}/documents',
-              200,
-              headers.merge('id' => '8656')
-            )
-          end
+          expect(subject).to validate(
+            :get,
+            '/travel_pay/v0/claims/{claimId}/documents/{docId}',
+            401,
+            {
+              'claimId' => 'claim-123',
+              'docId' => 'doc-456'
+            }
+          )
         end
       end
     end
@@ -4032,6 +4028,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
       subject.untested_mappings.delete('/v0/form0969')
+      subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

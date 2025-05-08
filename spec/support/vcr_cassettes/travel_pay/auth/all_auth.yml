@@ -80,31 +80,31 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: >
+      string: >-
         {
           "data": {
-            "access_token": "string,
+            "access_token": "string",
             "contactId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           }
         }
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
-  method: post
-  uri: https://www.example.com/v0/sign_in/token
-  body:
-    encoding: US-ASCII
-    string: ''
-  headers:
-    Accept:
-    - application/json
-    Content-Type:
-    - application/json
-    User-Agent:
-    - Vets.gov Agent
-    Authorization:
-    - Bearer blahblahblah
-    Accept-Encoding:
-    - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    method: post
+    uri: https://www.example.com/v0/sign_in/token
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
@@ -168,7 +168,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: >
+      string: >-
         {
           "data": {
             "access_token": "sts_token"
@@ -176,22 +176,22 @@ http_interactions:
         }
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
-  method: post
-  uri:  https://btsss.gov/api/v1.2/Auth/access-token
-  body:
-    encoding: US-ASCII
-    string: ''
-  headers:
-    Accept:
-    - application/json
-    Content-Type:
-    - application/json
-    User-Agent:
-    - Vets.gov Agent
-    Authorization:
-    - Bearer blahblahblah
-    Accept-Encoding:
-    - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    method: post
+    uri:  https://btsss.gov/api/v1.2/Auth/access-token
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblahblah
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
@@ -255,7 +255,7 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: > 
+      string: >-
         {
           "data": {
             "accessToken": "btsss_token" 

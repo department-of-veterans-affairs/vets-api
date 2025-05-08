@@ -22,15 +22,69 @@ http_interactions:
       code: 200
       message: OK
     headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Etag:
+      - W/"6571c42e57529000188d704a3cd1f46a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - d687047e-5004-43c1-babb-c2f52f2fda40
+      X-Runtime:
+      - '3.569014'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '3573'
+      X-Kong-Proxy-Latency:
+      - '24'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
       Content-Type: 
       - 'application/pdf'
       Content-Disposition:
       - 'attachment; filename=\"AppealForm.pdf\"; filename*=UTF-8''AppealForm.pdf'
     body:
       encoding: ASCII-8BIT
-      string: >
+      string: >-
         {
-          "data": "shoop doop"
+          "data": "JVBERi0xLjEKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nIC9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDE+PgplbmRvYmoKMyAwIG9iago8PC9UeXBlIC9QYWdlIC9QYXJlbnQgMiAwIFIgL01lZGlhQm94IFswIDAgMzAwIDE0NF0gL0NvbnRlbnRzIDQgMCBSPj4KZW5kb2JqCjQgMCBvYmoKPDwvTGVuZ3RoIDAgPj4Kc3RyZWFtCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDUKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEyNiAwMDAwMCBuIAowMDAwMDAwMjA0IDAwMDAwIG4gCnRyYWlsZXIKPDwvUm9vdCAxIDAgUiAvU2l6ZSA1Pj4Kc3RhcnR4cmVmCjI3Mgo1JSVFT0Y="
         }
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 recorded_with: VCR 6.1.0
