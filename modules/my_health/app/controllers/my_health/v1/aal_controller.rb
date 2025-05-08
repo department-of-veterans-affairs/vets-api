@@ -7,15 +7,16 @@ module MyHealth
       service_tag 'mhv-aal'
 
       def create
-        attributes = aal_params.except(:product)
-        aal_client.create_aal(attributes)
+        once_per_session = ActiveModel::Type::Boolean.new.cast(params[:oncePerSession])
+
+        create_aal(aal_params, once_per_session:)
         head :no_content
       end
 
       protected
 
       def aal_params
-        aal = params.require(:aal).permit(
+        params.require(:aal).permit(
           :activity_type,
           :action,
           :completion_time,
@@ -23,8 +24,6 @@ module MyHealth
           :detail_value,
           :status
         )
-        aal[:product] = params[:product]
-        aal
       end
     end
   end

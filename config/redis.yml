@@ -65,6 +65,9 @@ development: &defaults
   mhv_mr_bb_session_lock:
     namespace: mhv-mr-bb-session-lock
     each_ttl: 10
+  mhv_aal_log_store:
+    namespace: mhv-aal-logs
+    each_ttl: 86400
   aal_mr_store:
     namespace: aal-mr-service
     each_ttl: 3600
