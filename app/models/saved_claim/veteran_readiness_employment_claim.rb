@@ -230,14 +230,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
-  def log_schema_errors(schema_errors)
-    unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
-                         { form_id:, errors: schema_errors })
-      true
-    end
-  end
-
   def form_matches_schema
     return unless form_is_string
 
