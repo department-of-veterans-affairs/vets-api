@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, type: :job do
-  let(:power_of_attorney_request_notification) { create(:power_of_attorney_request_notification, type:) }
+  let(:power_of_attorney_request_notification) { create(:power_of_attorney_request_notification, :with_resolution, type:) }
   let(:email) { 'test@example.com' }
   let(:template_id) { 'template-id' }
   let(:type) { 'declined' }

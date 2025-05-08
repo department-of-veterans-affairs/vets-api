@@ -87,9 +87,15 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def mark_declined!(creator, reason)
+    def mark_declined!(creator:, declination_reason:, other_reason_text: nil)
+      free_text =
+        declination_reason == 'DECLINATION_OTHER' ? other_reason_text : nil
+
       PowerOfAttorneyRequestDecision.create_declination!(
-        creator:, power_of_attorney_request: self, reason:
+        creator:,
+        power_of_attorney_request: self,
+        declination_reason:,
+        reason: free_text
       )
     end
 

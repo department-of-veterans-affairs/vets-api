@@ -6,6 +6,8 @@ module AccreditedRepresentativePortal
 
     self.inheritance_column = nil
 
+    delegate :declination_reason, to: :resolution, allow_nil: true
+
     module Types
       ALL = [
         ACCEPTANCE = 'PowerOfAttorneyRequestAcceptance',
