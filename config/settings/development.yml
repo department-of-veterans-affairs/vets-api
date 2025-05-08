@@ -1459,6 +1459,7 @@ vanotify:
       template_id:
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
+        fsr_step_1_submission_in_progress_email: fake_template_id
         fsr_streamlined_confirmation_email: fake_template_id
         vha_fsr_confirmation_email: ~
         vha_new_copay_statement_email: fake_template_id
