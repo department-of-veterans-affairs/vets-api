@@ -194,6 +194,8 @@ Rails.application.routes.draw do
     get 'ppiu/payment_information', to: 'ppiu#index'
     put 'ppiu/payment_information', to: 'ppiu#update'
 
+    post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
+
     resources :maintenance_windows, only: [:index]
 
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do

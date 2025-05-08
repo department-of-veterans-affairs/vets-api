@@ -660,6 +660,10 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
+  event_bus_gateway_emails_enabled:
+    actor_type: user
+    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
+    enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
@@ -1555,6 +1559,14 @@ features:
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
+    enable_in_development: false
+  dslogon_interstitial_redirect:
+    actor_type: user
+    description: Enables DS Logon users to be redirected to the DS Logon deprecation interstitial page (Identity)
+    enable_in_development: false
+  dslogon_button_disabled:
+    actor_type: user
+    description: Hides the DS Logon button credential on sign-in page + modal (Identity)
     enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
