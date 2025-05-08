@@ -33,54 +33,32 @@ RSpec.describe MedicalCopays::VBS::Service do
   end
 
   describe '#get_copays' do
-    context 'with the cache empty response flipper disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:debts_cache_vbs_copays_empty_response).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_six_mo_window).and_return(false)
-      end
+    before do
+      allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:medical_copays_six_mo_window).and_return(false)
+    end
 
-      # rubocop:disable RSpec/SubjectStub
-      it 'does not log that a response was cached' do
+    context 'with a cached response' do
+      it 'logs that a cached response was returned' do
+        allow_any_instance_of(MedicalCopays::VBS::Service)
+          .to receive(:get_user_cached_response)
+                .and_return(Faraday::Response.new(status: 200, body: []))
+
+        expect { subject.get_copays }
+          .to trigger_statsd_increment('api.mcp.vbs.init_cached_copays.fired')
+                .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.cached_response_returned')
+      end
+    end
+
+    context 'with an empty copay response' do
+      it 'logs that an empty response was cached' do
         empty_response = Faraday::Response.new(status: 200, body: [])
         allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_response).and_return(empty_response)
 
-        expect(subject).not_to receive(:get_cached_copay_response)
-        subject.get_copays
-      end
-      # rubocop:enable RSpec/SubjectStub
-    end
-
-    context 'with the cache empty response flipper enabled' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:debts_cache_vbs_copays_empty_response).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_six_mo_window).and_return(false)
-      end
-
-      context 'with a cached response' do
-        it 'logs that a cached response was returned' do
-          allow_any_instance_of(MedicalCopays::VBS::Service)
-            .to receive(:get_user_cached_response)
-            .and_return(Faraday::Response.new(status: 200, body: []))
-
-          expect { subject.get_copays }
-            .to trigger_statsd_increment('api.mcp.vbs.init_cached_copays.fired')
-            .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.cached_response_returned')
-        end
-      end
-
-      context 'with an empty copay response' do
-        it 'logs that an empty response was cached' do
-          empty_response = Faraday::Response.new(status: 200, body: [])
-          allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copay_response).and_return(empty_response)
-
-          expect { subject.get_copays }
-            .to trigger_statsd_increment('api.mcp.vbs.init_cached_copays.fired')
-            .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.empty_response_cached')
-        end
+        expect { subject.get_copays }
+          .to trigger_statsd_increment('api.mcp.vbs.init_cached_copays.fired')
+                .and trigger_statsd_increment('api.mcp.vbs.init_cached_copays.empty_response_cached')
       end
     end
 
@@ -88,7 +66,7 @@ RSpec.describe MedicalCopays::VBS::Service do
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(false)
 
       expect { subject.get_copays }.to raise_error(MedicalCopays::VBS::InvalidVBSRequestError)
-        .and trigger_statsd_increment('api.mcp.vbs.failure')
+                                         .and trigger_statsd_increment('api.mcp.vbs.failure')
     end
 
     it 'returns a response hash' do
@@ -136,16 +114,16 @@ RSpec.describe MedicalCopays::VBS::Service do
 
       VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
         expect(subject.get_copays).to eq({ status: 200, data:
-        [
-          {
-            'fooBar' => 'bar',
-            'pSStatementDate' => today_date
-          },
-          {
-            'barBaz' => 'baz',
-            'pSStatementDate' => today_date
-          }
-        ] })
+          [
+            {
+              'fooBar' => 'bar',
+              'pSStatementDate' => today_date
+            },
+            {
+              'barBaz' => 'baz',
+              'pSStatementDate' => today_date
+            }
+          ] })
       end
     end
 
@@ -153,8 +131,6 @@ RSpec.describe MedicalCopays::VBS::Service do
       before do
         allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:debts_cache_vbs_copays_empty_response).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:debts_cache_vbs_copays_empty_response).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:medical_copays_six_mo_window).and_return(true)
       end
@@ -165,7 +141,7 @@ RSpec.describe MedicalCopays::VBS::Service do
           { edipi: '123456789', vistaAccountNumbers: [36_546] }
         )
         allow_any_instance_of(MedicalCopays::Request).to receive(:post)
-          .and_return(Faraday::Response.new(status: 200, body: []))
+                                                           .and_return(Faraday::Response.new(status: 200, body: []))
 
         expect(Rails.logger).to receive(:info).with(
           a_string_including('MedicalCopays::VBS::Service#get_copay_response request data: ')
