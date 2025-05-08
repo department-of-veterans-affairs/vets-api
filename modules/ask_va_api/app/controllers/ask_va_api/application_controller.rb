@@ -5,8 +5,20 @@ module AskVAApi
     service_tag 'ask-va'
 
     around_action :handle_exceptions
+    # The before_action is global and applied to all actions in the controller,
+    before_action :check_maintenance_mode_in_prod
 
     private
+
+    def check_maintenance_mode_in_prod
+      if Flipper.enabled?(:ask_va_api_maintenance_mode) && Settings.vsp_environment == 'production'
+        render json: {
+                 error: 'The Ask VA service is temporarily unavailable due to scheduled maintenance. ' \
+                        'Please try again later.'
+               },
+               status: :service_unavailable
+      end
+    end
 
     def handle_exceptions
       yield
