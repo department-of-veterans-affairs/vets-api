@@ -263,6 +263,7 @@ module SM
       json[:data][:has_message] = true
 
       draft = MessageDraft.new(json[:data].merge(json[:metadata]))
+      draft.body = json[:data][:body]
       draft.as_reply
     end
     # @!endgroup

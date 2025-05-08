@@ -18,7 +18,7 @@ RSpec.describe Message do
                                                                :triage_group_name, :proxy_sender_name,
                                                                :has_attachments, :attachment1_id,
                                                                :attachment2_id, :attachment3_id,
-                                                               :attachment4_id)
+                                                               :attachment4_id, :metadata)
       expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])

@@ -92,6 +92,7 @@ class Message
     super(attributes)
     # this is called because Vets::Type::Primitive String can't
     # coerce html or Nokogiri doc to plain text
+    # refactoring: the subject & body should be manipulated before passed to Message
     @subject = subject ? Nokogiri::HTML.parse(subject).text : nil
     @body = body ? Nokogiri::HTML.parse(body).text : nil
   end
