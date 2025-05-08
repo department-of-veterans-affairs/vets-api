@@ -87,22 +87,13 @@ class Message
 
   alias attachment? attachment
 
-  def subject=(data)
-    if data
-      doc = Nokogiri::HTML.fragment(data)
-      @subject = doc.to_html.gsub(%r{</?[^>]*>}, '')
-    else
-      @subject = nil
-    end
-  end
-
-  def body=(data)
-    if data
-      doc = Nokogiri::HTML.fragment(data)
-      @body = doc.to_html.gsub(%r{</?[^>]*>}, '')
-    else
-      @body = nil
-    end
+  def initialize(attributes = {})
+    # super is calling Vets::Model#initialize
+    super(attributes)
+    # this is called because Vets::Type::Primitive String can't
+    # coerce html or Nokogiri doc to plain text
+    @subject = subject ? Nokogiri::HTML.parse(subject).text : nil
+    @body = body ? Nokogiri::HTML.parse(body).text : nil
   end
 
   ##

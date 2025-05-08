@@ -26,12 +26,8 @@ class MessageThread
   attribute :is_oh_message, Bool, default: false
   attribute :suggested_name_display, String
 
-  def subject=(data)
-    if data
-      doc = Nokogiri::HTML.fragment(data)
-      @subject = doc.to_html.gsub(%r{</?[^>]*>}, '')
-    else
-      @subject = nil
-    end
+  def initialize(attributes = {})
+    super(attributes)
+    @subject = subject ? Nokogiri::HTML.parse(subject).text : nil
   end
 end
