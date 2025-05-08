@@ -79,11 +79,7 @@ module Pensions
 
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-      if Flipper.enabled?(:pension_submitted_email_notification)
-        send_submitted_email
-      else
-        send_confirmation_email
-      end
+      Flipper.enabled?(:pension_submitted_email_notification) ? send_submitted_email : send_confirmation_email
 
       @intake_service.uuid
     rescue => e
@@ -254,7 +250,7 @@ module Pensions
     def send_confirmation_email
       Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
     rescue => e
-      @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+      @pension_monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'confirmation', e)
     end
 
     ##
@@ -263,7 +259,7 @@ module Pensions
     def send_submitted_email
       Pensions::NotificationEmail.new(@claim.id).deliver(:submitted)
     rescue => e
-      @pension_monitor.track_send_submitted_email_failure(@claim, @intake_service, @user_account_uuid, e)
+      @pension_monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
     end
 
     ##
