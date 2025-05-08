@@ -30,7 +30,7 @@ module Vye
       attr_reader :test_users, :mvi_staging_users, :target
 
       def initialize(target:)
-        yield(PATHS) => {test_users:, mvi_staging_users:}
+        yield(PATHS) => { test_users:, mvi_staging_users: }
         @test_users = CSV.new(test_users, headers: true).each.to_a
         @mvi_staging_users = CSV.new(mvi_staging_users, headers: true).each.to_a
         @target = target

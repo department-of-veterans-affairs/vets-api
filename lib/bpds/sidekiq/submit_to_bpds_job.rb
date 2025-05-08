@@ -20,6 +20,10 @@ module BPDS
 
         init(saved_claim_id)
 
+        if @bpds_submission.latest_status == 'submitted'
+          Rails.logger.info("Saved Claim #:#{saved_claim_id} has already been submitted to BPDS")
+        end
+
         begin
           # Submit the BPDS submission to the BPDS service
           response = BPDS::Service.new.submit_json(@saved_claim)
@@ -40,7 +44,7 @@ module BPDS
         @bpds_submission = BPDS::Submission.find_or_create_by(
           saved_claim: @saved_claim,
           form_id: @saved_claim.form_id,
-          reference_data: @saved_claim.form
+          reference_data_ciphertext: @saved_claim.form
         )
         @monitor = BPDS::Monitor.new
       end

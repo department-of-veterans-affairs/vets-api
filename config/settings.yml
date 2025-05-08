@@ -1439,6 +1439,7 @@ vanotify:
       template_id:
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
         fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
+        fsr_step_1_submission_in_progress_email: <%= ENV['vanotify__services__dmc__template_id__fsr_step_1_submission_in_progress_email'] %>
         fsr_streamlined_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_streamlined_confirmation_email'] %>
         vha_fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__vha_fsr_confirmation_email'] %>
         vha_new_copay_statement_email: <%= ENV['vanotify__services__dmc__template_id__vha_new_copay_statement_email'] %>

@@ -41,7 +41,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
+        json_response = JSON.parse(response.body)['data']
         expect(json_response.count).to eq(3)
         expect(json_response[0]).to eq(ch_response)
         expect(json_response[2]).to eq(sp_response)
@@ -63,7 +63,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
+        json_response = JSON.parse(response.body)['data']
         expect(json_response.count).to eq(1)
         expect(json_response[0]).to eq(sp_response)
       end
@@ -84,7 +84,7 @@ RSpec.describe 'Mobile::V1::LabsAndTestsController', :skip_json_api_validation, 
       end
 
       it 'returns the correct lab records' do
-        json_response = JSON.parse(response.body)
+        json_response = JSON.parse(response.body)['data']
         expect(json_response.count).to eq(2)
         expect(json_response[0]).to eq(ch_response)
       end

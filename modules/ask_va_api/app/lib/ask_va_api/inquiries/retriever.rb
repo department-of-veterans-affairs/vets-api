@@ -7,7 +7,7 @@ module AskVAApi
     class Retriever < BaseRetriever
       attr_reader :icn
 
-      def initialize(icn: nil, **args)
+      def initialize(icn:, **args)
         super(**args)
         @icn = icn
       end
@@ -31,6 +31,7 @@ module AskVAApi
       # Fetch correspondences related to the inquiry
       def fetch_correspondences(inquiry_id:)
         correspondences = Correspondences::Retriever.new(
+          icn:,
           inquiry_id:,
           user_mock_data:,
           entity_class: AskVAApi::Correspondences::Entity

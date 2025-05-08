@@ -94,6 +94,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
           last_name: 'Beer'
         }
       )
+      allow_any_instance_of(subject.class).to receive(:access_token).and_return('fake-token')
     end
 
     context 'with debts_sharepoint_error_logging feature enabled' do
@@ -102,14 +103,14 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       end
 
       it 'uploads a pdf file to SharePoint' do
-        VCR.use_cassette('vha/sharepoint/upload_pdf') do
+        VCR.use_cassette('vha/sharepoint/upload_pdf', allow_playback_repeats: true) do
           response = subject.upload(form_contents: form_content, form_submission:, station_id:)
           expect(response.success?).to be(true)
         end
       end
 
       it 'raises a PDF error if the PDF upload fails' do
-        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first
@@ -122,7 +123,8 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       end
 
       it 'raises a request error if getting a list item fails' do
-        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true) do
+        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true,
+                                                                       allow_playback_repeats: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first
@@ -141,7 +143,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       end
 
       it 'does not log errors when submitting PDF' do
-        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first
@@ -154,7 +156,8 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       end
 
       it 'does not log errors when getting a list items' do
-        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', preserve_exact_body_bytes: true) do
+        VCR.use_cassette('vha/sharepoint/update_list_item_fields_400', allow_playback_repeats: true,
+                                                                       preserve_exact_body_bytes: true) do
           expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             error_details = e.errors.first
@@ -164,6 +167,50 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
             expect(error_details.source).to be_nil
           end
         end
+      end
+
+      it 'recovers from temporary failures during upload' do
+        # Mock upload_pdf to fail once then succeed
+        upload_attempts = 0
+
+        success_response = instance_double(Faraday::Response,
+                                           body: {
+                                             'd' => {
+                                               'ListItemAllFields' => {
+                                                 '__deferred' => {
+                                                   'uri' => 'https://fake_url.com/base/path'
+                                                 }
+                                               }
+                                             }
+                                           },
+                                           success?: true)
+
+        allow_any_instance_of(subject.class).to receive(:upload_pdf) do |_instance, **_args|
+          upload_attempts += 1
+          if upload_attempts == 1
+            raise StandardError, 'Temporary failure'
+          else
+            success_response
+          end
+        end
+
+        allow_any_instance_of(subject.class).to receive(:get_pdf_list_item_id).and_return(123)
+        allow_any_instance_of(subject.class).to receive(:update_list_item_fields).and_return(
+          instance_double(Faraday::Response, success?: true)
+        )
+
+        # Stub sleep to avoid waiting during tests
+        allow(Kernel).to receive(:sleep)
+
+        # Verify warning is logged about the retry
+        expect(Rails.logger).to receive(:warn).with(/SharePoint PDF upload failed, retrying/)
+
+        # Make the call that should trigger the retry
+        response = subject.upload(form_contents: form_content, form_submission:, station_id:)
+
+        # Verify it attempted multiple times
+        expect(upload_attempts).to eq(2)
+        expect(response.success?).to be(true)
       end
     end
   end

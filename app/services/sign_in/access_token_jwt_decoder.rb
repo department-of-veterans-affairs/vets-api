@@ -15,6 +15,7 @@ module SignIn
         session_handle: decoded_token.session_handle,
         client_id: decoded_token.client_id,
         user_uuid: decoded_token.sub,
+        user_attributes: decoded_token.user_attributes,
         audience: decoded_token.aud,
         refresh_token_hash: decoded_token.refresh_token_hash,
         device_secret_hash: decoded_token.device_secret_hash,

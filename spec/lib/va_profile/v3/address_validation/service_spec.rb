@@ -80,7 +80,7 @@ describe VAProfile::V3::AddressValidation::Service do
                 }
               }
             ],
-            'validation_key' => '-646932106'
+            'override_validation_key' => '-646932106'
           )
         end
       end

@@ -233,6 +233,9 @@ module VAProfile
           unless @user&.vet360_id.present? || @user&.icn.present?
             raise 'ContactInformationV2 - Missing User ICN and VAProfile_ID'
           end
+
+          Rails.logger.info("ContactInformationV2 User MVI Verified? : #{@user&.icn.present?},
+            VAProfile Verified? #{@user&.vet360_id.present?}")
         end
 
         def vaprofile_aaid
@@ -311,11 +314,6 @@ module VAProfile
             if path == 'addresses' && log_transaction_id?
               Rails.logger.info("ContactInformationV2 METHOD: #{method}, POST OR PUT JSON: #{model.in_json_v2},
                 ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path}")
-              if Flipper.enabled?(:override_address_pou) && model.address_pou == ('RESIDENCE' || 'RESIDENCE/CHOICE')
-                # OVEERRIDE ADDRESS_POU
-                model.address_pou = 'RESIDENCE/CHOICE'
-                Rails.logger.info("ContactInformationV2 OVERRIDE ADDRESS POU JSON: #{model.in_json_v2}")
-              end
             end
             raw_response = perform(method, request_path, model.in_json_v2)
             if path == 'addresses' && log_transaction_id?
