@@ -1082,6 +1082,23 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
+        it 'records success metric when submitting referral appointment' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
+                             match_requests_on: %i[method path body]) do
+              # Allow any StatsD calls and check for our specific metric
+              allow(StatsD).to receive(:increment).with(any_args)
+              expect(StatsD).to receive(:increment)
+                .with(described_class::APPT_CREATION_SUCCESS_METRIC)
+
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              expect(response).to have_http_status(:created)
+            end
+          end
+        end
+
         it 'handles EPS error response' do
           VCR.use_cassette('vaos/v2/eps/post_access_token',
                            match_requests_on: %i[method path]) do
@@ -1094,6 +1111,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response_obj['errors'].length).to be(1)
               expect(response_obj['errors'][0]['detail']).to eql('missing patient attributes: phone')
             end
+          end
+        end
+
+        it 'records failure metric when appointment submission fails' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            # Mock a failed appointment submission (nil id)
+            allow_any_instance_of(Eps::AppointmentService).to receive(:submit_appointment)
+              .and_return(OpenStruct.new(id: nil))
+
+            # Allow any StatsD calls and check for our specific metric
+            allow(StatsD).to receive(:increment).with(any_args)
+            expect(StatsD).to receive(:increment)
+              .with(described_class::APPT_CREATION_FAILURE_METRIC)
+
+            post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            response_obj = JSON.parse(response.body)
+            expect(response_obj['errors']).to be_an(Array)
+            expect(response_obj['errors'][0]['title']).to eq('Appointment creation failed')
           end
         end
       end
@@ -1265,6 +1303,59 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                       expect(JSON.parse(response.body)).to eq(expected_response)
                     end
                   end
+                end
+              end
+            end
+          end
+        end
+
+        it 'records success metric when draft appointment is created successfully' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+            VCR.use_cassette('vaos/eps/get_drive_times/200') do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                VCR.use_cassette('vaos/eps/search_provider_services/200') do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200' do
+                    VCR.use_cassette 'vaos/eps/token/token_200' do
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
+
+                      # Allow any StatsD calls and check for our specific metric
+                      allow(StatsD).to receive(:increment).with(any_args)
+                      expect(StatsD).to receive(:increment)
+                        .with(described_class::APPT_CREATION_SUCCESS_METRIC)
+
+                      post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                      expect(response).to have_http_status(:created)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when appointment creation fails' do
+        it 'returns appropriate error response when draft appointment creation fails' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
+            VCR.use_cassette('vaos/eps/get_drive_times/200') do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
+                VCR.use_cassette('vaos/eps/search_provider_services/200') do
+                  # Create a nil draft response to trigger the failure case
+                  allow_any_instance_of(Eps::AppointmentService).to receive(:create_draft_appointment)
+                    .and_return(nil)
+
+                  allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
+                    .and_return(OpenStruct.new(data: []))
+
+                  post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                  expect(response).to have_http_status(:internal_server_error)
+                  response_obj = JSON.parse(response.body)
+                  expect(response_obj['errors']).to be_an(Array)
+                  expect(response_obj['errors'][0]['title']).to eq('Internal server error')
                 end
               end
             end
