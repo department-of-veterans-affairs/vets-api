@@ -22,14 +22,18 @@ module AAL
     #
     def create_aal(attributes, once_per_session, session_id)
       if once_per_session
-        # 1) Build a hash of everything except completion_time
-        redis_key = aal_redis_key(attributes, session_id)
+        if session_id.present?
+          # 1) Build a hash of everything except completion_time
+          redis_key = aal_redis_key(attributes, session_id)
 
-        # 2) If we already logged it this session, do not re-log
-        return if redis.exists?(redis_key)
+          # 2) If we already logged it this session, do not re-log
+          return if redis.exists?(redis_key)
 
-        # 3) Otherwise mark it sent for the duration of the session
-        redis.set(redis_key, true, nx: false, ex: REDIS_CONFIG[:mhv_aal_log_store][:each_ttl])
+          # 3) Otherwise mark it sent for the duration of the session
+          redis.set(redis_key, true, nx: false, ex: REDIS_CONFIG[:mhv_aal_log_store][:each_ttl])
+        else
+          Rails.logger.warn('Skipping AAL per-session de-duplication: no session_id')
+        end
       end
 
       attributes[:user_profile_id] = session.user_id.to_s
@@ -46,15 +50,17 @@ module AAL
     # completion_time is not included.
     #
     def aal_redis_key(attributes, session_id)
-      track_h = attributes
-                .except(:completion_time)
-                .merge(session_id:)
+      base_hash = attributes
+                  .except(:completion_time)
+                  .to_h
+
+      track_data = base_hash.merge(session_id:)
 
       fingerprint = Digest::SHA256.hexdigest(
-        track_h.sort.to_h.to_json
+        track_data.sort.to_h.to_json
       )
 
-      "aal:#{session.user_id}:#{fingerprint}"
+      "#{session.user_id}:#{fingerprint}"
     end
 
     def redis

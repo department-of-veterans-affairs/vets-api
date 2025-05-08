@@ -82,14 +82,32 @@ RSpec.describe AAL::Client do
   end
 
   describe '#aal_redis_key' do
+    let(:unordered_attrs) do
+      {
+        status: 'stat',
+        detail_value: 'dval',
+        completion_time: '2025-04-01T00:00:00Z',
+        performer_type: 'ptype',
+        action: 'act',
+        activity_type: 'atype'
+      }
+    end
+
     it 'returns a stable key based on user_id and fingerprint' do
       key1 = client.send(:aal_redis_key, attrs, session_id)
       key2 = client.send(:aal_redis_key, attrs, session_id)
 
       expect(key1).to eq(key2)
-      expect(key1).to start_with("aal:#{user_id}:")
-      # fingerprint is a 32‐hex MD5
-      expect(key1.split(':').last).to match(/\A[0-9a-f]{32}\z/)
+      expect(key1).to start_with("#{user_id}:")
+      # fingerprint is a 64-hex SHA256
+      expect(key1.split(':').last).to match(/\A[0-9a-f]{64}\z/)
+    end
+
+    it 'ignores completion_time and key order so different inputs give the same key' do
+      key1 = client.send(:aal_redis_key, attrs, session_id)
+      key2 = client.send(:aal_redis_key, unordered_attrs, session_id)
+
+      expect(key1).to eq(key2)
     end
   end
 end

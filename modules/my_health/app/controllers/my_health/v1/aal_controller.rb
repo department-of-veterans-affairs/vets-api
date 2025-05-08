@@ -6,10 +6,13 @@ module MyHealth
       include MyHealth::AALClientConcerns
       service_tag 'mhv-aal'
 
-      def create
-        once_per_session = ActiveModel::Type::Boolean.new.cast(params[:oncePerSession])
+      before_action :authorize_aal
+      before_action :authenticate_aal_client!
 
-        create_aal(aal_params, once_per_session:)
+      def create
+        once_per_session = ActiveModel::Type::Boolean.new.cast(params[:once_per_session])
+
+        create_aal!(aal_params, once_per_session:)
         head :no_content
       end
 
@@ -24,6 +27,13 @@ module MyHealth
           :detail_value,
           :status
         )
+      end
+
+      def authorize_aal
+        if current_user&.mhv_correlation_id.blank?
+          raise Common::Exceptions::Forbidden,
+                detail: 'You do not have access to the AAL service'
+        end
       end
     end
   end
