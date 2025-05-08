@@ -181,7 +181,7 @@ Rails.application.routes.draw do
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
-    get 'intent_to_file', to: 'intent_to_files#index'
+    get 'intent_to_file(/:itf_type)', to: 'intent_to_files#index'
     post 'intent_to_file/:itf_type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome

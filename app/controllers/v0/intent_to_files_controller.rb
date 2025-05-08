@@ -2,7 +2,7 @@
 
 require 'disability_compensation/factories/api_provider_factory'
 require 'logging/third_party_transaction'
-require 'pension_burial/intent_to_file_response'
+require 'lighthouse/benefits_claims/intent_to_file/intent_to_file_response'
 
 module V0
   class IntentToFilesController < ApplicationController
@@ -37,7 +37,7 @@ module V0
 
       if %w[pension survivor].include? type
         itf = BenefitsClaims::Service.new(@current_user.icn).get_intent_to_file(type, nil, nil)
-        response = PensionBurial::ApiResponse::IntentToFileGetResponse.new(itf['data'])
+        response = BenefitsClaims::IntentToFile::ApiResponse::GET.new(itf['data'])
         return render json: IntentToFileSerializer.new(response)
       end
 
@@ -62,7 +62,7 @@ module V0
 
       if %w[pension survivor].include? type
         itf = BenefitsClaims::Service.new(@current_user.icn).create_intent_to_file(type, @current_user.ssn, nil)
-        response = PensionBurial::ApiResponse::IntentToFileCreateResponse.new(itf['data'])
+        response = BenefitsClaims::IntentToFile::ApiResponse::POST.new(itf['data'])
         return render json: IntentToFileSerializer.new(response)
       end
 
