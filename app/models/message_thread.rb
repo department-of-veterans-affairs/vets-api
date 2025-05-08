@@ -27,6 +27,11 @@ class MessageThread
   attribute :suggested_name_display, String
 
   def subject=(data)
-    @subject = data ? Nokogiri::HTML.parse(data) : nil
+    if data
+      doc = Nokogiri::HTML.fragment(data)
+      @subject = doc.to_html.gsub(%r{</?[^>]*>}, '')
+    else
+      @subject = nil
+    end
   end
 end

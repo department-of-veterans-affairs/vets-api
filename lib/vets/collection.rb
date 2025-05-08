@@ -42,7 +42,7 @@ module Vets
       end
 
       @size = records.size
-      @records = records.sort
+      @records = records
     end
 
     def self.from_will_paginate(records)
@@ -72,19 +72,18 @@ module Vets
       end
 
       fields = clauses.transform_keys(&:to_s).transform_values { |v| v.to_s.upcase }
-      metadata = @metadata.merge(sort: fields)
-      Vets::Collection.new(results, metadata:, errors:)
+      Vets::Collection.new(results, metadata: metadata.merge(sort: fields), errors:)
     end
 
     # previously find_by on Common::Collection
     def where(conditions = {})
       results = Vets::Collections::Finder.new(data: @records).all(conditions)
-      Vets::Collection.new(results, metadata: { filter: conditions }, errors:)
+      Vets::Collection.new(results, metadata: metadata.merge({ filter: conditions }), errors:)
     end
 
     # previously find_first_by on Common::Collection
     def find_by(conditions = {})
-      Vets::Collections::Finder.new(data: @records).first(conditions)
+      Vets::Collections::Finder.new(data: @records, metadata:).first(conditions)
     end
 
     def paginate(page: nil, per_page: nil)
@@ -94,7 +93,7 @@ module Vets
         total_entries: @records.size,
         data: @records
       )
-      Vets::Collection.new(pagination.data, metadata: pagination.metadata, errors:)
+      Vets::Collection.new(pagination.data, metadata: metadata.merge(pagination.metadata), errors:)
     end
 
     def serialize
@@ -123,6 +122,7 @@ module Vets
     end
 
     def normalize_per_page(per_page)
+      per_page = per_page.to_i unless per_page.nil?
       [per_page || @model_class.try(:per_page) || DEFAULT_PER_PAGE, max_per_page].min
     end
 
