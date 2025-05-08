@@ -73,7 +73,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
 
     context 'when true' do
-      it 'behaves this way with the feature enabled' do
+      it 'returns 503 Service Unavailable' do
         expect(response).to have_http_status(:service_unavailable)
       end
     end
@@ -81,8 +81,18 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     context 'when false' do
       let(:feature_toggle) { false }
 
-      it 'behaves this way with the feature disabled' do
+      it 'returns 200' do
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when Flipper raises an error' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_raise(StandardError.new('boom'))
+      end
+
+      it 'fails safe and returns 503 Service Unavailable' do
+        expect(response).to have_http_status(:service_unavailable)
       end
     end
   end
