@@ -177,14 +177,14 @@ class MPIData < Common::RedisStore
   # The cached response is deleted after the response if the call is successful.
   #
   # @return [MPI::Responses::AddPersonResponse] the response returned from MPI
-  def add_person_proxy
+  def add_person_proxy(as_agent: false)
     search_response = mpi_service.find_profile_by_identifier(identifier: user_icn,
                                                              identifier_type: MPI::Constants::ICN)
     if search_response.ok?
       orch_search_response = perform_orchestrated_search(search_response)
       if orch_search_response.ok?
         @mvi_response = orch_search_response
-        add_person_response = perform_add_person_proxy(orch_search_response)
+        add_person_response = perform_add_person_proxy(orch_search_response, as_agent:)
         add_ids(add_person_response) if add_person_response.ok?
         add_person_response
       else
@@ -207,14 +207,15 @@ class MPIData < Common::RedisStore
     )
   end
 
-  def perform_add_person_proxy(orch_search_response)
+  def perform_add_person_proxy(orch_search_response, as_agent:)
     mpi_service.add_person_proxy(last_name: orch_search_response.profile.family_name,
                                  ssn: orch_search_response.profile.ssn,
                                  birth_date: orch_search_response.profile.birth_date,
                                  icn: orch_search_response.profile.icn,
                                  edipi: orch_search_response.profile.edipi,
                                  search_token: orch_search_response.profile.search_token,
-                                 first_name: orch_search_response.profile.given_names.first)
+                                 first_name: orch_search_response.profile.given_names.first,
+                                 as_agent:)
   end
 
   def get_user_key
