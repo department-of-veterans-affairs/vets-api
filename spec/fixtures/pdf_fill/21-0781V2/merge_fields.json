@@ -27,8 +27,8 @@
   "additionalInformation": "Lorem ipsum dolor sit amet",
   "eventTypes": {
     "combat": true,
-    "mst": false,
-    "nonMst": true,
+    "mst": true,
+    "nonMst": false,
     "other": false
   },
   "events": [

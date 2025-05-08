@@ -13,8 +13,8 @@
   "veteranSecondaryPhone": "3133456789",
   "eventTypes": {
     "combat": true,
-    "mst": false,
-    "nonMst": true,
+    "mst": true,
+    "nonMst": false,
     "other": false
   },
   "events": [
