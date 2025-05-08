@@ -221,9 +221,9 @@ module SM
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
       json = perform(:post,
-                          path,
-                          args.to_h,
-                          token_headers).body
+                     path,
+                     args.to_h,
+                     token_headers).body
       Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
     end
     # @!endgroup

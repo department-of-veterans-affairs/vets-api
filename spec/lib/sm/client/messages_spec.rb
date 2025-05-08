@@ -81,7 +81,7 @@ describe 'sm client' do
           ActionDispatch::Http::UploadedFile.new(
             filename: File.basename(path),
             type: attachment_type,
-            tempfile: tempfile
+            tempfile:
           )
         end
       end

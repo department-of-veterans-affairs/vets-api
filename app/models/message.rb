@@ -90,7 +90,7 @@ class Message
   def subject=(data)
     if data
       doc = Nokogiri::HTML.fragment(data)
-      @subject = doc.to_html.gsub(/<\/?[^>]*>/, '')
+      @subject = doc.to_html.gsub(%r{</?[^>]*>}, '')
     else
       @subject = nil
     end
@@ -99,7 +99,7 @@ class Message
   def body=(data)
     if data
       doc = Nokogiri::HTML.fragment(data)
-      @body = doc.to_html.gsub(/<\/?[^>]*>/, '')
+      @body = doc.to_html.gsub(%r{</?[^>]*>}, '')
     else
       @body = nil
     end

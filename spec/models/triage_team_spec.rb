@@ -11,7 +11,7 @@ RSpec.describe TriageTeam do
 
     it 'populates attributes' do
       expect(described_class.attribute_set).to contain_exactly(:triage_team_id, :name, :relation_type,
-                                                                           :preferred_team)
+                                                               :preferred_team)
       expect(subject.triage_team_id).to eq(params[:triage_team_id])
       expect(subject.name).to eq(params[:name])
       expect(subject.relation_type).to eq(params[:relation_type])
