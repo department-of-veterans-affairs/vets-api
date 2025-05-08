@@ -14,7 +14,7 @@ module Mobile
         claim_id = get_claim_id
         Rails.logger.info(message: "[VAHB] SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
         expense_service.add_expense({ 'claim_id' => claim_id,
-                                      'appt_date' => params['appointment_date_time'] })
+                                      'appt_date' => validated_params[:appointment_date_time] })
         Rails.logger.info(message: "[VAHB] SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
         submitted_claim = claims_service.submit_claim(claim_id)
 
