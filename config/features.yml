@@ -641,6 +641,9 @@ features:
   disability_526_send_form526_submitted_email:
     actor_type: user
     description: enables sending submitted email in both primary and backup paths
+  disability_526_send_mas_all_ancillaries:
+    actor_type: user
+    description: enables sending all 526 uploads and ancillary forms to MAS's APCAS API
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
