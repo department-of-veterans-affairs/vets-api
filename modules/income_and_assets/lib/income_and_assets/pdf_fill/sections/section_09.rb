@@ -13,7 +13,7 @@ module IncomeAndAssets
         # 9b-9k (only space for one on form)
         'annuities' => {
           limit: 1,
-          first_key: 'establishedDate',
+          first_key: 'establishedDate', # No text fields in this section
           # 9b
           'establishedDate' => {
             'month' => { key: "F[0].#subform[8].DateAnnuityWasEstablishedMonth[#{ITERATOR}]" },

@@ -632,7 +632,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload: { Reply: 'this is my reply', ListOfAttachments: nil }).and_return(failure)
+                  payload: {
+                    icn: authorized_user.icn,
+                    Reply: 'this is my reply',
+                    ListOfAttachments: nil
+                  }).and_return(failure)
           post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
         end
 
