@@ -56,6 +56,7 @@ module VAProfile
           if key
             address_attributes[:overrideValidationKey] ||= key
             address_attributes[:validationKey] ||= key
+            address_attributes[:overrideIndicator] = true
           end
 
           address_attributes[:badAddress] = false if correspondence?
