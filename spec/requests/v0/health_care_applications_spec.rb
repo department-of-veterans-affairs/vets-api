@@ -285,11 +285,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       )
     end
 
-    before do
-      allow(Rails.logger).to receive(:info).and_call_original
-      allow(Rails.logger).to receive(:error).and_call_original
-    end
-
     context 'with invalid params' do
       before do
         allow(Settings.sentry).to receive(:dsn).and_return('asdf')
