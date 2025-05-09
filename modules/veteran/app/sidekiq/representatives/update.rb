@@ -23,9 +23,10 @@ module Representatives
     # Processes each representative's data provided in JSON format.
     # This method parses the JSON, validates each representative's address, and updates the database records.
     # @param reps_json [String] JSON string containing an array of representative data.
-    def perform(reps_json)
+    # @param skip_address_validation [Boolean] If true, skip the address validation process (default: false).
+    def perform(reps_json, skip_address_validation = false)
       reps_data = JSON.parse(reps_json)
-      reps_data.each { |rep_data| process_rep_data(rep_data) }
+      reps_data.each { |rep_data| process_rep_data(rep_data, skip_address_validation) }
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
@@ -39,13 +40,13 @@ module Representatives
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
-    def process_rep_data(rep_data)
+    # @param skip_address_validation [Boolean] If true, skip the address validation process.
+    def process_rep_data(rep_data, skip_address_validation)
       return unless record_can_be_updated?(rep_data)
 
       address_validation_api_response = nil
 
-      if rep_data['address_changed']
-
+      if rep_data['address_changed'] && !skip_address_validation
         api_response = get_best_address_candidate(rep_data['address'])
 
         # don't update the record if there is not a valid address with non-zero lat and long at this point
