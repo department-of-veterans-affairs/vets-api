@@ -41,6 +41,7 @@ module AccreditedRepresentativePortal
       def poa_requests
         @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
                           .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+                          .unredacted
                           .preload(scope_includes)
                           .paginate(page:, per_page:)
       end
