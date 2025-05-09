@@ -64,7 +64,7 @@ class Prescription
   attribute :cmop_division_phone, String
   attribute :metadata, Hash, default: -> { {} }
 
-  default_sort_by prescription_id: :asc
+  default_sort_by prescription_name: :asc
 
   alias refillable? is_refillable
   alias trackable? is_trackable
