@@ -214,17 +214,26 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
-      described_class.new.send(:va_notify_send_sms, job_opts, parsed_date)
+      described_class.new.send(:va_notify_send_sms,
+                               phone_number: mobile_phone,
+                               template_id:,
+                               claim_number:,
+                               facility_type: 'oh',
+                               parsed_date:)
 
       # Test CIE sender ID
-      cie_opts = job_opts.merge(facility_type: 'cie')
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
         template_id:,
         sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
-      described_class.new.send(:va_notify_send_sms, cie_opts, parsed_date)
+      described_class.new.send(:va_notify_send_sms,
+                               phone_number: mobile_phone,
+                               template_id:,
+                               claim_number:,
+                               facility_type: 'cie',
+                               parsed_date:)
     end
   end
 end

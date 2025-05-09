@@ -10,7 +10,7 @@ module CheckIn
   #     mobile_phone: '202-555-0123',         # Required
   #     appointment_date: '2023-05-15',       # Required
   #     template_id: 'template-id-123',       # Required
-  #     claim_number: '1234',                 # Required
+  #     claim_number: '1234',                 # Optional
   #     facility_type: 'oh'                   # Optional - defaults to 'cie' when nil or not 'oh'
   #   })
   class TravelClaimNotificationJob < TravelClaimBaseJob
@@ -23,29 +23,30 @@ module CheckIn
     # Performs the job of sending an SMS notification via VaNotify
     #
     # Validates input parameters, logs the attempt, and handles success/failure
-    # metrics. Returns early if required parameters like mobile_phone are missing.
+    # metrics. Returns early if required parameters are missing.
     #
     # @param opts [Hash] Options hash containing parameters for the notification
     # @option opts [String] :mobile_phone The phone number to send the SMS to (required)
     # @option opts [String] :appointment_date The appointment date in YYYY-MM-DD format (required)
     # @option opts [String] :template_id The VaNotify template ID to use (required)
-    # @option opts [String] :claim_number The claim number to include in the message (required)
+    # @option opts [String] :claim_number The claim number to include in the message (optional)
     # @option opts [String] :facility_type The facility type ('oh' or 'cie'). Optional, defaults to 'cie' when nil.
     # @return [void]
     def perform(opts = {})
-      return self.class.log_failure(opts) unless validate_required_fields(opts)
+      # Convert to HashWithIndifferentAccess to handle both string and symbol keys
+      opts = opts.with_indifferent_access
 
-      parsed_date = parse_appointment_date(opts[:appointment_date])
-      return self.class.log_failure(opts) unless parsed_date
+      notification_data = extract_notification_data(opts)
+      return self.class.log_failure(opts) unless notification_data
 
       log_sending_travel_claim_notification(opts)
       attempt_number = current_attempt_number
 
       begin
-        va_notify_send_sms(opts, parsed_date)
+        va_notify_send_sms(**notification_data)
         StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
       rescue => e
-        log_send_sms_failure(attempt_number)
+        log_send_sms_failure(attempt_number, e.message)
         raise e
       end
     end
@@ -65,13 +66,14 @@ module CheckIn
     # @return [void]
     def self.handle_error(job, ex)
       opts = job.dig('args', 0) || {}
+      opts = opts.with_indifferent_access
 
       SentryLogging.log_exception_to_sentry(
         ex,
         {
           phone_number: phone_last_four(opts),
-          template_id: opts&.dig(:template_id),
-          claim_number: opts&.dig(:claim_number).presence&.last(4)
+          template_id: opts[:template_id],
+          claim_number: opts[:claim_number].presence&.last(4)
         },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
@@ -84,12 +86,21 @@ module CheckIn
     # @param hash [Hash, nil] Hash containing a :mobile_phone key
     # @return [String, nil] Last four digits of the phone number, or nil if not present
     def self.phone_last_four(hash)
-      hash&.dig(:mobile_phone)&.delete('^0-9')&.last(4)
+      return nil unless hash
+
+      hash[:mobile_phone]&.delete('^0-9')&.last(4)
     end
 
+    # Logs notification failures and increments appropriate metrics
+    # Handles different metrics based on template ID and facility type
+    #
+    # @param opts [Hash] Options hash containing job parameters
+    # @return [nil]
     def self.log_failure(opts)
-      if FAILED_CLAIM_TEMPLATE_IDS.include?(opts&.dig(:template_id))
-        tags = if opts&.dig(:facility_type) == 'cie'
+      opts = opts.with_indifferent_access
+
+      if FAILED_CLAIM_TEMPLATE_IDS.include?(opts[:template_id])
+        tags = if opts[:facility_type] == 'cie'
                  Constants::STATSD_CIE_SILENT_FAILURE_TAGS
                else
                  Constants::STATSD_OH_SILENT_FAILURE_TAGS
@@ -102,6 +113,24 @@ module CheckIn
     end
 
     private
+
+    # Extracts and validates data required for sending a notification
+    # @param opts [Hash] The options hash from the job
+    # @return [Hash, nil] A hash with the extracted data or nil if validation fails
+    def extract_notification_data(opts)
+      return nil unless validate_required_fields(opts)
+
+      parsed_date = parse_appointment_date(opts[:appointment_date])
+      return nil unless parsed_date
+
+      {
+        phone_number: opts[:mobile_phone],
+        template_id: opts[:template_id],
+        claim_number: opts[:claim_number].presence,
+        facility_type: opts[:facility_type],
+        parsed_date:
+      }
+    end
 
     # Validates that all required fields are present
     #
@@ -125,7 +154,7 @@ module CheckIn
       missing_data
     end
 
-    # Logs information about missing fields and increments failure metrics
+    # Logs information about missing fields
     #
     # @param missing_data [Array<String>] List of missing field names
     # @return [void]
@@ -135,7 +164,7 @@ module CheckIn
     end
 
     # Parses the appointment date string into a Date object
-    # On failure, logs the error and increments failure metrics with custom tags
+    # On failure, logs the error and returns nil to end job without retrying
     #
     # @param date_string [String] Appointment date in YYYY-MM-DD format
     # @return [Date, nil] Parsed date if format is valid, nil otherwise
@@ -186,21 +215,25 @@ module CheckIn
     # Sends the SMS notification using VaNotify service
     # Uses the parsed date and selects the appropriate sender ID based on facility type
     #
-    # @param opts [Hash] Options hash containing job parameters - all required fields have been validated
-    # @param parsed_date [Date] Parsed appointment date
-    # @return [Object] The result from the VaNotify send_sms call
-    def va_notify_send_sms(opts, parsed_date)
+    # @param phone_number [String] The user's phone number
+    # @param template_id [String] The VaNotify template ID
+    # @param claim_number [String, nil] The claim number (optional)
+    # @param facility_type [String, nil] The facility type ('oh' or other)
+    # @param parsed_date [Date] The parsed appointment date
+    # @return [Hash, Object] Mock success hash in development or the result from the VaNotify send_sms call
+    def va_notify_send_sms(phone_number:, template_id:, claim_number:, facility_type:, parsed_date:)
+      if Rails.env.development? && !Settings.vanotify.mock
+        logger.info("MOCK: SMS would be sent to #{phone_number} with template #{template_id}")
+        return { status: 'success', mock: true }
+      end
+
       formatted_date = parsed_date.strftime('%b %d')
-      facility_type = opts&.dig(:facility_type)
       sms_sender_id = if facility_type && 'oh'.casecmp?(facility_type)
                         Constants::OH_SMS_SENDER_ID
                       else
                         Constants::CIE_SMS_SENDER_ID
                       end
 
-      phone_number = opts[:mobile_phone]
-      template_id = opts[:template_id]
-      claim_number = opts[:claim_number].presence
       personalisation = { claim_number:, appt_date: formatted_date }
 
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
@@ -209,9 +242,11 @@ module CheckIn
     # Logs information about SMS sending failures
     #
     # @param attempt_number [Integer] The current attempt number
+    # @param error_message [String] The error message from the exception
     # @return [void]
-    def log_send_sms_failure(attempt_number)
-      logger.info({ message: "TravelClaimNotificationJob failed, attempt #{attempt_number} of #{MAX_RETRIES + 1}" })
+    def log_send_sms_failure(attempt_number, error_message)
+      logger.info({ message: "TravelClaimNotificationJob failed, attempt #{attempt_number} of #{MAX_RETRIES + 1}",
+                    error: error_message })
     end
   end
 end

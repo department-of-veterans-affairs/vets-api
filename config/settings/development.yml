@@ -1394,9 +1394,9 @@ vanotify:
       template_id:
         claim_submission_duplicate_text: fake_template_id
         claim_submission_error_text: fake_template_id
-        claim_submission_failure_text: ~
+        claim_submission_failure_text: cie_fake_failure_template_id
         claim_submission_success_text: fake_template_id
-        claim_submission_timeout_text: ~
+        claim_submission_timeout_text: cie_fake_timeout_template_id
     dependents:
       api_key: fake_secret
       email:
@@ -1461,9 +1461,9 @@ vanotify:
       template_id:
         claim_submission_duplicate_text: fake_template_id
         claim_submission_error_text: fake_template_id
-        claim_submission_failure_text: ~
+        claim_submission_failure_text: oh_fake_failure_template_id
         claim_submission_success_text: fake_template_id
-        claim_submission_timeout_text: ~
+        claim_submission_timeout_text: oh_fake_timeout_template_id
     pensions: *vanotify_services_pension
     va_gov:
       api_key: fake_secret
