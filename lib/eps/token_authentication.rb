@@ -27,9 +27,6 @@ module Eps
           # Construct the full URL with query parameters
           url_with_params = "#{config.access_token_url}?#{token_params_for_url}"
 
-          # Output curl equivalent for debugging
-          output_curl_equivalent(url_with_params, token_request_headers_for_curl)
-      
           # Perform the POST request with params in URL and an empty body
           perform(:post,
                   url_with_params,
