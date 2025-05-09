@@ -23,6 +23,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
   before do
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
     allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
@@ -34,45 +35,111 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   end
 
   describe 'validations' do
-    context 'no validation errors' do
-      it 'returns true' do
-        expect(saved_claim.validate).to be(true)
+    context ':filter_saved_claim_logs enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:filter_saved_claim_logs).and_return(true)
       end
-    end
 
-    context 'validation errors' do
-      let(:schema_errors) { [{ fragment: 'error' }] }
-
-      context 'when validate_schema returns errors' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
-          allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
-        end
-
-        it 'logs schema failed error' do
-          expect(Rails.logger).to receive(:error)
-            .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors,
-                                                                                       form_id: saved_claim.form_id })
-
+      context 'no validation errors' do
+        it 'returns true' do
           expect(saved_claim.validate).to be(true)
         end
       end
 
-      context 'when form validation returns errors' do
-        let(:form_errors) { [{ data_pointer: 'error', fragment: 'error', message: nil }] }
-
-        before do
-          allow(JSONSchemer).to receive_messages(validate_schema: [])
-          allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
-                                                                   validate: [{ data_pointer: 'error' }]))
+      context 'validation errors' do
+        let(:allowed_errors) do
+          {
+            data_pointer: 'data_pointer',
+            error: 'some error',
+            details: { detail: 'thing' },
+            schema: { detail: 'schema' },
+            root_schema: { detail: 'root_schema' }
+          }
         end
 
-        it 'adds validation errors to the form' do
-          expect(Rails.logger).to receive(:error)
-            .with('SavedClaim form did not pass validation',
-                  { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: form_errors })
-          saved_claim.validate
-          expect(saved_claim.errors.full_messages).not_to be_empty
+        let(:filtered_out_errors) { { data: { key: 'this could be pii' } } }
+
+        let(:schema_errors) { [allowed_errors.merge(filtered_out_errors)] }
+
+        let(:formatted_errors) { { message: 'some error', fragment: 'data_pointer' } }
+        let(:filtered_schema_errors) { [allowed_errors.merge(formatted_errors)] }
+
+        context 'when validate_schema returns errors' do
+          before do
+            allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
+          end
+
+          it 'logs schema failed error' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim schema failed validation.', { errors: filtered_schema_errors,
+                                                              form_id: saved_claim.form_id })
+
+            expect(saved_claim.validate).to be(true)
+          end
+        end
+
+        context 'when form validation returns errors' do
+          before do
+            allow(JSONSchemer).to receive_messages(validate_schema: [])
+            allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                     validate: schema_errors))
+          end
+
+          it 'adds validation errors to the form' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim form did not pass validation',
+                    { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: filtered_schema_errors })
+            saved_claim.validate
+            expect(saved_claim.errors.full_messages).not_to be_empty
+          end
+        end
+      end
+    end
+
+    context ':filter_saved_claim_logs disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:filter_saved_claim_logs).and_return(false)
+      end
+
+      context 'no validation errors' do
+        it 'returns true' do
+          expect(saved_claim.validate).to be(true)
+        end
+      end
+
+      context 'validation errors' do
+        let(:schema_errors) { [{ fragment: 'error' }] }
+
+        context 'when validate_schema returns errors' do
+          before do
+            allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
+          end
+
+          it 'logs schema failed error' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim schema failed validation.', { errors: schema_errors,
+                                                              form_id: saved_claim.form_id })
+
+            expect(saved_claim.validate).to be(true)
+          end
+        end
+
+        context 'when form validation returns errors' do
+          let(:form_errors) { [{ data_pointer: 'error', fragment: 'error', message: nil }] }
+
+          before do
+            allow(JSONSchemer).to receive_messages(validate_schema: [])
+            allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                     validate: [{ data_pointer: 'error' }]))
+          end
+
+          it 'adds validation errors to the form' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim form did not pass validation',
+                    { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: form_errors })
+            saved_claim.validate
+            expect(saved_claim.errors.full_messages).not_to be_empty
+          end
         end
       end
     end
@@ -100,6 +167,17 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
             be_within(1.second).of(claim_duration),
             tags: ["form_id:#{saved_claim.form_id}"]
           )
+        end
+      end
+
+      context 'if form_id is not registered with PdfFill::Filler' do
+        it 'skips tracking pdf overflow' do
+          allow(StatsD).to receive(:increment)
+          saved_claim.save!
+
+          expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: ['form_id:SOME_FORM_ID'] })
+          expect(StatsD).not_to have_received(:increment).with('saved_claim.pdf.overflow',
+                                                               { tags: ['form_id:SOME_FORM_ID'] })
         end
       end
     end

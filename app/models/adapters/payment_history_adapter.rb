@@ -5,7 +5,7 @@ module Adapters
     attr_accessor :payments, :return_payments
 
     def initialize(input)
-      @input_payment = input.dig(:payments, :payment)
+      @input_payment = input&.dig(:payments, :payment)
 
       if @input_payment.nil? || !Flipper.enabled?(:payment_history)
         @payments = []

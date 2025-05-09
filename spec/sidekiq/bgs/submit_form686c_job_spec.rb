@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, nil) }
+  let(:job) { subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info) }
   let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -68,11 +68,17 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user.va_profile_email,
-          '686c_confirmation_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
+          'fake_received686',
+          { 'confirmation_number' => dependency_claim.confirmation_number,
+            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'Dependents::NotificationCallback',
+            callback_metadata: { email_template_id: 'fake_received686',
+                                 email_type: :received686,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim.id,
+                                 service_name: 'dependents' } }
         )
 
         expect { job }.not_to raise_error
@@ -116,7 +122,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         expect(client_stub).to receive(:submit).once
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
                                                                       dependency_claim.id, encrypted_vet_info,
-                                                                      an_instance_of(String), nil)
+                                                                      an_instance_of(String))
 
         expect { job }.not_to raise_error
       end

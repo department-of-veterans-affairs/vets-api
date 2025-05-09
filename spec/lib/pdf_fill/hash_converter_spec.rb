@@ -13,6 +13,7 @@ describe PdfFill::HashConverter do
     metadata[:overflow] = true unless metadata.key?(:overflow)
     metadata[:item_label] = nil unless metadata.key?(:item_label)
     metadata[:question_type] = nil unless metadata.key?(:question_type)
+    metadata[:format_options] = {} unless metadata.key?(:format_options)
     expect(extras_generator).to receive(:add_text).with(text, metadata).once
   end
 
@@ -413,6 +414,152 @@ describe PdfFill::HashConverter do
       converter.handle_overflow_and_label_first_key(pdftk_keys)
 
       expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
+    end
+  end
+
+  describe '#add_to_extras' do
+    it 'merges format_options from both array_key_data and key_data' do
+      array_key_data = {
+        format_options: { label_width: 120, bold_item_label: true }
+      }
+
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        format_options: { bold_value: true, bold_label: true }
+      }
+
+      # The merged format_options should have array_key_data options and key_data options,
+      # with key_data options taking precedence
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        i: 0,
+        overflow: true,
+        item_label: nil,
+        question_type: nil,
+        format_options: {
+          label_width: 120,
+          bold_item_label: true,
+          bold_value: true,
+          bold_label: true
+        }
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
+    end
+
+    it 'handles when only key_data has format_options' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        format_options: { bold_value: true, bold_label: true }
+      }
+
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        i: nil,
+        overflow: true,
+        item_label: nil,
+        question_type: nil,
+        format_options: { bold_value: true, bold_label: true }
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', nil)
+    end
+
+    it 'handles when only array_key_data has format_options' do
+      array_key_data = {
+        format_options: { label_width: 120, bold_item_label: true },
+        item_label: 'Item'
+      }
+
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question'
+      }
+
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        i: 0,
+        overflow: true,
+        item_label: 'Item',
+        question_type: nil,
+        format_options: { label_width: 120, bold_item_label: true }
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
+    end
+
+    it 'handles when neither has format_options' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question'
+      }
+
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        i: nil,
+        overflow: true,
+        item_label: nil,
+        question_type: nil,
+        format_options: {}
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', nil)
+    end
+
+    it 'overrides array_key_data options with key_data options when keys conflict' do
+      array_key_data = {
+        format_options: { label_width: 120, bold_value: false }
+      }
+
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        format_options: { bold_value: true }
+      }
+
+      # The bold_value from key_data should override the one from array_key_data
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        i: 0,
+        overflow: true,
+        item_label: nil,
+        question_type: nil,
+        format_options: {
+          label_width: 120,
+          bold_value: true
+        }
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
+    end
+
+    it 'prevents text from going to extras generator if hide_from_overflow is set' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        hide_from_overflow: true
+      }
+
+      expect(extras_generator).not_to receive(:add_text)
+
+      converter.add_to_extras(key_data, 'test value', nil)
     end
   end
 end

@@ -64,6 +64,7 @@ module PdfFill
     def add_to_extras(key_data, v, i, overflow: true, array_key_data: nil)
       return if v.blank? || key_data.nil?
       return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
+      return if key_data[:hide_from_overflow]
 
       i = array_key_data.try(:[], :override_index) || i
       i = nil if key_data[:skip_index]
@@ -71,11 +72,14 @@ module PdfFill
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
       item_label = array_key_data.try(:[], :item_label)
       question_type = array_key_data&.dig(:question_type) || key_data&.dig(:question_type)
+      array_format_options = array_key_data&.dig(:format_options) || {}
+      key_format_options = key_data&.dig(:format_options) || {}
+      format_options = array_format_options.merge(key_format_options)
 
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
-          i:, overflow:, item_label:, question_type:
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :checked_values).merge(
+          i:, overflow:, item_label:, question_type:, format_options:
         )
       )
     end
