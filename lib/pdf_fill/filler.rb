@@ -160,6 +160,7 @@ module PdfFill
       (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
+      binding.pry
 
       # If the form is being generated with the overflow redesign, stamp the top and bottom of the document before the
       # form is combined with the extras overflow pages. This allows the stamps to be placed correctly for the redesign
