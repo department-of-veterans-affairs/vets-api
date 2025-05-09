@@ -13,7 +13,29 @@ module AAL
   class Client < Common::Client::Base
     include Common::Client::Concerns::MHVSessionBasedClient
 
-    def create_aal(attributes)
+    ##
+    # Create an AAL (account activity log) entry in MHV.
+    #
+    # @param [Hash] attributes - The AAL attributes to send
+    # @param [Boolean] once_per_session - Whether this log should be limited to once per session
+    # @param [Common::UTCTime] session_id - Unique identifier for the user's VA.gov session, e.g. last_signed_in
+    #
+    def create_aal(attributes, once_per_session, session_id)
+      if once_per_session
+        if session_id.present?
+          # 1) Build a hash of everything except completion_time
+          redis_key = aal_redis_key(attributes, session_id)
+
+          # 2) If we already logged it this session, do not re-log
+          return if redis.exists?(redis_key)
+
+          # 3) Otherwise mark it sent for the duration of the session
+          redis.set(redis_key, true, nx: false, ex: REDIS_CONFIG[:mhv_aal_log_store][:each_ttl])
+        else
+          Rails.logger.warn('Skipping AAL per-session de-duplication: no session_id')
+        end
+      end
+
       attributes[:user_profile_id] = session.user_id.to_s
       form = AAL::CreateAALForm.new(attributes)
 
@@ -21,6 +43,29 @@ module AAL
     end
 
     private
+
+    ##
+    # Build a unique key for this AAL, based on the user, unique VA.gov session ID, and AAL
+    # attributes. Only some attributes apply towards the unique fingerprint. For example,
+    # completion_time is not included.
+    #
+    def aal_redis_key(attributes, session_id)
+      base_hash = attributes
+                  .except(:completion_time)
+                  .to_h
+
+      track_data = base_hash.merge(session_id:)
+
+      fingerprint = Digest::SHA256.hexdigest(
+        track_data.sort.to_h.to_json
+      )
+
+      "#{session.user_id}:#{fingerprint}"
+    end
+
+    def redis
+      Redis::Namespace.new(REDIS_CONFIG[:mhv_aal_log_store][:namespace], redis: $redis)
+    end
 
     ##
     # Overriding MHVSessionBasedClient's method to add x-api-key

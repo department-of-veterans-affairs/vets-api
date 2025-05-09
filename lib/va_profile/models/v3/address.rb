@@ -52,11 +52,7 @@ module VAProfile
             effectiveEndDate: @effective_end_date
           }
 
-          if @validation_key.present?
-            address_attributes[:validationKey] = @validation_key
-            address_attributes[:overrideIndicator] = true
-          end
-
+          address_attributes[:overrideValidationKey] = @override_validation_key if @override_validation_key.present?
           address_attributes[:badAddress] = false if correspondence?
 
           {

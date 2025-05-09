@@ -10,7 +10,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::MilitaryServiceController', type: 
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 
-  context 'Unuthorized User' do
+  context 'Unauthorized User' do
     context 'with no EDIPI' do
       let(:user_id) { '21207668' }
       let(:current_user) { build(:user) }

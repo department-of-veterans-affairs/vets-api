@@ -11,12 +11,10 @@ module Identity
     COOKIE_PATH = '/'
     COOKIE_EXPIRATION = 2.minutes
     COOKIE_DOMAIN = '.va.gov'
-    VALID_SOURCES = %i[ssoe sis tou].freeze
 
     attr_reader :icn, :source
 
     validates :icn, presence: true
-    validates :source, inclusion: { in: VALID_SOURCES }, allow_blank: true
 
     def initialize(icn:, source: nil)
       @icn = icn

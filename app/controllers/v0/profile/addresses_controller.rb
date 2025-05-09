@@ -57,6 +57,7 @@ module V0
           :county_code,
           :county_name,
           :validation_key,
+          :override_validation_key,
           :id,
           :international_postal_code,
           :province,

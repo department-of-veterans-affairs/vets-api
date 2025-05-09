@@ -15,7 +15,7 @@ module IncomeAndAssets
         # 4b - 4f (only space for five on form)
         'associatedIncomes' => {
           limit: 5,
-          first_key: 'recipientRelationship',
+          first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
             key: "F[0].IncomeRecipients4[#{ITERATOR}]"
