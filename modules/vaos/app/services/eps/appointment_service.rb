@@ -17,9 +17,8 @@ module Eps
                          request_headers)
       log_response(response, 'EPS Get Appointment')
 
-      data = parse_response_body(response.body)
-      Rails.logger.info("EPS Get Appointment - Data: #{data}")
-      OpenStruct.new(data)
+      Rails.logger.info("EPS Get Appointment - Data: #{response.body}")
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -32,8 +31,7 @@ module Eps
                          {}, request_headers)
       log_response(response, 'EPS Get Appointments')
 
-      data = parse_response_body(response.body)
-      appointments = data[:appointments]
+      appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
       OpenStruct.new(data: merged_appointments)
     end
@@ -48,8 +46,7 @@ module Eps
                          { patientId: patient_id, referralId: referral_id }, request_headers)
       log_response(response, 'EPS Create Draft Appointment')
 
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -80,8 +77,7 @@ module Eps
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
       log_response(response, 'EPS Submit Appointment')
 
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+      OpenStruct.new(response.body)
     end
 
     private

@@ -34,15 +34,5 @@ module Ccra
     def request_headers
       config.mock_enabled? ? {} : headers
     end
-
-    ##
-    # Parse response body, handling both string and object responses. With Betamocks we
-    # get a string instead of an object.
-    #
-    # @param response_body [String, Hash] The response body to parse
-    # @return [Hash] The parsed response body
-    def parse_response_body(response_body)
-      response_body.is_a?(String) ? JSON.parse(response_body) : response_body
-    end
   end
 end

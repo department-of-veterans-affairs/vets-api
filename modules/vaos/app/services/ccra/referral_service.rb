@@ -27,9 +27,7 @@ module Ccra
         Rails.logger.info("CCRA Referral List - Content-Type: #{response.response_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
-        data = parse_response_body(response.body)
-
-        ReferralListEntry.build_collection(data)
+        ReferralListEntry.build_collection(response.body)
       end
     end
 
@@ -56,9 +54,7 @@ module Ccra
         Rails.logger.info("CCRA Referral Detail - Content-Type: #{response.request_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
-        data = parse_response_body(response.body)
-
-        ReferralDetail.new(data)
+        ReferralDetail.new(response.body)
       end
     end
   end

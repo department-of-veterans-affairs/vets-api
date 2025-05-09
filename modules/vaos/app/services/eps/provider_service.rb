@@ -11,8 +11,8 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services",
                          {}, request_headers)
       log_response(response, 'EPS Get Provider Services')
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -24,8 +24,8 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
                          {}, request_headers)
       log_response(response, 'EPS Get Provider Service')
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+
+      OpenStruct.new(response.body)
     end
 
     def get_provider_services_by_ids(provider_ids:)
@@ -33,8 +33,8 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services",
                          query_object_array, request_headers)
       log_response(response, 'EPS Get Provider Services by IDs')
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -45,8 +45,8 @@ module Eps
     def get_networks
       response = perform(:get, "/#{config.base_path}/networks", {}, request_headers)
       log_response(response, 'EPS Get Networks')
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -64,8 +64,8 @@ module Eps
 
       response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers)
       log_response(response, 'EPS Get Drive Times')
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -102,8 +102,8 @@ module Eps
 
       response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, request_headers)
       log_response(response, 'EPS Get Provider Slots')
-      data = parse_response_body(response.body)
-      OpenStruct.new(data)
+
+      OpenStruct.new(response.body)
     end
 
     ##
@@ -119,10 +119,8 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
       log_response(response, 'EPS Search Provider Services')
 
-      data = parse_response_body(response.body)
-
       # NOTE: faraday converts keys to symbols
-      matching_provider = data[:provider_services]&.find do |provider|
+      matching_provider = response.body[:provider_services]&.find do |provider|
         provider[:individual_providers]&.any? { |individual| individual[:npi] == npi }
       end
 

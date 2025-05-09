@@ -40,17 +40,6 @@ module Eps
     end
 
     ##
-    # Parse response body, handling both string and object responses. With Betamocks we
-    # get a string instead of an object.
-    #
-    # @param response_body [String, Hash] The response body to parse
-    # @return [Hash] The parsed response body with symbolized keys
-    def parse_response_body(response_body)
-      # Note JSON.parse is only used for betamock responses
-      response_body.is_a?(String) ? JSON.parse(response_body, symbolize_names: true) : response_body
-    end
-
-    ##
     # Returns the patient ID for the current user.
     #
     # @return [String] The ICN of the current user.

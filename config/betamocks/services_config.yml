@@ -898,35 +898,23 @@
 - :name: "EPS API"
   :base_uri: <%= "#{URI(Settings.vaos.eps.api_url).host}:#{URI(Settings.vaos.eps.api_url).port}" %>
   :endpoints:
-    # Get list of provider services
-    - :method: :get
-      :path: "/care-navigation/v1/provider-services"
-      :file_path: "vaos/eps/providers/get_provider_services"
-      :cache_multiple_responses:
-        :uid_location: header
-        :uid_locator: 'Authorization'
-        
-    # Get provider service details
+    # Get a provider's service details
     - :method: :get
       :path: "/care-navigation/v1/provider-services/*"
-      :file_path: "vaos/eps/providers/data"
+      :file_path: "vaos/eps/providers/get_provider_services"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)'
         
     # Get list of appointments
     - :method: :get
-      :error: 503
       :path: "/care-navigation/v1/appointments"
-      :file_path: "vaos/eps/get_appointments"
-      :cache_multiple_responses:
-        :uid_location: header
-        :uid_locator: 'Authorization'
+      :file_path: "vaos/eps/appointments/get_appointments/default"
         
     # Get appointment details
     - :method: :get
       :path: "/care-navigation/v1/appointments/*"
-      :file_path: "vaos/eps/get_appointment"
+      :file_path: "vaos/eps/appointments/get_appointment"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)'
