@@ -19,7 +19,7 @@ module Mobile
         end
 
         def send_confirmation_email
-          VANotifyDdEmailJob.send_to_emails(@user.all_emails, :comp_pen)
+          VANotifyDdEmailJob.send_to_emails(@user.all_emails)
         end
 
         private

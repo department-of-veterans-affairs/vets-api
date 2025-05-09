@@ -13,7 +13,7 @@ module Adapters
       else
         @input_payments = [@input_payment].flatten
         payments, return_payments = @input_payments.partition do |payment|
-          payment.dig(:return_payment, :check_trace_number).blank?
+          payment&.dig(:return_payment, :check_trace_number).blank?
         end
 
         @payments = process_payments(payments)
@@ -30,7 +30,7 @@ module Adapters
           pay_check_amount: ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
           pay_check_type: payment[:payment_type],
           payment_method: get_payment_method(payment),
-          bank_name: payment.dig(:address_eft, :bank_name),
+          bank_name: payment&.dig(:address_eft, :bank_name),
           account_number: mask_account_number(payment[:address_eft])
         }
       end
@@ -50,9 +50,9 @@ module Adapters
     end
 
     def get_payment_method(payment)
-      return 'Direct Deposit' if payment.dig(:address_eft, :account_number).present?
+      return 'Direct Deposit' if payment&.dig(:address_eft, :account_number).present?
 
-      return 'Paper Check' if payment.dig(:check_address, :address_line1).present?
+      return 'Paper Check' if payment&.dig(:check_address, :address_line1).present?
 
       nil
     end

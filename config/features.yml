@@ -76,6 +76,14 @@ features:
       We need to remove this feature from the codebase ASAP.
       Mocks shouldn't live in the app logic. If needed, add at the API/middleware level.
     enable_in_development: true
+  ask_va_api_maintenance_mode:
+    actor_type: user
+    description: >
+      A system-wide control flag that governs the overall availability of Ask VA API endpoints.
+      When enabled, the API restricts external access and returns a service unavailable response across all routes.
+      Primarily used for coordinated maintenance windows or temporary system suspensions,
+      allowing the team to manage API exposure dynamically without requiring a redeploy.
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -2198,5 +2206,3 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  only_use_direct_deposit_email_template:
-    description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates

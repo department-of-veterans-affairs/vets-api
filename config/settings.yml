@@ -1460,7 +1460,6 @@ vanotify:
         contact_info_change: <%= ENV['vanotify__services__va_gov__template_id__contact_info_change'] %>
         covid_vaccine_registration: <%= ENV['vanotify__services__va_gov__template_id__covid_vaccine_registration'] %>
         direct_deposit: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit'] %>
-        direct_deposit_comp_pen: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_comp_pen'] %>
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>

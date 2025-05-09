@@ -11,7 +11,6 @@ module Common
       # @see BB::Client
       # @see Rx::Client
       # @see SM::Client
-      # @see MHVLogging::Client
       #
       # @!attribute [r] session
       #   @return [Hash] a hash containing session information
