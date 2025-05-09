@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rx/client'
-require 'rx/medications_client'
 
 module MyHealth
   class RxController < ApplicationController
