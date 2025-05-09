@@ -73,7 +73,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
-      Vets::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
+      Vets::Collection.fetch(PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
         perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
     end

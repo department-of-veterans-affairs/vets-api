@@ -20,18 +20,25 @@ module Vets
         def fetch(klass, cache_key: nil, ttl: CACHE_DEFAULT_TTL, &block)
           raise ArgumentError, 'No block given' unless block
 
-          results = block.call
-          records = results[:data]
-          metadata = results[:metadata] || {}
-          errors = results[:errors] || {}
+          if cache_key
+            json_string = redis_namespace.get(cache_key)
+            if json_string.nil?
+              results = block.call
+              records = results[:data]
+              metadata = results[:metadata] || {}
+              errors = results[:errors] || {}
+              build_and_cache(records, klass, metadata, errors, { cache_key:, ttl: })
+            else
+              from_cache(klass, json_string, cache_key)
+            end
+          else
+            results = block.call
+            records = results[:data]
+            metadata = results[:metadata] || {}
+            errors = results[:errors] || {}
 
-          return new(records, klass, metadata:, errors:) unless cache_key
-
-          json_string = redis_namespace.get(cache_key)
-
-          return build_and_cache(records, klass, metadata, errors, { cache_key:, ttl: }) if json_string.nil?
-
-          from_cache(klass, json_string, cache_key)
+            new(records, klass, metadata:, errors:)
+          end
         end
 
         def cache(json_hash, cache_key, ttl)
@@ -53,7 +60,7 @@ module Vets
         end
 
         def from_cache(klass, json_string, cache_key)
-          json_hash = Oj.load(json_string)
+          json_hash = Oj.load(json_string).deep_symbolize_keys
           data = json_hash[:data]
           metadata = json_hash[:metadata]
           errors = json_hash[:errors]

@@ -67,7 +67,8 @@ module Vets
               if operator == 'match'
                 object_value.downcase.include?(value.downcase)
               else
-                object_value.public_send(operator, value)
+                coerced_value = coerce_type(value, object_value)
+                object_value.public_send(operator, coerced_value)
               end
             end
             results.any?
@@ -76,6 +77,21 @@ module Vets
       rescue => e
         message = "The syntax for your filters is invalid: #{e.message}"
         raise Common::Exceptions::InvalidFiltersSyntax, message
+      end
+
+      def coerce_type(value, reference)
+        return nil if value.nil?
+
+        case reference
+        when TrueClass, FalseClass
+          value.to_s == 'true'
+        when Integer
+          value.to_i
+        when Float
+          value.to_f
+        else
+          value
+        end
       end
     end
   end

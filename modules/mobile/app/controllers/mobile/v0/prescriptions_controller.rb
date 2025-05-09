@@ -69,7 +69,7 @@ module Mobile
 
       def filter_params
         @filter_params ||= begin
-          valid_filter_params = params.require(:filter).permit(Prescription.filterable_attributes)
+          valid_filter_params = params.require(:filter).permit(Prescription.filterable_params)
           raise Common::Exceptions::FilterNotAllowed, params[:filter] if valid_filter_params.empty?
 
           valid_filter_params
