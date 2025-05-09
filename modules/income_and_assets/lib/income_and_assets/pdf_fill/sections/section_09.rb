@@ -22,7 +22,7 @@ module IncomeAndAssets
           },
           'establishedDateOverflow' => {
             question_num: 9,
-            question_suffix: '(b)',
+            question_suffix: 'B',
             question_text: 'SPECIFY DATE ANNUITY WAS ESTABLISHED'
           },
           # 9c
@@ -34,14 +34,14 @@ module IncomeAndAssets
           },
           'marketValueAtEstablishmentOverflow' => {
             question_num: 9,
-            question_suffix: '(c)',
+            question_suffix: 'C',
             question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE'
           },
           # 9d
           'addedFundsAfterEstablishment' => { key: 'F[0].#subform[8].AddedFundsToAnnuity9d[0]' },
           'addedFundsAfterEstablishmentOverflow' => {
             question_num: 9,
-            question_suffix: '(d)',
+            question_suffix: 'D',
             question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?'
           },
           # 9e
@@ -52,7 +52,7 @@ module IncomeAndAssets
           },
           'addedFundsDateOverflow' => {
             question_num: 9,
-            question_suffix: '(e)',
+            question_suffix: 'E',
             question_text: 'WHEN DID YOU ADD FUNDS?'
           },
           # 9f
@@ -64,21 +64,21 @@ module IncomeAndAssets
           },
           'addedFundsAmountOverflow' => {
             question_num: 9,
-            question_suffix: '(f)',
+            question_suffix: 'F',
             question_text: 'HOW MUCH DID YOU ADD?'
           },
           # 9g
           'revocable' => { key: "F[0].#subform[8].Annuity9g[#{ITERATOR}]" },
           'revocableOverflow' => {
             question_num: 9,
-            question_suffix: '(g)',
+            question_suffix: 'G',
             question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?'
           },
           # 9h
           'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
           'receivingIncomeFromAnnuityOverflow' => {
             question_num: 9,
-            question_suffix: '(h)',
+            question_suffix: 'H',
             question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUNITY?'
           },
           # 9i
@@ -90,14 +90,14 @@ module IncomeAndAssets
           },
           'annualReceivedIncomeOverflow' => {
             question_num: 9,
-            question_suffix: '(i)',
+            question_suffix: 'I',
             question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED'
           },
           # 9j
           'canBeLiquidated' => { key: "F[0].#subform[8].AnnuityLiquidated9j[#{ITERATOR}]" },
           'canBeLiquidatedOverflow' => {
             question_num: 9,
-            question_suffix: '(j)',
+            question_suffix: 'J',
             question_text: 'CAN THE ANNUITY BE LIQUIDATED?'
           },
           # 9k
@@ -109,7 +109,7 @@ module IncomeAndAssets
           },
           'surrenderValueOverflow' => {
             question_num: 9,
-            question_suffix: '(k)',
+            question_suffix: 'K',
             question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
           }
         }

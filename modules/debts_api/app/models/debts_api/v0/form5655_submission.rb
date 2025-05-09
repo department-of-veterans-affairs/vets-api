@@ -67,7 +67,8 @@ module DebtsApi
       )
       batch.jobs do
         DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.perform_async(id, user_cache_id)
-        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_async(id)
+        # Delay sharepoint submission to allow VBA to process the form
+        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_in(5.seconds, id)
       end
     end
 

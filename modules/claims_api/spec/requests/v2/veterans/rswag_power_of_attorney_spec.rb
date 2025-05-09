@@ -7,6 +7,7 @@ require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 require 'bgs_service/claimant_web_service'
 require 'bgs_service/org_web_service'
+require 'bgs_service/manage_representative_service'
 
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
