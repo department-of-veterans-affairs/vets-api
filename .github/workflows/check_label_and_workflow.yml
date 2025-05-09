@@ -1,0 +1,40 @@
+name: Check Label and Workflow
+
+on:
+  workflow_run:
+    workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries"]
+    branches: ["*"]
+    types: [completed]
+
+jobs:
+  check:
+    if: ${{ github.ref != 'refs/heads/master' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Check for required label
+        id: check_label
+        run: |
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name')
+          echo "$LABELS" | grep -q "run-checks" && echo "label_found=true" >> $GITHUB_OUTPUT || echo "label_found=false" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if another workflow is running
+        id: check_workflow
+        run: |
+          RUNNING=$(gh run list --workflow=ci.yml --status=in_progress --json headBranch,event -q '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
+          if [ -n "$RUNNING" ]; then
+            echo "ci_running=true" >> $GITHUB_OUTPUT
+          else
+            echo "ci_running=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Proceed if label exists and ci.yml is not running
+        if: steps.check_label.outputs.label_found == 'true' && steps.check_workflow.outputs.ci_running == 'false'
+        run: echo "Label is present and ci.yml is NOT running. Proceeding..."
