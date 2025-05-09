@@ -92,7 +92,8 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          if ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }}; then
+          # Ensure pr_requested_teams is a valid JSON array, and check if it contains 'backend-review-group'
+          if echo "${{ fromJSON(env.pr_requested_teams) }}" | grep -q 'backend-review-group'; then
             echo "exempt=false" >> $GITHUB_OUTPUT
             echo "PR requires backend approval."
           else
@@ -103,6 +104,7 @@ jobs:
       - name: Check for failure labels
         id: audit_pr_labels
         run: |
+          # Check for various failure labels and set the output accordingly
           if \
             ${{ contains(env.pr_labels, 'audit-service-failure') }} || \
             ${{ contains(env.pr_labels, 'code-health-failure') }} || \
@@ -163,15 +165,8 @@ jobs:
       - name: Verify backend-review-group approval
         id: verify_approval
         run: |
-          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
-          ${{ steps.get_team_members.outputs.data }}
-          EOF
-          )
-
-          APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-          ${{ steps.get_pr_reviews.outputs.data }}
-          EOF
-          )
+          BACKEND_REVIEWERS=$(echo "${{ steps.get_team_members.outputs.data }}" | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
+          APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l)
 
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then

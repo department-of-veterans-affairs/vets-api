@@ -64,10 +64,9 @@ jobs:
           aws ecr get-login-password --region us-gov-west-1 | helm registry login --username AWS --password-stdin 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com
           helm push vets-api-${{ steps.version.outputs.version }}.tgz oci://008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/helm
 
-
       - name: Add Failure label
         uses: actions-ecosystem/action-add-labels@v1
-        if: ${{ github.event_name == 'pull_request' && failure() && !contains(github.event.pull_request.labels.*.name, 'pe-failure') }}
+        if: ${{ github.event_name == 'pull_request' && failure() }}
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
@@ -75,7 +74,7 @@ jobs:
 
       - name: Remove Failure label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: ${{ github.event_name == 'pull_request' && success() && contains(github.event.pull_request.labels.*.name, 'pe-failure') }}
+        if: ${{ github.event_name == 'pull_request' && success() }}
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |

@@ -93,7 +93,7 @@ jobs:
               -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
 
       - name: Add Failure label
-        if: failure() && !contains(github.event.pull_request.labels.*.name, 'audit-service-failure')
+        if: ${{ failure() }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           fail_on_error: true
@@ -102,7 +102,7 @@ jobs:
             audit-service-failure
 
       - name: Remove Failure label
-        if: success() && contains(github.event.pull_request.labels.*.name, 'audit-service-failure')
+        if: ${{ success() }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
