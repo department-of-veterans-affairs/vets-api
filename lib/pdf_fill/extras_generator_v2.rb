@@ -9,6 +9,8 @@ module PdfFill
     LABEL_WIDTH = 91
     FREE_TEXT_QUESTION_WIDTH = 404
     MEAN_CHAR_WIDTH = 4.5
+    HEADER_MARGIN = 25
+    FOOTER_MARGIN = 32
 
     class Question
       attr_accessor :section_index, :overflow
@@ -472,11 +474,10 @@ module PdfFill
       block_heights = measure_content_heights(generate_blocks)
 
       current_section_index = nil
-      box_height = 25
       pdf.bounding_box(
-        [pdf.bounds.left, pdf.bounds.top - box_height],
+        [pdf.bounds.left, pdf.bounds.top - HEADER_MARGIN],
         width: pdf.bounds.width,
-        height: pdf.bounds.height - box_height
+        height: pdf.bounds.height - HEADER_MARGIN - FOOTER_MARGIN
       ) do
         generate_blocks.each do |block|
           section_index = block.section_index
