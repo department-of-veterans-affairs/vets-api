@@ -61,6 +61,7 @@ module VAProfile
         end
         # rubocop:enable Metrics/MethodLength
 
+        # Builds Address data for VAProfileRedis::V2::ContactInformation:
         # Converts a decoded JSON response from VAProfile to an instance of the Address model
         # @param body [Hash] the decoded response body from VAProfile
         # @return [VAProfile::Models::V3::Address] the model built from the response body
@@ -99,6 +100,8 @@ module VAProfile
             va_profile_id: body['va_profile_id'] || body['vet360_id'],
             zip_code: body['zip_code5'],
             zip_code_suffix: body['zip_code4']
+            override_validation_key: body['override_validation_key'] || body['validation_key'],  # Remove after ContactInformation V2 production release
+            validation_key: body['override_validation_key'] || body['validation_key'] # Remove after ContactInformation V2 production release
           )
         end
         # rubocop:enable Metrics/MethodLength
