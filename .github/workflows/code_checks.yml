@@ -156,7 +156,7 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
       
-      - name: Upload Test Artifacts
+      - name: Upload Test Artifacts (tmp)
         uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -164,6 +164,27 @@ jobs:
           path: tmp
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Upload Test Artifacts (/tmp)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Artifacts (tmp directory)
+          path: tmp
+          if-no-files-found: ignore
+          retention-days: 1
+      
+      - name: Upload Test Artifacts (log)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Artifacts (tmp directory)
+          path: |
+            tmp
+            !tmp/*.xml
+          if-no-files-found: ignore
+          retention-days: 1
+  
 
 
   update_labels:
