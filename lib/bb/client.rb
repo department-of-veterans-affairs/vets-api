@@ -6,6 +6,7 @@ require 'common/client/concerns/streaming_client'
 require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
+require 'vets/collection'
 
 module BB
   ##
@@ -30,7 +31,7 @@ module BB
     #
     # @note this should be called once per user, will take up to 15 minutes
     #   to process, but its the only way to refresh a user's data
-    # @return [Common::Collection]
+    # @return [Vets::Collection]
     #
     def get_extract_status
       if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
@@ -42,16 +43,16 @@ module BB
       end
 
       log_refresh_errors(json[:data]) if refresh_final?(json[:data])
-      Common::Collection.new(ExtractStatus, **json)
+      Vets::Collection.new(json[:data], ExtractStatus, metadata: json[:metadata], errors: json[:errors])
     end
 
     ##
     # Build the checkboxes for the form used to make a generate report request
     #
-    # @return [Common::Collection]
+    # @return [Vets::Collection]
     #
     def get_eligible_data_classes
-      Common::Collection.fetch(::EligibleDataClass, cache_key: cache_key('geteligibledataclass'), ttl: CACHE_TTL) do
+      Vets::Collection.fetch(::EligibleDataClass, cache_key: cache_key('geteligibledataclass'), ttl: CACHE_TTL) do
         if Flipper.enabled?(:mhv_medical_records_migrate_to_api_gateway)
           BB::Configuration.custom_base_path = APIGW_BASE_PATH
           perform(:get, 'v1/bluebutton/ess/geteligibledataclass', nil, token_headers).body

@@ -17,6 +17,7 @@ module Vets
                 elsif use_will_paginate && defined?(::WillPaginate::Collection)
                   will_paginate_collection(data)
                 else
+                  validate_out_of_bounds
                   data[((page - 1) * per_page)...(page * per_page)]
                 end
       end
@@ -49,6 +50,11 @@ module Vets
 
           pager.replace records[pager.offset, pager.per_page]
         end
+      end
+
+      def validate_out_of_bounds
+        error_params = { page: @page, per_page: @per_page }
+        raise Common::Exceptions::InvalidPaginationParams, error_params if @page > total_pages
       end
     end
   end

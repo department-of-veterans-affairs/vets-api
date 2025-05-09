@@ -3,6 +3,7 @@
 require_relative '../../../../../support/helpers/rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
+require 'vets/collection'
 
 RSpec.describe 'health/rx/prescriptions', type: :request do
   include JsonSchemaMatchers
@@ -15,7 +16,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
 
-    Common::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
+    Vets::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
   end
 
   before do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'rx/client'
-
+require 'vets/collection'
 # Mock upstream request to return source app for Rx client
 class UpstreamRequest
   def self.env
@@ -65,7 +65,7 @@ describe Rx::Client do
     it 'gets a list of active prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
         client_response = client.get_active_rxs
-        expect(client_response).to be_a(Common::Collection)
+        expect(client_response).to be_a(Vets::Collection)
         expect(client_response.type).to eq(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
 
@@ -80,7 +80,7 @@ describe Rx::Client do
     it 'gets a list of all prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
         client_response = client.get_history_rxs
-        expect(client_response).to be_a(Common::Collection)
+        expect(client_response).to be_a(Vets::Collection)
         expect(client_response.members.first).to be_a(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
 
@@ -101,9 +101,9 @@ describe Rx::Client do
     it 'refills a prescription' do
       VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
         if caching_enabled
-          expect(Common::Collection).to receive(:bust).with(cache_keys)
+          expect(Vets::Collection).to receive(:bust).with(cache_keys)
         else
-          expect(Common::Collection).not_to receive(:bust).with([nil, nil])
+          expect(Vets::Collection).not_to receive(:bust).with([nil, nil])
         end
 
         client_response = client.post_refill_rx(13_650_545)
@@ -142,7 +142,7 @@ describe Rx::Client do
         cassette = 'gets_a_list_of_tracking_history_for_a_prescription'
         VCR.use_cassette("rx_client/prescriptions/nested_resources/#{cassette}") do
           client_response = client.get_tracking_history_rx(13_650_541)
-          expect(client_response).to be_a(Common::Collection)
+          expect(client_response).to be_a(Vets::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
           expect(client_response.cached?).to be(false)
           expect(cache_key_for(client_response)).to be_nil

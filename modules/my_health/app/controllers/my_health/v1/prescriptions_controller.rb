@@ -22,17 +22,17 @@ module MyHealth
           resource = if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
                        filter_renewals(resource)
                      else
-                       resource.find_by(filter_params)
+                       resource.where(filter_params)
                      end
         end
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
-        resource.data = sort_prescriptions_with_pd_at_top(resource.data)
+        resource.records = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
-        resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
+        resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count) }
         options[:links] = pagination_links(resource) if is_using_pagination
-        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.rections, options)
       end
 
       def show
@@ -175,14 +175,14 @@ module MyHealth
         display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
         # according to business logic filter for all medications is the only list that should contain PD meds
-        resource.data = if params[:filter].blank? && display_pending_meds
+        resource.records = if params[:filter].blank? && display_pending_meds
                           resource.data.reject { |item| item.prescription_source.equal? 'PF' }
                         else
                           # TODO: remove this line when PF and PD are allowed on va.gov
                           resource.data = remove_pf_pd(resource.data)
                         end
-        resource.data = group_prescriptions(resource.data) if display_grouping
-        resource.data = filter_non_va_meds(resource.data)
+        resource.records = group_prescriptions(resource.data) if display_grouping
+        resource.records = filter_non_va_meds(resource.data)
       end
 
       def set_filter_metadata(list, non_modified_collection)
