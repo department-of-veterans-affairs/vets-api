@@ -41,7 +41,7 @@ namespace :rswag do
       %w[dev production].each do |environment|
         ENV['DOCUMENTATION_ENVIRONMENT'] = environment
         Rake::Task['rswag:specs:swaggerize'].invoke
-        %w[v1 v2].each { |version| format_for_swagger(version, (version.eql?('v2') ? environment : nil)) }
+        %w[v1 v2].each { |version| format_for_swagger(version, version.eql?('v2') ? environment : nil) }
         Rake::Task['rswag:specs:swaggerize'].reenable
       end
     end

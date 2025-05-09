@@ -22,11 +22,11 @@ RSpec.describe Rx::MedicationsClient do
       it 'includes x-api-key in the headers' do
         allow(Settings.mhv.rx).to receive_messages(
           use_new_api: true,
-          x_api_key: 'test-api-key',
-          app_token_va_gov: 'va_gov_token'
+          x_api_key: 'fake-x-api-key',
+          app_token: 'va_gov_token'
         )
         headers = client.auth_headers
-        expect(headers['x-api-key']).to eq('test-api-key')
+        expect(headers['x-api-key']).to eq('fake-x-api-key')
         expect(headers['appToken']).to eq('va_gov_token')
         expect(headers['mhvCorrelationId']).to eq('12345')
       end
@@ -36,8 +36,8 @@ RSpec.describe Rx::MedicationsClient do
       it 'does not include x-api-key in the headers' do
         allow(Settings.mhv.rx).to receive_messages(
           use_new_api: false,
-          x_api_key: 'test-api-key',
-          app_token_va_gov: 'va_gov_token'
+          x_api_key: 'fake-x-api-key',
+          app_token: 'va_gov_token'
         )
         headers = client.auth_headers
         expect(headers).not_to have_key('x-api-key')
@@ -52,19 +52,19 @@ RSpec.describe Rx::MedicationsClient do
       base_headers = { 'Content-Type' => 'application/json' }
       allow(Settings.mhv.rx).to receive_messages(
         use_new_api: true,
-        x_api_key: 'test-api-key'
+        x_api_key: 'fake-x-api-key'
       )
       headers = client.get_headers(base_headers)
       expect(headers['Content-Type']).to eq('application/json')
-      expect(headers['x-api-key']).to eq('test-api-key')
+      expect(headers['x-api-key']).to eq('fake-x-api-key')
     end
 
     it 'returns base headers when use_new_api is false' do
       base_headers = { 'Content-Type' => 'application/json' }
       allow(Settings.mhv.rx).to receive_messages(
         use_new_api: false,
-        x_api_key: 'test-api-key',
-        app_token_va_gov: 'va_gov_token'
+        x_api_key: 'fake-x-api-key',
+        app_token: 'va_gov_token'
       )
       headers = client.get_headers(base_headers)
       expect(headers['Content-Type']).to eq('application/json')

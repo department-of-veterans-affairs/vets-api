@@ -8,6 +8,10 @@ module Vet360
   module Writeable
     extend ActiveSupport::Concern
 
+    PROFILE_AUDIT_LOG_TYPES = { email: :update_email_address,
+                                address: :update_mailing_address,
+                                telephone: :update_phone_number }.with_indifferent_access.freeze
+
     # For the passed VAProfile model type and params, it:
     #   - builds and validates a VAProfile models
     #   - POSTs/PUTs the model data to VAProfile
@@ -22,7 +26,11 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
+      if Settings.vsp_environment == 'staging'
+        Rails.logger.info("ContactInformationV2 #{type} #{http_verb} Request Initiated")
+      end
       response = write_valid_record!(http_verb, type, record)
+      create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES[type].present?
       render_new_transaction!(type, response)
     end
 
@@ -40,6 +48,13 @@ module Vet360
       # This needs to be refactored after V2 upgrade is complete
       if type == 'address' && Flipper.enabled?(:remove_pciu, @current_user)
         model = 'VAProfile::Models::V3::Address'
+
+        # Validation Key was deprecated with ContactInformationV2
+        Rails.logger.info("Params: #{params}") if Settings.vsp_environment == 'staging'
+
+        params[:override_validation_key] ||= params[:validation_key]
+        params[:validation_key] ||= params[:override_validation_key]
+
         # Ensures the address_pou is valid
         params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
       else
@@ -48,6 +63,11 @@ module Vet360
       model.constantize
            .new(params)
            .set_defaults(@current_user)
+    end
+
+    def create_user_audit_log(type)
+      UserAudit.logger.success(event: PROFILE_AUDIT_LOG_TYPES[type],
+                               user_verification: @current_user.user_verification)
     end
 
     def validate!(record)

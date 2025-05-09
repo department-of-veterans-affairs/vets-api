@@ -22,7 +22,7 @@ module BGS
       @proc_id = vnp_proc_id(saved_claim)
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
-      @proc_state = 'Ready' if user.auto674.present?
+      @proc_state = 'Ready'
     end
 
     def submit(payload)
@@ -34,7 +34,7 @@ module BGS
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
-      if @user.auto674.blank? || @saved_claim.submittable_686?
+      if @saved_claim.submittable_686?
         set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
       end
@@ -133,7 +133,7 @@ module BGS
     end
 
     def vnp_proc_id(saved_claim)
-      set_to_manual = @user.auto674.blank? || saved_claim.submittable_686?
+      set_to_manual = saved_claim.submittable_686?
       vnp_response = bgs_service.create_proc(proc_state: set_to_manual ? 'MANUAL_VAGOV' : 'Ready')
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],

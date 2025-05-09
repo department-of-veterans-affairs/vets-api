@@ -56,6 +56,8 @@ Rails.application.routes.draw do
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
+    get 'virtual_agent/user', to: 'virtual_agent/users#show'
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
@@ -171,7 +173,6 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
-    resources :evss_claims_async, only: %i[index show]
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
@@ -192,6 +193,8 @@ Rails.application.routes.draw do
 
     get 'ppiu/payment_information', to: 'ppiu#index'
     put 'ppiu/payment_information', to: 'ppiu#update'
+
+    post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
 
     resources :maintenance_windows, only: [:index]
 
@@ -438,7 +441,6 @@ Rails.application.routes.draw do
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
-  mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
