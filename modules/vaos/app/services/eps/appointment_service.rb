@@ -13,9 +13,13 @@ module Eps
     def get_appointment(appointment_id:, retrieve_latest_details: false)
       query_params = retrieve_latest_details ? '?retrieveLatestDetails=true' : ''
 
-      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {}, headers)
+      response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
+                         request_headers)
       log_response(response, 'EPS Get Appointment')
-      OpenStruct.new(response.body)
+
+      data = parse_response_body(response.body)
+      Rails.logger.info("EPS Get Appointment - Data: #{data}")
+      OpenStruct.new(data)
     end
 
     ##
@@ -25,9 +29,11 @@ module Eps
     #
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
-                         {}, headers)
+                         {}, request_headers)
       log_response(response, 'EPS Get Appointments')
-      appointments = response.body[:appointments]
+
+      data = parse_response_body(response.body)
+      appointments = data[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
       OpenStruct.new(data: merged_appointments)
     end
@@ -39,9 +45,11 @@ module Eps
     #
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referralId: referral_id }, headers)
+                         { patientId: patient_id, referralId: referral_id }, request_headers)
       log_response(response, 'EPS Create Draft Appointment')
-      OpenStruct.new(response.body)
+
+      data = parse_response_body(response.body)
+      OpenStruct.new(data)
     end
 
     ##
@@ -69,9 +77,11 @@ module Eps
       payload = build_submit_payload(params)
 
       EpsAppointmentWorker.perform_async(appointment_id, user)
-      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, headers)
+      response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
       log_response(response, 'EPS Submit Appointment')
-      OpenStruct.new(response.body)
+
+      data = parse_response_body(response.body)
+      OpenStruct.new(data)
     end
 
     private
