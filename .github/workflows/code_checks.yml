@@ -156,14 +156,35 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
       
-      - name: Upload Test Artifacts
+      - name: Upload Test Artifacts (log)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Artifacts (log directory)
+          path: |
+            log
+            !log/*.xml
+          if-no-files-found: ignore
+          retention-days: 1
+      
+      - name: Upload Test Artifacts (rails tmp)
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: Test Artifacts (tmp directory)
+          name: Test Artifacts (rails tmp directory)
           path: tmp
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Upload Test Artifacts (system tmp)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Artifacts (system tmp directory)
+          path: /tmp
+          if-no-files-found: ignore
+          retention-days: 1
+  
 
 
   update_labels:
