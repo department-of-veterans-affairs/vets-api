@@ -30,13 +30,13 @@ module PdfFill
         },
         'veteranSocialSecurityNumber' => {
           'first' => {
-            key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]'
+            key: 'F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
           },
           'second' => {
-            key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_SecondTwoNumbers[0]'
+            key: 'F[0].Page_1[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]'
           },
           'third' => {
-            key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_LastFourNumbers[0]'
+            key: 'F[0].Page_1[0].VeteransSocialSecurityNumber_LastFourNumbers[0]'
           }
         },
         'vaFileNumber' => {
@@ -54,54 +54,55 @@ module PdfFill
           }
         },
         'veteranServiceNumber' => {
-          key: 'F[0].Page_1[0].VeteransServiceNumber[0]'
+          key: 'F[0].Page_1[0].VeteransServiceNumber_If_Applicable[0]'
         },
         'veteranAddress' => {
           question_num: 6,
           question_text: 'MAILING ADDRESS',
 
           'street' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
+            key: 'F[0].Page_1[0].MailingAddress_NumberAndStreet[0]',
             limit: 30,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'Number and Street'
           },
           'street2' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            key: 'F[0].Page_1[0].MailingAddress_ApartmentOrUnitNumber[0]',
             limit: 5,
             question_num: 6,
             question_suffix: 'B',
             question_text: 'Apartment or Unit Number'
           },
           'city' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_City[0]',
+            key: 'F[0].Page_1[0].MailingAddress_City[0]',
             limit: 18,
             question_num: 6,
             question_suffix: 'C',
             question_text: 'City'
           },
           'state' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]'
+            key: 'F[0].Page_1[0].MailingAddress_StateOrProvince[0]'
           },
           'country' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]',
+            key: 'F[0].Page_1[0].MailingAddress_Country[0]',
             limit: 2
           },
           'postalCode' => {
             'firstFive' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
+              key: 'F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
             },
             'lastFour' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
+              key: 'F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
             }
           }
         },
         'email' => {
-          key: 'F[0].Page_1[0].EMAIL[0]'
+          key: 'F[0].Page_1[0].E_Mail_Address[0]'
         },
+        # TODO: 2018 form had one field for phone number, the 2024 form has 3 fields. Need to create a object similar to social security.
         'veteranPhone' => {
-          key: 'F[0].Page_1[0].EMAIL[1]'
+          key: 'F[0].Page_1[0].E_Mail_Address[1]'
         },
         'veteranSocialSecurityNumber1' => {
           'first' => {
@@ -120,28 +121,31 @@ module PdfFill
           question_text: 'Limited Consent',
           key: 'F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]'
         },
+        # NOTE: Signature field is not populating F[0].#subform[1].SignatureField11[0]
         'signature' => {
-          key: 'F[0].#subform[1].CLAIMANT_SIGNATURE[0]'
+          key: 'F[0].#subform[1].SignatureField11[0]'
         },
+        # TODO: 2018 form had one field for signature date, the 2024 form has 3 fields. Need to create a object similar to social security.
         'signatureDate' => {
           key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]',
           format: 'date'
         },
+        # TODO: 2018 form had one field for printed name, the 2024 form has 3 fields. Need to create a object similar to social security.
         'printedName' => {
           key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
         },
         'veteranFullName1' => {
           'first' => {
-            key: 'F[0].#subform[8].VeteranFirstName[0]',
+            key: 'F[0].#subform[14].VeteranFirstName[0]',
             limit: 12,
             question_num: 17,
             question_text: "4142a VETERAN/BENEFICIARY'S FIRST NAME"
           },
           'middleInitial' => {
-            key: 'F[0].#subform[8].VeteranMiddleInitial1[0]'
+            key: 'F[0].#subform[14].VeteranMiddleInitial1[0]'
           },
           'last' => {
-            key: 'F[0].#subform[8].VeteranLastName[0]',
+            key: 'F[0].#subform[14].VeteranLastName[0]',
             limit: 18,
             question_num: 17,
             question_text: "4142a VETERAN/BENEFICIARY'S LAST NAME"
@@ -149,41 +153,42 @@ module PdfFill
         },
         'veteranSocialSecurityNumber2' => {
           'first' => {
-            key: 'F[0].#subform[8].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]'
+            key: 'F[0].#subform[14].SSN1[0]'
           },
           'second' => {
-            key: 'F[0].#subform[8].ClaimantsSocialSecurityNumber_SecondTwoNumbers[0]'
+            key: 'F[0].#subform[14].SSN2[0]'
           },
           'third' => {
-            key: 'F[0].#subform[8].ClaimantsSocialSecurityNumber_LastFourNumbers[0]'
+            key: 'F[0].#subform[14].SSN3[0]'
           }
         },
+        # NOTE: This is field is not populating F[0].#subform[14].VAFileNumber[0] is the new field in the 2024 form
         'vaFileNumber1' => {
-          key: 'F[0].#subform[8].VAFileNumber[0]'
+          key: 'F[0].#subform[14].VAFileNumber[0]'
         },
         'veteranDateOfBirth1' => {
           'month' => {
-            key: 'F[0].#subform[8].DOBmonth[0]'
+            key: 'F[0].#subform[14].Month[0]'
           },
           'day' => {
-            key: 'F[0].#subform[8].DOBday[0]'
+            key: 'F[0].#subform[14].Day[0]'
           },
           'year' => {
-            key: 'F[0].#subform[8].DOByear[0]'
+            key: 'F[0].#subform[14].Year[0]'
           }
         },
         'veteranServiceNumber1' => {
-          key: 'F[0].#subform[8].VeteransServiceNumber[0]'
+          key: 'F[0].#subform[14].VeteransServiceNumber_If_Applicable[0]'
         },
         'veteranSocialSecurityNumber3' => {
           'first' => {
-            key: 'F[0].#subform[9].VeteransSocialSecurityNumber_FirstThreeNumbers[1]'
+            key: 'F[0].#subform[14].FirstThreeNumbers[0]'
           },
           'second' => {
-            key: 'F[0].#subform[9].VeteransSocialSecurityNumber_SecondTwoNumbers[1]'
+            key: 'F[0].#subform[14].SecondTwoNumbers[0]'
           },
           'third' => {
-            key: 'F[0].#subform[9].VeteransSocialSecurityNumber_LastFourNumbers[1]'
+            key: 'F[0].#subform[14].LastFourNumbers[0]'
           }
         },
         'providerFacility' => {
@@ -192,7 +197,7 @@ module PdfFill
           question_text: 'PROVIDER / FACILITY',
 
           'providerFacilityName' => {
-            key: "F[0].provider.name[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.Provider_Or_Facility_Name[#{PROVIDER_ITERATOR}]"
           },
           'dateRangeStart0' => {
             key: "F[0].provider.dateRangeStart0[#{PROVIDER_ITERATOR}]",
