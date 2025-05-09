@@ -35,5 +35,18 @@ module Pensions
     def callback_klass
       Pensions::NotificationCallback.to_s
     end
+
+    # assemble the metadata to be sent with the notification
+    # Change 'saved_claim_id' to 'claim_id' in the metadata
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_metadata
+    def callback_metadata
+      {
+        form_id: claim.form_id,
+        claim_id: claim.id,
+        service_name: vanotify_service,
+        email_type:,
+        email_template_id:
+      }
+    end
   end
 end
