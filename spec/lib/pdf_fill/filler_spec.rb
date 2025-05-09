@@ -74,7 +74,6 @@ describe PdfFill::Filler, type: :model do
 
             it 'fills the form correctly' do
               if type == 'overflow'
-                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
                   the_extras_generator = extras_generator
@@ -89,19 +88,18 @@ describe PdfFill::Filler, type: :model do
 
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
 
+              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
+
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-                fixture_pdf = extras_redesign ? 'overflow_redesign_extras.pdf' : 'overflow_extras.pdf'
-                expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/#{fixture_pdf}")
-                ).to be(true)
+                fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+                expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
               end
 
-              expect(
-                pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              ).to be(true)
+              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
+              expect(file_path).to match_pdf_fields(fixture_pdf)
 
               File.delete(file_path)
             end
