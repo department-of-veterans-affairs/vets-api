@@ -1909,7 +1909,6 @@ spec/support/model_helpers.rb @department-of-veterans-affairs/va-api-engineers @
 spec/support/mpi @department-of-veterans-affairs/octo-identity
 spec/support/mr_client_helpers.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/pdf_fill_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/poa_stub.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/ppiu @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/rakelib/users_serialized.json @department-of-veterans-affairs/octo-identity
