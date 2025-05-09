@@ -36,4 +36,30 @@ RSpec.describe EVSSClaimDocument do
       end
     end
   end
+
+  describe '#to_serializable_hash' do
+    it 'does not return file_obj' do
+
+      f = Tempfile.new(['file with spaces', '.txt'])
+      f.write('test')
+      f.rewind
+      rack_file = Rack::Test::UploadedFile.new(f.path, 'text/plain')
+
+      upload_file = ActionDispatch::Http::UploadedFile.new(
+        tempfile: rack_file.tempfile,
+        filename: rack_file.original_filename,
+        type: rack_file.content_type
+      )
+
+      document = EVSSClaimDocument.new(
+        evss_claim_id: 1,
+        tracked_item_id: 1,
+        file_obj: upload_file,
+        file_name: File.basename(upload_file.path)
+      )
+
+      expect(document.to_serializable_hash.keys).not_to include(:file_obj)
+      expect(document.to_serializable_hash.keys).not_to include('file_obj')
+    end
+  end
 end

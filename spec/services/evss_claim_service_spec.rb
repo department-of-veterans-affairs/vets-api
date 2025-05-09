@@ -80,7 +80,7 @@ RSpec.describe EVSSClaimService do
         f = Tempfile.new(['file with spaces', '.txt'])
         f.write('test')
         f.rewind
-        rack_file = Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+        rack_file = Rack::Test::UploadedFile.new(f.path, 'text/plain')
 
         ActionDispatch::Http::UploadedFile.new(
           tempfile: rack_file.tempfile,
