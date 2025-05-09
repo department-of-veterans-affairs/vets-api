@@ -19,36 +19,9 @@ module Common
     end
 
     def sign_assertion
-      # Log the claims that will be encoded
-      current_claims = claims # Capture to avoid calling multiple times if it's expensive/has side effects
-      puts "======== Common::JwtWrapper#sign_assertion DEBUG START ========"
-      puts "[DEBUG] Claims to be encoded: #{current_claims.inspect}"
-      puts "[DEBUG] Configured client_id from settings: '#{settings.client_id}'" # Re-verify this
-      
-      encoded_jwt = JWT.encode(current_claims, rsa_key, SIGNING_ALGORITHM, jwt_headers)
-      
-      puts "[DEBUG] Generated signed_assertion (JWT): #{encoded_jwt}"
-      puts "[DEBUG] You can decode this JWT at https://jwt.io to inspect its payload."
-      puts "[DEBUG] Look for 'iss' (issuer) or 'sub' (subject) claims for your client_id."
-      puts "======== Common::JwtWrapper#sign_assertion DEBUG END ========"
-      
-      encoded_jwt # Return the original value
+      JWT.encode(claims, rsa_key, SIGNING_ALGORITHM, jwt_headers)
     rescue ConfigurationError => e
-      puts "======== Common::JwtWrapper#sign_assertion CONFIGURATION ERROR ========"
-      puts "[DEBUG] Error details: #{e.message}"
-      if e.respond_to?(:errors) && e.errors.present?
-        e.errors.each { |err| puts "[DEBUG]   Error Source Detail: #{err.try(:detail) || err.inspect}" }
-      end
-      puts "======== Common::JwtWrapper#sign_assertion DEBUG END (CONFIGURATION ERROR) ========"
-      # Re-raise the original error type to ensure normal error handling proceeds
       raise VAOS::Exceptions::ConfigurationError.new(e, @config.service_name)
-    rescue StandardError => e
-      puts "======== Common::JwtWrapper#sign_assertion UNEXPECTED ERROR ========"
-      puts "[DEBUG] Error type: #{e.class}"
-      puts "[DEBUG] Error message: #{e.message}"
-      puts "[DEBUG] Backtrace: #{e.backtrace.take(5).join("\n")}"
-      puts "======== Common::JwtWrapper#sign_assertion DEBUG END (UNEXPECTED ERROR) ========"
-      raise # Re-raise
     end
 
     def rsa_key
