@@ -5,12 +5,6 @@ module AccreditedRepresentativePortal
     include PowerOfAttorneyRequestResolution::Resolving
 
     class << self
-      def create_expiration!(**attrs)
-        create_with_resolution!(**attrs)
-      end
-
-      private
-
       def create_with_resolution!(**resolution_attrs)
         PowerOfAttorneyRequestResolution.create_with_resolving!(
           resolving: new,
