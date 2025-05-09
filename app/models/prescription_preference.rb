@@ -14,7 +14,7 @@ class PrescriptionPreference
   include Vets::Model
 
   attribute :email_address, String
-  attribute :rx_flag, Bool, default: false
+  attribute :rx_flag, Bool
 
   validates :rx_flag, inclusion: { in: [true, false] }
   validates(

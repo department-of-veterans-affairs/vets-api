@@ -62,7 +62,7 @@ class Prescription
   attribute :is_refillable, Bool, filterable: %w[eq not_eq]
   attribute :is_trackable, Bool, filterable: %w[eq not_eq]
   attribute :cmop_division_phone, String
-  attribute :metadata, Hash, default: -> { {} }
+  attribute :metadata, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
 
   default_sort_by prescription_name: :asc
 
