@@ -99,9 +99,9 @@ module VAProfile
             vet360_id: body['vet360_id'] || body['va_profile_id'],
             va_profile_id: body['va_profile_id'] || body['vet360_id'],
             zip_code: body['zip_code5'],
-            zip_code_suffix: body['zip_code4']
-            override_validation_key: body['override_validation_key'] || body['validation_key'],  # Remove after ContactInformation V2 production release
-            validation_key: body['override_validation_key'] || body['validation_key'] # Remove after ContactInformation V2 production release
+            zip_code_suffix: body['zip_code4'],
+            override_validation_key: body['override_validation_key'] || body['validation_key'],
+            validation_key: body['override_validation_key'] || body['validation_key']
           )
         end
         # rubocop:enable Metrics/MethodLength
