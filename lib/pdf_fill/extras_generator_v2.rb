@@ -346,6 +346,10 @@ module PdfFill
       super()
     end
 
+    def placeholder_text
+      'See attachment'
+    end
+
     def set_font(pdf)
       register_source_sans_font(pdf)
       pdf.font('SourceSansPro')
