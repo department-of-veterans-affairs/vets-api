@@ -13,16 +13,17 @@ module ClaimsApi
 
       sidekiq_options retry: false
 
-      LOG_TAG = 'poa_v1_pdf_gen_fixup_job'.freeze
+      LOG_TAG = 'poa_v1_pdf_gen_fixup_job'
 
       # Generate a 21-22 or 21-22a form for a given POA request.
       # Uploads the generated form to VBMS or BD.
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
       def perform(power_of_attorney_id, action = 'post', form_number = nil) # rubocop:disable Metrics/MethodLength
-         unless Flipper.enabled?(:claims_api_poa_v1_pdf_gen_fixup_job)
-           ClaimsApi::Logger.log(LOG_TAG, detail: "Skipping pdf re-upload of POA #{power_of_attorney_id}. Flipper disabled.")
-           return
-         end
+        unless Flipper.enabled?(:claims_api_poa_v1_pdf_gen_fixup_job)
+          ClaimsApi::Logger.log(LOG_TAG,
+                                detail: "Skipping pdf re-upload of POA #{power_of_attorney_id}. Flipper disabled.")
+          return
+        end
 
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
@@ -89,7 +90,7 @@ module ClaimsApi
       end
 
       def poa_code_in_organization?(poa_code)
-        ::Veteran::Service::Organization.find_by(poa: poa_code).present?
+        ::Veteran::Service::Organization.exists?(poa: poa_code)
       end
     end
   end
