@@ -66,15 +66,7 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
         get '/my_health/v1/medical_records/ccd/generate'
 
         expect(response).to have_http_status(:internal_server_error)
-
-        expect(aal_client).to have_received(:create_aal).with(
-          hash_including(
-            activity_type: 'Download',
-            action: 'Download My VA Health Summary',
-            performer_type: 'Self',
-            status: 0
-          )
-        )
+        expect_aal_download_error_logged
       end
     end
 
@@ -97,15 +89,7 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
         end
 
         expect(response).to have_http_status(:internal_server_error)
-
-        expect(aal_client).to have_received(:create_aal).with(
-          hash_including(
-            activity_type: 'Download',
-            action: 'Download My VA Health Summary',
-            performer_type: 'Self',
-            status: 0
-          )
-        )
+        expect_aal_download_error_logged
       end
 
       it 'returns 400 and logs an AAL error when date is missing' do
@@ -118,16 +102,21 @@ RSpec.describe MyHealth::V1::MedicalRecords::CcdController, type: :request do
         end
 
         expect(response).to have_http_status(:bad_request)
-
-        expect(aal_client).to have_received(:create_aal).with(
-          hash_including(
-            activity_type: 'Download',
-            action: 'Download My VA Health Summary',
-            performer_type: 'Self',
-            status: 0
-          )
-        )
+        expect_aal_download_error_logged
       end
+    end
+
+    def expect_aal_download_error_logged
+      expect(aal_client).to have_received(:create_aal).with(
+        hash_including(
+          activity_type: 'Download',
+          action: 'Download My VA Health Summary',
+          performer_type: 'Self',
+          status: 0
+        ),
+        false,
+        anything # unique session ID could be different things depending on how it's implemented
+      )
     end
   end
 end
