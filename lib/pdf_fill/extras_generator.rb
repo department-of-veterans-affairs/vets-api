@@ -6,6 +6,10 @@ module PdfFill
       @generate_blocks = []
     end
 
+    def placeholder_text
+      "See add'l info page"
+    end
+
     def create_block(value, metadata)
       lambda do |pdf|
         pdf.move_down(10)
