@@ -83,7 +83,9 @@ module Vets
 
     # previously find_first_by on Common::Collection
     def find_by(conditions = {})
-      Vets::Collections::Finder.new(data: @records).first(conditions)
+      result = Vets::Collections::Finder.new(data: @records).first(conditions)
+      result.metadata = self.metadata if result.respond_to?(:metadata)
+      result
     end
 
     def paginate(page: nil, per_page: nil)
