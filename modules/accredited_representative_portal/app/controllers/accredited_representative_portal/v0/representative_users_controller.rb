@@ -18,8 +18,8 @@ module AccreditedRepresentativePortal
             lastName: @current_user.last_name,
             verified: @current_user.user_account.verified?,
             loa: {
-             current: @current_user.loa[:current],
-             highest: @current_user.loa[:highest]
+              current: @current_user.loa[:current],
+              highest: @current_user.loa[:highest]
             },
             signIn: {
               serviceName: @current_user.sign_in[:service_name]
