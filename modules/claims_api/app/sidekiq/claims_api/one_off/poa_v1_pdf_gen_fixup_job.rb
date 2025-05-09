@@ -11,14 +11,19 @@ module ClaimsApi
     class PoaV1PdfGenFixupJob < ClaimsApi::ServiceBase
       include ClaimsApi::PoaVbmsSidekiq
 
-      sidekiq_options retry: 5 # Retry for ~10 mins
+      sidekiq_options retry: false
+
+      LOG_TAG = 'poa_v1_pdf_gen_fixup_job'.freeze
 
       # Generate a 21-22 or 21-22a form for a given POA request.
-      # Uploads the generated form to VBMS or BD. If successfully uploaded,
-      # it queues a job to update the POA code in BGS, as well.
-      #
+      # Uploads the generated form to VBMS or BD.
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, action, form_number = nil) # rubocop:disable Metrics/MethodLength
+      def perform(power_of_attorney_id, action = 'post', form_number = nil) # rubocop:disable Metrics/MethodLength
+         unless Flipper.enabled?(:claims_api_poa_v1_pdf_gen_fixup_job)
+           ClaimsApi::Logger.log(LOG_TAG, detail: "Skipping pdf re-upload of POA #{power_of_attorney_id}. Flipper disabled.")
+           return
+         end
+
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
@@ -38,7 +43,7 @@ module ClaimsApi
       rescue ClaimsApi::StampSignatureError => e
         signature_errors = (power_of_attorney.signature_errors || []).push(e.detail)
         power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors:)
-        ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'Prawn Signature Error')
+        ClaimsApi::Logger.log(LOG_TAG, poa_id: power_of_attorney_id, detail: 'Prawn Signature Error')
       rescue => e
         rescue_generic_errors(power_of_attorney, e)
         raise

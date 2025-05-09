@@ -102,6 +102,16 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
       end
     end
 
+    it 'skips running if flipper is disabled. Logs the skip.' do
+      Flipper.disable(:claims_api_poa_v1_pdf_gen_fixup_job)
+      expect(ClaimsApi::Logger).to receive(:log).with(
+        described_class::LOG_TAG,
+        detail: "Skipping pdf re-upload of POA #{power_of_attorney.id}. Flipper disabled."
+      )
+      expect(ClaimsApi::PowerOfAttorney).not_to receive(:find)
+      subject.new.perform(power_of_attorney.id, action: 'post')
+    end
+
     context 'when signature has prefix' do
       before do
         create(:veteran_representative, representative_id: '67890', poa_codes: ['ABC']).save!
