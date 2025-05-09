@@ -157,7 +157,7 @@
   "form526_uploads": null,
   "form4142": {
     "privacyAgreementAccepted": true,
-    "limitedConsent": "true",
+    "limitedConsent": "Test data for limiting consent",
     "providerFacility": [
       {
         "providerFacilityName": "provider 1",
@@ -269,7 +269,7 @@
     "veteranSocialSecurityNumber": "796068949",
     "veteranFullName": {
       "first": "Beyonce",
-      "middle": null,
+      "middle": "L",
       "last": "Knowles"
     },
     "veteranDateOfBirth": "1809-02-12",
@@ -283,7 +283,7 @@
     },
     "email": "test@email.com",
     "veteranPhone": "2024561111",
-    "veteranServiceNumber": ""
+    "veteranServiceNumber": "23784678"
   },
   "form0781": null,
   "form8940": null
