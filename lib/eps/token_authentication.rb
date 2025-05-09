@@ -30,7 +30,7 @@ module Eps
           # Perform the POST request with params in URL and an empty body
           perform(:post,
                   url_with_params,
-                  nil, # Body is nil as params are in the URL
+                  '', # Body is nil as params are in the URL
                   token_request_headers_for_curl)
         end
       end
