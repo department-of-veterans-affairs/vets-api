@@ -39,7 +39,6 @@ RSpec.describe EVSSClaimDocument do
 
   describe '#to_serializable_hash' do
     it 'does not return file_obj' do
-
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
       f.rewind
