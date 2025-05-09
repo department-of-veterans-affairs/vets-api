@@ -653,14 +653,14 @@
       "paymentWillNotResumeOverflow": "YES"
     }
   ],
-  "unassociatedIncome": "YES",
+  "unassociatedIncome": 0,
   "associatedIncome": 0,
   "ownedAsset": 0,
   "royaltiesAndOtherProperty": 0,
   "assetTransfer": 0,
   "trust": 0,
   "annuity": 0,
-  "unreportedAsset": "YES",
+  "unreportedAsset": 0,
   "discontinuedIncome": 0,
   "incomeReceiptWaiver": 0,
   "statementOfTruthSignatureDate": {

@@ -79,10 +79,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
-bip:
-  claims:
-    mock: <%= ENV['bip__claims__mock'] %>
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
@@ -579,50 +575,6 @@ hca:
     region: us-gov-west-1
   timeout: 30
 hostname: <%= ENV['hostname'] %>
-hqva_mobile:
-  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  facilities:
-    ids_path: "/facilities_api/v1/va"
-    url: <%= ENV['hqva_mobile__facilities__url'] %>
-  lighthouse:
-    claim_common_id: <%= ENV['hqva_mobile__lighthouse__claim_common_id'] %>
-    client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    condition_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token
-    grant_type: client_credentials
-    health_api: health_api
-    health_api_path: "/services/fhir/v0/r4"
-    health_api_scopes:
-    - launch launch/patient
-    - patient/Appointment.read
-    - patient/Location.read
-    - patient/Organization.read
-    - patient/Patient.read
-    - patient/Condition.read
-    - patient/Observation.read
-    - patient/Practitioner.read
-    - patient/Medication.read
-    - system/Endpoint.read
-    health_aud_claim_url: <%= ENV['hqva_mobile__lighthouse__health_aud_claim_url'] %>
-    health_token_path: "/oauth2/health/system/v1/token"
-    host: <%= ENV['hqva_mobile__lighthouse__host'] %>
-    key_path: <%= ENV['hqva_mobile__lighthouse__key_path'] %>
-    mock: <%= ENV['hqva_mobile__lighthouse__mock'] %>
-    pgd_api: pgd_api
-    pgd_api_scopes:
-    - launch launch/patient
-    - patient/Observation.read
-    - patient/Observation.write
-    - patient/Questionnaire.read
-    - patient/Questionnaire.write
-    - patient/QuestionnaireResponse.read
-    - patient/QuestionnaireResponse.write
-    pgd_aud_claim_url: <%= ENV['hqva_mobile__lighthouse__pgd_aud_claim_url'] %>
-    pgd_path: "/services/pgd/v0/r4"
-    pgd_token_path: "/oauth2/pgd/v1/token"
-    redis_session_prefix: healthquest_lighthouse
-    url: <%= ENV['hqva_mobile__lighthouse__url'] %>
-  mock: <%= ENV['hqva_mobile__mock'] %>
-  url: <%= ENV['hqva_mobile__url'] %>
 iam_ssoe:
   client_cert_path: <%= ENV['iam_ssoe__client_cert_path'] %>
   client_id: <%= ENV['iam_ssoe__client_id'] %>
@@ -739,6 +691,8 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__direct_deposit__use_mocks'] %>
   facilities:
     api_key: <%= ENV['lighthouse__facilities__api_key'] %>
+    hqva_mobile:
+      url: <%= ENV['hqva_mobile__url'] %>
     url: <%= ENV['lighthouse__facilities__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
@@ -862,6 +816,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
+    travel_pay: PO9X8XN
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
@@ -1411,6 +1366,7 @@ vanotify:
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
       template_id:
+        decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
     burials: *vanotify_services_burial
     check_in:
@@ -1442,6 +1398,7 @@ vanotify:
       template_id:
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
         fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
+        fsr_step_1_submission_in_progress_email: <%= ENV['vanotify__services__dmc__template_id__fsr_step_1_submission_in_progress_email'] %>
         fsr_streamlined_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_streamlined_confirmation_email'] %>
         vha_fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__vha_fsr_confirmation_email'] %>
         vha_new_copay_statement_email: <%= ENV['vanotify__services__dmc__template_id__vha_new_copay_statement_email'] %>
@@ -1503,7 +1460,6 @@ vanotify:
         contact_info_change: <%= ENV['vanotify__services__va_gov__template_id__contact_info_change'] %>
         covid_vaccine_registration: <%= ENV['vanotify__services__va_gov__template_id__covid_vaccine_registration'] %>
         direct_deposit: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit'] %>
-        direct_deposit_comp_pen: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_comp_pen'] %>
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
