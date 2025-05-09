@@ -41,15 +41,16 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
+      # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label
-        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
 
       - name: Remove Lint Failure label
-        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -134,11 +135,7 @@ jobs:
         id: test-status
         if: always()
         run: |
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
+          echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -155,47 +152,46 @@ jobs:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
-      
+
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: ${{ failure() }}
         with:
           name: Test Artifacts (tmp directory)
           path: tmp
           if-no-files-found: ignore
           retention-days: 14
 
-
   update_labels:
     name: Update Test Status Labels
     needs: tests
-    if: always() && github.event_name == 'pull_request'
+    if: ${{ always() && github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
       - name: Remove Test Failure label
-        if: needs.tests.outputs.status == 'success' && contains(github.event.pull_request.labels.*.name, 'test-failure')
+        if: ${{ needs.tests.outputs.status == 'success' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
 
       - name: Add Test Failure label
-        if: needs.tests.outputs.status == 'failure'
+        if: ${{ needs.tests.outputs.status == 'failure' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
 
       - name: Remove Test Passing label
-        if: needs.tests.outputs.status == 'failure' && contains(github.event.pull_request.labels.*.name, 'test-passing')
+        if: ${{ needs.tests.outputs.status == 'failure' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-passing
 
       - name: Add Test Passing label
-        if: needs.tests.outputs.status == 'success'
+        if: ${{ needs.tests.outputs.status == 'success' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -225,7 +221,7 @@ jobs:
 
       - name: Publish Coverage Report
         uses: devmasx/coverage-check-action@v1.2.0
-        if: hashFiles('Coverage Report/.last_run.json') != ''
+        if: ${{ hashFiles('Coverage Report/.last_run.json') != '' }}
         with:
           type: simplecov
           result_path: Coverage Report/.last_run.json
