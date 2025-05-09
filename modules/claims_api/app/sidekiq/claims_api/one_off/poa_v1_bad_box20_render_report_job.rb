@@ -3,7 +3,7 @@
 module ClaimsApi
   module OneOff
     class PoaV1BadBox20RenderReportJob < ClaimsApi::ServiceBase
-      sidekiq_options expires_in: 1.hour, retry: true, unique_until: :success
+      sidekiq_options retry: 5 # Retry for ~10 mins
       LOG_TAG = 'claims_api_poa_box20_report_job'
 
       # rubocop:disable Metrics/MethodLength
@@ -43,7 +43,7 @@ module ClaimsApi
         ClaimsApi::Logger.log LOG_TAG, detail: 'Sending email'
         # rubocop:disable Rails/I18nLocaleTexts
         ApplicationMailer.new.mail(to: emails, subject: 'POA v1 Bad Box20 PDF Render Report', content_type: 'text/html',
-                                   body: memo).deliver_now!
+                                   body: memo).deliver
         # rubocop:enable Rails/I18nLocaleTexts
         ClaimsApi::Logger.log LOG_TAG, detail: 'Email sent. Job complete.'
       rescue => e
