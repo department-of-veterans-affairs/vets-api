@@ -9,7 +9,7 @@ module Lighthouse
     class FailureNotificationEmailJob
       include Sidekiq::Job
       include SentryLogging
-      # Job runs daily with 0 retiries
+      # Job runs daily with 0 retries
       sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
       MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email

@@ -12,6 +12,7 @@ module VAProfile
       class AddressSuggestionsResponse
         def initialize(candidate_res)
           override_validation_key = candidate_res['override_validation_key']
+          validation_key = override_validation_key
           @response = {
             addresses: candidate_res['candidate_addresses'].map do |address_suggestion_hash|
               {
@@ -23,7 +24,8 @@ module VAProfile
                 ).to_h
               }
             end,
-            override_validation_key:
+            override_validation_key:,
+            validation_key:
           }
         end
 

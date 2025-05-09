@@ -53,7 +53,6 @@ module VAProfile
           }
 
           address_attributes[:overrideValidationKey] = @override_validation_key if @override_validation_key.present?
-
           address_attributes[:badAddress] = false if correspondence?
 
           {
