@@ -17,5 +17,4 @@ class Tracking
   attribute :other_prescriptions, Hash, array: true
 
   default_sort_by shipped_date: :desc
-
 end

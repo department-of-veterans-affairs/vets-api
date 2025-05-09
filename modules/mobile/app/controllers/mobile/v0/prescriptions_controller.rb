@@ -87,11 +87,11 @@ module Mobile
         # Remove Partial Fill (PF) and/or Pending Pescriptions (PD)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
         resource.records = if params[:filter].blank? && display_pending_meds
-                          resource.data.reject { |item| item.prescription_source.equal? 'PF' }
-                        else
-                          # TODO: remove this line when PF and PD are allowed on the app
-                          resource.records = remove_pf_pd(resource.data)
-                        end
+                             resource.data.reject { |item| item.prescription_source.equal? 'PF' }
+                           else
+                             # TODO: remove this line when PF and PD are allowed on the app
+                             resource.records = remove_pf_pd(resource.data)
+                           end
 
         # Remove Non-VA (NV) medications
         # TODO: Update once active Non-VA meds have been whitelisted for the app

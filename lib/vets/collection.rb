@@ -84,7 +84,7 @@ module Vets
     # previously find_first_by on Common::Collection
     def find_by(conditions = {})
       result = Vets::Collections::Finder.new(data: @records).first(conditions)
-      result.metadata = self.metadata if result.respond_to?(:metadata)
+      result.metadata = metadata if result.respond_to?(:metadata)
       result
     end
 
@@ -133,7 +133,7 @@ module Vets
     end
 
     def normalize_clauses(input)
-      input = @model_class.default_sort_criteria unless input.present?
+      input = @model_class.default_sort_criteria if input.blank?
       case input
       when String
         input.split(',').map(&:strip).each_with_object({}) do |clause, hash|
