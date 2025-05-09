@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/v1/bluebutton/healthsummary/1012740022V620959/TESTUSER/xml"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 06 May 2025 13:33:20 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '203'
+      X-Amzn-Requestid:
+      - 54a35039-d404-451f-a8ad-8209b2200a3a
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - KJdhLGa6PHMFaoA=
+      X-Amzn-Remapped-Date:
+      - Tue, 06 May 2025 13:33:20 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"dateGenerated":"2025-05-06T09:26:08.000-0400","status":"COMPLETE","patientId":"1012740022V620959"},{"dateGenerated":"2025-04-01T15:08:54.000-0400","status":"COMPLETE","patientId":"1012740022V620959"}]'
+  recorded_at: Tue, 06 May 2025 13:33:20 GMT
+recorded_with: VCR 6.3.1
