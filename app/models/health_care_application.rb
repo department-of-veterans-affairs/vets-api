@@ -226,7 +226,7 @@ class HealthCareApplication < ApplicationRecord
 
     begin
       user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
-    rescue Common::Exceptions::ValidationErrors
+    rescue
       # if certain user attributes are missing, we can't get an ICN
       user_icn = nil
     end
