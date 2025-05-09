@@ -50,10 +50,7 @@ module Vet360
         model = 'VAProfile::Models::V3::Address'
 
         # Validation Key was deprecated with ContactInformationV2
-        Rails.logger.info("Params: #{params}") if Settings.vsp_environment == 'staging'
-
         params[:override_validation_key] ||= params[:validation_key]
-        params[:validation_key] ||= params[:override_validation_key]
 
         # Ensures the address_pou is valid
         params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
