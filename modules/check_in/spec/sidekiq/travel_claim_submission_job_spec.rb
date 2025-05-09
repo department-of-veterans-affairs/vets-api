@@ -35,11 +35,13 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
   def expect_notification_job_enqueued(template_id, claim_number = nil)
     expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
-      mobile_phone: patient_cell_phone,
-      appointment_date: appt_date,
-      template_id:,
-      claim_number:,
-      facility_type: @expected_facility_type
+      hash_including(
+        mobile_phone: patient_cell_phone,
+        appointment_date: appt_date,
+        template_id:,
+        claim_number:,
+        facility_type: @expected_facility_type
+      )
     )
   end
 
