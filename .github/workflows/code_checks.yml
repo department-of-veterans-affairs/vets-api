@@ -55,8 +55,11 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
+
   tests:
     name: Test
+    runs-on: ubuntu-32-cores-latest
+    permissions: write-all
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -66,19 +69,19 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
-    permissions: write-all
-    runs-on: ubuntu-32-cores-latest
     outputs:
       status: ${{ steps.test-status.outputs.status }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: docker/login-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -91,9 +94,8 @@ jobs:
         with:
           mask-password: true
 
-      - name: Setup Environment
-        run: |
-          echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+      - name: Set Environment Variable
+        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -122,42 +124,41 @@ jobs:
           retry_wait_seconds: 3 # Seconds
           max_attempts: 3
           command: >
-             ${{ env.COMPOSE_BASH_CMD }}
-             "bundle exec rake parallel:setup[24]"
+            ${{ env.COMPOSE_BASH_CMD }}
+            "bundle exec rake parallel:setup[24]"
 
       - name: Run Specs
         timeout-minutes: 15
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "bundle exec rake 'parallel:spec[24, , , modules\/]'"
+          "bundle exec rake 'parallel:spec[24, , , modules/]'"
 
       - name: Set Test Status
         id: test-status
         if: always()
-        run: |
-          echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: Coverage Report
           path: coverage
           include-hidden-files: true
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
+      - name: Upload Test Results (JUnit XMLs)
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
 
-      - name: Upload Test Artifacts
+      - name: Upload tmp Artifacts on Failure
+        if: failure()
         uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
         with:
-          name: Test Artifacts (tmp directory)
+          name: Test Artifacts (tmp)
           path: tmp
           if-no-files-found: ignore
           retention-days: 14
@@ -165,37 +166,46 @@ jobs:
   update_labels:
     name: Update Test Status Labels
     needs: tests
-    if: ${{ always() && github.event_name == 'pull_request' }}
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions: write-all
+
     steps:
-      - name: Remove Test Failure label
-        if: ${{ needs.tests.outputs.status == 'success' }}
-        uses: actions-ecosystem/action-remove-labels@v1
+      - name: Update labels based on test results
+        uses: actions/github-script@v7
         with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const status = "${{ needs.tests.outputs.status }}";
 
-      - name: Add Test Failure label
-        if: ${{ needs.tests.outputs.status == 'failure' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-failure
+            const removeLabel = async (label) => {
+              try {
+                await github.rest.issues.removeLabel({
+                  ...context.repo,
+                  issue_number: prNumber,
+                  name: label,
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error; // ignore missing label
+              }
+            };
 
-      - name: Remove Test Passing label
-        if: ${{ needs.tests.outputs.status == 'failure' }}
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
+            const addLabel = async (label) => {
+              await github.rest.issues.addLabels({
+                ...context.repo,
+                issue_number: prNumber,
+                labels: [label],
+              });
+            };
 
-      - name: Add Test Passing label
-        if: ${{ needs.tests.outputs.status == 'success' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
+            if (status === 'success') {
+              await removeLabel("test-failure");
+              await addLabel("test-passing");
+            } else if (status === 'failure') {
+              await removeLabel("test-passing");
+              await addLabel("test-failure");
+            }
 
   publish_results:
     name: Publish Test Results and Coverage
