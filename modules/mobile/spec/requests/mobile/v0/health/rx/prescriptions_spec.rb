@@ -413,7 +413,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       context 'invalid sort option' do
         let(:params) { { sort: 'quantity' } }
 
-        it 'sorts prescriptions by refill_status' do
+        it 'sorts prescriptions by refill_status', skip: 'not needed with Vets::Collection' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end

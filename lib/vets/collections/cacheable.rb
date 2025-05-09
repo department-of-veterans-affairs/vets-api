@@ -28,6 +28,7 @@ module Vets
           return new(records, klass, metadata:, errors:) unless cache_key
 
           json_string = redis_namespace.get(cache_key)
+
           return build_and_cache(records, klass, metadata, errors, { cache_key:, ttl: }) if json_string.nil?
 
           from_cache(klass, json_string, cache_key)
@@ -53,7 +54,10 @@ module Vets
 
         def from_cache(klass, json_string, cache_key)
           json_hash = Oj.load(json_string)
-          new(klass, **json_hash.merge('cache_key' => cache_key).symbolize_keys)
+          data = json_hash[:data]
+          metadata = json_hash[:metadata]
+          errors = json_hash[:errors]
+          new(data, klass, metadata:, errors:, cache_key:)
         end
       end
 

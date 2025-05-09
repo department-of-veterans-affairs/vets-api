@@ -61,13 +61,13 @@ module Vets
 
     # previously sort on Common::Collection
     def order(clauses = {})
-      clauses = model_class.default_sort_criteria if clauses.to_h.empty?
+      clauses = normalize_clauses(clauses)
       validate_sort_clauses(clauses)
 
       results = @records.sort_by do |record|
         clauses.map do |attribute, direction|
-          value = record.public_send(attribute)
-          direction == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
+          value = record.public_send(attribute.to_sym)
+          direction.to_sym == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
         end
       end
 
@@ -105,16 +105,16 @@ module Vets
     private
 
     def validate_sort_clauses(clauses)
-      raise ArgumentError, 'Order must have at least one sort clause' if clauses.empty?
+      raise Common::Exceptions::InvalidSortCriteria.new(@model_class, clauses) if clauses.empty?
 
       clauses.each do |attribute, direction|
-        raise ArgumentError, "Attribute #{attribute} must be a symbol" unless attribute.is_a?(Symbol)
-
         unless @records.first.respond_to?(attribute)
-          raise ArgumentError, "Attribute #{attribute} does not exist on the model"
+          raise Common::Exceptions::InvalidSortCriteria.new(@model_class, attribute)
         end
 
-        raise ArgumentError, "Direction #{direction} must be :asc or :desc" unless %i[asc desc].include?(direction)
+        unless %i[asc desc].include?(direction)
+          raise Common::Exceptions::InvalidSortCriteria.new(@model_class, attribute)
+        end
       end
     end
 
@@ -130,6 +130,30 @@ module Vets
 
     def max_per_page
       @model_class.try(:max_per_page) || DEFAULT_MAX_PER_PAGE
+    end
+
+    def normalize_clauses(input)
+      input = @model_class.default_sort_criteria unless input.present?
+      case input
+      when String
+        input.split(',').map(&:strip).each_with_object({}) do |clause, hash|
+          normalize_clause_string(clause, hash)
+        end
+      when Array
+        input.each_with_object({}) do |clause, hash|
+          normalize_clause_string(clause, hash)
+        end
+      when Hash
+        input.transform_keys(&:to_sym).transform_values(&:to_sym)
+      end
+    end
+
+    def normalize_clause_string(clause, hash)
+      if clause.start_with?('-')
+        hash[clause[1..].to_sym] = :desc
+      else
+        hash[clause.to_sym] = :asc
+      end
     end
   end
 end

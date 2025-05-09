@@ -35,6 +35,8 @@ class PrescriptionDetails < Prescription
   attribute :front_imprint, String
   attribute :grouped_medications, String, array: true
 
+  default_sort_by prescription_name: :asc
+
   def rx_rf_records=(records)
     @rx_rf_records = records&.dig(0, 1)
   end

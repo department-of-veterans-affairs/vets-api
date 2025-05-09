@@ -12,7 +12,7 @@ module Mobile
         resource.records = resource_data_modifications(resource)
         resource = resource.where(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
-        page_resource, page_meta_data = paginate(resource.attributes)
+        page_resource, page_meta_data = paginate(resource.records)
 
         page_meta_data[:meta].merge!(status_meta(resource))
 
@@ -50,7 +50,7 @@ module Mobile
 
       def status_meta(resource)
         {
-          prescription_status_count: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
+          prescription_status_count: resource.records.each_with_object(Hash.new(0)) do |obj, hash|
             hash['isRefillable'] += 1 if obj.is_refillable
 
             if obj.is_trackable || %w[active submitted providerHold activeParked
