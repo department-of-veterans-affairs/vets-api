@@ -151,10 +151,10 @@ module PdfFill
           'combat' => {
             key: 'F[0].#subform[2].Combat_Traumatic_Events[0]'
           },
-          'mst' => {
+          'nonMst' => {
             key: 'F[0].#subform[2].Personal_Traumatic_Events_Not_Involving_Military_Sexual_Trauma[0]'
           },
-          'nonMst' => {
+          'mst' => {
             key: 'F[0].#subform[2].Personal_Traumatic_Events_Involving_Military_Sexual_Trauma[0]'
           },
           'other' => {
@@ -605,21 +605,24 @@ module PdfFill
             limit: 2,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 2 digit month.'
+            question_text: 'DATE SIGNED. Enter 2 digit month.',
+            hide_from_overflow: true
           },
           'day' => {
             key: 'F[0].#subform[5].Date_Signed_Day[0]',
             limit: 2,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 2 digit day.'
+            question_text: 'DATE SIGNED. Enter 2 digit day.',
+            hide_from_overflow: true
           },
           'year' => {
             key: 'F[0].#subform[5].Date_Signed_Year[0]',
             limit: 4,
             question_num: 16,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED. Enter 4 digit Year.'
+            question_text: 'DATE SIGNED. Enter 4 digit Year.',
+            hide_from_overflow: true
           }
         }
       }.freeze
@@ -667,7 +670,7 @@ module PdfFill
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: [15]
+          question_nums: [16]
         }
       ].freeze
 
@@ -779,12 +782,15 @@ module PdfFill
       end
 
       def process_treatment_dates
-        @form_data['treatmentProvidersDetails'].each do |item|
+        @form_data['treatmentProvidersDetails']&.each do |item|
           item['noDates'] = item['treatmentMonth'].to_s.strip.empty? && item['treatmentYear'].to_s.strip.empty?
           item['treatmentDate'] = if item['noDates']
                                     'no response'
                                   else
-                                    [item['treatmentMonth'], item['treatmentYear'] || '????'].compact.join('-')
+                                    [
+                                      item['treatmentMonth'],
+                                      item['treatmentYear'].presence || '????'
+                                    ].compact_blank.join('-')
                                   end
         end
       end

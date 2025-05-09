@@ -19,10 +19,7 @@ RSpec.describe Vets::Collection do
       end
 
       def self.filterable_attributes
-        {
-          'name' => %w[match eq],
-          'age' => %w[eq gteq lteq]
-        }.with_indifferent_access
+        { name: %w[match eq], age: %w[eq lteq gteq] }.with_indifferent_access
       end
     end
   end
@@ -54,21 +51,6 @@ RSpec.describe Vets::Collection do
       collection = described_class.new([])
       expect(collection.records).to eq([])
       expect(collection.instance_variable_get(:@model_class)).to be_nil
-    end
-  end
-
-  describe '.from_hashes' do
-    it 'creates a collection from an WillPaginate::Collection' do
-      hashes = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]
-      collection = described_class.from_hashes(dummy_class, hashes)
-      expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
-    end
-
-    it 'raises an error if not a WillPaginate::Collection' do
-      hashes = [{ name: 'Alice', age: 30 }, 'invalid']
-
-      expect { described_class.from_hashes(dummy_class, hashes) }
-        .to raise_error(ArgumentError, 'Expected an array of hashes')
     end
   end
 

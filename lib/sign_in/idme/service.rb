@@ -11,13 +11,22 @@ module SignIn
       include SignIn::PublicJwks
       configuration Configuration
 
-      attr_accessor :type
+      OPTIONAL_SCOPES = [ALL_EMAILS_SCOPE = 'all_emails'].freeze
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1,
-                      operation: Constants::Auth::AUTHORIZE)
+      attr_accessor :type, :optional_scopes
+
+      def initialize(type:, optional_scopes: [])
+        @type = type
+        @optional_scopes = valid_optional_scopes(optional_scopes)
+        super()
+      end
+
+      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1, operation: Constants::Auth::AUTHORIZE)
+        scoped_acr = append_optional_scopes(acr)
         Rails.logger.info('[SignIn][Idme][Service] Rendering auth, ' \
-                          "state: #{state}, acr: #{acr}, operation: #{operation}")
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, operation)).perform
+                          "state: #{state}, acr: #{scoped_acr}, operation: #{operation}")
+
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(scoped_acr, state, operation)).perform
       end
 
       def normalized_attributes(user_info, credential_level)
@@ -84,6 +93,7 @@ module SignIn
           max_ial: credential_level.max_ial,
           service_name: type,
           csp_email: user_info.email,
+          all_csp_emails: user_info.emails_confirmed,
           multifactor: user_info.multifactor,
           authn_context: get_authn_context(credential_level.current_ial),
           auto_uplevel: credential_level.auto_uplevel
@@ -196,6 +206,16 @@ module SignIn
           client_secret: config.client_secret,
           redirect_uri: config.redirect_uri
         }.to_json
+      end
+
+      def append_optional_scopes(acr)
+        return acr unless optional_scopes.any? && acr == Constants::Auth::IDME_LOA3_FORCE
+
+        "#{acr}/#{optional_scopes.join('/')}"
+      end
+
+      def valid_optional_scopes(optional_scopes)
+        optional_scopes.to_a & OPTIONAL_SCOPES
       end
     end
   end
