@@ -181,7 +181,7 @@ jobs:
         if: always()
         with:
           name: Test Artifacts (system tmp directory)
-          path: tmp
+          path: /tmp
           if-no-files-found: ignore
           retention-days: 1
   
