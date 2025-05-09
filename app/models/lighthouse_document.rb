@@ -125,9 +125,11 @@ class LighthouseDocument < Common::Base
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
+    Rails.logger.info("Document for claim #{claim_id} is encrypted") if metadata.encrypted?
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
+    Rails.logger.info("MetadataReadError: Document for claim #{claim_id}")
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
     else
@@ -136,7 +138,7 @@ class LighthouseDocument < Common::Base
   end
 
   def set_file_extension
-    self.file_extension = file_name.split('.').last
+    self.file_extension = file_name.downcase.split('.').last
   end
 
   def normalize_text

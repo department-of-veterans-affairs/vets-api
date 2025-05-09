@@ -1528,4 +1528,43 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#provision_cerner_async' do
+    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:cerner_id) { 'some-cerner-id' }
+
+    before do
+      allow(Identity::CernerProvisionerJob).to receive(:perform_async)
+    end
+
+    context 'when the user is loa3' do
+      context 'when the user has a cerner_id' do
+        it 'enqueues a job to provision the Cerner account' do
+          user.provision_cerner_async
+
+          expect(Identity::CernerProvisionerJob).to have_received(:perform_async).with(user.icn, nil)
+        end
+      end
+
+      context 'when the user does not have a cerner_id' do
+        let(:cerner_id) { nil }
+
+        it 'does not enqueue a job to provision the Cerner account' do
+          user.provision_cerner_async
+
+          expect(Identity::CernerProvisionerJob).not_to have_received(:perform_async)
+        end
+      end
+    end
+
+    context 'when the user is not loa3' do
+      let(:user) { build(:user, cerner_id:) }
+
+      it 'does not enqueue a job to provision the Cerner account' do
+        user.provision_cerner_async
+
+        expect(Identity::CernerProvisionerJob).not_to have_received(:perform_async)
+      end
+    end
+  end
 end
