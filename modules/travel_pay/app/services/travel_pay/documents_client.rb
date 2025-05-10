@@ -28,5 +28,26 @@ module TravelPay
         end
       end
     end
+
+    ##
+    # HTTP GET call to the BTSSS 'claims/:claimId/documents/:documentId' endpoint
+    # API responds with the binary string of the document
+    #
+    # @return [TravelPay::DocumentBinary]
+    #
+    def get_document_binary(veis_token, btsss_token, params)
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      params.symbolize_keys => { claim_id:, doc_id: }
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      log_to_statsd('documents', 'get_document_binary') do
+        connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}/documents/#{doc_id}") do |req|
+          req.headers['Authorization'] = "Bearer #{veis_token}"
+          req.headers['BTSSS-Access-Token'] = btsss_token
+          req.headers['X-Correlation-ID'] = correlation_id
+          req.headers.merge!(claim_headers)
+        end
+      end
+    end
   end
 end
