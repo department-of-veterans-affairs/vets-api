@@ -21,7 +21,7 @@ module Burials
         ITERATOR = ::PdfFill::HashConverter::ITERATOR
 
         # The path to the PDF template for the form
-        TEMPLATE = "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{FORM_ID}.pdf".freeze
+        TEMPLATE = Burials::PDF_PATH
 
         # A mapping of care facilities to their labels
         PLACE_OF_DEATH_KEY = {

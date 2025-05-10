@@ -19,7 +19,7 @@ module Burials
     initializer 'burials.pdf_fill.register_form' do |app|
       app.config.to_prepare do
         require 'pdf_fill/filler'
-        require 'burials/pdf_fill/forms/va21p530ez'
+        require 'burials/pdf_fill/va21p530ez'
 
         # Register our Burial Pdf Fill form
         ::PdfFill::Filler.register_form(Burials::PdfFill::Forms::Va21p530ez::FORM_ID,
