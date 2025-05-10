@@ -482,9 +482,13 @@ class User < Common::RedisStore
   end
 
   def provision_cerner_async(source: nil)
-    return unless loa3? && cerner_id.present?
+    return unless cerner_eligible?
 
     Identity::CernerProvisionerJob.perform_async(icn, source)
+  end
+
+  def cerner_eligible?
+    loa3? && cerner_id.present?
   end
 
   def can_create_mhv_account?
