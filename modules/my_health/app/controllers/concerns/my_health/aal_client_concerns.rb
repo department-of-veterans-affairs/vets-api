@@ -47,6 +47,24 @@ module MyHealth
       aal_client.authenticate
     end
 
+    ##
+    # This method yields a block and automatically logs an AAL, capturing whether it succeeded
+    # (status = 1) or failed (status = 0). It re-raises any errors after logging so downstream error
+    # handling remains unaffected.
+    #
+    # @yield The block of code to execute and log.
+    # @return [Object] The result of the yielded block.
+    # @raise [Exception] Re-raises any exception raised within the block after logging the failure.
+    #
+    def handle_aal(activity_type, action, detail_value = nil, performer_type = 'Self')
+      response = yield
+      create_aal({ activity_type:, action:, performer_type:, detail_value:, status: 1 })
+      response
+    rescue => e
+      create_aal({ activity_type:, action:, performer_type:, detail_value:, status: 0 })
+      raise e
+    end
+
     private
 
     def aal_client

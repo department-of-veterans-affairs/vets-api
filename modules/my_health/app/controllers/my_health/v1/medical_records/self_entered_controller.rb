@@ -8,7 +8,10 @@ module MyHealth
         service_tag 'mhv-medical-records'
 
         def index
-          render json: client.get_all_sei_data.to_json
+          resource = handle_aal('Self entered health information', 'Download') do
+            client.get_all_sei_data.to_json
+          end
+          render json: resource
         end
 
         def vitals
