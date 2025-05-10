@@ -1286,7 +1286,7 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
           expect(output['currently_active_duty']).to be(false)
-          expect(output['currently_active_duty_hash']).to eq({ yes: false })
+          expect(output['currently_active_duty_hash']).to match({ yes: false })
           expect(output['discharge_type']).to be_nil
           expect(output['guard_reserve_service_history']).to eq([])
           expect(output['hca_last_service_branch']).to eq('other')

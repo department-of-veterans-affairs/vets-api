@@ -23,10 +23,16 @@ RSpec.describe BenefitsDocuments::Service do
 
     describe 'when uploading single file' do
       let(:upload_file) do
-        f = Tempfile.new(['file with spaces', '.jpg'])
+        f = Tempfile.new(['file with spaces', '.txt'])
         f.write('test')
         f.rewind
-        Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+        rack_file = Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
+
+        ActionDispatch::Http::UploadedFile.new(
+          tempfile: rack_file.tempfile,
+          filename: rack_file.original_filename,
+          type: rack_file.content_type
+        )
       end
 
       let(:params) do
