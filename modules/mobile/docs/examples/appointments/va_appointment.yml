@@ -53,8 +53,8 @@ data:
           appointmentDateTime: "2023-02-23T22:22:52.549Z"
           facilityId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           facilityName: "Tomah VA Medical Center"
-          totalCostRequested: 4.52,
-          reimbursementAmount: 4.52,
+          totalCostRequested: 4.52
+          reimbursementAmount: 4.52
           createdOn: "2023-02-24T22:22:52.549Z"
           modifiedOn: "2023-02-26T22:22:52.549Z"
 meta:
