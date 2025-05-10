@@ -56,12 +56,12 @@ module MyHealth
     # @return [Object] The result of the yielded block.
     # @raise [Exception] Re-raises any exception raised within the block after logging the failure.
     #
-    def handle_aal(activity_type, action, detail_value = nil, performer_type = 'Self')
+    def handle_aal(activity_type, action, detail_value = nil, performer_type = 'Self', once_per_session: false)
       response = yield
-      create_aal({ activity_type:, action:, performer_type:, detail_value:, status: 1 })
+      create_aal({ activity_type:, action:, performer_type:, detail_value:, status: 1 }, once_per_session:)
       response
     rescue => e
-      create_aal({ activity_type:, action:, performer_type:, detail_value:, status: 0 })
+      create_aal({ activity_type:, action:, performer_type:, detail_value:, status: 0 }, once_per_session:)
       raise e
     end
 
