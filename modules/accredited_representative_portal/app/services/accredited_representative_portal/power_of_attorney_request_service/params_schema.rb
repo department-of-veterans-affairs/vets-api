@@ -9,7 +9,7 @@ module AccreditedRepresentativePortal
 
       module Page
         module Size
-          MIN = 10
+          MIN = 1
           MAX = 100
           DEFAULT = 10
         end
