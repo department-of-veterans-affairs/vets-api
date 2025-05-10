@@ -13,7 +13,7 @@ module VANotify
     end
 
     def icn
-      @icn ||= in_progress_form&.user_account&.icn
+      @icn ||= in_progress_form.user_account&.icn
     end
     alias mhv_icn icn
 
