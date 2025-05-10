@@ -10,7 +10,7 @@ module Vets
       end
 
       def cast(value)
-        return nil if value.nil?
+        return nil if value.to_s.empty?
 
         Time.parse(value.to_s).utc
       rescue ArgumentError

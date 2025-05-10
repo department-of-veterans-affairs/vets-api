@@ -19,7 +19,7 @@ describe 'sm client' do
 
     it 'gets a collection of triage team recipients', :vcr do
       folders = client.get_triage_teams('1234', false)
-      expect(folders).to be_a(Common::Collection)
+      expect(folders).to be_a(Vets::Collection)
       expect(folders.type).to eq(TriageTeam)
     end
   end

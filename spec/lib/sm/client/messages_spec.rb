@@ -39,13 +39,13 @@ describe 'sm client' do
 
     it 'gets a message with id', :vcr do
       message = client.get_message(existing_message_id)
-      expect(message.attributes[:id]).to eq(existing_message_id)
-      expect(message.attributes[:subject].strip).to eq('Quote test: “test”')
+      expect(message.id).to eq(existing_message_id)
+      expect(message.subject).to eq('Quote test: “test”')
     end
 
     it 'gets a message thread', :vcr do
       thread = client.get_message_history(existing_message_id)
-      expect(thread).to be_a(Common::Collection)
+      expect(thread).to be_a(Vets::Collection)
       expect(thread.members.size).to eq(2)
     end
 
@@ -69,12 +69,21 @@ describe 'sm client' do
       let(:created_message)       { @created_message }
       let(:attachment_type)       { 'image/jpg' }
       let(:uploads) do
-        [
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', attachment_type)
+        filenames = %w[
+          spec/fixtures/files/sm_file1.jpg
+          spec/fixtures/files/sm_file2.jpg
+          spec/fixtures/files/sm_file3.jpg
+          spec/fixtures/files/sm_file4.jpg
         ]
+
+        filenames.map do |path|
+          tempfile = File.open(path)
+          ActionDispatch::Http::UploadedFile.new(
+            filename: File.basename(path),
+            type: attachment_type,
+            tempfile:
+          )
+        end
       end
       let(:params) { @params }
       let(:params_with_attachments) { { message: params }.merge(uploads:) }

@@ -19,9 +19,10 @@ module Vets
 
     include Vets::Collections::Cacheable
 
-    attr_accessor :records, :metadata, :errors
+    attr_accessor :records, :metadata, :errors, :size
     attr_reader :model_class
 
+    alias data records
     alias members records
     alias type model_class
 
@@ -40,7 +41,8 @@ module Vets
         raise ArgumentError, "All records must be instances of #{@model_class}"
       end
 
-      @records = records.sort
+      @size = records.size
+      @records = records
     end
 
     def self.from_will_paginate(records)
@@ -52,22 +54,31 @@ module Vets
       new(records)
     end
 
-    # reviously sort on Common::Collection
+    # need to "alias" until all modules have switched over
+    def sort(clauses = {})
+      order(clauses)
+    end
+
+    # previously sort on Common::Collection
     def order(clauses = {})
+      clauses = model_class.default_sort_criteria if clauses.to_h.empty?
       validate_sort_clauses(clauses)
 
-      @records.sort_by do |record|
+      results = @records.sort_by do |record|
         clauses.map do |attribute, direction|
           value = record.public_send(attribute)
           direction == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
         end
       end
+
+      fields = clauses.transform_keys(&:to_s).transform_values { |v| v.to_s.upcase }
+      Vets::Collection.new(results, metadata: metadata.merge(sort: fields), errors:)
     end
 
     # previously find_by on Common::Collection
     def where(conditions = {})
       results = Vets::Collections::Finder.new(data: @records).all(conditions)
-      Vets::Collection.new(results, metadata: { filter: conditions }, errors:)
+      Vets::Collection.new(results, metadata: metadata.merge({ filter: conditions }), errors:)
     end
 
     # previously find_first_by on Common::Collection
@@ -82,7 +93,7 @@ module Vets
         total_entries: @records.size,
         data: @records
       )
-      Vets::Collection.new(pagination.data, metadata: pagination.metadata, errors:)
+      Vets::Collection.new(pagination.data, metadata: metadata.merge(pagination.metadata), errors:)
     end
 
     def serialize
@@ -111,6 +122,7 @@ module Vets
     end
 
     def normalize_per_page(per_page)
+      per_page = per_page.to_i unless per_page.nil?
       [per_page || @model_class.try(:per_page) || DEFAULT_PER_PAGE, max_per_page].min
     end
 

@@ -9,19 +9,19 @@ module Mobile
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
         if ActiveModel::Type::Boolean.new.cast(params[:excludeProvidedMessage])
-          resource.data = resource.data.filter { |m| m.message_id.to_s != params[:id] }
+          resource.records = resource.records.filter { |m| m.message_id.to_s != params[:id] }
         end
         resource.metadata.merge!(message_counts(resource))
-        render json: Mobile::V1::MessagesSerializer.new(resource.data, { meta: resource.metadata })
+        render json: Mobile::V1::MessagesSerializer.new(resource.records, { meta: resource.metadata })
       end
 
       private
 
       def message_counts(resource)
         {
-          message_counts: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
-            hash[:read] += 1 if obj[:read_receipt]
-            hash[:unread] += 1 unless obj[:read_receipt]
+          message_counts: resource.records.each_with_object(Hash.new(0)) do |obj, hash|
+            hash[:read] += 1 if obj.read_receipt
+            hash[:unread] += 1 unless obj.read_receipt
           end
         }
       end
