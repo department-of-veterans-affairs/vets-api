@@ -23,11 +23,39 @@ describe HCA::SOAPParser do
       let(:reraised_error) { HCA::SOAPParser::ValidationError }
       let(:body) { File.read('spec/fixtures/hca/validation_error.xml') }
 
-      it 'tags and log validation errors' do
-        expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
-        expect(Sentry).to receive(:set_tags).with(validation: 'hca')
+      context ':hca_disable_sentry_logs enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+        end
 
-        subject
+        it 'tags and log validation errors' do
+          expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
+
+          expect(Rails.logger).to receive(:error).with(
+            '[HCA] - Error in soap parser',
+            {
+              exception: Common::Client::Errors::HTTPError,
+              validation: 'hca'
+            }
+          )
+
+          subject
+        end
+      end
+
+      context ':hca_disable_sentry_logs disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+        end
+
+        it 'tags and log validation errors' do
+          expect(StatsD).to receive(:increment).with('api.hca.validation_fail')
+          expect(Sentry).to receive(:set_tags).with(validation: 'hca')
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+            .with(Common::Client::Errors::HTTPError)
+
+          subject
+        end
       end
     end
 
