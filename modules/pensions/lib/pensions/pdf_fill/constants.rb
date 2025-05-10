@@ -2,9 +2,7 @@
 
 module Pensions
   module PdfFill
-    ##
     # Constants used for PDF mapping
-    #
     module Constants
       # The Recipients Type
       RECIPIENTS = {

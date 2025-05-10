@@ -19,14 +19,14 @@ describe Pensions::PdfFill::Va21p527ez do
     form_id: described_class::FORM_ID,
     factory: :pensions_saved_claim,
     use_vets_json_schema: true,
-    input_data_fixture_dir: 'modules/pensions/spec/lib/pdf_fill/fixtures',
-    output_pdf_fixture_dir: 'modules/pensions/spec/lib/pdf_fill/fixtures'
+    input_data_fixture_dir: 'modules/pensions/spec/fixtures',
+    output_pdf_fixture_dir: 'modules/pensions/spec/fixtures'
   }
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(form_data).merge_fields.to_json).to eq(
-        get_fixture_absolute("#{Pensions::MODULE_PATH}/spec/lib/pdf_fill/fixtures/merge_fields").to_json
+        get_fixture_absolute("#{Pensions::MODULE_PATH}/spec/fixtures/merge_fields").to_json
       )
     end
   end
