@@ -14,7 +14,7 @@ describe Eps::AppointmentService do
   let(:icn) { '123ICN' }
 
   before do
-    allow(config).to receive(:base_path).and_return('api/v1')
+    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
   end
 

@@ -30,6 +30,16 @@ module Eps
     private
 
     ##
+    # Get appropriate headers based on whether mocks are enabled. With Betamocks we
+    # bypass the need to request tokens.
+    #
+    # @return [Hash] Headers for the request or empty hash if mocks are enabled
+    #
+    def request_headers
+      config.mock_enabled? ? {} : headers
+    end
+
+    ##
     # Returns the patient ID for the current user.
     #
     # @return [String] The ICN of the current user.
