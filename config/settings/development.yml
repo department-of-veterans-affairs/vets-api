@@ -222,6 +222,8 @@ claims_api:
     services:
       lighthouse:
         api_key: ~
+        notification_client_secret: ~
+        notify_service_id: ~
 clamav:
   host: 0.0.0.0
   mock: true
