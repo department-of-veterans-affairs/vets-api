@@ -17,6 +17,9 @@ module SimpleFormsApi
       uuid_and_location = get_upload_location_and_uuid(lighthouse_service, form)
       create_form_submission_attempt(params, uuid_and_location)
 
+      # Validate document before uploading
+      validate_pdf_document(file_path)
+
       Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
       Rails.logger.info(
         'Simple forms api - preparing to upload PDF to benefits intake',
@@ -52,6 +55,33 @@ module SimpleFormsApi
         )
         FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid_and_location[:uuid])
       end
+    end
+
+    def validate_pdf_document(file_path)
+      extension = File.extname(file_path)
+      allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
+
+      if allowed_types.exclude?(extension)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: I18n.t('errors.messages.extension_allowlist_error', extension: extension, allowed_types: allowed_types),
+          source: 'SimpleFormsApi::PdfUploader.validate_pdf_document'
+        )
+      elsif File.size(file_path) < PersistentAttachment::MINIMUM_FILE_SIZE
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'File size must not be less than 1.0 KB',
+          source: 'SimpleFormsApi::PdfUploader.validate_pdf_document'
+        )
+      end
+
+      # Validate with Benefits Intake API
+      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      intake_service = BenefitsIntake::Service.new
+      intake_service.valid_document?(document: document)
+    rescue BenefitsIntake::Service::InvalidDocumentError => e
+      raise Common::Exceptions::UnprocessableEntity.new(
+        detail: e.message,
+        source: 'SimpleFormsApi::PdfUploader.validate_pdf_document'
+      )
     end
   end
 end
