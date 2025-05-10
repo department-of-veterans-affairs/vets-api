@@ -84,7 +84,7 @@ bpds:
   mock: false
   read_timeout: 20 # using the same timeout as lighthouse
   schema_version: test
-  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
+  url: <%= ENV['bpds__url'] %> # See the README for more information on how to run the BPDS locally
 brd:
   api_key: <%= ENV['brd__api_key'] %>
   base_name: <%= ENV['brd__base_name'] %>
