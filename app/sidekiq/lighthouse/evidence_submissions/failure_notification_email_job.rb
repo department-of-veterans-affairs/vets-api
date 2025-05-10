@@ -58,8 +58,6 @@ module Lighthouse
         upload.update(va_notify_id: response.id, va_notify_date: DateTime.current)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)
-        StatsD.increment('silent_failure_avoided_no_confirmation',
-                         tags: ['service:claim-status', "function: #{message}"])
       end
 
       def record_email_send_failure(upload, error)
