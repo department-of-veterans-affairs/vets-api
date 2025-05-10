@@ -8,7 +8,7 @@ RSpec.describe V0::InProgressFormsController do
   it_behaves_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
-    let(:loa3_user) { build(:user, :loa3) }
+    let(:loa3_user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:loa1_user) { build(:user, :loa1) }
 
     before do
@@ -323,7 +323,7 @@ RSpec.describe V0::InProgressFormsController do
         it 'runs the LogEmailDiffJob job' do
           new_form.form_id = '1010ez'
           new_form.save!
-          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid)
+          expect(HCA::LogEmailDiffJob).to receive(:perform_async).with(new_form.id, user.uuid, user.user_account_uuid)
 
           put v0_in_progress_form_url(new_form.form_id), params: {
             formData: new_form.form_data,

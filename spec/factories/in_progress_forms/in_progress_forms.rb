@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :in_progress_form do
     user_uuid { SecureRandom.uuid }
     form_id { 'edu_benefits' }
-    user_account { nil }
+    user_account { create(:user_account) }
     metadata do
       {
         version: 1,
