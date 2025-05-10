@@ -52,6 +52,10 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
                 'firstName' => first_name,
                 'lastName' => last_name,
                 'verified' => true,
+                'loa' => {
+                  'current' => user.loa[:current],
+                  'highest' => user.loa[:highest]
+                },
                 'signIn' => {
                   'serviceName' => sign_in_service_name
                 }
@@ -74,6 +78,38 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
                   'lastUpdated' => Time.current.to_i
                 }
               ]
+            }
+          )
+        end
+      end
+
+      context 'with different LOA values' do
+        first_name = Faker::Name.first_name
+        last_name = Faker::Name.last_name
+        sign_in_service_name = Faker::Company.name
+        current_loa = 1
+        highest_loa = 2
+
+        let(:user) do
+          create(
+            :representative_user,
+            {
+              first_name:,
+              last_name:,
+              sign_in_service_name:,
+              loa: { current: current_loa, highest: highest_loa }
+            }
+          )
+        end
+
+        it 'includes loa object with current and highest values in the response' do
+          get '/accredited_representative_portal/v0/user'
+
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response.dig('profile', 'loa')).to eq(
+            {
+              'current' => current_loa,
+              'highest' => highest_loa
             }
           )
         end
