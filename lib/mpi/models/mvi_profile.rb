@@ -8,14 +8,24 @@ require_relative 'mvi_profile_relationship'
 module MPI
   module Models
     class MviProfile
-      include Virtus.model
+      include ActiveModel::API
+      include ActiveModel::Attributes
+      include ActiveModel::Serializers::JSON
       include MviProfileIdentity
       include MviProfileIds
 
-      attribute :search_token, String
-      attribute :relationships, Array[MviProfileRelationship]
-      attribute :id_theft_flag, Boolean
-      attribute :transaction_id, String
+      attribute :search_token, :string
+      attribute :relationships, array: true, default: []
+      attribute :id_theft_flag, :boolean
+      attribute :transaction_id, :string
+
+      def [](key)
+        attributes[key.to_s]
+      end
+
+      def to_h
+        attributes.symbolize_keys
+      end
     end
   end
 end

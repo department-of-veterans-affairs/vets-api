@@ -2,15 +2,29 @@
 
 module MPI
   module Models
-    class MviProfileAddress
-      include Virtus.model
+    class MviProfileAddress < ActiveModel::Type::Value
+      include ActiveModel::API
+      include ActiveModel::Attributes
+      include ActiveModel::Serializers::JSON
 
-      attribute :street, String
-      attribute :street2, String
-      attribute :city, String
-      attribute :state, String
-      attribute :postal_code, String
-      attribute :country, String
+      attribute :street, :string
+      attribute :street2, :string
+      attribute :city, :string
+      attribute :state, :string
+      attribute :postal_code, :string
+      attribute :country, :string
+
+      def type = :mvi_profile_address
+
+      def [](key)
+        attributes[key.to_s]
+      end
+
+      def to_h
+        attributes.symbolize_keys
+      end
     end
+
+    ActiveModel::Type.register :mvi_profile_address, MviProfileAddress
   end
 end

@@ -3,31 +3,34 @@
 module MPI
   module Models
     module MviProfileIds
-      include Virtus.module
+      extend ActiveSupport::Concern
 
-      attribute :full_mvi_ids, Array[String]
-      attribute :icn, String
-      attribute :icn_with_aaid, String
-      attribute :mhv_ids, Array[String]
-      attribute :active_mhv_ids, Array[String]
-      attribute :vha_facility_ids, Array[String]
-      attribute :vha_facility_hash, Hash
-      attribute :edipi, String
-      attribute :edipis, Array[String]
-      attribute :participant_id, String
-      attribute :participant_ids, Array[String]
-      attribute :mhv_ien, String
-      attribute :mhv_iens, Array[String]
-      attribute :birls_id, String
-      attribute :birls_ids, Array[String]
-      attribute :sec_id, String
-      attribute :sec_ids, Array[String]
-      attribute :vet360_id, String
-      attribute :cerner_facility_ids, Array[String]
-      attribute :cerner_id, String
+      included do
+        include ActiveModel::Attributes
+        attribute :full_mvi_ids, array: true, default: []
+        attribute :icn, :string
+        attribute :icn_with_aaid, :string
+        attribute :mhv_ids, array: true, default: []
+        attribute :active_mhv_ids, array: true, default: []
+        attribute :vha_facility_ids, array: true, default: []
+        attribute :vha_facility_hash, hash: true, default: {}
+        attribute :edipi, :string
+        attribute :edipis, array: true, default: []
+        attribute :participant_id, :string
+        attribute :participant_ids, array: true, default: []
+        attribute :mhv_ien, :string
+        attribute :mhv_iens, array: true, default: []
+        attribute :birls_id, :string
+        attribute :birls_ids, array: true, default: []
+        attribute :sec_id, :string
+        attribute :sec_ids, array: true, default: []
+        attribute :vet360_id, :string
+        attribute :cerner_facility_ids, array: true, default: []
+        attribute :cerner_id, :string
 
-      def mhv_correlation_id
-        @active_mhv_ids&.first
+        def mhv_correlation_id
+          active_mhv_ids&.first
+        end
       end
     end
   end

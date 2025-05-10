@@ -51,7 +51,7 @@ describe MPI::Responses::ProfileParser do
       end
 
       it 'returns a MviProfile with the parsed attributes' do
-        expect(parser.parse).to have_deep_attributes(mpi_profile)
+        expect(parser.parse.attributes).to eq(mpi_profile.attributes)
       end
 
       context 'when candidate has incomplete birth_date' do
@@ -81,7 +81,7 @@ describe MPI::Responses::ProfileParser do
         let(:expected_log_values) { { dob: '198003', icn: } }
 
         it 'sets the birth_date to nil' do
-          expect(parser.parse).to have_deep_attributes(mpi_profile)
+          expect(parser.parse.attributes).to eq(mpi_profile.attributes)
         end
 
         it 'logs the birth_date & icn' do
@@ -97,7 +97,7 @@ describe MPI::Responses::ProfileParser do
             :mpi_profile_response,
             :address_austin,
             family_name: nil,
-            given_names: nil,
+            given_names: [],
             suffix: nil,
             birls_id: nil,
             birls_ids: [],
@@ -114,7 +114,7 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the names to false' do
-          expect(parser.parse).to have_deep_attributes(mpi_profile)
+          expect(parser.parse.attributes).to eq(mpi_profile.attributes)
         end
       end
 
@@ -143,7 +143,7 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the names to the stanza with legal names' do
-          expect(parser.parse).to have_deep_attributes(mpi_profile)
+          expect(parser.parse.attributes).to eq(mpi_profile.attributes)
         end
       end
 
@@ -183,7 +183,7 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the address to nil' do
-          expect(parser.parse).to have_deep_attributes(mpi_profile)
+          expect(parser.parse.attributes).to eq(mpi_profile.attributes)
         end
       end
 
@@ -222,7 +222,7 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'filters with only first name and retrieve correct MHV id' do
-          expect(parser.parse).to have_deep_attributes(mpi_profile)
+          expect(parser.parse.attributes).to eq(mpi_profile.attributes)
         end
       end
     end
@@ -254,7 +254,7 @@ describe MPI::Responses::ProfileParser do
           mhv_ids: [],
           active_mhv_ids: [],
           vha_facility_ids: [],
-          vha_facility_hash: nil,
+          vha_facility_hash: {},
           cerner_id: nil,
           cerner_facility_ids: [],
           edipi: nil,
@@ -321,7 +321,7 @@ describe MPI::Responses::ProfileParser do
       end
 
       it 'returns a MviProfile with the parsed attributes' do
-        expect(parser.parse).to have_deep_attributes(mpi_profile)
+        expect(parser.parse.to_json).to eq(mpi_profile.to_json)
       end
     end
   end
@@ -333,7 +333,7 @@ describe MPI::Responses::ProfileParser do
 
     describe '#parse' do
       it 'return empty mvi profile if the response includes no suject element' do
-        expect(parser.parse).to have_deep_attributes(expected_mpi_profile)
+        expect(parser.parse.to_json).to eq(expected_mpi_profile.to_json)
       end
     end
   end
@@ -431,7 +431,7 @@ describe MPI::Responses::ProfileParser do
     end
 
     it 'returns an array of mhv ids' do
-      expect(parser.parse).to have_deep_attributes(mpi_profile)
+      expect(parser.parse.attributes).to eq(mpi_profile.attributes)
     end
   end
 
@@ -456,7 +456,7 @@ describe MPI::Responses::ProfileParser do
     end
 
     it 'correctly parses a Vet360 ID' do
-      expect(parser.parse).to have_deep_attributes(mpi_profile)
+      expect(parser.parse.attributes).to eq(mpi_profile.attributes)
     end
   end
 
