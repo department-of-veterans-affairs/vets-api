@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Default values
+PORT=80
+VERSION="1.25.3"  # Nginx version
+DIRECT=false
+TRAEFIK_PORT=3001 # Default Traefik port
+
+# Function to display help message
+show_help() {
+  cat << EOF
+Usage: $(basename "$0") [OPTIONS]
+
+A helper script to run an Nginx proxy in front of Vets API.
+
+Options:
+  -p, --port PORT       Port to bind Nginx to (default: 80)
+  -v, --version VERSION Nginx Docker image version (default: 1.25.3)
+  -d, --direct          Proxy directly to Vets API, bypassing Traefik
+  -h, --help            Show this help message and exit
+
+EOF
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p|--port)
+      if [[ -n "${2:-}" ]]; then
+        PORT="$2"
+        shift 2
+      else
+        echo "Error: --port requires a value" >&2
+        exit 1
+      fi
+      ;;
+    -v|--version)
+      if [[ -n "${2:-}" ]]; then
+        VERSION="$2"
+        shift 2
+      else
+        echo "Error: --version requires a value" >&2
+        exit 1
+      fi
+      ;;
+    -d|--direct)
+      DIRECT=true
+      shift
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    *)
+      echo "Error: Unknown option: $1" >&2
+      show_help
+      exit 1
+      ;;
+  esac
+done
+
+# Check if Vets API is running on port 3000
+if ! nc -z localhost 3000 >/dev/null 2>&1; then
+  echo "Error: Vets API does not appear to be running on port 3000." >&2
+  echo "Please start the API server before running this script." >&2
+  exit 1
+fi
+
+# Create tmp directory if it doesn't exist
+mkdir -p "$(dirname "$0")/../tmp"
+
+# Determine the upstream URL based on the --direct flag
+if [ "$DIRECT" = true ]; then
+  UPSTREAM="http://host.docker.internal:3000"
+  echo "Proxying directly to Vets API at $UPSTREAM"
+else
+  # Check if Traefik is running, if not use direct connection
+  if nc -z localhost "$TRAEFIK_PORT" >/dev/null 2>&1; then
+    UPSTREAM="http://host.docker.internal:$TRAEFIK_PORT"
+    echo "Proxying to Vets API via Traefik at $UPSTREAM"
+  else
+    UPSTREAM="http://host.docker.internal:3000"
+    echo "Warning: Traefik does not appear to be running on port $TRAEFIK_PORT." >&2
+    echo "Falling back to direct connection to Vets API at $UPSTREAM" >&2
+  fi
+fi
+
+# Create or update the Nginx configuration file
+CONFIG_PATH="$(dirname "$0")/../tmp/nginx-dynamic.conf"
+
+cat > "$CONFIG_PATH" << EOF
+worker_processes auto;
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    keepalive_timeout 65;
+
+    # Logging settings
+    log_format main '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                    '\$status \$body_bytes_sent "\$http_referer" '
+                    '"\$http_user_agent" "\$http_x_forwarded_for"';
+    
+    access_log /dev/stdout main;
+    error_log /dev/stderr;
+
+    server {
+        listen 80;
+        server_name localhost;
+
+        location / {
+            proxy_pass $UPSTREAM;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            
+            # Increase timeouts for long-running requests
+            proxy_connect_timeout 300s;
+            proxy_send_timeout 300s;
+            proxy_read_timeout 300s;
+        }
+    }
+}
+EOF
+
+echo "Created Nginx config at $CONFIG_PATH"
+echo "Starting Nginx on port $PORT using Nginx version $VERSION"
+
+# Run the Docker container
+docker run --rm --name nginx-local \
+  -p "${PORT}:80" \
+  -v "$(realpath "$CONFIG_PATH"):/etc/nginx/nginx.conf:ro" \
+  nginx:"${VERSION}"
