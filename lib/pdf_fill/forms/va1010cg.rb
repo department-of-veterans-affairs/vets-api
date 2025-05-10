@@ -78,24 +78,11 @@ module PdfFill
 
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
-
-        display_value = if Flipper.enabled? :caregiver_lookup_facility_name_db
-                          selected_facility = HealthFacility.find_by(station_number: target_facility_code)
-                          if selected_facility.nil?
-                            target_facility_code
-                          else
-                            "#{selected_facility.station_number} - #{selected_facility.name}"
-                          end
+        selected_facility = HealthFacility.find_by(station_number: target_facility_code)
+        display_value = if selected_facility.nil?
+                          target_facility_code
                         else
-                          caregiver_facilities = VetsJsonSchema::CONSTANTS['caregiverProgramFacilities'].values.flatten
-                          selected_facility = caregiver_facilities.find do |facility|
-                            facility['code'] == target_facility_code
-                          end
-                          if selected_facility.nil?
-                            target_facility_code
-                          else
-                            "#{selected_facility['code']} - #{selected_facility['label']}"
-                          end
+                          "#{selected_facility.station_number} - #{selected_facility.name}"
                         end
 
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
