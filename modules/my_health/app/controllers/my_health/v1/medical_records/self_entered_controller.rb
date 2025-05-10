@@ -5,10 +5,14 @@ module MyHealth
     module MedicalRecords
       class SelfEnteredController < ApplicationController
         include MyHealth::MHVControllerConcerns
+        include MyHealth::AALClientConcerns
         service_tag 'mhv-medical-records'
 
         def index
-          render json: client.get_all_sei_data.to_json
+          resource = handle_aal('Self entered health information', 'Download', once_per_session: true) do
+            client.get_all_sei_data.to_json
+          end
+          render json: resource
         end
 
         def vitals
@@ -80,6 +84,10 @@ module MyHealth
 
         def raise_access_denied
           raise Common::Exceptions::Forbidden, detail: 'You do not have access to self-entered information'
+        end
+
+        def product
+          :mr
         end
       end
     end
