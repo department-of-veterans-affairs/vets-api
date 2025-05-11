@@ -16,8 +16,12 @@ RSpec.describe Vets::Collection do
 
       default_sort_by name: :asc
 
-      def self.filterable_attributes
+      def self.filterable_params
         { name: %w[match eq], age: %w[eq lteq gteq] }.with_indifferent_access
+      end
+
+      def self.filterable_attributes
+        filterable_params.keys
       end
     end
   end
