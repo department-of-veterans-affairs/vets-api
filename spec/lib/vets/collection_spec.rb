@@ -154,12 +154,12 @@ RSpec.describe Vets::Collection do
 
     it 'raises an error if an attribute does not exist' do
       expect { collection.order(nonexistent: :asc) }
-        .to raise_error(Common::Exceptions::InvalidSortCriteria, "Invalid sort criteria")
+        .to raise_error(Common::Exceptions::InvalidSortCriteria, 'Invalid sort criteria')
     end
 
     it 'raises an error if the direction is invalid' do
       expect { collection.order(name: :invalid) }
-        .to raise_error(Common::Exceptions::InvalidSortCriteria, "Invalid sort criteria")
+        .to raise_error(Common::Exceptions::InvalidSortCriteria, 'Invalid sort criteria')
     end
 
     it 'forces null values to end of the array' do
