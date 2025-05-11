@@ -38,11 +38,21 @@ class PrescriptionDetails < Prescription
   default_sort_by prescription_name: :asc
 
   def rx_rf_records=(records)
-    @rx_rf_records = records&.dig(0, 1)
+    @rx_rf_records =
+      if records.is_a?(Hash)
+        records[:rf_record]
+      else
+        records&.dig(0, 1)
+      end
   end
 
   def tracking_list=(records)
-    @tracking_list = records&.dig(0, 1)
+    @tracking_list =
+      if records.is_a?(Hash)
+        records[:tracking]
+      else
+        records&.dig(0, 1)
+      end
   end
 
   def sorted_dispensed_date

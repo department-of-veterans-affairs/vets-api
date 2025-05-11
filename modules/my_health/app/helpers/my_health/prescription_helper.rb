@@ -76,7 +76,8 @@ module MyHealth
         when 'disp_status'
           data.disp_status
         else
-          data[field.sub(/^-/, '')]
+          sort_field = field.sub(/^-/, '')
+          data.public_send(sort_field.to_sym)
         end
       end
 
