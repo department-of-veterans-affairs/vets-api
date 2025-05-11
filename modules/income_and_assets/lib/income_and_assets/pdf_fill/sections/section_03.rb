@@ -90,7 +90,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         incomes = form_data['unassociatedIncomes']
-        form_data['unassociatedIncome'] = incomes&.length ? 'YES' : 1
+        form_data['unassociatedIncome'] = incomes&.length ? 0 : 1
         form_data['unassociatedIncomes'] = incomes&.map do |item|
           expand_item(item)
         end

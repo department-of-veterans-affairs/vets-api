@@ -48,6 +48,11 @@ module Vet360
       # This needs to be refactored after V2 upgrade is complete
       if type == 'address' && Flipper.enabled?(:remove_pciu, @current_user)
         model = 'VAProfile::Models::V3::Address'
+
+        # Validation Key was deprecated with ContactInformationV2
+        params[:override_validation_key] ||= params[:validation_key]
+        params[:validation_key] ||= params[:override_validation_key]
+
         # Ensures the address_pou is valid
         params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
       else

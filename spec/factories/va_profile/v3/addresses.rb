@@ -63,7 +63,7 @@ FactoryBot.define do
       city { 'Fulton' }
       state_code { 'MS' }
       zip_code { '38843' }
-      validation_key { 713_117_306 }
+      override_validation_key { 713_117_306 }
       vet360_id { '1781151' }
       source_system_user { '123498767V234859' }
       source_date { '2024-09-16T16:09:37.000Z' }
@@ -94,7 +94,7 @@ FactoryBot.define do
       city { 'Fulton' }
       state_code { 'MS' }
       zip_code { '38843' }
-      validation_key { 713_117_306 }
+      override_validation_key { 713_117_306 }
       vet360_id { '1' }
       source_system_user { 'VAPROFILE_TEST_PARTNER' }
       source_date { '2024-08-27T18:51:06.012Z' }
