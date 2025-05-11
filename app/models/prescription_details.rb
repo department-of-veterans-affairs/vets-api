@@ -38,6 +38,7 @@ class PrescriptionDetails < Prescription
   default_sort_by prescription_name: :asc
 
   def rx_rf_records=(records)
+    binding.pry
     @rx_rf_records =
       if records.is_a?(Hash)
         records[:rf_record]

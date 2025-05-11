@@ -20,7 +20,7 @@ module MyHealth
 
       def sort_by(resource, sort_params)
         sort_orders = sort_params.map { |param| param.to_s.start_with?('-') }
-        resource.data = resource.data.sort do |a, b|
+        resource.records = resource.data.sort do |a, b|
           comparison = 0
           sort_params.each_with_index do |field, index|
             is_descending = sort_orders[index]
@@ -63,7 +63,7 @@ module MyHealth
           if data.sorted_dispensed_date.nil?
             is_descending ? Date.new(9999, 12, 31) : Date.new(0, 1, 1)
           else
-            data[:sorted_dispensed_date]
+            data.sorted_dispensed_date
           end
         when 'prescription_name'
           if data.disp_status == 'Active: Non-VA' && data.prescription_name.nil?
@@ -76,8 +76,7 @@ module MyHealth
         when 'disp_status'
           data.disp_status
         else
-          sort_field = field.sub(/^-/, '')
-          data.public_send(sort_field.to_sym)
+          data.public_send(field.sub(/^-/, '').to_sym)
         end
       end
 

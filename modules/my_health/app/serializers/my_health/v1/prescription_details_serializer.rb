@@ -32,7 +32,9 @@ module MyHealth
       attribute :tracking_list do |object|
         object&.tracking_list || []
       end
-      attribute :rx_rf_records
+      attribute :rx_rf_records do |object|
+        object&.rx_rf_records || []
+      end
       attribute :tracking
       attribute :orderable_item
       attribute :sorted_dispensed_date
