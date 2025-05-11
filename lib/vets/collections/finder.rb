@@ -86,9 +86,9 @@ module Vets
         when TrueClass, FalseClass
           value.to_s == 'true'
         when Integer
-          value.to_i
+          Integer(value)
         when Float
-          value.to_f
+          Float(value)
         else
           value
         end
