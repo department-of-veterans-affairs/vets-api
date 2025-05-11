@@ -9,12 +9,9 @@ module MyHealth
             id = params[:id]
             rx = client.get_rx_details(id)
             raise StandardError, 'Rx not found' if rx.nil?
+            raise StandardError, 'Missing NDC number' if rx.cmop_ndc_value.nil?
 
-            cmop_ndc_number = rx.rx_rf_records&.dig(0,
-                                                    1)&.find(&:cmop_ndc_number)&.[](:cmop_ndc_number) || rx.cmop_ndc_number.presence
-            raise StandardError, 'Missing NDC number' if cmop_ndc_number.nil?
-
-            documentation = client.get_rx_documentation(cmop_ndc_number)
+            documentation = client.get_rx_documentation(rx.cmop_ndc_value)
             prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
             render json: PrescriptionDocumentationSerializer.new(prescription_documentation)
           rescue => e

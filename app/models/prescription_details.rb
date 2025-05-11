@@ -38,7 +38,6 @@ class PrescriptionDetails < Prescription
   default_sort_by prescription_name: :asc
 
   def rx_rf_records=(records)
-    binding.pry
     @rx_rf_records =
       if records.is_a?(Hash)
         records[:rf_record]
@@ -61,5 +60,9 @@ class PrescriptionDetails < Prescription
     last_refill_date = refill_dates&.max
 
     @sorted_dispensed_date = last_refill_date || dispensed_date&.to_date
+  end
+
+  def cmop_ndc_value
+    rx_rf_records&.map { |r| r[:cmop_ndc_number] }&.compact&.first || cmop_ndc_number.presence
   end
 end

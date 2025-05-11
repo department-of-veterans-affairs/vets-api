@@ -91,7 +91,7 @@ module MyHealth
 
       def renewable(item)
         disp_status = item.disp_status
-        refill_history_expired_date = item.rx_rf_records&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
+        refill_history_expired_date = item.rx_rf_records&.dig(0, :expiration_date)&.to_date
         expired_date = refill_history_expired_date || item.expiration_date&.to_date
         not_refillable = ['false'].include?(item.is_refillable.to_s)
         if item.refill_remaining.to_i.zero? && not_refillable
