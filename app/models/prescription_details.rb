@@ -63,6 +63,6 @@ class PrescriptionDetails < Prescription
   end
 
   def cmop_ndc_value
-    rx_rf_records&.map { |r| r[:cmop_ndc_number] }&.compact&.first || cmop_ndc_number.presence
+    rx_rf_records&.pluck(:cmop_ndc_number)&.compact&.first || cmop_ndc_number.presence
   end
 end
