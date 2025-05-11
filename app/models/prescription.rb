@@ -68,4 +68,8 @@ class Prescription
 
   alias refillable? is_refillable
   alias trackable? is_trackable
+
+  def <=>(other)
+    prescription_id <=> other.prescription_id
+  end
 end
