@@ -658,15 +658,24 @@ describe VAOS::V2::AppointmentsService do
       end
 
       context 'includes travel claims' do
+        let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
         before do
           allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, user).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, user).and_return(true)
           allow(Flipper).to receive(:enabled?).with('schema_contract_appointments_index').and_return(true)
           allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, user).and_return(true)
-          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility)
+          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(mock_facility)
+          allow(TravelPay::AuthManager)
+            .to receive(:new)
+            .and_return(double('AuthManager', authorize: tokens))
+          allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
         end
 
         it 'returns a list of appointments with travel claim information attached' do
+          # Verify that the TravelPay::AuthManager is called with the correct client number
+          expect(TravelPay::AuthManager).to receive(:new).with('12345', user)
+
           VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do

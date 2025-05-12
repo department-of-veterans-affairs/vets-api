@@ -11,7 +11,8 @@ describe MPI::Messages::AddPersonProxyAddMessage do
                         birth_date:,
                         icn:,
                         edipi:,
-                        search_token:)
+                        search_token:,
+                        as_agent:)
   end
 
   let(:first_name) { 'some-first-name' }
@@ -22,6 +23,7 @@ describe MPI::Messages::AddPersonProxyAddMessage do
   let(:icn_with_aaid) { "#{icn}^NI^200M^USVHA^P" }
   let(:edipi) { 'some-edipi' }
   let(:search_token) { 'some-search-token' }
+  let(:as_agent) { false }
 
   describe '.perform' do
     subject { add_person_proxy_add_message.perform }
@@ -167,6 +169,36 @@ describe MPI::Messages::AddPersonProxyAddMessage do
         expect(xml).to eq_at_path(
           "#{subject_path}/registrationEvent/subject1/patient/patientPerson/asOtherIDs/id/@extension", ssn
         )
+      end
+
+      context 'when as_agent is true' do
+        let(:as_agent) { true }
+        let(:agnt_class_code) { 'AGNT' }
+        let(:rep_class_code) { 'ORG' }
+        let(:rep_determiner_code) { 'INSTANCE' }
+        let(:rep_type_id_extension) { '200DVPE' }
+        let(:rep_type_id_root) { '2.16.840.1.113883.4.349' }
+        let(:device_id_root) { '2.16.840.1.113883.3.933' }
+
+        it 'has an asAgent node' do
+          xml = subject
+
+          expect(xml).to eq_at_path("#{idm_path}/sender/device/id/@root", device_id_root)
+
+          expect(xml).to eq_at_path("#{idm_path}/sender/device/asAgent/@classCode", agnt_class_code)
+
+          expect(xml).to eq_at_path("#{idm_path}/sender/device/asAgent/representedOrganization/@classCode",
+                                    rep_class_code)
+
+          expect(xml).to eq_at_path("#{idm_path}/sender/device/asAgent/representedOrganization/@determinerCode",
+                                    rep_determiner_code)
+
+          expect(xml).to eq_at_path("#{idm_path}/sender/device/asAgent/representedOrganization/typeId/@extension",
+                                    rep_type_id_extension)
+
+          expect(xml).to eq_at_path("#{idm_path}/sender/device/asAgent/representedOrganization/typeId/@root",
+                                    rep_type_id_root)
+        end
       end
     end
   end
