@@ -70,7 +70,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
           user.va_profile_email,
           'fake_received686',
           { 'confirmation_number' => dependency_claim.confirmation_number,
-            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'first_name' => 'WESLEY' },
           'fake_secret',
           { callback_klass: 'Dependents::NotificationCallback',

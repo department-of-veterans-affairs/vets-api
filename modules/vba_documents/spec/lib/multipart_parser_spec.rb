@@ -119,6 +119,16 @@ RSpec.describe VBADocuments::MultipartParser do
     context 'when vba_documents_virus_scan feature flag is enabled' do
       before { expect(Flipper).to receive(:enabled?).with(:vba_documents_virus_scan).and_return(true) }
 
+      it 'creates a clamav temp file with the same contents as the original file' do
+        allow(Common::FileHelpers).to receive(:generate_clamav_temp_file)
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+
+        valid_doc = get_fixture('valid_multipart_pdf.blob')
+        described_class.parse(valid_doc.path)
+
+        expect(Common::FileHelpers).to have_received(:generate_clamav_temp_file).with(valid_doc.read)
+      end
+
       it 'successfully parses the payload when no virus is found' do
         expect(Common::VirusScan).to receive(:scan).and_return(true)
 

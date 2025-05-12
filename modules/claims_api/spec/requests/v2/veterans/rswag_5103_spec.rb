@@ -5,6 +5,8 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
+require_relative '../../../../lib/bgs_service/e_benefits_bnft_claim_status_web_service'
+require_relative '../../../../lib/bgs_service/person_web_service'
 
 # doc generation for V2 5103 temporarily disabled
 describe 'EvidenceWaiver5103',

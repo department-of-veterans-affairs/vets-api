@@ -39,7 +39,7 @@ module Logging
     # Subclasses can override this method to provide custom email functionality
     #
     # @param claim_id [Integer] The ID of the claim
-    # @param email_type [symbol] The type of the email (e.g., :error, :submitted)
+    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
     def send_email(claim_id, email_type)
       # Default implementation does nothing
     end
