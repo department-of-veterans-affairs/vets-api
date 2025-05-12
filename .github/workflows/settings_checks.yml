@@ -5,6 +5,8 @@ on:
     branches: [master]
   pull_request:
     types: [opened, reopened, synchronize]
+    paths:
+      - 'vets-api/config/**'
 permissions:
   contents: read
   checks: write
