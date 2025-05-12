@@ -6,12 +6,13 @@ module SimpleFormsApi
   class BaseForm
     include Vets::Model
 
-    attribute :data
+    attribute :data, Hash
 
     attr_accessor :signature_date
 
     def initialize(data)
-      @data = data
+      data = data&.to_unsafe_h unless data.is_a?(Hash)
+      super({data: data})
       @signature_date = Time.current.in_time_zone('America/Chicago')
     end
 
