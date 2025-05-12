@@ -71,7 +71,7 @@ module Eps
       return false unless valid_referral_inputs?(referral_id, referral)
 
       referral_attributes = extract_referral_attributes(referral)
-      return false unless required_fields_present?(referral_id, referral_attributes)
+      return false unless required_fields_present?(referral_attributes)
 
       # Directly write to cache
       cache_data = {
@@ -146,7 +146,7 @@ module Eps
     # @param referral_id [String] The referral ID for logging
     # @param attributes [Hash] The referral attributes
     # @return [Boolean] True if all required fields are present
-    def required_fields_present?(referral_id, attributes)
+    def required_fields_present?(attributes)
       required_fields = %i[npi appointment_type_id start_date end_date]
       missing_fields = required_fields.select { |field| attributes[field].blank? }
 
