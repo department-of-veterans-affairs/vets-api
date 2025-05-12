@@ -28,7 +28,7 @@ module BenefitsClaims
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'We need information about the cause of' \
                                                                      ' your posttraumatic stress disorder (PTSD).',
       'RV1 - Reserve Records Request' => 'We\'ve requested your reserve records on your behalf. No action is needed.',
-      'Proof of service (DD214, etc.)' => 'We\'ve requested your proof of Service on your behalf. No action is needed.',
+      'Proof of service (DD214, etc.)' => 'We\'ve requested your proof of service on your behalf. No action is needed.',
       'PMR Request' => 'We\'ve requested your non-VA medical records on your behalf. No action is needed.',
       'General Records Request (Medical)' => 'We\'ve requested your non-VA medical records on your behalf.' \
                                              ' No action is needed.',
