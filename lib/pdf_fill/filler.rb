@@ -153,6 +153,7 @@ module PdfFill
       )
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
+
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
       has_template = form_class.const_defined?(:TEMPLATE)

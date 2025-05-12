@@ -161,6 +161,9 @@
     "providerFacility": [
       {
         "providerFacilityName": "provider 1",
+        "issues": [
+          "PTSD (post traumatic stress disorder)"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-01-01",
@@ -182,6 +185,9 @@
       },
       {
         "providerFacilityName": "provider 2",
+        "issues": [
+          "Coding Trauma"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-02-01",
@@ -203,6 +209,11 @@
       },
       {
         "providerFacilityName": "provider 3",
+        "issues": [
+          "Helium Syndrome",
+          "Fever",
+          "Nausea"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-03-01",
@@ -224,6 +235,9 @@
       },
       {
         "providerFacilityName": "provider 4",
+        "issues": [
+          "Stress"
+        ],
         "treatmentDateRange": [
           {
             "from": "1980-04-01",
