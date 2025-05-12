@@ -100,13 +100,13 @@ module PdfFill
         },
         # TODO: 2018 form had one field for phone number, the 2024 form has 3 fields. Need to create a object similar to social security.
         'veteranPhone' => {
-          'first' => {
+          'phone_area_code' => {
             key: 'F[0].Page_1[0].TelephoneNumber_AreaCode[0]'
           },
-          'second' => {
+          'phone_first_three_numbers' => {
             key: 'F[0].Page_1[0].TelephoneNumber_SecondThreeNumbers[0]'
           },
-          'third' => {
+          'phone_last_four_numbers' => {
             key: 'F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]'
           }
         },
@@ -140,12 +140,33 @@ module PdfFill
         },
         # TODO: 2018 form had one field for signature date, the 2024 form has 3 fields. Need to create a object similar to social security.
         'signatureDate' => {
-          key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]',
-          format: 'date'
+          'month' => {
+            key: 'F[0].#subform[1].Date_Signed_Month[0]'
+          },
+          'day' => {
+            key: 'F[0].#subform[1].Date_Signed_Day[0]'
+          },
+          'year' => {
+            key: 'F[0].#subform[1].Date_Signed_Year[0]'
+          }
         },
         # TODO: 2018 form had one field for printed name, the 2024 form has 3 fields. Need to create a object similar to social security.
         'printedName' => {
-          key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
+          'first' => {
+            key: 'F[0].#subform[1].Printed_Name_Of_Person_Signing_First[0]',
+            limit: 12,
+            question_num: 1,
+            question_text: "VETERAN/BENEFICIARY'S FIRST NAME"
+          },
+          'middleInitial' => {
+            key: 'F[0].#subform[1].Printed_Name_Of_Person_Signing_Middle_Initial[0]'
+          },
+          'last' => {
+            key: 'F[0].#subform[1].Printed_Name_Of_Person_Signing_Last[0]',
+            limit: 18,
+            question_num: 1,
+            question_text: "VETERAN/BENEFICIARY'S LAST NAME"
+          }
         },
         'veteranFullName1' => {
           'first' => {
@@ -307,6 +328,12 @@ module PdfFill
         end
       end
 
+      def expand_printed_full_name
+        ['', '1'].each do |suffix|
+          @form_data["printedName#{suffix}"] = extract_middle_i(@form_data, 'veteranFullName')
+        end
+      end
+
       def expand_veteran_dob
         veteran_date_of_birth = @form_data['veteranDateOfBirth']
         return if veteran_date_of_birth.blank?
@@ -314,6 +341,13 @@ module PdfFill
         ['', '1'].each do |suffix|
           @form_data["veteranDateOfBirth#{suffix}"] = split_date(veteran_date_of_birth)
         end
+      end
+
+      def expand_signature_date
+        veteran_signature_date = Date.strptime(@form_data['signatureDate'], '%Y-%m-%d').to_s
+        return if veteran_signature_date.blank?
+
+        @form_data["signatureDate"] = split_date(veteran_signature_date)
       end
 
       def expand_veteran_service_number
@@ -381,9 +415,12 @@ module PdfFill
         expand_phone_number
 
         expand_veteran_full_name
+        expand_printed_full_name
+        binding.pry
         signature_date = @form_data['signatureDate']
         expand_signature(@form_data['veteranFullName'], signature_date)
-        @form_data['printedName'] = @form_data['signature']
+        expand_signature_date
+        # @form_data['printedName'] = @form_data['signature']
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         expand_claimant_address
@@ -400,7 +437,7 @@ module PdfFill
   end
 end
 
-
+# Source of truth: pdftk output fields
 # F[0].Page_1[0].VeteranFirstName[0]
 # F[0].Page_1[0].VeteranMiddleInitial1[0]
 # F[0].Page_1[0].VeteranLastName[0]
