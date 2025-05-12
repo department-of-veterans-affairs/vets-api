@@ -6,7 +6,6 @@ class Form0781StateSnapshotJob
   sidekiq_options retry: false
 
   STATSD_PREFIX = 'form526.form0781.state.snapshot'
-  STAT_START_DATE = Date.new(2025, 4, 1)
 
   def perform
     if Flipper.enabled?(:disability_compensation_0781_stats_job)
