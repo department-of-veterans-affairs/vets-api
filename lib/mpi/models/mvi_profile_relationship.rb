@@ -6,9 +6,23 @@ require_relative 'mvi_profile_ids'
 module MPI
   module Models
     class MviProfileRelationship
-      include Virtus.model
+      include ActiveModel::API
+      include ActiveModel::Attributes
+      include ActiveModel::Serializers::JSON
       include MviProfileIdentity
       include MviProfileIds
+
+      def [](key)
+        public_send(key)
+      end
+
+      def []=(key, value)
+        public_send("#{key}=", value)
+      end
+
+      def to_h
+        attributes.symbolize_keys
+      end
     end
   end
 end
