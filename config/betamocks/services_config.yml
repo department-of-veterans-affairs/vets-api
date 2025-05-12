@@ -922,7 +922,7 @@
     # Get provider service slots
     - :method: :get
       :path: "/care-navigation/v1/provider-services/*/slots"
-      :file_path: "vaos/eps/get_provider_slots"
+      :file_path: "vaos/eps/providers/get_provider_slots"
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)\/slots'
