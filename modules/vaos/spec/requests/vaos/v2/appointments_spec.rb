@@ -1433,7 +1433,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
             VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
               VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
-                VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid', match_requests_on: %i[method path] do
+                VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid',
+                                 match_requests_on: %i[method path] do
                   VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                     allow_any_instance_of(Eps::AppointmentService)
                       .to receive(:get_appointments)
