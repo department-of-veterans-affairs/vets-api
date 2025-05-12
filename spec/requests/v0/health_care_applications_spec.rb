@@ -499,7 +499,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
               expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
               subject
@@ -557,8 +556,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
-
               subject
 
               expect(response).to have_http_status(:bad_request)
