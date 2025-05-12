@@ -6,7 +6,10 @@ require_relative 'communication_permission'
 module VAProfile
   module Models
     class CommunicationChannel < CommunicationBase
-      attr_accessor :id, :name, :description, :default_send_indicator
+      attr_accessor :id, :name, :description,
+                    :default_send_indicator,
+                    :sensitive_indicator,
+                    :default_sensitive_indicator
       attr_reader :communication_permission
 
       validates :id, :communication_permission, presence: true
@@ -14,14 +17,16 @@ module VAProfile
       validate :communication_permission_valid
 
       def self.create_from_api(communication_channel_data,
-                               communication_item_id,
-                               default_send_indicator,
-                               permission_res)
+                              communication_item_id,
+                              item_channel_data,
+                              permission_res)
         communication_channel_model = new(
           id: communication_channel_data['communication_channel_id'],
           name: communication_channel_data['name'],
           description: communication_channel_data['description'],
-          default_send_indicator:
+          default_send_indicator: item_channel_data['default_send_indicator'],
+          sensitive_indicator: item_channel_data['sensitive_indicator'],
+          default_sensitive_indicator: item_channel_data['default_sensitive_indicator']
         )
 
         permission = permission_res['bios']&.find do |permission_data|
@@ -32,7 +37,8 @@ module VAProfile
         if permission.present?
           communication_channel_model.communication_permission = VAProfile::Models::CommunicationPermission.new(
             id: permission['communication_permission_id'],
-            allowed: permission['allowed']
+            allowed: permission['allowed'],
+            sensitive: permission['sensitive']
           )
         end
 
