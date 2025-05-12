@@ -1567,4 +1567,33 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#cerner_eligible?' do
+    let(:user) { build(:user, :loa3, cerner_id:) }
+    let(:cerner_id) { 'some-cerner-id' }
+
+    context 'when the user is loa3' do
+      context 'when the user has a cerner_id' do
+        it 'returns true' do
+          expect(user.cerner_eligible?).to be true
+        end
+      end
+
+      context 'when the user does not have a cerner_id' do
+        let(:cerner_id) { nil }
+
+        it 'returns false' do
+          expect(user.cerner_eligible?).to be false
+        end
+      end
+    end
+
+    context 'when the user is not loa3' do
+      let(:user) { build(:user) }
+
+      it 'returns false' do
+        expect(user.cerner_eligible?).to be false
+      end
+    end
+  end
 end
