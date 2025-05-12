@@ -38,12 +38,12 @@ module Eps
       )
     end
 
-    # Retrieves the provider ID for a given referral number.
+    # Retrieves the NPI (National Provider Identifier) for a given referral number.
     #
     # @param referral_number [String] the referral number
-    # @return [String, nil] the provider ID if it exists, otherwise nil
-    def provider_id(referral_number:)
-      fetch_attribute(referral_number:, attribute: :provider_id)
+    # @return [String, nil] the NPI if it exists, otherwise nil
+    def npi(referral_number:)
+      fetch_attribute(referral_number:, attribute: :npi)
     end
 
     # Retrieves the appointment type ID for a given referral number.
@@ -62,15 +62,27 @@ module Eps
       fetch_attribute(referral_number:, attribute: :end_date)
     end
 
-    # Saves the referral information to the Redis cache.
+    # Saves referral data from a ReferralDetail object to the Redis cache.
     #
-    # @param referral_number [String] the referral number
-    # @param referral [Hash] the referral information to be saved
-    # @return [Boolean] true if the write was successful, otherwise false
-    def save(referral_number:, referral:)
+    # @param referral_id [String] The referral ID (consult ID)
+    # @param referral [Ccra::ReferralDetail] The referral data object
+    # @return [Boolean] True if the cache operation was successful, false if required data is missing or caching fails
+    def save_referral_data(referral_id:, referral:)
+      return false unless valid_referral_inputs?(referral_id, referral)
+
+      referral_attributes = extract_referral_attributes(referral)
+      return false unless required_fields_present?(referral_id, referral_attributes)
+
+      # Directly write to cache
+      cache_data = {
+        data: {
+          attributes: referral_attributes
+        }
+      }
+
       Rails.cache.write(
-        "vaos_eps_referral_identifier_#{referral_number}",
-        referral,
+        "vaos_eps_referral_identifier_#{referral_id}",
+        cache_data.to_json,
         namespace: 'vaos-eps-cache',
         expires_in: redis_token_expiry
       )
@@ -102,6 +114,50 @@ module Eps
     end
 
     private
+
+    # Validates that referral_id and referral are present
+    #
+    # @param referral_id [String] The referral ID
+    # @param referral [Ccra::ReferralDetail] The referral object
+    # @return [Boolean] True if both inputs are present
+    def valid_referral_inputs?(referral_id, referral)
+      if referral_id.blank? || referral.blank?
+        Rails.logger.warn('Failed to cache referral data: referral_id or referral object is missing')
+        return false
+      end
+      true
+    end
+
+    # Extracts the required attributes from the referral object
+    #
+    # @param referral [Ccra::ReferralDetail] The referral object
+    # @return [Hash] The extracted attributes
+    def extract_referral_attributes(referral)
+      {
+        appointment_type_id: referral.appointment_type_id,
+        end_date: referral.expiration_date,
+        npi: referral.provider_npi,
+        start_date: referral.referral_date
+      }
+    end
+
+    # Checks if all required fields are present in the attributes
+    #
+    # @param referral_id [String] The referral ID for logging
+    # @param attributes [Hash] The referral attributes
+    # @return [Boolean] True if all required fields are present
+    def required_fields_present?(referral_id, attributes)
+      required_fields = %i[npi appointment_type_id start_date end_date]
+      missing_fields = required_fields.select { |field| attributes[field].blank? }
+
+      if missing_fields.any?
+        message = "Failed to cache referral data for ID #{referral_id}: " \
+                  "missing required fields: #{missing_fields.join(', ')}"
+        Rails.logger.warn(message)
+        return false
+      end
+      true
+    end
 
     # Retrieves the referral identifiers for a given referral number.
     #
