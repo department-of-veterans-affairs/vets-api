@@ -12,7 +12,7 @@ module SimpleFormsApi
 
     def initialize(data)
       data = data&.to_unsafe_h unless data.is_a?(Hash)
-      super({data: data})
+      super({ data: })
       @signature_date = Time.current.in_time_zone('America/Chicago')
     end
 
