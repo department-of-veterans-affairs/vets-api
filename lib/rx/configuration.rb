@@ -35,11 +35,14 @@ module Rx
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
         "#{Settings.mhv.api_gateway.hosts.pharmacy}/#{Settings.mhv.rx.gw_base_path}"
       else
         "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}"
       end
+    rescue NoMethodError => e
+      Rails.logger.error("RX:Configuration Flipper error: #{e.message}")
+      "#{Settings.mhv.rx.host}/#{Settings.mhv.rx.base_path}" # Default path
     end
 
     ##

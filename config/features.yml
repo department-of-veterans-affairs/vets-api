@@ -1227,6 +1227,10 @@ features:
     actor_type: user
     description: Enables/disables refill progress related work
     enable_in_development: true
+  mhv_medications_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables/disables medications migration to the new API Gateway endpoints
+    enable_in_development: true
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page
