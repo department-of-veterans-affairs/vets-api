@@ -354,7 +354,7 @@ describe PdfFill::Forms::Va210781v2 do
           'appetite' => false
         },
         'behaviorsDetails' => {
-          'absences' => 'absenses lorem ipsum',
+          'absences' => 'absences lorem ipsum',
           'appetite' => 'appetite lorem ipsum'
         }
       }
