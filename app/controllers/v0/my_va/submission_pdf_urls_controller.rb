@@ -13,8 +13,17 @@ module V0
           form_id: request_params[:form_id],
           submission_guid: request_params[:submission_guid]
         ).fetch_url
-
+        # This exception is raised if the fetch_url is not returned
         raise Common::Exceptions::RecordNotFound, request_params[:submission_guid] unless url.is_a?(String)
+
+        # Check to make sure the returned URL is found in S3
+        Faraday::Connection.new do |conn|
+          response = conn.head(url)
+          status = response.status
+          if status != 200
+            raise Common::Exceptions::RecordNotFound, request_params[:submission_guid]
+          end
+        end
 
         render json: { url: }
       end
