@@ -39,7 +39,6 @@ FactoryBot.define do
   trait :with_consent_limit do
     after(:build) do |poa|
       poa.form_data.deep_merge!(
-        'recordConsent' => true,
         'consentLimits' => ['SICKLE CELL']
       )
     end
@@ -48,7 +47,6 @@ FactoryBot.define do
   trait :with_blank_consent_limit do
     after(:build) do |poa|
       poa.form_data.deep_merge!(
-        'recordConsent' => true,
         'consentLimits' => []
       )
     end

@@ -32,7 +32,7 @@ module MPI
                          Breakers::OutageException].freeze
 
     # rubocop:disable Metrics/ParameterLists
-    def add_person_proxy(last_name:, ssn:, birth_date:, icn:, edipi:, search_token:, first_name:)
+    def add_person_proxy(last_name:, ssn:, birth_date:, icn:, edipi:, search_token:, first_name:, as_agent: false)
       with_monitoring do
         raw_response = perform(
           :post, '',
@@ -42,7 +42,8 @@ module MPI
                                                       icn:,
                                                       edipi:,
                                                       search_token:,
-                                                      first_name:).perform,
+                                                      first_name:,
+                                                      as_agent:).perform,
           soapaction: Constants::ADD_PERSON
         )
         MPI::Services::AddPersonResponseCreator.new(type: Constants::ADD_PERSON_PROXY_TYPE,
