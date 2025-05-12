@@ -23,7 +23,7 @@ module VAProfile
             VAProfile::Models::CommunicationChannel.create_from_api(
               communication_channel,
               communication_res['communication_item_id'],
-              communication_item_channel['default_send_indicator'],
+              communication_item_channel,
               permission_res
             )
           end
@@ -47,6 +47,7 @@ module VAProfile
         {
           bio: {
             allowed: communication_channel.communication_permission.allowed,
+            sensitive: communication_channel.communication_permission.sensitive,
             communicationChannelId: communication_channel.id,
             communicationItemId: id,
             vaProfileId: va_profile_id.to_i,
