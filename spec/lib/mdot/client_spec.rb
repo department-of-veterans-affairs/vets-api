@@ -194,6 +194,14 @@ describe MDOT::Client, type: :mdot_helpers do
         let!(:cassette) { 'mdot/get_supplies_200_not_json' }
 
         it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsParsingError', 'status:200'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
           expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
         end
       end
