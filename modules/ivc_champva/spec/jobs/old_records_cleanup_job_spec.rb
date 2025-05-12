@@ -11,6 +11,7 @@ RSpec.describe IvcChampva::OldRecordsCleanupJob, type: :job do
 
   before do
     allow(Settings.ivc_forms.sidekiq.old_records_cleanup_job).to receive(:enabled).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:champva_old_records_cleanup_job).and_return(true)
     allow(Rails.logger).to receive(:info)
 
     # Set up a fixed current time for testing
@@ -76,7 +77,7 @@ RSpec.describe IvcChampva::OldRecordsCleanupJob, type: :job do
       end
     end
 
-    context 'when job is disabled' do
+    context 'when settings toggle is disabled' do
       before do
         allow(Settings.ivc_forms.sidekiq.old_records_cleanup_job).to receive(:enabled).and_return(false)
         create_list(:ivc_champva_form, 3, updated_at: 70.days.ago)
@@ -87,10 +88,18 @@ RSpec.describe IvcChampva::OldRecordsCleanupJob, type: :job do
           job.perform
         end.not_to change(IvcChampvaForm, :count)
       end
+    end
 
-      it 'does not log' do
-        job.perform
-        expect(Rails.logger).not_to have_received(:info)
+    context 'when flipper toggle is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_old_records_cleanup_job).and_return(false)
+        create_list(:ivc_champva_form, 3, updated_at: 70.days.ago)
+      end
+
+      it 'does not delete any records' do
+        expect do
+          job.perform
+        end.not_to change(IvcChampvaForm, :count)
       end
     end
   end

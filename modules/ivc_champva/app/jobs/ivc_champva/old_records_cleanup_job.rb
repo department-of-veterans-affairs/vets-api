@@ -13,6 +13,7 @@ module IvcChampva
 
     def perform
       return unless Settings.ivc_forms.sidekiq.old_records_cleanup_job.enabled
+      return unless Flipper.enabled?(:champva_old_records_cleanup_job)
 
       total_deleted = 0
 
