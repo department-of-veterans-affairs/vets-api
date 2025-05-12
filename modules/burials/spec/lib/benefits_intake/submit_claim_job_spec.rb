@@ -252,13 +252,13 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive(:track_send_confirmation_email_failure)
+      allow(monitor).to receive(:track_send_email_failure)
     end
 
     it 'errors and logs but does not reraise' do
       expect(Burials::NotificationEmail).to receive(:new).with(claim.id)
       expect(notification).to receive(:deliver).with(:confirmation)
-      expect(monitor).to receive(:track_send_confirmation_email_failure)
+      expect(monitor).to receive(:track_send_email_failure)
       job.send(:send_confirmation_email)
     end
   end
@@ -274,13 +274,13 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive(:track_send_submitted_email_failure)
+      allow(monitor).to receive(:track_send_email_failure)
     end
 
     it 'errors and logs but does not reraise' do
       expect(Burials::NotificationEmail).to receive(:new).with(claim.id)
       expect(notification).to receive(:deliver).with(:submitted)
-      expect(monitor).to receive(:track_send_submitted_email_failure)
+      expect(monitor).to receive(:track_send_email_failure)
       job.send(:send_submitted_email)
     end
   end

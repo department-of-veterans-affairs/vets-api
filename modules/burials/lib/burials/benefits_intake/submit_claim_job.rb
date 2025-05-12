@@ -62,7 +62,9 @@ module Burials
 
         @intake_service.uuid
       rescue => e
-        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e)
+        call_location = e.backtrace.first
+
+        monitor.track_submission_retry(@claim, @intake_service, @user_account_uuid, e, call_location:)
         @form_submission_attempt&.fail!
         raise e
       ensure
@@ -210,14 +212,14 @@ module Burials
       def send_confirmation_email
         Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
       rescue => e
-        monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'confirmation', e)
       end
 
       # VANotify job to send Submission in Progress email to veteran
       def send_submitted_email
         Burials::NotificationEmail.new(@claim.id).deliver(:submitted)
       rescue => e
-        monitor.track_send_submitted_email_failure(@claim, @intake_service, @user_account_uuid, e)
+        monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
       end
 
       # Delete temporary stamped PDF files for this job instance

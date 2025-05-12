@@ -76,6 +76,14 @@ features:
       We need to remove this feature from the codebase ASAP.
       Mocks shouldn't live in the app logic. If needed, add at the API/middleware level.
     enable_in_development: true
+  ask_va_api_maintenance_mode:
+    actor_type: user
+    description: >
+      A system-wide control flag that governs the overall availability of Ask VA API endpoints.
+      When enabled, the API restricts external access and returns a service unavailable response across all routes.
+      Primarily used for coordinated maintenance windows or temporary system suspensions,
+      allowing the team to manage API exposure dynamically without requiring a redeploy.
+    enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
     description: Show downtime message on Profile and My VA for planned VBA maintenance
@@ -641,6 +649,9 @@ features:
   disability_526_send_form526_submitted_email:
     actor_type: user
     description: enables sending submitted email in both primary and backup paths
+  disability_526_send_mas_all_ancillaries:
+    actor_type: user
+    description: enables sending all 526 uploads and ancillary forms to MAS's APCAS API
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
@@ -659,6 +670,10 @@ features:
   dispute_debt:
     actor_type: user
     description: Enables the Dispute Debt feature
+    enable_in_development: true
+  event_bus_gateway_emails_enabled:
+    actor_type: user
+    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
     enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
@@ -1556,6 +1571,14 @@ features:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
     enable_in_development: false
+  dslogon_interstitial_redirect:
+    actor_type: user
+    description: Enables DS Logon users to be redirected to the DS Logon deprecation interstitial page (Identity)
+    enable_in_development: false
+  dslogon_button_disabled:
+    actor_type: user
+    description: Hides the DS Logon button credential on sign-in page + modal (Identity)
+    enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
@@ -2180,5 +2203,3 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
-  only_use_direct_deposit_email_template:
-    description: If enabled, VANotifyDdEmailJob will not use the EDU and/or C&P email templates

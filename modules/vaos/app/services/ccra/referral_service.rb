@@ -30,7 +30,8 @@ module Ccra
         Rails.logger.info("CCRA Referral List - Content-Type: #{response.response_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
-        data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+        # Note JSON.parse is only used for betamock responses
+        data = response.body.is_a?(String) ? JSON.parse(response.body, symbolize_names: true) : response.body
 
         ReferralListEntry.build_collection(data)
       end
@@ -61,7 +62,8 @@ module Ccra
         Rails.logger.info("CCRA Referral Detail - Content-Type: #{response.request_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
-        data = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+        # Note JSON.parse is only used for betamock responses
+        data = response.body.is_a?(String) ? JSON.parse(response.body, symbolize_names: true) : response.body
 
         ReferralDetail.new(data)
       end

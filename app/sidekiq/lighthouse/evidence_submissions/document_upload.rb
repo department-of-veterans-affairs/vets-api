@@ -33,6 +33,8 @@ module Lighthouse
 
       def perform(user_icn, document_hash, evidence_submission_id = nil)
         @user_icn = user_icn
+        document_hash.delete('file_obj')
+        document_hash.delete(:file_obj)
         @document_hash = document_hash
 
         initialize_upload_document
