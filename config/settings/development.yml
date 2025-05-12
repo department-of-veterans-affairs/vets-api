@@ -611,9 +611,9 @@ ivc_forms:
   sidekiq:
     missing_form_status_job:
       enabled: true
-    ves_retry_failures_job:
-      enabled: true
     old_records_cleanup_job:
+      enabled: true
+    ves_retry_failures_job:
       enabled: true
 kafka_producer:
   aws_region: "us-gov-west-1"
