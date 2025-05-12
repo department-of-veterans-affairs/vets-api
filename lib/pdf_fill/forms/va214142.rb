@@ -231,14 +231,17 @@ module PdfFill
           question_text: 'PROVIDER / FACILITY',
 
           'providerFacilityName' => {
-            key: "F[0].provider.Provider_Or_Facility_Name[#{PROVIDER_ITERATOR}]"
+            key: "F[0].#subform[14].Provider_Or_Facility_Name[#{PROVIDER_ITERATOR}]"
+          },
+          'conditions' => {
+            key: "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[#{PROVIDER_ITERATOR}]"
           },
           'dateRangeStart0' => {
-            key: "F[0].provider.dateRangeStart0[#{PROVIDER_ITERATOR}]",
+            key: "F[0].#subform[14].Month[1]",
             format: 'date'
           },
           'dateRangeEnd0' => {
-            key: "F[0].provider.dateRangeEnd0[#{PROVIDER_ITERATOR}]",
+            key: "F[0].#subform[14].Day[1]",
             format: 'date'
           },
           'dateRangeStart1' => {
@@ -392,6 +395,7 @@ module PdfFill
       end
 
       def expand_provider_extras(providers)
+
         providers.each do |provider|
           name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
           provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
@@ -416,11 +420,10 @@ module PdfFill
 
         expand_veteran_full_name
         expand_printed_full_name
-        binding.pry
+
         signature_date = @form_data['signatureDate']
         expand_signature(@form_data['veteranFullName'], signature_date)
         expand_signature_date
-        # @form_data['printedName'] = @form_data['signature']
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         expand_claimant_address
