@@ -107,28 +107,16 @@ RSpec.describe IvcChampva::OldRecordsCleanupJob, type: :job do
     end
   end
 
-  describe '#find_old_records' do
-    it 'returns only records older than 60 days' do
-      # Create records with different ages
-      old_records = [
-        create(:ivc_champva_form, updated_at: 61.days.ago),
-        create(:ivc_champva_form, updated_at: 90.days.ago)
-      ]
-      # These should not be returned
-      create(:ivc_champva_form, updated_at: 59.days.ago)
-      create(:ivc_champva_form, updated_at: 30.days.ago)
-
-      result = job.send(:find_old_records)
-      expect(result.count).to eq(2)
-      expect(result.pluck(:id)).to match_array(old_records.map(&:id))
-    end
-  end
-
   describe '#find_old_records_in_batches' do
     it 'yields each batch to the block with correct size' do
       # Create just 8 records for testing batches
       8.times do |i|
         create(:ivc_champva_form, updated_at: (61 + i).days.ago)
+      end
+
+      # Create 2 records that should be kept (newer than 60 days)
+      2.times do |i|
+        create(:ivc_champva_form, updated_at: (59 - i).days.ago)
       end
 
       batch_sizes = []
