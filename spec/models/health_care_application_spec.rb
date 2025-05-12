@@ -497,9 +497,6 @@ RSpec.describe HealthCareApplication, type: :model do
           }]
         end
 
-        let(:expected_errors) do
-        end
-
         before do
           allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
                                                                    validate: schemer_errors))
