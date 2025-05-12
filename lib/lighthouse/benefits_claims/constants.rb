@@ -12,7 +12,7 @@ module BenefitsClaims
       'EFT - Treasury Mandate Notification' => 'Direct deposit information',
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'Details about cause of PTSD',
       'RV1 - Reserve Records Request' => 'Reserve records',
-      'Proof of service (DD214, etc.)' => 'Proof of Service',
+      'Proof of service (DD214, etc.)' => 'Proof of service',
       'PMR Request' => 'Non-VA medical records',
       'General Records Request (Medical)' => 'Non-VA medical records',
       'DBQ AUDIO Hearing Loss and Tinnitus' => 'Disability exam for hearing',
