@@ -179,6 +179,26 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'handles unexpected or malformed responses' do
+      before do
+        VCR.insert_cassette(
+          cassette,
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        )
+      end
+
+      after { VCR.eject_cassette }
+
+      context 'with a response that is not actually JSON' do
+        let!(:cassette) { 'mdot/get_supplies_200_not_json' }
+
+        it 'raises an error' do
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+    end
+
     context 'validates temporary OR permanent address' do
       before do
         VCR.insert_cassette(
