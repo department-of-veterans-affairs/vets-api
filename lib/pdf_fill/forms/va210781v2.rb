@@ -151,10 +151,10 @@ module PdfFill
           'combat' => {
             key: 'F[0].#subform[2].Combat_Traumatic_Events[0]'
           },
-          'mst' => {
+          'nonMst' => {
             key: 'F[0].#subform[2].Personal_Traumatic_Events_Not_Involving_Military_Sexual_Trauma[0]'
           },
-          'nonMst' => {
+          'mst' => {
             key: 'F[0].#subform[2].Personal_Traumatic_Events_Involving_Military_Sexual_Trauma[0]'
           },
           'other' => {
@@ -670,7 +670,7 @@ module PdfFill
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: [15]
+          question_nums: [16]
         }
       ].freeze
 
