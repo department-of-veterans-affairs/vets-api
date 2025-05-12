@@ -8,7 +8,7 @@ module IvcChampva
     include Sidekiq::Job
     sidekiq_options retry: 3
 
-    BATCH_SIZE = 100
+    BATCH_SIZE = 500
     CLEANUP_THRESHOLD_DAYS = 60
 
     def perform
