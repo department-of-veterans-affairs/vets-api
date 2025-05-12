@@ -150,13 +150,7 @@ module Eps
       required_fields = %i[npi appointment_type_id start_date end_date]
       missing_fields = required_fields.select { |field| attributes[field].blank? }
 
-      if missing_fields.any?
-        message = "Failed to cache referral data for ID #{referral_id}: " \
-                  "missing required fields: #{missing_fields.join(', ')}"
-        Rails.logger.warn(message)
-        return false
-      end
-      true
+      missing_fields.none?
     end
 
     # Retrieves the referral identifiers for a given referral number.
