@@ -29,7 +29,6 @@ module Preneeds
       soap = savon_client.build_request(:get_cemeteries, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
 
-
       Vets::Collection.new(json[:data], Cemetery, metadata: json[:metadata], errors: json[:errors])
     end
 
