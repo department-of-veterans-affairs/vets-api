@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 require 'feature_flipper'
 
-MOCK_URL = 'https://example.com/file1.pdf'
+MOCK_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+MOCK_404_URL = 'https://example.com/file1.pdf'
 MOCK_GUID = '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80'
 VALID_FORM_ID = '20-10206'
 
@@ -31,6 +32,18 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
         expect(response).to have_http_status(:ok)
         results = JSON.parse(response.body)
         expect(results['url']).to eq(MOCK_URL)
+      end
+    end
+
+    context 'when pdf download is supposed to be available but does not exist in S3' do
+      before do
+        allow(SimpleFormsApi::FormRemediation::Configuration::VffConfig).to receive(:new).and_return(mock_config)
+        allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:fetch_presigned_url).and_return(MOCK_404_URL)
+      end
+
+      it 'raises RecordNotFound error' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        expect(response).to have_http_status(:not_found)
       end
     end
 
