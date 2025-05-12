@@ -83,11 +83,7 @@ class HealthCareApplication < ApplicationRecord
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue Common::Client::Errors::ClientError => e
-      if Flipper.enabled?(:hca_disable_sentry_logs)
-        Rails.logger.error('[10-10EZ] - Error synchronously submitting form', { exception: e, user_loa: user&.loa })
-      else
-        log_exception_to_sentry(e)
-      end
+      Rails.logger.error('[10-10EZ] - Error synchronously submitting form', { exception: e, user_loa: user&.loa })
 
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
@@ -296,7 +292,7 @@ class HealthCareApplication < ApplicationRecord
     log_submission_failure_details
   end
 
-  def log_submission_failure_details # rubocop:disable Metrics/MethodLength
+  def log_submission_failure_details
     return if parsed_form.blank?
 
     send_event_bus_event('error')
@@ -306,27 +302,14 @@ class HealthCareApplication < ApplicationRecord
       error_class: 'HealthCareApplication FailedWontRetry'
     )
 
-    if Flipper.enabled?(:hca_disable_sentry_logs)
-      Rails.logger.info(
-        '[10-10EZ] - HCA total failure',
-        {
-          first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
-          middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
-          last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
-        }
-      )
-    else
-      log_message_to_sentry(
-        'HCA total failure',
-        :error,
-        {
-          first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
-          middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
-          last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
-        },
-        hca: :total_failure
-      )
-    end
+    Rails.logger.info(
+      '[10-10EZ] - HCA total failure',
+      {
+        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+        last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+      }
+    )
   end
 
   def send_failure_email
@@ -347,11 +330,7 @@ class HealthCareApplication < ApplicationRecord
     VANotify::EmailJob.perform_async(email, template_id, { 'salutation' => salutation }, api_key, metadata)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
-    if Flipper.enabled?(:hca_disable_sentry_logs)
-      Rails.logger.error('[10-10EZ] - Failure sending Submission Failure Email', { exception: e })
-    else
-      log_exception_to_sentry(e)
-    end
+    Rails.logger.error('[10-10EZ] - Failure sending Submission Failure Email', { exception: e })
   end
 
   def form_matches_schema

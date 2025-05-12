@@ -137,9 +137,6 @@ features:
   hca_disable_bgs_service:
     actor_type: user
     description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
-  hca_disable_sentry_logs:
-    actor_type: user
-    description: Use rails logging instead of Sentry for logging
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
