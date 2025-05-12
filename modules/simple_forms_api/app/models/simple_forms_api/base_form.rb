@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module SimpleFormsApi
   class BaseForm
-    include Virtus.model(nullify_blank: true)
+    include Vets::Model
 
     attribute :data
 
