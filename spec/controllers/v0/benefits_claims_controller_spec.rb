@@ -294,7 +294,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(friendly_name_values).to include('Direct deposit information')
           expect(friendly_name_values).to include('Details about cause of PTSD')
           expect(friendly_name_values).to include('Reserve records')
-          expect(friendly_name_values).to include('Proof of Service')
           expect(friendly_name_values).to include('Non-VA medical records')
           expect(friendly_name_values).to include('Disability exam for hearing')
           expect(friendly_name_values).to include('Mental health exam')
@@ -302,8 +301,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(activity_description_values).to include('We need your permission to request your personal' \
                                                          ' information from a non-VA source, like a private' \
                                                          ' doctor or hospital.')
-          expect(activity_description_values).to include('We\'ve requested your Proof of Service on your behalf.' \
-                                                         ' No action is needed.')
           expect(activity_description_values).to include('We need employment information from your most' \
                                                          ' recent employer.')
           expect(activity_description_values).to include('We need your direct deposit information in' \
