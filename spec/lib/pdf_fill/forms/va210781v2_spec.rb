@@ -381,7 +381,7 @@ describe PdfFill::Forms::Va210781v2 do
 
           expected = [
             {
-              'additionalInfo' => 'absenses lorem ipsum',
+              'additionalInfo' => 'absences lorem ipsum',
               'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
             },
             {
@@ -424,7 +424,7 @@ describe PdfFill::Forms::Va210781v2 do
             new_form_class.send(:process_behaviors_details, extras_redesign)
 
             expected = {
-              'additionalInfo' => 'absenses lorem ipsum',
+              'additionalInfo' => 'absences lorem ipsum',
               'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
             }
 
@@ -448,7 +448,7 @@ describe PdfFill::Forms::Va210781v2 do
         it 'transforms behaviors details into the expected format' do
           expected = [
             {
-              'additionalInfo' => 'absenses lorem ipsum',
+              'additionalInfo' => 'absences lorem ipsum',
               'checked' => true,
               'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
             },
@@ -499,7 +499,7 @@ describe PdfFill::Forms::Va210781v2 do
             new_form_class.send(:process_behaviors_details, extras_redesign)
             expected = [
               {
-                'additionalInfo' => 'absenses lorem ipsum',
+                'additionalInfo' => 'absences lorem ipsum',
                 'checked' => true,
                 'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
               },
@@ -537,20 +537,20 @@ describe PdfFill::Forms::Va210781v2 do
           it 'still processes the behaviorsDetails and additionalBehaviorsDetails' do
             new_form_class.instance_variable_set(:@form_data, { 'behaviors' => nil,
                                                                 'behaviorsDetails' => {
-                                                                  'absences' => 'absenses lorem ipsum',
+                                                                  'absences' => 'absences lorem ipsum',
                                                                   'unlisted' => 'unlisted lorem ipsum'
                                                                 } })
             new_form_class.send(:process_behaviors_details, extras_redesign)
 
             if extras_redesign
-              expected_behaviors = { 'additionalInfo' => 'absenses lorem ipsum',
+              expected_behaviors = { 'additionalInfo' => 'absences lorem ipsum',
                                      'checked' => false,
                                      'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences'] }
               expected_additional_behaviors = [{ 'description' => 'Additional behavioral changes',
                                                  'additionalInfo' => 'unlisted lorem ipsum',
                                                  'checked' => false }]
             else
-              expected_behaviors = { 'additionalInfo' => 'absenses lorem ipsum',
+              expected_behaviors = { 'additionalInfo' => 'absences lorem ipsum',
                                      'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences'] }
 
               expected_additional_behaviors = { 'additionalInfo' => 'unlisted lorem ipsum' }
