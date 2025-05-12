@@ -65,8 +65,28 @@ module Ccra
         # Note JSON.parse is only used for betamock responses
         data = response.body.is_a?(String) ? JSON.parse(response.body, symbolize_names: true) : response.body
 
-        ReferralDetail.new(data)
+        referral = ReferralDetail.new(data)
+        cache_referral_data(id, referral)
+        referral
       end
+    end
+
+    private
+
+    # Caches referral data for use in appointment creation
+    #
+    # @param referral_id [String] The referral ID (consult ID)
+    # @param referral [ReferralDetail] The referral data object
+    # @return [Boolean] True if the cache operation was successful, false if required data is missing or caching fails
+    def cache_referral_data(referral_id, referral)
+      # Delegate to the RedisClient's save_referral_data method
+      eps_redis_client.save_referral_data(referral_id:, referral:)
+    end
+
+    # Memoized EPS Redis client instance
+    # @return [Eps::RedisClient] the EPS Redis client
+    def eps_redis_client
+      @eps_redis_client ||= Eps::RedisClient.new
     end
   end
 end
