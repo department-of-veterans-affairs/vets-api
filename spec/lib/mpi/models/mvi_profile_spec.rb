@@ -42,7 +42,7 @@ describe MPI::Models::MviProfile do
       subject { build(:mpi_profile, birth_date: '1985-01-01') }
 
       it 'returns a non-nil birth_date' do
-        expect(Date.parse(subject.birth_date)).to be_a(Date)
+        expect(subject.birth_date).to be_a(Date)
         expect(subject.birth_date).not_to be_nil
       end
     end
