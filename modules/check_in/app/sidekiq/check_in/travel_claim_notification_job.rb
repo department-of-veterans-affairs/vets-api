@@ -15,7 +15,7 @@ module CheckIn
   #   })
   class TravelClaimNotificationJob < TravelClaimBaseJob
     # Maximum number of retry attempts before the job is considered exhausted
-    MAX_RETRIES = 12
+    MAX_RETRIES = 1
     sidekiq_options retry: MAX_RETRIES
 
     REQUIRED_FIELDS = %i[mobile_phone template_id appointment_date].freeze
@@ -232,7 +232,7 @@ module CheckIn
     # @param error_message [String] The error message from the exception
     # @return [void]
     def log_send_sms_failure(error_message)
-      logger.info({ message: "TravelClaimNotificationJob failed",
+      logger.info({ message: 'TravelClaimNotificationJob failed',
                     error: error_message })
     end
   end
