@@ -91,76 +91,6 @@ describe Eps::RedisClient do
     end
   end
 
-  describe '#npi' do
-    context 'when cache does not exist' do
-      it 'returns nil' do
-        expect(redis_client.npi(referral_number:)).to be_nil
-      end
-    end
-
-    context 'when cache exists' do
-      before do
-        Rails.cache.write(
-          "vaos_eps_referral_identifier_#{referral_number}",
-          referral_data_hash,
-          namespace: 'vaos-eps-cache',
-          expires_in: redis_token_expiry
-        )
-      end
-
-      it 'returns the cached value' do
-        expect(redis_client.npi(referral_number:)).to eq(npi)
-      end
-    end
-
-    context 'when cache has expired' do
-      before do
-        Rails.cache.write(
-          "vaos_eps_referral_identifier_#{referral_number}",
-          referral_data_hash,
-          namespace: 'vaos-eps-cache',
-          expires_in: redis_token_expiry
-        )
-      end
-
-      it 'returns nil' do
-        Timecop.travel(redis_token_expiry.from_now) do
-          expect(redis_client.npi(referral_number:)).to be_nil
-        end
-      end
-    end
-  end
-
-  describe '#appointment_type_id' do
-    before do
-      Rails.cache.write(
-        "vaos_eps_referral_identifier_#{referral_number}",
-        referral_data_hash,
-        namespace: 'vaos-eps-cache',
-        expires_in: redis_token_expiry
-      )
-    end
-
-    it 'returns the cached value' do
-      expect(redis_client.appointment_type_id(referral_number:)).to eq(appointment_type_id)
-    end
-  end
-
-  describe '#end_date' do
-    before do
-      Rails.cache.write(
-        "vaos_eps_referral_identifier_#{referral_number}",
-        referral_data_hash,
-        namespace: 'vaos-eps-cache',
-        expires_in: redis_token_expiry
-      )
-    end
-
-    it 'returns the cached value' do
-      expect(redis_client.end_date(referral_number:)).to eq(end_date)
-    end
-  end
-
   describe '#save_referral_data' do
     let(:provider_npi) { 'NPI123456' }
     let(:referral_data) do
@@ -185,29 +115,6 @@ describe Eps::RedisClient do
       expect(saved_data[:end_date]).to eq(end_date)
       expect(saved_data[:start_date]).to eq(start_date)
       expect(saved_data[:referral_number]).to eq(referral_number)
-    end
-  end
-
-  describe '#fetch_attribute' do
-    context 'when cache does not exist' do
-      it 'returns nil' do
-        expect(redis_client.fetch_attribute(referral_number:, attribute: :npi)).to be_nil
-      end
-    end
-
-    context 'when cache exists' do
-      before do
-        Rails.cache.write(
-          "vaos_eps_referral_identifier_#{referral_number}",
-          referral_data_hash,
-          namespace: 'vaos-eps-cache',
-          expires_in: redis_token_expiry
-        )
-      end
-
-      it 'returns the cached value' do
-        expect(redis_client.fetch_attribute(referral_number:, attribute: :npi)).to eq(npi)
-      end
     end
   end
 
