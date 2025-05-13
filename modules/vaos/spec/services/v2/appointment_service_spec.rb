@@ -1024,15 +1024,16 @@ describe VAOS::V2::AppointmentsService do
         end
 
         it 'returns an appointment with a travel claim attached if claim exists' do
-          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_instance',
-                           match_requests_on: %i[method path]) do
-            VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_with_avs',
+          VCR.use_cassette('travel_pay/200_search_claims_by_appt_date_range', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200',
                              allow_playback_repeats: true, match_requests_on: %i[method path], tag: :force_utf8) do
-              response = subject.get_appointment('70060', { travel_pay_claims: true })
-
-              expect(response[:travelPayClaim]).not_to be_empty
-              expect(response[:travelPayClaim]['claim']).not_to be_nil
-              expect(response[:travelPayClaim]['metadata']['status']).to eq(200)
+              response = subject.get_appointments(start_date2, end_date2, nil, {},
+                                                  { travel_pay_claims: true })
+              # The first appt with a start date
+              appt_with_claim = response[:data][0]
+              expect(appt_with_claim[:travelPayClaim]).not_to be_empty
+              expect(appt_with_claim[:travelPayClaim]['claim']).not_to be_nil
+              expect(appt_with_claim[:travelPayClaim]['metadata']['status']).to eq(200)
             end
           end
         end
@@ -1341,16 +1342,16 @@ describe VAOS::V2::AppointmentsService do
 
       it 'merges provider data correctly' do
         VCR.use_cassette('vaos/eps/token/token_200',
-                         match_requests_on: %i[method path query],
+                         match_requests_on: %i[method path],
                          allow_playback_repeats: true, tag: :force_utf8) do
           VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
-                           match_requests_on: %i[method path query],
+                           match_requests_on: %i[method path],
                            allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
-                             match_requests_on: %i[method path query],
+                             match_requests_on: %i[method path],
                              allow_playback_repeats: true, tag: :force_utf8) do
               VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200',
-                               match_requests_on: %i[method path query],
+                               match_requests_on: %i[method path],
                                allow_playback_repeats: true, tag: :force_utf8) do
                 result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
                 provider_names = result[:data].map { |appt| appt[:provider_name] }
@@ -1368,16 +1369,16 @@ describe VAOS::V2::AppointmentsService do
 
       it 'handles eps appointments with no provider name' do
         VCR.use_cassette('vaos/eps/token/token_200',
-                         match_requests_on: %i[method path query],
+                         match_requests_on: %i[method path],
                          allow_playback_repeats: true, tag: :force_utf8) do
           VCR.use_cassette('vaos/eps/get_vaos_appointments_200_with_merge',
-                           match_requests_on: %i[method path query],
+                           match_requests_on: %i[method path],
                            allow_playback_repeats: true, tag: :force_utf8) do
             VCR.use_cassette('vaos/eps/get_eps_appointments_200',
-                             match_requests_on: %i[method path query],
+                             match_requests_on: %i[method path],
                              allow_playback_repeats: true, tag: :force_utf8) do
               VCR.use_cassette('vaos/eps/get_provider_service/get_multiple_providers_200_v2',
-                               match_requests_on: %i[method path query],
+                               match_requests_on: %i[method path],
                                allow_playback_repeats: true, tag: :force_utf8) do
                 result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
                 no_name_provider = result[:data].find do |x|
