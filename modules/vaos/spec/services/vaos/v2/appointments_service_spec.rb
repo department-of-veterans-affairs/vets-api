@@ -25,7 +25,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns false' do
         result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to eq(false)
+        expect(result).to be(false)
       end
     end
 
@@ -39,7 +39,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns false' do
         result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to eq(false)
+        expect(result).to be(false)
       end
     end
 
@@ -53,7 +53,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns false' do
         result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to eq(false)
+        expect(result).to be(false)
       end
     end
 
@@ -67,7 +67,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns true' do
         result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to eq(true)
+        expect(result).to be(true)
       end
     end
 
@@ -81,7 +81,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'handles nil referrals safely and returns true if any match is found' do
         result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to eq(true)
+        expect(result).to be(true)
       end
     end
 
@@ -95,7 +95,7 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns false' do
         result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
-        expect(result).to eq(false)
+        expect(result).to be(false)
       end
     end
   end
