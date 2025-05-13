@@ -61,8 +61,8 @@ module VAProfile
             end
 
             # Only health appointment reminders have a sensitive indicator
-            # so we only add this field if the indicator is present
-            if communication_permission.sensitive.present?
+            # so we only serialize this field if the indicator is not nil
+            unless communication_permission.sensitive.nil?
               result.merge!(sensitive: communication_permission.sensitive)
             end
             
