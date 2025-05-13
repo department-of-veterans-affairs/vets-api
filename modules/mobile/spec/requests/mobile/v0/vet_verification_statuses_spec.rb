@@ -9,6 +9,7 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
   before do
     sign_in_as(user)
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
+    Flipper.disable(:vet_status_titled_alerts)
   end
 
   describe '#show' do
@@ -66,15 +67,40 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it 'returns a person_not_found reason' do
-        VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
-          get '/mobile/v0/vet_verification_status', headers: sis_headers
+      context 'when vet_status_titled_alerts is enabled' do
+        before do
+          Flipper.enable(:vet_status_titled_alerts)
         end
 
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body['data']['attributes']['veteranStatus']).to eq('not confirmed')
-        expect(parsed_body['data']['attributes']['notConfirmedReason']).to eq('PERSON_NOT_FOUND')
-        expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+        after do
+          Flipper.disable(:vet_status_titled_alerts)
+        end
+
+        it 'returns a person_not_found reason' do
+          VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
+            get '/mobile/v0/vet_verification_status', headers: sis_headers
+          end
+
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body['data']['attributes']['veteranStatus']).to eq('not confirmed')
+          expect(parsed_body['data']['attributes']['notConfirmedReason']).to eq('PERSON_NOT_FOUND')
+          expect(parsed_body['data']['message']).to eq(
+            JSON.parse(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED.to_json)
+          )
+        end
+      end
+
+      context 'when vet_status_titled_alerts is disabled' do
+        it 'returns a person_not_found reason' do
+          VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
+            get '/mobile/v0/vet_verification_status', headers: sis_headers
+          end
+
+          parsed_body = JSON.parse(response.body)
+          expect(parsed_body['data']['attributes']['veteranStatus']).to eq('not confirmed')
+          expect(parsed_body['data']['attributes']['notConfirmedReason']).to eq('PERSON_NOT_FOUND')
+          expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+        end
       end
     end
   end
