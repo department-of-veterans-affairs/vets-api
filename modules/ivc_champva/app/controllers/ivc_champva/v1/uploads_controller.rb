@@ -525,6 +525,10 @@ module IvcChampva
       end
 
       def build_json(statuses, error_message)
+        if statuses.nil?
+          return { json: { error_message: 'An unknown error occurred while uploading document(s).' }, status: 500 }
+        end
+
         unique_statuses = statuses.uniq
 
         if unique_statuses == [200]
