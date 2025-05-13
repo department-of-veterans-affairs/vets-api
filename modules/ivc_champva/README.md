@@ -74,7 +74,8 @@ A `MissingFormStatusJob` background job automatically identifies forms that have
 
 ### Enhanced PDF Handling
 The module includes advanced PDF handling with features like:
-- Secure stamping of PDFs with privacy footer
+- PDF authentication stamping showing the user's login status and time of submission (e.g., "Signed electronically and submitted via VA.gov at 15:30:45 Signee signed with an identity-verified account." or "Signee not signed in.")
+- Digital signature application for forms requiring signatures
 - Multi-page form support with conditional page generation
 - PDF unlock capabilities for password-protected files
 - Robust temp file management for high concurrency environments
@@ -99,7 +100,7 @@ The supporting_document_ids method retrieves the IDs of any supporting documents
 
 ## Endpoints
 - `/ivc_champva/v1/forms` - Submit a CHAMPVA form
-- `/ivc_champva/v1/forms/10-10d-ext` - Submit a 10-10d form with automatic OHI form generation
+- `/ivc_champva/v1/forms/10-10d-ext` - Submit a 10-10d form with automatic OHI form generation (WIP)
 - `/ivc_champva/v1/forms/submit_supporting_documents` - Upload supporting documents for a form
 - `/ivc_champva/v1/forms/status_updates` - Receive status updates from PEGA
 
