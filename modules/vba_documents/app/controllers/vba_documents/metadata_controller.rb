@@ -9,8 +9,6 @@ module VBADocuments
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)
 
-    TRAFFIC_LIGHT_EMOJI = ':vertical_traffic_light:'
-
     def index
       render json: {
         meta: {
@@ -68,16 +66,8 @@ module VBADocuments
       http_status_code = 200
       s3_heathy = s3_is_healthy?
       unless s3_heathy
-        begin
-          http_status_code = 503
-          slack_details = {
-            class: self.class.name,
-            warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket."
-          }
-          VBADocuments::Slack::Messenger.new(slack_details).notify!
-        rescue => e
-          Rails.logger.error("Benefits Intake S3 failed Healthcheck slack notification failed: #{e.message}", e)
-        end
+        http_status_code = 503
+        Rails.logger.info("Benefits Intake S3 healthcheck failed")
       end
       render json: {
         description: 'VBA Documents API health check',
