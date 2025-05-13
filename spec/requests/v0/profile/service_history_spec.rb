@@ -14,6 +14,10 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
     before do
       sign_in(user)
+      Flipper.disable(:vet_status_titled_alerts)
+      # TODO: When this FF is ready to be removed,
+      # the service_history_response schema should be updated to reflect that the response message
+      # is no longer an array of strings, but now an object
     end
 
     # The following provides a description of the different termination reason codes:
