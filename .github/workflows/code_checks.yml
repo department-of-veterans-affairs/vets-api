@@ -65,6 +65,7 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
+      TMPDIR: tmp/systmp
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     outputs:
@@ -93,6 +94,11 @@ jobs:
       - name: Setup Environment
         run: |
           echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+
+      - name: Setup system tmp dir
+        run: |
+          mkdir -p tmp/systmp
+          chmod 777 tmp/systmp
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -172,7 +178,9 @@ jobs:
         if: failure()
         with:
           name: Test Artifacts (rails tmp directory)
-          path: tmp
+          path: |
+            tmp
+            !tmp/systmp
           if-no-files-found: ignore
           retention-days: 14
 
@@ -181,7 +189,7 @@ jobs:
         if: always()
         with:
           name: Test Artifacts (system tmp directory)
-          path: /tmp
+          path: tmp/systmp
           if-no-files-found: ignore
           retention-days: 1
   
