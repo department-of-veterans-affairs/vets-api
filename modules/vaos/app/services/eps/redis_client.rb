@@ -62,26 +62,20 @@ module Eps
       fetch_attribute(referral_number:, attribute: :end_date)
     end
 
-    # Saves referral data from a ReferralDetail object to the Redis cache.
+    # Saves referral data to the Redis cache as a JSON string.
+    # The data is stored using the referral_id from the referral_data hash.
     #
-    # @param referral_id [String] The referral ID (consult ID)
-    # @param referral [Ccra::ReferralDetail] The referral data object
-    # @return [Boolean] True if the cache operation was successful, false if required data is missing or caching fails
-    def save_referral_data(referral_id:, referral:)
-      return false unless valid_referral_inputs?(referral_id, referral)
-
-      referral_attributes = extract_referral_attributes(referral)
-      return false unless required_fields_present?(referral_attributes)
-
-      # Directly write to cache
+    # @param referral_data [Hash] The referral data to be cached
+    # @return [Boolean] True if the cache operation was successful
+    def save_referral_data(referral_data:)
       cache_data = {
         data: {
-          attributes: referral_attributes
+          attributes: referral_data
         }
       }
 
       Rails.cache.write(
-        "vaos_eps_referral_identifier_#{referral_id}",
+        "vaos_eps_referral_identifier_#{referral_data[:referral_id]}",
         cache_data.to_json,
         namespace: 'vaos-eps-cache',
         expires_in: redis_token_expiry
@@ -89,6 +83,7 @@ module Eps
     end
 
     # Fetches a specific attribute for a given referral number.
+    # Parses the JSON string from cache using Oj.
     #
     # @param referral_number [String] the referral number
     # @param attribute [Symbol] the attribute to be fetched
@@ -102,9 +97,10 @@ module Eps
     end
 
     # Retrieves all stored attributes for a given referral number from the Redis cache.
+    # Parses the JSON string from cache using Oj.
     #
     # @param referral_number [String] The referral number associated with the cached data.
-    # @return [Hash] A hash of referral attributes if data exists, otherwise nil
+    # @return [Hash, nil] A hash of referral attributes if data exists, otherwise nil
     def fetch_referral_attributes(referral_number:)
       identifiers = referral_identifiers(referral_number:)
       return nil if identifiers.nil?
@@ -115,48 +111,11 @@ module Eps
 
     private
 
-    # Validates that referral_id and referral are present
-    #
-    # @param referral_id [String] The referral ID
-    # @param referral [Ccra::ReferralDetail] The referral object
-    # @return [Boolean] True if both inputs are present
-    def valid_referral_inputs?(referral_id, referral)
-      if referral_id.blank? || referral.blank?
-        Rails.logger.warn('Failed to cache referral data: referral_id or referral object is missing')
-        return false
-      end
-      true
-    end
-
-    # Extracts the required attributes from the referral object
-    #
-    # @param referral [Ccra::ReferralDetail] The referral object
-    # @return [Hash] The extracted attributes
-    def extract_referral_attributes(referral)
-      {
-        appointment_type_id: referral.appointment_type_id,
-        end_date: referral.expiration_date,
-        npi: referral.provider_npi,
-        start_date: referral.referral_date
-      }
-    end
-
-    # Checks if all required fields are present in the attributes
-    #
-    # @param referral_id [String] The referral ID for logging
-    # @param attributes [Hash] The referral attributes
-    # @return [Boolean] True if all required fields are present
-    def required_fields_present?(attributes)
-      required_fields = %i[npi appointment_type_id start_date end_date]
-      missing_fields = required_fields.select { |field| attributes[field].blank? }
-
-      missing_fields.none?
-    end
-
     # Retrieves the referral identifiers for a given referral number.
+    # Uses memoization to avoid repeated cache lookups for the same referral number.
     #
     # @param referral_number [String] the referral number
-    # @return [String, nil] the referral identifiers if they exist, otherwise nil
+    # @return [String, nil] the referral identifiers as a JSON string if they exist, otherwise nil
     def referral_identifiers(referral_number:)
       @referral_identifiers ||= Hash.new do |h, key|
         h[key] = Rails.cache.read(
