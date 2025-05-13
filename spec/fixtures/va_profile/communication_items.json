@@ -24,6 +24,8 @@
           "communication_item_channel_id": 1,
           "communication_channel_id": 1,
           "default_send_indicator": false,
+          "sensitive_indicator": true,
+          "default_sensitive_indicator": false,
           "effective_start_date": "2020-10-07T00:00:00Z",
           "communication_channel": {
             "create_date": "2020-10-07T00:00:00Z",

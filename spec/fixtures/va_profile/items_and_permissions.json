@@ -13,9 +13,12 @@
             "name": "Text",
             "description": "SMS Notification",
             "default_send_indicator": false,
+            "sensitive_indicator": true,
+            "default_sensitive_indicator": false,
             "communication_permission": {
               "id": 21,
-              "allowed": true
+              "allowed": true,
+              "sensitive": true
             }
           }
         ]

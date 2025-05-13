@@ -12,7 +12,9 @@
             "id": 1,
             "name": "Text",
             "description": "SMS Notification",
-            "default_send_indicator": false
+            "default_send_indicator": false,
+            "sensitive_indicator": true,
+            "default_sensitive_indicator": false
           }
         ]
       },
