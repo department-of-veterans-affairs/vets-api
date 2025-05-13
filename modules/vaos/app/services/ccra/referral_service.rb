@@ -54,7 +54,7 @@ module Ccra
         Rails.logger.info("CCRA Referral Detail - Content-Type: #{response.request_headers['Content-Type']}, " \
                           "Body Class: #{response.body.class}, Body Preview: #{body_preview}...")
 
-        referral = ReferralDetail.new(data)
+        referral = ReferralDetail.new(response.body)
         cache_referral_data(referral)
         referral
       end
