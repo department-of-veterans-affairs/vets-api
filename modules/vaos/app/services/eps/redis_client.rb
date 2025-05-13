@@ -62,28 +62,23 @@ module Eps
       fetch_attribute(referral_number:, attribute: :end_date)
     end
 
-    # Saves referral data to the Redis cache as a JSON string.
+    # Saves referral data directly to the Redis cache.
     # The data is stored using the referral_number from the referral_data hash.
+    # The data is stored as a Ruby hash, not as JSON.
     #
     # @param referral_data [Hash] The referral data to be cached
     # @return [Boolean] True if the cache operation was successful
     def save_referral_data(referral_data:)
-      cache_data = {
-        data: {
-          attributes: referral_data
-        }
-      }
-
       Rails.cache.write(
         "vaos_eps_referral_identifier_#{referral_data[:referral_number]}",
-        cache_data.to_json,
+        referral_data,
         namespace: 'vaos-eps-cache',
         expires_in: redis_token_expiry
       )
     end
 
     # Fetches a specific attribute for a given referral number.
-    # Parses the JSON string from cache using Oj.
+    # Retrieves the cached data directly as a Ruby hash.
     #
     # @param referral_number [String] the referral number
     # @param attribute [Symbol] the attribute to be fetched
@@ -97,7 +92,7 @@ module Eps
     end
 
     # Retrieves all stored attributes for a given referral number from the Redis cache.
-    # Parses the JSON string from cache using Oj.
+    # Retrieves the cached data directly as a Ruby hash.
     #
     # @param referral_number [String] The referral number associated with the cached data.
     # @return [Hash, nil] A hash of referral attributes if data exists, otherwise nil
@@ -115,7 +110,7 @@ module Eps
     # Uses memoization to avoid repeated cache lookups for the same referral number.
     #
     # @param referral_number [String] the referral number
-    # @return [String, nil] the referral identifiers as a JSON string if they exist, otherwise nil
+    # @return [Hash, nil] the referral data as a Ruby hash if it exists, otherwise nil
     def referral_identifiers(referral_number:)
       @referral_identifiers ||= Hash.new do |h, key|
         h[key] = Rails.cache.read(

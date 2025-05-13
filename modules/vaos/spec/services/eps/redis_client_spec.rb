@@ -161,14 +161,13 @@ describe Eps::RedisClient do
   end
 
   describe '#save_referral_data' do
-    let(:referral_number) { '67890' }
-    let(:npi) { 'NPI123456' }
+    let(:provider_npi) { 'NPI123456' }
     let(:referral_data) do
       {
         referral_number:,
         appointment_type_id:,
         end_date:,
-        npi:,
+        npi: provider_npi,
         start_date:
       }
     end
@@ -183,17 +182,12 @@ describe Eps::RedisClient do
       )
 
       # Verify the saved data has the expected structure
-      expect(saved_data).to be_a(String)
-      parsed_data = Oj.load(saved_data).with_indifferent_access
-      expect(parsed_data).to have_key(:data)
-      expect(parsed_data[:data]).to have_key(:attributes)
-
-      attributes = parsed_data[:data][:attributes]
-      expect(attributes[:npi]).to eq(npi)
-      expect(attributes[:appointment_type_id]).to eq(appointment_type_id)
-      expect(attributes[:end_date]).to eq(end_date)
-      expect(attributes[:start_date]).to eq(start_date)
-      expect(attributes[:referral_number]).to eq(referral_number)
+      expect(saved_data).to be_a(Hash)
+      expect(saved_data[:npi]).to eq(provider_npi)
+      expect(saved_data[:appointment_type_id]).to eq(appointment_type_id)
+      expect(saved_data[:end_date]).to eq(end_date)
+      expect(saved_data[:start_date]).to eq(start_date)
+      expect(saved_data[:referral_number]).to eq(referral_number)
     end
   end
 
