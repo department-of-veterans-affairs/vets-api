@@ -20,9 +20,7 @@ module V0
         Faraday::Connection.new do |conn|
           response = conn.head(url)
           status = response.status
-          if status != 200
-            raise Common::Exceptions::RecordNotFound, request_params[:submission_guid]
-          end
+          raise Common::Exceptions::RecordNotFound, request_params[:submission_guid] if status != 200
         end
 
         render json: { url: }
