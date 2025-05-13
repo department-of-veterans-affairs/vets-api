@@ -65,8 +65,8 @@ module Eps
     # Saves referral data to the Redis cache as a JSON string.
     # The data is stored using the referral_number from the referral_data hash.
     #
-    # @param referral_data [Hash] The extracted referral data containing required attributes
-    # @return [Boolean] True if the cache operation was successful, false if required data is missing
+    # @param referral_data [Hash] The referral data to be cached
+    # @return [Boolean] True if the cache operation was successful
     def save_referral_data(referral_data:)
       cache_data = {
         data: {
