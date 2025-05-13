@@ -43,7 +43,6 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BadRequestError
-          extend Swagger::Responses::RecordNotFoundError
 
           key :description, 'Get a single travel reimbursment claim details'
           key :operationId, 'getTravelPayClaimById'

@@ -16,7 +16,7 @@ describe TravelPay::DocumentsService do
            }] }, headers: {})
   end
   let(:doc_binary_data) do
-    double(body: { 'data' => 'binary_data' },
+    double(body: '{ "data": "binary_data"}',
            headers: {
              'Content-Disposition' => 'attachment; filename="doc.pdf"',
              'Content-Type' => 'application/pdf',
