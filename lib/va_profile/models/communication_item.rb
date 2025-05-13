@@ -55,17 +55,15 @@ module VAProfile
             communication_permission = communication_channel.communication_permission
 
             result = if communication_permission.id.present?
-              { communicationPermissionId: communication_permission.id }
-            else
-              {}
-            end
+                       { communicationPermissionId: communication_permission.id }
+                     else
+                       {}
+                     end
 
             # Only health appointment reminders have a sensitive indicator
             # so we only serialize this field if the indicator is not nil
-            unless communication_permission.sensitive.nil?
-              result.merge!(sensitive: communication_permission.sensitive)
-            end
-            
+            result.merge!(sensitive: communication_permission.sensitive) unless communication_permission.sensitive.nil?
+
             result
           end.call)
         }.to_json

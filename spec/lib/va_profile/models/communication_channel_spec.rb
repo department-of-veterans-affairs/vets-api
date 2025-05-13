@@ -45,22 +45,23 @@ describe VAProfile::Models::CommunicationChannel, type: :model do
 
     it 'sets sensitive indicators when present' do
       item_channel_data.merge!(
-        'sensitive_indicator' => false,
-        'default_sensitive_indicator' => true
+        'sensitive_indicator' => true,
+        'default_sensitive_indicator' => false
       )
       permission_res['bios'][0]['sensitive'] = true
 
       channel = described_class.create_from_api(channel_data, 123, item_channel_data, permission_res)
 
-      expect(channel.sensitive_indicator).to eq(false)
-      expect(channel.default_sensitive_indicator).to eq(true)
-      expect(channel.communication_permission.sensitive).to eq(true)
+      expect(channel.sensitive_indicator).to be true
+      expect(channel.default_sensitive_indicator).to be false
+      expect(channel.communication_permission.sensitive).to be true
     end
 
     it 'does not assign sensitive fields if only one is present' do
       item_channel_data_with_one_sensitive_field = item_channel_data.merge('sensitive_indicator' => true)
 
-      channel = described_class.create_from_api(channel_data, 123, item_channel_data_with_one_sensitive_field, permission_res)
+      channel = described_class.create_from_api(channel_data, 123, item_channel_data_with_one_sensitive_field,
+                                                permission_res)
 
       expect(channel.sensitive_indicator).to be_nil
       expect(channel.default_sensitive_indicator).to be_nil

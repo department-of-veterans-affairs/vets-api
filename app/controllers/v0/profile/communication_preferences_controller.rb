@@ -46,7 +46,7 @@ module V0
       end
 
       def communication_item_params
-        communication_channel = [:id, { communication_permission: [:allowed, :sensitive] }]
+        communication_channel = [:id, { communication_permission: %i[allowed sensitive] }]
         params.require(:communication_item).permit(:id, communication_channel:)
       end
 
