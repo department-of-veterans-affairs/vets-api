@@ -180,6 +180,11 @@ Rails.application.routes.draw do
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
+    namespace :chatbot do
+      get 'claims', to: 'claim_status#index'
+      get 'claims/:id', to: 'claim_status#show'
+    end
+
     get 'intent_to_file', to: 'intent_to_files#index'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
