@@ -112,15 +112,14 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
 
     context 'deciding to send a VA Notify email' do
       let(:allow_poa_c_add) { 'Y' }
+      let(:poa) { create_poa }
+      let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
       let(:consent_address_change) { true }
 
       before do
         create_mock_lighthouse_service
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return true
       end
-
-      let(:poa) { create_poa }
-      let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
 
       context 'when the header key and rep are present' do
         it 'sends the vanotify job' do
