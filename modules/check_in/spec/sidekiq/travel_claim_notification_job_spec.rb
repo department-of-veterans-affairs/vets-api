@@ -99,7 +99,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
           .with(hash_including(message: 'Sending travel claim notification to 0123, template-id-123'))
         expect(test_logger).to receive(:info)
           .with(hash_including(
-                  message: "TravelClaimNotificationJob failed"
+                  message: 'TravelClaimNotificationJob failed'
                 ))
 
         expect { job.perform(job_opts) }.to raise_error(StandardError)
