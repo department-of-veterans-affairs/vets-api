@@ -239,6 +239,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every hour job that retries failed VES submissions
   mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
 
+  # Daily job to clean up IvcChampvaForm records older than 60 days
+  mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
+
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')
 

@@ -31,7 +31,9 @@ module Ccra
     # @param referrals [Array<Hash>] Array of referral data from the CCRA service.
     # @return [Array<ReferralListEntry>] Array of ReferralListEntry objects.
     def self.build_collection(referrals)
-      Array(referrals).map { |referral_data| new(referral_data) }
+      return [] unless referrals.is_a?(Array)
+
+      referrals.map { |referral_data| new(referral_data) }
     end
 
     private

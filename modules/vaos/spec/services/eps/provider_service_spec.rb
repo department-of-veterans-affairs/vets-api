@@ -10,7 +10,7 @@ describe Eps::ProviderService do
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
 
   before do
-    allow(config).to receive(:base_path).and_return('api/v1')
+    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow(service).to receive_messages(config:, headers:)
     allow(service).to receive(:log_response)
     allow(Rails.logger).to receive(:info)
