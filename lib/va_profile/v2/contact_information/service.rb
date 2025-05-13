@@ -299,11 +299,11 @@ module VAProfile
           with_monitoring do
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
             # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
-            if path == 'addresses' && log_transaction_id?
-              Rails.logger.info("ContactInformationV2 METHOD: #{method}, POST OR PUT JSON: #{model.in_json_v2}")
+            if log_transaction_id?
+              Rails.logger.info("ContactInformationV2 METHOD: #{method}, JSON: #{model.in_json_v2}")
             end
             raw_response = perform(method, request_path, model.in_json_v2)
-            if path == 'addresses' && log_transaction_id?
+            if log_transaction_id?
               Rails.logger.info("ContactInformation RAW RESPONSE: #{raw_response}")
             end
             response_class.from(raw_response)
