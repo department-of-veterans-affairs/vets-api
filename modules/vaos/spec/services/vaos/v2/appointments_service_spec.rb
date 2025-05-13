@@ -99,4 +99,4 @@ describe VAOS::V2::AppointmentsService do
       end
     end
   end
-end 
+end
