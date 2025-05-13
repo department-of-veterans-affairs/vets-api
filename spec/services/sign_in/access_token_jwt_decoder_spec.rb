@@ -58,6 +58,7 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
           sub: access_token.user_uuid,
           exp: access_token.expiration_time.to_i,
           iat: access_token.created_time.to_i,
+          user_attributes: access_token.user_attributes,
           session_handle: access_token.session_handle,
           refresh_token_hash: access_token.refresh_token_hash,
           parent_refresh_token_hash: access_token.parent_refresh_token_hash,

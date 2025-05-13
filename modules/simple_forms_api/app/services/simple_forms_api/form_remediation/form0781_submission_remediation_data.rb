@@ -67,7 +67,12 @@ module SimpleFormsApi
       attr_reader :config
 
       def fetch_form_content!
-        content = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))[form_key]
+        parsed = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+        content = parsed[form_key]
+
+        # Fallback for pre-2019 flat payload (incidents at root)
+        content = parsed if form_key == 'form0781' && content.blank? && parsed.key?('incidents')
+
         if content.blank?
           raise Common::Exceptions::RecordNotFound,
                 "No #{form_key} payload for submission ##{submission.id}"
