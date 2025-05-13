@@ -461,9 +461,6 @@ features:
   debts_cache_dmc_empty_response:
     actor_type: user
     description: Enables caching of empty DMC response
-  debts_cache_vbs_copays_empty_response:
-    actor_type: user
-    description: Enables caching of empty VBS medical copay response
   debts_copay_logging:
     actor_type: user
     description: Logs copay request data
@@ -1720,10 +1717,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  vaos_online_scheduling_use_va_date:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use VaDate/VaDateField.
   va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
@@ -1752,10 +1745,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_online_scheduling_display_past_cancelled_appointments:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for displaying past cancelled appointments.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
