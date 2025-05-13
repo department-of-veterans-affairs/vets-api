@@ -73,11 +73,11 @@ module VeteranVerification
       reason = attributes['not_confirmed_reason']
       response['data']['message'] =
         if reason == 'ERROR'
-          VeteranVerification::Constants::ERROR_MESSAGE
+          error_message
         elsif reason == 'NOT_TITLE_38'
-          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+          not_eligible_message
         else
-          VeteranVerification::Constants::NOT_FOUND_MESSAGE
+          not_found_message
         end
 
       log_not_confirmed(reason)
@@ -91,6 +91,32 @@ module VeteranVerification
 
     def log_confirmed
       ::Rails.logger.info('Vet Verification Status Success: confirmed', { confirmed: true })
+    end
+
+    private
+
+    def error_message
+      if Flipper.enabled?(:vet_status_titled_alerts)
+        VeteranVerification::Constants::ERROR_MESSAGE_TITLED
+      else
+        VeteranVerification::Constants::ERROR_MESSAGE
+      end
+    end
+
+    def not_eligible_message
+      if Flipper.enabled?(:vet_status_titled_alerts)
+        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED
+      else
+        VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+      end
+    end
+
+    def not_found_message
+      if Flipper.enabled?(:vet_status_titled_alerts)
+        VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED
+      else
+        VeteranVerification::Constants::NOT_FOUND_MESSAGE
+      end
     end
   end
 end

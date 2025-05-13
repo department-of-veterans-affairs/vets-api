@@ -21,5 +21,21 @@ module VeteranVerification
       'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
       '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
     ].freeze
+
+    ERROR_MESSAGE_TITLED = {
+      title: 'Veteran status card error',
+      message: ERROR_MESSAGE,
+      status: 'error'
+    }.freeze
+    NOT_FOUND_MESSAGE_TITLED = {
+      title: 'Veteran status card not found',
+      message: NOT_FOUND_MESSAGE,
+      status: 'warning'
+    }.freeze
+    NOT_ELIGIBLE_MESSAGE_TITLED = {
+      title: 'Veteran status card not eligible',
+      message: NOT_ELIGIBLE_MESSAGE,
+      status: 'warning'
+    }.freeze
   end
 end
