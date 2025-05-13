@@ -2,7 +2,7 @@
 
 require 'disability_compensation/factories/api_provider_factory'
 require 'logging/third_party_transaction'
-require 'lighthouse/benefits_claims/intent_to_file/intent_to_file_response'
+require 'lighthouse/benefits_claims/intent_to_file/api_response'
 
 module V0
   class IntentToFilesController < ApplicationController
