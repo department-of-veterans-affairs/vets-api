@@ -13,6 +13,7 @@ describe TravelPay::DocumentsClient do
       c.adapter(:test, @stubs)
       c.response :json
       c.request :json
+      c.response :raise_error
     end
 
     allow_any_instance_of(TravelPay::DocumentsClient).to receive(:connection).and_return(conn)
@@ -61,6 +62,42 @@ describe TravelPay::DocumentsClient do
               tags: ['travel_pay:get_document_ids'])
       expect(document_ids).to eq(expected_ids)
       expect(document_filenames).to eq(expected_filenames)
+    end
+  end
+
+  describe '#get_document_binary' do
+    # GET document binary
+    it 'returns the binary data of a document from get_document_binary' do
+      claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+      doc_id = 'uuid1'
+      response = { 'data' => 'binary data' }
+
+      @stubs.get("api/v2/claims/#{claim_id}/documents/#{doc_id}") do
+        [200, { 'Content-Type' => 'application/pdf' }, response.to_json]
+      end
+
+      client = TravelPay::DocumentsClient.new
+      document_binary_response = client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
+
+      expect(StatsD).to have_received(:measure)
+        .with(expected_log_prefix,
+              kind_of(Numeric),
+              tags: ['travel_pay:get_document_binary'])
+      expect(document_binary_response.body).to eq(response.to_json)
+    end
+
+    it 'raises an error when the response is not successful' do
+      claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+      doc_id = 'uuid1'
+
+      @stubs.get("api/v2/claims/#{claim_id}/documents/#{doc_id}") do
+        [404, {}, { 'error' => 'Document not found' }.to_json]
+      end
+
+      client = TravelPay::DocumentsClient.new
+      expect do
+        client.get_document_binary('veis_token', 'btsss_token', { claim_id:, doc_id: })
+      end.to raise_error(Faraday::ResourceNotFound)
     end
   end
 end
