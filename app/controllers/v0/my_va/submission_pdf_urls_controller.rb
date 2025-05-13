@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'forms/submission_statuses/pdf_urls'
+require 'faraday'
 
 module V0
   module MyVA
@@ -19,10 +20,8 @@ module V0
         # Check to make sure the returned URL is found in S3
         Faraday::Connection.new do |conn|
           response = conn.head(url)
-          status = response.status
-          raise Common::Exceptions::RecordNotFound, request_params[:submission_guid] if status != 200
+          raise Common::Exceptions::RecordNotFound, request_params[:submission_guid] if response.status != 200
         end
-
         render json: { url: }
       end
 
