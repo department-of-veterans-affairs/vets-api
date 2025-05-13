@@ -11,7 +11,7 @@
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
-  "additionalInformation": "Lorem ipsum dolor sit amet",
+  "additionalInformation": "Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet",
   "eventTypes": {
     "combat": true,
     "mst": false,
