@@ -228,6 +228,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
                 }
               }
             ],
+            'override_validation_key' => '-646932106',
             'validation_key' => '-646932106'
           )
         end
@@ -280,6 +281,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
                 }
               }
             ],
+            'override_validation_key' => '-646932106',
             'validation_key' => '-646932106'
           )
         end

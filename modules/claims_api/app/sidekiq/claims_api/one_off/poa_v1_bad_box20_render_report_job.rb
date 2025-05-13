@@ -2,8 +2,16 @@
 
 module ClaimsApi
   module OneOff
+    class PoaV1BadBox20RenderReportMailer < ApplicationMailer
+      def build(emails, csv_str)
+        # rubocop:disable Rails/I18nLocaleTexts
+        mail to: emails, subject: 'POA v1 Bad Box20 PDF Render Report', content_type: 'text/html', body: csv_str
+        # rubocop:enable Rails/I18nLocaleTexts
+      end
+    end
+
     class PoaV1BadBox20RenderReportJob < ClaimsApi::ServiceBase
-      sidekiq_options expires_in: 1.hour, retry: true, unique_until: :success
+      sidekiq_options retry: 5 # Retry for ~10 mins
       LOG_TAG = 'claims_api_poa_box20_report_job'
 
       # rubocop:disable Metrics/MethodLength
@@ -41,10 +49,7 @@ module ClaimsApi
 
         ClaimsApi::Logger.log LOG_TAG, detail: "Found #{num_records} record(s)"
         ClaimsApi::Logger.log LOG_TAG, detail: 'Sending email'
-        # rubocop:disable Rails/I18nLocaleTexts
-        ApplicationMailer.new.mail(to: emails, subject: 'POA v1 Bad Box20 PDF Render Report', content_type: 'text/html',
-                                   body: memo).deliver_now!
-        # rubocop:enable Rails/I18nLocaleTexts
+        ClaimsApi::OneOff::PoaV1BadBox20RenderReportMailer.build(emails, memo).deliver_now
         ClaimsApi::Logger.log LOG_TAG, detail: 'Email sent. Job complete.'
       rescue => e
         # Only alert on the class name since an email exception may output the body, which would have PII

@@ -12,7 +12,8 @@ module Mobile
         start_date = params[:startDate]
         end_date = params[:endDate]
         labs = service.get_labs(start_date:, end_date:)
-        render json: labs.map { |record| LabOrTestSerializer.serialize(record) }
+        response = { data: labs.map { |record| LabOrTestSerializer.serialize(record) } }
+        render json: response
       end
 
       private
