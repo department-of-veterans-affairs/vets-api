@@ -17,7 +17,7 @@ argocd:
     api_key: <%= ENV['argocd__slack__api_key'] %>
 ask_va_api:
   crm_api:
-    auth_url: https://login.microsoftonline.us
+    auth_url: <%= ENV['ask_va_api__crm_api__auth_url'] %>
     base_url: <%= ENV['ask_va_api__crm_api__base_url'] %>
     client_id: <%= ENV['ask_va_api__crm_api__client_id'] %>
     client_secret: <%= ENV['ask_va_api__crm_api__client_secret'] %>
@@ -79,10 +79,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: <%= ENV['bing__key'] %>
-bip:
-  claims:
-    mock: <%= ENV['bip__claims__mock'] %>
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: <%= ENV['bpds__jwt_secret'] %>
   mock: false
@@ -475,7 +471,7 @@ form526_export:
 form_10282:
   sftp:
     host: <%= ENV['form_10282__sftp__host'] %>
-    key_data: <%= ENV['form_10282__sftp__key_data'] %>
+    key_path: <%= ENV['form_10282__sftp__key_path'] %>
     pass: <%= ENV['form_10282__sftp__pass'] %>
     port: <%= ENV['form_10282__sftp__port'] %>
     relative_path: <%= ENV['form_10282__sftp__relative_path'] %>
@@ -521,6 +517,7 @@ gclaws:
     api_key: <%= ENV['gclaws__accreditation__api_key'] %>
     attorneys:
       url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    origin: <%= ENV['gclaws__accreditation__origin'] %>
     representatives:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
     veteran_service_organizations:
@@ -579,50 +576,6 @@ hca:
     region: us-gov-west-1
   timeout: 30
 hostname: <%= ENV['hostname'] %>
-hqva_mobile:
-  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  facilities:
-    ids_path: "/facilities_api/v1/va"
-    url: <%= ENV['hqva_mobile__facilities__url'] %>
-  lighthouse:
-    claim_common_id: <%= ENV['hqva_mobile__lighthouse__claim_common_id'] %>
-    client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    condition_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token
-    grant_type: client_credentials
-    health_api: health_api
-    health_api_path: "/services/fhir/v0/r4"
-    health_api_scopes:
-    - launch launch/patient
-    - patient/Appointment.read
-    - patient/Location.read
-    - patient/Organization.read
-    - patient/Patient.read
-    - patient/Condition.read
-    - patient/Observation.read
-    - patient/Practitioner.read
-    - patient/Medication.read
-    - system/Endpoint.read
-    health_aud_claim_url: <%= ENV['hqva_mobile__lighthouse__health_aud_claim_url'] %>
-    health_token_path: "/oauth2/health/system/v1/token"
-    host: <%= ENV['hqva_mobile__lighthouse__host'] %>
-    key_path: <%= ENV['hqva_mobile__lighthouse__key_path'] %>
-    mock: <%= ENV['hqva_mobile__lighthouse__mock'] %>
-    pgd_api: pgd_api
-    pgd_api_scopes:
-    - launch launch/patient
-    - patient/Observation.read
-    - patient/Observation.write
-    - patient/Questionnaire.read
-    - patient/Questionnaire.write
-    - patient/QuestionnaireResponse.read
-    - patient/QuestionnaireResponse.write
-    pgd_aud_claim_url: <%= ENV['hqva_mobile__lighthouse__pgd_aud_claim_url'] %>
-    pgd_path: "/services/pgd/v0/r4"
-    pgd_token_path: "/oauth2/pgd/v1/token"
-    redis_session_prefix: healthquest_lighthouse
-    url: <%= ENV['hqva_mobile__lighthouse__url'] %>
-  mock: <%= ENV['hqva_mobile__mock'] %>
-  url: <%= ENV['hqva_mobile__url'] %>
 iam_ssoe:
   client_cert_path: <%= ENV['iam_ssoe__client_cert_path'] %>
   client_id: <%= ENV['iam_ssoe__client_id'] %>
@@ -642,8 +595,12 @@ ivc_champva:
     api_key: <%= ENV['ivc_champva__pega_api__api_key'] %>
     base_path: <%= ENV['ivc_champva__pega_api__base_path'] %>
   prefill: true
-  ves_api:
-    api_key: fake_api_key
+ivc_champva_ves_api:
+  api_key: <%= ENV['ivc_champva_ves_api__api_key'] %>
+  app_id: <%= ENV['ivc_champva_ves_api__app_id'] %>
+  host: <%= ENV['ivc_champva_ves_api__host'] %>
+  mock: false
+  subject: "Proxy Client"
 ivc_forms:
   form_status_job:
     enabled: <%= ENV['ivc_forms__form_status_job__enabled'] %>
@@ -735,6 +692,8 @@ lighthouse:
     use_mocks: <%= ENV['lighthouse__direct_deposit__use_mocks'] %>
   facilities:
     api_key: <%= ENV['lighthouse__facilities__api_key'] %>
+    hqva_mobile:
+      url: <%= ENV['hqva_mobile__url'] %>
     url: <%= ENV['lighthouse__facilities__url'] %>
     veterans_health:
       url: <%= ENV['lighthouse__facilities__veterans_health__url'] %>
@@ -858,6 +817,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
+    travel_pay: PO9X8XN
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
@@ -929,31 +889,34 @@ mhv:
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
-    app_token_va_gov: <%= ENV['mhv__rx__app_token_va_gov'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
     collection_caching_enabled: <%= ENV['mhv__rx__collection_caching_enabled'] %>
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
-    use_new_api: <%= ENV['mhv__rx__use_new_api'] %>
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
+    base_path: <%= ENV['mhv__sm__base_path'] %>
+    gw_base_path: <%= ENV['mhv__sm__gw_base_path'] %>
     host: <%= ENV['mhv__sm__host'] %>
-    mhv_sm_x_api_key: <%= ENV['mhv__sm__mhv_sm_x_api_key'] %>
     mock: <%= ENV['mhv__sm__mock'] %>
+    x_api_key: <%= ENV['mhv__sm__x_api_key'] %>
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
-    app_token: <%= ENV['mhv__uhd__app_token'] %>
+    app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
     host: <%= ENV['mhv__uhd__host'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
 mhv_mobile:
+  rx:
+    app_token: <%= ENV['mhv_mobile__rx__app_token'] %>
+    x_api_key: <%= ENV['mhv_mobile__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv_mobile__sm__app_token'] %>
-  x_api_key: <%= ENV['mhv_mobile__x_api_key'] %>
+    x_api_key: <%= ENV['mhv_mobile__sm__x_api_key'] %>
 mobile_lighthouse:
   client_id: <%= ENV['mobile_lighthouse__client_id'] %>
   rsa_key: <%= ENV['mobile_lighthouse__rsa_key'] %>
@@ -1264,6 +1227,7 @@ token_validation:
 travel_pay:
   base_url: <%= ENV['travel_pay__base_url'] %>
   client_number: <%= ENV['travel_pay__client_number'] %>
+  mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
   service_name: BTSSS-API
   sts:
@@ -1403,6 +1367,7 @@ vanotify:
     benefits_management_tools:
       api_key: <%= ENV['vanotify__services__benefits_management_tools__api_key'] %>
       template_id:
+        decision_letter_ready_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__decision_letter_ready_email'] %>
         evidence_submission_failure_email: <%= ENV['vanotify__services__benefits_management_tools__template_id__evidence_submission_failure_email'] %>
     burials: *vanotify_services_burial
     check_in:
@@ -1414,11 +1379,27 @@ vanotify:
         claim_submission_failure_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_failure_text'] %>
         claim_submission_success_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_success_text'] %>
         claim_submission_timeout_text: <%= ENV['vanotify__services__check_in__template_id__claim_submission_timeout_text'] %>
+    dependents:
+      api_key: <%= ENV['vanotify__services__dependents__api_key'] %>
+      email:
+        received674:
+          template_id: <%= ENV['vanotify__services__dependents__email__received674__template_id'] %>
+        received686:
+          template_id: <%= ENV['vanotify__services__dependents__email__received686__template_id'] %>
+        received686c674:
+          template_id: <%= ENV['vanotify__services__dependents__email__received686c674__template_id'] %>
+        submitted674:
+            template_id: <%= ENV['vanotify__services__dependents__email__submitted674__template_id'] %>
+        submitted686:
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted686__template_id'] %>
+        submitted686c674:
+          template_id: <%= ENV['vanotify__services__dependents__email__submitted686c674__template_id'] %>
     dmc:
       api_key: <%= ENV['vanotify__services__dmc__api_key'] %>
       template_id:
         fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_confirmation_email'] %>
         fsr_failed_email: <%= ENV['vanotify__services__dmc__template_id__fsr_failed_email'] %>
+        fsr_step_1_submission_in_progress_email: <%= ENV['vanotify__services__dmc__template_id__fsr_step_1_submission_in_progress_email'] %>
         fsr_streamlined_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__fsr_streamlined_confirmation_email'] %>
         vha_fsr_confirmation_email: <%= ENV['vanotify__services__dmc__template_id__vha_fsr_confirmation_email'] %>
         vha_new_copay_statement_email: <%= ENV['vanotify__services__dmc__template_id__vha_new_copay_statement_email'] %>
@@ -1480,7 +1461,6 @@ vanotify:
         contact_info_change: <%= ENV['vanotify__services__va_gov__template_id__contact_info_change'] %>
         covid_vaccine_registration: <%= ENV['vanotify__services__va_gov__template_id__covid_vaccine_registration'] %>
         direct_deposit: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit'] %>
-        direct_deposit_comp_pen: <%= ENV['vanotify__services__va_gov__template_id__direct_deposit_comp_pen'] %>
         form0994_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_confirmation_email'] %>
         form0994_extra_action_confirmation_email: <%= ENV['vanotify__services__va_gov__template_id__form0994_extra_action_confirmation_email'] %>
         form1010ez_reminder_email: <%= ENV['vanotify__services__va_gov__template_id__form1010ez_reminder_email'] %>
@@ -1566,7 +1546,7 @@ vaos:
     audience_claim_url: https://login.wellhive.com/oauth2/default/v1/token
     base_path: care-navigation/v1
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    client_id: fake_client_id
+    client_id: <%= ENV['vaos__eps__client_id'] %>
     grant_type: client_credentials
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
@@ -1665,8 +1645,9 @@ veteran_enrollment_system:
     api_key: <%= ENV['veteran_enrollment_system__associations__api_key'] %>
   ee_summary:
     api_key: ~
-  host: https://ves.va.gov
+  host: <%= ENV['veteran_enrollment_system__host'] %>
   open_timeout: 10
+  port: <%= ENV['veteran_enrollment_system__port'] %>
   timeout: 30
 veteran_onboarding:
   onboarding_threshold_days: <%= ENV['veteran_onboarding__onboarding_threshold_days'] %>

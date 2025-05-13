@@ -10,6 +10,23 @@ module VAProfile
       class TransactionResponse < VAProfile::Response
         extend SentryLogging
 
+        REDACTED_KEYS = %w[
+          source_system_user
+          address_line1
+          address_line2
+          address_line3
+          city_name
+          vet360_id
+          county
+          state_code
+          zip_code5
+          zip_code4
+          phone_number
+          country_code_iso3
+          email_address_text
+          county_name
+        ].freeze
+
         attribute :transaction, VAProfile::Models::Transaction
         ERROR_STATUS = 'COMPLETED_FAILURE'
 
@@ -41,21 +58,7 @@ module VAProfile
           return unless response_body
 
           redacted_response_body = response_body.deep_dup
-          redacted_response_body['tx_push_input']&.except!(
-            'source_system_user',
-            'address_line1',
-            'address_line2',
-            'address_line3',
-            'city_name',
-            'vet360_id',
-            'county',
-            'state_code',
-            'zip_code5',
-            'zip_code4',
-            'phone_number',
-            'county',
-            'country_code_iso3'
-          )
+          redacted_response_body['tx_push_input']&.except!(*REDACTED_KEYS)
           redacted_response_body
         end
 
@@ -80,7 +83,9 @@ module VAProfile
           return :address unless response_body['tx_output']
 
           address_pou = response_body['tx_output'][0]['address_pou']
-
+          if Settings.vsp_environment == 'staging'
+            Rails.logger.info("AddressTransactionResponse CHANGED FIELD ADDRESS POU: #{address_pou}")
+          end
           case address_pou
           when VAProfile::Models::V3::BaseAddress::RESIDENCE
             :residence_address

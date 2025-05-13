@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            required: true # for now
+            required: true
 
     # TODO: Enforce this in the DB.
     has_one :power_of_attorney_form_submission
@@ -99,6 +99,11 @@ module AccreditedRepresentativePortal
         superseding_power_of_attorney_request:
       )
     end
+
+    # We're using just the timestamp for convenience and speed. Direct queries
+    # against the redacted fields will always be authoritative
+    scope :unredacted, -> { where(redacted_at: nil) }
+    scope :redacted, -> { where.not(redacted_at: nil) }
 
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }

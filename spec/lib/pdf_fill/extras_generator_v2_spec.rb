@@ -65,6 +65,30 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     describe '#sorted_subquestions_markup' do
+      context 'when the question is a checklist group' do
+        let(:add_text_calls) do
+          [
+            [1, { question_label: 'Item 1', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 2', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 3', question_type: 'checklist_group', checked_values: ['0'] }],
+            [2, { question_label: 'None' }],
+            ['Miscellaneous details', { question_label: 'Other', question_type: 'checklist_group' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expect(subject.sorted_subquestions_markup).to eq(
+            [
+              '<tr><td><ul><li>Item 1</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Item 3</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Other: Miscellaneous details</li></ul></td></tr>'
+            ]
+          )
+        end
+      end
+
       context 'when there is only one subquestion' do
         let(:add_text_calls) do
           [
@@ -146,16 +170,31 @@ describe PdfFill::ExtrasGeneratorV2 do
       let(:add_text_calls) do
         [
           ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
-          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }],
+          ['no response', { question_suffix: 'C', question_text: 'Other', question_type: 'free_text' }],
+          ['bold', {
+            question_suffix: 'D',
+            question_text: 'Bold',
+            question_type: 'free_text',
+            format_options: { bold_value: true }
+          }],
+          ['longer line that should generate two lines because it is too long', {
+            question_suffix: 'E',
+            question_text: 'Longer Line',
+            question_type: 'free_text',
+            format_options: { question_width: 150 }
+          }]
         ]
       end
 
       it 'renders correctly' do
-        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
         expect(subject.sorted_subquestions_markup).to eq(
           [
-            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
-            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+            ['foo', Prawn::Text::NBSP, 'bar'],
+            ['bar'],
+            ['<i>no response</i>'],
+            ['<b>bold</b>'],
+            ['longer line that should generate', 'two lines because it is too long']
           ]
         )
       end

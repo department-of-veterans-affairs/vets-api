@@ -253,6 +253,8 @@ module Lighthouse
       end
 
       def send_confirmation_email(user)
+        return claim.send_received_email(user) if Flipper.enabled?(:dependents_separate_confirmation_email)
+
         return if user.va_profile_email.blank?
 
         form_id = Flipper.enabled?(:va_dependents_v2) ? FORM_ID_V2 : FORM_ID

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rx/client'
-require 'rx/medications_client'
 
 module MyHealth
   class RxController < ApplicationController
@@ -12,19 +11,10 @@ module MyHealth
     protected
 
     def client
-      Rails.logger.info('Client is being set for VA.gov')
-      @client ||= if Flipper.enabled?(:mhv_medications_client_test)
-                    Rx::Client.new(
-                      session: { user_id: current_user.mhv_correlation_id },
-                      upstream_request: request,
-                      app_token: Rx::Client.configuration.app_token_va_gov
-                    )
-                  else
-                    Rx::MedicationsClient.new(
-                      session: { user_id: current_user.mhv_correlation_id },
-                      upstream_request: request
-                    )
-                  end
+      @client ||= Rx::Client.new(
+        session: { user_id: current_user.mhv_correlation_id },
+        upstream_request: request
+      )
     end
 
     def authorize

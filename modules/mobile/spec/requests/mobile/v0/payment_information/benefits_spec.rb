@@ -223,7 +223,7 @@ Payment account info missing for user #{user.uuid}",
 
       it 'calls VA Notify background job to send an email' do
         user.all_emails.each do |email|
-          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email, 'comp_and_pen')
+          expect(VANotifyDdEmailJob).to receive(:perform_async).with(email)
         end
 
         subject
@@ -231,12 +231,10 @@ Payment account info missing for user #{user.uuid}",
     end
 
     context 'when user does not have an associated email address' do
-      before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
-
-      it 'logs a message to Sentry' do
+      it 'logs a message with Rails Logger' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           expect_any_instance_of(User).to receive(:all_emails).and_return([])
-          expect(Sentry).to receive(:capture_message).once
+          expect(Rails.logger).to receive(:info).once
 
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)

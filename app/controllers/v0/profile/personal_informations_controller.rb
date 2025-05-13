@@ -39,21 +39,15 @@ module V0
       end
 
       def log_errors_for(response)
-        if response.gender.nil? || response.birth_date.nil?
-          sanitized_response = sanitize_data(response.to_h)
-          sanitized_params = sanitize_data(params)
-          log_message_to_sentry(
-            'mpi is missing data bug:',
-            :info,
-            {
-              response: sanitized_response,
-              params: sanitized_params,
-              gender: response.gender,
-              birth_date: response.birth_date
-            },
-            profile: 'pciu_profile'
-          )
-        end
+        return unless response.gender.nil? || response.birth_date.nil?
+
+        Rails.logger.error("mpi missing data: #{I18n.t('common.exceptions.MVI_BD502.detail')}", {
+                             response: sanitize_data(response.to_h),
+                             params: sanitize_data(params),
+                             gender: response.gender,
+                             birth_date: response.birth_date,
+                             mvi_status_code: I18n.t('common.exceptions.MVI_BD502.status')
+                           })
       end
 
       def sanitize_data(data)
@@ -69,7 +63,8 @@ module V0
           :zip_code5,
           :zip_code4,
           :phone_number,
-          :country_code_iso3
+          :country_code_iso3,
+          :preferred_name
         )
       end
     end
