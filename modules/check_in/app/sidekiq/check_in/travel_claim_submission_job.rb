@@ -15,14 +15,7 @@ module CheckIn
         opts = { mobile_phone:, appointment_date:, template_id:, claim_number:, facility_type: }
         TravelClaimNotificationJob.perform_async(opts)
       else
-        context = {
-          uuid:,
-          appointment_date:,
-          station_number:,
-          facility_type:,
-          template_id:,
-          mobile_phone:
-        }
+        context = { uuid:, appointment_date:, station_number:, facility_type:, template_id:, mobile_phone: }
         log_missing_data(context)
       end
     end
