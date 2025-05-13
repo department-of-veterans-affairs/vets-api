@@ -303,9 +303,7 @@ module VAProfile
               Rails.logger.info("ContactInformationV2 METHOD: #{method}, JSON: #{model.in_json_v2}")
             end
             raw_response = perform(method, request_path, model.in_json_v2)
-            if log_transaction_id?
-              Rails.logger.info("ContactInformation RAW RESPONSE: #{raw_response}")
-            end
+            Rails.logger.info("ContactInformation RAW RESPONSE: #{raw_response}") if log_transaction_id?
             response_class.from(raw_response)
           end
         rescue => e
