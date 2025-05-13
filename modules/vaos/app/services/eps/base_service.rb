@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'eps/token_authentication'
+
 module Eps
   # Eps::BaseService provides common functionality for making REST API requests
   # to the EPS service.
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
-    include TokenAuthentication
+    include Eps::TokenAuthentication
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]
