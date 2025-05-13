@@ -89,6 +89,27 @@ RSpec.describe IvcChampva::VesApi::Client do
     end
   end
 
+  describe 'check options' do
+    it 'sets the request timeout to at least 5 seconds' do
+      connection = instance_double(Common::Client::Base::Connection) # Mock the private connection class
+      response = instance_double(Faraday::Response, status: 200, body: '')
+      allow(client).to receive(:connection).and_return(connection)
+
+      expect(connection).to receive(:post) do |&block|
+        request = double(options: Faraday::RequestOptions.new)
+        allow(request).to receive(:headers=)
+        allow(request).to receive(:body=)
+        allow(request).to receive(:options=) do |options|
+          expect(options[:timeout]).to be > 5
+        end
+        block.call(request)
+        response
+      end
+
+      client.submit_1010d(transaction_uuid, acting_user, ves_request_data)
+    end
+  end
+
   describe 'headers' do
     it 'returns the right headers' do
       result = client.headers('the_right_uuid', 'the_right_acting_user')
