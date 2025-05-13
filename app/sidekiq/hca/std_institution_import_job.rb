@@ -56,7 +56,7 @@ module HCA
       if response_code == '200'
         response.body
       else
-        Rails.logger.info("[HCA] - CSV retrieval failed with response code #{response_code}")
+        Rails.logger.warn("[HCA] - CSV retrieval failed with response code #{response_code}")
 
         nil
       end
