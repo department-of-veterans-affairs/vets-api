@@ -1668,10 +1668,6 @@ features:
     actor_type: user
     enable_in_development: false
     description: Toggle for the vaos module to use an alternate vaos-service route
-  va_online_scheduling_breadcrumb_url_update:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the breadcrumb and url changes for mhv
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
