@@ -125,14 +125,14 @@ jobs:
              "bundle exec rake parallel:setup[24]"
 
       - name: Setup system tmp dir
-        run: |
-          TMPDIR=tmp/systmp
+        run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
       - name: Run Specs
         timeout-minutes: 15
         run: >
+          TMPDIR=tmp/systmp
           ${{ env.COMPOSE_BASH_CMD }}
           "bundle exec rake 'parallel:spec[24, , , modules\/]'"
 
