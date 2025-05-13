@@ -118,9 +118,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver_lookup_facility_name_db:
-    actor_type: user
-    description: Enables 1010CG pdf fill to lookup facility id in the database instead of vets-json-schema
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
@@ -147,6 +144,9 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_json_schemer_validation:
+    actor_type: user
+    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
