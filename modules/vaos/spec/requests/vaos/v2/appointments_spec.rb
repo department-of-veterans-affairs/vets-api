@@ -1460,20 +1460,17 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         it 'fails if a vaos appointment with the given referral id already exists' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-            updated_referral_identifiers = {
-              data: {
-                id: 'ref-124',
-                type: :referral_identifier,
-                attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-              }
-            }.to_json
+            referral_data = {
+              referral_number: 'ref-124',
+              npi:,
+              appointment_type_id:,
+              start_date:,
+              end_date:
+            }
 
-            Rails.cache.write(
-              'vaos_eps_referral_identifier_ref-124',
-              updated_referral_identifiers,
-              namespace: 'eps-access-token',
-              expires_in: redis_token_expiry
-            )
+            eps_redis_client = Eps::RedisClient.new
+            eps_redis_client.save_referral_data(referral_data:)
+
             draft_params[:referral_id] = 'ref-124'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
@@ -1515,20 +1512,16 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           )
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
 
-          updated_referral_identifiers = {
-            data: {
-              id: 'ref-126',
-              type: :referral_identifier,
-              attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-            }
-          }.to_json
+          referral_data = {
+            referral_number: 'ref-126',
+            npi:,
+            appointment_type_id:,
+            start_date:,
+            end_date:
+          }
 
-          Rails.cache.write(
-            'vaos_eps_referral_identifier_ref-126',
-            updated_referral_identifiers,
-            namespace: 'eps-access-token',
-            expires_in: redis_token_expiry
-          )
+          eps_redis_client = Eps::RedisClient.new
+          eps_redis_client.save_referral_data(referral_data:)
 
           draft_params[:referral_id] = 'ref-126'
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
