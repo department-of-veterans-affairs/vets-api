@@ -10,6 +10,7 @@ module Eps
 
     def_delegators :settings, :redis_token_expiry
 
+    REFERRAL_CACHE_KEY = 'vaos_eps_referral_identifier_'
     REFERRAL_CACHE_NAMESPACE = 'vaos-eps-cache'
 
     # Initializes the RedisClient with settings.
@@ -69,7 +70,7 @@ module Eps
     # @return [Boolean] True if the cache operation was successful
     def save_referral_data(referral_data:)
       Rails.cache.write(
-        "vaos_eps_referral_identifier_#{referral_data[:referral_number]}",
+        "#{REFERRAL_CACHE_KEY}#{referral_data[:referral_number]}",
         referral_data,
         namespace: REFERRAL_CACHE_NAMESPACE,
         expires_in: redis_token_expiry
@@ -108,7 +109,7 @@ module Eps
     def referral_identifiers(referral_number:)
       @referral_identifiers ||= Hash.new do |h, key|
         h[key] = Rails.cache.read(
-          "vaos_eps_referral_identifier_#{key}",
+          "#{REFERRAL_CACHE_KEY}#{key}",
           namespace: REFERRAL_CACHE_NAMESPACE
         )
       end
