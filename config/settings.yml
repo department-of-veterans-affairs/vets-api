@@ -895,7 +895,6 @@ mhv:
     gw_base_path: <%= ENV['mhv__rx__gw_base_path'] %>
     host: <%= ENV['mhv__rx__host'] %>
     mock: <%= ENV['mhv__rx__mock'] %>
-    use_new_api: <%= ENV['mhv__rx__use_new_api'] %>
     x_api_key: <%= ENV['mhv__rx__x_api_key'] %>
   sm:
     app_token: <%= ENV['mhv__sm__app_token'] %>
@@ -1229,6 +1228,7 @@ token_validation:
 travel_pay:
   base_url: <%= ENV['travel_pay__base_url'] %>
   client_number: <%= ENV['travel_pay__client_number'] %>
+  mobile_client_number: <%= ENV['travel_pay__mobile_client_number'] %>
   mock: <%= ENV['travel_pay__mock'] %>
   service_name: BTSSS-API
   sts:

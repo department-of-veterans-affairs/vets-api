@@ -908,7 +908,6 @@ mhv:
     gw_base_path: v1/
     host: https://mhv-api.example.com
     mock: true
-    use_new_api: false
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
@@ -1247,6 +1246,7 @@ token_validation:
 travel_pay:
   base_url: https://btsss.gov
   client_number: '12345'
+  mobile_client_number: '56789'
   mock: false
   service_name: BTSSS-API
   sts:
