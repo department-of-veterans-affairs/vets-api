@@ -15,6 +15,10 @@ describe VAProfile::Models::ServiceHistory do
     }'
   end
 
+  before do
+    Flipper.disable(:vet_status_titled_alerts)
+  end
+
   context 'when service history json is present' do
     it 'returns a service_history model' do
       model = create_model(json)
