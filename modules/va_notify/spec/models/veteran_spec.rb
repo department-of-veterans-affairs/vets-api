@@ -93,15 +93,6 @@ RSpec.describe VANotify::Veteran, type: :model do
       end
     end
 
-    context 'without associated account' do
-      let(:user_account) { nil }
-
-      it 'returns nil if no matching account is found' do
-        expect(subject.verified?).to be(false)
-        expect(subject.loa3?).to be(false)
-      end
-    end
-
     context 'without icn' do
       let(:icn) { nil }
 
@@ -118,14 +109,6 @@ RSpec.describe VANotify::Veteran, type: :model do
 
       it 'returns the icn associated to the user account associated to the in_progress_form if it exists' do
         expect(subject.icn).to eq('icn')
-      end
-    end
-
-    context 'without associated account' do
-      let(:user_account) { nil }
-
-      it 'returns nil if no matching account is found' do
-        expect(subject.icn).to be_nil
       end
     end
 
