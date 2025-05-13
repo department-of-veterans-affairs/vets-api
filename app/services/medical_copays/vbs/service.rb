@@ -44,11 +44,11 @@ module MedicalCopays
       def get_copays
         raise InvalidVBSRequestError, request_data.errors unless request_data.valid?
 
-        response = if Flipper.enabled?(:debts_cache_vbs_copays_empty_response)
-                     get_cached_copay_response
-                   else
-                     get_copay_response
-                   end
+        if Flipper.enabled?(:debts_copay_logging)
+          Rails.logger.info("MedicalCopays::VBS::Service#get_copays request data: #{@user.uuid}")
+        end
+
+        response = get_cached_copay_response
 
         # enable zero balance debt feature if flip is on
         if Flipper.enabled?(:medical_copays_zero_debt)
@@ -71,7 +71,10 @@ module MedicalCopays
           return cached_response
         end
 
-        response = get_copay_response
+        response = request.post(
+          "#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash
+        )
+
         response_body = response.body
 
         if response_body.is_a?(Array) && response_body.empty?
@@ -114,14 +117,6 @@ module MedicalCopays
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.pdf.failure")
         raise e
-      end
-
-      def get_copay_response
-        if Flipper.enabled?(:debts_copay_logging)
-          Rails.logger.info("MedicalCopays::VBS::Service#get_copay_response request data: #{@user.uuid}")
-        end
-
-        request.post("#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash)
       end
 
       def get_user_cached_response

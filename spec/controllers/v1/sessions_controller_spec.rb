@@ -199,6 +199,58 @@ RSpec.describe V1::SessionsController, type: :controller do
               end
             end
           end
+
+          context 'cerner eligiblility check' do
+            let(:params) { { type:, clientId: '123123' } }
+            let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
+            let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
+            let(:expected_log_payload) { { eligible:, cookie_action: } }
+
+            context 'when cerner eligible cookie is present' do
+              let(:cookie_action) { :found }
+
+              before do
+                cookies.signed[cerner_eligible_cookie] = eligible.to_s
+                allow(Rails.logger).to receive(:info)
+              end
+
+              context 'when cerner eligible cookie is true' do
+                let(:eligible) { true }
+
+                it 'logs the cerner eligibility' do
+                  call_endpoint
+
+                  expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+                end
+              end
+
+              context 'when cerner eligible cookie is false' do
+                let(:eligible) { false }
+
+                it 'logs the cerner eligibility' do
+                  call_endpoint
+
+                  expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+                end
+              end
+            end
+
+            context 'when cerner eligible cookie is not present' do
+              let(:cookie_action) { :not_found }
+              let(:eligible) { :unknown }
+
+              before do
+                cookies.delete(cerner_eligible_cookie)
+                allow(Rails.logger).to receive(:info)
+              end
+
+              it 'logs the cerner eligibility' do
+                call_endpoint
+
+                expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+              end
+            end
+          end
         end
 
         context 'when type is idme_verified' do
@@ -774,6 +826,56 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'after redirecting the client' do
         it_behaves_like 'a successful UserAudit log'
+      end
+
+      context 'when cerner eligibiltiy is checked' do
+        let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, cerner_id:) }
+        let(:cerner_id) { 'some-cerner-id' }
+        let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
+        let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
+        let(:expected_log_payload) { { eligible:, cookie_action: :set, icn: user.icn } }
+
+        before do
+          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
+          allow(Rails.logger).to receive(:info)
+        end
+
+        context 'when the cerner eligible cookie is not present' do
+          context 'when the user is cerner eligible' do
+            let(:eligible) { true }
+
+            it 'sets the cookie and logs the cerner eligibility' do
+              call_endpoint
+
+              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+
+          context 'when the user is not cerner eligible' do
+            let(:cerner_id) { nil }
+            let(:eligible) { false }
+
+            it 'sets the cookie and logs the cerner eligibility' do
+              call_endpoint
+
+              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+        end
+
+        context 'when the cerner eligible cookie is present' do
+          before do
+            cookies.signed[cerner_eligible_cookie] = 'true'
+          end
+
+          it 'does nothing' do
+            call_endpoint
+
+            expect(Rails.logger).not_to have_received(:info).with(expected_log_message, anything)
+          end
+        end
       end
     end
 
