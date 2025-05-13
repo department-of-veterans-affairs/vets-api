@@ -696,9 +696,6 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
-  filter_saved_claim_logs:
-    actor_type: user
-    description: Enabled filtering out attributes in saved claim validation logs
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
