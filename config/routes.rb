@@ -51,10 +51,10 @@ Rails.application.routes.draw do
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
-    resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
-    resource :virtual_agent_token_nlu, only: [:create], controller: :virtual_agent_token_nlu
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
+
+    get 'virtual_agent/user', to: 'virtual_agent/users#show'
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
@@ -171,7 +171,6 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
-    resources :evss_claims_async, only: %i[index show]
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
@@ -193,49 +192,11 @@ Rails.application.routes.draw do
     get 'ppiu/payment_information', to: 'ppiu#index'
     put 'ppiu/payment_information', to: 'ppiu#update'
 
+    post 'event_bus_gateway/send_email', to: 'event_bus_gateway#send_email'
+
     resources :maintenance_windows, only: [:index]
 
-    resources :prescriptions, only: %i[index show], defaults: { format: :json } do
-      get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
-      patch :refill, to: 'prescriptions#refill', on: :member
-      resources :trackings, only: :index, controller: :trackings
-      collection do
-        resource :preferences, only: %i[show update], controller: 'prescription_preferences'
-      end
-    end
-
-    resource :health_records, only: [:create], defaults: { format: :json } do
-      get :refresh, to: 'health_records#refresh', on: :collection
-      get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
-      get :show, controller: 'health_record_contents', on: :collection
-    end
-
     resources :appeals, only: :index
-
-    scope :messaging do
-      scope :health do
-        resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
-
-        resources :folders, only: %i[index show create destroy], defaults: { format: :json } do
-          resources :messages, only: [:index], defaults: { format: :json }
-        end
-
-        resources :messages, only: %i[show create destroy], defaults: { format: :json } do
-          get :thread, on: :member
-          get :categories, on: :collection
-          patch :move, on: :member
-          post :reply, on: :member
-          resources :attachments, only: [:show], defaults: { format: :json }
-        end
-
-        resources :message_drafts, only: %i[create update], defaults: { format: :json } do
-          post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
-          put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
-        end
-
-        resource :preferences, only: %i[show update], controller: 'messaging_preferences'
-      end
-    end
 
     scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
@@ -438,7 +399,6 @@ Rails.application.routes.draw do
   mount IvcChampva::Engine, at: '/ivc_champva'
   mount RepresentationManagement::Engine, at: '/representation_management'
   mount SimpleFormsApi::Engine, at: '/simple_forms_api'
-  mount HealthQuest::Engine, at: '/health_quest'
   mount IncomeLimits::Engine, at: '/income_limits'
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'

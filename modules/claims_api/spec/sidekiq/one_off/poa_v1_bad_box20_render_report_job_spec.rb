@@ -22,15 +22,17 @@ RSpec.describe ClaimsApi::OneOff::PoaV1BadBox20RenderReportJob, type: :job do
       create_list(:power_of_attorney, 5, :with_fuzzed_headers, :with_blank_consent_limit, cid: consumer_id)
     end
 
-    it 'logs progress' do
-      allow_any_instance_of(ApplicationMailer).to receive(:mail).and_return(
-        double.tap do |mailer|
-          allow(mailer).to receive(:deliver_now!).once
-        end
-      )
+    it 'logs progress and sends email' do
       expect(ClaimsApi::Logger).to receive(:log).with(log_tag, detail: 'Started processing')
       expect(ClaimsApi::Logger).to receive(:log).with(log_tag, detail: 'Found 7 record(s)')
       expect(ClaimsApi::Logger).to receive(:log).with(log_tag, detail: 'Sending email')
+
+      expect(ClaimsApi::OneOff::PoaV1BadBox20RenderReportMailer).to receive(:build).and_return(
+        double.tap do |mailer|
+          expect(mailer).to receive(:deliver_now).once
+        end
+      )
+
       expect(ClaimsApi::Logger).to receive(:log).with(log_tag, detail: 'Email sent. Job complete.')
       subject.perform(consumer_id, %w[example@va.gov])
     end

@@ -574,50 +574,6 @@ hca:
     region: ~
   timeout: 30
 hostname: 127.0.0.1:3000
-hqva_mobile:
-  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  facilities:
-    ids_path: "/facilities_api/v1/va"
-    url: https://staging-api.va.gov
-  lighthouse:
-    claim_common_id: 0oabja2lpllERXWxo2p7
-    client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    condition_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token
-    grant_type: client_credentials
-    health_api: health_api
-    health_api_path: "/services/fhir/v0/r4"
-    health_api_scopes:
-      - launch launch/patient
-      - patient/Appointment.read
-      - patient/Location.read
-      - patient/Organization.read
-      - patient/Patient.read
-      - patient/Condition.read
-      - patient/Observation.read
-      - patient/Practitioner.read
-      - patient/Medication.read
-      - system/Endpoint.read
-    health_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7
-    health_token_path: "/oauth2/health/system/v1/token"
-    host: sandbox-api.va.gov
-    key_path: "/app/secret/health-quest.lighthouse.key"
-    mock: false
-    pgd_api: pgd_api
-    pgd_api_scopes:
-      - launch launch/patient
-      - patient/Observation.read
-      - patient/Observation.write
-      - patient/Questionnaire.read
-      - patient/Questionnaire.write
-      - patient/QuestionnaireResponse.read
-      - patient/QuestionnaireResponse.write
-    pgd_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7
-    pgd_path: "/services/pgd/v0/r4"
-    pgd_token_path: "/oauth2/pgd/v1/token"
-    redis_session_prefix: healthquest_lighthouse
-    url: https://sandbox-api.va.gov
-  mock: false
-  url: https://veteran.apps.va.gov
 iam_ssoe:
   client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
   client_id: Mobile_App_API_Server_LOWERS
@@ -734,6 +690,8 @@ lighthouse:
     use_mocks: false
   facilities:
     api_key: fake_key
+    hqva_mobile:
+      url: https://veteran.apps.va.gov
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
@@ -949,7 +907,6 @@ mhv:
     gw_base_path: v1/
     host: https://mhv-api.example.com
     mock: true
-    use_new_api: false
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
@@ -1288,6 +1245,7 @@ token_validation:
 travel_pay:
   base_url: ~
   client_number: ~
+  mobile_client_number: ~
   mock: true
   service_name: BTSSS-API
   sts:
@@ -1427,6 +1385,7 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       template_id:
+        decision_letter_ready_email: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
@@ -1520,7 +1479,6 @@ vanotify:
         contact_info_change: fake_template_id
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
-        direct_deposit_comp_pen: comp_pen_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id

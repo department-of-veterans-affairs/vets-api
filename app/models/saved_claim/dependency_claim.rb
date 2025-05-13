@@ -58,7 +58,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     processed_pdfs = []
     if form_id == '21-674-V2'
-      parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+      parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
         processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
       end
     else
