@@ -28,7 +28,9 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
       end
 
       it 'returns url for the archived pdf' do
-        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        VCR.use_cassette('v0/my_va/submission_pdf_urls') do
+          post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        end
         expect(response).to have_http_status(:ok)
         results = JSON.parse(response.body)
         expect(results['url']).to eq(MOCK_URL)
@@ -42,7 +44,9 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
       end
 
       it 'raises RecordNotFound error' do
-        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        VCR.use_cassette('v0/my_va/submission_pdf_urls_404') do
+          post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, submission_guid: MOCK_GUID })
+        end
         expect(response).to have_http_status(:not_found)
       end
     end
