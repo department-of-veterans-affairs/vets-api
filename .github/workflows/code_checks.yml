@@ -65,7 +65,6 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
-      TMPDIR: tmp/systmp
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     outputs:
@@ -127,6 +126,7 @@ jobs:
 
       - name: Setup system tmp dir
         run: |
+          TMPDIR=tmp/systmp
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
