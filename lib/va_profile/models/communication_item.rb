@@ -47,7 +47,6 @@ module VAProfile
         {
           bio: {
             allowed: communication_channel.communication_permission.allowed,
-            sensitive: communication_channel.communication_permission.sensitive,
             communicationChannelId: communication_channel.id,
             communicationItemId: id,
             vaProfileId: va_profile_id.to_i,
@@ -55,11 +54,19 @@ module VAProfile
           }.merge(lambda do
             communication_permission = communication_channel.communication_permission
 
-            if communication_permission.id.present?
+            result = if communication_permission.id.present?
               { communicationPermissionId: communication_permission.id }
             else
               {}
             end
+
+            # Only health appointment reminders have a sensitive indicator
+            # so we only add this field if the indicator is present
+            if communication_permission.sensitive.present?
+              result.merge!(sensitive: communication_permission.sensitive)
+            end
+            
+            result
           end.call)
         }.to_json
       end
