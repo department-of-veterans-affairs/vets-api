@@ -48,7 +48,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           'token',
           '12345',
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end
@@ -63,7 +63,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           'token',
           '67890',
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end
@@ -84,7 +84,7 @@ describe Eps::RedisClient do
 
       val = Rails.cache.read(
         'token',
-        namespace: 'vaos-eps-cache'
+        namespace: 'eps-access-token'
       )
       expect(val).to eq(token)
     end
@@ -102,7 +102,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
           referral_identifiers,
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end
@@ -117,7 +117,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
           referral_identifiers,
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end
@@ -135,7 +135,7 @@ describe Eps::RedisClient do
       Rails.cache.write(
         "vaos_eps_referral_identifier_#{referral_number}",
         referral_identifiers,
-        namespace: 'vaos-eps-cache',
+        namespace: 'eps-access-token',
         expires_in: redis_token_expiry
       )
     end
@@ -150,7 +150,7 @@ describe Eps::RedisClient do
       Rails.cache.write(
         "vaos_eps_referral_identifier_#{referral_number}",
         referral_identifiers,
-        namespace: 'vaos-eps-cache',
+        namespace: 'eps-access-token',
         expires_in: redis_token_expiry
       )
     end
@@ -203,7 +203,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
           referral_identifiers,
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end
@@ -226,7 +226,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
           referral_identifiers,
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end
@@ -249,7 +249,7 @@ describe Eps::RedisClient do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
           referral_identifiers,
-          namespace: 'vaos-eps-cache',
+          namespace: 'eps-access-token',
           expires_in: redis_token_expiry
         )
       end

@@ -35,6 +35,17 @@
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents"
+      :file_path: "/travel_pay/claims/show/docs"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*"
+      :file_path: "/travel_pay/claims/show/default"
+      :response_delay: 0.3
+    - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1.2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
@@ -52,6 +63,13 @@
     - :method: :post
       :path: "/veis/api/btsss/travelclaim/api/v1.2/expenses/mileage"
       :file_path: "/travel_pay/expenses/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
+      :file_path: "/travel_pay/documents"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
       :response_delay: 0.3
 
 #CRM Token post
@@ -893,6 +911,39 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator: patient
+
+# EPS (Enhanced Patient Services) API
+- :name: "EPS API"
+  :base_uri: <%= "#{URI(Settings.vaos.eps.api_url).host}:#{URI(Settings.vaos.eps.api_url).port}" %>
+  :endpoints:
+    # Get a provider's service details
+    - :method: :get
+      :path: "/care-navigation/v1/provider-services/*"
+      :file_path: "vaos/eps/providers/get_provider_services"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)'
+        
+    # Get list of appointments
+    - :method: :get
+      :path: "/care-navigation/v1/appointments"
+      :file_path: "vaos/eps/appointments/get_appointments/default"
+        
+    # Get appointment details
+    - :method: :get
+      :path: "/care-navigation/v1/appointments/*"
+      :file_path: "vaos/eps/appointments/get_appointment"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)'
+        
+    # Get provider service slots
+    - :method: :get
+      :path: "/care-navigation/v1/provider-services/*/slots"
+      :file_path: "vaos/eps/providers/get_provider_slots"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)\/slots'
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"

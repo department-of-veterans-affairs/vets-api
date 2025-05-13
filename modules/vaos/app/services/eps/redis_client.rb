@@ -19,10 +19,7 @@ module Eps
     #
     # @return [String, nil] the token if it exists, otherwise nil
     def token
-      Rails.cache.read(
-        'token',
-        namespace: 'vaos-eps-cache'
-      )
+      Rails.cache.read('token', namespace: 'eps-access-token')
     end
 
     # Saves the token to the Redis cache.
@@ -33,8 +30,8 @@ module Eps
       Rails.cache.write(
         'token',
         token,
-        namespace: 'vaos-eps-cache',
-        expires_in: redis_token_expiry
+        namespace: 'eps-access-token',
+        expires_in: REDIS_CONFIG[:eps_access_token][:each_ttl]
       )
     end
 
@@ -115,7 +112,7 @@ module Eps
       @referral_identifiers ||= Hash.new do |h, key|
         h[key] = Rails.cache.read(
           "vaos_eps_referral_identifier_#{key}",
-          namespace: 'vaos-eps-cache'
+          namespace: 'eps-access-token'
         )
       end
       @referral_identifiers[referral_number]
