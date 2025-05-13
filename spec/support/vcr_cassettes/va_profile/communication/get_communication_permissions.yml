@@ -59,7 +59,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"9ac95d0f-42b8-45a3-9d18-f07e1e81e97f","status":"COMPLETED_SUCCESS","bios":[{"createDate":"2021-03-23T23:19:55Z","updateDate":"2021-03-23T23:19:55Z","txAuditId":"7a1ed4b3-1749-4faa-95de-439e965cfd2a","sourceSystem":"VETSGOV","sourceDate":"2021-03-23T23:19:55Z","communicationPermissionId":21,"vaProfileId":18277,"communicationChannelId":1,"communicationItemId":1,"communicationChannelName":"Text","communicationItemCommonName":"Health
-        Appointment Reminder","allowed":true},{"createDate":"2021-03-24T22:38:21Z","updateDate":"2021-03-24T22:38:21Z","txAuditId":"3e776301-4794-402a-8a99-67d473232b6c","sourceSystem":"VETSGOV","sourceDate":"2021-03-24T22:38:21Z","communicationPermissionId":46,"vaProfileId":18277,"communicationChannelId":1,"communicationItemId":2,"communicationChannelName":"Text","communicationItemCommonName":"RX
+        Appointment Reminder","allowed":true,"sensitive":true},{"createDate":"2021-03-24T22:38:21Z","updateDate":"2021-03-24T22:38:21Z","txAuditId":"3e776301-4794-402a-8a99-67d473232b6c","sourceSystem":"VETSGOV","sourceDate":"2021-03-24T22:38:21Z","communicationPermissionId":46,"vaProfileId":18277,"communicationChannelId":1,"communicationItemId":2,"communicationChannelName":"Text","communicationItemCommonName":"RX
         Prescription Refill Reminder","allowed":false}]}'
   recorded_at: Wed, 24 Mar 2021 23:36:35 GMT
 recorded_with: VCR 6.0.0
