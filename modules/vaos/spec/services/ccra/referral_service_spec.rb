@@ -92,13 +92,17 @@ describe Ccra::ReferralService do
       end
 
       it 'caches the referral data in Redis with all required fields' do
-        # Test that the save_referral_data method is called with the right parameters
-        expect(redis_client).to receive(:save_referral_data).with(
-          referral_id: id,
-          referral: an_instance_of(Ccra::ReferralDetail)
-        ).and_return(true)
-
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
+          expect(redis_client).to receive(:save_referral_data) do |args|
+            referral_data = args[:referral_data]
+            expect(referral_data).to be_a(Hash)
+            expect(referral_data).to have_key(:appointment_type_id)
+            expect(referral_data).to have_key(:end_date)
+            expect(referral_data).to have_key(:npi)
+            expect(referral_data).to have_key(:start_date)
+            true
+          end
+
           subject.get_referral(id, icn)
         end
       end

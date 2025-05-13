@@ -161,77 +161,39 @@ describe Eps::RedisClient do
   end
 
   describe '#save_referral_data' do
-    let(:referral_id) { '67890' }
-    let(:provider_npi) { 'NPI123456' }
-    let(:referral) do
-      instance_double(
-        Ccra::ReferralDetail,
-        station_id: npi,
+    let(:referral_number) { '67890' }
+    let(:npi) { 'NPI123456' }
+    let(:referral_data) do
+      {
+        referral_number:,
         appointment_type_id:,
-        expiration_date: end_date,
-        provider_npi:,
-        referral_date: start_date
+        end_date:,
+        npi:,
+        start_date:
+      }
+    end
+
+    it 'saves the referral data to cache and returns true' do
+      expect(redis_client.save_referral_data(referral_data:)).to be(true)
+
+      # Verify the data was saved correctly
+      saved_data = Rails.cache.read(
+        "vaos_eps_referral_identifier_#{referral_number}",
+        namespace: 'vaos-eps-cache'
       )
-    end
 
-    context 'when all required fields are present' do
-      it 'saves the referral data to cache and returns true' do
-        expect(redis_client.save_referral_data(referral_id:, referral:)).to be(true)
+      # Verify the saved data has the expected structure
+      expect(saved_data).to be_a(String)
+      parsed_data = Oj.load(saved_data).with_indifferent_access
+      expect(parsed_data).to have_key(:data)
+      expect(parsed_data[:data]).to have_key(:attributes)
 
-        # Verify the data was saved correctly
-        saved_data = Rails.cache.read(
-          "vaos_eps_referral_identifier_#{referral_id}",
-          namespace: 'vaos-eps-cache'
-        )
-
-        # Verify the saved data has the expected structure
-        expect(saved_data).to be_a(String)
-        parsed_data = Oj.load(saved_data).with_indifferent_access
-        expect(parsed_data).to have_key(:data)
-        expect(parsed_data[:data]).to have_key(:attributes)
-
-        attributes = parsed_data[:data][:attributes]
-        expect(attributes[:npi]).to eq(provider_npi)
-        expect(attributes[:appointment_type_id]).to eq(appointment_type_id)
-        expect(attributes[:end_date]).to eq(end_date)
-        expect(attributes[:start_date]).to eq(start_date)
-      end
-    end
-
-    context 'when required fields are missing' do
-      let(:incomplete_referral) do
-        instance_double(
-          Ccra::ReferralDetail,
-          station_id: npi,
-          appointment_type_id: nil,  # Missing required field
-          expiration_date: end_date,
-          provider_npi: nil,         # Missing required field
-          referral_date: start_date
-        )
-      end
-
-      it 'does not save to cache and returns false' do
-        expect(redis_client.save_referral_data(referral_id:, referral: incomplete_referral)).to be(false)
-
-        # Verify no data was saved
-        saved_data = Rails.cache.read(
-          "vaos_eps_referral_identifier_#{referral_id}",
-          namespace: 'vaos-eps-cache'
-        )
-        expect(saved_data).to be_nil
-      end
-    end
-
-    context 'when referral_id is nil' do
-      it 'returns false without attempting to save' do
-        expect(redis_client.save_referral_data(referral_id: nil, referral:)).to be(false)
-      end
-    end
-
-    context 'when referral is nil' do
-      it 'returns false without attempting to save' do
-        expect(redis_client.save_referral_data(referral_id:, referral: nil)).to be(false)
-      end
+      attributes = parsed_data[:data][:attributes]
+      expect(attributes[:npi]).to eq(npi)
+      expect(attributes[:appointment_type_id]).to eq(appointment_type_id)
+      expect(attributes[:end_date]).to eq(end_date)
+      expect(attributes[:start_date]).to eq(start_date)
+      expect(attributes[:referral_number]).to eq(referral_number)
     end
   end
 
