@@ -157,8 +157,8 @@ module Logging
       def track_claim_signature_error(claim, lighthouse_service, user_account_uuid, e)
         submit_event(
           :error,
-          "#{message_prefix} custom date failed",
-          "#{submission_stats_key}.custom_date_failed",
+          "#{message_prefix} claim signature error",
+          "#{submission_stats_key}.claim_signature_error",
           claim:,
           user_account_uuid:,
           benefits_intake_uuid: lighthouse_service&.uuid,

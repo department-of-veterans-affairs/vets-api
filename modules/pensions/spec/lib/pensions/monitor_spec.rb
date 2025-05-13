@@ -428,8 +428,8 @@ RSpec.describe Pensions::Monitor do
     end
 
     describe '#track_claim_signature_error' do
-      it 'logs sidekiq job custom date failed' do
-        log = "#{message_prefix} custom date failed"
+      it 'logs sidekiq job claim signature error' do
+        log = "#{message_prefix} claim signature error"
         payload = {
           claim_id: claim.id,
           form_id: claim.form_id,
@@ -443,7 +443,7 @@ RSpec.describe Pensions::Monitor do
         expect(monitor).to receive(:track_request).with(
           :error,
           log,
-          "#{submission_stats_key}.custom_date_failed",
+          "#{submission_stats_key}.claim_signature_error",
           call_location: anything,
           **payload
         )
