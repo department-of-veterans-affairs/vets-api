@@ -53,10 +53,10 @@ module ClaimsApi
       def process_date_range(date_range)
         poas = ClaimsApi::PowerOfAttorney.where cid: consumer_id, created_at: date_range
 
-        start_date = date_range.first.to_date.to_s
-        finish_date = date_range.last.to_date.to_s
+        sd = date_range.first.to_date.to_s
+        fd = date_range.last.to_date.to_s
 
-        memo = +"<h3>IDS from #{start_date} to #{finish_date}</h3>"
+        memo = +"<h3>IDS from #{sd} to #{fd}</h3>\n<br>"
         memo << 'poa_id,eauth_pnid,created_date'
         num_records = 0
 
@@ -69,12 +69,12 @@ module ClaimsApi
         end
 
         if num_records.zero?
-          ClaimsApi::Logger.log LOG_TAG, detail: "No records for week of #{start_date}"
+          ClaimsApi::Logger.log LOG_TAG, detail: "No records for week of #{sd}"
           return
         end
 
         ClaimsApi::Logger.log LOG_TAG, detail: "Found #{num_records} record(s)"
-        ClaimsApi::Logger.log LOG_TAG, detail: "Sending email for week of #{start_date}"
+        ClaimsApi::Logger.log LOG_TAG, detail: "Sending email for week of #{sd}"
         ClaimsApi::OneOff::PoaV1BadBox20RenderReportMailer.build(emails, memo).deliver_now
         ClaimsApi::Logger.log LOG_TAG, detail: 'Email sent'
       end
