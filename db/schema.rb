@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_13_182152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -874,15 +874,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
   end
 
   create_table "form1095_bs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "veteran_icn", null: false
     t.integer "tax_year", null: false
     t.jsonb "form_data_ciphertext", null: false
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.string "veteran_icn_ciphertext", null: false
     t.index ["needs_kms_rotation"], name: "index_form1095_bs_on_needs_kms_rotation"
-    t.index ["veteran_icn", "tax_year"], name: "index_form1095_bs_on_veteran_icn_and_tax_year", unique: true
+    t.index ["veteran_icn_ciphertext", "tax_year"], name: "index_form1095_bs_on_veteran_icn_ciphertext_and_tax_year", unique: true
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
