@@ -16,6 +16,7 @@ module AccreditedRepresentativePortal
 
       def index
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+
         render json: {
           data: serializer.serializable_hash,
           meta: pagination_meta(poa_requests)
@@ -40,7 +41,7 @@ module AccreditedRepresentativePortal
       def poa_requests
         @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
                           .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
-                          .includes(scope_includes)
+                          .preload(scope_includes)
                           .paginate(page:, per_page:)
       end
 
@@ -77,13 +78,17 @@ module AccreditedRepresentativePortal
       end
 
       def pending(relation)
-        relation.not_processed.order(created_at: :desc)
+        query = relation.not_processed
+        return query if sort_params.present?
+
+        query.order(created_at: :desc)
       end
 
       def processed(relation)
-        relation.processed.decisioned.order(
-          resolution: { created_at: :desc }
-        )
+        query = relation.processed.decisioned
+        return query if sort_params.present?
+
+        query.order(resolution: { created_at: :desc })
       end
 
       def scope_includes
@@ -102,7 +107,7 @@ module AccreditedRepresentativePortal
             number: poa_requests.current_page,
             size: poa_requests.limit_value,
             total: poa_requests.total_entries,
-            total_pages: poa_requests.total_pages
+            totalPages: poa_requests.total_pages
           }
         }
       end

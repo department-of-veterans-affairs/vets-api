@@ -47,7 +47,7 @@ class InProgressForm < ApplicationRecord
 
   # https://guides.rubyonrails.org/active_record_callbacks.html
   before_save :serialize_form_data
-  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 5655].include?(form.form_id) }
+  before_save :skip_exipry_update_check, if: proc { |form| %w[21P-527EZ 21-526EZ 5655].include?(form.form_id) }
   before_save :set_expires_at, unless: :skip_exipry_update
   after_create ->(ipf) { StatsD.increment('in_progress_form.create', tags: ["form_id:#{ipf.form_id}"]) }
   after_destroy ->(ipf) { StatsD.increment('in_progress_form.destroy', tags: ["form_id:#{ipf.form_id}"]) }

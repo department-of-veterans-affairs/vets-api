@@ -11,7 +11,6 @@
 # AllowedMethods: enums
 Lint/ConstantDefinitionInBlock:
   Exclude:
-    - 'app/policies/legacy_mhv_messaging_policy.rb'
     - 'app/policies/mhv_health_records_policy.rb'
     - 'app/policies/mhv_medical_records_policy.rb'
     - 'app/policies/mhv_prescriptions_policy.rb'
@@ -200,8 +199,6 @@ Naming/VariableNumber:
     - 'modules/claims_api/app/controllers/claims_api/v2/blueprints/claim_blueprint.rb'
     - 'modules/claims_api/app/controllers/claims_api/v2/veterans/claims_controller.rb'
     - 'modules/dhp_connected_devices/spec/lib/fitbit_client_spec.rb'
-    - 'modules/health_quest/app/services/health_quest/middleware/response/errors.rb'
-    - 'modules/health_quest/spec/services/middleware/response/errors_spec.rb'
     - 'modules/meb_api/spec/dgi/submission/service_spec.rb'
     - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
     - 'modules/va_notify/spec/services/find_in_progress_forms_spec.rb'
