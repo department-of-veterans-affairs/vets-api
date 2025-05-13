@@ -9,6 +9,7 @@ module MyHealth
   #
   module AALClientConcerns
     extend ActiveSupport::Concern
+    include MyHealth::UserValueConcerns
 
     included do
       before_action :authenticate_aal_client, unless: :_aal_public_controller?

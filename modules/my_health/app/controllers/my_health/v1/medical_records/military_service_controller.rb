@@ -4,6 +4,7 @@ module MyHealth
   module V1
     module MedicalRecords
       class MilitaryServiceController < ApplicationController
+        include MyHealth::UserValueConcerns
         service_tag 'mhv-medical-records'
 
         before_action :authorize
