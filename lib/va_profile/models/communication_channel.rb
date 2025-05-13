@@ -27,7 +27,9 @@ module VAProfile
           default_send_indicator: item_channel_data['default_send_indicator']
         )
 
-        unless item_channel_data['sensitive_indicator'].nil? || item_channel_data['default_sensitive_indicator'].nil?
+        # We expect both sensitive_indicator and default_sensitive_indicator to be present
+        # for health appointment reminders
+        if sensitive_indicators_present?(item_channel_data, 'sensitive_indicator', 'default_sensitive_indicator')
           communication_channel_model.sensitive_indicator = item_channel_data['sensitive_indicator']
           communication_channel_model.default_sensitive_indicator = item_channel_data['default_sensitive_indicator']
         end
@@ -43,7 +45,7 @@ module VAProfile
             allowed: permission['allowed']
           )
 
-          unless permission['sensitive'].nil?
+          if sensitive_indicators_present?(permission, 'sensitive')
             communication_channel_model.communication_permission.sensitive = permission['sensitive']
           end
         end
@@ -65,6 +67,10 @@ module VAProfile
         if communication_permission.present? && communication_permission.invalid?
           errors.add(:communication_permission, communication_permission.errors.full_messages.join(','))
         end
+      end
+
+      def self.sensitive_indicators_present?(communication_data, *keys)
+        keys.all? { |key| !communication_data[key].nil? }
       end
     end
   end
