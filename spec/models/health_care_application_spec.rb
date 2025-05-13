@@ -598,7 +598,7 @@ RSpec.describe HealthCareApplication, type: :model do
             user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id
           |
           expect(user_identifier).to eq({ 'icn' => user.icn, 'edipi' => user.edipi })
-          expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
+          expect(HCA::SubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
           expect(health_care_application_id).to eq(1)
           expect(google_analytics_client_id).to be_nil
         end
@@ -676,11 +676,41 @@ RSpec.describe HealthCareApplication, type: :model do
             .and_raise(client_error)
         end
 
-        it 'logs exception to Sentry and raises BackendServiceException' do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(client_error)
-          expect do
-            health_care_application.process!
-          end.to raise_error(Common::Exceptions::BackendServiceException)
+        context ':hca_disable_sentry_logs enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+          end
+
+          it 'logs exception and raises BackendServiceException' do
+            expect(Rails.logger).to receive(:error).with('[10-10EZ] - Error synchronously submitting form',
+                                                         { exception: client_error, user_loa: nil })
+            expect(Rails.logger).to receive(:info).with(
+              '[10-10EZ] - HCA total failure',
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              }
+            )
+
+            expect do
+              health_care_application.process!
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
+
+        context ':hca_disable_sentry_logs disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+          end
+
+          it 'logs exception to Sentry and raises BackendServiceException' do
+            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(client_error)
+
+            expect do
+              health_care_application.process!
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
         end
 
         it 'increments statsd' do
@@ -768,10 +798,39 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
           end
 
-          it 'logs error to sentry if email job throws error' do
-            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
-            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
-            expect { subject }.not_to raise_error
+          context ':hca_disable_sentry_logs enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+            end
+
+            it 'logs error if email job throws error' do
+              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+              expect(Rails.logger).to receive(:error).with(
+                '[10-10EZ] - Failure sending Submission Failure Email',
+                { exception: standard_error }
+              )
+              expect(Rails.logger).to receive(:info).with(
+                '[10-10EZ] - HCA total failure',
+                {
+                  first_initial: 'F',
+                  middle_initial: 'M',
+                  last_initial: 'Z'
+                }
+              )
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context ':hca_disable_sentry_logs disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+            end
+
+            it 'logs error to sentry if email job throws error' do
+              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+              expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+              expect { subject }.not_to raise_error
+            end
           end
 
           it 'increments statsd' do
@@ -803,10 +862,39 @@ RSpec.describe HealthCareApplication, type: :model do
               expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
             end
 
-            it 'logs error to sentry if email job throws error' do
-              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
-              expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
-              expect { subject }.not_to raise_error
+            context ':hca_disable_sentry_logs enabled' do
+              before do
+                allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+              end
+
+              it 'logs error if email job throws error' do
+                allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+                expect(Rails.logger).to receive(:error).with(
+                  '[10-10EZ] - Failure sending Submission Failure Email',
+                  { exception: standard_error }
+                )
+                expect(Rails.logger).to receive(:info).with(
+                  '[10-10EZ] - HCA total failure',
+                  {
+                    first_initial: 'no initial provided',
+                    middle_initial: 'no initial provided',
+                    last_initial: 'no initial provided'
+                  }
+                )
+                expect { subject }.not_to raise_error
+              end
+            end
+
+            context ':hca_disable_sentry_logs disabled' do
+              before do
+                allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+              end
+
+              it 'logs error to sentry if email job throws error' do
+                allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+                expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+                expect { subject }.not_to raise_error
+              end
             end
           end
         end
@@ -876,18 +964,44 @@ RSpec.describe HealthCareApplication, type: :model do
           expect(pii_log.data).to eq(health_care_application.parsed_form)
         end
 
-        it 'logs message to sentry' do
-          expect(health_care_application).to receive(:log_message_to_sentry).with(
-            'HCA total failure',
-            :error,
-            {
-              first_initial: 'F',
-              middle_initial: 'M',
-              last_initial: 'Z'
-            },
-            hca: :total_failure
-          )
-          subject
+        context ':hca_disable_sentry_logs enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+          end
+
+          it 'logs message' do
+            expect(Rails.logger).to receive(:info).with(
+              '[10-10EZ] - HCA total failure',
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              }
+            )
+
+            subject
+          end
+        end
+
+        context ':hca_disable_sentry_logs disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+          end
+
+          it 'logs message to sentry' do
+            expect(health_care_application).to receive(:log_message_to_sentry).with(
+              'HCA total failure',
+              :error,
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              },
+              hca: :total_failure
+            )
+
+            subject
+          end
         end
 
         it 'sends the "error" event to the Event Bus' do
@@ -922,9 +1036,26 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(PersonalInformationLog.count).to eq 0
           end
 
-          it 'does not log message to sentry' do
-            expect(health_care_application).not_to receive(:log_message_to_sentry)
-            subject
+          context ':hca_disable_sentry_logs enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+            end
+
+            it 'does not log message' do
+              expect(Rails.logger).not_to receive(:error)
+              subject
+            end
+          end
+
+          context ':hca_disable_sentry_logs disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+            end
+
+            it 'does not log message to sentry' do
+              expect(health_care_application).not_to receive(:log_message_to_sentry)
+              subject
+            end
           end
         end
 
@@ -940,18 +1071,42 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(pii_log.data).to eq(health_care_application.parsed_form)
           end
 
-          it 'logs message to sentry' do
-            expect(health_care_application).to receive(:log_message_to_sentry).with(
-              'HCA total failure',
-              :error,
-              {
-                first_initial: 'no initial provided',
-                middle_initial: 'no initial provided',
-                last_initial: 'no initial provided'
-              },
-              hca: :total_failure
-            )
-            subject
+          context ':hca_disable_sentry_logs enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+            end
+
+            it 'logs message' do
+              expect(Rails.logger).to receive(:info).with(
+                '[10-10EZ] - HCA total failure',
+                {
+                  first_initial: 'no initial provided',
+                  middle_initial: 'no initial provided',
+                  last_initial: 'no initial provided'
+                }
+              )
+              subject
+            end
+          end
+
+          context ':hca_disable_sentry_logs disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+            end
+
+            it 'logs message to sentry' do
+              expect(health_care_application).to receive(:log_message_to_sentry).with(
+                'HCA total failure',
+                :error,
+                {
+                  first_initial: 'no initial provided',
+                  middle_initial: 'no initial provided',
+                  last_initial: 'no initial provided'
+                },
+                hca: :total_failure
+              )
+              subject
+            end
           end
         end
       end

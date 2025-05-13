@@ -214,6 +214,7 @@ RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
                 }
               }
             ],
+            'override_validation_key' => -646_932_106,
             'validation_key' => -646_932_106
           )
           expect(response).to have_http_status(:ok)
@@ -266,6 +267,7 @@ RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
                 }
               }
             ],
+            'override_validation_key' => '-646932106',
             'validation_key' => '-646932106'
           )
           expect(response).to have_http_status(:ok)

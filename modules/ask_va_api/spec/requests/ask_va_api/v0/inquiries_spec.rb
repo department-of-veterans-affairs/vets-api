@@ -59,6 +59,44 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
   end
 
+  describe 'ask_va_api_maintenance_mode' do
+    # We test the maintenance mode using one representative action here.
+    # The before_action is global and applied to all actions in the controller,
+    # so one test is sufficient unless the before_action becomes scoped in the future.
+    let(:feature_toggle) { true }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:ask_va_api_maintenance_mode).and_return(feature_toggle)
+      allow(Settings).to receive(:vsp_environment).and_return('production')
+      sign_in(authorized_user)
+      get inquiry_path, params: { user_mock_data: true, page: 1, per_page: 10 }
+    end
+
+    context 'when true' do
+      it 'returns 503 Service Unavailable' do
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+
+    context 'when false' do
+      let(:feature_toggle) { false }
+
+      it 'returns 200' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when Flipper raises an error' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_raise(StandardError.new('boom'))
+      end
+
+      it 'fails safe and returns 503 Service Unavailable' do
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+  end
+
   describe 'GET #index' do
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
@@ -632,7 +670,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload: { Reply: 'this is my reply', ListOfAttachments: nil }).and_return(failure)
+                  payload: {
+                    icn: authorized_user.icn,
+                    Reply: 'this is my reply',
+                    ListOfAttachments: nil
+                  }).and_return(failure)
           post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
         end
 

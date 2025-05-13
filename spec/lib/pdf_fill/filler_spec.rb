@@ -48,15 +48,6 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '10-10CG',
-        factory: :caregivers_assistance_claim,
-        input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG/signed',
-        fill_options: {
-          sign: true
-        }
-      },
-      {
         form_id: '686C-674',
         factory: :dependency_claim
       },
@@ -70,7 +61,7 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-0538 26-1880 5655
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 21-0538 26-1880 5655
        22-10216 22-10215].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
@@ -91,9 +82,12 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
+              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
+              student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
+
               expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign: })
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate

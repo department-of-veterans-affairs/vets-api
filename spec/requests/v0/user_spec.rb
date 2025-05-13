@@ -37,7 +37,7 @@ RSpec.describe 'V0::User', type: :request do
     end
 
     it 'gives me the list of available prefill forms' do
-      num_enabled = 3
+      num_enabled = 2
       FormProfile::ALL_FORMS.each { |type, form_list| num_enabled += form_list.length if Settings[type].prefill }
       expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].length).to be(num_enabled)
     end

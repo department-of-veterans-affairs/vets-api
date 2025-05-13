@@ -81,7 +81,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         datestamp_double3 = double
         timestamp = claim.created_at
 
-        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim).at_least(:once)
         expect(claim).to receive(:to_pdf).and_return('path1')
         expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
         expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
@@ -139,14 +139,20 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       it 'submits the saved claim and updates submission to success' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user_struct.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'MARK'
-          }
+          'fake_received686',
+          { 'confirmation_number' => claim.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'MARK' },
+          'fake_secret',
+          { callback_klass: 'Dependents::NotificationCallback',
+            callback_metadata: { email_template_id: 'fake_received686',
+                                 email_type: :received686,
+                                 form_id: '686C-674',
+                                 saved_claim_id: claim.id,
+                                 service_name: 'dependents' } }
         )
-        expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
-        expect(claim).to receive(:submittable_674?).and_return(false)
+        expect(claim).to receive(:submittable_686?).and_return(true).exactly(4).times
+        expect(claim).to receive(:submittable_674?).and_return(false).at_least(:once)
         subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
         expect(central_mail_submission.reload.state).to eq('success')
       end
@@ -281,7 +287,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         datestamp_double3 = double
         timestamp = claim_v2.created_at
 
-        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim_v2.id).and_return(claim_v2)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim_v2.id).and_return(claim_v2).at_least(:once)
         expect(claim_v2).to receive(:to_pdf).and_return('path1')
         expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
         expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
@@ -339,14 +345,20 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       it 'submits the saved claim and updates submission to success' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user_struct.va_profile_email,
-          'fake_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'MARK'
-          }
+          'fake_received686',
+          { 'confirmation_number' => claim_v2.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'MARK' },
+          'fake_secret',
+          { callback_klass: 'Dependents::NotificationCallback',
+            callback_metadata: { email_template_id: 'fake_received686',
+                                 email_type: :received686,
+                                 form_id: '686C-674-V2',
+                                 saved_claim_id: claim_v2.id,
+                                 service_name: 'dependents' } }
         )
-        expect(claim_v2).to receive(:submittable_686?).and_return(true).exactly(:twice)
-        expect(claim_v2).to receive(:submittable_674?).and_return(false)
+        expect(claim_v2).to receive(:submittable_686?).and_return(true).exactly(4).times
+        expect(claim_v2).to receive(:submittable_674?).and_return(false).at_least(:once)
         subject.perform(claim_v2.id, encrypted_vet_info, encrypted_user_struct)
         expect(central_mail_submission_v2.reload.state).to eq('success')
       end
