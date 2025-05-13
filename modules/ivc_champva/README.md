@@ -83,6 +83,21 @@ The module includes advanced PDF handling with features like:
 ### Error Handling
 The system implements comprehensive error handling with consistent status codes and error messages. Failed operations are logged and tracked, with appropriate retry mechanisms for recoverable errors.
 
+## Feature Flags
+Current feature flags used to control functionality:
+
+| Flag | Purpose | Notes |
+|------|---------|-------|
+| `champva_send_to_ves` | Enables sending form submission data to the VES API | Long-running feature flag pending integration signoff from VES team |
+| `champva_retry_logic_refactor` | Enables refactored retry logic for form submissions | |
+| `champva_fmp_single_file_upload` | Enables combining FMP form and supporting docs into a single PDF | Only applies to form 10-7959f-2 |
+| `champva_vanotify_custom_callback` | Enables custom callback for failure emails with VA Notify | |
+| `champva_vanotify_custom_confirmation_callback` | Enables custom callback for confirmation emails | |
+| `champva_log_all_s3_uploads` | Enables detailed logging for all S3 uploads | |
+| `champva_enable_pega_report_check` | Enables querying PEGA reporting API for form status | |
+| `champva_pega_applicant_metadata_enabled` | Enables including applicant data in S3 metadata | |
+| (TODO) | Enables the endpoint to submit combined 10-10d/10-7959c form submissions | Feature is WIP |
+
 ## Uploads_Controller
 The uploads_controller.rb file in the IVC Champva module is a key component of the application, responsible for handling file uploads. It contains several private methods that perform various tasks related to file uploads. The get_attachment_ids_and_form method constructs attachment IDs based on the parsed form data and also instantiates a new form object.
 
