@@ -27,7 +27,8 @@ module Ccra
       @station_id = attributes[:station_id]
       @uuid = nil # Will be set by controller
       @has_appointments = attributes[:appointments].present?
-      # NOTE: appointment_type_id defaulted to 'ov' for phase 1 implementation
+      # NOTE: appointment_type_id defaulted to 'ov' for phase 1 implementation, needed for EPS provider
+      # slots fetching
       @appointment_type_id = 'ov'
       # Get phone number from treating facility or provider info
       treating_facility_info = attributes[:treating_facility_info]
