@@ -586,7 +586,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       post('/v0/health_care_applications/download_pdf', params: body, headers:)
     end
 
-    let(:endpoint) { '/v0/health_care_applications/download_pdf' }
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_from_response.pdf' }
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
 
@@ -639,6 +638,48 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       expect(
         File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
       ).to be(false)
+    end
+
+    context 'submission with attachments' do
+      let!(:form_data) { health_care_application.form }
+      let!(:health_care_application) { build(:hca_app_with_attachment) }
+      let(:body) { { form: health_care_application.form, asyncCompatible: true }.to_json }
+
+      it 'returns a completed PDF with attachments' do
+        subject
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
+  describe 'POST /v0/health_care_applications/download_zip' do
+    subject do
+      post('/v0/health_care_applications/download_zip', params: body, headers:)
+    end
+
+    let!(:form_data) { health_care_application.form }
+    let!(:health_care_application) { build(:hca_app_with_attachment) }
+    let(:body) { { form: health_care_application.form, asyncCompatible: true }.to_json }
+
+    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_from_response.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
+
+    before do
+      allow(SecureRandom).to receive(:uuid).and_return('saved-claim-guid', 'file-name-uuid')
+      allow(HealthCareApplication).to receive(:new)
+        .with(hash_including('form' => form_data))
+        .and_return(health_care_application)
+    end
+
+    after do
+      FileUtils.rm_f(response_pdf)
+    end
+
+    it 'returns a completed PDF with attachments' do
+      subject
+
+      expect(response).to have_http_status(:ok)
     end
   end
 end

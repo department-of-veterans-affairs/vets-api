@@ -4,6 +4,7 @@ require 'hca/service'
 require 'bgs/service'
 require 'pdf_fill/filler'
 require 'lighthouse/facilities/v1/client'
+require 'zip'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
@@ -13,7 +14,8 @@ module V0
     service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck facilities download_pdf])
+    skip_before_action(:authenticate,
+                       only: %i[create show enrollment_status healthcheck facilities download_pdf download_zip])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
@@ -97,13 +99,46 @@ module V0
       File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
+    def download_zip
+      file_name = SecureRandom.uuid
+      pdf_file_path = with_retries('Generate 10-10EZ PDF') do
+        PdfFill::Filler.fill_form(health_care_application, file_name)
+      end
+
+      client_file_name = file_name_for_pdf(health_care_application.parsed_form)
+      attachments = health_care_application.get_attachments
+
+      zip_file_name = "#{file_name_for(health_care_application.parsed_form)}.zip"
+      zip_file_path = Rails.root.join('tmp', zip_file_name)
+
+      # Create the zip filec
+      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+        # Add the PDF to the zip
+        zipfile.add(client_file_name, pdf_file_path)
+
+        # Add each attachment to the zip
+        attachments.each do |attachment|
+          zipfile.add(attachment[:file_name], attachment[:file_path])
+        end
+      end
+
+      # Send the zip file as a response
+      send_file zip_file_path, type: 'application/zip', disposition: 'attachment', filename: zip_file_name
+    ensure
+      # File.delete(zip_file_path) if zip_file_path && File.exist?(zip_file_path)
+    end
+
     private
 
-    def file_name_for_pdf(parsed_form)
+    def file_name_for(parsed_form)
       veteran_name = parsed_form.try(:[], 'veteranFullName')
       first_name = veteran_name.try(:[], 'first') || 'First'
       last_name = veteran_name.try(:[], 'last') || 'Last'
-      "10-10EZ_#{first_name}_#{last_name}.pdf"
+      "10-10EZ_#{first_name}_#{last_name}"
+    end
+
+    def file_name_for_pdf(parsed_form)
+      "#{file_name_for(parsed_form)}.pdf"
     end
 
     def health_care_application

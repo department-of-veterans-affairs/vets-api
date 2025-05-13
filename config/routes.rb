@@ -127,6 +127,7 @@ Rails.application.routes.draw do
         get(:rating_info)
         get(:facilities)
         post(:download_pdf)
+        post(:download_zip)
       end
     end
 

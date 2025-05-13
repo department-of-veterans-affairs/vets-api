@@ -77,6 +77,23 @@ class HealthCareApplication < ApplicationRecord
     self.class::FORM_ID
   end
 
+  def get_attachments
+    return [] if parsed_form['attachments'].blank?
+
+    parsed_form['attachments'].map do |attachment|
+      guid = attachment['confirmationCode']
+      form_attachment = HCAAttachment.find_by(guid:)
+
+      next if form_attachment.nil?
+
+      file_object = form_attachment.get_file
+      {
+        file_path: file_object.file,
+        file_name: file_object.original_filename
+      }
+    end.compact
+  end
+
   def submit_sync
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
