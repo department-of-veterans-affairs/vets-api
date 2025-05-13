@@ -94,7 +94,9 @@ module VAOS
         return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
 
         eps_appointments = eps_appointments_service.get_appointments[:data]
-        return { exists: true } if eps_appointments.any? { |appt| appt[:referral][:referral_number] == referral_id }
+        return { exists: true } if eps_appointments.any? do |appt|
+          appt[:referral] && appt[:referral][:referral_number] == referral_id
+        end
 
         { exists: false }
       end
