@@ -243,13 +243,16 @@ features:
   champva_pega_applicant_metadata_enabled:
     actor_type: user
     description: Enables including applicant data in the S3 metadata sent to PEGA
+  champva_fmp_single_file_upload:
+    actor_type: user
+    description: Enables the ability to upload a single merged PDF file for FMP claims
+  champva_old_records_cleanup_job:
+    actor_type: user
+    description: Enables the job to cleanup old IVC CHAMPVA form records
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
-  champva_fmp_single_file_upload:
-    actor_type: user
-    description: Enables the ability to upload a single merged PDF file for FMP claims
   check_in_experience_pre_check_in_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
