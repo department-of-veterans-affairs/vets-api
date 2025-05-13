@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/exceptions/gateway_timeout'
@@ -124,7 +125,9 @@ module MDOT
     def handle_error(error)
       save_error_details(error)
       case error
-      when ::Faraday::ParsingError, ::JSON::Parser::Error, ::Common::Client::Errors::ParsingError => e
+      when ::Faraday::ParsingError, ::JSON::ParserError, ::Common::Client::Errors::ParsingError
+        binding.pry
+
         raise_backend_exception('MDOT_502')
       when Common::Client::Errors::ClientError
         handle_client_error(error)
