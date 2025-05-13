@@ -40,13 +40,12 @@ module CheckIn
       return self.class.log_failure(opts) unless notification_data
 
       log_sending_travel_claim_notification(opts)
-      attempt_number = current_attempt_number
 
       begin
         va_notify_send_sms(**notification_data)
         StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
       rescue => e
-        log_send_sms_failure(attempt_number, e.message)
+        log_send_sms_failure(e.message)
         raise e
       end
     end
@@ -177,17 +176,6 @@ module CheckIn
       nil
     end
 
-    # Calculates the current attempt number based on Sidekiq retry count
-    #
-    # @return [Integer] The current attempt number (1-based)
-    def current_attempt_number
-      retry_attempt = 0
-      if self.class.sidekiq_options_hash&.[]('retry_count')
-        retry_attempt = self.class.sidekiq_options_hash['retry_count'].to_i
-      end
-      retry_attempt + 1
-    end
-
     # Returns a configured instance of the VaNotify client
     #
     # @return [VaNotify::Service] Configured VaNotify client
@@ -241,11 +229,10 @@ module CheckIn
 
     # Logs information about SMS sending failures
     #
-    # @param attempt_number [Integer] The current attempt number
     # @param error_message [String] The error message from the exception
     # @return [void]
-    def log_send_sms_failure(attempt_number, error_message)
-      logger.info({ message: "TravelClaimNotificationJob failed, attempt #{attempt_number} of #{MAX_RETRIES + 1}",
+    def log_send_sms_failure(error_message)
+      logger.info({ message: "TravelClaimNotificationJob failed",
                     error: error_message })
     end
   end
