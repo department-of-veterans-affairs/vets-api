@@ -23,17 +23,17 @@ module VeteranVerification
     ].freeze
 
     ERROR_MESSAGE_TITLED = {
-      title: 'Veteran status card error',
+      title: 'Something went wrong',
       message: ERROR_MESSAGE,
       status: 'error'
     }.freeze
     NOT_FOUND_MESSAGE_TITLED = {
-      title: 'Veteran status card not found',
+      title: "There's a proble with your discharge status records",
       message: NOT_FOUND_MESSAGE,
       status: 'warning'
     }.freeze
     NOT_ELIGIBLE_MESSAGE_TITLED = {
-      title: 'Veteran status card not eligible',
+      title: "You're not eligible for a Veteran Status Card",
       message: NOT_ELIGIBLE_MESSAGE,
       status: 'warning'
     }.freeze
