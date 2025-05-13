@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
 require 'rails_helper'
 require 'ves_api/client'
 
@@ -91,7 +92,11 @@ RSpec.describe IvcChampva::VesApi::Client do
 
   describe 'check options' do
     it 'sets the request timeout to at least 5 seconds' do
-      connection = instance_double(Common::Client::Base::Connection) # Mock the private connection class
+      # RuboCop prefers a constant class reference, but a string reference is necessary
+      # because Common::Client::Base::Connection is private.
+      # rubocop:disable RSpec/VerifiedDoubleReference
+      connection = instance_double('Common::Client::Base::Connection') # Mock the private connection class
+      # rubocop:enable RSpec/VerifiedDoubleReference
       response = instance_double(Faraday::Response, status: 200, body: '')
       allow(client).to receive(:connection).and_return(connection)
 
