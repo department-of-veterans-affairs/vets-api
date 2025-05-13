@@ -63,10 +63,10 @@ module Eps
     end
 
     # Saves referral data to the Redis cache as a JSON string.
-    # The data is stored using the referral_id from the referral_data hash.
+    # The data is stored using the referral_number from the referral_data hash.
     #
-    # @param referral_data [Hash] The referral data to be cached
-    # @return [Boolean] True if the cache operation was successful
+    # @param referral_data [Hash] The extracted referral data containing required attributes
+    # @return [Boolean] True if the cache operation was successful, false if required data is missing
     def save_referral_data(referral_data:)
       cache_data = {
         data: {
@@ -75,7 +75,7 @@ module Eps
       }
 
       Rails.cache.write(
-        "vaos_eps_referral_identifier_#{referral_data[:referral_id]}",
+        "vaos_eps_referral_identifier_#{referral_data[:referral_number]}",
         cache_data.to_json,
         namespace: 'vaos-eps-cache',
         expires_in: redis_token_expiry

@@ -81,7 +81,7 @@ module Ccra
     # @return [Boolean] True if the cache operation was successful, false if required data is missing
     def cache_referral_data(referral)
       referral_data = {
-        referral_id: referral.referral_number,
+        referral_number: referral.referral_number,
         appointment_type_id: referral.appointment_type_id,
         end_date: referral.expiration_date,
         npi: referral.provider_npi,
