@@ -1148,6 +1148,15 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     let(:appointment_type_id) { 'ov' }
     let(:start_date) { '2025-01-01T00:00:00Z' }
     let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:referral_data) do
+      {
+        referral_number: 'ref-123',
+        npi:,
+        appointment_type_id:,
+        start_date:,
+        end_date:
+      }
+    end
     let(:referral_identifiers) do
       {
         data: {
@@ -1166,13 +1175,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       allow(Rails).to receive(:cache).and_return(memory_store)
       Rails.cache.clear
-
-      Rails.cache.write(
-        "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
-        referral_identifiers,
-        namespace: 'eps-access-token',
-        expires_in: redis_token_expiry
-      )
+      # Set up Redis cache using the client method utilized in the referral detail fetch step that
+      # preceeds draft creation in order to reflect actual production behavior.
+      eps_redis_client = Eps::RedisClient.new
+      eps_redis_client.save_referral_data(referral_data:)
     end
 
     describe 'POST create_draft' do

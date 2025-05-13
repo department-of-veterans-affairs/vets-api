@@ -15,14 +15,15 @@ describe Eps::RedisClient do
   let(:start_date) { '2023-12-31' }
   let(:end_date) { '2023-12-31' }
 
-  let(:referral_identifiers) do
+  # Direct hash format for referral data
+  let(:referral_data_hash) do
     {
-      data: {
-        id: referral_number,
-        type: :referral_identifier,
-        attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-      }
-    }.to_json
+      referral_number:,
+      appointment_type_id:,
+      end_date:,
+      npi:,
+      start_date:
+    }
   end
 
   before do
@@ -101,8 +102,8 @@ describe Eps::RedisClient do
       before do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
-          referral_identifiers,
-          namespace: 'eps-access-token',
+          referral_data_hash,
+          namespace: 'vaos-eps-cache',
           expires_in: redis_token_expiry
         )
       end
@@ -116,8 +117,8 @@ describe Eps::RedisClient do
       before do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
-          referral_identifiers,
-          namespace: 'eps-access-token',
+          referral_data_hash,
+          namespace: 'vaos-eps-cache',
           expires_in: redis_token_expiry
         )
       end
@@ -134,8 +135,8 @@ describe Eps::RedisClient do
     before do
       Rails.cache.write(
         "vaos_eps_referral_identifier_#{referral_number}",
-        referral_identifiers,
-        namespace: 'eps-access-token',
+        referral_data_hash,
+        namespace: 'vaos-eps-cache',
         expires_in: redis_token_expiry
       )
     end
@@ -149,8 +150,8 @@ describe Eps::RedisClient do
     before do
       Rails.cache.write(
         "vaos_eps_referral_identifier_#{referral_number}",
-        referral_identifiers,
-        namespace: 'eps-access-token',
+        referral_data_hash,
+        namespace: 'vaos-eps-cache',
         expires_in: redis_token_expiry
       )
     end
@@ -175,11 +176,7 @@ describe Eps::RedisClient do
     it 'saves the referral data to cache and returns true' do
       expect(redis_client.save_referral_data(referral_data:)).to be(true)
 
-      # Verify the data was saved correctly
-      saved_data = Rails.cache.read(
-        "vaos_eps_referral_identifier_#{referral_number}",
-        namespace: 'vaos-eps-cache'
-      )
+      saved_data = redis_client.fetch_referral_attributes(referral_number:)
 
       # Verify the saved data has the expected structure
       expect(saved_data).to be_a(Hash)
@@ -202,8 +199,8 @@ describe Eps::RedisClient do
       before do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
-          referral_identifiers,
-          namespace: 'eps-access-token',
+          referral_data_hash,
+          namespace: 'vaos-eps-cache',
           expires_in: redis_token_expiry
         )
       end
@@ -225,22 +222,17 @@ describe Eps::RedisClient do
       before do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
-          referral_identifiers,
-          namespace: 'eps-access-token',
+          referral_data_hash,
+          namespace: 'vaos-eps-cache',
           expires_in: redis_token_expiry
         )
       end
 
       it 'returns all cached attributes' do
-        expected_attributes = {
-          npi:,
-          appointment_type_id:,
-          start_date:,
-          end_date:
-        }
+        expected_attributes = referral_data_hash
 
         referral_attrs = redis_client.fetch_referral_attributes(referral_number:)
-        expect(referral_attrs).to eq(expected_attributes.with_indifferent_access)
+        expect(referral_attrs).to eq(expected_attributes)
       end
     end
 
@@ -248,8 +240,8 @@ describe Eps::RedisClient do
       before do
         Rails.cache.write(
           "vaos_eps_referral_identifier_#{referral_number}",
-          referral_identifiers,
-          namespace: 'eps-access-token',
+          referral_data_hash,
+          namespace: 'vaos-eps-cache',
           expires_in: redis_token_expiry
         )
       end

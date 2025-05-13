@@ -61,7 +61,7 @@ module Eps
 
     # Saves referral data directly to the Redis cache.
     # The data is stored using the referral_number from the referral_data hash.
-    # The data is stored as a Ruby hash, not as JSON.
+    # The data is stored as a Ruby hash.
     #
     # @param referral_data [Hash] The referral data to be cached
     # @return [Boolean] True if the cache operation was successful
@@ -75,44 +75,39 @@ module Eps
     end
 
     # Fetches a specific attribute for a given referral number.
-    # Retrieves the cached data directly as a Ruby hash.
+    # Retrieves the attribute directly from the cached hash.
     #
     # @param referral_number [String] the referral number
     # @param attribute [Symbol] the attribute to be fetched
     # @return [Object, nil] the attribute value if it exists, otherwise nil
     def fetch_attribute(referral_number:, attribute:)
-      identifiers = referral_identifiers(referral_number:)
-      return nil if identifiers.nil?
+      data = referral_identifiers(referral_number:)
+      return nil if data.nil?
 
-      parsed_identifiers = Oj.load(identifiers).with_indifferent_access
-      parsed_identifiers.dig(:data, :attributes, attribute)
+      data[attribute]
     end
 
     # Retrieves all stored attributes for a given referral number from the Redis cache.
-    # Retrieves the cached data directly as a Ruby hash.
+    # Returns the entire cached hash for the referral.
     #
-    # @param referral_number [String] The referral number associated with the cached data.
-    # @return [Hash, nil] A hash of referral attributes if data exists, otherwise nil
+    # @param referral_number [String] The referral number associated with the cached data
+    # @return [Hash, nil] The complete referral data hash if it exists, otherwise nil
     def fetch_referral_attributes(referral_number:)
-      identifiers = referral_identifiers(referral_number:)
-      return nil if identifiers.nil?
-
-      parsed_identifiers = Oj.load(identifiers).with_indifferent_access
-      parsed_identifiers.dig(:data, :attributes)
+      referral_identifiers(referral_number:)
     end
 
     private
 
-    # Retrieves the referral identifiers for a given referral number.
+    # Retrieves the referral data hash for a given referral number from the Redis cache.
     # Uses memoization to avoid repeated cache lookups for the same referral number.
     #
     # @param referral_number [String] the referral number
-    # @return [Hash, nil] the referral data as a Ruby hash if it exists, otherwise nil
+    # @return [Hash, nil] the referral data hash if it exists, otherwise nil
     def referral_identifiers(referral_number:)
       @referral_identifiers ||= Hash.new do |h, key|
         h[key] = Rails.cache.read(
           "vaos_eps_referral_identifier_#{key}",
-          namespace: 'eps-access-token'
+          namespace: 'vaos-eps-cache'
         )
       end
       @referral_identifiers[referral_number]
