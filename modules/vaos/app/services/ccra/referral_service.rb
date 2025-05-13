@@ -40,7 +40,7 @@ module Ccra
     # Retrieves detailed Referral information.
     #
     # @param id [String] The ID of the referral.
-    # @param mode [String] The mode of the referral.
+    # @param icn [String] The ICN of the patient.
     #
     # @return [ReferralDetail] A ReferralDetail object representing the detailed referral information.
     def get_referral(id, icn)
@@ -66,21 +66,29 @@ module Ccra
         data = response.body.is_a?(String) ? JSON.parse(response.body, symbolize_names: true) : response.body
 
         referral = ReferralDetail.new(data)
-        cache_referral_data(id, referral)
+        cache_referral_data(referral)
         referral
       end
     end
 
     private
 
-    # Caches referral data for use in appointment creation
+    # Caches referral data for use in appointment creation.
+    # Extracts only the necessary fields from the referral object and
+    # passes them to the Redis client for storage.
     #
-    # @param referral_id [String] The referral ID (consult ID)
     # @param referral [ReferralDetail] The referral data object
-    # @return [Boolean] True if the cache operation was successful, false if required data is missing or caching fails
-    def cache_referral_data(referral_id, referral)
-      # Delegate to the RedisClient's save_referral_data method
-      eps_redis_client.save_referral_data(referral_id:, referral:)
+    # @return [Boolean] True if the cache operation was successful, false if required data is missing
+    def cache_referral_data(referral)
+      referral_data = {
+        referral_id: referral.referral_number,
+        appointment_type_id: referral.appointment_type_id,
+        end_date: referral.expiration_date,
+        npi: referral.provider_npi,
+        start_date: referral.referral_date
+      }
+
+      eps_redis_client.save_referral_data(referral_data:)
     end
 
     # Memoized EPS Redis client instance
