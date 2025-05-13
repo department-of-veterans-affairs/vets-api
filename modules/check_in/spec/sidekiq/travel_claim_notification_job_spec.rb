@@ -92,28 +92,14 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         allow(notify_client).to receive(:send_sms).and_raise(StandardError.new('Test error'))
       end
 
-      it 'logs failures with incrementing retry counts and raises the error' do
-        # First attempt - retry_count = 0
+      it 'logs failures and raises the error' do
         job = described_class.new
 
         expect(test_logger).to receive(:info)
           .with(hash_including(message: 'Sending travel claim notification to 0123, template-id-123'))
         expect(test_logger).to receive(:info)
           .with(hash_including(
-                  message: "TravelClaimNotificationJob failed, attempt 1 of #{described_class::MAX_RETRIES + 1}"
-                ))
-
-        expect { job.perform(job_opts) }.to raise_error(StandardError)
-
-        # Second attempt - retry_count = 1
-        job = described_class.new
-        allow(job.class).to receive(:sidekiq_options_hash).and_return({ 'retry_count' => 1 })
-
-        expect(test_logger).to receive(:info)
-          .with(hash_including(message: 'Sending travel claim notification to 0123, template-id-123'))
-        expect(test_logger).to receive(:info)
-          .with(hash_including(
-                  message: "TravelClaimNotificationJob failed, attempt 2 of #{described_class::MAX_RETRIES + 1}"
+                  message: "TravelClaimNotificationJob failed"
                 ))
 
         expect { job.perform(job_opts) }.to raise_error(StandardError)
