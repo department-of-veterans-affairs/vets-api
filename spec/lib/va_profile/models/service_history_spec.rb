@@ -89,7 +89,7 @@ describe VAProfile::Models::ServiceHistory do
         }'
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-        expect(eligibility).to eq({ confirmed: true, message: [] })
+        expect(eligibility).to eq({ confirmed: true, message: {} })
       end
 
       it 'returns problem message with no service history' do
