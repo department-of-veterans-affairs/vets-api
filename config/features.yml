@@ -144,6 +144,9 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_json_schemer_validation:
+    actor_type: user
+    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
