@@ -6,6 +6,8 @@ require 'claims_api/v1/poa_pdf_constructor/individual'
 require 'claims_api/stamp_signature_error'
 require 'bd/bd'
 
+# This is a modified copy of V1::PoaFormBuilderJob that only regenerates & submits the PDF.
+# It will not update the POA like the original job would.
 module ClaimsApi
   module OneOff
     class PoaV1PdfGenFixupJob < ClaimsApi::ServiceBase
