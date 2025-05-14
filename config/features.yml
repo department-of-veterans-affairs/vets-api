@@ -1801,10 +1801,6 @@ features:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
     enable_in_development: true
-  show_digital_form_1095b:
-    actor_type: user
-    description: Enables access to digital 1095-B form download
-    enable_in_development: true
   show_meb_dgi40_features:
     actor_type: user
     description: Enables the UI integration with the meb dgi
