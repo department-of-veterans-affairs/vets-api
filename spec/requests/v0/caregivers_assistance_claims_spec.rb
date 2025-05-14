@@ -114,13 +114,11 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
           :submission_failure_client_data,
           {
             claim_guid: claim.guid,
-            errors: {
-              '': [
-                'object at root is missing required properties: primaryCaregiver',
-                'object at root is missing required properties: secondaryCaregiverOne',
-                'object at root is missing required properties: veteran'
-              ]
-            }
+            errors: [
+              ' object at root is missing required properties: primaryCaregiver',
+              ' object at root is missing required properties: secondaryCaregiverOne',
+              ' object at root is missing required properties: veteran'
+            ]
           }
         )
         expect(Rails.logger).not_to receive(:error).with(
