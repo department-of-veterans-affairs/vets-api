@@ -71,23 +71,6 @@ describe PdfFill::Filler, type: :model do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
-#             let(:saved_claim) { create(:va526ez_v2) }
-#             let(:merged_form_data) { PdfFill::Forms::Va210781v2.new(form_data).merge_fields('signatureDate' => Time.now.utc.to_s) }
-#             # let(:hash_converter) { instance_double(PdfFill::HashConverter) }
-# # transform_data: { 'some_field' => 'some_value', 'signatureDate' => '2023-01-01' },
-# # extras_generator: extras_generator) }
-#             let(:hash_converter) { PdfFill::HashConverter.new('%m/%d/%Y', extras_generator ) }
-# #             let(:new_hash) { hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: '21-0781V2') }
-#             let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
-#             # let(:extras_generator2) { instance_double('ExtrasGenerator', :text? => "string", :generate => nil) }
-#             before do
-#               # allow(PdfFill::Filler).to receive(:make_hash_converter) #.and_return(hash_converter)
-#               # allow(hash_converter).to receive(:transform_data) #.and_return(new_hash)
-#               allow(extras_generator).to receive(:text?).once.and_return(true)
-#               allow(extras_generator).to receive(:add_text)
-#               # allow(extras_generator).to receive(:text?).and_return('string')
-#               # allow(extras_generator).to receive(:generate).once.and_return('spec/fixtures/pdf_fill/extras.pdf')
-#             end
 
             it 'fills the form correctly' do
               if type == 'overflow'
