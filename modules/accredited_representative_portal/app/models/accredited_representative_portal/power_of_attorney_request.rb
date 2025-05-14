@@ -100,6 +100,11 @@ module AccreditedRepresentativePortal
       )
     end
 
+    # We're using just the timestamp for convenience and speed. Direct queries
+    # against the redacted fields will always be authoritative
+    scope :unredacted, -> { where(redacted_at: nil) }
+    scope :redacted, -> { where.not(redacted_at: nil) }
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
 
