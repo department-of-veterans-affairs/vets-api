@@ -15,6 +15,50 @@ describe PdfFill::ExtrasGeneratorV2 do
       question
     end
 
+    describe '#numbered_label_markup' do
+      context 'when show_suffix is true' do
+        it 'appends suffix to question number when there is a single subquestion' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
+        end
+
+        it 'does not append suffix when there are multiple subquestions' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value1', { question_suffix: 'A' })
+          question.add_text('Value2', { question_suffix: 'B' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+
+        it 'handles nil suffix gracefully' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value', {})
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+      end
+
+      context 'when show_suffix is false' do
+        it 'does not append suffix to question number' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: false })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+      end
+
+      context 'when number is not an integer' do
+        it 'does not include a prefix' do
+          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>Test Question</h3>')
+        end
+      end
+    end
+
     describe '#format_value' do
       it 'applies formatting based on format options' do
         question = described_class.new('Test', { question_num: 1 })

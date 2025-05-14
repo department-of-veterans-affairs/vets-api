@@ -19,10 +19,16 @@ module PdfFill
         @text = question_text
         @subquestions = []
         @overflow = false
+        @show_suffix = metadata[:show_suffix] || false
       end
 
       def numbered_label_markup
-        prefix = @number.to_i == @number ? "#{@number}. " : ''
+        suffix = if @show_suffix && @subquestions.size == 1
+                   @subquestions.first[:metadata][:question_suffix]&.downcase
+                 else
+                   ''
+                 end
+        prefix = @number.to_i == @number ? "#{@number.to_i}#{suffix}. " : ''
         "<h3>#{prefix}#{@text}</h3>"
       end
 

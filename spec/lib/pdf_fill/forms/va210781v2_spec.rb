@@ -402,9 +402,7 @@ describe PdfFill::Forms::Va210781v2 do
           new_form_class.send(:process_behaviors_details, extras_redesign)
 
           form_data = new_form_class.instance_variable_get(:@form_data)
-          expect(form_data['additionalBehaviorsDetails']).to eq(
-            { 'additionalInfo' => 'unlisted lorem ipsum' }
-          )
+          expect(form_data['additionalBehaviorsDetails']).to eq('unlisted lorem ipsum')
         end
       end
 
@@ -471,15 +469,7 @@ describe PdfFill::Forms::Va210781v2 do
           new_form_class.send(:process_behaviors_details, extras_redesign)
 
           form_data = new_form_class.instance_variable_get(:@form_data)
-          expect(form_data['additionalBehaviorsDetails']).to eq(
-            [
-              {
-                'description' => 'Additional behavioral changes',
-                'additionalInfo' => 'unlisted lorem ipsum',
-                'checked' => true
-              }
-            ]
-          )
+          expect(form_data['additionalBehaviorsDetails']).to eq('unlisted lorem ipsum')
         end
       end
 
@@ -546,19 +536,15 @@ describe PdfFill::Forms::Va210781v2 do
               expected_behaviors = { 'additionalInfo' => 'absences lorem ipsum',
                                      'checked' => false,
                                      'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences'] }
-              expected_additional_behaviors = [{ 'description' => 'Additional behavioral changes',
-                                                 'additionalInfo' => 'unlisted lorem ipsum',
-                                                 'checked' => false }]
             else
               expected_behaviors = { 'additionalInfo' => 'absences lorem ipsum',
                                      'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences'] }
 
-              expected_additional_behaviors = { 'additionalInfo' => 'unlisted lorem ipsum' }
             end
 
             form_data = new_form_class.instance_variable_get(:@form_data)
             expect(form_data['behaviorsDetails']).to include(expected_behaviors)
-            expect(form_data['additionalBehaviorsDetails']).to eq(expected_additional_behaviors)
+            expect(form_data['additionalBehaviorsDetails']).to eq('unlisted lorem ipsum')
           end
         end
       end
