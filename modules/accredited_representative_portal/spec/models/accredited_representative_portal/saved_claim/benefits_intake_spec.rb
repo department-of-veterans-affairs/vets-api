@@ -54,11 +54,19 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaim::BenefitsIntake, type:
         claim.form_attachment = PersistentAttachments::VAForm.new
       end
 
-      it 'is invalid when validating' do
+      it 'is valid when validating' do
         claim.valid?
         errors = claim.errors.details[:form_attachment]
         expect(errors).to eq([])
       end
+    end
+  end
+
+  describe 'business_line' do
+    it 'is is defined correctly' do
+      expect(claim.business_line).to eq(
+        'COMPENSATION'
+      )
     end
   end
 end
