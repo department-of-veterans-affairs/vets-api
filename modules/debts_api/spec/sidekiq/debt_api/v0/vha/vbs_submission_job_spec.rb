@@ -12,7 +12,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
         ipf_data: {
           'personal_data' => {
             'email_address' => 'test@test.com',
-            'veteran_full_name' => {'first' => 'John'}
+            'veteran_full_name' => { 'first' => 'John' }
           }
         }.to_json
       )
