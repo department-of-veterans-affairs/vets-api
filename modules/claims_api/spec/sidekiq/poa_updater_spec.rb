@@ -9,7 +9,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     Sidekiq::Job.clear_all
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_update_poa_relationship).and_return false
     allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
-    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
   end
 
   let(:user) { create(:user, :loa3) }
@@ -105,7 +104,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
   context 'deciding to send a VA Notify email' do
     before do
       create_mock_lighthouse_service
-      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return true
     end
 
     let(:poa) { create_poa }
@@ -120,22 +118,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
         allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
         expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
-
-        subject.new.perform(poa.id, 'Rep Data')
-      end
-    end
-
-    context 'when the flipper is off' do
-      it 'does not send the vanotify job' do
-        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
-        Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)
-
-        poa.auth_headers.merge!({
-                                  header_key => 'this_value'
-                                })
-        poa.save!
-
-        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep Data')
       end
