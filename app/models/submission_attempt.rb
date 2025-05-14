@@ -6,7 +6,7 @@ class SubmissionAttempt < ApplicationRecord
   self.abstract_class = true
 
   after_create :update_submission_status
-  after_update :update_submission_status
+  before_update :update_submission_status
 
   validates :submission, presence: true
 
