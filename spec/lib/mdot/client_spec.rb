@@ -54,7 +54,8 @@ describe MDOT::Client, type: :mdot_helpers do
 
     context 'with a 500 internal server error response' do
       it 'raises error gracefully' do
-        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::ExternalServerInternalServerError)
+        allow_any_instance_of(MDOT::Client).to
+        receive(:perform).and_raise(Common::Exceptions::ExternalServerInternalServerError)
         VCR.use_cassette(
           'mdot/get_supplies_200',
           match_requests_on: %i[method uri headers],
