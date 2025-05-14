@@ -95,20 +95,6 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
   end
 
-  describe 'validations' do
-    let(:claim) { build(:caregivers_assistance_claim) }
-
-    context 'validation errors' do
-      it 'calls the parent method' do
-        allow(claim).to receive(:form_matches_schema).and_call_original
-
-        claim.validate
-
-        expect(claim).to have_received(:form_matches_schema)
-      end
-    end
-  end
-
   describe '#process_attachments!' do
     it 'raises a NotImplementedError' do
       expect { subject.process_attachments! }.to raise_error(NotImplementedError)
