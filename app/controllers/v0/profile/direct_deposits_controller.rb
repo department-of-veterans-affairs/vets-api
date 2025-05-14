@@ -22,7 +22,7 @@ module V0
                                error_class: exception.class.to_s,
                                error_message: exception.message,
                                user_uuid: @current_user&.uuid,
-                               backtrace: exception.backtrace.first(3).join("\n")
+                               backtrace: exception.backtrace.first(3)&.join(' | ')
                              })
         end
 
