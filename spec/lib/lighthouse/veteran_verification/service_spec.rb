@@ -55,7 +55,7 @@ RSpec.describe VeteranVerification::Service do
         let(:icn) { '1012667145V762142' }
 
         before do
-          Flipper.disable(:vet_status_titled_alerts)
+          Flipper.disable(:vet_status_stage_1)
         end
 
         it 'retrieves veteran confirmation status from the Lighthouse API' do
@@ -166,11 +166,11 @@ RSpec.describe VeteranVerification::Service do
         let(:icn) { '1012667145V762142' }
 
         before do
-          Flipper.enable(:vet_status_titled_alerts)
+          Flipper.enable(:vet_status_stage_1)
         end
 
         after do
-          Flipper.disable(:vet_status_titled_alerts)
+          Flipper.disable(:vet_status_stage_1)
         end
 
         it 'retrieves error status from the Lighthouse API' do

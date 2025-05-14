@@ -93,7 +93,7 @@ module VAProfile
       end
 
       def self.not_found_message
-        if Flipper.enabled?(:vet_status_titled_alerts)
+        if Flipper.enabled?(:vet_status_stage_1)
           VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED
         else
           VeteranVerification::Constants::NOT_FOUND_MESSAGE
@@ -101,7 +101,7 @@ module VAProfile
       end
 
       def self.not_eligible_message
-        if Flipper.enabled?(:vet_status_titled_alerts)
+        if Flipper.enabled?(:vet_status_stage_1)
           VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED
         else
           VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
@@ -109,7 +109,7 @@ module VAProfile
       end
 
       def self.success_message
-        Flipper.enabled?(:vet_status_titled_alerts) ? {} : []
+        Flipper.enabled?(:vet_status_stage_1) ? {} : []
       end
     end
   end

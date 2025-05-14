@@ -96,7 +96,7 @@ module VeteranVerification
     private
 
     def error_message
-      if Flipper.enabled?(:vet_status_titled_alerts)
+      if Flipper.enabled?(:vet_status_stage_1)
         VeteranVerification::Constants::ERROR_MESSAGE_TITLED
       else
         VeteranVerification::Constants::ERROR_MESSAGE
@@ -104,7 +104,7 @@ module VeteranVerification
     end
 
     def not_eligible_message
-      if Flipper.enabled?(:vet_status_titled_alerts)
+      if Flipper.enabled?(:vet_status_stage_1)
         VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED
       else
         VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
@@ -112,7 +112,7 @@ module VeteranVerification
     end
 
     def not_found_message
-      if Flipper.enabled?(:vet_status_titled_alerts)
+      if Flipper.enabled?(:vet_status_stage_1)
         VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED
       else
         VeteranVerification::Constants::NOT_FOUND_MESSAGE

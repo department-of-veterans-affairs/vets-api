@@ -16,7 +16,7 @@ describe VAProfile::Models::ServiceHistory do
   end
 
   before do
-    Flipper.disable(:vet_status_titled_alerts)
+    Flipper.disable(:vet_status_stage_1)
   end
 
   context 'when service history json is present' do
@@ -51,13 +51,13 @@ describe VAProfile::Models::ServiceHistory do
   end
 
   describe '#determing_eligibility' do
-    context 'when vet_status_titled_alerts is enabled' do
+    context 'when vet_status_stage_1 is enabled' do
       before do
-        Flipper.enable(:vet_status_titled_alerts)
+        Flipper.enable(:vet_status_stage_1)
       end
 
       after do
-        Flipper.disable(:vet_status_titled_alerts)
+        Flipper.disable(:vet_status_stage_1)
       end
 
       it 'returns not eligible with service history missing characterOfDischargeCode' do
@@ -118,7 +118,7 @@ describe VAProfile::Models::ServiceHistory do
       end
     end
 
-    context 'when vet_status_titled_alerts is disabled' do
+    context 'when vet_status_stage_1 is disabled' do
       it 'returns not eligible with service history missing characterOfDischargeCode' do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
