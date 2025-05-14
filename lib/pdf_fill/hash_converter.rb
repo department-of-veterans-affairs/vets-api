@@ -5,9 +5,10 @@ require 'pdf_fill/form_value'
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
-    EXTRAS_TEXT = "See add'l info page"
 
     attr_reader :extras_generator
+
+    delegate :placeholder_text, to: :extras_generator
 
     def initialize(date_strftime, extras_generator)
       @pdftk_form = {}
@@ -108,7 +109,7 @@ module PdfFill
       if overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
 
-        new_value = EXTRAS_TEXT
+        new_value = placeholder_text
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
       end
@@ -134,7 +135,7 @@ module PdfFill
     def handle_overflow_and_label_all(form_data, pdftk_keys)
       form_data.each_with_index do |item, idx|
         item.each do |k, v|
-          text = overflow?(pdftk_keys[k], v) ? EXTRAS_TEXT : v
+          text = overflow?(pdftk_keys[k], v) ? placeholder_text : v
 
           set_value(text, pdftk_keys[k], idx, true) if pdftk_keys[k].is_a?(Hash)
         end
@@ -144,7 +145,7 @@ module PdfFill
     def handle_overflow_and_label_first_key(pdftk_keys)
       first_key = pdftk_keys[:first_key]
       transform_data(
-        form_data: { first_key => EXTRAS_TEXT },
+        form_data: { first_key => placeholder_text },
         pdftk_keys:,
         i: 0,
         from_array_overflow: true
