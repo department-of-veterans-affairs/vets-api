@@ -4,28 +4,31 @@ require 'rails_helper'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/configuration'
 
-RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
+  include_context 'with service account authentication', 'foobar', ['http://www.example.com/v0/chatbot/claims'], { user_attributes: { icn: '123498767V234859' } }
 
   describe 'GET /v0/chatbot/claims from lighthouse' do
+    subject(:get_claims) do
+      get('/v0/chatbot/claims', params: { conversation_id: 123 }, headers: service_account_auth_header)
+    end
+
     context 'authorized' do
       before do
-        sign_in_as(user)
-
-        @mock_cxdw_reporting_service = instance_double(V0::VirtualAgent::ReportToCxdw)
-        allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw)
+        @mock_cxi_reporting_service = instance_double(V0::Chatbot::ReportToCxi)
+        allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
 
         allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('fake_access_token')
 
-        allow(V0::VirtualAgent::ReportToCxdw)
+        allow(V0::Chatbot::ReportToCxi)
           .to receive(:new)
-          .and_return(@mock_cxdw_reporting_service)
+          .and_return(@mock_cxi_reporting_service)
       end
 
       describe 'multiple claims from lighthouse' do
         it 'returns ordered list of all veteran claims from lighthouse' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_multiple_claims') do
-            get('/v0/chatbot/claims', params: { conversation_id: 123 })
+            get_claims
+            # get('/v0/chatbot/claims', params: { conversation_id: 123 }, headers: service_account_auth_header)
           end
 
           expect(response).to have_http_status(:ok)
@@ -97,7 +100,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
       describe 'single claim' do
         it 'returns single open compensation claim' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_single_claim') do
-            get('/v0/chatbot/claims', params: { conversation_id: 123 })
+            get_claims
           end
 
           expect(response).to have_http_status(:ok)
@@ -130,7 +133,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
       describe 'no claims' do
         it 'returns empty array when no open claims are found' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_zero_claims') do
-            get('/v0/chatbot/claims', params: { conversation_id: 123 })
+            get_claims
           end
 
           expect(response).to have_http_status(:ok)
@@ -143,7 +146,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
       describe 'no conversation id' do
         it 'raises exception when no conversation id is found' do
           VCR.use_cassette('lighthouse/benefits_claims/index/claims_chatbot_zero_claims') do
-            get '/v0/chatbot/claims'
+            get('/v0/chatbot/claims', headers: service_account_auth_header)
           end
 
           expect(response).to have_http_status(:bad_request)
@@ -153,18 +156,20 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
   end
 
   describe 'GET /v0/chatbot/claims/:id from lighthouse' do
+    subject(:get_single_claim) do
+      get('/v0/chatbot/claims/600383363', params: { conversation_id: 123 }, headers: service_account_auth_header)
+    end
+
     context 'authorized' do
       before do
-        sign_in_as(user)
-
-        @mock_cxdw_reporting_service = instance_double(V0::VirtualAgent::ReportToCxdw)
-        allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw)
+        @mock_cxi_reporting_service = instance_double(V0::Chatbot::ReportToCxi)
+        allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
 
         allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('fake_access_token')
 
-        allow(V0::VirtualAgent::ReportToCxdw)
+        allow(V0::Chatbot::ReportToCxi)
           .to receive(:new)
-          .and_return(@mock_cxdw_reporting_service)
+          .and_return(@mock_cxi_reporting_service)
       end
 
       context 'when cst_override_reserve_records_website flipper is enabled' do
@@ -175,7 +180,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
 
         it 'overrides the tracked item status to NEEDED_FROM_OTHERS' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get('/v0/chatbot/claims/600383363')
+            get_single_claim
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
@@ -193,7 +198,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
 
         it 'leaves the tracked item status as NEEDED_FROM_YOU' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get('/v0/chatbot/claims/600383363')
+            get_single_claim
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems', 2,
@@ -211,7 +216,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
 
         it 'excludes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get('/v0/chatbot/claims/600383363')
+            get_single_claim
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(13)
@@ -230,7 +235,7 @@ RSpec.describe 'Chatbot::ClaimStatusController', type: :request do
 
         it 'includes Attorney Fees, Secondary Action Required, and Stage 2 Development tracked items' do
           VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get('/v0/chatbot/claims/600383363')
+            get_single_claim
           end
           parsed_body = JSON.parse(response.body)
           expect(parsed_body.dig('data', 'data', 'attributes', 'trackedItems').size).to eq(14)

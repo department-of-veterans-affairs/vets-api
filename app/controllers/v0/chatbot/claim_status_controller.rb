@@ -8,11 +8,8 @@ module V0
   module Chatbot
     class ClaimStatusController < SignIn::ServiceAccountApplicationController
       include IgnoreNotFound
-      service_tag 'virtual-agent'
+      service_tag 'chatbot'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      unless %w[localhost development].include?(Settings.vsp_environment.downcase)
-        before_action { authorize :lighthouse, :access? }
-      end
 
       def index
         render json: {
@@ -36,11 +33,11 @@ module V0
 
       def poll_claims_from_lighthouse
         raw_claim_list = lighthouse_service.get_claims['data']
-        cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
+        cxi_reporting_service = V0::Chatbot::ReportToCxi.new
         conversation_id = params[:conversation_id]
         if conversation_id.blank?
           Rails.logger.error(
-            'V0::VirtualAgent::VirtualAgentClaimStatusController#poll_claims_from_lighthouse ' \
+            'V0::Chatbot::ClaimStatusController#poll_claims_from_lighthouse ' \
             'conversation_id is missing in parameters'
           )
           raise ActionController::ParameterMissing, 'conversation_id'
@@ -48,10 +45,10 @@ module V0
 
         begin
           claims = order_claims_lighthouse(raw_claim_list)
-          report_or_error(cxdw_reporting_service, conversation_id)
+          report_or_error(cxi_reporting_service, conversation_id)
           claims
         rescue Faraday::ClientError => e
-          report_or_error(cxdw_reporting_service, conversation_id)
+          report_or_error(cxi_reporting_service, conversation_id)
           service_exception_handler(error)
           raise BenefitsClaims::ServiceException.new(e.response), 'Could not retrieve claims'
         end
@@ -93,8 +90,8 @@ module V0
         BenefitsClaims::Service.new(icn)
       end
 
-      def report_or_error(cxdw_reporting_service, conversation_id)
-        cxdw_reporting_service.report_to_cxdw(icn, conversation_id)
+      def report_or_error(cxi_reporting_service, conversation_id)
+        cxi_reporting_service.report_to_cxi(icn, conversation_id)
       rescue => e
         report_exception_handler(e)
       end
