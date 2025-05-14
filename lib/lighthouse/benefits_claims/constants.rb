@@ -7,12 +7,12 @@ module BenefitsClaims
     }.freeze
 
     FRIENDLY_DISPLAY_MAPPING = {
-      '21-4142/21-4142a' => 'Authorization to Disclose Information',
+      '21-4142/21-4142a' => 'Authorization to disclose information',
       'Employment info needed' => 'Employment information',
       'EFT - Treasury Mandate Notification' => 'Direct deposit information',
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'Details about cause of PTSD',
       'RV1 - Reserve Records Request' => 'Reserve records',
-      'Proof of service (DD214, etc.)' => 'Proof of Service',
+      'Proof of service (DD214, etc.)' => 'Proof of service',
       'PMR Request' => 'Non-VA medical records',
       'General Records Request (Medical)' => 'Non-VA medical records',
       'DBQ AUDIO Hearing Loss and Tinnitus' => 'Disability exam for hearing',
@@ -28,7 +28,7 @@ module BenefitsClaims
       'PTSD - Need stressor details/med evid of stressful incdnt' => 'We need information about the cause of' \
                                                                      ' your posttraumatic stress disorder (PTSD).',
       'RV1 - Reserve Records Request' => 'We\'ve requested your reserve records on your behalf. No action is needed.',
-      'Proof of service (DD214, etc.)' => 'We\'ve requested your Proof of Service on your behalf. No action is needed.',
+      'Proof of service (DD214, etc.)' => 'We\'ve requested your proof of service on your behalf. No action is needed.',
       'PMR Request' => 'We\'ve requested your non-VA medical records on your behalf. No action is needed.',
       'General Records Request (Medical)' => 'We\'ve requested your non-VA medical records on your behalf.' \
                                              ' No action is needed.',

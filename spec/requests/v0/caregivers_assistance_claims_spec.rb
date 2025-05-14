@@ -223,8 +223,6 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
         form: form_data
       ).and_return(claim)
-
-      allow(Flipper).to receive(:enabled?).with(:caregiver_lookup_facility_name_db).and_return(false)
     end
 
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }

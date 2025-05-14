@@ -118,9 +118,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver_lookup_facility_name_db:
-    actor_type: user
-    description: Enables 1010CG pdf fill to lookup facility id in the database instead of vets-json-schema
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
@@ -134,6 +131,9 @@ features:
   hca_disable_bgs_service:
     actor_type: user
     description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
+  hca_disable_sentry_logs:
+    actor_type: user
+    description: Use rails logging instead of Sentry for logging
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -141,6 +141,9 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_json_schemer_validation:
+    actor_type: user
+    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
@@ -237,13 +240,16 @@ features:
   champva_pega_applicant_metadata_enabled:
     actor_type: user
     description: Enables including applicant data in the S3 metadata sent to PEGA
+  champva_fmp_single_file_upload:
+    actor_type: user
+    description: Enables the ability to upload a single merged PDF file for FMP claims
+  champva_old_records_cleanup_job:
+    actor_type: user
+    description: Enables the job to cleanup old IVC CHAMPVA form records
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
-  champva_fmp_single_file_upload:
-    actor_type: user
-    description: Enables the ability to upload a single merged PDF file for FMP claims
   check_in_experience_pre_check_in_enabled:
     actor_type: user
     description: Enables the health care check-in experiences to show the pre-check-in experience.
@@ -455,9 +461,6 @@ features:
   debts_cache_dmc_empty_response:
     actor_type: user
     description: Enables caching of empty DMC response
-  debts_cache_vbs_copays_empty_response:
-    actor_type: user
-    description: Enables caching of empty VBS medical copay response
   debts_copay_logging:
     actor_type: user
     description: Logs copay request data
@@ -1221,6 +1224,10 @@ features:
     actor_type: user
     description: Enables/disables refill progress related work
     enable_in_development: true
+  mhv_medications_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables/disables medications migration to the new API Gateway endpoints
+    enable_in_development: true
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page
@@ -1661,16 +1668,15 @@ features:
     actor_type: user
     enable_in_development: false
     description: Toggle for the vaos module to use an alternate vaos-service route
-  va_online_scheduling_breadcrumb_url_update:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the breadcrumb and url changes for mhv
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_browser_monitoring_enabled:
+    actor_type: user
+    description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
@@ -1710,10 +1716,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  vaos_online_scheduling_use_va_date:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use VaDate/VaDateField.
   va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
@@ -1742,10 +1744,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_online_scheduling_display_past_cancelled_appointments:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for displaying past cancelled appointments.
   vba_documents_virus_scan:
     actor_type: user
     description: ClamAV virus scanning for Benefits Intake API upload submissions
@@ -1961,12 +1959,6 @@ features:
   sc_browser_monitoring_enabled:
     actor_type: user
     description: Supplemental Claim Datadog RUM monitoring
-  virtual_agent_enable_pva2_chatbot:
-    actor_type: user
-    description: If enabled, switches VA chatbot from PVA1 to PVA2
-  virtual_agent_enable_root_bot:
-    actor_type: user
-    description: If enabled, switches VA chatbot from PVA to Root Bot
   virtual_agent_component_testing:
     actor_type: user
     description: If enabled, allows for testing of the chatbot components
@@ -2041,12 +2033,6 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
-  virtual_agent_enable_msft_pva_testing:
-    actor_type: user
-    description: If enabled, allows for connecting to MSFT PVA
-  virtual_agent_enable_nlu_pva_testing:
-    actor_type: user
-    description: If enabled, allows for connecting to NLU PVA
   vye_request_allowed:
     actor_type: user
     description: >-
