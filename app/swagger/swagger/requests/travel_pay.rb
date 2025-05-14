@@ -65,7 +65,7 @@ module Swagger
             end
           end
 
-          response 404 do
+          response 400 do
             key :description, 'Missing claim'
             schema do
               property :error, type: :string, example: 'Not Found: No claim with that id'
