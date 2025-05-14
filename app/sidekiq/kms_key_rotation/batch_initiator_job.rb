@@ -14,6 +14,8 @@ module KmsKeyRotation
     }.freeze
 
     def perform(max_records_per_job = MAX_RECORDS_PER_JOB, max_records_per_batch = MAX_RECORDS_PER_BATCH)
+      flag_rotation_records_on_rotation_day
+
       records_enqueued = 0
 
       models.each do |model|
@@ -48,6 +50,22 @@ module KmsKeyRotation
         .limit(max_records_per_batch)
         .pluck(model.primary_key)
         .map { |id| URI::GID.build(app: GlobalID.app, model_name: model.name, model_id: id).to_s }
+    end
+
+    def rotation_date?
+      today = Time.zone.today
+      today.month == 10 && today.day == 12
+    end
+
+    def flag_rotation_records_on_rotation_day
+      return unless rotation_date?
+
+      Rails.logger.info '[KmsKeyRotation] Flagging every record for rotation on October 12th'
+
+      models.each do |encrypted_model|
+        model = MODELS_FOR_QUERY.fetch(encrypted_model.name, encrypted_model)
+        model.update_all(needs_kms_rotation: true) # rubocop:disable Rails/SkipsModelValidations
+      end
     end
   end
 end
