@@ -347,7 +347,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'failure' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
       end
 
@@ -364,7 +363,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         )
 
         Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
-          VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
             expect do
               service.submit_vha_fsr(form_submission)
             end.to raise_error(Common::Exceptions::BackendServiceException,
@@ -391,7 +390,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
           )
 
           Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
-            VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+            VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
               expect { service.submit_vha_fsr(form_submission) }
                 .to raise_error(Common::Exceptions::BackendServiceException) do |e|
                 error_details = e.errors.first

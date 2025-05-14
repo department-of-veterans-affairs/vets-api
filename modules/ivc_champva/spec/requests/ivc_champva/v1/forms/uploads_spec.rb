@@ -251,6 +251,48 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  # Copied this test from the #submit endpoint tests above and adjusted to use
+  # the new endpoint. We'll need more tests in future, but wanted to have at
+  # least one verifying it wasn't throwing rampant errors
+  describe '#submit_champva_app_merged' do
+    fixture_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json',
+                                   'vha_10_10d_extended.json')
+    data = JSON.parse(fixture_path.read)
+
+    it 'uploads a PDF file to S3' do
+      mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+        .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
+      allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(
+        double('response',
+               context: double('context', http_response: double('http_response', status_code: 200)))
+      )
+
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data
+
+      record = IvcChampvaForm.first
+
+      expect(record.first_name).to eq('Veteran')
+      expect(record.last_name).to eq('Surname')
+      expect(record.form_uuid).to be_present
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    # Also taken from the main #submit endpoint tests as they function the same at this level
+    it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+      allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+
+      # Actual supporting_docs should exist as records in the DB. This test
+      # ensures that if they aren't present we won't have a silent failure
+      data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+      post '/ivc_champva/v1/forms/10-10d-ext', params: data_with_docs
+
+      expect(response).to have_http_status(:internal_server_error)
+    end
+  end
+
   describe 'stored ves data is encrypted' do
     it 'ves_request_data is encrypted' do
       # This is the only part of the test we actually need

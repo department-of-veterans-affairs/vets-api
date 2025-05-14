@@ -14,8 +14,8 @@
   "additionalInformation": "Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet",
   "eventTypes": {
     "combat": true,
-    "mst": false,
-    "nonMst": true,
+    "mst": true,
+    "nonMst": false,
     "other": false
   },
   "events": [

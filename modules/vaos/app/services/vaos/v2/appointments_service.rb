@@ -32,7 +32,12 @@ module VAOS
       OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
-      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
+      def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
+                           end_date,
+                           statuses = nil,
+                           pagination_params = {},
+                           include = {},
+                           tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
         cnp_count = 0
 
         response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
@@ -48,7 +53,7 @@ module VAOS
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
         if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-          appointments = merge_all_travel_claims(start_date, end_date, appointments)
+          appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
@@ -95,7 +100,7 @@ module VAOS
       end
 
       # rubocop:enable Metrics/MethodLength
-      def get_appointment(appointment_id, include = {})
+      def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
@@ -107,7 +112,7 @@ module VAOS
           prepare_appointment(appointment, include)
 
           if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-            appointment = merge_one_travel_claim(appointment)
+            appointment = merge_one_travel_claim(appointment, tp_client)
           end
 
           OpenStruct.new(appointment)
@@ -1038,8 +1043,8 @@ module VAOS
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
 
-      def merge_all_travel_claims(start_date, end_date, appointments)
-        service = TravelPay::ClaimAssociationService.new(user)
+      def merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+        service = TravelPay::ClaimAssociationService.new(user, tp_client)
         service.associate_appointments_to_claims(
           {
             'start_date' => start_date,
@@ -1049,8 +1054,8 @@ module VAOS
         )
       end
 
-      def merge_one_travel_claim(appointment)
-        service = TravelPay::ClaimAssociationService.new(user)
+      def merge_one_travel_claim(appointment, tp_client)
+        service = TravelPay::ClaimAssociationService.new(user, tp_client)
         service.associate_single_appointment_to_claim({ 'appointment' => appointment })
       end
 

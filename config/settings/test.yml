@@ -118,7 +118,7 @@ check_in:
     api_key: Xc7k35oE2H9aDeUEpeGa38PzAHyLT9jb5HiKeBfs
     base_path: dev
     host: ~
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    key_path: modules/vaos/config/rsa/sandbox_rsa
     mock: false
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200
@@ -221,6 +221,8 @@ claims_api:
     services:
       lighthouse:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
+        notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
+        notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
 clamav:
   host: 0.0.0.0
   mock: true
@@ -515,6 +517,7 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
@@ -573,45 +576,6 @@ hca:
     region: ~
   timeout: 30
 hostname: www.example.com
-hqva_mobile:
-  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  facilities:
-    ids_path: "/facilities_api/v1/va"
-    url: https://staging-api.va.gov
-  lighthouse:
-    claim_common_id: 0oa9gvwf5mvxcX3zH2p7
-    client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    condition_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token
-    grant_type: client_credentials
-    health_api: health_api
-    health_api_path: "/services/fhir/v0/r4"
-    health_api_scopes:
-      - launch launch/patient
-      - patient/Appointment.read
-      - patient/Location.read
-      - patient/Organization.read
-      - patient/Patient.read
-    health_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7
-    health_token_path: "/oauth2/health/system/v1/token"
-    host: sandbox-api.va.gov
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
-    mock: false
-    pgd_api: pgd_api
-    pgd_api_scopes:
-      - launch launch/patient
-      - patient/Observation.read
-      - patient/Observation.write
-      - patient/Questionnaire.read
-      - patient/Questionnaire.write
-      - patient/QuestionnaireResponse.read
-      - patient/QuestionnaireResponse.write
-    pgd_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7
-    pgd_path: "/services/pgd/v0/r4"
-    pgd_token_path: "/oauth2/pgd/v1/token"
-    redis_session_prefix: healthquest_lighthouse
-    url: https://sandbox-api.va.gov
-  mock: false
-  url: https://veteran.apps.va.gov
 iam_ssoe:
   client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
   client_id: Mobile_App_API_Server_LOWERS
@@ -648,6 +612,8 @@ ivc_forms:
     region: region
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
       enabled: true
@@ -728,6 +694,8 @@ lighthouse:
     use_mocks: false
   facilities:
     api_key: fake_key
+    hqva_mobile:
+      url: https://veteran.apps.va.gov
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
@@ -943,7 +911,6 @@ mhv:
     gw_base_path: v1/
     host: https://mhv-api.example.com
     mock: true
-    use_new_api: false
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
@@ -1282,6 +1249,7 @@ token_validation:
 travel_pay:
   base_url: https://btsss.gov
   client_number: '12345'
+  mobile_client_number: '56789'
   mock: false
   service_name: BTSSS-API
   sts:
@@ -1421,6 +1389,7 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       template_id:
+        decision_letter_ready_email: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
@@ -1514,7 +1483,6 @@ vanotify:
         contact_info_change: fake_template_id
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
-        direct_deposit_comp_pen: comp_pen_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1602,7 +1570,7 @@ vaos:
     client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
     client_id: fake_client_id
     grant_type: client_credentials
-    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    key_path: modules/vaos/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
     redis_token_expiry: 3500

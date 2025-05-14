@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec::Matchers.define :match_pdf_fields do
   match(notify_expectation_failures: true) do |actual|
     fields = [actual, expected].map do |path|
@@ -22,3 +24,4 @@ RSpec::Matchers.define :match_file_exactly do
     "expected that #{actual} would match #{expected} exactly"
   end
 end
+

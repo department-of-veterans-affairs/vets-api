@@ -170,16 +170,31 @@ describe PdfFill::ExtrasGeneratorV2 do
       let(:add_text_calls) do
         [
           ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
-          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }],
+          ['no response', { question_suffix: 'C', question_text: 'Other', question_type: 'free_text' }],
+          ['bold', {
+            question_suffix: 'D',
+            question_text: 'Bold',
+            question_type: 'free_text',
+            format_options: { bold_value: true }
+          }],
+          ['longer line that should generate two lines because it is too long', {
+            question_suffix: 'E',
+            question_text: 'Longer Line',
+            question_type: 'free_text',
+            format_options: { question_width: 150 }
+          }]
         ]
       end
 
       it 'renders correctly' do
-        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
         expect(subject.sorted_subquestions_markup).to eq(
           [
-            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
-            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+            ['foo', Prawn::Text::NBSP, 'bar'],
+            ['bar'],
+            ['<i>no response</i>'],
+            ['<b>bold</b>'],
+            ['longer line that should generate', 'two lines because it is too long']
           ]
         )
       end
@@ -763,6 +778,48 @@ describe PdfFill::ExtrasGeneratorV2 do
         added_value = item.instance_variable_get(:@subquestions).first
 
         expect(added_value[:metadata][:format_options]).to eq({ bold_value: true })
+      end
+    end
+
+    describe '#measure_actual_height' do
+      let(:item) do
+        instance_double(PdfFill::ExtrasGeneratorV2::Question)
+      end
+
+      before do
+        allow(pdf).to receive(:cursor).and_return(100, 50, 200, 100, 400, 200)
+        allow(pdf).to receive(:start_new_page)
+        allow(pdf).to receive(:markup)
+        allow(item).to receive(:should_render?).and_return(true)
+        allow(item).to receive(:render)
+      end
+
+      context 'when some items are nil' do
+        it 'returns the height measurements' do
+          items = [item, nil, item, nil]
+          subject.instance_variable_set(:@items, items)
+          heights = subject.measure_actual_height(pdf)
+
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights[:title]).to eq(50)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(2) # 2 items are not nil
+          expect(heights[:items][0]).to eq(100)  # mocked items index 0
+          expect(heights[:items][1]).to eq(200)  # mocked items index 2
+        end
+      end
+
+      context 'when item is nil' do
+        it 'returns nil' do
+          heights = subject.measure_actual_height(pdf)
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(0)
+        end
       end
     end
   end
