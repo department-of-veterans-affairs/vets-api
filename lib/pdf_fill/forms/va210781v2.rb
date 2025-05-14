@@ -151,10 +151,10 @@ module PdfFill
           'combat' => {
             key: 'F[0].#subform[2].Combat_Traumatic_Events[0]'
           },
-          'mst' => {
+          'nonMst' => {
             key: 'F[0].#subform[2].Personal_Traumatic_Events_Not_Involving_Military_Sexual_Trauma[0]'
           },
-          'nonMst' => {
+          'mst' => {
             key: 'F[0].#subform[2].Personal_Traumatic_Events_Involving_Military_Sexual_Trauma[0]'
           },
           'other' => {
@@ -670,7 +670,7 @@ module PdfFill
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: [15]
+          question_nums: [16]
         }
       ].freeze
 
@@ -795,32 +795,35 @@ module PdfFill
         end
       end
 
-      def process_standard_behaviors(behaviors_details, extras_redesign)
-        @form_data['behaviorsDetails'] = BEHAVIOR_DESCRIPTIONS.map do |k, v|
-          # If the behavior is present, that means the checkbox was checked,
-          # so add the additional info, even if there was no response.
-          item = { 'additionalInfo' => behaviors_details[k] }
-          item['checked'] = behaviors_details.key?(k) if extras_redesign
-          item['description'] = v
-          item
-        end
-      end
-
       def process_behaviors_details(extras_redesign)
         behaviors_details = @form_data['behaviorsDetails']
         return if behaviors_details.blank?
 
         process_standard_behaviors(behaviors_details, extras_redesign)
 
+        process_additional_behaviors_details(behaviors_details['unlisted'], extras_redesign)
+      end
+
+      def process_standard_behaviors(behaviors_details, extras_redesign)
+        @form_data['behaviorsDetails'] = BEHAVIOR_DESCRIPTIONS.map do |k, v|
+          # If the behavior is present, that means the checkbox was checked,
+          # so add the additional info, even if there was no response.
+          item = { 'additionalInfo' => behaviors_details[k] }
+          item['checked'] = (@form_data['behaviors'].try(:[], k) || false) if extras_redesign
+          item['description'] = v
+          item
+        end
         unless extras_redesign
           @form_data['behaviorsDetails'].select { |item| item['additionalInfo'].blank? }.each do |item|
             item['description'] = nil
           end
         end
+      end
 
-        additional = { 'additionalInfo' => behaviors_details['unlisted'] }
+      def process_additional_behaviors_details(unlisted, extras_redesign)
+        additional = { 'additionalInfo' => unlisted }
         if extras_redesign
-          additional['checked'] = true
+          additional['checked'] = @form_data['behaviors'].try(:[], 'unlisted') || false
           additional['description'] = 'Additional behavioral changes'
           @form_data['additionalBehaviorsDetails'] = [additional]
         else

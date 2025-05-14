@@ -24,13 +24,13 @@ module MyHealth
       end
 
       def optin
-        handle_aal_action('Opt back into electronic sharing with community providers') do
+        handle_aal('VA Health Record', 'Opt back into electronic sharing with community providers') do
           client.post_opt_in
         end
       end
 
       def optout
-        handle_aal_action('Opt out of electronic sharing with community providers') do
+        handle_aal('VA Health Record', 'Opt out of electronic sharing with community providers') do
           client.post_opt_out
         end
       end
@@ -42,26 +42,6 @@ module MyHealth
 
       def product
         :mr
-      end
-
-      private
-
-      def handle_aal_action(action_description)
-        response = yield
-        log_aal_action(action_description, 1)
-        response
-      rescue => e
-        log_aal_action(action_description, 0)
-        raise e
-      end
-
-      def log_aal_action(action, status)
-        aal_client.create_aal(
-          activity_type: 'VA Health Record',
-          action:,
-          performer_type: 'Self',
-          status:
-        )
       end
     end
   end

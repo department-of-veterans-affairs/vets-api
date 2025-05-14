@@ -21,6 +21,7 @@ module Vets
         @data = data
         @model_class = data.first.class
         @filterable_attributes = @model_class.filterable_attributes
+        @filterable_params = @model_class.filterable_params
       end
 
       def all(conditions)
@@ -40,13 +41,13 @@ module Vets
         raise Common::Exceptions::InvalidFiltersSyntax, 'Filters must be present' if conditions.blank?
 
         # Validate attributes are filterable
-        failed_attributes = (conditions.keys.map(&:to_s) - @filterable_attributes.keys.map(&:to_s)).join(', ')
+        failed_attributes = (conditions.keys.map(&:to_s) - @filterable_attributes.map(&:to_s)).join(', ')
         raise Common::Exceptions::FilterNotAllowed, failed_attributes unless failed_attributes.empty?
 
         # Validate the operations are valid for each attribute
         conditions.each do |attribute, predicates|
           predicates.each_key do |operation|
-            valid_operation = @filterable_attributes[attribute].include?(operation.to_s)
+            valid_operation = @filterable_params[attribute].include?(operation.to_s)
             message = "#{operation} for #{attribute}"
             raise Common::Exceptions::FilterNotAllowed, message unless valid_operation
           end
@@ -66,7 +67,8 @@ module Vets
               if operator == 'match'
                 object_value.downcase.include?(value.downcase)
               else
-                object_value.public_send(operator, value)
+                coerced_value = coerce_type(value, object_value)
+                object_value.public_send(operator, coerced_value)
               end
             end
             results.any?
@@ -75,6 +77,21 @@ module Vets
       rescue => e
         message = "The syntax for your filters is invalid: #{e.message}"
         raise Common::Exceptions::InvalidFiltersSyntax, message
+      end
+
+      def coerce_type(value, reference)
+        return nil if value.nil?
+
+        case reference
+        when TrueClass, FalseClass
+          value.to_s == 'true'
+        when Integer
+          Integer(value)
+        when Float
+          Float(value)
+        else
+          value
+        end
       end
     end
   end
