@@ -41,7 +41,6 @@ module AccreditedRepresentativePortal
 
     class << self
       def create_acceptance!(creator:, power_of_attorney_request:, **attrs)
-        Rails.logger.info("Creating acceptance with creator: #{creator.id}")
         create_with_resolution!(
           type: Types::ACCEPTANCE,
           creator:,
@@ -51,10 +50,7 @@ module AccreditedRepresentativePortal
       end
 
       def create_declination!(creator:, power_of_attorney_request:, declination_reason:, **attrs)
-        Rails.logger.info("Creating declination with creator: #{creator.id}, reason: #{declination_reason}")
-        # Handle string vs symbol for declination reason
         reason_key = declination_reason.to_s.gsub('DECLINATION_', '')
-        Rails.logger.info("Normalized reason key: #{reason_key}")
 
         create_with_resolution!(
           type: Types::DECLINATION,
@@ -68,8 +64,6 @@ module AccreditedRepresentativePortal
       private
 
       def create_with_resolution!(creator:, type:, power_of_attorney_request:, declination_reason: nil, **attrs)
-        Rails.logger.info("create_with_resolution called: type=#{type}, reason=#{declination_reason}")
-
         PowerOfAttorneyRequestResolution.transaction do
           decision = build_decision(creator:, type:, declination_reason:)
           create_resolution(decision:, power_of_attorney_request:, **attrs)
@@ -83,12 +77,10 @@ module AccreditedRepresentativePortal
         decision = new(type:, creator:)
 
         if declination_reason.present?
-          Rails.logger.info("Setting declination_reason: #{declination_reason}")
           decision.declination_reason = declination_reason
         end
 
         decision.save!
-        Rails.logger.info("Decision saved with ID: #{decision.id}")
         decision
       end
 
@@ -98,7 +90,6 @@ module AccreditedRepresentativePortal
           resolving: decision,
           **attrs
         )
-        Rails.logger.info("Resolution created with ID: #{resolution.id}")
         resolution
       end
 
