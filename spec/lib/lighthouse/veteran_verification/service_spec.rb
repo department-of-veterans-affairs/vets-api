@@ -90,6 +90,8 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
             expect(response['data']['message']).to eq(VeteranVerification::Constants::ERROR_MESSAGE)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
           end
         end
 
@@ -107,6 +109,8 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
             expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS)
           end
         end
 
@@ -124,6 +128,8 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
             expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
           end
         end
 
@@ -136,6 +142,8 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
             expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
           end
         end
 
@@ -188,7 +196,9 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['id']).to eq('1012666182V20')
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
-            expect(response['data']['message']).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLED)
+            expect(response['data']['message']).to eq(VeteranVerification::Constants::ERROR_MESSAGE_UPDATED)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::ERROR_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::ERROR_MESSAGE_STATUS)
           end
         end
 
@@ -205,7 +215,9 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['id']).to eq('1012666182V203559')
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
-            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED)
+            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS)
           end
         end
 
@@ -222,7 +234,9 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['id']).to be_nil
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
-            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED)
+            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
           end
         end
 
@@ -234,7 +248,9 @@ RSpec.describe VeteranVerification::Service do
             expect(response['data']['id']).to eq('1012667145V762149')
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
-            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED)
+            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED)
+            expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+            expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
           end
         end
       end

@@ -56,7 +56,13 @@ describe VAProfile::MilitaryPersonnel::Service do
 
             expect(response.vet_status_eligibility[:confirmed]).to be(false)
             expect(response.vet_status_eligibility[:message]).to eq(
-              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
+            )
+            expect(response.vet_status_eligibility[:title]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+            )
+            expect(response.vet_status_eligibility[:status]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
             )
           end
         end
@@ -70,6 +76,12 @@ describe VAProfile::MilitaryPersonnel::Service do
             expect(response.vet_status_eligibility[:confirmed]).to be(false)
             expect(response.vet_status_eligibility[:message]).to eq(
               VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+            )
+            expect(response.vet_status_eligibility[:title]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE
+            )
+            expect(response.vet_status_eligibility[:status]).to eq(
+              VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS
             )
           end
         end

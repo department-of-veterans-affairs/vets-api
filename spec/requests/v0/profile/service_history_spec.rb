@@ -15,9 +15,6 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
     before do
       sign_in(user)
       Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-      # TODO: When this FF is ready to be removed,
-      # the service_history_response schema should be updated to reflect that the response message
-      # is no longer an array of strings, but now an object
     end
 
     # The following provides a description of the different termination reason codes:
@@ -59,26 +56,25 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
           expect(episode['period_of_service_type_text']).to eq('National Guard member')
           expect(episode['termination_reason_code']).to eq('S')
           expect(episode['termination_reason_text']).to eq('Separation from personnel category or organization')
-          expect(json.dig('attributes', 'vet_status_eligibility')).to eq({ 'confirmed' => true, 'message' => [] })
+          expect(json.dig('attributes', 'vet_status_eligibility')).to eq(
+            { 'confirmed' => true, 'message' => [], 'title' => '', 'status' => '' }
+          )
         end
       end
 
       it 'returns no service history episodes' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
           get '/v0/profile/service_history'
-          problem_message = [
-            'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status ' \
-            'card for you right now.',
-            'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711).' \
-            ' They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-          ]
           json = json_body_for(response)
           episodes = json.dig('attributes', 'service_history')
           vet_status_eligibility = json.dig('attributes', 'vet_status_eligibility')
 
           expect(response).to be_ok
           expect(episodes.count).to eq(0)
-          expect(vet_status_eligibility).to eq({ 'confirmed' => false, 'message' => problem_message })
+          expect(vet_status_eligibility).to eq({ 'confirmed' => false,
+                                                 'message' => VeteranVerification::Constants::NOT_FOUND_MESSAGE,
+                                                 'title' => VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                                 'status' => VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
         end
       end
 

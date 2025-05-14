@@ -82,19 +82,32 @@ module VAProfile
       end
 
       def self.determine_eligibility(episodes)
-        return { confirmed: false, message: not_found_message } if episodes.empty?
+        if episodes.empty?
+          return { confirmed: false, message: not_found_message,
+                   title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                   status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS }
+        end
 
         codes = episodes.map(&:character_of_discharge_code).uniq.compact
-        return { confirmed: true, message: success_message } if codes.intersect?(%w[A B H J]) # Honorable discharge
-        # Not honorable discharge
-        return { confirmed: false, message: not_eligible_message } if codes.intersect?(%w[D E F K]) || codes.empty?
+        # Honorable discharge
+        return { confirmed: true, message: [], title: '', status: '' } if codes.intersect?(%w[A B H J])
 
-        { confirmed: false, message: not_found_message } # No service history OR unknown (Z) discharge
+        # Not honorable discharge
+        if codes.intersect?(%w[D E F K]) || codes.empty?
+          return { confirmed: false, message: not_eligible_message,
+                   title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                   status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS }
+        end
+
+        # No service history OR unknown (Z) discharge
+        { confirmed: false, message: not_found_message,
+          title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+          status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS }
       end
 
       def self.not_found_message
         if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-          VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED
+          VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED
         else
           VeteranVerification::Constants::NOT_FOUND_MESSAGE
         end
@@ -102,14 +115,10 @@ module VAProfile
 
       def self.not_eligible_message
         if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED
+          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
         else
           VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
         end
-      end
-
-      def self.success_message
-        Flipper.enabled?(:vet_status_stage_1) ? {} : [] # rubocop:disable Naming/VariableNumber
       end
     end
   end

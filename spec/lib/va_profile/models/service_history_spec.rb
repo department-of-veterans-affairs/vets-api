@@ -64,7 +64,9 @@ describe VAProfile::Models::ServiceHistory do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
         expect(eligibility).to eq({ confirmed: false,
-                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED })
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
       end
 
       it 'returns not eligible with dishonorable service history' do
@@ -79,7 +81,9 @@ describe VAProfile::Models::ServiceHistory do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
         expect(eligibility).to eq({ confirmed: false,
-                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED })
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
       end
 
       it 'returns eligible with honorable service history' do
@@ -93,13 +97,15 @@ describe VAProfile::Models::ServiceHistory do
         }'
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-        expect(eligibility).to eq({ confirmed: true, message: {} })
+        expect(eligibility).to eq({ confirmed: true, message: [], title: '', status: '' })
       end
 
       it 'returns problem message with no service history' do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
         expect(eligibility).to eq({ confirmed: false,
-                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED })
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
       end
 
       it 'returns problem message with service history containing unknown discharge code' do
@@ -114,7 +120,9 @@ describe VAProfile::Models::ServiceHistory do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
         expect(eligibility).to eq({ confirmed: false,
-                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED })
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
       end
     end
 
@@ -136,7 +144,10 @@ describe VAProfile::Models::ServiceHistory do
         }'
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-        expect(eligibility).to eq({ confirmed: false, message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE })
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
       end
 
       it 'returns eligible with honorable service history' do
@@ -150,12 +161,15 @@ describe VAProfile::Models::ServiceHistory do
         }'
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-        expect(eligibility).to eq({ confirmed: true, message: [] })
+        expect(eligibility).to eq({ confirmed: true, message: [], title: '', status: '' })
       end
 
       it 'returns problem message with no service history' do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
-        expect(eligibility).to eq({ confirmed: false, message: VeteranVerification::Constants::NOT_FOUND_MESSAGE })
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
       end
 
       it 'returns problem message with service history containing unknown discharge code' do
@@ -169,7 +183,10 @@ describe VAProfile::Models::ServiceHistory do
         }'
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-        expect(eligibility).to eq({ confirmed: false, message: VeteranVerification::Constants::NOT_FOUND_MESSAGE })
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
       end
     end
   end

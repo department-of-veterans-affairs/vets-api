@@ -83,9 +83,9 @@ RSpec.describe V0::Profile::VetVerificationStatusesController, type: :controller
           parsed_body = JSON.parse(response.body)
           expect(parsed_body['data']['attributes']['veteran_status']).to eq('not confirmed')
           expect(parsed_body['data']['attributes']['not_confirmed_reason']).to eq('PERSON_NOT_FOUND')
-          expect(parsed_body['data']['message']).to eq(
-            JSON.parse(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED.to_json)
-          )
+          expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED)
+          expect(parsed_body['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+          expect(parsed_body['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
         end
       end
 
@@ -99,6 +99,8 @@ RSpec.describe V0::Profile::VetVerificationStatusesController, type: :controller
           expect(parsed_body['data']['attributes']['veteran_status']).to eq('not confirmed')
           expect(parsed_body['data']['attributes']['not_confirmed_reason']).to eq('PERSON_NOT_FOUND')
           expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+          expect(parsed_body['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
+          expect(parsed_body['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
         end
       end
     end
