@@ -18,18 +18,23 @@ module AccreditedRepresentativePortal
 
       def create
         declination_reason = decision_params[:declination_reason]
-        other_reason_text = decision_params[:other_reason_text]
 
         case decision_params[:type]
         when 'acceptance'
           PowerOfAttorneyRequestService::Accept.new(@poa_request, creator).call
           render json: {}, status: :ok
         when 'declination'
-          @poa_request.mark_declined!(creator, declination_reason, other_reason_text)
+          if declination_reason.blank?
+            render json: { errors: ["Validation failed: Declination reason can't be blank"] }, status: :bad_request
+            return
+          end
+          
+          @poa_request.mark_declined!(creator, declination_reason)
           send_declination_email(@poa_request)
 
           Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
           Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
+
           render json: {}, status: :ok
         else
           render json: {
@@ -38,12 +43,21 @@ module AccreditedRepresentativePortal
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
         render json: { errors: [e.message] }, status: e.status
+      rescue ActiveRecord::RecordInvalid => e
+        error_message = e.message.sub(/^Validation failed: /, '')
+        render json: { errors: [error_message] }, status: :unprocessable_entity
+      rescue Faraday::TimeoutError => e
+        render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
+      rescue Common::Exceptions::ResourceNotFound => e
+        render json: { errors: ["Record not found"] }, status: :not_found
+      rescue StandardError => e
+        render json: { errors: [e.message] }, status: :internal_server_error
       end
 
       private
 
       def decision_params
-        params.require(:decision).permit(:type, :declination_reason, :other_reason_text)
+        params.require(:decision).permit(:type, :declination_reason)
       end
 
       def creator

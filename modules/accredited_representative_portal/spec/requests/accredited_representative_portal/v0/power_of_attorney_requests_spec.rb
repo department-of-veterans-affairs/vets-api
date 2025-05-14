@@ -165,9 +165,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         it 'returns a list of power of attorney requests' do
           poa_requests
-
+        
           get('/accredited_representative_portal/v0/power_of_attorney_requests')
-
+        
           expect(response).to have_http_status(:ok)
           expect(parsed_response['data']).to eq(
             [
@@ -245,8 +245,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                   'type' => 'decision',
                   'createdAt' => time,
                   'creatorId' => poa_requests[2].resolution.resolving.creator_id,
-                  'reason' => 'Didn\'t authorize treatment record disclosure',
-                  'decisionType' => 'declination'
+                  'reason' => "Didn't authorize treatment record disclosure",
+                  'decisionType' => 'declination',
+                  'declinationReason' => 'NOT_ACCEPTING_CLIENTS'
                 },
                 'accreditedIndividual' => {
                   'id' => poa_requests[2].accredited_individual.id,

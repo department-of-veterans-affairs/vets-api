@@ -13,13 +13,13 @@ FactoryBot.define do
 
     trait :with_resolution do
       after(:create) do |notification|
+        # Create a decision with a valid declination_reason - it already has a default value
         decision = create(:power_of_attorney_request_decision)
-        decision.define_singleton_method(:declination_reason) { 'DECLINATION_OTHER' }
-    
+        
+        # Create the resolution linking to the decision
         create(
           :power_of_attorney_request_resolution,
           power_of_attorney_request: notification.power_of_attorney_request,
-          declination_reason: :DECLINATION_OTHER,
           resolving: decision
         )
       end
