@@ -35,9 +35,11 @@ module AccreditedRepresentativePortal
     has_encrypted :reason, key: :kms_key, **lockbox_options
 
     # Modify the error message for uniqueness validation
+    # rubocop:disable Rails/I18nLocaleTexts
     validates :power_of_attorney_request, uniqueness: {
       message: 'has already been taken'
     }
+    # rubocop:enable Rails/I18nLocaleTexts
     validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
 
     class << self
