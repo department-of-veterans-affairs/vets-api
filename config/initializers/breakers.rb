@@ -102,6 +102,13 @@ Rails.application.reloader.to_prepare do
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
 
+  services.each do |service|
+    if redis_namespace.latest_outage(service).nil?
+      # Set the initial value for the latest outage if it doesn't exist
+      redis_namespace.set_latest_outage(service)
+    end
+  end
+
   plugin = Breakers::StatsdPlugin.new
 
   client = Breakers::Client.new(
@@ -115,4 +122,17 @@ Rails.application.reloader.to_prepare do
   Breakers.redis_prefix = ''
   Breakers.client = client
   Breakers.disabled = true if Settings.breakers_disabled
+end
+
+def latest_outage(service_name)
+  outage_data = redis_namespace.get("#{service_name}-latest_outage")
+  outage_data ? JSON.parse(outage_data) : nil
+end
+
+def set_latest_outage(service_name)
+  redis_namespace.set("#{service_name}-latest_outage",
+                      { outage: false, timestamp: Time.zone.now, ended: true }.to_json)
+  # set a time-to-live (TTL) for the keys storing outage data. This ensures that outdated values are automatically removed from Redis
+  redis_namespace.expire("#{service_name}-latest_outage", 3600) # 1 hour
+  Rails.logger.info("Latest outage for #{service_name} set in Redis")
 end
