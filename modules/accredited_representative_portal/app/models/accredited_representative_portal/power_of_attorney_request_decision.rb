@@ -6,11 +6,11 @@ module AccreditedRepresentativePortal
     include PowerOfAttorneyRequestResolution::Resolving
 
     enum declination_reason: {
-      HEALTH_RECORDS_WITHHELD:      0,
-      ADDRESS_CHANGE_WITHHELD:      1,
-      BOTH_WITHHELD:                2,
-      NOT_ACCEPTING_CLIENTS:        3,
-      OTHER:                        4
+      HEALTH_RECORDS_WITHHELD: 0,
+      ADDRESS_CHANGE_WITHHELD: 1,
+      BOTH_WITHHELD: 2,
+      NOT_ACCEPTING_CLIENTS: 3,
+      OTHER: 4
     }
 
     DECLINATION_REASON_TEXTS = {
@@ -44,8 +44,8 @@ module AccreditedRepresentativePortal
         Rails.logger.info("Creating acceptance with creator: #{creator.id}")
         create_with_resolution!(
           type: Types::ACCEPTANCE,
-          creator: creator,
-          power_of_attorney_request: power_of_attorney_request,
+          creator:,
+          power_of_attorney_request:,
           **attrs
         )
       end
@@ -55,11 +55,11 @@ module AccreditedRepresentativePortal
         # Handle string vs symbol for declination reason
         reason_key = declination_reason.to_s.gsub('DECLINATION_', '')
         Rails.logger.info("Normalized reason key: #{reason_key}")
-        
+
         create_with_resolution!(
           type: Types::DECLINATION,
-          creator: creator,
-          power_of_attorney_request: power_of_attorney_request,
+          creator:,
+          power_of_attorney_request:,
           declination_reason: reason_key,
           **attrs
         )
@@ -69,25 +69,25 @@ module AccreditedRepresentativePortal
 
       def create_with_resolution!(creator:, type:, power_of_attorney_request:, declination_reason: nil, **attrs)
         Rails.logger.info("create_with_resolution called: type=#{type}, reason=#{declination_reason}")
-        
+
         PowerOfAttorneyRequestResolution.transaction do
-          decision = new(type: type, creator: creator)
-          
+          decision = new(type:, creator:)
+
           if declination_reason.present?
             Rails.logger.info("Setting declination_reason: #{declination_reason}")
-            decision.declination_reason = declination_reason 
+            decision.declination_reason = declination_reason
           end
-          
+
           decision.save!
           Rails.logger.info("Decision saved with ID: #{decision.id}")
-          
+
           resolution = PowerOfAttorneyRequestResolution.create!(
-            power_of_attorney_request: power_of_attorney_request,
+            power_of_attorney_request:,
             resolving: decision,
             **attrs
           )
           Rails.logger.info("Resolution created with ID: #{resolution.id}")
-          
+
           decision
         end
       rescue => e

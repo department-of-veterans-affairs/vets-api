@@ -165,9 +165,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
         it 'returns a list of power of attorney requests' do
           poa_requests
-        
+
           get('/accredited_representative_portal/v0/power_of_attorney_requests')
-        
+
           expect(response).to have_http_status(:ok)
           expect(parsed_response['data']).to eq(
             [

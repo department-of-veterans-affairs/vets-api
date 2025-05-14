@@ -15,7 +15,7 @@ FactoryBot.define do
       after(:create) do |notification|
         # Create a decision with a valid declination_reason - it already has a default value
         decision = create(:power_of_attorney_request_decision)
-        
+
         # Create the resolution linking to the decision
         create(
           :power_of_attorney_request_resolution,

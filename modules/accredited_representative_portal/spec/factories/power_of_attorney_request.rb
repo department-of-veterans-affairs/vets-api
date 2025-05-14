@@ -68,7 +68,7 @@ FactoryBot.define do
           type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION,
           declination_reason: :NOT_ACCEPTING_CLIENTS
         )
-        
+
         # Create the resolution with the decision
         poa_request.resolution = build(
           :power_of_attorney_request_resolution,

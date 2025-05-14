@@ -35,8 +35,8 @@ module AccreditedRepresentativePortal
     has_encrypted :reason, key: :kms_key, **lockbox_options
 
     # Modify the error message for uniqueness validation
-    validates :power_of_attorney_request, uniqueness: { 
-      message: 'has already been taken' 
+    validates :power_of_attorney_request, uniqueness: {
+      message: 'has already been taken'
     }
     validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
 

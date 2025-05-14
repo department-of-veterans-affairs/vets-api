@@ -44,7 +44,7 @@ FactoryBot.define do
         resolution.resolving =
           build(
             :power_of_attorney_request_decision, :acceptance,
-            resolution: resolution
+            resolution:
           )
         resolution.created_at = evaluator.resolution_created_at if evaluator.resolution_created_at
       end
@@ -57,7 +57,7 @@ FactoryBot.define do
           :power_of_attorney_request_decision,
           type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION,
           declination_reason: :NOT_ACCEPTING_CLIENTS,
-          resolution: resolution
+          resolution:
         )
         resolution.created_at = evaluator.resolution_created_at if evaluator.resolution_created_at
       end
@@ -68,7 +68,7 @@ FactoryBot.define do
         resolution.resolving =
           build(
             :power_of_attorney_request_expiration,
-            resolution: resolution
+            resolution:
           )
         resolution.created_at = evaluator.resolution_created_at if evaluator.resolution_created_at
       end
@@ -79,7 +79,7 @@ FactoryBot.define do
         resolution.resolving =
           build(
             :power_of_attorney_request_withdrawal, :replacement,
-            resolution: resolution
+            resolution:
           )
         resolution.created_at = evaluator.resolution_created_at if evaluator.resolution_created_at
       end

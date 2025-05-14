@@ -28,7 +28,7 @@ module AccreditedRepresentativePortal
             render json: { errors: ["Validation failed: Declination reason can't be blank"] }, status: :bad_request
             return
           end
-          
+
           @poa_request.mark_declined!(creator, declination_reason)
           send_declination_email(@poa_request)
 
@@ -48,9 +48,9 @@ module AccreditedRepresentativePortal
         render json: { errors: [error_message] }, status: :unprocessable_entity
       rescue Faraday::TimeoutError => e
         render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
-      rescue Common::Exceptions::ResourceNotFound => e
-        render json: { errors: ["Record not found"] }, status: :not_found
-      rescue StandardError => e
+      rescue Common::Exceptions::ResourceNotFound
+        render json: { errors: ['Record not found'] }, status: :not_found
+      rescue => e
         render json: { errors: [e.message] }, status: :internal_server_error
       end
 

@@ -89,12 +89,12 @@ module AccreditedRepresentativePortal
 
     def mark_declined!(creator, declination_reason)
       Rails.logger.info("Mark declined called with creator: #{creator.id} and reason: #{declination_reason}")
-      
+
       begin
         decision = PowerOfAttorneyRequestDecision.create_declination!(
-          creator: creator,
+          creator:,
           power_of_attorney_request: self,
-          declination_reason: declination_reason
+          declination_reason:
         )
         Rails.logger.info("Decision created successfully: #{decision.id}")
         decision

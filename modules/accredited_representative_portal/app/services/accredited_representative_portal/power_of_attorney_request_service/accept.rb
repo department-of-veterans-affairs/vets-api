@@ -34,10 +34,10 @@ module AccreditedRepresentativePortal
         # Normal flow with transaction to ensure proper rollback
         ActiveRecord::Base.transaction do
           @resolution = PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator: creator, 
+            creator:,
             power_of_attorney_request: poa_request
           )
-          
+
           response = service.submit2122(form_payload)
           form_submission = create_form_submission!(response.body)
           PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
@@ -62,7 +62,7 @@ module AccreditedRepresentativePortal
         create_error_form_submission(error_message, {})
         raise Error.new(error_message, :not_found)
       # All other errors: save error data on form submission, will result in a 500
-      rescue => e
+      rescue
         raise
       end
 

@@ -27,30 +27,31 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
 
     context 'when type is declined' do
       let(:type) { 'declined' }
-      
+
       let(:notification) { instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification) }
-      
+
       before do
         allow(notification).to receive(:claimant_hash).and_return({
-          'name' => { 'first' => 'John', 'last' => 'Doe' }
-        })
-        
+                                                                    'name' => { 'first' => 'John', 'last' => 'Doe' }
+                                                                  })
+
         poa_request = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequest)
         allow(notification).to receive(:power_of_attorney_request).and_return(poa_request)
-        
+
         form = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyForm)
         allow(poa_request).to receive(:power_of_attorney_form).and_return(form)
         allow(form).to receive(:parsed_data).and_return({
-          'veteran' => { 'name' => { 'first' => 'John', 'last' => 'Doe' } }
-        })
-        
+                                                          'veteran' => { 'name' => { 'first' => 'John',
+                                                                                     'last' => 'Doe' } }
+                                                        })
+
         resolution = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution)
         allow(poa_request).to receive(:resolution).and_return(resolution)
 
         decision = instance_double(
-          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision, 
-          declination_reason: declination_reason,
-          declination_reason_text: declination_reason_text
+          AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision,
+          declination_reason:,
+          declination_reason_text:
         )
         allow(resolution).to receive(:resolving).and_return(decision)
       end

@@ -17,7 +17,7 @@ module AccreditedRepresentativePortal
       # Update the reason attribute to use a standard text for backward compatibility
       attribute :reason, if: proc { |resolution|
         resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::DECLINATION
-      } do |resolution|
+      } do |_resolution|
         # For backward compatibility with tests, always return a standard reason
         "Didn't authorize treatment record disclosure"
       end
