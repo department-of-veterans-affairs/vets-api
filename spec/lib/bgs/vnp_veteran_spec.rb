@@ -570,7 +570,7 @@ RSpec.describe BGS::VnpVeteran do
         end
       end
 
-      context "veteran has APO address with an AE State" do
+      context 'veteran has APO address with an AE State' do
         it 'uses IsoCountryCodes to determine the country name' do
           # rubocop:disable Layout/LineLength
           all_flows_payload_v2['dependents_application']['veteran_contact_information']['veteran_address']['country'] = 'USA'
