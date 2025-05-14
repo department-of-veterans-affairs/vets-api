@@ -161,9 +161,7 @@
     "providerFacility": [
       {
         "providerFacilityName": "provider 1",
-        "issues": [
-          "PTSD (post traumatic stress disorder)"
-        ],
+        "conditionsTreated": "PTSD (post traumatic stress disorder)",
         "treatmentDateRange": [
           {
             "from": "1980-01-01",
@@ -185,9 +183,7 @@
       },
       {
         "providerFacilityName": "provider 2",
-        "issues": [
-          "Coding Trauma"
-        ],
+        "conditionsTreated": "Coding Trauma",
         "treatmentDateRange": [
           {
             "from": "1980-02-01",
@@ -209,11 +205,7 @@
       },
       {
         "providerFacilityName": "provider 3",
-        "issues": [
-          "Helium Syndrome",
-          "Fever",
-          "Nausea"
-        ],
+        "conditionsTreated": "Nasal Trauma",
         "treatmentDateRange": [
           {
             "from": "1980-03-01",
@@ -235,9 +227,7 @@
       },
       {
         "providerFacilityName": "provider 4",
-        "issues": [
-          "Stress"
-        ],
+        "conditionsTreated": "Hearing Loss",
         "treatmentDateRange": [
           {
             "from": "1980-04-01",
@@ -259,6 +249,7 @@
       },
       {
         "providerFacilityName": "provider 5",
+        "conditionsTreated": "Verdigo",
         "treatmentDateRange": [
           {
             "from": "1980-05-01",
