@@ -118,9 +118,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver_retry_form_validation:
-    actor_type: user
-    description: Enables 1010CG to retry schema validation
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
