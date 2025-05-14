@@ -191,7 +191,7 @@ describe MDOT::Client, type: :mdot_helpers do
       after { VCR.eject_cassette }
 
       context 'with a response that is not actually JSON' do
-        let!(:cassette) { 'mdot/get_supplies_200_not_json' }
+        let!(:cassette) { 'mdot/simulated_get_supplies_200_not_json' }
 
         it 'raises an error' do
           expect(StatsD).to receive(:increment).once.with(
@@ -207,7 +207,7 @@ describe MDOT::Client, type: :mdot_helpers do
       end
 
       context 'with a 406 response' do
-        let!(:cassette) { 'mdot/get_supplies_406' }
+        let!(:cassette) { 'mdot/simulated_get_supplies_406' }
 
         it 'raises an error' do
           expect(StatsD).to receive(:increment).once.with(
@@ -223,7 +223,7 @@ describe MDOT::Client, type: :mdot_helpers do
       end
 
       context 'with a 410 response' do
-        let!(:cassette) { 'mdot/get_supplies_410' }
+        let!(:cassette) { 'mdot/simulated_get_supplies_410' }
 
         it 'raises an error' do
           expect(StatsD).to receive(:increment).once.with(

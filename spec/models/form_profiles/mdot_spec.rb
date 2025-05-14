@@ -85,7 +85,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
 
       it 'handles 406 responses from system-of-record' do
         VCR.insert_cassette(
-          'mdot/get_supplies_406',
+          'mdot/simulated_get_supplies_406',
           match_requests_on: %i[method uri headers],
           erb: { icn: user.icn }
         )
@@ -96,7 +96,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
 
       it 'handles 410 responses from system-of-record' do
         VCR.insert_cassette(
-          'mdot/get_supplies_410',
+          'mdot/simulated_get_supplies_410',
           match_requests_on: %i[method uri headers],
           erb: { icn: user.icn }
         )
@@ -107,7 +107,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
 
       it 'handles non-JSON responses from system-of-record' do
         VCR.insert_cassette(
-          'mdot/get_supplies_200_not_json',
+          'mdot/simulated_get_supplies_200_not_json',
           match_requests_on: %i[method uri headers],
           erb: { icn: user.icn }
         )
