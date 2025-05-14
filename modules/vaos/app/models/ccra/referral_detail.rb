@@ -7,7 +7,7 @@ module Ccra
                 :phone_number, :referring_facility_name,
                 :referring_facility_phone, :referring_facility_code,
                 :referring_facility_address, :has_appointments,
-                :referral_date, :station_id
+                :referral_date, :station_id, :referral_consult_id, :appointment_type_id
     attr_accessor :uuid
 
     ##
@@ -22,11 +22,14 @@ module Ccra
       @category_of_care = attributes[:category_of_care]
       @treating_facility = attributes[:treating_facility]
       @referral_number = attributes[:referral_number]
+      @referral_consult_id = attributes[:referral_consult_id]
       @referral_date = attributes[:referral_date]
       @station_id = attributes[:station_id]
       @uuid = nil # Will be set by controller
       @has_appointments = attributes[:appointments].present?
-
+      # NOTE: appointment_type_id defaulted to 'ov' for phase 1 implementation, needed for EPS provider
+      # slots fetching
+      @appointment_type_id = 'ov'
       # Get phone number from treating facility or provider info
       treating_facility_info = attributes[:treating_facility_info]
       treating_provider_info = attributes[:treating_provider_info]

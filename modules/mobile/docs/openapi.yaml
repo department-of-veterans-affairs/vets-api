@@ -157,7 +157,7 @@ paths:
           name: sort
           schema:
             type: string
-        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
           example: pending
           in: query
           name: include[]
@@ -165,7 +165,7 @@ paths:
             type: array
             items:
               type: string
-        - description: Field to include pending appointments. Currently only supports value `pending`. Redundant with field `include[]` for backwards compatibility but `include` is the correct one to use when following conventions.
+        - description: Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.
           example: pending
           in: query
           name: included[]
@@ -3864,6 +3864,45 @@ paths:
         '504':
           $ref: '#/components/responses/504'
       summary: /v0/translations/download
+  /v0/travel-pay/claims:
+    post:
+      description: Submit a mileage-only travel claim.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/TravelPaySubmitMileageOnlyClaim.yml
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/TravelPayClaimSummary.yml
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/travel-pay/claims
   /v0/user:
     get:
       description: |

@@ -5,9 +5,10 @@ require 'pdf_fill/form_value'
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
-    EXTRAS_TEXT = "See add'l info page"
 
     attr_reader :extras_generator
+
+    delegate :placeholder_text, to: :extras_generator
 
     def initialize(date_strftime, extras_generator)
       @pdftk_form = {}
@@ -64,6 +65,7 @@ module PdfFill
     def add_to_extras(key_data, v, i, overflow: true, array_key_data: nil)
       return if v.blank? || key_data.nil?
       return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
+      return if key_data[:hide_from_overflow]
 
       i = array_key_data.try(:[], :override_index) || i
       i = nil if key_data[:skip_index]
@@ -77,7 +79,7 @@ module PdfFill
 
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label).merge(
+        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :checked_values).merge(
           i:, overflow:, item_label:, question_type:, format_options:
         )
       )
@@ -107,7 +109,7 @@ module PdfFill
       if overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
 
-        new_value = EXTRAS_TEXT
+        new_value = placeholder_text
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
       end
@@ -133,7 +135,7 @@ module PdfFill
     def handle_overflow_and_label_all(form_data, pdftk_keys)
       form_data.each_with_index do |item, idx|
         item.each do |k, v|
-          text = overflow?(pdftk_keys[k], v) ? EXTRAS_TEXT : v
+          text = overflow?(pdftk_keys[k], v) ? placeholder_text : v
 
           set_value(text, pdftk_keys[k], idx, true) if pdftk_keys[k].is_a?(Hash)
         end
@@ -143,7 +145,7 @@ module PdfFill
     def handle_overflow_and_label_first_key(pdftk_keys)
       first_key = pdftk_keys[:first_key]
       transform_data(
-        form_data: { first_key => EXTRAS_TEXT },
+        form_data: { first_key => placeholder_text },
         pdftk_keys:,
         i: 0,
         from_array_overflow: true

@@ -15,7 +15,7 @@ module IncomeAndAssets
         # 3b - 3f (only space for five on form)
         'unassociatedIncomes' => {
           limit: 5,
-          first_key: 'recipientRelationship',
+          first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
             key: "F[0].IncomeRecipients3[#{ITERATOR}]"
@@ -90,7 +90,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         incomes = form_data['unassociatedIncomes']
-        form_data['unassociatedIncome'] = incomes&.length ? 'YES' : 1
+        form_data['unassociatedIncome'] = incomes&.length ? 0 : 1
         form_data['unassociatedIncomes'] = incomes&.map do |item|
           expand_item(item)
         end
