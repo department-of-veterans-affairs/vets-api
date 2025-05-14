@@ -1,8 +1,6 @@
 name: Settings Checks
 
 on:
-  push:
-    branches: [master]
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
