@@ -205,6 +205,22 @@ describe MDOT::Client, type: :mdot_helpers do
           expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
         end
       end
+
+      context 'with a 406 response' do
+        let!(:cassette) { 'mdot/get_supplies_406' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:406'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
     end
 
     context 'validates temporary OR permanent address' do

@@ -82,6 +82,17 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       VCR.eject_cassette
     end
 
+    it 'handles 406 responses from system-of-record' do
+      VCR.insert_cassette(
+        'mdot/get_supplies_406',
+        match_requests_on: %i[method uri headers],
+        erb: { icn: user.icn }
+      )
+      expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+      VCR.eject_cassette
+    end
+
     it 'handles non-JSON responses from system-of-record' do
       VCR.insert_cassette(
         'mdot/get_supplies_200_not_json',
