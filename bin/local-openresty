@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# bin/local-openresty - Boot an OpenResty container as a reverse proxy for Vets API
+#
+# Usage:
+#   bin/local-openresty [options]
+#
+# Options:
+#   --port PORT            Host port to bind OpenResty (default: 80)
+#   --traefik-port PORT    Port where Traefik is running (default: 8081)
+#   --version VER          OpenResty version to use (default: 1.25.3.1-0-jammy)
+#   -h, --help             Display this help message
+#
+# This script creates a local reverse proxy using OpenResty that forwards
+# traffic to Vets API running on localhost:3000, either directly or through
+# Traefik if detected.
+
+set -e
+
+# Default values
+PORT=80
+TRAEFIK_PORT=8081
+VERSION="1.25.3.1-0-jammy"
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --port)
+      PORT="$2"
+      shift 2
+      ;;
+    --traefik-port)
+      TRAEFIK_PORT="$2"
+      shift 2
+      ;;
+    --version)
+      VERSION="$2"
+      shift 2
+      ;;
+    -h|--help)
+      sed -n '/^#/!q;s/^#//;s/^ //;p' < "$0"
+      exit 0
+      ;;
+    *)
+      echo "Error: Unknown option $1"
+      echo "Use -h or --help for usage information"
+      exit 1
+      ;;
+  esac
+done
+
+# Configuration file path
+OPENRESTY_CONF="tmp/openresty-local.conf"
+
+# Verify directories exist
+mkdir -p tmp
+
+# Check if API is available
+echo "Checking if Vets API is running on localhost:3000..."
+if ! curl -s -o /dev/null http://localhost:3000; then
+  echo "Error: Vets API doesn't appear to be running on localhost:3000"
+  echo "Please start Vets API before running this script."
+  exit 1
+fi
+
+# Check if Traefik is running on the specified port
+echo "Checking if Traefik is running on port $TRAEFIK_PORT..."
+if curl -s -o /dev/null http://localhost:$TRAEFIK_PORT 2>/dev/null; then
+  USE_TRAEFIK=true
+  echo "Detected a service running on port $TRAEFIK_PORT, assuming Traefik"
+else
+  USE_TRAEFIK=false
+  echo "No service detected on port $TRAEFIK_PORT, using direct mode"
+fi
+
+# Generate OpenResty config if it doesn't exist
+if [ ! -f "$OPENRESTY_CONF" ]; then
+  echo "Generating OpenResty configuration at $OPENRESTY_CONF..."
+  
+  # Determine target based on Traefik availability
+  if [ "$USE_TRAEFIK" = false ]; then
+    TARGET="127.0.0.1:3000"
+    echo "Using direct mode: proxying to Vets API directly"
+  else
+    TARGET="host.docker.internal:$TRAEFIK_PORT"
+    echo "Using Traefik mode: proxying to Vets API via Traefik on port $TRAEFIK_PORT"
+  fi
+
+  cat > "$OPENRESTY_CONF" << EOF
+worker_processes auto;
+error_log /dev/stderr info;
+pid /tmp/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  access_log /dev/stdout combined;
+  
+  upstream vets_api {
+    server $TARGET;
+  }
+
+  server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+      proxy_pass http://vets_api;
+      proxy_set_header Host \$host;
+      proxy_set_header X-Real-IP \$remote_addr;
+      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+  }
+}
+EOF
+else
+  echo "Using existing OpenResty configuration at $OPENRESTY_CONF"
+fi
+
+# Print banner
+echo "========================================================="
+echo "🚀 Starting OpenResty $VERSION as a reverse proxy"
+echo "👉 Listening on port $PORT"
+if [ "$USE_TRAEFIK" = false ]; then
+  echo "🔄 Proxying directly to Vets API on port 3000"
+else
+  echo "🔄 Proxying to Vets API via Traefik on port $TRAEFIK_PORT"
+fi
+echo "🔧 Using config from $OPENRESTY_CONF"
+echo "========================================================="
+
+# Run OpenResty container
+docker run --rm \
+  -p "$PORT:80" \
+  -v "$(pwd)/$OPENRESTY_CONF:/usr/local/openresty/nginx/conf/nginx.conf:ro" \
+  --add-host=host.docker.internal:host-gateway \
+  --name vets-api-openresty \
+  openresty/openresty:$VERSION
