@@ -174,16 +174,18 @@ jobs:
       
       - name: Upload Test Artifacts (rails tmp)
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
           name: Test Artifacts (rails tmp directory)
-          path: tmp
+          path: |
+            tmp
+            !tmp/systmp
           if-no-files-found: ignore
           retention-days: 14
 
       - name: Upload Test Artifacts (system tmp)
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
           name: Test Artifacts (system tmp directory)
           path: tmp/systmp
