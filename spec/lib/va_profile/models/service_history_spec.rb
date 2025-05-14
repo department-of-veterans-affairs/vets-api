@@ -130,7 +130,10 @@ describe VAProfile::Models::ServiceHistory do
       it 'returns not eligible with service history missing characterOfDischargeCode' do
         eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-        expect(eligibility).to eq({ confirmed: false, message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE })
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
       end
 
       it 'returns not eligible with dishonorable service history' do
