@@ -52,7 +52,41 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'with a gateway timeout' do
+    context 'with a 500 internal server error response' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::ExternalServerInternalServerError)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::ExternalServerInternalServerError
+          ) do |e|
+            expect(e.message).to match('Internal server error')
+          end
+        end
+      end
+    end
+
+    context 'with a 501 Not Implemented response' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::NotImplemented)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::NotImplemented
+          ) do |e|
+            expect(e.message).to match('Not Implemented')
+          end
+        end
+      end
+    end
+
+    context 'with a 504 gateway timeout' do
       it 'raises error gracefully' do
         allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::GatewayTimeout)
         VCR.use_cassette(
