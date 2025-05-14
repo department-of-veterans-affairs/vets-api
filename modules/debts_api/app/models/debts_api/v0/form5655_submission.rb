@@ -104,7 +104,6 @@ module DebtsApi
     def send_failed_form_email
       StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
       submission_email = ipf_form['personal_data']['email_address'].downcase
-
       jid = DebtManagementCenter::VANotifyEmailJob.perform_in(
         24.hours,
         submission_email,

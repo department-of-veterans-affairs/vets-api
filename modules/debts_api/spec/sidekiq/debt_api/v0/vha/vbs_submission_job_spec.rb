@@ -6,13 +6,21 @@ require 'sidekiq/testing'
 
 RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
   describe '#perform' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
+    let!(:form_submission) do
+      create(
+        :debts_api_form5655_submission,
+        ipf_data: {
+          'personal_data' => {
+            'email_address' => 'test@test.com',
+            'veteran_full_name' => {'first' => 'John'}
+          }
+        }.to_json
+      )
+    end
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
     context 'when all retries are exhausted' do
-      let(:form_submission) { create(:debts_api_form5655_submission) }
-
       let(:config) { described_class }
       let(:standard_exception) do
         e = StandardError.new('abc-123')
@@ -43,7 +51,13 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::VBSSubmissionJob, type: :worker do
 
         statsd_key = DebtsApi::V0::Form5655::VHA::VBSSubmissionJob::STATS_KEY
 
-        ["#{statsd_key}.failure", "#{statsd_key}.retries_exhausted", 'api.fsr_submission.failure'].each do |key|
+        [
+          "#{statsd_key}.failure",
+          "#{statsd_key}.retries_exhausted",
+          'api.fsr_submission.failure',
+          'api.fsr_submission.send_failed_form_email.enqueue',
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        ].each do |key|
           expect(StatsD).to receive(:increment).with(key)
         end
 

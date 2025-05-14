@@ -184,8 +184,8 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     it 'saves generic error message with call_location when message is blank' do
       form5655_submission.register_failure(nil)
       expect(form5655_submission.error_message).to start_with(
-                                                     'An unknown error occurred while submitting the form from call_location:'
-                                                   )
+        'An unknown error occurred while submitting the form from call_location:'
+      )
     end
 
     context 'combined form' do
