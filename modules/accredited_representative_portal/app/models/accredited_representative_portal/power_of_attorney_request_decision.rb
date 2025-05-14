@@ -71,28 +71,40 @@ module AccreditedRepresentativePortal
         Rails.logger.info("create_with_resolution called: type=#{type}, reason=#{declination_reason}")
 
         PowerOfAttorneyRequestResolution.transaction do
-          decision = new(type:, creator:)
-
-          if declination_reason.present?
-            Rails.logger.info("Setting declination_reason: #{declination_reason}")
-            decision.declination_reason = declination_reason
-          end
-
-          decision.save!
-          Rails.logger.info("Decision saved with ID: #{decision.id}")
-
-          resolution = PowerOfAttorneyRequestResolution.create!(
-            power_of_attorney_request:,
-            resolving: decision,
-            **attrs
-          )
-          Rails.logger.info("Resolution created with ID: #{resolution.id}")
-
+          decision = build_decision(creator:, type:, declination_reason:)
+          create_resolution(decision:, power_of_attorney_request:, **attrs)
           decision
         end
       rescue => e
-        Rails.logger.error("Error in create_with_resolution!: #{e.class} - #{e.message}")
-        Rails.logger.error(e.backtrace.join("\n"))
+        log_error_and_raise(e)
+      end
+
+      def build_decision(creator:, type:, declination_reason:)
+        decision = new(type:, creator:)
+
+        if declination_reason.present?
+          Rails.logger.info("Setting declination_reason: #{declination_reason}")
+          decision.declination_reason = declination_reason
+        end
+
+        decision.save!
+        Rails.logger.info("Decision saved with ID: #{decision.id}")
+        decision
+      end
+
+      def create_resolution(decision:, power_of_attorney_request:, **attrs)
+        resolution = PowerOfAttorneyRequestResolution.create!(
+          power_of_attorney_request:,
+          resolving: decision,
+          **attrs
+        )
+        Rails.logger.info("Resolution created with ID: #{resolution.id}")
+        resolution
+      end
+
+      def log_error_and_raise(error)
+        Rails.logger.error("Error in create_with_resolution!: #{error.class} - #{error.message}")
+        Rails.logger.error(error.backtrace.join("\n"))
         raise
       end
     end
