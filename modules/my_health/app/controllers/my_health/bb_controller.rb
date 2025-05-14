@@ -5,6 +5,7 @@ require 'bb/client'
 module MyHealth
   class BBController < ApplicationController
     include MyHealth::MHVControllerConcerns
+    include MyHealth::UserValueConcerns
     service_tag 'mhv-medical-records'
 
     protected

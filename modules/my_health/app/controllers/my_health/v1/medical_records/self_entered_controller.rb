@@ -6,6 +6,7 @@ module MyHealth
       class SelfEnteredController < ApplicationController
         include MyHealth::MHVControllerConcerns
         include MyHealth::AALClientConcerns
+        include MyHealth::UserValueConcerns
         service_tag 'mhv-medical-records'
 
         def index

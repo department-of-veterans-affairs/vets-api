@@ -8,6 +8,7 @@ require 'medical_records/lighthouse_client'
 module MyHealth
   class MrController < ApplicationController
     include MyHealth::MHVControllerConcerns
+    include MyHealth::UserValueConcerns
     service_tag 'mhv-medical-records'
 
     # skip_before_action :authenticate
