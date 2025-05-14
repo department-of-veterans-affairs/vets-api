@@ -93,7 +93,7 @@ module VAProfile
       end
 
       def self.not_found_message
-        if Flipper.enabled?(:vet_status_stage_1)
+        if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
           VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLED
         else
           VeteranVerification::Constants::NOT_FOUND_MESSAGE
@@ -101,7 +101,7 @@ module VAProfile
       end
 
       def self.not_eligible_message
-        if Flipper.enabled?(:vet_status_stage_1)
+        if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
           VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLED
         else
           VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
@@ -109,7 +109,7 @@ module VAProfile
       end
 
       def self.success_message
-        Flipper.enabled?(:vet_status_stage_1) ? {} : []
+        Flipper.enabled?(:vet_status_stage_1) ? {} : [] # rubocop:disable Naming/VariableNumber
       end
     end
   end

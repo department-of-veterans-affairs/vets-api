@@ -8,7 +8,7 @@ RSpec.describe V0::Profile::VetVerificationStatusesController, type: :controller
   before do
     sign_in_as(user)
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
-    Flipper.disable(:vet_status_stage_1)
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
   end
 
   describe '#show' do
@@ -68,11 +68,11 @@ RSpec.describe V0::Profile::VetVerificationStatusesController, type: :controller
 
       context 'when vet_status_stage_1 is enabled' do
         before do
-          Flipper.enable(:vet_status_stage_1)
+          Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
         end
 
         after do
-          Flipper.disable(:vet_status_stage_1)
+          Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
         end
 
         it 'returns a person_not_found reason' do

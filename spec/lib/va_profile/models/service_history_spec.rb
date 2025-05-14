@@ -16,7 +16,7 @@ describe VAProfile::Models::ServiceHistory do
   end
 
   before do
-    Flipper.disable(:vet_status_stage_1)
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
   end
 
   context 'when service history json is present' do
@@ -53,11 +53,11 @@ describe VAProfile::Models::ServiceHistory do
   describe '#determing_eligibility' do
     context 'when vet_status_stage_1 is enabled' do
       before do
-        Flipper.enable(:vet_status_stage_1)
+        Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
       end
 
       after do
-        Flipper.disable(:vet_status_stage_1)
+        Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
       end
 
       it 'returns not eligible with service history missing characterOfDischargeCode' do

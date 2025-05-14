@@ -9,7 +9,7 @@ describe VAProfile::MilitaryPersonnel::Service do
   let(:user) { build(:user, :loa3) }
 
   before do
-    Flipper.disable(:vet_status_stage_1)
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
   end
 
   describe '#identity_path' do
@@ -43,11 +43,11 @@ describe VAProfile::MilitaryPersonnel::Service do
 
       context 'with vet_status_stage_1 enabled' do
         before do
-          Flipper.enable(:vet_status_stage_1)
+          Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
         end
 
         after do
-          Flipper.disable(:vet_status_stage_1)
+          Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
         end
 
         it 'returns not eligible if character_of_discharge_codes are missing' do

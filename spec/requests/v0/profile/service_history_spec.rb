@@ -14,7 +14,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
     before do
       sign_in(user)
-      Flipper.disable(:vet_status_stage_1)
+      Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
       # TODO: When this FF is ready to be removed,
       # the service_history_response schema should be updated to reflect that the response message
       # is no longer an array of strings, but now an object
