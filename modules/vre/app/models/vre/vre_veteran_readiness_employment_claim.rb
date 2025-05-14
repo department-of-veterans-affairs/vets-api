@@ -85,8 +85,8 @@ module VRE
       end
 
       send_vbms_confirmation_email(user)
-    rescue
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+    rescue => e
+      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, e: })
       send_to_lighthouse!(user)
     end
 
