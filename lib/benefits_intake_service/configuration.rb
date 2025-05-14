@@ -2,16 +2,29 @@
 
 require 'common/client/configuration/rest'
 require 'faraday/multipart'
+require 'lighthouse/benefits_intake/configuration'
 
 module BenefitsIntakeService
+  ##
+  # Configuration for the Benefits Intake Service.
+  #
+  # @deprecated Please use BenefitsIntake::Configuration instead
+  # This class is maintained for backward compatibility but will be removed in the future.
+  #
   class Configuration < Common::Client::Configuration::REST
     def initialize
+      ActiveSupport::Deprecation.warn(
+        'BenefitsIntakeService::Configuration is deprecated. ' \
+        'Please use BenefitsIntake::Configuration instead.'
+      )
       super
+      # Set fallback settings if needed
       Settings.benefits_intake_service.api_key ||= Settings.form526_backup.api_key
       Settings.benefits_intake_service.url ||= Settings.form526_backup.url
     end
 
-    self.read_timeout = Settings.caseflow.timeout || 20 # using the same timeout as lighthouse
+    # Use the same timeout as the Lighthouse implementation
+    self.read_timeout = Settings.caseflow.timeout || 20
 
     ##
     # @return [String] Base path
@@ -36,20 +49,28 @@ module BenefitsIntakeService
 
     ##
     # Creates a connection with json parsing and breaker functionality.
+    # Delegates to the Lighthouse implementation while maintaining compatibility with
+    # the original BenefitsIntakeService settings.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use(:breakers, service_name:)
-        faraday.use Faraday::Response::RaiseError
+      # Override Lighthouse settings temporarily to use our settings
+      original_api_key = Settings.lighthouse.benefits_intake.api_key
+      original_url = Settings.lighthouse.benefits_intake.host
 
-        faraday.request :multipart
-        faraday.request :json
+      begin
+        # Use our settings for the Lighthouse connection
+        Settings.lighthouse.benefits_intake.api_key = Settings.benefits_intake_service.api_key
+        Settings.lighthouse.benefits_intake.host = Settings.benefits_intake_service.url
 
-        faraday.response :betamocks if mock_enabled?
-        faraday.response :json
-        faraday.adapter Faraday.default_adapter
+        # Create a connection using the Lighthouse implementation
+        lighthouse_config = BenefitsIntake::Configuration.new
+        lighthouse_config.connection
+      ensure
+        # Restore original settings
+        Settings.lighthouse.benefits_intake.api_key = original_api_key
+        Settings.lighthouse.benefits_intake.host = original_url
       end
     end
 

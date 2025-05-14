@@ -876,8 +876,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       it 'unsuccessful submission' do
         allow(VANotify::EmailJob).to receive(:perform_async)
-        allow_any_instance_of(SimpleFormsApi::PdfUploader)
-          .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+        allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+          .to receive(:upload_pdf).and_return([500, confirmation_number])
 
         post '/simple_forms_api/v1/simple_forms', params: data
 
@@ -961,8 +961,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           end
 
           it 'unsuccessful submission' do
-            allow_any_instance_of(SimpleFormsApi::PdfUploader)
-              .to receive(:upload_to_benefits_intake).and_return([500, confirmation_number])
+            allow_any_instance_of(SimpleFormsApi::V1::UploadsController)
+              .to receive(:upload_pdf).and_return([500, confirmation_number])
 
             post '/simple_forms_api/v1/simple_forms', params: data
 
