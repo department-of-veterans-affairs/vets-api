@@ -102,7 +102,6 @@ describe PdfFill::Filler, type: :model do
               fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
               expect(file_path).to match_pdf_fields(fixture_pdf)
 
-
               File.delete(file_path)
             end
           end

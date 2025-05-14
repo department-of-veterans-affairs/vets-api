@@ -24,4 +24,3 @@ RSpec::Matchers.define :match_file_exactly do
     "expected that #{actual} would match #{expected} exactly"
   end
 end
-
