@@ -362,7 +362,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def log_error(user, e)
     if Flipper.enabled?(:vre_enable_vbms_exception_logging)
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, e: })
+      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
     else
       Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
     end
