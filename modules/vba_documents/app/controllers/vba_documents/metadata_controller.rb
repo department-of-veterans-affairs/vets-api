@@ -67,7 +67,7 @@ module VBADocuments
       s3_heathy = s3_is_healthy?
       unless s3_heathy
         http_status_code = 503
-        Rails.logger.info("Benefits Intake S3 healthcheck failed")
+        Rails.logger.info('Benefits Intake S3 healthcheck failed')
       end
       render json: {
         description: 'VBA Documents API health check',
