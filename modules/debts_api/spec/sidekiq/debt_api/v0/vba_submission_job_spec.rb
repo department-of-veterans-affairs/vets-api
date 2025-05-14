@@ -6,7 +6,17 @@ require 'sidekiq/testing'
 
 RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
   describe '#perform' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
+    let!(:form_submission) do
+      create(
+        :debts_api_form5655_submission,
+        ipf_data: {
+          'personal_data' => {
+            'email_address' => 'test@test.com',
+            'veteran_full_name' => { 'first' => 'John' }
+          }
+        }.to_json
+      )
+    end
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
 
@@ -26,7 +36,17 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
     end
 
     context 'failure' do
-      let(:form_submission) { create(:debts_api_form5655_submission) }
+      let!(:form_submission) do
+        create(
+          :debts_api_form5655_submission,
+          ipf_data: {
+            'personal_data' => {
+              'email_address' => 'test@test.com',
+              'veteran_full_name' => { 'first' => 'John' }
+            }
+          }.to_json
+        )
+      end
 
       before do
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
@@ -44,7 +64,17 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
     end
 
     context 'with retries exhausted' do
-      let(:form_submission) { create(:debts_api_form5655_submission) }
+      let!(:form_submission) do
+        create(
+          :debts_api_form5655_submission,
+          ipf_data: {
+            'personal_data' => {
+              'email_address' => 'test@test.com',
+              'veteran_full_name' => { 'first' => 'John' }
+            }
+          }.to_json
+        )
+      end
       let(:config) { described_class }
       let(:missing_attributes_exception) do
         e = DebtsApi::V0::Form5655::VBASubmissionJob::MissingUserAttributesError.new('abc-123')
@@ -79,6 +109,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
           "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
         )
         expect(StatsD).to receive(:increment).with("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.failure")
+        expect(StatsD).to receive(:increment).with("api.fsr_submission.send_failed_form_email.enqueue")
+        expect(StatsD).to receive(:increment).with(
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        )
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
         )
@@ -98,6 +132,10 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
         expect(StatsD).to receive(:increment).with(
           "#{DebtsApi::V0::Form5655::VBASubmissionJob::STATS_KEY}.retries_exhausted"
         )
+        expect(StatsD).to receive(:increment).with(
+          'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
+        )
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.send_failed_form_email.enqueue')
         expect(StatsD).to receive(:increment).with("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.failure")
         expect(Rails.logger).to receive(:error).with(
           "Form5655Submission id: #{form_submission.id} failed", 'VBASubmissionJob#perform: abc-123'
