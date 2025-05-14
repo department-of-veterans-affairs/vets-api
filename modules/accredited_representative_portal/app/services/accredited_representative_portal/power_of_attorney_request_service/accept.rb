@@ -61,8 +61,11 @@ module AccreditedRepresentativePortal
         error_message = e.respond_to?(:detail) ? e.detail : e.message
         create_error_form_submission(error_message, {})
         raise Error.new(error_message, :not_found)
-      # All other errors: save error data on form submission, will result in a 500
-      rescue
+      # All other errors: just re-raise so they bubble up properly
+      rescue => e
+        Rails.logger.error("Unexpected error in Accept#call: #{e.class} - #{e.message}")
+        Rails.logger.error(e.backtrace.join("\n")) if e.backtrace
+        create_error_form_submission(e.message, {})
         raise
       end
 
