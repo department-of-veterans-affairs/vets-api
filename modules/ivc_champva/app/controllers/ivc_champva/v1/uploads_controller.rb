@@ -402,8 +402,9 @@ module IvcChampva
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
         }
 
-        statuses = nil
-        error_messages = nil
+        # set default values for statuses and error_messages to avoid nil reference errors
+        statuses = [400]
+        error_messages = ['Upload failed']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
@@ -432,8 +433,9 @@ module IvcChampva
           Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
         }
 
-        statuses = nil
-        error_messages = nil
+        # set default values for statuses and error_messages to avoid nil reference errors
+        statuses = [400]
+        error_messages = ['Upload failed']
 
         IvcChampva::Retry.do(1, retry_on: RETRY_ERROR_CONDITIONS, on_failure:) do
           hu_result = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
