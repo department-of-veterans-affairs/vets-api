@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'sign_in/logingov/service'
-
 
 RSpec.describe 'LoginGovCallbackController', type: :request do
   describe 'POST /v0/login_gov_callback/risc' do
