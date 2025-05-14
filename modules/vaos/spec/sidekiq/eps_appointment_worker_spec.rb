@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_notify'
+require_relative '../../app/sidekiq/eps/va_notify_appointment_worker'
 
 RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   subject(:worker) { described_class.new }
@@ -11,14 +12,10 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
   let(:service) { instance_double(Eps::AppointmentService) }
   let(:response) { OpenStruct.new(state: 'completed', appointmentDetails: OpenStruct.new(status: 'booked')) }
   let(:unfinished_response) { OpenStruct.new(state: 'pending', appointmentDetails: OpenStruct.new(status: 'pending')) }
-  let(:va_notify_service) { instance_double(VaNotify::Service) }
 
   before do
     Sidekiq::Job.clear_all
     allow(Eps::AppointmentService).to receive(:new).and_return(service)
-    allow(VaNotify::Service).to receive(:new)
-      .with(Settings.vanotify.services.va_gov.api_key)
-      .and_return(va_notify_service)
   end
 
   describe '.perform_async' do
@@ -44,14 +41,8 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
         worker.perform(appointment_id, user)
       end
 
-      it 'sends failure message after max retries' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => 'Could not complete booking'
-          }
-        )
+      it 'queues a notification job after max retries' do
+        expect(Eps::VaNotifyAppointmentWorker).to receive(:perform_async).with(user, 'Could not complete booking')
         worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
     end
@@ -63,14 +54,8 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
         )
       end
 
-      it 'sends failure message after max retries' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => 'Service error, please contact support'
-          }
-        )
+      it 'queues a notification job' do
+        expect(Eps::VaNotifyAppointmentWorker).to receive(:perform_async).with(user, 'Service error, please contact support')
         worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
       end
     end
@@ -82,28 +67,9 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
         )
       end
 
-      it 'sends failure message after max retries' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => 'Service error, please contact support'
-          }
-        )
+      it 'queues a notification job' do
+        expect(Eps::VaNotifyAppointmentWorker).to receive(:perform_async).with(user, 'Service error, please contact support')
         worker.perform(appointment_id, user, Eps::EpsAppointmentWorker::MAX_RETRIES)
-      end
-    end
-
-    describe '#send_vanotify_message' do
-      it 'sends email notification' do
-        expect(va_notify_service).to receive(:send_email).with(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-          parameters: {
-            'error' => nil
-          }
-        )
-        worker.send(:send_vanotify_message, user:)
       end
     end
   end
