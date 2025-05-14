@@ -305,7 +305,7 @@ module PdfFill
 
       def render(pdf)
         render_title(pdf)
-        @items.each.with_index(1) do |question, index|
+        @items.compact.each.with_index(1) do |question, index|
           render_item(pdf, question, index)
         end
       end
@@ -327,7 +327,7 @@ module PdfFill
         heights = { title: measure_title_height(temp_pdf) }
         heights[:items] = []
 
-        @items.each.with_index(1) do |question, index|
+        @items.compact.each.with_index(1) do |question, index|
           temp_pdf.start_new_page
           heights[:items] << measure_item_height(temp_pdf, question, index)
         end
@@ -344,6 +344,10 @@ module PdfFill
       @sections               = options[:sections]
       @questions              = {}
       super()
+    end
+
+    def placeholder_text
+      'See attachment'
     end
 
     def set_font(pdf)
@@ -519,7 +523,7 @@ module PdfFill
       heights = block_heights.dig(block, :items).select(&:positive?)
 
       block.items
-           .select(&:should_render?)
+           .select { |item| item&.should_render? }
            .zip(heights) # pair each item with its height
            .each.with_index(1) do |(item, height), index|
              pdf.start_new_page unless will_fit_on_page?(pdf, height)

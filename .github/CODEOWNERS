@@ -1628,6 +1628,7 @@ spec/models/accreditation_spec.rb @department-of-veterans-affairs/accredited-rep
 spec/models/accredited_individual_spec.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 spec/models/accredited_organization_spec.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 spec/models/appeal_submission_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
+spec/models/application_record_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/models/async_transaction/base_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/async_transaction/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/async_transaction/vet360 @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1909,7 +1910,6 @@ spec/support/model_helpers.rb @department-of-veterans-affairs/va-api-engineers @
 spec/support/mpi @department-of-veterans-affairs/octo-identity
 spec/support/mr_client_helpers.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/pdf_fill_helper.rb @department-of-veterans-affairs/backend-review-group
 spec/support/poa_stub.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/ppiu @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/rakelib/users_serialized.json @department-of-veterans-affairs/octo-identity
@@ -2167,6 +2167,7 @@ spec/support/vcr_cassettes/mhv_logging_client @department-of-veterans-affairs/vf
 spec/support/vcr_cassettes/mobile @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/mpi @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/mr_client @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/my_va @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/phr_mgr_client @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/user_eligibility_client @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/mulesoft @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

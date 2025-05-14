@@ -221,6 +221,8 @@ claims_api:
     services:
       lighthouse:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
+        notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
+        notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
 clamav:
   host: 0.0.0.0
   mock: true
@@ -610,6 +612,8 @@ ivc_forms:
     region: region
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
       enabled: true

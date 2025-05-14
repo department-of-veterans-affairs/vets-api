@@ -347,7 +347,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'failure' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
       end
 

@@ -22,7 +22,6 @@ module VAProfile
           zip_code5
           zip_code4
           phone_number
-          country_code_iso3
           email_address_text
           county_name
         ].freeze
