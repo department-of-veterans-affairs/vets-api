@@ -31,45 +31,76 @@ module AccreditedRepresentativePortal
       end
 
       def call
-        # Normal flow with transaction to ensure proper rollback
-        ActiveRecord::Base.transaction do
-          @resolution = PowerOfAttorneyRequestDecision.create_acceptance!(
-            creator:,
-            power_of_attorney_request: poa_request
-          )
-
-          response = service.submit2122(form_payload)
-          form_submission = create_form_submission!(response.body)
-          PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
-
-          Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
-          Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
-
-          form_submission
-        end
-      # Special handling for ResourceNotFound - must be outside transaction for test
+        perform_transaction
       rescue Common::Exceptions::ResourceNotFound => e
-        raise Error.new(e.detail || e.message, :not_found)
-      # Invalid record - return error message with 400
+        handle_resource_not_found(e)
       rescue ActiveRecord::RecordInvalid => e
-        raise Error.new(e.message, :bad_request)
-      # Transient 5xx errors: transaction will rollback, raise TransientError
+        handle_record_invalid(e)
       rescue *TRANSIENT_ERROR_TYPES, Faraday::TimeoutError => e
-        raise Error.new(e.message, :gateway_timeout)
-      # Fatal 4xx errors or validation error: save error message, raise FatalError
+        handle_transient_error(e)
       rescue *FATAL_ERROR_TYPES => e
-        error_message = e.respond_to?(:detail) ? e.detail : e.message
-        create_error_form_submission(error_message, {})
-        raise Error.new(error_message, :not_found)
-      # All other errors: just re-raise so they bubble up properly
+        handle_fatal_error(e)
       rescue => e
-        Rails.logger.error("Unexpected error in Accept#call: #{e.class} - #{e.message}")
-        Rails.logger.error(e.backtrace.join("\n")) if e.backtrace
-        create_error_form_submission(e.message, {})
-        raise
+        handle_unexpected_error(e)
       end
 
       private
+
+      def perform_transaction
+        ActiveRecord::Base.transaction do
+          @resolution = create_acceptance
+          response = submit_form
+          form_submission = create_form_submission!(response.body)
+          enqueue_form_processing(form_submission)
+          track_acceptance_metrics
+          form_submission
+        end
+      end
+
+      def create_acceptance
+        PowerOfAttorneyRequestDecision.create_acceptance!(
+          creator:,
+          power_of_attorney_request: poa_request
+        )
+      end
+
+      def submit_form
+        service.submit2122(form_payload)
+      end
+
+      def enqueue_form_processing(form_submission)
+        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+      end
+
+      def track_acceptance_metrics
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
+      end
+
+      def handle_resource_not_found(error)
+        raise Error.new(error.detail || error.message, :not_found)
+      end
+
+      def handle_record_invalid(error)
+        raise Error.new(error.message, :bad_request)
+      end
+
+      def handle_transient_error(error)
+        raise Error.new(error.message, :gateway_timeout)
+      end
+
+      def handle_fatal_error(error)
+        error_message = error.respond_to?(:detail) ? error.detail : error.message
+        create_error_form_submission(error_message, {})
+        raise Error.new(error_message, :not_found)
+      end
+
+      def handle_unexpected_error(error)
+        Rails.logger.error("Unexpected error in Accept#call: #{error.class} - #{error.message}")
+        Rails.logger.error(error.backtrace.join("\n")) if error.backtrace
+        create_error_form_submission(error.message, {})
+        raise
+      end
 
       def service
         @service ||= BenefitsClaims::Service.new(poa_request.claimant.icn)
