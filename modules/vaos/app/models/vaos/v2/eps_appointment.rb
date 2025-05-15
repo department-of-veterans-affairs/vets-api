@@ -6,7 +6,7 @@ module VAOS
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
-                  :provider, :type_of_care, :referral_phone_number, :referring_facility_details
+                  :provider, :type_of_care, :provider_phone, :referring_facility_details
 
       def initialize(appointment_data = {}, referral = nil, provider = nil)
         appointment_details = appointment_data[:appointment_details]
@@ -28,7 +28,7 @@ module VAOS
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
 
         @type_of_care = referral&.category_of_care
-        @referral_phone_number = referral&.phone_number
+        @provider_phone = referral&.treating_facility_phone
         @referring_facility_details = parse_referring_facility_details(referral)
         @provider = provider
       end
@@ -60,14 +60,16 @@ module VAOS
           organization: provider.provider_organization,
           location: provider.location,
           network_ids: provider.network_ids,
-          phone_number: referral_phone_number
+          phone_number: provider_phone
         }.compact
       end
 
       def parse_referring_facility_details(referral)
+        return {} if referral.nil?
+
         {
-          name: referral&.referring_facility_name,
-          phone_number: referral&.referring_facility_phone
+          name: referral.referring_facility_name,
+          phone_number: referral.referring_facility_phone
         }.compact
       end
 
