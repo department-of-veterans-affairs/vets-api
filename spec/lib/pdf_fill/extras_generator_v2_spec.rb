@@ -780,5 +780,47 @@ describe PdfFill::ExtrasGeneratorV2 do
         expect(added_value[:metadata][:format_options]).to eq({ bold_value: true })
       end
     end
+
+    describe '#measure_actual_height' do
+      let(:item) do
+        instance_double(PdfFill::ExtrasGeneratorV2::Question)
+      end
+
+      before do
+        allow(pdf).to receive(:cursor).and_return(100, 50, 200, 100, 400, 200)
+        allow(pdf).to receive(:start_new_page)
+        allow(pdf).to receive(:markup)
+        allow(item).to receive(:should_render?).and_return(true)
+        allow(item).to receive(:render)
+      end
+
+      context 'when some items are nil' do
+        it 'returns the height measurements' do
+          items = [item, nil, item, nil]
+          subject.instance_variable_set(:@items, items)
+          heights = subject.measure_actual_height(pdf)
+
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights[:title]).to eq(50)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(2) # 2 items are not nil
+          expect(heights[:items][0]).to eq(100)  # mocked items index 0
+          expect(heights[:items][1]).to eq(200)  # mocked items index 2
+        end
+      end
+
+      context 'when item is nil' do
+        it 'returns nil' do
+          heights = subject.measure_actual_height(pdf)
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(0)
+        end
+      end
+    end
   end
 end

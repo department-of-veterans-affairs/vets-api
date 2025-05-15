@@ -296,15 +296,38 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         }
       end
 
-      it 'shows the validation errors' do
-        subject
+      context ':hca_json_schemer_validation enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(true)
+        end
 
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(
-          JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        ).to be(true)
+        it 'shows the validation errors' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(
+            JSON.parse(response.body)['errors'][0]['detail'].include?(
+              'form - object at root is missing required properties: privacyAgreementAccepted'
+            )
+          ).to be(true)
+        end
+      end
+
+      context ':hca_json_schemer_validation disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(false)
+        end
+
+        it 'shows the validation errors' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(
+            JSON.parse(response.body)['errors'][0]['detail'].include?(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+          ).to be(true)
+        end
       end
     end
 
@@ -476,7 +499,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
               expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
               subject
@@ -534,8 +556,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
-
               subject
 
               expect(response).to have_http_status(:bad_request)

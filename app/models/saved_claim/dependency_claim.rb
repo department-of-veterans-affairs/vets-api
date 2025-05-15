@@ -46,7 +46,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   after_initialize do
     self.form_id = if Flipper.enabled?(:va_dependents_v2)
-                     use_v2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
+                     if use_v2 || form_id == '686C-674-V2'
+                       '686C-674-V2'
+                     else
+                       self.class::FORM.upcase
+                     end
                    else
                      self.class::FORM.upcase
                    end
