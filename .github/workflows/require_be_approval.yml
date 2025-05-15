@@ -1,4 +1,5 @@
 name: Require backend-review-group approval
+# Workflow will run after each pull request approval
 on:
   pull_request_review:
     types: [submitted]
@@ -93,8 +94,8 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-      - name: Remove ready-for-review label
-        if: success() && steps.approval_permissions.outputs.require_be_approval == 'true' && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+      - name: Remove ready-for-review label after approval
+        if: success() && steps.approval_permissions.outputs.require_be_approval == 'true' && steps.verify_approval.outputs.approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
