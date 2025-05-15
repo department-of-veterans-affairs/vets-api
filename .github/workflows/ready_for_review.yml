@@ -16,7 +16,7 @@ jobs:
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
       pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
-      pr_branch:  ${{ steps.get_pr_data.outputs.pr_requested_teams }}
+      pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
       - name: Get pull_request data
         id: get_pr_data
