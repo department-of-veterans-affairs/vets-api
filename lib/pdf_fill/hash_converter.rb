@@ -67,7 +67,6 @@ module PdfFill
       return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
       return if key_data[:hide_from_overflow]
 
-      i = array_key_data.try(:[], :override_index) || i
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
@@ -79,7 +78,9 @@ module PdfFill
 
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text, :question_label, :checked_values).merge(
+        key_data.slice(
+          :question_num, :question_suffix, :question_text, :question_label, :checked_values, :show_suffix
+        ).merge(
           i:, overflow:, item_label:, question_type:, format_options:
         )
       )
