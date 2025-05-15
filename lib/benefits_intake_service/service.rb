@@ -73,9 +73,14 @@ module BenefitsIntakeService
     # @returns [String] path to file
     #
     def valid_document?(document:)
-      @benefits_intake_service.valid_document?(document:)
-    rescue BenefitsIntake::Service::InvalidDocumentError => e
-      raise InvalidDocumentError, e.message
+      result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
+      raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
+
+      # Then call the API validation
+      response = validate_document(doc_path: document)
+      raise InvalidDocumentError, "Invalid Document: #{response}" unless response.success?
+
+      document
     end
 
     def upload_form(main_document:, attachments:, form_metadata:)
