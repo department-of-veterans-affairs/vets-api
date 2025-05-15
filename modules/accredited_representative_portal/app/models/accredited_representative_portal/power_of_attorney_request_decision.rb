@@ -75,22 +75,17 @@ module AccreditedRepresentativePortal
 
       def build_decision(creator:, type:, declination_reason:)
         decision = new(type:, creator:)
-
-        if declination_reason.present?
-          decision.declination_reason = declination_reason
-        end
-
+        decision.declination_reason = declination_reason if declination_reason.present?
         decision.save!
         decision
       end
 
       def create_resolution(decision:, power_of_attorney_request:, **attrs)
-        resolution = PowerOfAttorneyRequestResolution.create!(
+        PowerOfAttorneyRequestResolution.create!(
           power_of_attorney_request:,
           resolving: decision,
           **attrs
         )
-        resolution
       end
 
       def log_error_and_raise(error)

@@ -16,10 +16,8 @@ module AccreditedRepresentativePortal
 
       attribute :reason, if: proc { |resolution|
         resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::DECLINATION &&
-        resolution.reason.present?
-      } do |resolution|
-        resolution.reason
-      end
+          resolution.reason.present?
+      }, &:reason
 
       attribute :declination_reason, if: proc { |resolution|
         resolution.resolving.type == PowerOfAttorneyRequestDecision::Types::DECLINATION

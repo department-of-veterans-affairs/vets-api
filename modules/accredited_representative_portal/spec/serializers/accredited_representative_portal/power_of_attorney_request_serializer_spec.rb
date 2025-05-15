@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer, type: :serializer do
   let(:veteran_declined_resolution) do
-    create(:power_of_attorney_request_resolution, :declination, :with_veteran_claimant, 
-           reason: "Test reason for declination")
+    create(:power_of_attorney_request_resolution, :declination, :with_veteran_claimant,
+           reason: 'Test reason for declination')
   end
   let(:veteran_declined_poa_request) { veteran_declined_resolution.power_of_attorney_request }
   let(:veteran_declined_power_of_attorney_holder) { veteran_declined_poa_request.power_of_attorney_holder }
