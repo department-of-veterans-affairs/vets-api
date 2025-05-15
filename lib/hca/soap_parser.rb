@@ -25,13 +25,7 @@ module HCA
            doc.locate(FAULT_CODE_EL)[0]&.nodes.try(:[], 0) != 'VOA_0240'
           StatsD.increment(VALIDATION_FAIL_KEY)
 
-          if Flipper.enabled?(:hca_disable_sentry_logs) # rubocop:disable Metrics/BlockNesting
-            Rails.logger.error('[HCA] - Error in soap parser', { exception: e, validation: 'hca' })
-          else
-            Sentry.set_tags(validation: 'hca')
-            log_exception_to_sentry(e)
-          end
-
+          Rails.logger.error('[HCA] - Error in soap parser', { exception: e, validation: 'hca' })
           raise ValidationError
         end
 
