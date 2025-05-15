@@ -2,6 +2,7 @@ name: Check Label and Workflow
 
 on:
   pull_request:
+    types: [opened, reopened, synchronize]
   workflow_run:
     workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries"]
     branches: ["*"]
