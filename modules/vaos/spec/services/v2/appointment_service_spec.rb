@@ -468,6 +468,20 @@ describe VAOS::V2::AppointmentsService do
           end
         end
 
+        it 'returns partial error message' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointments(start_date3, end_date3)
+            partial_error_message = response[:meta][:partialErrorMessage]
+            expect(partial_error_message[:request][:title]).to eq('We can’t show some of your requests right now.')
+            expect(partial_error_message[:request][:body]).to eq('We’re working to fix this problem. To reschedule a request that’s not in this list, contact the VA facility where it was requested.')
+            expect(partial_error_message[:booked][:title]).to eq('We can’t show some of your appointments right now.')
+            expect(partial_error_message[:booked][:body]).to eq('We’re working to fix this problem. To manage an appointment that’s not in this list, contact the VA facility where it was scheduled.')
+            expect(partial_error_message[:linkText]).to eq('Find your VA health facility')
+            expect(partial_error_message[:linkUrl]).to eq('/find-locations')
+          end
+        end
+
         it 'logs the failures and anonymizes the ICNs sent to the log' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
                            match_requests_on: %i[method path query]) do

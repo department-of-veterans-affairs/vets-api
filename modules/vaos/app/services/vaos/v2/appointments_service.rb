@@ -959,7 +959,21 @@ module VAOS
         log_partial_errors(response, method_name)
 
         {
-          failures: response.body[:failures]
+          failures: response.body[:failures],
+          partialErrorMessage: {
+            request: {
+              title: 'We can’t show some of your requests right now.',
+              body: 'We’re working to fix this problem. To reschedule a request that’s not in this list, ' \
+                    'contact the VA facility where it was requested.'
+            },
+            booked: {
+              title: 'We can’t show some of your appointments right now.',
+              body: 'We’re working to fix this problem. To manage an appointment that’s not in this list, ' \
+                    'contact the VA facility where it was scheduled.'
+            },
+            linkText: 'Find your VA health facility',
+            linkUrl: '/find-locations'
+          }
         }
       end
 
