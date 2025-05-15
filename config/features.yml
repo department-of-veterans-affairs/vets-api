@@ -1660,10 +1660,6 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for VA appointments
     enable_in_development: true
-  va_online_scheduling_static_landing_page:
-    actor_type: user
-    description: Allows updates to the static landing widget on the Public Websites page
-    enable_in_development: true
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
@@ -1766,6 +1762,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_enable_vbms_exception_logging:
+    actor_type: user
+    description: Enables exception logging for failures in upload_to_vbms method
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
