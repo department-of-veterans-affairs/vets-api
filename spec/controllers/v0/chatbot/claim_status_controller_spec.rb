@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'chatbot/report_to_cxi'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_claims/configuration'
 
@@ -14,12 +15,12 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     context 'authorized' do
       before do
-        @mock_cxi_reporting_service = instance_double(V0::Chatbot::ReportToCxi)
+        @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
         allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
 
         allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('fake_access_token')
 
-        allow(V0::Chatbot::ReportToCxi)
+        allow(Chatbot::ReportToCxi)
           .to receive(:new)
           .and_return(@mock_cxi_reporting_service)
       end
@@ -162,12 +163,12 @@ RSpec.describe 'V0::Chatbot::ClaimStatusController', type: :request do
 
     context 'authorized' do
       before do
-        @mock_cxi_reporting_service = instance_double(V0::Chatbot::ReportToCxi)
+        @mock_cxi_reporting_service = instance_double(Chatbot::ReportToCxi)
         allow(@mock_cxi_reporting_service).to receive(:report_to_cxi)
 
         allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return('fake_access_token')
 
-        allow(V0::Chatbot::ReportToCxi)
+        allow(Chatbot::ReportToCxi)
           .to receive(:new)
           .and_return(@mock_cxi_reporting_service)
       end

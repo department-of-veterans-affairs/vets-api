@@ -2,6 +2,7 @@
 
 require 'date'
 require 'concurrent'
+require 'chatbot/report_to_cxi'
 require 'lighthouse/benefits_claims/service'
 
 module V0
@@ -33,7 +34,7 @@ module V0
 
       def poll_claims_from_lighthouse
         raw_claim_list = lighthouse_service.get_claims['data']
-        cxi_reporting_service = V0::Chatbot::ReportToCxi.new
+        cxi_reporting_service = ::Chatbot::ReportToCxi.new
         conversation_id = params[:conversation_id]
         if conversation_id.blank?
           Rails.logger.error(
