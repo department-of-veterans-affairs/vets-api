@@ -1,7 +1,7 @@
 name: Pull Request Ready for Review
 on:
   pull_request:
-     types: [opened, reopened, ready_for_review, converted_to_draft, review_requested, review_request_removed, labeled, unlabeled]
+     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested, review_request_removed, labeled, unlabeled]
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report", "Audit Service Tags"]
     types: [completed]
@@ -137,7 +137,7 @@ jobs:
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
             IN_PROGRESS=$(gh run list --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
-              '.[] | select(.headBranch == "${{ env.pr_branch }" and .event == "pull_request")')
+              '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request")')
 
             if [ -n "$IN_PROGRESS" ]; then
               echo "$WORKFLOW is still in progress."
@@ -145,7 +145,7 @@ jobs:
             else
               # Check if the latest completed run was successful
               SUCCESSFUL=$(gh run list --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
-                '.[] | select(.headBranch == "${{ env.pr_branch }" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
+                '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
                 failures=true
