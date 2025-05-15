@@ -19,7 +19,10 @@ module VBADocuments
 
       parse_file(file_path)
     ensure
-      tempfile.close if tempfile.present?
+      if tempfile.present?
+        tempfile.close
+        tempfile.unlink
+      end
     end
 
     def self.parse_file(file_path)
