@@ -110,11 +110,17 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
       it 'logs the error and returns unprocessable entity' do
         expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_failure_client_data,
-                                                                             hash_including(
-                                                                               claim_guid: claim.guid,
-                                                                               errors: hash_including('#/': be_present)
-                                                                             ))
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+          :submission_failure_client_data,
+          {
+            claim_guid: claim.guid,
+            errors: [
+              ' object at root is missing required properties: primaryCaregiver',
+              ' object at root is missing required properties: secondaryCaregiverOne',
+              ' object at root is missing required properties: veteran'
+            ]
+          }
+        )
         expect(Rails.logger).not_to receive(:error).with(
           'CaregiverAssistanceClaim: error submitting claim',
           { saved_claim_guid: claim.guid,
@@ -131,12 +137,20 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         res_body = JSON.parse(response.body)
         expected_errors = [
-          { title: "did not contain a required property of 'veteran'", code: '100', status: '422' },
-          { title: "#/ The property '#/' of type object did not match one or more of the required schemas in schema",
-            code: '100', status: '422' },
-          { title: "#/ The property '#/' did not contain a required property of 'primaryCaregiver'", code: '100',
+          { title: ' object at root is missing required properties: primaryCaregiver',
+            detail: ' - object at root is missing required properties: primaryCaregiver',
+            code: '100',
+            source: { pointer: 'data/attributes/' },
             status: '422' },
-          { title: "#/ The property '#/' did not contain a required property of 'secondaryCaregiverOne'", code: '100',
+          { title: ' object at root is missing required properties: secondaryCaregiverOne',
+            detail: ' - object at root is missing required properties: secondaryCaregiverOne',
+            code: '100',
+            source: { pointer: 'data/attributes/' },
+            status: '422' },
+          { title: ' object at root is missing required properties: veteran',
+            detail: ' - object at root is missing required properties: veteran',
+            code: '100',
+            source: { pointer: 'data/attributes/' },
             status: '422' }
         ]
 
