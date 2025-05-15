@@ -115,9 +115,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_retry_form_validation:
-    actor_type: user
-    description: Enables 1010CG to retry schema validation
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
@@ -1797,10 +1794,6 @@ features:
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
-    enable_in_development: true
-  show_digital_form_1095b:
-    actor_type: user
-    description: Enables access to digital 1095-B form download
     enable_in_development: true
   show_meb_dgi40_features:
     actor_type: user
