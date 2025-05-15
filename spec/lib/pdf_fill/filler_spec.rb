@@ -117,8 +117,12 @@ describe PdfFill::Filler, type: :model do
       end
       let(:hash_converter) { PdfFill::HashConverter.new('%m/%d/%Y', extras_generator) }
       let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
-      let(:merged_form_data) { PdfFill::Forms::Va210781v2.new(form_data).merge_fields('signatureDate' => Time.now.utc.to_s) }
-      let(:new_hash) { hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: PdfFill::Forms::Va210781v2::KEY) }
+      let(:merged_form_data) do
+        PdfFill::Forms::Va210781v2.new(form_data).merge_fields('signatureDate' => Time.now.utc.to_s)
+      end
+      let(:new_hash) do
+        hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: PdfFill::Forms::Va210781v2::KEY)
+      end
       let(:template_path) { 'lib/pdf_fill/forms/pdfs/21-0781V2.pdf' }
       let(:file_path) { 'tmp/pdfs/21-0781V2_12346.pdf' }
       let(:claim_id) { '12346' }
@@ -134,12 +138,12 @@ describe PdfFill::Filler, type: :model do
         allow(described_class::PDF_FORMS).to receive(:fill_form).and_call_original
 
         generated_pdf_path = described_class.fill_ancillary_form(form_data, claim_id, form_id)
-
         unicode_text = 'Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet'
         expect(File).to exist(generated_pdf_path)
         expect(described_class::UNICODE_PDF_FORMS).to have_received(:fill_form).with(
-          template_path, generated_pdf_path, hash_including("F[0].#subform[5].Remarks_If_Any[0]" => unicode_text), flatten: false
+          template_path, generated_pdf_path, hash_including('F[0].#subform[5].Remarks_If_Any[0]' => unicode_text), flatten: false
         )
+
         expect(described_class::PDF_FORMS).not_to have_received(:fill_form)
 
         File.delete(file_path) if File.exist?(file_path)
