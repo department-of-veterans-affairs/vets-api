@@ -9,6 +9,7 @@ on:
 
 jobs:
   check:
+    if: ${{ github.ref != 'refs/heads/master' }}
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -17,31 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Check for required label
-      #   id: check_label
-      #   run: |
-      #     LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels -q '.labels[].name')
-      #     echo "$LABELS" | grep -q "run-checks" && echo "label_found=true" >> $GITHUB_OUTPUT || echo "label_found=false" >> $GITHUB_OUTPUT
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Check if another workflow is running
-      #   id: check_workflows
-      #   run: |
-
-      #     CODE_CHECKS=$(gh run list --workflow=code_checks.yml --status=in_progress --json headBranch,event -q \
-      #       '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
-      #     AUDIT_TAGS=$(gh run list --workflow=audit_service_tags.yml --status=in_progress --json headBranch,event -q \
-      #       '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
-
-      #     if [ -n "$CODE_CHECKS" ] || [ -n "$AUDIT_TAGS" ]; then
-      #       echo "ci_running=true" >> $GITHUB_OUTPUT
-      #     else
-      #       echo "ci_running=false" >> $GITHUB_OUTPUT
-      #     fi
-
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "${{ github.event_name }}"
 
       - name: Check if workflows have completed successfully
         id: check_workflow
