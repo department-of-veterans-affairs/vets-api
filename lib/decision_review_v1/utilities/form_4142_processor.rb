@@ -41,14 +41,35 @@ module DecisionReviewV1
 
       def generate_stamp_pdf
         pdf = PdfFill::Filler.fill_ancillary_form(@form, uuid, FORM_ID)
-        stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                               timestamp: submission_date)
+
+        # Signature form field can't be populated using pdftk fill_form, so we need to generate a stamp.
+        signature_stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(
+          text: signature,
+          x: 50,
+          y: 560,
+          text_only: true,
+          size: 10,
+          page_number: 1,
+          template: pdf,
+          multistamp: true,
+          timestamp_required: false
+        )
+
+        stamped_path = PDFUtilities::DatestampPdf.new(signature_stamped_path).run(
+          text: 'VA.gov',
+          x: 5,
+          y: 5,
+          timestamp: submission_date
+        )
+
         PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
           text_only: true
         )
+
+binding.pry
       end
 
       private
@@ -95,6 +116,13 @@ module DecisionReviewV1
 
       def received_date
         submission_date.strftime(SIGNATURE_TIMESTAMP_FORMAT)
+      end
+
+      def signature
+        return unless @form['signatureDate'].present?
+
+        full_name = @form.dig('veteranFullName')
+        [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
       end
 
       def set_signature_date(incoming_data)
