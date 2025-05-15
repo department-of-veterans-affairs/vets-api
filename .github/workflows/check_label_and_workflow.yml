@@ -4,13 +4,13 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_run:
-    workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries"]
+    workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries" "Pull Request Ready for Review"]
     branches: ["*"]
     types: [completed]
 
 jobs:
   check:
-    # if: ${{ github.ref != 'refs/heads/master' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.ref != 'refs/heads/master' }}
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -48,7 +48,7 @@ jobs:
       - name: Check if code_checks and audit_service_tags have completed successfully
         id: check_workflow
         run: |
-          WORKFLOWS=("code_checks.yml" "audit_service_tags.yml" "check_codeowners.yml")
+          WORKFLOWS=("code_checks.yml" "audit_service_tags.yml" "check_codeowners.yml" "ready_for_review.yml")
           ALL_COMPLETED=true
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
