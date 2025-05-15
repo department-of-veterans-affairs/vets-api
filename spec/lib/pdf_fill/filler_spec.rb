@@ -141,12 +141,13 @@ describe PdfFill::Filler, type: :model do
         unicode_text = 'Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet'
         expect(File).to exist(generated_pdf_path)
         expect(described_class::UNICODE_PDF_FORMS).to have_received(:fill_form).with(
-          template_path, generated_pdf_path, hash_including('F[0].#subform[5].Remarks_If_Any[0]' => unicode_text), flatten: false
+          template_path, generated_pdf_path, hash_including('F[0].#subform[5].Remarks_If_Any[0]' => unicode_text),
+          flatten: false
         )
 
         expect(described_class::PDF_FORMS).not_to have_received(:fill_form)
 
-        File.delete(file_path) if File.exist?(file_path)
+        File.delete(file_path)
       end
     end
   end
