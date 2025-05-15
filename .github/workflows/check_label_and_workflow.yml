@@ -48,7 +48,7 @@ jobs:
       - name: Check if code_checks and audit_service_tags have completed successfully
         id: check_workflow
         run: |
-          WORKFLOWS=("code_checks.yml" "audit_service_tags.yml" "check_codeowners.yml" "ready_for_review.yml")
+          WORKFLOWS=("Code Checks" "Audit Service Tags" "Check CODEOWNERS Entries" "Ready for Review")
           ALL_COMPLETED=true
 
           echo "$WORKFLOWS"
