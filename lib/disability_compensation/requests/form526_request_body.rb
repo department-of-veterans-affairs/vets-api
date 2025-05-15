@@ -1,36 +1,31 @@
 # frozen_string_literal: true
 
-require 'active_model'
-require 'virtus'
+require 'vets/model'
 
 module Requests
   class Dates
-    include ActiveModel::Serialization
-    include Virtus.model
+    include Vets::Model
 
     attribute :begin_date, String
     attribute :end_date, String
   end
 
   class ContactNumber
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :telephone, String
     attribute :international_telephone, String
   end
 
   class UnitPhone
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :area_code, String
     attribute :phone_number, String
   end
 
   class MailingAddress
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     # rubocop:disable Naming/VariableNumber
     attribute :address_line_1, String
@@ -46,32 +41,28 @@ module Requests
   end
 
   class EmailAddress
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :email, String
-    attribute :agree_to_email_related_to_claim, Boolean
+    attribute :agree_to_email_related_to_claim, Bool
   end
 
   class VeteranNumber
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :telephone, String
     attribute :international_telephone, String
   end
 
   class GulfWarHazardService
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :served_in_gulf_war_hazard_locations, String
     attribute :service_dates, Dates
   end
 
   class HerbicideHazardService
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :served_in_herbicide_hazard_locations, String
     attribute :other_locations_served, String
@@ -79,17 +70,15 @@ module Requests
   end
 
   class AdditionalHazardExposures
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
-    attribute :additional_exposures, Array[String]
+    attribute :additional_exposures, String, array: true
     attribute :specify_other_exposures, String
     attribute :exposure_dates, Dates
   end
 
   class MultipleExposures
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :exposure_dates, Dates
     attribute :exposure_location, String
@@ -97,8 +86,7 @@ module Requests
   end
 
   class SecondaryDisability
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :name, String
     attribute :disability_action_type, String
@@ -107,23 +95,21 @@ module Requests
   end
 
   class Disability
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :disability_action_type, String
     attribute :name, String
     attribute :classification_code, String
     attribute :service_relevance, String
-    attribute :is_related_to_toxic_exposure, Boolean
+    attribute :is_related_to_toxic_exposure, Bool
     attribute :exposure_or_event_or_injury, String
     attribute :rated_disability_id, String
     attribute :diagnostic_code, Integer
-    attribute :secondary_disabilities, Array[SecondaryDisability]
+    attribute :secondary_disabilities, SecondaryDisability, array: true
   end
 
   class Center
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :name, String
     attribute :state, String
@@ -131,17 +117,15 @@ module Requests
   end
 
   class Treatment
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
-    attribute :treated_disability_names, Array[String]
+    attribute :treated_disability_names, String, array: true
     attribute :center, Center
     attribute :begin_date, String
   end
 
   class ServicePeriod
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :service_branch, String
     attribute :active_duty_begin_date, String
@@ -151,16 +135,14 @@ module Requests
   end
 
   class Confinement
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :approximate_begin_date, String
     attribute :approximate_end_date, String
   end
 
   class ObligationTermsOfService
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :begin_date, String
     attribute :end_date, String
@@ -168,16 +150,14 @@ module Requests
 
   # used to be "Title10Activation"
   class FederalActivation
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :anticipated_separation_date, String
     attribute :activation_date, String
   end
 
   class ReservesNationalGuardService
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :obligation_terms_of_service, ObligationTermsOfService
     attribute :unit_name, String
@@ -189,8 +169,7 @@ module Requests
   end
 
   class SeparationSeverancePay
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :date_payment_received, String
     attribute :branch_of_service, String
@@ -198,42 +177,38 @@ module Requests
   end
 
   class MilitaryRetiredPay
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :branch_of_service, String
     attribute :monthly_amount, Float
   end
 
   class DirectDeposit
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :account_type, String
     attribute :account_number, String
     attribute :routing_number, String
     attribute :financial_institution_name, String
-    attribute :no_account, Boolean
+    attribute :no_account, Bool
   end
 
   class ServiceInformation
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
-    attribute :service_periods, Array[ServicePeriod]
-    attribute :confinements, Array[Confinement]
+    attribute :service_periods, ServicePeriod, array: true
+    attribute :confinements, Confinement, array: true
     attribute :reserves_national_guard_service, ReservesNationalGuardService
-    attribute :alternate_names, Array[String]
-    attribute :served_in_active_combat_since911, Boolean
+    attribute :alternate_names, String, array: true
+    attribute :served_in_active_combat_since911, Bool
     # used to be "Title10Activation"
     attribute :federal_activation, FederalActivation
   end
 
   class VeteranIdentification
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
-    attribute :current_va_employee, Boolean
+    attribute :current_va_employee, Bool
     attribute :mailing_address, MailingAddress
     attribute :service_number, String
     attribute :email_address, EmailAddress
@@ -241,24 +216,21 @@ module Requests
   end
 
   class CurrentlyHomeless
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :homeless_situation_options, String
     attribute :other_description, String
   end
 
   class RiskOfBecomingHomeless
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :living_situation_options, String
     attribute :other_description, String
   end
 
   class Homeless
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :point_of_contact, String
     attribute :point_of_contact_number, ContactNumber
@@ -267,18 +239,16 @@ module Requests
   end
 
   class ToxicExposure
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :gulf_war_hazard_service, GulfWarHazardService
     attribute :herbicide_hazard_service, HerbicideHazardService
     attribute :additional_hazard_exposures, AdditionalHazardExposures
-    attribute :multiple_exposures, Array[MultipleExposures]
+    attribute :multiple_exposures, MultipleExposures, array: true
   end
 
   class ChangeOfAddress
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     attribute :dates, Dates
     attribute :type_of_address_change, String
@@ -296,11 +266,10 @@ module Requests
   end
 
   class ServicePay
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
-    attribute :favor_training_pay, Boolean
-    attribute :favor_military_retired_pay, Boolean
+    attribute :favor_training_pay, Bool
+    attribute :favor_military_retired_pay, Bool
     # "YES", "NO", or nil
     attribute :receiving_military_retired_pay, String
     # "YES", "NO", or nil
@@ -313,17 +282,16 @@ module Requests
   end
 
   class Form526
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
-    attribute :claimant_certification, Boolean
+    attribute :claimant_certification, Bool
     attribute :claim_process_type, String
     attribute :veteran_identification, VeteranIdentification
     attribute :change_of_address, ChangeOfAddress
     attribute :homeless, Homeless
     attribute :toxic_exposure, ToxicExposure
-    attribute :disabilities, Array[Disability]
-    attribute :treatments, Array[Treatment]
+    attribute :disabilities, Disability, array: true
+    attribute :treatments, Treatment, array: true
     attribute :service_information, ServiceInformation
     attribute :service_pay, ServicePay
     attribute :direct_deposit, DirectDeposit

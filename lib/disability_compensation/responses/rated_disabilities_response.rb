@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module DisabilityCompensation
   module ApiProvider
     class SpecialIssue
-      include Virtus.model
-
+      include Vets::Model
       attribute :code, String
       attribute :name, String
     end
 
     class RatedDisability
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :decision_code, String
       attribute :decision_text, String
@@ -24,14 +24,13 @@ module DisabilityCompensation
       attribute :rating_percentage, Integer
       attribute :maximum_rating_percentage, Integer
       attribute :related_disability_date, DateTime
-      attribute :special_issues, Array[DisabilityCompensation::ApiProvider::SpecialIssue]
+      attribute :special_issues, DisabilityCompensation::ApiProvider::SpecialIssue, array: true
     end
 
     class RatedDisabilitiesResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
-      attribute :rated_disabilities, Array[DisabilityCompensation::ApiProvider::RatedDisability]
+      attribute :rated_disabilities, DisabilityCompensation::ApiProvider::RatedDisability, array: true
     end
   end
 end
