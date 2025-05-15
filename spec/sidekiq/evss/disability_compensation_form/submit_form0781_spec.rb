@@ -377,7 +377,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
               expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
                 .to receive(:call)
-                              .with(File.read(path_to_0781_fixture), lighthouse_0781a_document)
+                .with(File.read(path_to_0781_fixture), lighthouse_0781a_document)
 
               # 0781a
               allow_any_instance_of(described_class)
@@ -751,9 +751,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when a request is successful' do
-          let(:pdf_filler) { instance_double(PdfFill::Filler) }
-          let(:datestamp_pdf_instance) { instance_double(PDFUtilities::DatestampPdf) }
-
           it 'uploads to Lighthouse' do
             allow_any_instance_of(described_class)
               .to receive(:generate_stamp_pdf)
