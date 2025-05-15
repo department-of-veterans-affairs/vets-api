@@ -295,15 +295,18 @@ describe PdfFill::ExtrasGeneratorV2 do
   describe '#add_page_numbers' do
     subject { described_class.new(start_page: 8) }
 
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400, bottom: 0)) }
+    let(:pdf) do
+      double('Prawn::Document',
+             bounds: double('Bounds', left: 0, bottom: 0, width: 500),
+             page_number: 1)
+    end
 
     it 'adds page numbers starting at @start_page' do
-      expect(pdf).to receive(:number_pages).with(
-        'Page <page>',
-        start_count_at: 8,
-        at: [400 - 50, 0],
-        align: :right,
-        size: 9
+      expect(pdf).to receive(:repeat).with(:all, dynamic: true).and_yield
+      expect(pdf).to receive(:bounding_box).and_yield
+      expect(pdf).to receive(:markup).with(
+        'Page 8',
+        text: { align: :right, valign: :bottom, size: described_class::FOOTER_FONT_SIZE }
       )
 
       subject.add_page_numbers(pdf)
@@ -390,7 +393,7 @@ describe PdfFill::ExtrasGeneratorV2 do
         expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
                         'Signee signed with an identity-verified account.'
         expect(pdf).to have_received(:markup).with(
-          expected_text, text: { align: :left, size: footer_font_size }
+          expected_text, text: { align: :left, valign: :bottom, size: footer_font_size }
         )
       end
     end
