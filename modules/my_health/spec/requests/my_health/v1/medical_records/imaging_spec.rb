@@ -34,8 +34,6 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ImagingController', type: :request
                         match_requests_on: %i[method sm_user_ignoring_path_param])
   end
 
-  after { VCR.eject_cassette }
-
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }
     # let(:study_id) { '453-2487450' }
