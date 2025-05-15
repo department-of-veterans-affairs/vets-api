@@ -4,7 +4,8 @@ require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer, type: :serializer do
   let(:veteran_declined_resolution) do
-    create(:power_of_attorney_request_resolution, :declination, :with_veteran_claimant)
+    create(:power_of_attorney_request_resolution, :declination, :with_veteran_claimant, 
+           reason: "Test reason for declination")
   end
   let(:veteran_declined_poa_request) { veteran_declined_resolution.power_of_attorney_request }
   let(:veteran_declined_power_of_attorney_holder) { veteran_declined_poa_request.power_of_attorney_holder }
@@ -74,7 +75,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer,
           veteran_declined_resolution_data = veteran_declined_data[:resolution]
           expect(veteran_declined_resolution_data[:type]).to eq 'decision'
           expect(veteran_declined_resolution_data[:decisionType]).to eq 'declination'
-          expect(veteran_declined_resolution_data[:reason]).to eq "Didn't authorize treatment record disclosure"
+          expect(veteran_declined_resolution_data[:reason]).to eq veteran_declined_resolution.reason
           expect(veteran_declined_resolution_data[:id]).to eq veteran_declined_resolution.id
           expect(veteran_declined_resolution_data[:creatorId]).to eq veteran_declined_resolution.resolving.creator_id
         end
