@@ -9,8 +9,8 @@ module PdfFill
     LABEL_WIDTH = 91
     FREE_TEXT_QUESTION_WIDTH = 404
     MEAN_CHAR_WIDTH = 4.5
-    HEADER_MARGIN = 25
-    FOOTER_MARGIN = 32
+    HEADER_BODY_GAP = 25
+    BODY_FOOTER_GAP = 27
 
     class Question
       attr_accessor :section_index, :overflow
@@ -475,9 +475,9 @@ module PdfFill
 
       current_section_index = nil
       pdf.bounding_box(
-        [pdf.bounds.left, pdf.bounds.top - HEADER_MARGIN],
+        [pdf.bounds.left, pdf.bounds.top - HEADER_BODY_GAP],
         width: pdf.bounds.width,
-        height: pdf.bounds.height - HEADER_MARGIN - FOOTER_MARGIN
+        height: pdf.bounds.height - HEADER_BODY_GAP - BODY_FOOTER_GAP
       ) do
         generate_blocks.each do |block|
           section_index = block.section_index
@@ -557,11 +557,16 @@ module PdfFill
     end
 
     def add_page_numbers(pdf)
-      pdf.number_pages('Page <page>',
-                       start_count_at: @start_page,
-                       at: [pdf.bounds.right - 50, pdf.bounds.bottom],
-                       align: :right,
-                       size: FOOTER_FONT_SIZE)
+      pdf.repeat :all, dynamic: true do
+        pdf.bounding_box(
+          [pdf.bounds.left, pdf.bounds.bottom + HEADER_FOOTER_BOUNDS_HEIGHT],
+          width: pdf.bounds.width,
+          height: HEADER_FOOTER_BOUNDS_HEIGHT
+        ) do
+          pdf.markup("Page #{pdf.page_number + @start_page - 1}",
+                     text: { align: :right, valign: :bottom, size: FOOTER_FONT_SIZE })
+        end
+      end
     end
 
     def add_footer(pdf)
@@ -570,9 +575,12 @@ module PdfFill
         txt = "Signed electronically and submitted via VA.gov at #{ts}. " \
               'Signee signed with an identity-verified account.'
         pdf.repeat :all do
-          pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width,
-                                                                 height: HEADER_FOOTER_BOUNDS_HEIGHT) do
-            pdf.markup(txt, text: { align: :left, size: FOOTER_FONT_SIZE })
+          pdf.bounding_box(
+            [pdf.bounds.left, pdf.bounds.bottom + HEADER_FOOTER_BOUNDS_HEIGHT],
+            width: pdf.bounds.width,
+            height: HEADER_FOOTER_BOUNDS_HEIGHT
+          ) do
+            pdf.markup(txt, text: { align: :left, valign: :bottom, size: FOOTER_FONT_SIZE })
           end
         end
       end
