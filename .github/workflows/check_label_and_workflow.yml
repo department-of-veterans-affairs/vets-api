@@ -5,7 +5,6 @@ on:
     types: [opened, reopened, synchronize]
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Pull Request Ready for Review", "Audit Service Tags"]
-    branches: ["*"]
     types: [completed]
 
 jobs:
