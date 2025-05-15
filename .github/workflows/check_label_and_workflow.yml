@@ -51,6 +51,8 @@ jobs:
           WORKFLOWS=("code_checks.yml" "audit_service_tags.yml" "check_codeowners.yml" "ready_for_review.yml")
           ALL_COMPLETED=true
 
+          echo "$WORKFLOWS"
+
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
             IN_PROGRESS=$(gh run list --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
