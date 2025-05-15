@@ -52,7 +52,10 @@ module TravelClaim
       fetch_attribute(uuid:, attribute: :facilityType)
     end
 
-    def claim_number(uuid:)
+    # Returns the last four digits of the claim number associated with the appointment
+    # @param uuid [String] The appointment UUID
+    # @return [String, nil] The last four digits of the claim number or nil if not found
+    def claim_number_last_four(uuid:)
       fetch_attribute(uuid:, attribute: :claimNumber)
     end
 

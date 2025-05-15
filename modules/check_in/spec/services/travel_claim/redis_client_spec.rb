@@ -213,10 +213,10 @@ describe TravelClaim::RedisClient do
     end
   end
 
-  describe '#claim_number' do
+  describe '#claim_number_last_four' do
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.claim_number(uuid:)).to be_nil
+        expect(redis_client.claim_number_last_four(uuid:)).to be_nil
       end
     end
 
@@ -231,7 +231,7 @@ describe TravelClaim::RedisClient do
       end
 
       it 'returns the cached value' do
-        expect(redis_client.claim_number(uuid:)).to eq(claim_number)
+        expect(redis_client.claim_number_last_four(uuid:)).to eq(claim_number)
       end
     end
 
@@ -247,7 +247,7 @@ describe TravelClaim::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(appt_data_expiry.from_now) do
-          expect(redis_client.claim_number(uuid:)).to be_nil
+          expect(redis_client.claim_number_last_four(uuid:)).to be_nil
         end
       end
     end
