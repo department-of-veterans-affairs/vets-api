@@ -431,7 +431,8 @@ GEM
       dry-initializer (~> 3.2)
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
+    einhorn (1.0.1)
+      fiddle (~> 1.1)
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
