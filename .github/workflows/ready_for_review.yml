@@ -33,14 +33,14 @@ jobs:
             elif ${{ toJSON(github.event.workflow_run.pull_requests) != '[]' }}; then
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
               echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-            
+
               # Fetch PR details from GitHub API
               PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
                 draft: .draft,
                 labels: [.labels[].name],
                 requested_teams: [.requested_teams[].slug]
               }')
-              
+
               # Extract and store individual fields
               echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
               echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
@@ -89,7 +89,7 @@ jobs:
 
       - name: Remove require-backend-approval label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false' && contains(env.pr_labels, 'require-backend-approval')
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
@@ -176,8 +176,10 @@ jobs:
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
+            echo "Backend-review-group approval required."
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
+            echo "Backend-review-group approval confirmed."
           fi
 
       - name: Add ready-for-backend-review label
@@ -192,11 +194,10 @@ jobs:
       - name: Remove ready-for-backend-review label
         uses: actions-ecosystem/action-remove-labels@v1
         if: |
-          ( 
+          (
             steps.audit_pr_labels.outputs.failures_detected == 'true' ||
             steps.verify_approval.outputs.approval_status == 'confirmed'
-          ) &&
-          contains(env.pr_labels, 'ready-for-backend-review')
+          )
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
