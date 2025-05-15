@@ -132,11 +132,12 @@ jobs:
         id: check_workflow_status
         run: |
           failures=false
+          GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
           WORKFLOWS=("Check CODEOWNERS Entries" "Audit Service Tags" "Code Health Report" "Code Checks")
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
-            IN_PROGRESS=$(gh run list --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
               '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request")')
 
             if [ -n "$IN_PROGRESS" ]; then
@@ -144,7 +145,7 @@ jobs:
               failures=true
             else
               # Check if the latest completed run was successful
-              SUCCESSFUL=$(gh run list --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
+              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
                 '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
@@ -216,3 +217,4 @@ jobs:
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
+
