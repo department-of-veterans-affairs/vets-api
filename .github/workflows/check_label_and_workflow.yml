@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_run:
-    workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries", "Pull Request Ready for Review"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Pull Request Ready for Review""]
     branches: ["*"]
     types: [completed]
 
@@ -45,10 +45,10 @@ jobs:
       #   env:
       #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if code_checks and audit_service_tags have completed successfully
+      - name: Check if workflows have completed successfully
         id: check_workflow
         run: |
-          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Ready for Review")
+          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Pull Request Ready for Review")
           ALL_COMPLETED=true
 
           echo "${WORKFLOWS[@]}"
