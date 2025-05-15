@@ -9,6 +9,7 @@ require 'lighthouse/benefits_intake/service'
 require 'benefits_intake_service/utilities/convert_to_pdf'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_utilities/pdf_validator'
+require 'benefits_intake_service/configuration'
 
 module BenefitsIntakeService
   ##
@@ -22,6 +23,9 @@ module BenefitsIntakeService
   class Service < Common::Client::Base
     include SentryLogging
     include Common::Client::Concerns::Monitoring
+
+    # Set the configuration class for this service
+    configuration BenefitsIntakeService::Configuration
 
     # Forward declaration to ensure the embedded constants are available
     class InvalidDocumentError < StandardError; end

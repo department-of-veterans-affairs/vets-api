@@ -64,9 +64,8 @@ module BenefitsIntakeService
         Settings.lighthouse.benefits_intake.api_key = Settings.benefits_intake_service.api_key
         Settings.lighthouse.benefits_intake.host = Settings.benefits_intake_service.url
 
-        # Create a connection using the Lighthouse implementation
-        lighthouse_config = BenefitsIntake::Configuration.new
-        lighthouse_config.connection
+        lighthouse_service = BenefitsIntake::Service.new
+        lighthouse_service.send(:connection)
       ensure
         # Restore original settings
         Settings.lighthouse.benefits_intake.api_key = original_api_key
