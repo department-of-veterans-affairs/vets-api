@@ -52,7 +52,6 @@ FactoryBot.define do
 
     trait :declination do
       after(:build) do |resolution, evaluator|
-        # Create decision with declination type and reason
         resolution.resolving = build(
           :power_of_attorney_request_decision,
           type: AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION,

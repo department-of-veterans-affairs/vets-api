@@ -28,19 +28,16 @@ module AccreditedRepresentativePortal
 
   module TransientErrorHelper
     def mock_timeout_error
-      # Look at the existing test implementation
       lh_config = double
       allow(Common::Client::Base).to receive(:configuration).and_return(lh_config)
       allow(lh_config).to receive(:post).and_raise(Faraday::TimeoutError.new('Connection timed out'))
     end
 
     def mock_404_response
-      # Mock the VCR cassette for tests
       cassette = double(name: '404_response')
       allow(::VCR).to receive(:current_cassette).and_return(cassette)
       allow(cassette).to receive(:name).and_return('404_response')
 
-      # Also mock the standard way as backup
       lh_config = double
       allow(Common::Client::Base).to receive(:configuration).and_return(lh_config)
       allow(lh_config).to receive(:post).and_raise(
