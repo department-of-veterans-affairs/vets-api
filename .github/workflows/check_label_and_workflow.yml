@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_run:
-    workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries" "Pull Request Ready for Review"]
+    workflows: ["Code Checks", "Audit Service Tags", "Check CODEOWNERS Entries", "Pull Request Ready for Review"]
     branches: ["*"]
     types: [completed]
 
