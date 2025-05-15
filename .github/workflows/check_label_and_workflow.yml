@@ -2,9 +2,9 @@ name: Check Label and Workflow
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested, review_request_removed]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Pull Request Ready for Review", "Audit Service Tags"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Pull Request Ready for Review", "Audit Service Tags", "Code Health Report"]
     types: [completed]
 
 jobs:
@@ -23,6 +23,14 @@ jobs:
       - name: Check if workflows have completed successfully
         id: check_workflow
         run: |
+          # if [ ${{ github.event.pull_request.draft }} = true ]; then
+          #   echo "PR is still in draft mode."
+          #   ALL_COMPLETED=false
+          # else
+
+          if [ ${{ github.event.pull_request.draft }} = true ]; then
+            echo "PR is still in draft mode."
+          fi
           WORKFLOWS=("Check CODEOWNERS Entries" "Audit Service Tags" "Code Checks")
           ALL_COMPLETED=true
 
