@@ -105,7 +105,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         Form526Submission.create(user_uuid: user.uuid,
                                  user_account:,
                                  auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
+                                 saved_claim_id: saved_claim_0781V2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
       end
@@ -149,21 +149,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
       end
     end
-
-    # TODO: decide where to put this test
-    # it 'renders unicode chars correctly for 21-0781V2' do
-    #   unicode = '‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡'
-    #   saved_claim_0781V2.parsed_form['form0781']['additionalInformation'] = unicode
-    #   pdf_file = saved_claim_0781V2.to_pdf(form_id: '21-0781V2', sign: true)
-      
-
-    #   expect(PdfFill::Filler::UNICODE_PDF_FORMS.get_fields(pdf_file).map(&:value).find do |val|
-    #     val == unicode
-    #   end).to eq(unicode)
-
-    #   File.delete(pdf_file)
-    # end
-
   end
 
   context 'catastrophic failure state' do
@@ -392,7 +377,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
               expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
                 .to receive(:call)
-                .with(File.read(path_to_0781_fixture), lighthouse_0781a_document)
+                              .with(File.read(path_to_0781_fixture), lighthouse_0781a_document)
 
               # 0781a
               allow_any_instance_of(described_class)
@@ -766,7 +751,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when a request is successful' do
-          # TODO: decide where to put the setup for the unicode test
           let(:pdf_filler) { instance_double(PdfFill::Filler) }
           let(:datestamp_pdf_instance) { instance_double(PDFUtilities::DatestampPdf) }
 
@@ -786,30 +770,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
             perform_upload
           end
-
-          it 'renders unicode chars correctly for 21-0781V2' do
-            allow_any_instance_of(described_class)
-              .to receive(:generate_stamp_pdf)
-              .and_return(path_to_0781v2_fixture)
-            # allow_any_instance_of(described_class).to receive(:generate_stamp_pdf).and_call_original
-            # allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(path_to_0781v2_fixture)
-            allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_instance)
-            allow(datestamp_pdf_instance).to receive(:run).and_return(path_to_0781v2_fixture)
-
-            unicode = '‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡'
-            parsed_0781v2_form['additionalInformation'] = unicode
-            
-            # saved_claim_0781V2.parsed_form['form0781']['additionalInformation'] = unicode
-            # pdf_file = saved_claim_0781V2.to_pdf(form_id: '21-0781V2', sign: true)
-            pdf_file = described_class.generate_stamp_pdf(parsed_0781v2_form, submission.submitted_claim_id, '21-0781V2')
-
-            expect(PdfFill::Filler::UNICODE_PDF_FORMS.get_fields(pdf_file).map(&:value).find do |val|
-              val == unicode
-            end).to eq(unicode)
-
-            File.delete(pdf_file)
-          end
-
         end
 
         context 'when Lighthouse returns an error response' do
