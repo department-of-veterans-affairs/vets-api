@@ -20,7 +20,7 @@ module ClaimsApi
       # Generate a 21-22 or 21-22a form for a given POA request.
       # Uploads the generated form to VBMS or BD.
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, action = 'post', form_number = nil) # rubocop:disable Metrics/MethodLength
+      def perform(power_of_attorney_id)
         unless Flipper.enabled?(:claims_api_poa_v1_pdf_gen_fixup_job)
           ClaimsApi::Logger.log(LOG_TAG,
                                 detail: "Skipping pdf re-upload of POA #{power_of_attorney_id}. Flipper disabled.")
@@ -28,27 +28,16 @@ module ClaimsApi
         end
 
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-        rep_or_org = form_number == '2122A' ? 'representative' : 'serviceOrganization'
+        rep_or_org = 'serviceOrganization'
         poa_code = power_of_attorney.form_data&.dig(rep_or_org, 'poaCode')
 
         output_path = pdf_constructor(poa_code).construct(data(power_of_attorney), id: power_of_attorney.id)
-
-        if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
-          doc_type = form_number == '2122' ? 'L190' : 'L075'
-          benefits_doc_upload(poa: power_of_attorney, pdf_path: output_path, doc_type:, action:)
-        else
-          upload_to_vbms(power_of_attorney, output_path)
-        end
-      rescue VBMS::Unknown
-        rescue_vbms_error(power_of_attorney)
-      rescue Errno::ENOENT
-        rescue_file_not_found(power_of_attorney)
-      rescue ClaimsApi::StampSignatureError => e
-        signature_errors = (power_of_attorney.signature_errors || []).push(e.detail)
-        power_of_attorney.update(status: ClaimsApi::PowerOfAttorney::ERRORED, signature_errors:)
-        ClaimsApi::Logger.log(LOG_TAG, poa_id: power_of_attorney_id, detail: 'Prawn Signature Error')
+        benefits_doc_upload(poa: power_of_attorney, pdf_path: output_path, doc_type: 'L075', action: 'post')
       rescue => e
-        rescue_generic_errors(power_of_attorney, e)
+        ClaimsApi::Logger.log LOG_TAG, level: :error,
+                                       detail: "Exception thrown on POA #{power_of_attorney_id}",
+                                       error_class: e.class.name,
+                                       error: e.message
         raise
       end
 

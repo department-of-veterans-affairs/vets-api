@@ -9,6 +9,7 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
   let(:poa_code) { 'ABC' }
   let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
+  let(:log_tag) { described_class::LOG_TAG }
 
   before do
     Flipper.disable(:lighthouse_claims_api_poa_use_bd)
@@ -82,23 +83,8 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
         expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
-        subject.new.perform(power_of_attorney.id, action: 'post')
-      end
-
-      it 'DOES NOT call the POA updater job upon successful upload to VBMS' do
-        token_response = OpenStruct.new(upload_token: '<{573F054F-E9F7-4BF2-8C66-D43ADA5C62E7}')
-        document_response = OpenStruct.new(upload_document_response: {
-          '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
-          '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
-        }.with_indifferent_access)
-
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
-        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
-        allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-
-        expect(ClaimsApi::PoaUpdater).not_to receive(:perform_async)
-
-        subject.new.perform(power_of_attorney.id, action: 'post')
+        expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+        subject.new.perform(power_of_attorney.id)
       end
     end
 
@@ -109,7 +95,7 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
         detail: "Skipping pdf re-upload of POA #{power_of_attorney.id}. Flipper disabled."
       )
       expect(ClaimsApi::PowerOfAttorney).not_to receive(:find)
-      subject.new.perform(power_of_attorney.id, action: 'post')
+      subject.new.perform(power_of_attorney.id)
     end
 
     context 'when signature has prefix' do
@@ -126,13 +112,14 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
         ))
       end
 
-      it 'sets the status and store the error' do
+      it 'DOES NOT set the status and store the error' do
+        orig_status = power_of_attorney.status
         expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct)
           .and_raise(ClaimsApi::StampSignatureError)
-        subject.new.perform(power_of_attorney.id, action: 'post')
+        expect { subject.new.perform(power_of_attorney.id) }.to raise_error(ClaimsApi::StampSignatureError)
         power_of_attorney.reload
-        expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
-        expect(power_of_attorney.signature_errors).not_to be_empty
+        expect(power_of_attorney.status).to eq(orig_status)
+        expect(power_of_attorney.signature_errors).to be_empty
       end
     end
   end
@@ -166,7 +153,7 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
-      subject.new.perform(power_of_attorney.id, action: 'post')
+      subject.new.perform(power_of_attorney.id)
     end
 
     it 'calls the benefits document API upload_document instead of upload' do
@@ -176,22 +163,26 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
       expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
 
-      subject.new.perform(power_of_attorney.id, 'post')
+      subject.new.perform(power_of_attorney.id)
     end
 
-    it 'rescues errors from BD and sets the status to errored' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-
+    it 'rescues errors from BD but DOES NOT sets the status to errored' do
+      orig_status = power_of_attorney.status
       VCR.use_cassette('claims_api/bd/upload_error') do
         allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)
                                                     .and_raise(Common::Exceptions::BackendServiceException.new(errors))
-        subject.new.perform(power_of_attorney.id, 'post')
+
+        # first log is for the BD upload error
+        # second log is for the fixup job exception logging
+        expect(ClaimsApi::Logger).to receive(:log).twice
+
+        subject.new.perform(power_of_attorney.id)
       rescue
         power_of_attorney.reload
-        expect(power_of_attorney.vbms_error_message).to eq(
+        expect(power_of_attorney.vbms_error_message).not_to eq(
           'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}'
         )
-        expect(power_of_attorney.status).to eq(ClaimsApi::PowerOfAttorney::ERRORED)
+        expect(power_of_attorney.status).to eq(orig_status)
       end
     end
   end
