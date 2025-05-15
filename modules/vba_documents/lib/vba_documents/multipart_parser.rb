@@ -11,7 +11,7 @@ module VBADocuments
 
     def self.parse(file_path)
       if base64_encoded_file?(file_path)
-        tempfile = decode_base64_file(file_path) # Must hold reference to Tempfile; otherwise, may be garbage collected
+        tempfile = decode_base64_file(file_path) # Must hold reference to Tempfile; otherwise, will be garbage collected
         file_path = tempfile.path
       end
 
