@@ -10,7 +10,7 @@ module Vets
 
     module ClassMethods
       def attributes
-        @attributes ||= {} # rubocop:disable ThreadSafety/ClassInstanceVariable
+        @attributes ||= Concurrent::Hash.new
       end
 
       def attribute(name, klass, **options)
@@ -61,11 +61,14 @@ module Vets
           return nil unless defined?(default)
 
           # if there's a default, assign the default value
-          if default.is_a?(Symbol) && respond_to?(default)
+          value = if default.is_a?(Symbol) && respond_to?(default)
             send(default)
           else
-            default
+            default.duplicable? ? default.dup : default
           end
+
+          instance_variable_set("@#{name}", value)
+          value
         end
       end
 

@@ -72,7 +72,7 @@ module Requests
   class AdditionalHazardExposures
     include Vets::Model
 
-    attribute :additional_exposures, String, array: true
+    attribute :additional_exposures, String, array: true, default: []
     attribute :specify_other_exposures, String
     attribute :exposure_dates, Dates
   end
@@ -105,7 +105,7 @@ module Requests
     attribute :exposure_or_event_or_injury, String
     attribute :rated_disability_id, String
     attribute :diagnostic_code, Integer
-    attribute :secondary_disabilities, SecondaryDisability, array: true
+    attribute :secondary_disabilities, SecondaryDisability, array: true, default: []
   end
 
   class Center
@@ -119,7 +119,7 @@ module Requests
   class Treatment
     include Vets::Model
 
-    attribute :treated_disability_names, String, array: true
+    attribute :treated_disability_names, String, array: true, default: []
     attribute :center, Center
     attribute :begin_date, String
   end
@@ -196,10 +196,10 @@ module Requests
   class ServiceInformation
     include Vets::Model
 
-    attribute :service_periods, ServicePeriod, array: true
-    attribute :confinements, Confinement, array: true
+    attribute :service_periods, ServicePeriod, array: true, default: []
+    attribute :confinements, Confinement, array: true, default: []
     attribute :reserves_national_guard_service, ReservesNationalGuardService
-    attribute :alternate_names, String, array: true
+    attribute :alternate_names, String, array: true, default: []
     attribute :served_in_active_combat_since911, Bool
     # used to be "Title10Activation"
     attribute :federal_activation, FederalActivation
@@ -244,7 +244,7 @@ module Requests
     attribute :gulf_war_hazard_service, GulfWarHazardService
     attribute :herbicide_hazard_service, HerbicideHazardService
     attribute :additional_hazard_exposures, AdditionalHazardExposures
-    attribute :multiple_exposures, MultipleExposures, array: true
+    attribute :multiple_exposures, MultipleExposures, array: true, default: []
   end
 
   class ChangeOfAddress
@@ -290,8 +290,8 @@ module Requests
     attribute :change_of_address, ChangeOfAddress
     attribute :homeless, Homeless
     attribute :toxic_exposure, ToxicExposure
-    attribute :disabilities, Disability, array: true
-    attribute :treatments, Treatment, array: true
+    attribute :disabilities, Disability, array: true, default: []
+    attribute :treatments, Treatment, array: true, default: []
     attribute :service_information, ServiceInformation
     attribute :service_pay, ServicePay
     attribute :direct_deposit, DirectDeposit
