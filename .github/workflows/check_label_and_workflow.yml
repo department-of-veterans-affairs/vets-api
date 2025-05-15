@@ -62,6 +62,8 @@ jobs:
               echo "$WORKFLOW is still in progress."
               ALL_COMPLETED=false
               break
+            else
+              echo "$WORKFLOW completed."
             fi
 
             # Check if the latest completed run was successful
