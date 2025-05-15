@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
+require 'lighthouse/benefits_claims/intent_to_file/monitor'
 
 RSpec.describe 'V0::IntentToFile', type: :request do
   include SchemaMatchers
@@ -10,10 +11,13 @@ RSpec.describe 'V0::IntentToFile', type: :request do
   let(:camel_inflection_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
+  let(:monitor) { double('monitor') }
 
   before do
     sign_in
     Flipper.disable(:disability_compensation_production_tester)
+
+    allow(BenefitsClaims::IntentToFile::Monitor).to receive(:new).and_return(monitor)
   end
 
   describe 'GET /v0/intent_to_file' do
@@ -76,11 +80,14 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           let(:itf_type) { 'pension' }
 
           it 'matches the intent to files schema' do
+            expect(monitor).to receive(:track_show_itf)
+
             get '/v0/intent_to_file/pension'
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('intent_to_files')
             expect(JSON.parse(response.body)['data']['attributes']['intent_to_file'][0]['type']).to eq itf_type
+
           end
         end
 
@@ -88,6 +95,8 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           let(:itf_type) { 'survivor' }
 
           it 'matches the intent to files schema' do
+            expect(monitor).to receive(:track_show_itf)
+
             get '/v0/intent_to_file/survivor'
 
             expect(response).to have_http_status(:ok)
@@ -126,6 +135,43 @@ RSpec.describe 'V0::IntentToFile', type: :request do
           end
         end
       end
+
+      context 'data validation and monitoring' do
+        before do
+          allow(monitor).to receive(:track_missing_user_icn_itf_controller)
+          allow(monitor).to receive(:track_missing_user_pid_itf_controller)
+          allow(monitor).to receive(:track_invalid_itf_type_itf_controller)
+        end
+
+        subject { V0::IntentToFilesController.new }
+
+        it 'raises MissingICNError' do
+          user_no_icn = build(:disabilities_compensation_user, icn: nil)
+
+          expect {
+            subject.send(:validate_data, user_no_icn, 'post', 'form_id', 'pension')
+          }.to raise_error V0::IntentToFilesController::MissingICNError
+          expect(monitor).to have_received(:track_missing_user_icn_itf_controller)
+        end
+
+        it 'raises MissingParticipantIDError' do
+          user_no_pid = build(:disabilities_compensation_user, participant_id: nil)
+
+          expect {
+            subject.send(:validate_data, user_no_pid, 'get', 'form_id', 'survivor')
+          }.to raise_error V0::IntentToFilesController::MissingParticipantIDError
+
+          expect(monitor).to have_received(:track_missing_user_pid_itf_controller)
+        end
+
+        it 'raises InvalidITFTypeError' do
+          expect {
+            subject.send(:validate_data, user, 'get', nil, 'survivor')
+          }.to raise_error V0::IntentToFilesController::InvalidITFTypeError
+
+          expect(monitor).to have_received(:track_invalid_itf_type_itf_controller)
+        end
+      end
     end
   end
 
@@ -153,6 +199,7 @@ RSpec.describe 'V0::IntentToFile', type: :request do
       it 'matches the respective intent to file schema' do
         expect_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
           .with(itf_type, user.ssn, nil).and_return(intent_to_file)
+        expect(monitor).to receive(:track_submit_itf)
 
         post "/v0/intent_to_file/#{itf_type}"
 
