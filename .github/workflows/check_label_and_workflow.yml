@@ -51,7 +51,7 @@ jobs:
           WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Ready for Review")
           ALL_COMPLETED=true
 
-          echo "$WORKFLOWS"
+          echo "${WORKFLOWS[@]}"
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
