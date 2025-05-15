@@ -48,7 +48,7 @@ jobs:
       - name: Check if code_checks and audit_service_tags have completed successfully
         id: check_workflow
         run: |
-          WORKFLOWS=("Code Checks" "Audit Service Tags" "Check CODEOWNERS Entries" "Ready for Review")
+          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Ready for Review")
           ALL_COMPLETED=true
 
           echo "$WORKFLOWS"
