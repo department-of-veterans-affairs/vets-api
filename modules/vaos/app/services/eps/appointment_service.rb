@@ -43,7 +43,7 @@ module Eps
     #
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
-                         { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
+                         { patientId: patient_id, referralId: referral_id }, request_headers)
       log_response(response, 'EPS Create Draft Appointment')
 
       OpenStruct.new(response.body)
