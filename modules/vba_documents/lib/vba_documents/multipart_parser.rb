@@ -71,9 +71,13 @@ module VBADocuments
     end
 
     def self.validate_virus_free(file_path)
+      Rails.logger.info("#{self} starting to run virus scan on submission contents")
+
       temp_path = Common::FileHelpers.generate_clamav_temp_file(File.read(file_path))
       file_safe = Common::VirusScan.scan(temp_path)
       Common::FileHelpers.delete_file_if_exists(temp_path)
+
+      Rails.logger.info("#{self} finished running virus scan on submission contents")
 
       raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected in submission') unless file_safe
 
