@@ -50,9 +50,15 @@ module BenefitsIntakeService
     end
 
     # Validate a file satisfies Benefits Intake specifications. File must be a PDF.
+    # This is a simple wrapper around valid_document? that preserves the old API
     # @param [String] doc_path
     def validate_document(doc_path:)
-      @benefits_intake_service.validate_document(doc_path:)
+      @benefits_intake_service.valid_document?(document: doc_path)
+      # If valid_document? succeeds, return a successful response object
+      OpenStruct.new(success?: true, body: {})
+    rescue BenefitsIntake::Service::InvalidDocumentError => e
+      # If validation fails, return a failure response object
+      OpenStruct.new(success?: false, body: e.message)
     end
 
     ##
@@ -67,13 +73,9 @@ module BenefitsIntakeService
     # @returns [String] path to file
     #
     def valid_document?(document:)
-      result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
-      raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
-
-      response = validate_document(doc_path: document)
-      raise InvalidDocumentError, "Invalid Document: #{response}" unless response.success?
-
-      document
+      @benefits_intake_service.valid_document?(document:)
+    rescue BenefitsIntake::Service::InvalidDocumentError => e
+      raise InvalidDocumentError, e.message
     end
 
     def upload_form(main_document:, attachments:, form_metadata:)
@@ -88,11 +90,27 @@ module BenefitsIntakeService
       )
     end
 
-    delegate :get_upload_location, to: :@benefits_intake_service
+    # Method name mapping between BenefitsIntakeService::Service and BenefitsIntake::Service
+    def get_upload_location
+      @benefits_intake_service.request_upload
+    end
 
-    delegate :get_bulk_status_of_uploads, to: :@benefits_intake_service
+    def get_bulk_status_of_uploads(ids)
+      @benefits_intake_service.bulk_status(uuids: ids)
+    end
 
-    delegate :get_file_path_from_objs, to: :@benefits_intake_service
+    def get_file_path_from_objs(file)
+      case file
+      when EVSS::DisabilityCompensationForm::Form8940Document
+        file.pdf_path
+      when CarrierWave::SanitizedFile
+        file.file
+      when Hash
+        get_file_path_from_objs(file[:file])
+      else
+        file
+      end
+    end
 
     def generate_metadata(metadata)
       metadata_to_convert = {
@@ -116,37 +134,58 @@ module BenefitsIntakeService
     def get_location_and_uuid
       upload_return = get_upload_location
       {
-        uuid: upload_return.body.dig('data', 'id'),
-        location: upload_return.body.dig('data', 'attributes', 'location')
+        uuid: upload_return[1],
+        location: upload_return[0]
       }
     end
 
     def get_upload_docs(file_with_full_path:, metadata:, attachments: [])
-      @benefits_intake_service.get_upload_docs(
-        file_with_full_path:,
-        metadata:,
-        attachments:
-      )
+      json_tmpfile = generate_tmp_metadata_file(metadata)
+      file_name = File.basename(file_with_full_path)
+      params = { metadata: Faraday::UploadIO.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
+                 content: Faraday::UploadIO.new(file_with_full_path, Mime[:pdf].to_s, file_name) }
+      attachments.each.with_index do |attachment, i|
+        file_path = get_file_path_from_objs(attachment[:file])
+        file_name = attachment[:file_name] || attachment['name']
+        params[:"attachment#{i + 1}"] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s, file_name)
+      end
+      [params, json_tmpfile]
     end
 
     def upload_doc(upload_url:, file:, metadata:, attachments: [])
-      @benefits_intake_service.upload_doc(
-        upload_url:,
-        file:,
-        metadata:,
-        attachments:
-      )
+      file_with_full_path = get_file_path_from_objs(file)
+      params, _json_tmpfile = get_upload_docs(file_with_full_path:, metadata:,
+                                              attachments:)
+      response = @benefits_intake_service.perform(:put, upload_url, params, { 'Content-Type' => 'multipart/form-data' })
+
+      raise response.body unless response.success?
+
+      upload_deletion_logic(file_with_full_path:, attachments:)
+
+      response
     end
 
     def upload_deletion_logic(file_with_full_path:, attachments:)
-      @benefits_intake_service.upload_deletion_logic(
-        file_with_full_path:,
-        attachments:
-      )
+      if Rails.env.production?
+        Common::FileHelpers.delete_file_if_exists(file_with_full_path) unless permanent_file?(file_with_full_path)
+        attachments.each do |evidence_file|
+          to_del = get_file_path_from_objs(evidence_file)
+          # dont delete the instructions pdf we keep on the fs and send along for bdd claims
+          Common::FileHelpers.delete_file_if_exists(to_del) unless permanent_file?(to_del)
+        end
+      else
+        Rails.logger.info("Would have deleted file #{file_with_full_path} if in production env.")
+        attachments.each do |evidence_file|
+          to_del = get_file_path_from_objs(evidence_file)
+          Rails.logger.info("Would have deleted file #{to_del} if in production env.") unless permanent_file?(to_del)
+        end
+      end
     end
 
     # Overload in other services to define files not meant to be deleted
-    delegate :permanent_file?, to: :@benefits_intake_service
+    def permanent_file?(_file)
+      false
+    end
 
     # For methods not explicitly defined, delegate to the lighthouse implementation
     def method_missing(method_name, *, &)
