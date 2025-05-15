@@ -36,7 +36,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         phone_number: mobile_phone,
         template_id:,
         sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
-        personalisation: { claim_number: claim_number, appt_date: formatted_date }
+        personalisation: { claim_number:, appt_date: formatted_date }
       )
 
       described_class.new.perform(uuid, appointment_date, template_id)
@@ -212,7 +212,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         phone_number: mobile_phone,
         template_id:,
         sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
-        personalisation: { claim_number: claim_number, appt_date: formatted_date }
+        personalisation: { claim_number:, appt_date: formatted_date }
       )
 
       described_class.new.perform(uuid, appointment_date, template_id)
@@ -223,7 +223,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
         phone_number: mobile_phone,
         template_id:,
         sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
-        personalisation: { claim_number: claim_number, appt_date: formatted_date }
+        personalisation: { claim_number:, appt_date: formatted_date }
       )
 
       described_class.new.perform(uuid, appointment_date, template_id)
