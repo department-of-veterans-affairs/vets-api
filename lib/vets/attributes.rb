@@ -62,10 +62,10 @@ module Vets
 
           # if there's a default, assign the default value
           value = if default.is_a?(Symbol) && respond_to?(default)
-            send(default)
-          else
-            default.duplicable? ? default.dup : default
-          end
+                    send(default)
+                  else
+                    default.duplicable? ? default.dup : default
+                  end
 
           instance_variable_set("@#{name}", value)
           value

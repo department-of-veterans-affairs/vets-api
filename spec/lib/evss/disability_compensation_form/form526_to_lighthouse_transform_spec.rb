@@ -751,7 +751,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                                      }
                                                    })
 
-      result = transformer.send(:transform_other_exposures, all_options_nil_and_other_blank['otherExposures'], all_options_nil_and_other_blank['specifyOtherExposures'])
+      result = transformer.send(:transform_other_exposures, all_options_nil_and_other_blank['otherExposures'],
+                                all_options_nil_and_other_blank['specifyOtherExposures'])
       expect(result).to be_nil
 
       all_nil = data.merge({
