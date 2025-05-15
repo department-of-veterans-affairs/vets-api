@@ -1,5 +1,6 @@
 {
   "form526": {
+    "isVaEmployee": false,
     "mailingAddress": {
       "country": "USA",
       "city": "Portland",
