@@ -16,14 +16,22 @@ describe TravelClaim::RedisClient do
   let(:station_number) { '500' }
   let(:patient_cell_phone) { '1234567890' }
   let(:facility_type) { 'abc' }
+  let(:claim_number) { '12345678' }
 
   let(:appointment_identifiers) do
     {
       data: {
         id: uuid,
         type: :appointment_identifier,
-        attributes: { patientDFN: '123', stationNo: station_number, icn: patient_icn, mobilePhone: mobile_phone,
-                      patientCellPhone: patient_cell_phone, facilityType: facility_type }
+        attributes: {
+          patientDFN: '123',
+          stationNo: station_number,
+          icn: patient_icn,
+          mobilePhone: mobile_phone,
+          patientCellPhone: patient_cell_phone,
+          facilityType: facility_type,
+          claimNumber: claim_number
+        }
       }
     }
   end
@@ -201,6 +209,46 @@ describe TravelClaim::RedisClient do
     context 'when cache exists' do
       it 'returns the cached value' do
         expect(redis_client.facility_type(uuid:)).to eq(facility_type)
+      end
+    end
+  end
+
+  describe '#claim_number' do
+    context 'when cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.claim_number(uuid:)).to be_nil
+      end
+    end
+
+    context 'when cache exists' do
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: appt_data_expiry
+        )
+      end
+
+      it 'returns the cached value' do
+        expect(redis_client.claim_number(uuid:)).to eq(claim_number)
+      end
+    end
+
+    context 'when cache has expired' do
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: appt_data_expiry
+        )
+      end
+
+      it 'returns nil' do
+        Timecop.travel(appt_data_expiry.from_now) do
+          expect(redis_client.claim_number(uuid:)).to be_nil
+        end
       end
     end
   end

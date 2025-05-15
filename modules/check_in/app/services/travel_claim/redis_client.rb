@@ -52,6 +52,10 @@ module TravelClaim
       fetch_attribute(uuid:, attribute: :facilityType)
     end
 
+    def claim_number(uuid:)
+      fetch_attribute(uuid:, attribute: :claimNumber)
+    end
+
     def fetch_attribute(uuid:, attribute:)
       identifiers = appointment_identifiers(uuid:)
       return nil if identifiers.nil?
