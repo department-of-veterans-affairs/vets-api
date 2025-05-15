@@ -132,6 +132,12 @@ jobs:
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
+      - name: Remove Test Passing label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-passing
+
       - name: Run Specs
         timeout-minutes: 15
         run: >
@@ -213,43 +219,6 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-passing
-
-    # steps:
-    #   - name: Update labels based on test results
-    #     uses: actions/github-script@v7
-    #     with:
-    #       github-token: ${{ secrets.GITHUB_TOKEN }}
-    #       script: |
-    #         const prNumber = context.payload.pull_request.number;
-    #         const status = "${{ needs.tests.outputs.status }}";
-
-    #         const removeLabel = async (label) => {
-    #           try {
-    #             await github.rest.issues.removeLabel({
-    #               ...context.repo,
-    #               issue_number: prNumber,
-    #               name: label,
-    #             });
-    #           } catch (error) {
-    #             if (error.status !== 404) throw error; // ignore missing label
-    #           }
-    #         };
-
-    #         const addLabel = async (label) => {
-    #           await github.rest.issues.addLabels({
-    #             ...context.repo,
-    #             issue_number: prNumber,
-    #             labels: [label],
-    #           });
-    #         };
-
-    #         if (status === 'success') {
-    #           await removeLabel("test-failure");
-    #           await addLabel("test-passing");
-    #         } else if (status === 'failure') {
-    #           await removeLabel("test-passing");
-    #           await addLabel("test-failure");
-    #         }
 
   publish_results:
     name: Publish Test Results and Coverage
