@@ -17,6 +17,8 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      - uses: actions/checkout@v4
+
       - name: Check for required label
         id: check_label
         run: |
