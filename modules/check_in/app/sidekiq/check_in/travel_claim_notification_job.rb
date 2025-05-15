@@ -9,8 +9,7 @@ module CheckIn
   #   CheckIn::TravelClaimNotificationJob.perform_async(
   #     'uuid-123-456',                       # Required - Appointment UUID
   #     '2023-05-15',                         # Required - Appointment date in YYYY-MM-DD format
-  #     'template-id-123',                    # Required - VaNotify template ID
-  #     '1234'                                # Required - Last 4 digits of the claim number
+  #     'template-id-123'                     # Required - VaNotify template ID
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
     sidekiq_options retry: 12
@@ -20,20 +19,20 @@ module CheckIn
     #
     # Validates input parameters, logs the attempt, and handles success/failure
     # metrics. Returns early if required parameters like mobile_phone are missing.
+    # The claim number is retrieved from Redis using the provided UUID.
     #
     # @param uuid [String] The appointment UUID used to retrieve data from Redis
     # @param appointment_date [String] The appointment date in YYYY-MM-DD format
     # @param template_id [String] The VaNotify template ID to use
-    # @param claim_number_last_four [String] The last 4 digits of the claim number to include in the message
     # @return [void]
-    def perform(uuid, appointment_date, template_id, claim_number_last_four)
+    def perform(uuid, appointment_date, template_id)
       redis_client = TravelClaim::RedisClient.build
       opts = {
         mobile_phone: redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:),
         appointment_date:,
         template_id:,
         facility_type: redis_client.facility_type(uuid:),
-        claim_number_last_four:
+        claim_number_last_four: redis_client.claim_number_last_four(uuid:)
       }
 
       return self.class.log_failure(opts) unless validate_required_fields(opts)
@@ -60,7 +59,9 @@ module CheckIn
     end
 
     # Handles errors after all retries have been exhausted
-    # Logs the error to Sentry and updates metrics based on the template type and facility
+    # Logs the error to Sentry and updates metrics based on the template type and facility.
+    # The UUID and template ID are extracted from job arguments, and additional data like
+    # phone number and claim number are retrieved from Redis.
     #
     # @param job [Hash] The Sidekiq job hash containing job metadata
     # @param ex [Exception] The exception that caused the job to fail
@@ -68,19 +69,19 @@ module CheckIn
     def self.handle_error(job, ex)
       uuid = job.dig('args', 0)
       template_id = job.dig('args', 2)
-      claim_number_last_four = job.dig('args', 3)
 
       redis_client = TravelClaim::RedisClient.build
       phone_number = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
 
+      claim_number = redis_client.claim_number_last_four(uuid:)
+
+      sentry_context = { template_id: template_id, phone_last_four: phone_last_four }
+      sentry_context[:claim_number] = claim_number if claim_number
+
       SentryLogging.log_exception_to_sentry(
         ex,
-        {
-          phone_last_four:,
-          template_id:,
-          claim_number_last_four:
-        },
+        sentry_context,
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
 
