@@ -170,7 +170,6 @@ jobs:
             log
             !log/*.xml
           if-no-files-found: ignore
-          retention-days: 1
       
       - name: Upload Test Artifacts (rails tmp)
         uses: actions/upload-artifact@v4
