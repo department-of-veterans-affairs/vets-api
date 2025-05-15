@@ -3,6 +3,7 @@
 require 'debt_management_center/base_service'
 require 'debt_management_center/debts_configuration'
 require 'debt_management_center/responses/debts_response'
+require 'debt_management_center/constants'
 
 module DebtManagementCenter
   class DebtsService < DebtManagementCenter::BaseService
@@ -68,10 +69,29 @@ module DebtManagementCenter
     private
 
     def debts_with_sorted_histories
-      @debts.select do |debt|
+      filtered_debts = filter_debts(@debts)
+
+      filtered_debts.each do |debt|
         debt['debtHistory'] = sort_by_date(debt['debtHistory'])
         debt['compositeDebtId'] = build_composite_debt_id(debt)
-        debt['payeeNumber'] == '00'
+      end
+
+      filtered_debts
+    end
+
+    def filter_debts(debts)
+      debts.select do |debt|
+        # Always filter by payee number
+        base_filter = debt['payeeNumber'] == '00'
+
+        # Filter by approved deduction code and current AR
+        if Flipper.enabled?(:debt_deduction_code_filtering, @user)
+          base_filter &&
+            Constants::APPROVED_DEDUCTION_CODES.key?(debt['deductionCode']) &&
+            debt['currentAR'].to_f.positive?
+        else
+          base_filter
+        end
       end
     end
 
