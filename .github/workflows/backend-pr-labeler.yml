@@ -165,9 +165,14 @@ jobs:
       - name: Verify backend-review-group approval
         id: verify_approval
         run: |
-          BACKEND_REVIEWERS=$(echo "${{ steps.get_team_members.outputs.data }}" | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
-          APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l)
-
+          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
+          ${{ steps.get_team_members.outputs.data }}
+          EOF
+          )
+          APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
