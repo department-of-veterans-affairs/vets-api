@@ -215,124 +215,138 @@ module PdfFill
           key: 'F[0].#subform[14].VeteransServiceNumber_If_Applicable[0]'
         },
         'providerFacility' => {
-          limit: 1,
-          first_key: 'providerFacilityName0',
+          limit: 5,
+          first_key: 'providerFacilityName_0',
           question_text: 'PROVIDER / FACILITY',
 
           # Provider 0
-          'providerFacilityName0' => { key: "F[0].#subform[14].Provider_Or_Facility_Name[0]" },
-          'conditionsTreated' => { key: "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[0]" },
-          'dateRangeStart0' => {
-            'month' => { key: "F[0].#subform[14].Month[0]" },
-            'day' => { key: "F[0].#subform[14].Day[0]" },
-            'year' => { key: "F[0].#subform[14].Year[0]" }
+          'providerFacilityName_0' => { key: 'F[0].#subform[14].Provider_Or_Facility_Name[0]' },
+          'conditionsTreated_0' => { key: 'F[0].#subform[14].Conditions_You_Are_Being_Treated_For[0]' },
+          'dateRangeStart_0' => {
+            'month' => { key: 'F[0].#subform[14].Month[0]' },
+            'day' => { key: 'F[0].#subform[14].Day[0]' },
+            'year' => { key: 'F[0].#subform[14].Year[0]' }
           },
-          'dateRangeEnd0' => {
-            'month' => { key: "F[0].#subform[14].Month[0]" },
-            'day' => { key: "F[0].#subform[14].Day[0]" },
-            'year' => { key: "F[0].#subform[14].Year[0]" }
+          'dateRangeEnd_0' => {
+            'month' => { key: 'F[0].#subform[14].Month[1]' },
+            'day' => { key: 'F[0].#subform[14].Day[1]' },
+            'year' => { key: 'F[0].#subform[14].Year[1]' }
           },
-          'street' => { limit: 30, key: "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[0]" },
-          'street2' => { limit: 5, key: "F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[0]" },
-          'city' => { limit: 18, key: "F[0].#subform[14].Provider_Facility_Address_City[0]" },
-          'state' => { key: "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[0]" },
-          'country' => { key: "F[0].#subform[14].Provider_Facility_Address_Country[0]" },
-          'postalCode' => {
-            'firstFive' => { key: "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]" },
-            'lastFour' => { key: "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]" }
+          'street_0' => { limit: 30, key: 'F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[0]' },
+          'street2_0' => { limit: 5, key: 'F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[0]' },
+          'city_0' => { limit: 18, key: 'F[0].#subform[14].Provider_Facility_Address_City[0]' },
+          'state_0' => { key: 'F[0].#subform[14].Provider_Facility_Address_StateOrProvince[0]' },
+          'country_0' => { key: 'F[0].#subform[14].Provider_Facility_Address_Country[0]' },
+          'postalCode_0' => {
+            'firstFive' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]' },
+            'lastFour' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]' }
           },
 
           # Provider 1
-          'providerFacilityName1' => { key: "F[0].#subform[14].Provider_Or_Facility_Name[1]" },
-          'conditionsTreated1' => { key: "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[1]" },
-          'dateRangeStart1_0' => {
-            'month' => { key: "F[0].#subform[14].Month[3]" },
-            'day' => { key: "F[0].#subform[14].Day[3]" },
-            'year' => { key: "F[0].#subform[14].Year[3]" }
+          'providerFacilityName_1' => { key: 'F[0].#subform[14].Provider_Or_Facility_Name[1]' },
+          'conditionsTreated_1' => { key: 'F[0].#subform[14].Conditions_You_Are_Being_Treated_For[1]' },
+          'dateRangeStart_1' => {
+            'month' => { key: 'F[0].#subform[14].Month[3]' },
+            'day' => { key: 'F[0].#subform[14].Day[3]' },
+            'year' => { key: 'F[0].#subform[14].Year[3]' }
           },
-          'dateRangeEnd1_0' => {
-            'month' => { key: "F[0].#subform[14].Month[4]" },
-            'day' => { key: "F[0].#subform[14].Day[4]" },
-            'year' => { key: "F[0].#subform[14].Year[4]" }
+          'dateRangeEnd_1' => {
+            'month' => { key: 'F[0].#subform[14].Month[4]' },
+            'day' => { key: 'F[0].#subform[14].Day[4]' },
+            'year' => { key: 'F[0].#subform[14].Year[4]' }
           },
-          'street1' => { limit: 30, key: "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[1]" },
-          'street21' => { limit: 5, key: "F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[1]" },
-          'city1' => { limit: 18, key: "F[0].#subform[14].Provider_Facility_Address_City[1]" },
-          'state1' => { key: "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]" },
-          'country1' => { key: "F[0].#subform[14].Provider_Facility_Address_Country[1]" },
-          'postalCode1' => {
-            'firstFive' => { key: "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]" },
-            'lastFour' => { key: "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]" }
+          'street_1' => { limit: 30, key: 'F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[1]' },
+          'street2_1' => { limit: 5, key: 'F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[1]' },
+          'city_1' => { limit: 18, key: 'F[0].#subform[14].Provider_Facility_Address_City[1]' },
+          'state_1' => { key: 'F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]' },
+          'country_1' => { key: 'F[0].#subform[14].Provider_Facility_Address_Country[1]' },
+          'postalCode_1' => {
+            'firstFive' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]' },
+            'lastFour' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]' }
           },
 
           # Provider 2
-          'providerFacilityName2' => { key: "F[0].#subform[15].Provider_Or_Facility_Name[2]" },
-          'conditionsTreated2' => { key: "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[2]" },
-          'dateRangeStart2_0' => {
-            'month' => { key: "F[0].#subform[15].Month[5]" },
-            'day' => { key: "F[0].#subform[15].Day[5]" },
-            'year' => { key: "F[0].#subform[15].Year[5]" }
+          'providerFacilityName_2' => { key: 'F[0].#subform[15].Provider_Or_Facility_Name[2]' },
+          'conditionsTreated_2' => { key: 'F[0].#subform[15].Conditions_You_Are_Being_Treated_For[2]' },
+          'dateRangeStart_2' => {
+            'month' => { key: 'F[0].#subform[15].Month[5]' },
+            'day' => { key: 'F[0].#subform[15].Day[5]' },
+            'year' => { key: 'F[0].#subform[15].Year[5]' }
           },
-          'dateRangeEnd2_0' => {
-            'month' => { key: "F[0].#subform[15].Month[6]" },
-            'day' => { key: "F[0].#subform[15].Day[6]" },
-            'year' => { key: "F[0].#subform[15].Year[6]" }
+          'dateRangeEnd_2' => {
+            'month' => { key: 'F[0].#subform[15].Month[6]' },
+            'day' => { key: 'F[0].#subform[15].Day[6]' },
+            'year' => { key: 'F[0].#subform[15].Year[6]' }
           },
-          'street2' => { limit: 30, key: "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[2]" },
-          'street22' => { limit: 5, key: "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[2]" },
-          'city2' => { limit: 18, key: "F[0].#subform[15].Provider_Facility_Address_City[2]" },
-          'state2' => { key: "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]" },
-          'country2' => { key: "F[0].#subform[15].Provider_Facility_Address_Country[2]" },
-          'postalCode2' => {
-            'firstFive' => { key: "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]" },
-            'lastFour' => { key: "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]" }
+          'street_2' => { limit: 30, key: 'F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[2]' },
+          'street2_2' => { limit: 5, key: 'F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[2]' },
+          'city_2' => { limit: 18, key: 'F[0].#subform[15].Provider_Facility_Address_City[2]' },
+          'state_2' => { key: 'F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]' },
+          'country_2' => { key: 'F[0].#subform[15].Provider_Facility_Address_Country[2]' },
+          'postalCode_2' => {
+            'firstFive' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]' },
+            'lastFour' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]' }
           },
 
           # Provider 3
-          'providerFacilityName3' => { key: "F[0].#subform[15].Provider_Or_Facility_Name[3]" },
-          'conditionsTreated3' => { key: "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[3]" },
-          'dateRangeStart3_0' => {
-            'month' => { key: "F[0].#subform[15].Month[7]" },
-            'day' => { key: "F[0].#subform[15].Day[7]" },
-            'year' => { key: "F[0].#subform[15].Year[7]" }
+          'providerFacilityName_3' => { key: 'F[0].#subform[15].Provider_Or_Facility_Name[3]' },
+          'conditionsTreated_3' => { key: 'F[0].#subform[15].Conditions_You_Are_Being_Treated_For[3]' },
+          'dateRangeStart_3' => {
+            'month' => { key: 'F[0].#subform[15].Month[7]' },
+            'day' => { key: 'F[0].#subform[15].Day[7]' },
+            'year' => { key: 'F[0].#subform[15].Year[7]' }
           },
-          'dateRangeEnd3_0' => {
-            'month' => { key: "F[0].#subform[15].Month[8]" },
-            'day' => { key: "F[0].#subform[15].Day[8]" },
-            'year' => { key: "F[0].#subform[15].Year[8]" }
+          'dateRangeEnd_3' => {
+            'month' => { key: 'F[0].#subform[15].Month[8]' },
+            'day' => { key: 'F[0].#subform[15].Day[8]' },
+            'year' => { key: 'F[0].#subform[15].Year[8]' }
           },
-          'street3' => { limit: 30, key: "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[3]" },
-          'street23' => { limit: 5, key: "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[3]" },
-          'city3' => { limit: 18, key: "F[0].#subform[15].Provider_Facility_Address_City[3]" },
-          'state3' => { key: "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]" },
-          'country3' => { key: "F[0].#subform[15].Provider_Facility_Address_Country[3]" },
-          'postalCode3' => {
-            'firstFive' => { key: "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]" },
-            'lastFour' => { key: "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]" }
+          'street_3' => { limit: 30, key: 'F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[3]' },
+          'street2_3' => { limit: 5, key: 'F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[3]' },
+          'city_3' => { limit: 18, key: 'F[0].#subform[15].Provider_Facility_Address_City[3]' },
+          'state_3' => { key: 'F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]' },
+          'country_3' => { key: 'F[0].#subform[15].Provider_Facility_Address_Country[3]' },
+          'postalCode_3' => {
+            'firstFive' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]' },
+            'lastFour' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]' }
           },
 
           # Provider 4
-          'providerFacilityName4' => { key: "F[0].#subform[15].Provider_Or_Facility_Name[4]" },
-          'conditionsTreated4' => { key: "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[4]" },
-          'dateRangeStart4_0' => {
-            'month' => { key: "F[0].#subform[15].Month[9]" },
-            'day' => { key: "F[0].#subform[15].Day[9]" },
-            'year' => { key: "F[0].#subform[15].Year[9]" }
+          'providerFacilityName_4' => { key: 'F[0].#subform[15].Provider_Or_Facility_Name[4]' },
+          'conditionsTreated_4' => { key: 'F[0].#subform[15].Conditions_You_Are_Being_Treated_For[4]' },
+          'dateRangeStart_4' => {
+            'month' => { key: 'F[0].#subform[15].Month[9]' },
+            'day' => { key: 'F[0].#subform[15].Day[9]' },
+            'year' => { key: 'F[0].#subform[15].Year[9]' }
           },
-          'dateRangeEnd4_0' => {
-            'month' => { key: "F[0].#subform[15].Month[10]" },
-            'day' => { key: "F[0].#subform[15].Day[10]" },
-            'year' => { key: "F[0].#subform[15].Year[10]" }
+          'dateRangeEnd_4' => {
+            'month' => { key: 'F[0].#subform[15].Month[10]' },
+            'day' => { key: 'F[0].#subform[15].Day[10]' },
+            'year' => { key: 'F[0].#subform[15].Year[10]' }
           },
-          'street4' => { limit: 30, key: "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[4]" },
-          'street24' => { limit: 5, key: "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[4]" },
-          'city4' => { limit: 18, key: "F[0].#subform[15].Provider_Facility_Address_City[4]" },
-          'state4' => { key: "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]" },
-          'country4' => { key: "F[0].#subform[15].Provider_Facility_Address_Country[4]" },
-          'postalCode4' => {
-            'firstFive' => { key: "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]" },
-            'lastFour' => { key: "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]" }
+          'street_4' => { limit: 30, key: 'F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[4]' },
+          'street2_4' => { limit: 5, key: 'F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[4]' },
+          'city_4' => { limit: 18, key: 'F[0].#subform[15].Provider_Facility_Address_City[4]' },
+          'state_4' => { key: 'F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]' },
+          'country_4' => { key: 'F[0].#subform[15].Provider_Facility_Address_Country[4]' },
+          'postalCode_4' => {
+            'firstFive' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]' },
+            'lastFour' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]' }
           }
+
+          # For additional pages
+          # 'nameAndAddressOfProvider' => {
+          #   key: '',
+          #   question_suffix: 'A',
+          #   question_text: 'Name and Address of Provider',
+          #   question_num: 9
+          # },
+          # 'combinedTreatmentDates' => {
+          #   key: '',
+          #   question_suffix: 'B',
+          #   question_text: 'Treatment Dates',
+          #   question_num: 9
+          # }
         }
 
       }.freeze
@@ -389,12 +403,13 @@ module PdfFill
           @form_data["veteranDateOfBirth#{suffix}"] = split_date(veteran_date_of_birth)
         end
       end
-      # TODO refactor Date.strptime
+
+      # TODO: refactor Date.strptime
       def expand_signature_date
         veteran_signature_date = Date.strptime(@form_data['signatureDate'], '%Y-%m-%d').to_s
         return if veteran_signature_date.blank?
 
-        @form_data["signatureDate"] = split_date(veteran_signature_date)
+        @form_data['signatureDate'] = split_date(veteran_signature_date)
       end
 
       def expand_veteran_service_number
@@ -410,7 +425,26 @@ module PdfFill
 
       def expand_provider_facility_name(providers)
         providers.each_with_index do |provider, i|
-          provider["providerFacilityName#{i}"] = provider.delete("providerFacilityName")
+          updates = {}
+
+          provider.each_key do |key| # key = providerFacilityName
+            if key == 'providerFacilityAddress'
+              updates["#{key}_#{i}"] = {}
+
+              provider['providerFacilityAddress'].each_key do |address_key| # address_key = street
+                updates["#{key}_#{i}"]["#{address_key}_#{i}"] =
+                  provider['providerFacilityAddress'][address_key]
+              end
+
+              provider.delete('providerFacilityAddress')
+            else
+              updates["#{key}_#{i}"] = provider[key]
+              provider.delete(key)
+            end
+          end
+
+          # updates
+          provider.merge!(updates)
         end
       end
 
@@ -418,10 +452,10 @@ module PdfFill
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
           date_ranges = {}
-          dates_of_treatment.each_with_index do |date_range, index|
+          dates_of_treatment.each do |date_range|
             date_ranges.merge!(
-              "dateRangeStart#{index}" => split_date(date_range['from']),
-              "dateRangeEnd#{index}" => split_date(date_range['to'])
+              'dateRangeStart' => split_date(date_range['from']),
+              'dateRangeEnd' => split_date(date_range['to'])
             )
           end
 
@@ -457,12 +491,11 @@ module PdfFill
       def expand_providers(providers)
         return if providers.blank?
 
-        expand_provider_facility_name(providers)
-
-# binding.pry
         expand_provider_extras(providers)
         expand_provider_address(providers)
         expand_provider_date_range(providers)
+
+        expand_provider_facility_name(providers)
       end
 
       def merge_fields(_options = {})
@@ -484,7 +517,7 @@ module PdfFill
         expand_veteran_dob
 
         expand_veteran_service_number
-binding.pry
+
         @form_data['providerFacility'] = expand_providers(@form_data['providerFacility'])
 
         @form_data
@@ -634,8 +667,6 @@ end
 # F[0].#subform[15].Provider_Facility_Address_Country[4]
 # F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]
 # F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]
-
-
 
 # 4142 standalone hash being passed to pdftk to populate the form fields
 
