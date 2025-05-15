@@ -42,17 +42,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   context "when #{facility_type} facility and travel claim returns success" do
     it 'sends notification with success template' do
       worker = described_class.new
-      notify_client = double
 
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @success_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @success_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_200', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -67,17 +62,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   context "when #{facility_type} facility and travel claim returns success with more than one claim status" do
     it 'logs an info message and sends notification with success template' do
       worker = described_class.new
-      notify_client = double
 
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @success_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @success_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/claim_status/multiple_claim_status_200', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -96,17 +86,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   context "when #{facility_type} facility and travel claim returns success with empty response" do
     it 'logs and sends notification with error message' do
       worker = described_class.new
-      notify_client = double
 
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @error_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @error_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_empty_response_200', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -125,16 +110,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   context "when #{facility_type} facility and claim status api returns failed status" do
     it 'logs and sends notification with error message' do
       worker = described_class.new
-      notify_client = double
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @failed_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
+
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @failed_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/claim_status/failed_claim_status_200', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -149,16 +130,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   context "when #{facility_type} facility and claim status api returns invalid status" do
     it 'logs and sends notification with error message' do
       worker = described_class.new
-      notify_client = double
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @error_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
+
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @error_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/claim_status/non_matching_claim_status_200', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -177,16 +154,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   context "when #{facility_type} facility and travel claim returns general error" do
     it 'sends notification with error message' do
       worker = described_class.new
-      notify_client = double
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @error_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
+
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @error_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_500', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -205,16 +178,12 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
 
     it 'sends notification with error message' do
       worker = described_class.new
-      notify_client = double
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @error_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
+
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @error_template_id
       )
-      expect(worker).not_to receive(:log_exception_to_sentry)
 
       VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -233,16 +202,11 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
 
     it 'sends notification with timeout error message' do
       worker = described_class.new
-      notify_client = double
 
-      expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                                .and_return(notify_client)
-
-      expect(notify_client).to receive(:send_sms).with(
-        phone_number: patient_cell_phone,
-        template_id: @timeout_template_id,
-        sms_sender_id: @sms_sender_id,
-        personalisation: { claim_number: nil, appt_date: notify_appt_date }
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @timeout_template_id
       )
 
       worker.perform(uuid, appt_date)
@@ -258,28 +222,23 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
     let(:travel_claim_status_resp) do
       Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
     end
-    let(:notify_client) { instance_double(VaNotify::Service) }
     let(:forbidden_exception) { VANotify::Forbidden.new(403, 'test error message') }
 
     before do
       allow_any_instance_of(TravelClaim::Client).to receive(:claim_status).and_return(travel_claim_status_resp)
-      allow(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
-                                               .and_return(notify_client)
-      allow(notify_client).to receive(:send_sms).with(any_args).and_raise(forbidden_exception)
+      allow(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).and_raise(forbidden_exception)
     end
 
-    it 'logs silent_failure statsd error metrics' do
+    it 'raises the error' do
       worker = described_class.new
+
       VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host],
                                                                    allow_playback_repeats: true) do
         expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
       end
 
-      expect(notify_client).to have_received(:send_sms).with(any_args).exactly(4).times
+      expect(CheckIn::TravelClaimNotificationJob).to have_received(:perform_async).once
       expect(StatsD).to have_received(:increment).with(@statsd_timeout).exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
-                                                       { tags: @statsd_silent_failure_tag })
-                                                 .exactly(1).time
     end
   end
 end
@@ -304,7 +263,8 @@ describe CheckIn::TravelClaimStatusCheckJob, type: :worker do
     allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
-                                            station_number:, facility_type: nil)
+                                            station_number:, facility_type: nil,
+                                            save_claim_number_last_four: true)
 
     allow(StatsD).to receive(:increment)
     allow(Sidekiq.logger).to receive(:info)
