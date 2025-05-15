@@ -127,11 +127,16 @@ jobs:
             ${{ env.COMPOSE_BASH_CMD }}
             "bundle exec rake parallel:setup[24]"
 
+      - name: Setup system tmp dir
+        run: >
+          ${{ env.COMPOSE_BASH_CMD }}
+          "mkdir -p tmp/systmp"
+
       - name: Run Specs
         timeout-minutes: 15
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "bundle exec rake 'parallel:spec[24, , , modules/]'"
+          "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
 
       - name: Set Test Status
         id: test-status
@@ -154,14 +159,26 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
-      - name: Upload tmp Artifacts on Failure
+      - name: Upload Test Artifacts (log)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Artifacts (log directory)
+          path: |
+            log
+            !log/*.xml
+          if-no-files-found: ignore
+
+      - name: Upload Test Artifacts (rails tmp)
+        uses: actions/upload-artifact@v4
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Artifacts (tmp)
+          name: Test Artifacts (rails tmp directory)
           path: tmp
           if-no-files-found: ignore
           retention-days: 14
+
 
   update_labels:
     name: Update Test Status Labels

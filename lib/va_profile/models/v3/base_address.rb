@@ -51,6 +51,7 @@ module VAProfile
         attribute :transaction_id, String
         attribute :updated_at, Common::ISO8601Time
         attribute :override_validation_key, Integer
+        attribute :validation_key, Integer
         attribute :vet360_id, String
         attribute :va_profile_id, String
         attribute :zip_code, String

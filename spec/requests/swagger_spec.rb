@@ -3296,7 +3296,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[host path method]) do
+        VCR.use_cassette('travel_pay/400_claims', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/v0/claims', 400, headers)
         end
       end
@@ -3321,6 +3321,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
+      # Returns 400 for now, but should be 404
       it 'returns 400 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
@@ -3394,6 +3395,24 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/travel_pay/v0/claims',
             201,
             headers.merge(params)
+          )
+        end
+      end
+    end
+
+    context 'documents' do
+      # doc summaries included in claim details
+
+      context 'show' do
+        it 'returns unauthorized for unauthed user' do
+          expect(subject).to validate(
+            :get,
+            '/travel_pay/v0/claims/{claimId}/documents/{docId}',
+            401,
+            {
+              'claimId' => 'claim-123',
+              'docId' => 'doc-456'
+            }
           )
         end
       end
@@ -3494,6 +3513,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
       subject.untested_mappings.delete('/v0/form0969')
+      subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')
