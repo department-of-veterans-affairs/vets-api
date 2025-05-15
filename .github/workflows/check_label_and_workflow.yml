@@ -46,7 +46,7 @@ jobs:
       - name: Check if workflows have completed successfully
         id: check_workflow
         run: |
-          WORKFLOWS=("Check CODEOWNERS Entries" "Pull Request Ready for Review" "Audit Service Tags" "Code Checks")
+          WORKFLOWS=("Check CODEOWNERS Entries" "Audit Service Tags" "Code Checks")
           ALL_COMPLETED=true
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
