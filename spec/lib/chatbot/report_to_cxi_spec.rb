@@ -22,7 +22,7 @@ RSpec.describe 'Chatbot::ReportToCxi', type: :request do
     allow(Settings.virtual_agent).to receive(:cxdw_table_prefix).and_return('table_prefix_')
     VCR.use_cassette('chatbot/cxi_post_to_table', record: :none, match_requests_on: [:uri]) do
       response = Chatbot::ReportToCxi.new.send(:send_to_cxi, dataverse_uri, icn,
-                                                   conversation_id, expected_token)
+                                               conversation_id, expected_token)
       expect(response.code).to eq('204')
     end
   end
