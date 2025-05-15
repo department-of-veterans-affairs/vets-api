@@ -129,6 +129,11 @@ jobs:
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
+      - name: List directories
+        run:
+          ${{ env.COMPOSE_BASH_CMD }}
+          "ls -d tmp/*/"
+
       - name: Run Specs
         timeout-minutes: 15
         run: >
