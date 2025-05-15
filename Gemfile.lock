@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 829e126f931d51341e5377b98e9ffdee73d3f2e9
+  revision: 71b49c2d04ab2edd8b5a582c03ab309bfc5500d2
   branch: master
   specs:
-    vets_json_schema (24.14.0)
+    vets_json_schema (24.14.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -243,8 +243,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1098.0)
-    aws-sdk-core (3.223.0)
+    aws-partitions (1.1103.0)
+    aws-sdk-core (3.224.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -254,14 +254,14 @@ GEM
     aws-sdk-kafka (1.89.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-kms (1.100.0)
+    aws-sdk-kms (1.101.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.185.0)
+    aws-sdk-s3 (1.186.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.98.0)
+    aws-sdk-sns (1.99.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.11.0)
@@ -281,7 +281,7 @@ GEM
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
-    bootsnap (1.18.4)
+    bootsnap (1.18.5)
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
@@ -542,7 +542,21 @@ GEM
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
-    google-protobuf (4.30.2)
+    google-protobuf (4.31.0)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.31.0-aarch64-linux-gnu)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.31.0-java)
+      bigdecimal
+      ffi (~> 1)
+      ffi-compiler (~> 1)
+      rake (>= 13)
+    google-protobuf (4.31.0-x86-mingw32)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.31.0-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     googleauth (1.14.0)

@@ -55,18 +55,20 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'raises error if claim is invalid' do
+      expected_errors = %w[primaryCaregiver secondaryCaregiverOne veteran].map do |field|
+        have_attributes(
+          title: include(" object at root is missing required properties: #{field}"),
+          detail: include(" - object at root is missing required properties: #{field}"),
+          status: '422',
+          code: '100'
+        )
+      end
+
       expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
         expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(4)
-        expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[1].detail).to include("The property '#/' of type object did not match")
-        expect(e.errors[1].status).to eq('422')
-        expect(e.errors[1].code).to eq('100')
-        expect(e.errors[2].detail).to include("did not contain a required property of 'primaryCaregiver'")
-        expect(e.errors[2].status).to eq('422')
-        expect(e.errors[2].code).to eq('100')
+        expect(e.errors.size).to eq(3)
+
+        expect(e.errors).to match_array(expected_errors)
       end
     end
 

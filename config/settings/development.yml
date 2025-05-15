@@ -222,6 +222,8 @@ claims_api:
     services:
       lighthouse:
         api_key: ~
+        notification_client_secret: ~
+        notify_service_id: ~
 clamav:
   host: 0.0.0.0
   mock: true
@@ -516,6 +518,7 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
@@ -610,6 +613,8 @@ ivc_forms:
     region: region
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
       enabled: true
