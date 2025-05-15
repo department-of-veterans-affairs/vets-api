@@ -9,7 +9,7 @@ FactoryBot.define do
     }
   end
 
-  factory :va526ez_v2, class: 'SavedClaim::DisabilityCompensation::Form526AllClaim' do
+  factory :va526ez_0781v2, class: 'SavedClaim::DisabilityCompensation::Form526AllClaim' do
     # for Form 21-0781V2
     form {
       JSON.parse(
