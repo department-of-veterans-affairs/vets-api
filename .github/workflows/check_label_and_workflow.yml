@@ -72,6 +72,8 @@ jobs:
               echo "$WORKFLOW did not complete successfully."
               ALL_COMPLETED=false
               break
+            else
+              echo "$WORKFLOW completed successfully."
             fi
           done
 
