@@ -156,7 +156,7 @@ module BenefitsIntakeService
       file_with_full_path = get_file_path_from_objs(file)
       params, _json_tmpfile = get_upload_docs(file_with_full_path:, metadata:,
                                               attachments:)
-      response = @benefits_intake_service.perform(:put, upload_url, params, { 'Content-Type' => 'multipart/form-data' })
+      response = perform(:put, upload_url, params, { 'Content-Type' => 'multipart/form-data' })
 
       raise response.body unless response.success?
 
