@@ -90,7 +90,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'v0',
                                      'unflattened', # <- Important difference
                                      '2122_with_limitations.pdf')
-      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to be(true)
+      expect(tempfile.path).to match_pdf_fields(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
   end
@@ -128,7 +128,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'v0',
                                      'unflattened', # <- Important difference
                                      '2122_with_limitations_no_claimant.pdf')
-      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to be(true)
+      expect(tempfile.path).to match_pdf_fields(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
   end

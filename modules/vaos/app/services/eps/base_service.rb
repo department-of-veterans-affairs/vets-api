@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'eps/token_authentication'
+
 module Eps
   # Eps::BaseService provides common functionality for making REST API requests
   # to the EPS service.
   class BaseService < VAOS::SessionService
     include Common::Client::Concerns::Monitoring
-    include TokenAuthentication
+    include Eps::TokenAuthentication
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]
@@ -28,6 +30,16 @@ module Eps
     end
 
     private
+
+    ##
+    # Get appropriate headers based on whether mocks are enabled. With Betamocks we
+    # bypass the need to request tokens.
+    #
+    # @return [Hash] Headers for the request or empty hash if mocks are enabled
+    #
+    def request_headers
+      config.mock_enabled? ? {} : headers
+    end
 
     ##
     # Returns the patient ID for the current user.

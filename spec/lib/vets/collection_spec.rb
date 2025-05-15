@@ -14,12 +14,14 @@ RSpec.describe Vets::Collection do
 
       set_pagination per_page: 21, max_per_page: 41
 
-      def <=>(other)
-        name <=> other.name
+      default_sort_by name: :asc
+
+      def self.filterable_params
+        { name: %w[match eq], age: %w[eq lteq gteq] }.with_indifferent_access
       end
 
       def self.filterable_attributes
-        { name: %w[match eq], age: %w[eq lteq gteq] }.with_indifferent_access
+        filterable_params.keys
       end
     end
   end
@@ -30,7 +32,7 @@ RSpec.describe Vets::Collection do
       record2 = dummy_class.new(name: 'Alice', age: 30)
 
       collection = described_class.new([record1, record2])
-      expect(collection.records).to eq([record2, record1])
+      expect(collection.records).to eq([record1, record2])
     end
 
     it 'raises an error if records are not all the same class' do
@@ -64,7 +66,7 @@ RSpec.describe Vets::Collection do
         pager.replace(records[0, 2])
       end
       collection = described_class.from_will_paginate(will_collection)
-      expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
+      expect(collection.records.map(&:name)).to eq(%w[Bob Alice])
     end
 
     it 'raises an error if any element is not a hash' do
@@ -131,44 +133,39 @@ RSpec.describe Vets::Collection do
     let(:collection) { described_class.new([record4, record1, record2, record3]) }
 
     it 'returns records sorted by the specified attribute in ascending order' do
-      sorted = collection.order(name: :asc)
-      expect(sorted).to eq([record1, record2, record3, record4])
+      sorted_collection = collection.order(name: :asc)
+      expect(sorted_collection.records).to eq([record1, record2, record3, record4])
     end
 
     it 'returns records sorted by the specified attribute in descending order' do
-      sorted = collection.order(name: :desc)
-      expect(sorted).to eq([record4, record3, record2, record1])
+      sorted_collection = collection.order(name: :desc)
+      expect(sorted_collection.records).to eq([record4, record3, record2, record1])
     end
 
     it 'handles sorting by multiple attributes' do
-      sorted = collection.order(age: :asc, name: :desc)
-      expect(sorted).to eq([record4, record2, record1, record3])
+      sorted_collection = collection.order(age: :asc, name: :desc)
+      expect(sorted_collection.records).to eq([record4, record2, record1, record3])
     end
 
-    it 'raises an error if an attribute is not a symbol' do
-      expect { collection.order('name' => :asc) }
-        .to raise_error(ArgumentError, 'Attribute name must be a symbol')
+    it 'sort by default order if no clauses are provided' do
+      sorted_collection = collection.order
+      expect(sorted_collection.records).to eq([record1, record2, record3, record4])
     end
 
     it 'raises an error if an attribute does not exist' do
       expect { collection.order(nonexistent: :asc) }
-        .to raise_error(ArgumentError, 'Attribute nonexistent does not exist on the model')
+        .to raise_error(Common::Exceptions::InvalidSortCriteria, 'Invalid sort criteria')
     end
 
     it 'raises an error if the direction is invalid' do
       expect { collection.order(name: :invalid) }
-        .to raise_error(ArgumentError, 'Direction invalid must be :asc or :desc')
-    end
-
-    it 'raises an error if no clauses are provided' do
-      expect { collection.order }
-        .to raise_error(ArgumentError, 'Order must have at least one sort clause')
+        .to raise_error(Common::Exceptions::InvalidSortCriteria, 'Invalid sort criteria')
     end
 
     it 'forces null values to end of the array' do
       collection = described_class.new([record4, record1, record5, record2, record3])
-      sorted = collection.order(age: :asc)
-      expect(sorted.last).to eq(record5)
+      sorted_collection = collection.order(age: :asc)
+      expect(sorted_collection.records.last).to eq(record5)
     end
   end
 
