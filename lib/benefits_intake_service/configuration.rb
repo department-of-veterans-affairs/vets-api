@@ -13,7 +13,7 @@ module BenefitsIntakeService
   #
   class Configuration < Common::Client::Configuration::REST
     def initialize
-      ActiveSupport::Deprecation.warn(
+      ActiveSupport::Deprecation.new.warn(
         'BenefitsIntakeService::Configuration is deprecated. ' \
         'Please use BenefitsIntake::Configuration instead.'
       )

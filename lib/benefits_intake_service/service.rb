@@ -36,7 +36,7 @@ module BenefitsIntakeService
     }.freeze
 
     def initialize(with_upload_location: false)
-      ActiveSupport::Deprecation.warn(
+      ActiveSupport::Deprecation.new.warn(
         'BenefitsIntakeService::Service is deprecated. ' \
         'Please use BenefitsIntake::Service instead.'
       )
