@@ -326,7 +326,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                       ' DD Form 214\'s or other separation papers for all' \
                                                       ' your periods of military service.')
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }
-          expect(support_alias_values).to include(['VA Form 21-4142'])
+          expect(support_alias_values).to include(['21-4142/21-4142a'])
           expect(support_alias_values).to include(['VA Form 21-4192'])
           expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
           expect(support_alias_values).to include(['VA Form 21-0781', 'PTSD - Need stressor details'])
