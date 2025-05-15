@@ -56,14 +56,14 @@ module HCA
       if response_code == '200'
         response.body
       else
-        Rails.logger.info("CSV retrieval failed with response code #{response_code}")
+        Rails.logger.warn("[HCA] - CSV retrieval failed with response code #{response_code}")
 
         nil
       end
     end
 
     def perform
-      Rails.logger.info("Job started with #{StdInstitutionFacility.count} existing facilities.")
+      Rails.logger.info("[HCA] - Job started with #{StdInstitutionFacility.count} existing facilities.")
 
       ActiveRecord::Base.transaction do
         data = fetch_csv_data
@@ -72,7 +72,7 @@ module HCA
         import_institutions_from_csv(data)
 
         HCA::HealthFacilitiesImportJob.perform_async
-        Rails.logger.info("Job ended with #{StdInstitutionFacility.count} existing facilities.")
+        Rails.logger.info("[HCA] - Job ended with #{StdInstitutionFacility.count} existing facilities.")
       end
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.ves_facilities_import_complete")
     end
@@ -83,7 +83,7 @@ module HCA
       CSV.parse(data, headers: true) do |row|
         id = row['ID'].to_i
         std_institution_facility = StdInstitutionFacility.find_or_initialize_by(id:)
-        Rails.logger.info("institution #{id} new? #{std_institution_facility.new_record?}")
+        Rails.logger.info("[HCA] - institution #{id} new? #{std_institution_facility.new_record?}")
 
         created = DateTime.strptime(row['CREATED'], '%F %H:%M:%S %z').to_s
         updated = DateTime.strptime(row['UPDATED'], '%F %H:%M:%S %z').to_s if row['UPDATED']
