@@ -6,6 +6,7 @@ module DisabilityCompensation
   module ApiProvider
     class SpecialIssue
       include Vets::Model
+
       attribute :code, String
       attribute :name, String
     end
@@ -24,13 +25,13 @@ module DisabilityCompensation
       attribute :rating_percentage, Integer
       attribute :maximum_rating_percentage, Integer
       attribute :related_disability_date, DateTime
-      attribute :special_issues, DisabilityCompensation::ApiProvider::SpecialIssue, array: true
+      attribute :special_issues, DisabilityCompensation::ApiProvider::SpecialIssue, array: true, default: []
     end
 
     class RatedDisabilitiesResponse
       include Vets::Model
 
-      attribute :rated_disabilities, DisabilityCompensation::ApiProvider::RatedDisability, array: true
+      attribute :rated_disabilities, DisabilityCompensation::ApiProvider::RatedDisability, array: true, default: []
     end
   end
 end
