@@ -918,6 +918,9 @@
   :endpoints:
     # Get a provider's service details
     - :method: :get
+      :path: "/care-navigation/v1/provider-services"
+      :file_path: "vaos/eps/providers/get_provider_services/default"
+    - :method: :get
       :path: "/care-navigation/v1/provider-services/*"
       :file_path: "vaos/eps/providers/get_provider_services"
       :cache_multiple_responses:
@@ -944,6 +947,22 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)\/slots'
+    
+    # Create draft appointment
+    - :method: :post
+      :path: "/care-navigation/v1/appointments"
+      :file_path: "vaos/eps/appointments/create_draft_appointment"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'referralNumber":"(\w+)"'
+    
+    # Submit appointment
+    - :method: :post
+      :path: "/care-navigation/v1/appointments/*/submit"
+      :file_path: "vaos/eps/appointments/submit_appointment"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)\/submit'
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
