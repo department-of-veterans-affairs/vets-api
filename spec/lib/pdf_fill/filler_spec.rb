@@ -106,42 +106,43 @@ describe PdfFill::Filler, type: :model do
           end
         end
       end
+    end
+  end
 
-      context 'when form_id is 21-0781V2' do
-        let(:form_id) { '21-0781V2' }
-        let(:form_data) do
-          get_fixture('pdf_fill/21-0781V2/kitchen_sink')
-        end
-        let(:hash_converter) { PdfFill::HashConverter.new('%m/%d/%Y', extras_generator) }
-        let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
-        let(:merged_form_data) { PdfFill::Forms::Va210781v2.new(form_data).merge_fields('signatureDate' => Time.now.utc.to_s) }
-        let(:new_hash) { hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: PdfFill::Forms::Va210781v2::KEY) }
-        let(:template_path) { 'lib/pdf_fill/forms/pdfs/21-0781V2.pdf' }
-        let(:file_path) { 'tmp/pdfs/21-0781V2_1.pdf' }
-        let(:claim_id) { '12345' }
+  describe '#fill_ancillary_form with form_id is 21-0781V2' do
+    context 'when form_id is 21-0781V2' do
+      let(:form_id) { '21-0781V2' }
+      let(:form_data) do
+        get_fixture('pdf_fill/21-0781V2/kitchen_sink')
+      end
+      let(:hash_converter) { PdfFill::HashConverter.new('%m/%d/%Y', extras_generator) }
+      let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
+      let(:merged_form_data) { PdfFill::Forms::Va210781v2.new(form_data).merge_fields('signatureDate' => Time.now.utc.to_s) }
+      let(:new_hash) { hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: PdfFill::Forms::Va210781v2::KEY) }
+      let(:template_path) { 'lib/pdf_fill/forms/pdfs/21-0781V2.pdf' }
+      let(:file_path) { 'tmp/pdfs/21-0781V2_12346.pdf' }
+      let(:claim_id) { '12346' }
 
-        before do
-          allow(extras_generator).to receive(:text?).once.and_return(true)
-          allow(extras_generator).to receive(:add_text)
-        end
+      it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
+        # Mock the hash converter and its behavior
+        allow(extras_generator).to receive(:text?).once.and_return(true)
+        allow(extras_generator).to receive(:add_text)
+        allow(hash_converter).to receive(:transform_data).and_return(new_hash)
 
-        it 'uses UNICODE_PDF_FORMS to fill the form for form_id 21-0781V2' do
-          # Mock the hash converter and its behavior
-          allow(hash_converter).to receive(:transform_data).and_return(new_hash)
+        # Mock UNICODE_PDF_FORMS and PDF_FORMS
+        allow(described_class::UNICODE_PDF_FORMS).to receive(:fill_form).and_call_original
+        allow(described_class::PDF_FORMS).to receive(:fill_form).and_call_original
 
-          # Mock UNICODE_PDF_FORMS and PDF_FORMS
-          allow(described_class::UNICODE_PDF_FORMS).to receive(:fill_form)
-          allow(described_class::PDF_FORMS).to receive(:fill_form)
+        generated_pdf_path = described_class.fill_ancillary_form(form_data, claim_id, form_id)
 
-          # Call the method under test
-          described_class.fill_ancillary_form(form_data, 1, form_id)
+        unicode_text = 'Lorem ‒–—―‖‗‘’‚‛“”„‟′″‴á, é, í, ó, ú, Á, É, Í, Ó, Úñ, Ñ¿, ¡ipsum dolor sit amet'
+        expect(File).to exist(generated_pdf_path)
+        expect(described_class::UNICODE_PDF_FORMS).to have_received(:fill_form).with(
+          template_path, generated_pdf_path, hash_including("F[0].#subform[5].Remarks_If_Any[0]" => unicode_text), flatten: false
+        )
+        expect(described_class::PDF_FORMS).not_to have_received(:fill_form)
 
-          # Expectations
-          expect(described_class::UNICODE_PDF_FORMS).to have_received(:fill_form).with(
-            template_path, file_path, new_hash, flatten: false
-          )
-          expect(described_class::PDF_FORMS).not_to have_received(:fill_form)
-        end
+        File.delete(file_path) if File.exist?(file_path)
       end
     end
   end
