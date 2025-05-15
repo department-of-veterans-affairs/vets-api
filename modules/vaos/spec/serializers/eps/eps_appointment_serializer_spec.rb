@@ -34,7 +34,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
       is_latest: true,
       last_retrieved: '2023-10-01T12:00:00Z',
       type_of_care: 'CARDIOLOGY',
-      referral_phone_number: '1234567890',
+      provider_phone: '1234567890',
       provider:,
       provider_details: {
         id: 'test-provider-id',
@@ -62,12 +62,12 @@ RSpec.describe Eps::EpsAppointmentSerializer do
 
   describe 'serialization' do
     it 'serializes the appointment with correct structure' do
-      expect(serialized[:data][:type]).to eq(:eps_appointment)
+      expect(serialized[:data][:type]).to eq(:epsAppointment)
       expect(serialized[:data][:id]).to eq('qdm61cJ5')
       expect(serialized[:data][:attributes][:id]).to eq('qdm61cJ5')
       expect(serialized[:data][:attributes][:status]).to eq('booked')
       expect(serialized[:data][:attributes][:start]).to eq('2024-11-21T18:00:00Z')
-      expect(serialized[:data][:attributes][:type_of_care]).to eq('CARDIOLOGY')
+      expect(serialized[:data][:attributes][:typeOfCare]).to eq('CARDIOLOGY')
       expect(serialized[:data][:attributes][:modality]).to eq('OV')
     end
 
@@ -104,7 +104,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           is_latest: true,
           last_retrieved: '2023-10-01T12:00:00Z',
           type_of_care: 'CARDIOLOGY',
-          referral_phone_number: '1234567890',
+          provider_phone: '1234567890',
           provider: nil,
           provider_details: nil,
           referring_facility_details: {
@@ -129,7 +129,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           is_latest: true,
           last_retrieved: '2023-10-01T12:00:00Z',
           type_of_care: nil,
-          referral_phone_number: nil,
+          provider_phone: nil,
           provider:,
           provider_details: {
             id: 'test-provider-id',
@@ -155,7 +155,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
       end
 
       it 'has nil for type_of_care' do
-        expect(serialized[:data][:attributes][:type_of_care]).to be_nil
+        expect(serialized[:data][:attributes][:typeOfCare]).to be_nil
       end
 
       it 'does not include phone_number in provider data' do
@@ -163,7 +163,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
       end
     end
 
-    context 'when referral_phone_number is nil but provider details include phone' do
+    context 'when provider_phone is nil but provider details include phone' do
       let(:eps_appointment) do
         instance_double(
           VAOS::V2::EpsAppointment,
@@ -173,7 +173,7 @@ RSpec.describe Eps::EpsAppointmentSerializer do
           is_latest: true,
           last_retrieved: '2023-10-01T12:00:00Z',
           type_of_care: 'CARDIOLOGY',
-          referral_phone_number: nil,
+          provider_phone: nil,
           provider:,
           provider_details: {
             id: 'test-provider-id',

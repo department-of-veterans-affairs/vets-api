@@ -40,7 +40,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         {
           'data' => {
             'id' => 'qdm61cJ5',
-            'type' => 'eps_appointment',
+            'type' => 'epsAppointment',
             'attributes' => {
               'id' => 'qdm61cJ5',
               'status' => 'booked',
