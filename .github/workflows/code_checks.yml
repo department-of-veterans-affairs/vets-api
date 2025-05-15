@@ -185,43 +185,70 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions: write-all
-
     steps:
-      - name: Update labels based on test results
-        uses: actions/github-script@v7
+      - name: Remove Test Failure label
+        if: needs.tests.outputs.status == 'success'
+        uses: actions-ecosystem/action-remove-labels@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = context.payload.pull_request.number;
-            const status = "${{ needs.tests.outputs.status }}";
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
 
-            const removeLabel = async (label) => {
-              try {
-                await github.rest.issues.removeLabel({
-                  ...context.repo,
-                  issue_number: prNumber,
-                  name: label,
-                });
-              } catch (error) {
-                if (error.status !== 404) throw error; // ignore missing label
-              }
-            };
+      - name: Add Test Failure label
+        if: needs.tests.outputs.status == 'failure'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+      - name: Remove Test Passing label
+        if: needs.tests.outputs.status == 'failure'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-passing
 
-            const addLabel = async (label) => {
-              await github.rest.issues.addLabels({
-                ...context.repo,
-                issue_number: prNumber,
-                labels: [label],
-              });
-            };
+      - name: Add Test Passing label
+        if: needs.tests.outputs.status == 'success'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-passing
 
-            if (status === 'success') {
-              await removeLabel("test-failure");
-              await addLabel("test-passing");
-            } else if (status === 'failure') {
-              await removeLabel("test-passing");
-              await addLabel("test-failure");
-            }
+    # steps:
+    #   - name: Update labels based on test results
+    #     uses: actions/github-script@v7
+    #     with:
+    #       github-token: ${{ secrets.GITHUB_TOKEN }}
+    #       script: |
+    #         const prNumber = context.payload.pull_request.number;
+    #         const status = "${{ needs.tests.outputs.status }}";
+
+    #         const removeLabel = async (label) => {
+    #           try {
+    #             await github.rest.issues.removeLabel({
+    #               ...context.repo,
+    #               issue_number: prNumber,
+    #               name: label,
+    #             });
+    #           } catch (error) {
+    #             if (error.status !== 404) throw error; // ignore missing label
+    #           }
+    #         };
+
+    #         const addLabel = async (label) => {
+    #           await github.rest.issues.addLabels({
+    #             ...context.repo,
+    #             issue_number: prNumber,
+    #             labels: [label],
+    #           });
+    #         };
+
+    #         if (status === 'success') {
+    #           await removeLabel("test-failure");
+    #           await addLabel("test-passing");
+    #         } else if (status === 'failure') {
+    #           await removeLabel("test-passing");
+    #           await addLabel("test-failure");
+    #         }
 
   publish_results:
     name: Publish Test Results and Coverage

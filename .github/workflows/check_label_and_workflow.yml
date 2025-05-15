@@ -27,14 +27,56 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if another workflow is running
+      # - name: Check if another workflow is running
+      #   id: check_workflows
+      #   run: |
+
+      #     CODE_CHECKS=$(gh run list --workflow=code_checks.yml --status=in_progress --json headBranch,event -q \
+      #       '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
+      #     AUDIT_TAGS=$(gh run list --workflow=audit_service_tags.yml --status=in_progress --json headBranch,event -q \
+      #       '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
+
+      #     if [ -n "$CODE_CHECKS" ] || [ -n "$AUDIT_TAGS" ]; then
+      #       echo "ci_running=true" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "ci_running=false" >> $GITHUB_OUTPUT
+      #     fi
+
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if code_checks and audit_service_tags have completed successfully
         id: check_workflow
         run: |
-          RUNNING=$(gh run list --workflow=code_checks.yml --status=in_progress --json headBranch,event -q '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
-          if [ -n "$RUNNING" ]; then
-            echo "ci_running=true" >> $GITHUB_OUTPUT
+          WORKFLOWS=("code_checks.yml" "audit_service_tags.yml" "check_codeowners.yml")
+          ALL_COMPLETED=true
+
+          for WORKFLOW in "${WORKFLOWS[@]}"; do
+            # Check if there's any in-progress run for this workflow
+            IN_PROGRESS=$(gh run list --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
+              '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
+
+            if [ -n "$IN_PROGRESS" ]; then
+              echo "$WORKFLOW is still in progress."
+              ALL_COMPLETED=false
+              break
+            fi
+
+            # Check if the latest completed run was successful
+            SUCCESSFUL=$(gh run list --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
+              '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
+
+            if [ -z "$SUCCESSFUL" ]; then
+              echo "$WORKFLOW did not complete successfully."
+              ALL_COMPLETED=false
+              break
+            fi
+          done
+
+          if [ "$ALL_COMPLETED" = true ]; then
+            echo "ci_ready=true" >> $GITHUB_OUTPUT
           else
-            echo "ci_running=false" >> $GITHUB_OUTPUT
+            echo "ci_ready=false" >> $GITHUB_OUTPUT
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
