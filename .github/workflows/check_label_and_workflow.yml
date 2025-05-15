@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Pull Request Ready for Review"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Pull Request Ready for Review", "Audit Service Tags"]
     branches: ["*"]
     types: [completed]
 
@@ -48,7 +48,7 @@ jobs:
       - name: Check if workflows have completed successfully
         id: check_workflow
         run: |
-          WORKFLOWS=("Check CODEOWNERS Entries" "Pull Request Ready for Review" "Code Checks")
+          WORKFLOWS=("Check CODEOWNERS Entries" "Pull Request Ready for Review" "Audit Service Tags" "Code Checks")
           ALL_COMPLETED=true
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
