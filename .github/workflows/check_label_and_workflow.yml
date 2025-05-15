@@ -30,7 +30,7 @@ jobs:
       - name: Check if another workflow is running
         id: check_workflow
         run: |
-          RUNNING=$(gh run list --workflow=ci.yml --status=in_progress --json headBranch,event -q '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
+          RUNNING=$(gh run list --workflow=code_checks.yml --status=in_progress --json headBranch,event -q '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
           if [ -n "$RUNNING" ]; then
             echo "ci_running=true" >> $GITHUB_OUTPUT
           else
@@ -39,6 +39,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Proceed if label exists and ci.yml is not running
+      - name: Proceed if label exists and code_checks.yml is not running
         if: steps.check_label.outputs.label_found == 'true' && steps.check_workflow.outputs.ci_running == 'false'
-        run: echo "Label is present and ci.yml is NOT running. Proceeding..."
+        run: echo "Label is present and code_checks.yml is NOT running. Proceeding..."
