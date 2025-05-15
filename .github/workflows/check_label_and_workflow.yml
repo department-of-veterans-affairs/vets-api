@@ -54,17 +54,15 @@ jobs:
             IN_PROGRESS=$(gh run list --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
               '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request")')
 
-            if [ -n "$IN_PROGRESS" ]; then
-              echo "$WORKFLOW is still in progress."
-              ALL_COMPLETED=false
-              # break
-            fi
-
             # Check if the latest completed run was successful
             SUCCESSFUL=$(gh run list --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
               '.[] | select(.headBranch == "${{ github.head_ref }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
 
-            if [ -z "$SUCCESSFUL" ]; then
+            if [ -n "$IN_PROGRESS" ]; then
+              echo "$WORKFLOW is still in progress."
+              ALL_COMPLETED=false
+              # break
+            elif [ -z "$SUCCESSFUL" ]; then
               echo "$WORKFLOW did not complete successfully."
               ALL_COMPLETED=false
               # break

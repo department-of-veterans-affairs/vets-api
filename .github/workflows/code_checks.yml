@@ -199,6 +199,7 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
+
       - name: Remove Test Passing label
         if: needs.tests.outputs.status == 'failure'
         uses: actions-ecosystem/action-remove-labels@v1
