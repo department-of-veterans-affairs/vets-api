@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'va_profile/models/email'
 ##
 # Models Prescription notification preference
@@ -10,11 +10,11 @@ require 'va_profile/models/email'
 # @!attribute rx_flag
 #   @return [Boolean]
 #
-class PrescriptionPreference < Common::Base
-  include ActiveModel::Validations
+class PrescriptionPreference
+  include Vets::Model
 
   attribute :email_address, String
-  attribute :rx_flag, Boolean
+  attribute :rx_flag, Bool
 
   validates :rx_flag, inclusion: { in: [true, false] }
   validates(
