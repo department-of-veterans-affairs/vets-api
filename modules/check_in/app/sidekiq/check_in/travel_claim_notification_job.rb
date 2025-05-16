@@ -9,7 +9,8 @@ module CheckIn
   #   CheckIn::TravelClaimNotificationJob.perform_async(
   #     'uuid-123-456',                       # Required - Appointment UUID
   #     '2023-05-15',                         # Required - Appointment date in YYYY-MM-DD format
-  #     'template-id-123'                     # Required - VaNotify template ID
+  #     'template-id-123',                    # Required - VaNotify template ID
+  #     '1234'                                # Required - Last four digits of claim number
   #   )
   class TravelClaimNotificationJob < TravelClaimBaseJob
     sidekiq_options retry: 12
@@ -19,20 +20,21 @@ module CheckIn
     #
     # Validates input parameters, logs the attempt, and handles success/failure
     # metrics. Returns early if required parameters like mobile_phone are missing.
-    # The claim number is retrieved from Redis using the provided UUID.
+    # The claim number is directly passed to the job.
     #
     # @param uuid [String] The appointment UUID used to retrieve data from Redis
     # @param appointment_date [String] The appointment date in YYYY-MM-DD format
     # @param template_id [String] The VaNotify template ID to use
+    # @param claim_number_last_four [String] The last four digits of claim number
     # @return [void]
-    def perform(uuid, appointment_date, template_id)
+    def perform(uuid, appointment_date, template_id, claim_number_last_four)
       redis_client = TravelClaim::RedisClient.build
       opts = {
         mobile_phone: redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:),
         appointment_date:,
         template_id:,
         facility_type: redis_client.facility_type(uuid:),
-        claim_number_last_four: redis_client.claim_number_last_four(uuid:)
+        claim_number_last_four:
       }
 
       return self.class.log_failure(opts) unless validate_required_fields(opts)
@@ -69,11 +71,11 @@ module CheckIn
     def self.handle_error(job, ex)
       uuid = job.dig('args', 0)
       template_id = job.dig('args', 2)
+      claim_number = job.dig('args', 3)
 
       redis_client = TravelClaim::RedisClient.build
       phone_number = redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:)
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
-      claim_number = redis_client.claim_number_last_four(uuid:)
 
       sentry_context = { template_id:, phone_last_four: }
       sentry_context[:claim_number] = claim_number if claim_number
