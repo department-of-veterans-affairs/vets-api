@@ -151,11 +151,12 @@ module PdfFill
           form_data['programs'].each do |program|
             # Add programDateOfCalculation to each valid program entry
             program['programDateOfCalculation'] = calculation_date
-            
-            # Add percentage signs to FTE values
+
             if program['fte']
               program['fte']['totalFTE'] = "#{program['fte']['totalFTE']}%" if program['fte']['totalFTE'].present?
-              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%" if program['fte']['supportedPercentageFTE'].present?
+              if program['fte']['supportedPercentageFTE'].present?
+                program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
+              end
             end
           end
         end
