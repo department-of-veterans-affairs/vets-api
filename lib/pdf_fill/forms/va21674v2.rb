@@ -497,7 +497,7 @@ module PdfFill
                   limit: 2,
                   question_num: 10,
                   question_suffix: 'A',
-                  question_text: 'School Attendance Information >Date student stopped attending continuously (MM-DD-YYYY)'
+                  question_text: 'School Attendance Information >Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
                 },
                 'year' => {
                   key: 'form1[0].#subform[0].DateStoppedAttending.year[%iterator%]',
