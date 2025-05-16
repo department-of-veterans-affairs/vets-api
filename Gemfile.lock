@@ -99,6 +99,7 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
       dry-schema
+    claims_evidence_api (0.1.0)
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -1234,6 +1235,7 @@ DEPENDENCIES
   carrierwave-aws
   check_in!
   claims_api!
+  claims_evidence_api!
   clamav-client
   combine_pdf
   committee-rails
