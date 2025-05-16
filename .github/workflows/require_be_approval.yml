@@ -23,7 +23,6 @@ jobs:
         run: |
           LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
           echo "Labels on PR: $LABELS"
-
           if ! echo "$LABELS" | grep -q "require-backend-approval"; then
             echo "require_be_approval=false" >> $GITHUB_OUTPUT
             echo "Label 'require-backend-approval' not found. Exiting successfully."

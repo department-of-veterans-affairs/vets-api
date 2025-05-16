@@ -57,8 +57,8 @@ jobs:
 
   handle-draft-state:
     name: Handle Draft State
-    needs: get-pr-data
     if: needs.get-pr-data.outputs.pr_draft == 'true'
+    needs: get-pr-data
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -67,6 +67,11 @@ jobs:
         with:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: ready-for-backend-review
+      - name: Remove require-backend-approval label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ needs.get-pr-data.outputs.pr_number }}
+          labels: require-backend-approval
 
   check-backend-requirement:
     name: Check Backend Requirement
