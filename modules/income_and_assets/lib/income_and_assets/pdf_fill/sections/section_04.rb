@@ -14,6 +14,8 @@ module IncomeAndAssets
         },
         # 4b - 4f (only space for five on form)
         'associatedIncomes' => {
+          # Label for each income entry (e.g., 'Income 1')
+          item_label: 'Income',
           limit: 5,
           first_key: 'otherRecipientRelationshipType',
           # Q1

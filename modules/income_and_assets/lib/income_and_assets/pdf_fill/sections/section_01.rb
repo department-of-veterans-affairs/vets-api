@@ -6,50 +6,31 @@ module IncomeAndAssets
   module PdfFill
     # Section I: Veteran Informations
     class Section1 < Section
-      # Section configuration hash with overflow metadata
+      # Section configuration hash
       KEY = {
-        # 1a: Veteran full name
+        # 1a
         'veteranFullName' => {
+          # form allows up to 39 characters but validation limits to 30,
+          # so no overflow is needed
           'first' => {
-            key: 'F[0].Page_4[0].VeteransName.First[0]',
-            limit: 30,
-            question_num: 1,
-            question_suffix: 'A',
-            question_text: 'Veterans name – first',
-            question_label: 'First'
+            key: 'F[0].Page_4[0].VeteransName.First[0]'
           },
           'middle' => {
-            key: 'F[0].Page_4[0].VeteransName.MI[0]',
-            limit: 1,
-            question_num: 1,
-            question_suffix: 'B',
-            question_text: 'Veterans name – middle initial',
-            question_label: 'MI'
+            key: 'F[0].Page_4[0].VeteransName.MI[0]'
           },
+          # form allows up to 34 characters but validation limits to 30,
+          # so no overflow is needed
           'last' => {
-            key: 'F[0].Page_4[0].VeteransName.Last[0]',
-            limit: 30,
-            question_num: 1,
-            question_suffix: 'C',
-            question_text: 'Veterans name – last',
-            question_label: 'Last'
+            key: 'F[0].Page_4[0].VeteransName.Last[0]'
           }
         },
-        # 1b: Veteran SSN
+        # 1b
         'veteranSocialSecurityNumber' => {
-          key: 'F[0].Page_4[0].VeteransSSN[0]',
-          limit: 9,
-          question_num: 2,
-          question_text: 'Veterans social security number',
-          question_label: 'SSN'
+          key: 'F[0].Page_4[0].VeteransSSN[0]'
         },
-        # 1c: VA file number
+        # 1c
         'vaFileNumber' => {
-          key: 'F[0].Page_4[0].VeteransFileNumber[0]',
-          limit: 20,
-          question_num: 3,
-          question_text: 'Veterans file number',
-          question_label: 'File number'
+          key: 'F[0].Page_4[0].VeteransFileNumber[0]'
         }
       }.freeze
 

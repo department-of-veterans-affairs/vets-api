@@ -12,6 +12,8 @@ module IncomeAndAssets
         'annuity' => { key: 'F[0].#subform[8].DependentsEstablishedAnnuity9a[0]' },
         # 9b-9k (only space for one on form)
         'annuities' => {
+          # Label for each annuity entry (e.g., 'Annuity 1')
+          item_label: 'Annuity',
           limit: 1,
           first_key: 'establishedDate', # No text fields in this section
           # 9b

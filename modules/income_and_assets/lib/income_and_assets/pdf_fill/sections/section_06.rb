@@ -14,6 +14,8 @@ module IncomeAndAssets
         },
         # 6b-c (only space for two on form)
         'royaltiesAndOtherProperties' => {
+          # Label for each list item (e.g., 'Royalty/Property 1')
+          item_label: 'Royalty/Property',
           limit: 2,
           first_key: 'otherRecipientRelationshipType',
           # Q1

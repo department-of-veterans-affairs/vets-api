@@ -12,6 +12,8 @@ module IncomeAndAssets
         'trust' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
         # 8b-8m (only space for one on form)
         'trusts' => {
+          # Label for each trust entry (e.g., 'Trust 1')
+          item_label: 'Trust',
           limit: 1,
           first_key: 'establishedDate', # No text fields in this section
           # 8b

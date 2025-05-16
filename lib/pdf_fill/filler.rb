@@ -171,18 +171,20 @@ module PdfFill
     end
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
-      extras_generator =
-        if fill_options.fetch(:extras_redesign, false)
-          ExtrasGeneratorV2.new(
-            form_name: form_id.sub(/V2\z/, ''),
-            submit_date:,
-            question_key: form_class::QUESTION_KEY,
-            start_page: form_class::START_PAGE,
-            sections: form_class::SECTIONS
-          )
-        else
-          ExtrasGenerator.new
-        end
+      # Use redesign extras generator with optional form-specific label_width
+      if fill_options.fetch(:extras_redesign, false)
+        v2_opts = {
+          form_name: form_id.sub(/V2\z/, ''),
+          submit_date:,
+          question_key: form_class::QUESTION_KEY,
+          start_page: form_class::START_PAGE,
+          sections: form_class::SECTIONS
+        }
+        v2_opts[:label_width] = form_class::DEFAULT_LABEL_WIDTH if form_class.const_defined?(:DEFAULT_LABEL_WIDTH)
+        extras_generator = ExtrasGeneratorV2.new(v2_opts)
+      else
+        extras_generator = ExtrasGenerator.new
+      end
       HashConverter.new(form_class.date_strftime, extras_generator)
     end
 

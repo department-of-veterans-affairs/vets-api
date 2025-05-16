@@ -12,6 +12,8 @@ module IncomeAndAssets
         'unreportedAsset' => { key: 'F[0].#subform[8].DependentsHaveAssetsNotReported10a[0]' },
         # 10b-e (only space for four on form)
         'unreportedAssets' => {
+          # Label for each unreported asset (e.g., 'Unreported Asset 1')
+          item_label: 'Unreported Asset',
           limit: 4,
           first_key: 'otherRelationshipType',
           # Q1

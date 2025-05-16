@@ -12,6 +12,8 @@ module IncomeAndAssets
         'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
         # 12b-12c (only space for 2 on form)
         'incomeReceiptWaivers' => {
+          # Label for each waiver entry (e.g., 'Income Receipt Waiver 1')
+          item_label: 'Income Receipt Waiver',
           limit: 2,
           first_key: 'otherRecipientRelationshipType',
           # Q1
