@@ -79,11 +79,6 @@ jobs:
         with:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: ready-for-backend-review
-      - name: Remove require-backend-approval label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ needs.get-pr-data.outputs.pr_number }}
-          labels: require-backend-approval
 
   check-backend-requirement:
     name: Check Backend Requirement
@@ -100,20 +95,22 @@ jobs:
     steps:
       - name: Check Backend Requirement
         id: check_backend_requirement
-        if: ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }}
+        if: |
+          ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }} ||
+          ${{ contains(fromJSON(env.pr_labels), 'require-backend-approval') }}
         run: |
           echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-
-      - name: Remove require-backend-approval label
-        uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
-        with:
-          number: ${{ env.pr_number }}
-          labels: require-backend-approval
 
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
         if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+      - name: Remove require-backend-approval label
+        uses: actions-ecosystem/action-remove-labels@v1
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
@@ -243,4 +240,6 @@ jobs:
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
+
+
 
