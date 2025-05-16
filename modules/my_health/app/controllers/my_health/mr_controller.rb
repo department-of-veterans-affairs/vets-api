@@ -6,7 +6,7 @@ require 'medical_records/phr_mgr/client'
 require 'medical_records/lighthouse_client'
 
 module MyHealth
-  class MrController < ApplicationController
+  class MRController < ApplicationController
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 

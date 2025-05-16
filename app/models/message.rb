@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 ##
 # Models a secure message
@@ -34,14 +34,11 @@ require 'common/models/base'
 # @!attribute attachments
 #   @return [Array[Attachment]] an array of Attachments
 #
-class Message < Common::Base
-  per_page 10
-  max_per_page 100
-
+class Message
   MAX_TOTAL_FILE_SIZE_MB = 10.0
   MAX_SINGLE_FILE_SIZE_MB = 6.0
 
-  include ActiveModel::Validations
+  include Vets::Model
   include RedisCaching
 
   redis_config REDIS_CONFIG[:secure_messaging_store]
@@ -59,45 +56,45 @@ class Message < Common::Base
 
   attribute :id, Integer
   attribute :category, String
-  attribute :subject, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
+  attribute :subject, String, filterable: %w[eq not_eq match]
   attribute :body, String
-  attribute :attachment, Boolean
-  attribute :sent_date, Common::UTCTime, filterable: %w[eq lteq gteq], sortable: { order: 'DESC', default: true }
+  attribute :attachment, Bool, default: false
+  attribute :sent_date, Vets::Type::UTCTime, filterable: %w[eq lteq gteq]
   attribute :sender_id, Integer
-  attribute :sender_name, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
+  attribute :sender_name, String, filterable: %w[eq not_eq match]
   attribute :recipient_id, Integer
-  attribute :recipient_name, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
+  attribute :recipient_name, String, filterable: %w[eq not_eq match]
   attribute :read_receipt, String
   attribute :triage_group_name, String
   attribute :proxy_sender_name, String
-  attribute :attachments, Array[Attachment]
-  attribute :has_attachments, Boolean
+  attribute :attachments, Attachment, array: true
+  attribute :has_attachments, Bool, default: false
   attribute :attachment1_id, Integer
   attribute :attachment2_id, Integer
   attribute :attachment3_id, Integer
   attribute :attachment4_id, Integer
   attribute :suggested_name_display, String
+  attribute :metadata, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
 
   # This is only used for validating uploaded files, never rendered
-  attribute :uploads, Array[ActionDispatch::Http::UploadedFile]
-
-  alias attachment? attachment
-
-  def initialize(attributes = {})
-    # temporarily coerce attachments to Attachment class
-    # this will be removed when Message is switched to Vets::Model
-    attributes[:attachments] = attributes[:attachments].map { |a| Attachment.new(a) } if attributes[:attachments]
-
-    super(attributes)
-    self.subject = subject ? Nokogiri::HTML.parse(subject) : nil
-    self.body = body ? Nokogiri::HTML.parse(body) : nil
-  end
+  attribute :uploads, ActionDispatch::Http::UploadedFile, array: true
 
   ##
   # @note Default sort should be sent date in descending order
   #
-  def <=>(other)
-    -(sent_date <=> other.sent_date)
+  default_sort_by sent_date: :desc
+  set_pagination per_page: 10, max_per_page: 100
+
+  alias attachment? attachment
+
+  def initialize(attributes = {})
+    # super is calling Vets::Model#initialize
+    super(attributes)
+    # this is called because Vets::Type::Primitive String can't
+    # coerce html or Nokogiri doc to plain text
+    # refactoring: the subject & body should be manipulated before passed to Message
+    @subject = subject ? Nokogiri::HTML.parse(subject).text : nil
+    @body = body ? Nokogiri::HTML.parse(body).text : nil
   end
 
   ##

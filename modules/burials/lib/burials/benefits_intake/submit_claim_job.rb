@@ -135,7 +135,7 @@ module Burials
           timestamp: @claim.created_at,
           page_number: 5,
           size: 9,
-          template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{@claim.form_id}.pdf",
+          template: Burials::PDF_PATH,
           multistamp: true
         )
 

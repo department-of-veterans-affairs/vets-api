@@ -51,8 +51,6 @@ Rails.application.routes.draw do
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
-    resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
-    resource :virtual_agent_token_nlu, only: [:create], controller: :virtual_agent_token_nlu
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
@@ -182,8 +180,8 @@ Rails.application.routes.draw do
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
-    get 'intent_to_file', to: 'intent_to_files#index'
-    post 'intent_to_file/:type', to: 'intent_to_files#submit'
+    get 'intent_to_file(/:itf_type)', to: 'intent_to_files#index'
+    post 'intent_to_file/:itf_type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
