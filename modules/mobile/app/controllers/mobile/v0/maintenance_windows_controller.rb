@@ -31,7 +31,8 @@ module Mobile
         %i[vaos appointments],
         %i[vapro_personal_info user_demographics],
         %i[vapro_contact_info user_contact_update],
-        %i[eoas preneed_burial]
+        %i[eoas preneed_burial],
+        %i[travel_pay travel_pay_features]
       )
 
       def index
