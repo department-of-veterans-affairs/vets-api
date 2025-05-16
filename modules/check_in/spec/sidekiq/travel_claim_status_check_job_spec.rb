@@ -91,7 +91,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         uuid,
         appt_date,
         @error_template_id,
-        ""
+        ''
       )
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_empty_response_200', match_requests_on: [:host]) do
@@ -165,7 +165,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         uuid,
         appt_date,
         @error_template_id,
-        ""
+        ''
       )
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_500', match_requests_on: [:host]) do
@@ -190,7 +190,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         uuid,
         appt_date,
         @error_template_id,
-        ""
+        ''
       )
 
       VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
@@ -215,7 +215,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
         uuid,
         appt_date,
         @timeout_template_id,
-        ""
+        ''
       )
 
       worker.perform(uuid, appt_date)
