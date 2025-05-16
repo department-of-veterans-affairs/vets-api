@@ -709,7 +709,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         Form526Submission.create(user_uuid: user.uuid,
                                  user_account:,
                                  auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
+                                 saved_claim_id: saved_claim_with_0781v2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
       end
