@@ -45,7 +45,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: "us-gov-west-1"
 
-
       - name: Get bot token from Parameter Store
         if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: marvinpinto/action-inject-ssm-secrets@latest
