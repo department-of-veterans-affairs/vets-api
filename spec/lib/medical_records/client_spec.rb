@@ -64,6 +64,7 @@ describe MedicalRecords::Client do
     context 'when a valid session exists', :vcr do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(false)
 
         VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                          match_requests_on: %i[method sm_user_ignoring_path_param]) do
@@ -95,6 +96,29 @@ describe MedicalRecords::Client do
       let(:client) { @client }
       let(:entries) { ['Entry 1', 'Entry 2', 'Entry 3', 'Entry 4', 'Entry 5'] }
       let(:info_log_buffer) { StringIO.new }
+
+      context 'when new-model flipper flags are enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(true)
+        end
+
+        it 'gets a list of vaccines', :vcr do
+          VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
+            vaccine_list = client.list_vaccines
+            expect(vaccine_list).to be_a(Common::Collection)
+            expect(
+              a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+            ).to have_been_made.at_least_once
+          end
+        end
+
+        it 'gets a single vaccine', :vcr do
+          VCR.use_cassette 'mr_client/get_a_vaccine' do
+            vaccine = client.get_vaccine(2_954)
+            expect(vaccine).to be_a(MHV::MR::Vaccine)
+          end
+        end
+      end
 
       describe 'Getting a patient by identifier' do
         let(:patient_id) { 12_345 }
