@@ -26,7 +26,7 @@ RSpec.describe HCA::StdInstitutionImportJob, type: :worker do
         stub_request(:get, 'https://sitewide-public-websites-income-limits-data.s3-us-gov-west-1.amazonaws.com/std_institution.csv')
           .to_return(status: 404)
 
-        expect(Rails.logger).to receive(:info).with('CSV retrieval failed with response code 404')
+        expect(Rails.logger).to receive(:warn).with('[HCA] - CSV retrieval failed with response code 404')
         result = job.fetch_csv_data
         expect(result).to be_nil
       end

@@ -38,9 +38,7 @@ describe PdfFill::Filler, type: :model do
                 File.delete(extras_path)
               end
 
-              expect(
-                pdfs_fields_match?(file_path, "modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              ).to be(true)
+              expect(file_path).to match_pdf_fields("modules/burials/spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
 
               File.delete(file_path)
             end

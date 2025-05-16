@@ -4,6 +4,7 @@ module Eps
   class EpsAppointmentSerializer
     include JSONAPI::Serializer
 
+    set_key_transform :camel_lower
     attribute :id, &:id
 
     attribute :status, &:status

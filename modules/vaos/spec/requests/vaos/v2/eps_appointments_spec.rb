@@ -40,7 +40,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         {
           'data' => {
             'id' => 'qdm61cJ5',
-            'type' => 'eps_appointment',
+            'type' => 'epsAppointment',
             'attributes' => {
               'id' => 'qdm61cJ5',
               'status' => 'booked',
@@ -51,17 +51,13 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
               'modality' => 'OV',
               'provider' => {
                 'id' => 'test-provider-id',
-                'name' => 'Timothy Bob',
-                'isActive' => true,
-                'organization' => { 'name' => 'test-provider-org-name' },
                 'location' => {
                   'name' => 'Test Medical Complex',
                   'address' => '207 Davishill Ln',
                   'latitude' => 33.058736,
                   'longitude' => -80.032819,
                   'timezone' => 'America/New_York'
-                },
-                'networkIds' => ['sandbox-network-test']
+                }
               },
               'referringFacility' => {}
             }
@@ -71,9 +67,9 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
       context 'booked appointment' do
         it 'successfully returns by id' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
-              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
                 get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
                 expect(response).to have_http_status(:success)
@@ -86,8 +82,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
       context 'when a booked appointment corresponding to the referral is not found' do
         it 'returns a 404 error' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/404', match_requests_on: %i[method path]) do
               get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
               expect(response).to have_http_status(:not_found)
@@ -98,8 +94,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
       context 'when the upstream service returns a 500 error' do
         it 'returns a 502 error' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path]) do
               get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
               expect(response).to have_http_status(:bad_gateway)
@@ -110,8 +106,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
       context 'draft appointment' do
         it 'returns 404' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path]) do
               get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
               expect(response).to have_http_status(:not_found)
@@ -124,12 +120,17 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         let(:provider_phone) { '555-123-4567' }
         let(:referring_facility_phone) { '555-123-0000' }
         let(:referring_facility_name) { 'Test Referring Facility' }
+        let(:referring_facility_street1) { '123 Main St' }
+        let(:referring_facility_street2) { 'Suite 456' }
+        let(:referring_facility_city) { 'Anytown' }
+        let(:referring_facility_state) { 'CA' }
+        let(:referring_facility_zip) { '12345' }
 
         it 'includes referral detail data in response when available' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
-              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
-                VCR.use_cassette('vaos/ccra/post_get_referral_with_phone', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
+                VCR.use_cassette('vaos/ccra/post_get_referral_with_phone', match_requests_on: %i[method path]) do
                   get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
                   expect(response).to have_http_status(:success)
@@ -137,9 +138,19 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
                   # Check that the phone number is in the response
                   body = JSON.parse(response.body)
 
-                  expect(body['data']['attributes']['provider']['phoneNumber']).to eq(provider_phone)
-                  expect(body['data']['attributes']['referringFacility']['phoneNumber']).to eq(referring_facility_phone)
+                  expect(body['data']['attributes']['provider']['phone']).to eq(provider_phone)
+                  expect(body['data']['attributes']['referringFacility']['phone']).to eq(referring_facility_phone)
                   expect(body['data']['attributes']['referringFacility']['name']).to eq(referring_facility_name)
+
+                  # Check referring facility address fields
+                  if body['data']['attributes']['referringFacility'].key?('address')
+                    address = body['data']['attributes']['referringFacility']['address']
+                    expect(address['street1']).to eq(referring_facility_street1)
+                    expect(address['street2']).to eq(referring_facility_street2)
+                    expect(address['city']).to eq(referring_facility_city)
+                    expect(address['state']).to eq(referring_facility_state)
+                    expect(address['zip']).to eq(referring_facility_zip)
+                  end
                 end
               end
             end
@@ -147,10 +158,10 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         end
 
         it 'handles errors from referral service gracefully' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path query]) do
-            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path query]) do
-              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path query]) do
-                VCR.use_cassette('vaos/ccra/post_get_referral_error', match_requests_on: %i[method path query]) do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
+                VCR.use_cassette('vaos/ccra/post_get_referral_error', match_requests_on: %i[method path]) do
                   # We still need to verify logging is happening
                   allow(Rails.logger).to receive(:error)
                   expect(Rails.logger).to receive(:error).with(/Failed to retrieve referral details/)
@@ -161,7 +172,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
 
                   # Check that the response doesn't have the phone number
                   body = JSON.parse(response.body)
-                  expect(body['data']['attributes']['provider']).not_to have_key('phoneNumber')
+                  expect(body['data']['attributes']['provider']).not_to have_key('phone')
                 end
               end
             end
