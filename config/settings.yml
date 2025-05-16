@@ -84,7 +84,7 @@ bpds:
   mock: false
   read_timeout: 20 # using the same timeout as lighthouse
   schema_version: test
-  url: https://localhost:4000/api/v1/bpd # See the README for more information on how to run the BPDS locally
+  url: <%= ENV['bpds__url'] %> # See the README for more information on how to run the BPDS locally
 brd:
   api_key: <%= ENV['brd__api_key'] %>
   base_name: <%= ENV['brd__base_name'] %>
@@ -222,6 +222,8 @@ claims_api:
     services:
       lighthouse:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
+        notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
+        notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>

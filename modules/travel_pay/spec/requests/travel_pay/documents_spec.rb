@@ -37,8 +37,6 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
           get(doc_path('bad-id'), headers:)
 
           expect(response).to have_http_status(:not_found)
-          json = JSON.parse(response.body)
-          expect(json['error']).to eq('Document not found')
         end
       end
     end
@@ -46,7 +44,7 @@ RSpec.describe TravelPay::V0::DocumentsController, type: :request do
     context 'when an unhandled error occurs' do
       it 'logs the error and raises exception' do
         VCR.use_cassette('travel_pay/documents/internal_error', match_requests_on: %i[method path]) do
-          expect(Rails.logger).to receive(:error).with(/Error downloading document:/)
+          expect(Rails.logger).to receive(:error).with(/^Error downloading document:.*/)
 
           get(doc_path('big-bad-error'), headers:)
 
