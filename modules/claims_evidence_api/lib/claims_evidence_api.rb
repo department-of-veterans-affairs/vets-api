@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
-require 'claimsevidenceapi/engine'
+require 'claims_evidence_api/engine'
 
+# Claims Evidence API
+# https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html
 module ClaimsEvidenceApi
-  # Your code goes here...
+  # The module path
+  MODULE_PATH = 'modules/burials'
 end
