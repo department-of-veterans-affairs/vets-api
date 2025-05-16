@@ -80,7 +80,13 @@ RSpec.shared_examples 'a form filler' do |options|
             if type == 'overflow'
               extras_path = the_extras_generator.generate
 
-              expect(extras_path).to match_file_exactly("#{output_pdf_fixture_dir}/overflow_extras.pdf")
+              expected_extras = if options[:fill_options] && options[:fill_options][:extras_redesign]
+                                  'overflow_redesign_extras.pdf'
+                                else
+                                  'overflow_extras.pdf'
+                                end
+
+              expect(extras_path).to match_file_exactly("#{output_pdf_fixture_dir}/#{expected_extras}")
 
               File.delete(extras_path)
             end

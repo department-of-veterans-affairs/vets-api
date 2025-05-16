@@ -3,6 +3,8 @@
 require 'rails_helper'
 require 'lib/pdf_fill/fill_form_examples'
 require 'income_and_assets/pdf_fill/va21p0969'
+require 'fileutils'
+require 'tmpdir'
 
 def basic_class
   IncomeAndAssets::PdfFill::Va21p0969.new({})
@@ -20,9 +22,13 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
       before do
         fixture_pdf = extras_redesign ? 'overflow_redesign_extras.pdf' : 'overflow_extras.pdf'
         generator_class = extras_redesign ? PdfFill::ExtrasGeneratorV2 : PdfFill::ExtrasGenerator
-        allow_any_instance_of(generator_class).to receive(:generate).and_return(
-          File.expand_path("modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/#{fixture_pdf}", Rails.root)
-        )
+        src = Rails.root.join("modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/#{fixture_pdf}")
+        dest = File.join(Dir.mktmpdir, fixture_pdf)
+        FileUtils.cp(src, dest)
+        allow_any_instance_of(generator_class).to receive(:generate).and_return(dest)
+        allow_any_instance_of(generator_class)
+          .to receive(:placeholder_text)
+          .and_return(PdfFill::ExtrasGenerator.new.placeholder_text)
       end
 
       it_behaves_like 'a form filler', {
