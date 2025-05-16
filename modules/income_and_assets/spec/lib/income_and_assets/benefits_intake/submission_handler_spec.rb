@@ -2,19 +2,19 @@
 
 require 'rails_helper'
 require 'income_and_assets/benefits_intake/submission_handler'
-require 'income_and_assets/submissions/monitor'
+require 'income_and_assets/monitor'
 require 'income_and_assets/notification_email'
 
 Rspec.describe IncomeAndAssets::BenefitsIntake::SubmissionHandler do
   let(:handler) { IncomeAndAssets::BenefitsIntake::SubmissionHandler }
   let(:claim) { double(form_id: 'TEST', id: 23) }
-  let(:monitor) { double(IncomeAndAssets::Submissions::Monitor) }
+  let(:monitor) { double(IncomeAndAssets::Monitor) }
   let(:notification) { double(IncomeAndAssets::NotificationEmail) }
   let(:instance) { handler.new('fake-claim-id') }
 
   before do
     allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return claim
-    allow(IncomeAndAssets::Submissions::Monitor).to receive(:new).and_return monitor
+    allow(IncomeAndAssets::Monitor).to receive(:new).and_return monitor
     allow(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id).and_return notification
   end
 
