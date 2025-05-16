@@ -88,7 +88,7 @@ module DebtManagementCenter
         if Flipper.enabled?(:debt_deduction_code_filtering, @user)
           base_filter &&
             Constants::APPROVED_DEDUCTION_CODES.key?(debt['deductionCode']) &&
-            debt['currentAR'].to_f.positive?
+            (debt.key?('currentAR') ? debt['currentAR'].to_f.positive? : false)
         else
           base_filter
         end
