@@ -181,8 +181,7 @@ jobs:
         if: always()
         with:
           name: Test Artifacts (rails tmp directory)
-          path: tmp/systmp
-          if-no-files-found: ignore
+          path: tmp
           retention-days: 14
   
 
