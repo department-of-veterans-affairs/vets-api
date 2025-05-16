@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module <%= class_name %>
+module ClaimsEvidenceApi
   # @see https://api.rubyonrails.org/classes/Rails/Engine.html
   class Engine < ::Rails::Engine
-    isolate_namespace <%= class_name %>
+    isolate_namespace ClaimsEvidenceApi
     config.generators.api_only = true
 
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
