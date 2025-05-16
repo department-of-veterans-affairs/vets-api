@@ -169,8 +169,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # end
 
   def to_pdf(form_id: FORM, student: nil)
+    original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
+  ensure
+    self.form_id = original_form_id
   end
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
