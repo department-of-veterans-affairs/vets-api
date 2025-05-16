@@ -48,12 +48,14 @@ module BenefitsDocuments
       FileUtils.rm_rf(@base_path) if @base_path
     end
 
+    # gets all claim letters from the lighthouse claims-letters/search endpoint
     def claim_letters_search(doc_type_ids: nil, participant_id: nil, file_number: nil)
       config.claim_letters_search(doc_type_ids:, participant_id:, file_number:)
     rescue Faraday::ClientError, Faraday::ServerError => e
       handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/search')
     end
 
+    # retrieves the octet-stream of a single claim letter from the lighthouse claims-letters/download endpoint
     def claim_letter_download(document_uuid:, participant_id: nil, file_number: nil)
       config.claim_letter_download(document_uuid:, participant_id:, file_number:)
     rescue Faraday::ClientError, Faraday::ServerError => e
