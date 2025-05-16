@@ -17,32 +17,62 @@ module AccreditedRepresentativePortal
       end
 
       def create
-        reason = decision_params[:reason]
-
         case decision_params[:type]
         when 'acceptance'
-          PowerOfAttorneyRequestService::Accept.new(@poa_request, creator, reason).call
-          render json: {}, status: :ok
+          process_acceptance
         when 'declination'
-          @poa_request.mark_declined!(creator, reason)
-          send_declination_email(@poa_request)
-
-          Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
-          Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
-          render json: {}, status: :ok
+          process_declination
         else
-          render json: {
-            errors: ['Invalid type parameter - Types accepted: [acceptance declination]']
-          }, status: :bad_request
+          render_invalid_type_error
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
         render json: { errors: [e.message] }, status: e.status
+      rescue ActiveRecord::RecordInvalid => e
+        error_message = e.message.sub(/^Validation failed: /, '')
+        render json: { errors: [error_message] }, status: :unprocessable_entity
+      rescue Faraday::TimeoutError => e
+        render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
+      rescue Common::Exceptions::ResourceNotFound
+        render json: { errors: ['Record not found'] }, status: :not_found
+      rescue => e
+        render json: { errors: [e.message] }, status: :internal_server_error
       end
 
       private
 
+      def process_acceptance
+        PowerOfAttorneyRequestService::Accept.new(@poa_request, creator).call
+        render json: {}, status: :ok
+      end
+
+      def process_declination
+        declination_reason = decision_params[:declination_reason]
+
+        if declination_reason.blank?
+          render json: { errors: ["Validation failed: Declination reason can't be blank"] }, status: :bad_request
+          return
+        end
+
+        @poa_request.mark_declined!(creator, declination_reason)
+        send_declination_email(@poa_request)
+        track_declination_metrics
+
+        render json: {}, status: :ok
+      end
+
+      def track_declination_metrics
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.declined.duration', from: @poa_request.created_at)
+      end
+
+      def render_invalid_type_error
+        render json: {
+          errors: ['Invalid type parameter - Types accepted: [acceptance declination]']
+        }, status: :bad_request
+      end
+
       def decision_params
-        params.require(:decision).permit(:type, :reason)
+        params.require(:decision).permit(:type, :declination_reason)
       end
 
       def creator

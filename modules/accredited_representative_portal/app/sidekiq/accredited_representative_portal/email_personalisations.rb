@@ -67,6 +67,24 @@ module AccreditedRepresentativePortal
     end
 
     class Declined < self
+      def generate
+        {
+          'first_name' => first_name,
+          'declination_text' => declination_text.to_s
+        }
+      end
+
+      private
+
+      def decision
+        @decision ||= @notification.power_of_attorney_request.resolution&.resolving
+      end
+
+      def declination_text
+        return '' if !decision || decision.declination_reason.to_sym == :OTHER
+
+        "The reason given was #{decision.declination_reason_text}"
+      end
     end
 
     class Expiring < self

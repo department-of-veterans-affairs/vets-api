@@ -21,45 +21,86 @@ module AccreditedRepresentativePortal
           [400, 401, 403, 404, 413, 422].include? key
         end.values.freeze
 
-      attr_reader :poa_request, :creator, :reason, :resolution, :form_data
+      attr_reader :poa_request, :creator, :resolution, :form_data
 
-      def initialize(poa_request, creator, reason)
+      def initialize(poa_request, creator)
         @poa_request = poa_request
         @form_data = poa_request.power_of_attorney_form.parsed_data
         @creator = creator
-        @reason = reason
+        @resolution = nil
       end
 
       def call
-        ActiveRecord::Base.transaction do
-          @resolution = poa_request.mark_accepted!(creator, reason)
-        end
-        response = service.submit2122(form_payload)
-        form_submission = create_form_submission!(response.body)
-        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
-
-        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
-        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
-
-        form_submission
-      # Invalid record - return error message with 400
+        perform_transaction
+      rescue Common::Exceptions::ResourceNotFound => e
+        handle_resource_not_found(e)
       rescue ActiveRecord::RecordInvalid => e
-        raise Error.new(e.message, :bad_request)
-      # Transient 5xx errors: delete objects created, raise TransientError
-      rescue *TRANSIENT_ERROR_TYPES => e
-        resolution&.delete
-        raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
-      # Fatal 4xx errors or validation error: save error message, raise FatalError
+        handle_record_invalid(e)
+      rescue *TRANSIENT_ERROR_TYPES, Faraday::TimeoutError => e
+        handle_transient_error(e)
       rescue *FATAL_ERROR_TYPES => e
-        create_error_form_submission(e.message, response&.body)
-        raise Error.new(e.message, BenefitsClaims::ServiceException::ERROR_MAP.invert[e.class])
-      # All other errors: save error data on form submission, will result in a 500
-      rescue
-        resolution&.delete
-        raise
+        handle_fatal_error(e)
+      rescue => e
+        handle_unexpected_error(e)
       end
 
       private
+
+      def perform_transaction
+        ActiveRecord::Base.transaction do
+          @resolution = create_acceptance
+          response = submit_form
+          form_submission = create_form_submission!(response.body)
+          enqueue_form_processing(form_submission)
+          track_acceptance_metrics
+          form_submission
+        end
+      end
+
+      def create_acceptance
+        PowerOfAttorneyRequestDecision.create_acceptance!(
+          creator:,
+          power_of_attorney_request: poa_request
+        )
+      end
+
+      def submit_form
+        service.submit2122(form_payload)
+      end
+
+      def enqueue_form_processing(form_submission)
+        PowerOfAttorneyFormSubmissionJob.perform_async(form_submission.id)
+      end
+
+      def track_acceptance_metrics
+        Monitoring.new.track_duration('ar.poa.request.duration', from: @poa_request.created_at)
+        Monitoring.new.track_duration('ar.poa.request.accepted.duration', from: @poa_request.created_at)
+      end
+
+      def handle_resource_not_found(error)
+        raise Error.new(error.detail || error.message, :not_found)
+      end
+
+      def handle_record_invalid(error)
+        raise Error.new(error.message, :bad_request)
+      end
+
+      def handle_transient_error(error)
+        raise Error.new(error.message, :gateway_timeout)
+      end
+
+      def handle_fatal_error(error)
+        error_message = error.respond_to?(:detail) ? error.detail : error.message
+        create_error_form_submission(error_message, {})
+        raise Error.new(error_message, :not_found)
+      end
+
+      def handle_unexpected_error(error)
+        Rails.logger.error("Unexpected error in Accept#call: #{error.class} - #{error.message}")
+        Rails.logger.error(error.backtrace.join("\n")) if error.backtrace
+        create_error_form_submission(error.message, {})
+        raise
+      end
 
       def service
         @service ||= BenefitsClaims::Service.new(poa_request.claimant.icn)
