@@ -92,15 +92,15 @@ jobs:
           echo "backend_approval_required=true" >> $GITHUB_OUTPUT
 
       - name: Remove require-backend-approval label
-        uses: actions-ecosystem/action-remove-labels@v1
         if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
+        uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
 
       - name: Add require-backend-approval label
-        uses: actions-ecosystem/action-add-labels@v1
         if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
+        uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
@@ -164,8 +164,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove ready-for-backend-review label
-        uses: actions-ecosystem/action-remove-labels@v1
         if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
@@ -217,15 +217,15 @@ jobs:
           fi
 
       - name: Add ready-for-backend-review label
-        uses: actions-ecosystem/action-add-labels@v1
         if: steps.verify_approval.outputs.approval_status == 'required'
+        uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
       - name: Remove ready-for-backend-review label
-        uses: actions-ecosystem/action-remove-labels@v1
         if: steps.verify_approval.outputs.approval_status == 'confirmed'
+        uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review

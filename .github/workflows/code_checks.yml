@@ -231,8 +231,8 @@ jobs:
       - uses: actions/download-artifact@v4
 
       - name: Publish Test Results to GitHub
-        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: Test Results
           comment_mode: off
@@ -243,8 +243,8 @@ jobs:
         run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
       - name: Publish Coverage Report
-        uses: devmasx/coverage-check-action@v1.2.0
         if: ${{ hashFiles('Coverage Report/.last_run.json') != '' }}
+        uses: devmasx/coverage-check-action@v1.2.0
         with:
           type: simplecov
           result_path: Coverage Report/.last_run.json
