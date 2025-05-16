@@ -119,7 +119,8 @@ module BenefitsDocuments
     # that are eligible to be downloaded via the Documents Service,
     # identified the fileNumber or participantId.
     # @param doc_type_ids: string The numeric code of the types of documents to search for.
-    # If not provided, then all downloadable claim letter documents matching the other request criteria will be returned.
+    # If not provided, then all downloadable claim letter documents matching the other
+    # request criteria will be returned.
     # @param participant_id: string A unique identifier assigned to each patient entry in the
     # Master Patient Index linking patients to their records across VA systems.
     # Example: 999012105

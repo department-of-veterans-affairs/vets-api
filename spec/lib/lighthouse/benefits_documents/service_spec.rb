@@ -19,7 +19,6 @@ RSpec.describe BenefitsDocuments::Service do
   end
 
   describe '#queue_document_upload' do
-
     describe 'when uploading single file' do
       let(:upload_file) do
         f = Tempfile.new(['file with spaces', '.txt'])
@@ -117,7 +116,6 @@ RSpec.describe BenefitsDocuments::Service do
   end
 
   context 'claim letters' do
-
     describe '#claim_letters_search' do
       it 'receives a list of claim letters' do
         response_body = {
