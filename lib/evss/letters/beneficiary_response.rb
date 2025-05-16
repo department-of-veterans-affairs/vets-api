@@ -30,11 +30,11 @@ module EVSS
       end
 
       def benefit_information=(attrs)
-        if veteran_attributes?(attrs)
-          @benefit_information = EVSS::Letters::BenefitInformationVeteran.new(attrs)
-        else
-          @benefit_information = EVSS::Letters::BenefitInformationDependent.new(attrs)
-        end
+        @benefit_information = if veteran_attributes?(attrs)
+                                 EVSS::Letters::BenefitInformationVeteran.new(attrs)
+                               else
+                                 EVSS::Letters::BenefitInformationDependent.new(attrs)
+                               end
       end
 
       private

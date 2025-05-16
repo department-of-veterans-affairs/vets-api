@@ -6,7 +6,7 @@ class RatingInfoSerializer
   set_id { '' }
 
   attribute :user_percent_of_disability do |object|
-    object[:user_percent_of_disability]
+    object.user_percent_of_disability
   end
 
   attribute :source_system do |_|
