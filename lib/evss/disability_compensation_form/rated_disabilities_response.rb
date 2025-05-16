@@ -15,6 +15,8 @@ module EVSS
 
       def initialize(status, response = nil)
         super(status, response.body) if response
+        # This is temporary so I don't need to convert EVSS::Response to Vets::Model
+        self.rated_disabilities = response.body['rated_disabilities'].map { |d| RatedDisability.new(d) } if response
       end
     end
   end

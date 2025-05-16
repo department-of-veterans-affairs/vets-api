@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require_relative 'special_issue'
 
 module EVSS
@@ -32,8 +32,7 @@ module EVSS
     #     e.g. ['POW', 'PTSD_1']
     #
     class RatedDisability
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :decision_code, String
       attribute :decision_text, String
@@ -44,7 +43,7 @@ module EVSS
       attribute :rating_decision_id, String
       attribute :rating_percentage, Integer
       attribute :related_disability_date, DateTime
-      attribute :special_issues, Array[EVSS::DisabilityCompensationForm::SpecialIssue]
+      attribute :special_issues, EVSS::DisabilityCompensationForm::SpecialIssue, array: true, default: []
 
       def initialize(attrs)
         super(attrs)
