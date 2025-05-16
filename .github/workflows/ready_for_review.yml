@@ -17,6 +17,7 @@ jobs:
     outputs:
       pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
+      pr_labels:  ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
@@ -26,11 +27,13 @@ jobs:
           if ${{ github.event_name == 'pull_request' }}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
+            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'pull_request_review' }}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
+            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'workflow_run' }}; then
@@ -52,6 +55,7 @@ jobs:
 
               # Extract and store individual fields
               echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
+              echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
               echo "pr_requested_teams=$(echo "$PR_INFO" | jq -c '.requested_teams')" >> $GITHUB_OUTPUT
             else
               echo "Workflow run has no associated pull requests. Labeling not performed."
