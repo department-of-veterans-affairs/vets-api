@@ -1,0 +1,66 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: <MDOT_URL>/supplies
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Va-Veteran-First-Name:
+          - Greg
+        Va-Veteran-Middle-Name:
+          - A
+        Va-Veteran-Last-Name:
+          - Anderson
+        Va-Veteran-Id:
+          - "0237"
+        Va-Veteran-Birth-Date:
+          - "1991-04-05"
+        Va-Icn:
+          - "<%= icn %>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 418
+        message: "I'm a teapot"
+      headers:
+        Vary:
+          - Access-Control-Request-Headers
+          - Access-Control-Request-Method
+          - Origin
+        Vaapikey:
+          - <VAAPIKEY>
+        X-Content-Type-Options:
+          - nosniff
+        X-Xss-Protection:
+          - 1; mode=block
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Pragma:
+          - no-cache
+        Expires:
+          - "0"
+        Strict-Transport-Security:
+          - max-age=31536000 ; includeSubDomains
+        X-Frame-Options:
+          - DENY
+        Content-Type:
+          - text/plain
+        Transfer-Encoding:
+          - chunked
+        Date:
+          - Wed, 03 Jun 2020 20:50:48 GMT
+      body:
+        encoding: UTF-8
+        string: ""
+      http_version: null
+    recorded_at: Wed, 03 Jun 2020 20:50:48 GMT
+recorded_with: VCR 5.1.0
