@@ -81,41 +81,10 @@ jobs:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: require-backend-approval
 
-  check-backend-requirement:
-    name: Check Backend Requirement
-    needs: get-pr-data
-    if: needs.get-pr-data.outputs.pr_draft == 'false'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    env:
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
-      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
-    outputs:
-      backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
-    steps:
-      - name: Check Backend Requirement
-        id: check_backend_requirement
-        if: ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }}
-        run: |
-          echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-
-      - name: Remove require-backend-approval label
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: require-backend-approval
-
-      - name: Add require-backend-approval label
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: require-backend-approval
 
   check-workflow-status:
     name: Check Workflow Statuses
-    needs: [get-pr-data, check-backend-requirement]
+    needs: [get-pr-data]
     if: needs.check-backend-requirement.outputs.backend_approval_required == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
@@ -178,10 +147,42 @@ jobs:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
+  check-backend-requirement:
+    name: Check Backend Requirement
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'false'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
+    outputs:
+      backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
+    steps:
+      - name: Check Backend Requirement
+        id: check_backend_requirement
+        if: ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }}
+        run: |
+          echo "backend_approval_required=true" >> $GITHUB_OUTPUT
+
+      - name: Remove require-backend-approval label
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+      - name: Add require-backend-approval label
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
   fetch-pr-reviews:
     name: Fetch Pull Request Reviews
-    needs: [get-pr-data, check-backend-requirement,check-workflow-status]
-    if: needs.check-workflow-status.outputs.failures_detected == 'false'
+    needs: [get-pr-data, check-workflow-status, check-backend-requirement]
+    if: needs.check-workflow-status.outputs.failures_detected == 'false' && needs.check-backend-requirement.outputs.backend_approval_required == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
