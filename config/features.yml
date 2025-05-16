@@ -602,6 +602,10 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
+  disability_526_ee_mst_special_issue:
+    actor_type: user
+    description: enables adding MST special issue to disability_526 prior to submission.
+    enable_in_development: true
   disability_526_ee_process_als_flash:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
