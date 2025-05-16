@@ -129,6 +129,11 @@ jobs:
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
+      - name: List directories
+        run:
+          ${{ env.COMPOSE_BASH_CMD }}
+          "ls -d tmp/*/"
+
       - name: Run Specs
         timeout-minutes: 15
         run: >
@@ -173,11 +178,10 @@ jobs:
       
       - name: Upload Test Artifacts (rails tmp)
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: Test Artifacts (rails tmp directory)
           path: tmp
-          if-no-files-found: ignore
           retention-days: 14
   
 
