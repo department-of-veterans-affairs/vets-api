@@ -14,9 +14,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Draft Pull Request Check
-        if: github.event.pull_request.draft == true
-        run: exit 1
+      - name: Get pull_request data
+        id: get_pr_data
+        run: |
+          echo "${{ github.event.pull_request.number }}"
+          echo "${{ github.event }}"
 
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
