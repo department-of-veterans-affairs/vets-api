@@ -5,9 +5,6 @@ on:
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags"]
     types: [completed]
-  pull_request_review:
-    types: [submitted]
-    branches: master
 jobs:
   get-pr-data:
     name: Get PR Data
@@ -233,12 +230,6 @@ jobs:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
-      - name: Remove ready-for-backend-review label
-        if: steps.verify_approval.outputs.approval_status == 'confirmed'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-backend-review
 
 
 
