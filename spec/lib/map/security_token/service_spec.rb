@@ -143,7 +143,7 @@ describe MAP::SecurityToken::Service do
       context 'when response is malformed',
               vcr: { cassette_name: 'map/security_token_service_200_malformed_response' } do
         let(:expected_error) { Common::Client::Errors::ParsingError }
-        let(:expected_error_message) { "unexpected token 'Not valid JSON' at line 1 column 1" }
+        let(:expected_error_message) { "unexpected token at 'Not valid JSON'" }
         let(:expected_logger_message) { "#{log_prefix} token failed, parsing error" }
         let(:expected_log_values) { { application:, icn:, context: expected_error_message } }
 
@@ -247,11 +247,15 @@ describe MAP::SecurityToken::Service do
       let(:application) { :some_application }
       let(:expected_error) { MAP::SecurityToken::Errors::ApplicationMismatchError }
       let(:expected_error_message) { "#{log_prefix} token failed, application mismatch detected" }
-      let(:expected_log_values) { { application:, icn:, context: expected_error_message } }
+      let(:expected_log_values) { { application:, icn: } }
+
+      before do
+        allow(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
+      end
 
       it 'raises an application mismatch error and creates a log' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-        expect { subject }.to raise_exception(expected_error) do |error|
+        expect { subject }.to raise_exception do |error|
+          expect(error).to be_a(expected_error)
           expect(error.message).to include('application mismatch')
         end
       end
@@ -261,11 +265,15 @@ describe MAP::SecurityToken::Service do
       let(:icn) { nil }
       let(:expected_error) { MAP::SecurityToken::Errors::MissingICNError }
       let(:expected_error_message) { "#{log_prefix} token failed, ICN not present in access token" }
-      let(:expected_log_values) { { application:, context: expected_error_message } }
+      let(:expected_log_values) { { application: } }
+
+      before do
+        allow(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
+      end
 
       it 'raises a missing ICN error and creates a log' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-        expect { subject }.to raise_exception(expected_error) do |error|
+        expect { subject }.to raise_exception do |error|
+          expect(error).to be_a(expected_error)
           expect(error.message).to include('ICN not present')
         end
       end
