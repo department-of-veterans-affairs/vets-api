@@ -1994,6 +1994,53 @@ paths:
                 $ref: '#/components/schemas/Errors'
           description: Not authorized for access to secure messages
       summary: /v1/prescriptions/list_refillable_prescriptions
+  /v2/labs_and_tests:
+    get:
+      description: |
+        Get lab results and test information for the current user within a specified date range.
+        This endpoint provides structured lab and test data with FHIR path mappings for each data element.
+      operationId: getLabsAndTests
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for lab results query (format YYYY-MM-DD)
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for lab results query (format YYYY-MM-DD)
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lab results and test information response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabsAndTestsResponse'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Forbidden - user not authorized for lab results
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: No lab results found
+      summary: /v2/labs_and_tests
 components:
   securitySchemes:
     CookieAuth:
@@ -4172,3 +4219,96 @@ components:
             failedStationList:
               type: string
               nullable: true
+    LabsAndTestsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: 'Unique identifier for the lab or test (FHIR path: DiagnosticReport.resource.id)'
+            example: '1234'
+          type:
+            type: string
+            description: 'Resource type (FHIR path: DiagnosticReport.resource.resourceType)'
+            example: DiagnosticReport
+          attributes:
+            type: object
+            properties:
+              display:
+                type: string
+                description: 'Display name of the test or lab (FHIR path: DiagnosticReport.resource.code.text)'
+                example: Complete Blood Count
+              test_code:
+                type: string
+                description: 'Code identifying the type of test (FHIR path: DiagnosticReport.resource.category[].coding[0].code WHERE code != ''LAB'')'
+                example: CH
+              date_completed:
+                type: string
+                description: 'Date when the test was completed (FHIR path: DiagnosticReport.resource.effectiveDateTime)'
+                example: '2023-05-15T14:30:00Z'
+              sample_tested:
+                type: string
+                description: 'Type of specimen tested (FHIR path: DiagnosticReport.contained.specimen[].reference -> Specimen.type.text)'
+                example: Blood
+              encoded_data:
+                type: string
+                description: 'Base64 encoded PDF or other data representation (FHIR path: DiagnosticReport.resource.presentedForm[0].data)'
+                example: JVBERi0xLjMNCiXi48...
+              location:
+                type: string
+                description: 'Facility where test was performed (FHIR path: DiagnosticReport.contained[resourceType=Organization].name)'
+                example: VA Medical Center
+              ordered_by:
+                type: string
+                description: 'Healthcare provider who ordered the test (FHIR path: DiagnosticReport.contained[resourceType=Practitioner].name[0] -> given[] + family)'
+                example: Dr. Jane Smith
+              body_site:
+                type: string
+                description: 'Body site where the sample was taken from (FHIR path: DiagnosticReport.basedOn[].reference -> ServiceRequest.bodySite[].text)'
+                example: Left arm
+              observations:
+                type: array
+                description: List of individual observations/results contained in the report
+                items:
+                  type: object
+                  properties:
+                    test_code:
+                      type: string
+                      description: 'Code identifying the specific observation (FHIR path: Observation.code.text)'
+                      example: Hemoglobin
+                    value:
+                      type: object
+                      properties:
+                        text:
+                          type: string
+                          description: 'Text representation of the observation value (FHIR path: Observation.valueQuantity -> value + unit OR Observation.valueString OR Observation.valueCodeableConcept.text OR Observation.valueDateTime)'
+                          example: 14.2 g/dL
+                        type:
+                          type: string
+                          description: 'Data type of the observation value (FHIR path: Derived from value type (quantity, codeable-concept, string, date-time))'
+                          example: quantity
+                    reference_range:
+                      type: string
+                      description: 'Reference range for interpreting the result (FHIR path: Observation.referenceRange[].text)'
+                      example: 13.5-17.5 g/dL
+                    status:
+                      type: string
+                      description: 'Status of the observation (FHIR path: Observation.status)'
+                      example: final
+                    comments:
+                      type: string
+                      description: 'Clinical notes about the observation (FHIR path: Observation.note[].text)'
+                      example: Slightly below normal range
+                    body_site:
+                      type: string
+                      description: 'Body site for this specific observation (FHIR path: Observation.basedOn[].reference -> ServiceRequest.bodySite[].text)'
+                      example: Left arm
+                    sample_tested:
+                      type: string
+                      description: 'Type of specimen for this specific observation (FHIR path: Observation.specimen.reference -> Specimen.type.text)'
+                      example: Blood
+        required:
+          - id
+          - type
+          - attributes
