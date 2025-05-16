@@ -66,11 +66,6 @@ jobs:
             echo "Pull Request not successfully retrieved."
             exit 1
           fi
-      - name: Remove ready-for-backend-review label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ steps.get_pr_data.outputs.pr_number }}
-          labels: ready-for-backend-review
 
   check-backend-requirement:
     name: Check Backend Requirement
@@ -164,6 +159,13 @@ jobs:
           echo "failures_detected=$failures" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove ready-for-backend-review label
+        if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review
 
   fetch-pr-reviews:
     name: Fetch Pull Request Reviews
