@@ -115,7 +115,6 @@ jobs:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
 
-
   check-workflow-status:
     name: Check Workflow Statuses
     needs: [get-pr-data, check-backend-requirement]
