@@ -148,13 +148,26 @@ module MedicalRecords
       bundle = fhir_search(FHIR::Condition,
                            search: { parameters: { patient: patient_fhir_id,
                                                    'verification-status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :recordedDate, :desc)
+      sorted = sort_bundle(bundle, :recordedDate, :desc)
+
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+        conditions = sorted.entry.map { |e| MHV::MR::HealthCondition.from_fhir(e.resource) }.compact
+        Common::Collection.new(MHV::MR::HealthCondition, data: conditions)
+      else
+        sorted
+      end
     end
 
     def get_condition(condition_id)
       return :patient_not_found unless patient_found?
 
-      fhir_read(FHIR::Condition, condition_id)
+      result = fhir_read(FHIR::Condition, condition_id)
+
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+        MHV::MR::HealthCondition.from_fhir(result)
+      else
+        result
+      end
     end
 
     def list_clinical_notes

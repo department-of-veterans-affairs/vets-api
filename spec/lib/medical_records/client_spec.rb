@@ -64,6 +64,8 @@ describe MedicalRecords::Client do
     context 'when a valid session exists', :vcr do
       before do
         allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
+        allow(Flipper).to receive(:enabled?)
+          .with(:mhv_medical_records_support_new_model_health_condition).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(false)
 
         VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
@@ -99,7 +101,10 @@ describe MedicalRecords::Client do
 
       context 'when new-model flipper flags are enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_support_new_model_vaccine).and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:mhv_medical_records_support_new_model_health_condition).and_return(true)
+          allow(Flipper).to receive(:enabled?)
+            .with(:mhv_medical_records_support_new_model_vaccine).and_return(true)
         end
 
         it 'gets a list of vaccines', :vcr do
@@ -116,6 +121,23 @@ describe MedicalRecords::Client do
           VCR.use_cassette 'mr_client/get_a_vaccine' do
             vaccine = client.get_vaccine(2_954)
             expect(vaccine).to be_a(MHV::MR::Vaccine)
+          end
+        end
+
+        it 'gets a list of health conditions', :vcr do
+          VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
+            condition_list = client.list_conditions
+            expect(condition_list).to be_a(Common::Collection)
+            expect(
+              a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+            ).to have_been_made.at_least_once
+          end
+        end
+
+        it 'gets a single health condition', :vcr do
+          VCR.use_cassette 'mr_client/get_a_health_condition' do
+            condition = client.get_condition(4169)
+            expect(condition).to be_a(MHV::MR::HealthCondition)
           end
         end
       end
