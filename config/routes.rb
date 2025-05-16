@@ -400,6 +400,7 @@ Rails.application.routes.draw do
   mount Avs::Engine, at: '/avs'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
+  mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

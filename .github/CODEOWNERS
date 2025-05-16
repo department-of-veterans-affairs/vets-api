@@ -1043,6 +1043,7 @@ modules/banners @department-of-veterans-affairs/vfs-facilities-frontend @departm
 modules/burials @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 modules/check_in @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 modules/claims_api @department-of-veterans-affairs/lighthouse-dash
+modules/claims_evidence_api @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 modules/decision_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 modules/debts_api @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 modules/dhp_connected_devices @department-of-veterans-affairs/digital-health-platform
