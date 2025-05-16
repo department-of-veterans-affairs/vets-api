@@ -27,12 +27,6 @@ jobs:
             echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'pull_request_review' }}; then
-            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-            echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-            echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'workflow_run' }}; then
             if ${{ github.event.workflow_run.event == 'push' }}; then
               HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
