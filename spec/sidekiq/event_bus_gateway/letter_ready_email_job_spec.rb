@@ -24,7 +24,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
     it 'sends an email using VA Notify' do
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
       expect(va_notify_service).to receive(:send_email)
-      subject.new.perform(participant_id, template_id, personalisation)
+      subject.new.perform(participant_id:, template_id:, personalisation:)
     end
   end
 
@@ -44,7 +44,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         .to receive(:error)
         .with(error_message, { message: 'StandardError' })
       expect(StatsD).to receive(:increment).with('event_bus_gateway', tags:)
-      subject.new.perform(participant_id, template_id, personalisation)
+      subject.new.perform(participant_id:, template_id:, personalisation:)
     end
   end
 end
