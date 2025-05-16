@@ -4,12 +4,31 @@ module MyHealth
   module V1
     class VaccinesController < MRController
       def index
-        render_resource client.list_vaccines
+        if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+          with_patient_resource(client.list_vaccines) do |resource|
+            resource = resource.paginate(**pagination_params) if pagination_params[:per_page]
+
+            links = pagination_links(resource)
+            options = { meta: resource.metadata, links: }
+            render json: VaccineSerializer.new(resource.data, options)
+          end
+        else
+          render_resource client.list_vaccines
+        end
       end
 
       def show
         vaccine_id = params[:id].try(:to_i)
-        render_resource client.get_vaccine(vaccine_id)
+        if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+          with_patient_resource(client.get_vaccine(vaccine_id)) do |resource|
+            raise Common::Exceptions::RecordNotFound, vaccine_id if resource.blank?
+
+            options = { meta: resource.metadata }
+            render json: VaccineSerializer.new(resource, options)
+          end
+        else
+          render_resource client.get_vaccine(vaccine_id)
+        end
       end
     end
   end
