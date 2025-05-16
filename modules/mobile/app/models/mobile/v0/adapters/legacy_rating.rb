@@ -20,10 +20,10 @@ module Mobile
         def individual_ratings(response)
           response.rated_disabilities.map do |rating|
             Mobile::V0::IndividualRating.new(
-              decision: rating[:decision_text],
-              effective_date: rating[:effective_date],
-              rating_percentage: parse_rating(rating[:rating_percentage]),
-              diagnostic_text: rating[:name]
+              decision: rating.decision_text,
+              effective_date: rating.effective_date,
+              rating_percentage: parse_rating(rating.rating_percentage),
+              diagnostic_text: rating.name
             )
           end
         end
@@ -34,6 +34,5 @@ module Mobile
           rating.to_i
         end
       end
-    end
-  end
+    end  end
 end

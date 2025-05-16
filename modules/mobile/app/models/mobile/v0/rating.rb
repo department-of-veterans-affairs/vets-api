@@ -9,7 +9,7 @@ module Mobile
 
       attribute :id, String
       attribute :combined_disability_rating, Integer
-      attribute :individual_ratings, IndividualRating, array: true, default: []
+      attribute :individual_ratings, Mobile::V0::IndividualRating, array: true, default: []
     end
   end
 end

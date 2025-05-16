@@ -46,8 +46,7 @@ module EVSS
       attribute :special_issues, EVSS::DisabilityCompensationForm::SpecialIssue, array: true, default: []
 
       def initialize(attrs)
-        super(attrs)
-        self.name = attrs['diagnostic_text']
+        super(attrs.merge({name: attrs['diagnostic_text']}))
       end
 
       # @return [String] Shorthand for rated_disability_id
