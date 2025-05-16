@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require 'common/models/resource'
+require 'vets/model'
 
 module Mobile
   module V0
-    class IndividualRating < Common::Resource
-      attribute :decision, Types::String
-      attribute :effective_date, Types::Date
-      attribute :rating_percentage, Types::Integer
-      attribute :diagnostic_text, Types::String
+    class IndividualRating
+      include Vets::Model
+
+      attribute :decision, String
+      attribute :effective_date, DateTime
+      attribute :rating_percentage, Integer
+      attribute :diagnostic_text, String
     end
   end
 end

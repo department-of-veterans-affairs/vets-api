@@ -18,7 +18,7 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
           'individualRatings' => [
             {
               'decision' => 'Service Connected',
-              'effectiveDate' => '2018-03-27T00:00:00+00:00',
+              'effectiveDate' => '2018-03-27T00:00:00.000+00:00',
               'ratingPercentage' => 50,
               'diagnosticText' => 'Diabetes'
             }
@@ -85,8 +85,8 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
               expect(individual_ratings.length).to eq(5)
               expect(individual_ratings[0]['diagnosticText']).to eq('Sarcoma Soft-Tissue')
               expect(individual_ratings[1]['diagnosticText']).to eq('Allergies due to Hearing Loss')
-              expect(rating_dates).to eq(['2018-08-01T00:00:00+00:00', '2012-05-01T00:00:00+00:00',
-                                          '2005-01-01T00:00:00+00:00', nil, nil])
+              expect(rating_dates).to eq(['2018-08-01T00:00:00.000+00:00', '2012-05-01T00:00:00.000+00:00',
+                                          '2005-01-01T00:00:00.000+00:00', nil, nil])
             end
           end
         end
@@ -118,7 +118,7 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
         service_connnected = response.parsed_body.dig('data', 'attributes', 'individualRatings')[0]
         expect(service_connnected).to eq({
                                            'decision' => 'Service Connected',
-                                           'effectiveDate' => '2018-03-29T00:00:00+00:00',
+                                           'effectiveDate' => '2018-03-29T00:00:00.000+00:00',
                                            'ratingPercentage' => 50,
                                            'diagnosticText' => 'Diabetes'
                                          })
@@ -128,7 +128,7 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
         not_service_connnected = response.parsed_body.dig('data', 'attributes', 'individualRatings')[1]
         expect(not_service_connnected).to eq({
                                                'decision' => 'Not Service Connected',
-                                               'effectiveDate' => '2018-03-27T00:00:00+00:00',
+                                               'effectiveDate' => '2018-03-27T00:00:00.000+00:00',
                                                'ratingPercentage' => 50,
                                                'diagnosticText' => 'Diabetes'
                                              })
