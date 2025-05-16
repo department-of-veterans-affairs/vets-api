@@ -46,7 +46,7 @@ describe MHV::AccountCreation::Service do
         VCR.use_cassette('mhv/account_creation/account_creation_service_200_created') do
           subject
           expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")
-          .with(body: /"vaTermsOfUseDateTime":"#{expected_tou_datetime}"/)).to have_been_made
+            .with(body: /"vaTermsOfUseDateTime":"#{expected_tou_datetime}"/)).to have_been_made
         end
       end
 
@@ -269,7 +269,7 @@ describe MHV::AccountCreation::Service do
       let(:expected_log_payload) do
         {
           body: 'Internal Server Error',
-          error_message: "unexpected token at 'Internal Server Error'",
+          error_message: "unexpected token 'Internal Server Error' at line 1 column 1",
           status: 500,
           icn:
         }
