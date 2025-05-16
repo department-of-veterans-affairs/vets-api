@@ -136,7 +136,7 @@ jobs:
         run: |
           failures=false
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
-          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags")
+          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
 
           for WORKFLOW in "${WORKFLOWS[@]}"; do
             # Check if there's any in-progress run for this workflow
