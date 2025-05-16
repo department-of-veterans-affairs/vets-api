@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class ClinicalNotesController < MrController
+    class ClinicalNotesController < MRController
       def index
         render_resource client.list_clinical_notes
       end

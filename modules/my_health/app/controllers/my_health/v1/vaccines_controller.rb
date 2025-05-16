@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class VaccinesController < MrController
+    class VaccinesController < MRController
       def index
         render_resource client.list_vaccines
       end
