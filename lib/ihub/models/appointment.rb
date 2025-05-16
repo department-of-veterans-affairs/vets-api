@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require 'ihub/models/base'
+require 'vets/model'
 
 module IHub
   module Models
-    class Appointment < Base
+    class Appointment
+      include Vets::Model
       # Potential status_name's
       #
       CHECKED_IN        = 'CHECKED IN'
