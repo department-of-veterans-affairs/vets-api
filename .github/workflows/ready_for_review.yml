@@ -23,7 +23,12 @@ jobs:
       - name: Get pull_request data
         id: get_pr_data
         run: |
-          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] || [ "${GITHUB_EVENT_NAME}" = "pull_request_review" ]; then
+          if ${{ github.event_name == 'pull_request' }}; then
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
+            echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'pull_request_review' }}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
             echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
