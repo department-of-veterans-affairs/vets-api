@@ -75,6 +75,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Remove ready-for-backend-review label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: ready-for-backend-review
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -126,6 +132,7 @@ jobs:
           command: >
             ${{ env.COMPOSE_BASH_CMD }}
             "bundle exec rake parallel:setup[24]"
+
 
       - name: Setup system tmp dir
         run: >
