@@ -184,5 +184,96 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
         monitor.track_invalid_itf_type(ipf, monitor_error)
       end
     end
+
+    describe '#track_show_itf' do
+      it 'logs a show ITF' do
+        tags = ['form_id:21P-527EZ', 'itf_type:pension']
+        log = 'V0 IntentToFilesController ITF show'
+        payload = {
+          itf_type: 'pension',
+          form_id: '21P-527EZ',
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.show", tags:)
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_show_itf('21P-527EZ', 'pension', current_user.uuid)
+      end
+    end
+
+    describe '#track_submit_itf' do
+      it 'logs a submit ITF' do
+        tags = ['form_id:21P-527EZ', 'itf_type:pension']
+        log = 'V0 IntentToFilesController ITF submit'
+        payload = {
+          itf_type: 'pension',
+          form_id: '21P-527EZ',
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.pension.submit", tags:)
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_submit_itf('21P-527EZ', 'pension', current_user.uuid)
+      end
+    end
+
+    describe '#track_missing_user_icn_itf_controller' do
+      it 'logs a missing user ICN' do
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post']
+        log = 'V0 IntentToFilesController ITF user.icn is blank'
+        payload = {
+          error: 'error',
+          method: 'post',
+          itf_type: 'pension',
+          form_id: '21P-527EZ',
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with('user.icn.blank', tags:)
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_missing_user_icn_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
+      end
+    end
+
+    describe '#track_missing_user_pid_itf_controller' do
+      it 'logs a missing user PID' do
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post']
+        log = 'V0 IntentToFilesController ITF user.participant_id is blank'
+        payload = {
+          error: 'error',
+          method: 'post',
+          itf_type: 'pension',
+          form_id: '21P-527EZ',
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with('user.participant_id.blank', tags:)
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_missing_user_pid_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
+      end
+    end
+
+    describe '#track_invalid_itf_type_itf_controller' do
+      it 'logs an invalid ITF type' do
+        tags = ['form_id:21P-527EZ', 'itf_type:pension', 'method:post']
+        log = 'V0 IntentToFilesController ITF invalid ITF type'
+        payload = {
+          error: 'error',
+          method: 'post',
+          itf_type: 'pension',
+          form_id: '21P-527EZ',
+          user_uuid: current_user.uuid
+        }
+
+        expect(StatsD).to receive(:increment).with('itf.type.invalid', tags:)
+        expect(Rails.logger).to receive(:info).with(log, payload)
+
+        monitor.track_invalid_itf_type_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
+      end
+    end
   end
 end
