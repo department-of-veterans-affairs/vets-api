@@ -29,11 +29,21 @@ module AccreditedRepresentativePortal
     def registrations
       @email.present? or
         raise ArgumentError, 'Must set user email'
-
-      @registrations ||=
-        UserAccountAccreditedIndividual.for_user_account_email(
-          @email, user_account_icn: icn
-        )
+      if FeatureToggle.enabled?(:accredited_representative_portal_self_service_auth)
+        @registrations ||= [
+          OpenStruct.new(
+            accredited_individual_registration_number: session.rep_registration_number,
+            power_of_attorney_holder_type: 'veteran_service_organization', 
+            user_account_email: @email,
+            user_account_icn: icn
+          )
+        ]
+      else
+        @registrations ||=
+          UserAccountAccreditedIndividual.for_user_account_email(
+            @email, user_account_icn: icn
+          )
+      end
     end
 
     def power_of_attorney_holders

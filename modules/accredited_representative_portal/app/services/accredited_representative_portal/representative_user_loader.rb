@@ -31,6 +31,33 @@ module AccreditedRepresentativePortal
 
     def validate_account_and_session
       raise SignIn::Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
+      if FeatureToggle.enabled?(:accredited_representative_portal_self_service_auth)
+
+        email = session.credential_email
+        raise Common::Exceptions::Unauthorized, detail: 'Email not provided' unless email.present?
+
+        icn = session.user_account.icn
+        registration_number = AccreditedRepresentativePortal::OGCClient.new.find_registration_number_for_icn(icn)
+
+        if registration_number.blank?
+          representatives = Veteran::Service::Representative.where(email: email)
+
+          if representatives.empty?
+            raise Common::Exceptions::Unauthorized, 
+                  detail: 'Email not associated with any accredited representative'
+          elsif representatives.size > 1
+            raise Common::Exceptions::Unauthorized,
+                  detail: 'Email associated with multiple accredited representatives'
+          end
+          representative = representatives.first
+          registration_number = representative.representative_id
+        end
+
+        # register the icn with the OGC API
+        AccreditedRepresentativePortal::OGCClient.new.post_icn_and_registration_combination(icn, registration_number)
+        
+        session.rep_registration_number = registration_number
+      end
     end
 
     def loa
