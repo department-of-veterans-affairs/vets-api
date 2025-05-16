@@ -5,6 +5,9 @@ on:
   workflow_run:
     workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags"]
     types: [completed]
+  pull_request_review:
+    types: [submitted]
+    branches: master
 jobs:
   get-pr-data:
     name: Get PR Data
@@ -20,7 +23,7 @@ jobs:
       - name: Get pull_request data
         id: get_pr_data
         run: |
-          if ${{ github.event_name == 'pull_request' }}; then
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] || [ "${GITHUB_EVENT_NAME}" = "pull_request_review" ];
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
             echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
