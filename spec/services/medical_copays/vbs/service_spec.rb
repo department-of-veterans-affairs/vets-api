@@ -34,7 +34,6 @@ RSpec.describe MedicalCopays::VBS::Service do
 
   describe '#get_copays' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:medical_copays_six_mo_window).and_return(false)
     end
@@ -152,7 +151,6 @@ RSpec.describe MedicalCopays::VBS::Service do
     context 'with debts_copay_logging flipper enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:medical_copays_zero_debt).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:medical_copays_six_mo_window).and_return(true)
       end
