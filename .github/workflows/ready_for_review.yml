@@ -17,7 +17,7 @@ jobs:
     outputs:
       pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
-      pr_labels:  ${{ steps.get_pr_data.outputs.pr_labels }}
+      pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
@@ -66,6 +66,19 @@ jobs:
             echo "Pull Request not successfully retrieved."
             exit 1
           fi
+
+  handle-draft-state:
+    name: Handle Draft State
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'true'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Remove ready-for-backend-review label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ needs.get-pr-data.outputs.pr_number }}
+          labels: ready-for-backend-review
 
   check-backend-requirement:
     name: Check Backend Requirement
