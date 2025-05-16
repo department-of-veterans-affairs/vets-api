@@ -218,8 +218,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+  mgr.register('0 4 * * *', 'RepresentationManagement::AgentsAndAttorneysQueueUpdate')
   # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
+  mgr.register('0 4 * * *', 'RepresentationManagement::OrganizationsAndRepresentativesQueueUpdates')
 
   # Sends emails to power of attorney claimants whose request will expire in 30 days
   mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')
