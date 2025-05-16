@@ -146,13 +146,11 @@ describe MAP::SecurityToken::Service do
         let(:expected_logger_message) { "#{log_prefix} token failed, parsing error" }
 
         it 'raises an gateway timeout error and creates a log' do
-          # Use hash_including to be more flexible with the context field that contains the error message
           expect(Rails.logger).to receive(:error).with(
             expected_logger_message, 
             hash_including(application:, icn:)
           )
           
-          # Use a more flexible expectation that checks the error type and verifies the message contains key text
           expect { subject }.to raise_exception(expected_error) do |error|
             expect(error.message).to include('Not valid JSON')
           end
