@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'bgs_service/contention_service'
+require 'vets/shared_logging'
 
 module ClaimsApi
   class SpecialIssueUpdater < UpdaterService
+    include Vets::SharedLogging
     # Update special issues for a single contention/disability
     #
     # @param user [OpenStruct] Veteran to attach special issues to
