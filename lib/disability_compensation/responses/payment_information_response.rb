@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module DisabilityCompensation
   module ApiProvider
     class ControlInformation
-      include Virtus.model
+      include Vets::Model
 
-      attribute :can_update_address, Boolean
-      attribute :corp_avail_indicator, Boolean
-      attribute :corp_rec_found_indicator, Boolean
-      attribute :has_no_bdn_payments_indicator, Boolean
-      attribute :identity_indicator, Boolean
-      attribute :is_competent_indicator, Boolean
-      attribute :index_indicator, Boolean
-      attribute :no_fiduciary_assigned_indicator, Boolean
-      attribute :not_deceased_indicator, Boolean
+      attribute :can_update_address, Bool
+      attribute :corp_avail_indicator, Bool
+      attribute :corp_rec_found_indicator, Bool
+      attribute :has_no_bdn_payments_indicator, Bool
+      attribute :identity_indicator, Bool
+      attribute :is_competent_indicator, Bool
+      attribute :index_indicator, Bool
+      attribute :no_fiduciary_assigned_indicator, Bool
+      attribute :not_deceased_indicator, Bool
     end
 
     class PaymentAccount
-      include Virtus.model
-      include ActiveModel::Validations
-      include ActiveModel::Serialization
+      include Vets::Model
 
       attribute :account_type, String
       attribute :financial_institution_name, String
@@ -28,7 +28,7 @@ module DisabilityCompensation
     end
 
     class PaymentAddress
-      include Virtus.model
+      include Vets::Model
 
       attribute :type, String
       attribute :address_effective_date, DateTime
@@ -46,8 +46,7 @@ module DisabilityCompensation
 
     # Used in conjunction with the PPIU/Direct Deposit Provider
     class PaymentInformation
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :control_information, DisabilityCompensation::ApiProvider::ControlInformation
       attribute :payment_account, DisabilityCompensation::ApiProvider::PaymentAccount
@@ -56,10 +55,9 @@ module DisabilityCompensation
     end
 
     class PaymentInformationResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
-      attribute :responses, Array[DisabilityCompensation::ApiProvider::PaymentInformation]
+      attribute :responses, DisabilityCompensation::ApiProvider::PaymentInformation, array: true
     end
   end
 end

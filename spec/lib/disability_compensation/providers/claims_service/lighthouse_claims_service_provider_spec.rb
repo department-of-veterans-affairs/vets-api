@@ -22,7 +22,7 @@ RSpec.describe LighthouseClaimsServiceProvider do
   it 'retrieves claim service from the Lighthouse API' do
     VCR.use_cassette('lighthouse/claims/200_response') do
       response = @provider.all_claims('', '')
-      expect(response['open_claims'].length).to eq(1)
+      expect(response.open_claims.length).to eq(1)
     end
   end
 

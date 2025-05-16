@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module DisabilityCompensation
   module ApiProvider
     class SeparationLocation
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :code, String
       attribute :description, String
     end
 
     class IntakeSitesResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
-      attribute :separation_locations, Array[DisabilityCompensation::ApiProvider::SeparationLocation]
+      attribute :separation_locations, DisabilityCompensation::ApiProvider::SeparationLocation, array: true
       attribute :status, Integer
 
       def cache?
