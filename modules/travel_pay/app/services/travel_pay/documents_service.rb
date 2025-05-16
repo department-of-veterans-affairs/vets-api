@@ -23,11 +23,8 @@ module TravelPay
 
       response = client.get_document_binary(veis_token, btsss_token, params)
 
-      # The content type comes across as the type of the binary data,
-      # but the actual content type of the response is application/json
-      # so we need to parse the response body in order to access the data
       {
-        body: JSON.parse(response.body)['data'],
+        body: response.body,
         disposition: response.headers['Content-Disposition'],
         type: response.headers['Content-Type'],
         content_length: response.headers['Content-Length'],
