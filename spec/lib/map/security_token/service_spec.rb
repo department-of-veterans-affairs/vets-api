@@ -147,10 +147,10 @@ describe MAP::SecurityToken::Service do
 
         it 'raises an gateway timeout error and creates a log' do
           expect(Rails.logger).to receive(:error).with(
-            expected_logger_message, 
+            expected_logger_message,
             hash_including(application:, icn:)
           )
-          
+
           expect { subject }.to raise_exception(expected_error) do |error|
             expect(error.message).to include('Not valid JSON')
           end
