@@ -132,8 +132,7 @@ module BenefitsDocuments
             nil,
             {}
           )
-        }"
-      }
+        }" }
 
       body = {
         'data' => {
@@ -167,8 +166,7 @@ module BenefitsDocuments
             nil,
             {}
           )
-        }", 'Accept' => 'application/octet-stream, application/json'
-      }
+        }", 'Accept' => 'application/octet-stream, application/json' }
 
       body = {
         'data' => {
