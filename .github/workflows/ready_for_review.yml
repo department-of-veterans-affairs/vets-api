@@ -65,8 +65,8 @@ jobs:
 
   handle-draft-state:
     name: Handle Draft State
-    if: needs.get-pr-data.outputs.pr_draft == 'true'
     needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -80,6 +80,26 @@ jobs:
         with:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: require-backend-approval
+
+      - name: Get PR reviews
+        id: get_reviews
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ needs.get-pr-data.outputs.pr_number }}/reviews
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dismiss PR reviews
+        run: |
+          echo '${{ steps.get_reviews.outputs.data }}' | jq -c '.[] | select(.state == "APPROVED")' | while read -r review; do
+            review_id=$(echo "$review" | jq -r '.id')
+            echo "Dismissing review ID: $review_id"
+            curl -s -X PUT \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/${{ github.repository }}/pulls/${{ needs.get-pr-data.outputs.pr_number }}/reviews/$review_id/dismissals \
+              -d '{"message": "Pull request moved to draft. Approval dismissed."}'
+          done
 
   check-backend-requirement:
     name: Check Backend Requirement
