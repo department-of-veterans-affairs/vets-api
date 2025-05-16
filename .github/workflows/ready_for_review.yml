@@ -26,15 +26,10 @@ jobs:
         run: |
           if ${{ github.event_name == 'pull_request' }}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-            echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'pull_request_review' }}; then
-            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-            echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
             echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'workflow_run' }}; then
             if ${{ github.event.workflow_run.event == 'push' }}; then
@@ -45,18 +40,6 @@ jobs:
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
               echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
               echo "pr_branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
-
-              # Fetch PR details from GitHub API
-              PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
-                draft: .draft,
-                labels: [.labels[].name],
-                requested_teams: [.requested_teams[].slug]
-              }')
-
-              # Extract and store individual fields
-              echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
-              echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
-              echo "pr_requested_teams=$(echo "$PR_INFO" | jq -c '.requested_teams')" >> $GITHUB_OUTPUT
             else
               echo "Workflow run has no associated pull requests. Labeling not performed."
               exit 0
@@ -66,6 +49,18 @@ jobs:
             echo "Pull Request not successfully retrieved."
             exit 1
           fi
+
+          # Fetch PR details from GitHub API
+          PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
+            draft: .draft,
+            labels: [.labels[].name],
+            requested_teams: [.requested_teams[].slug]
+          }')
+
+          # Extract and store individual fields
+          echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
+          echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
+          echo "pr_requested_teams=$(echo "$PR_INFO" | jq -c '.requested_teams')" >> $GITHUB_OUTPUT
 
   handle-draft-state:
     name: Handle Draft State
@@ -85,25 +80,6 @@ jobs:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: require-backend-approval
 
-      - name: Get PR reviews
-        id: get_reviews
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ needs.get-pr-data.outputs.pr_number }}/reviews
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Dismiss PR reviews
-        run: |
-          echo '${{ steps.get_reviews.outputs.data }}' | jq -c '.[] | select(.state == "APPROVED")' | while read -r review; do
-            review_id=$(echo "$review" | jq -r '.id')
-            echo "Dismissing review ID: $review_id"
-            curl -s -X PUT \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github+json" \
-              https://api.github.com/repos/${{ github.repository }}/pulls/${{ needs.get-pr-data.outputs.pr_number }}/reviews/$review_id/dismissals \
-              -d '{"message": "Pull request moved to draft. Approval dismissed."}'
-          done
 
   check-backend-requirement:
     name: Check Backend Requirement
