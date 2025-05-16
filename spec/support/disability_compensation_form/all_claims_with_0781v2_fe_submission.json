@@ -1,6 +1,5 @@
 {
   "form526": {
-    "isVaEmployee": false,
     "mailingAddress": {
       "country": "USA",
       "city": "Portland",
@@ -47,7 +46,7 @@
       "name": "Jane Doe",
       "phoneNumber": "1231231231"
     },
-    "isVAEmployee": false,
+    "isVaEmployee": false,
     "militaryRetiredPayBranch": "Air Force",
     "needToLeaveHousing": true,
     "ratedDisabilities": [
