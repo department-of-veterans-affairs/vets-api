@@ -5,21 +5,26 @@ on:
     branches: master
 
 jobs:
-  require-backend-approval:
-    name: Require Backend Approval
+  get-pr-data:
+    name: Get PR Data
     permissions: write-all
     runs-on: ubuntu-latest
+    env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
+      require_be_approval: ${{ steps.approval_permissions.outputs.require_be_approval }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Draft Pull Request Check
-        if: github.event.pull_request.draft == true
-        run: exit 1
-
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
         run: |
+          # Pull recent data
+          DRAFT=$(gh pr view 22129 --json isDraft  --jq '.isDraft')
+          echo "pr_draft='$DRAFT'" >> $GITHUB_OUTPUT
+
           LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
           echo "Labels on PR: $LABELS"
 
@@ -30,31 +35,56 @@ jobs:
             echo "require_be_approval=true" >> $GITHUB_OUTPUT
             echo "Label 'require-backend-approval' found. Approval required."
           fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Exit for non backend approvals
-        if: steps.approval_permissions.outputs.require_be_approval == 'false'
+  handle-draft-state:
+    name: Handle Draft State
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'true'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Remove ready-for-backend-review label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ needs.get-pr-data.outputs.pr_number }}
+          labels: ready-for-backend-review
+
+      - name: Fail if draft
+        run: exit 1
+
+  exit-for-non-backend-approvals:
+    name: Exit for non backend approvals
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.require_be_approval == 'false'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Exit if backend approval not required
         run: exit 0
 
+
+  check-backend-approvals:
+    name: Check Backend Approvals
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'false' && needs.get-pr-data.outputs.require_be_approval == 'true'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
       - name: Configure AWS Credentials
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
+        if:
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: "us-gov-west-1"
 
-
       - name: Get bot token from Parameter Store
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: marvinpinto/action-inject-ssm-secrets@latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
       - name: Get backend-review-group members
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -63,7 +93,6 @@ jobs:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Get PR reviews
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
@@ -72,7 +101,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify backend-review-group approval
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         id: verify_approval
         run: |
           BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
@@ -94,7 +122,7 @@ jobs:
           fi
 
       - name: Remove ready-for-review label
-        if: success() && steps.approval_permissions.outputs.require_be_approval == 'true' && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
