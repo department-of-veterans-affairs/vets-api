@@ -2,10 +2,11 @@
 
 require 'claims_api/vbms_uploader'
 require 'bgs_service/person_web_service'
+require 'vets/shared_logging'
 
 module ClaimsApi
   module PoaVbmsSidekiq
-    include SentryLogging
+    include Vets::SharedLogging
 
     def upload_to_vbms(power_of_attorney, path)
       uploader = VBMSUploader.new(
