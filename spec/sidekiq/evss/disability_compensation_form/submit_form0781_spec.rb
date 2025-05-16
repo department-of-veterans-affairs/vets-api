@@ -26,6 +26,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { create(:va526ez) }
   # contains 0781 and 0781a
+  let(:saved_claim_with_0781v2) { create(:va526ez_0781v2) }
+  # contains 0781V2
   let(:form0781) do
     File.read 'spec/support/disability_compensation_form/submissions/with_0781.json'
   end
@@ -103,7 +105,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         Form526Submission.create(user_uuid: user.uuid,
                                  user_account:,
                                  auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
+                                 saved_claim_id: saved_claim_with_0781v2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
       end
@@ -707,7 +709,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         Form526Submission.create(user_uuid: user.uuid,
                                  user_account:,
                                  auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
+                                 saved_claim_id: saved_claim_with_0781v2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
       end
