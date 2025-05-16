@@ -34,5 +34,6 @@ module Mobile
           rating.to_i
         end
       end
-    end  end
+    end
+  end
 end
