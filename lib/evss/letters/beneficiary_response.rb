@@ -22,7 +22,7 @@ module EVSS
     #
     class BeneficiaryResponse < EVSS::Response
       attribute :benefit_information, EVSS::Letters::BenefitInformation
-      attribute :military_service, Array[EVSS::Letters::MilitaryService]
+      attribute :military_service, EVSS::Letters::MilitaryService, array: true, default: []
 
       def initialize(status, response = nil)
         attributes = response.body if response
@@ -31,9 +31,9 @@ module EVSS
 
       def benefit_information=(attrs)
         if veteran_attributes?(attrs)
-          super EVSS::Letters::BenefitInformationVeteran.new(attrs)
+          @benefit_information = EVSS::Letters::BenefitInformationVeteran.new(attrs)
         else
-          super EVSS::Letters::BenefitInformationDependent.new(attrs)
+          @benefit_information = EVSS::Letters::BenefitInformationDependent.new(attrs)
         end
       end
 
