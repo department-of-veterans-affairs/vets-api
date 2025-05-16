@@ -33,7 +33,9 @@ module V0
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
-      itf_creation(form)
+
+      # only execute on the initial save of the ipf
+      itf_creation(form) if form.id_previously_changed?
 
       render json: InProgressFormSerializer.new(form)
     end
