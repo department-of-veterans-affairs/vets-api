@@ -115,9 +115,6 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_carma_submitted_at:
-    actor_type: user
-    description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
