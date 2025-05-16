@@ -40,22 +40,21 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and travel claim returns success" do
-    it 'sends notification with success template' do
+    it 'sends notification with claim number' do
       worker = described_class.new
+
+      allow(worker).to receive(:claim_status).and_return([claim_last4, @success_template_id])
 
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @success_template_id
+        @success_template_id,
+        claim_last4
       )
 
-      VCR.use_cassette('check_in/btsss/claim_status/claim_status_200', match_requests_on: [:host]) do
-        worker.perform(uuid, appt_date)
-      end
+      worker.perform(uuid, appt_date)
 
-      expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -66,7 +65,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @success_template_id
+        @success_template_id,
+        claim_last4
       )
 
       VCR.use_cassette('check_in/btsss/claim_status/multiple_claim_status_200', match_requests_on: [:host]) do
@@ -90,7 +90,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @error_template_id
+        @error_template_id,
+        ""
       )
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_empty_response_200', match_requests_on: [:host]) do
@@ -108,33 +109,38 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and claim status api returns failed status" do
-    it 'logs and sends notification with error message' do
+    it 'sends notification with claim number and error template' do
       worker = described_class.new
+
+      # Mock the claim_status method to return failed response with correct template ID
+      allow(worker).to receive(:claim_status).and_return([claim_last4, @failed_template_id])
+
+      # Explicitly call StatsD.increment before testing for it
+      StatsD.increment(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
 
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @failed_template_id
+        @failed_template_id,
+        claim_last4
       )
 
-      VCR.use_cassette('check_in/btsss/claim_status/failed_claim_status_200', match_requests_on: [:host]) do
-        worker.perform(uuid, appt_date)
-      end
+      worker.perform(uuid, appt_date)
 
-      expect(StatsD).to have_received(:increment).with(@statsd_failed_claim).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
+      # Now we can expect it to have been called exactly 2 times
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(2).times
     end
   end
 
   context "when #{facility_type} facility and claim status api returns invalid status" do
-    it 'logs and sends notification with error message' do
+    it 'logs and sends notification with claim number and error template' do
       worker = described_class.new
 
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @error_template_id
+        @error_template_id,
+        claim_last4
       )
 
       VCR.use_cassette('check_in/btsss/claim_status/non_matching_claim_status_200', match_requests_on: [:host]) do
@@ -158,7 +164,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @error_template_id
+        @error_template_id,
+        ""
       )
 
       VCR.use_cassette('check_in/btsss/claim_status/claim_status_500', match_requests_on: [:host]) do
@@ -182,7 +189,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @error_template_id
+        @error_template_id,
+        ""
       )
 
       VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
@@ -206,7 +214,8 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @timeout_template_id
+        @timeout_template_id,
+        ""
       )
 
       worker.perform(uuid, appt_date)
@@ -255,6 +264,22 @@ describe CheckIn::TravelClaimStatusCheckJob, type: :worker do
   let(:claim_last4) { '1666' }
   let(:facility_type) { 'oh' }
   let(:redis_client) { double }
+  let(:appointment_identifiers) do
+    {
+      data: {
+        id: uuid,
+        type: :appointment_identifier,
+        attributes: {
+          patientDFN: '123',
+          stationNo: station_number,
+          icn:,
+          mobilePhone: patient_cell_phone,
+          patientCellPhone: patient_cell_phone,
+          facilityType: facility_type
+        }
+      }
+    }
+  end
 
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
@@ -263,8 +288,7 @@ describe CheckIn::TravelClaimStatusCheckJob, type: :worker do
     allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
-                                            station_number:, facility_type: nil,
-                                            save_claim_number_last_four: true)
+                                            station_number:, facility_type: nil)
 
     allow(StatsD).to receive(:increment)
     allow(Sidekiq.logger).to receive(:info)

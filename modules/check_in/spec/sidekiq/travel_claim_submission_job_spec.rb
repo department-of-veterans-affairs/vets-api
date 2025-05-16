@@ -37,19 +37,14 @@ shared_examples 'travel claims worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and travel claim returns success" do
-    it 'saves claim number to Redis and sends notification' do
+    it 'sends notification with claim number' do
       worker = described_class.new
-
-      # Expect the job to save the claim number to Redis
-      expect(redis_client).to receive(:save_claim_number_last_four).with(
-        uuid:,
-        claim_number_last_four: claim_last4
-      )
 
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
-        @success_template_id
+        @success_template_id,
+        claim_last4
       )
 
       VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
@@ -61,14 +56,10 @@ shared_examples 'travel claims worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and travel claim returns duplicate error" do
-    it 'enqueues notification job with duplicate template' do
+    it 'does not enqueue notification job with duplicate template' do
       worker = described_class.new
 
-      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
-        uuid,
-        appt_date,
-        @duplicate_template_id
-      )
+      expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
 
       VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_400_exists', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -79,14 +70,10 @@ shared_examples 'travel claims worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and travel claim returns general error" do
-    it 'enqueues notification job with error template' do
+    it 'does not enqueue notification job with error template' do
       worker = described_class.new
 
-      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
-        uuid,
-        appt_date,
-        @error_template_id
-      )
+      expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
 
       VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_500', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -101,14 +88,10 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       allow(redis_client).to receive(:token).and_return(nil)
     end
 
-    it 'enqueues notification job with error template' do
+    it 'does not enqueue notification job with error template' do
       worker = described_class.new
 
-      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
-        uuid,
-        appt_date,
-        @error_template_id
-      )
+      expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
 
       VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -142,15 +125,10 @@ shared_examples 'travel claims worker #perform' do |facility_type|
                                             .and_return(false)
       end
 
-      it 'enqueues notification job with timeout template' do
+      it 'does not enqueue notification job with timeout template' do
         worker = described_class.new
 
-        # For timeout with flag off, notification is sent
-        expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
-          uuid,
-          appt_date,
-          @timeout_template_id
-        )
+        expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
 
         expect do
           worker.perform(uuid, appt_date)
@@ -184,8 +162,7 @@ describe CheckIn::TravelClaimSubmissionJob, type: :worker do
     allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
-                                            station_number:, facility_type: nil,
-                                            save_claim_number_last_four: true)
+                                            station_number:, facility_type: nil)
 
     allow(StatsD).to receive(:increment)
   end
@@ -196,5 +173,48 @@ describe CheckIn::TravelClaimSubmissionJob, type: :worker do
 
   describe '#perform for oracle health sites' do
     include_examples 'travel claims worker #perform', 'oracle_health'
+  end
+
+  it_behaves_like 'travel claims worker #perform', 'cie' do
+    let(:facility_type) { 'cie' }
+  end
+
+  it_behaves_like 'travel claims worker #perform', 'oh' do
+    let(:facility_type) { 'oh' }
+  end
+
+  describe 'btsss submission response codes' do
+    let(:service) { instance_double(TravelClaim::Service) }
+    let(:fake_session) { instance_double(CheckIn::V2::Session) }
+    let(:redis_client) { instance_double(TravelClaim::RedisClient) }
+    let(:worker) { described_class.new }
+
+    before do
+      allow(CheckIn::V2::Session).to receive(:build).and_return(fake_session)
+      allow(TravelClaim::Service).to receive(:build).and_return(service)
+      allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+
+      allow(redis_client).to receive(:station_number).with(uuid:).and_return(station_number)
+      allow(redis_client).to receive(:facility_type).with(uuid:).and_return(facility_type)
+    end
+
+    context 'when should_handle_timeout is true' do
+      let(:claims_resp) { nil }
+
+      before do
+        allow(service).to receive(:submit_claim).and_return(
+          { data: { code: TravelClaim::Response::CODE_BTSSS_TIMEOUT } }
+        )
+        allow_any_instance_of(described_class).to receive(:should_handle_timeout).and_return(true)
+        allow(CheckIn::TravelClaimStatusCheckJob).to receive(:perform_in)
+      end
+
+      it 'enqueues status check job' do
+        worker.perform(uuid, appt_date)
+        expect(CheckIn::TravelClaimStatusCheckJob).to have_received(:perform_in).with(
+          5.minutes, uuid, appt_date
+        )
+      end
+    end
   end
 end

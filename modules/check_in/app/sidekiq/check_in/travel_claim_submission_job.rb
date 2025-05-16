@@ -17,10 +17,8 @@ module CheckIn
                   })
 
       claim_number_last_four, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
-
-      unless template_id.nil?
-        redis_client.save_claim_number_last_four(uuid:, claim_number_last_four:)
-        TravelClaimNotificationJob.perform_async(uuid, appointment_date, template_id)
+      unless template_id.nil? || claim_number_last_four.nil?
+        TravelClaimNotificationJob.perform_async(uuid, appointment_date, template_id, claim_number_last_four)
       end
     end
 
