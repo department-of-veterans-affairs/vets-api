@@ -132,12 +132,6 @@ jobs:
           ${{ env.COMPOSE_BASH_CMD }}
           "mkdir -p tmp/systmp"
 
-      - name: Remove Test Passing label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
-
       - name: Run Specs
         timeout-minutes: 15
         run: >
@@ -205,20 +199,6 @@ jobs:
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
-
-      - name: Remove Test Passing label
-        if: needs.tests.outputs.status == 'failure'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
-
-      - name: Add Test Passing label
-        if: needs.tests.outputs.status == 'success'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
 
   publish_results:
     name: Publish Test Results and Coverage
