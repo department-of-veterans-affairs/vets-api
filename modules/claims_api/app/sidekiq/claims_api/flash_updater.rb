@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 require 'bgs_service/claimant_web_service'
+require 'vets/shared_logging'
+
 module ClaimsApi
   class FlashUpdater < UpdaterService
+    include Vets::SharedLogging
+
     def perform(flashes, auto_claim_id)
       user = bgs_headers(auto_claim_id)
 

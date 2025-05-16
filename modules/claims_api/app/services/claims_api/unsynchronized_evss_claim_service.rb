@@ -4,10 +4,11 @@ require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 require 'evss/error_middleware'
+require 'vets/shared_logging'
 
 module ClaimsApi
   class UnsynchronizedEVSSClaimService
-    include SentryLogging
+    include Vets::SharedLogging
     EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
     delegate :power_of_attorney, to: :veteran
 
