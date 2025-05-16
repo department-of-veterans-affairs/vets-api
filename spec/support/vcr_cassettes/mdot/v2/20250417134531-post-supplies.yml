@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <MDOT_V2_API_URL>/supplies
+    body:
+      encoding: UTF-8
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"veteran@va.gov","permanentAddress":{"street":"123
+        ASH CIRCLE","street2":", ","city":"ASHVILLE","state":"NC","country":"UNITED STATES","postalCode":"77733"},"temporaryAddress":{},"order":[{"productId":"5939"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      VaApiKey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      vary:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Thu, 17 Apr 2025 13:45:30 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"status":"No Disability Station for Veteran","orderID":0,"productId":8350}]'
+  recorded_at: Thu, 17 Apr 2025 13:45:32 GMT
+recorded_with: VCR 6.3.1
