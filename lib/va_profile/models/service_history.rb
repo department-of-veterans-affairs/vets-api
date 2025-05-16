@@ -82,27 +82,43 @@ module VAProfile
       end
 
       def self.determine_eligibility(episodes)
-        problem_message = [
-          'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status ' \
-          'card for you right now.',
-          'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711).' \
-          ' They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-        ]
-        not_eligible_message = [
-          'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you ' \
-          'must have received an honorable discharge for at least one period of service.',
-          'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
-          '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-        ]
-
-        return { confirmed: false, message: problem_message } if episodes.empty?
+        if episodes.empty?
+          return { confirmed: false, message: not_found_message,
+                   title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                   status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS }
+        end
 
         codes = episodes.map(&:character_of_discharge_code).uniq.compact
-        return { confirmed: true, message: [] } if codes.intersect?(%w[A B H J]) # Honorable discharge
-        # Not honorable discharge
-        return { confirmed: false, message: not_eligible_message } if codes.intersect?(%w[D E F K]) || codes.empty?
+        # Honorable discharge
+        return { confirmed: true, message: [], title: '', status: '' } if codes.intersect?(%w[A B H J])
 
-        { confirmed: false, message: problem_message } # No service history OR unknown (Z) discharge
+        # Not honorable discharge
+        if codes.intersect?(%w[D E F K]) || codes.empty?
+          return { confirmed: false, message: not_eligible_message,
+                   title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                   status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS }
+        end
+
+        # No service history OR unknown (Z) discharge
+        { confirmed: false, message: not_found_message,
+          title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+          status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS }
+      end
+
+      def self.not_found_message
+        if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+          VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED
+        else
+          VeteranVerification::Constants::NOT_FOUND_MESSAGE
+        end
+      end
+
+      def self.not_eligible_message
+        if Flipper.enabled?(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED
+        else
+          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+        end
       end
     end
   end
