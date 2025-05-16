@@ -10,6 +10,8 @@ module VBADocuments
     skip_before_action(:authenticate)
 
     TRAFFIC_LIGHT_EMOJI = ':vertical_traffic_light:'
+    REDIS_LAST_SLACK_NOTIFICATION_TS = 'vba_documents:last_slack_healthcheck_notification_ts'
+    SLACK_NOTIFICATION_LIMIT_SECONDS = 1.hour.seconds.to_i
 
     def index
       render json: {
@@ -65,25 +67,28 @@ module VBADocuments
     end
 
     def healthcheck
-      http_status_code = 200
-      s3_heathy = s3_is_healthy?
-      unless s3_heathy
+      s3_healthy = s3_is_healthy?
+
+      # Send out a slack notification if s3 is down and we have not already recently slack notified
+      if !s3_healthy && elapsed_seconds_since_last_slack_notify > SLACK_NOTIFICATION_LIMIT_SECONDS
         begin
-          http_status_code = 503
           slack_details = {
             class: self.class.name,
             warning: "#{TRAFFIC_LIGHT_EMOJI} Benefits Intake healthcheck failed: unable to connect to AWS S3 bucket."
           }
           VBADocuments::Slack::Messenger.new(slack_details).notify!
+
+          # save the timestamp of the last slack notification
+          Rails.cache.write(REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
         rescue => e
           Rails.logger.error("Benefits Intake S3 failed Healthcheck slack notification failed: #{e.message}", e)
         end
       end
       render json: {
         description: 'VBA Documents API health check',
-        status: s3_heathy ? 'pass' : 'fail',
+        status: s3_healthy ? 'pass' : 'fail',
         time: Time.zone.now.to_formatted_s(:iso8601)
-      }, status: http_status_code
+      }, status: s3_healthy ? 200 : 503
     end
 
     # treat s3 as a Benefits Intake internal resource as opposed to an upstream service per VA
@@ -95,6 +100,13 @@ module VBADocuments
       true
     rescue
       false
+    end
+
+    def elapsed_seconds_since_last_slack_notify
+      last_slack_notify_ts = Rails.cache.read(REDIS_LAST_SLACK_NOTIFICATION_TS)
+      return Float::MAX if last_slack_notify_ts.nil?
+
+      Time.zone.now - Time.zone.at(last_slack_notify_ts)
     end
 
     def upstream_healthcheck
