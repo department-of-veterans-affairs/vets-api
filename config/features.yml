@@ -115,12 +115,12 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_carma_submitted_at:
-    actor_type: user
-    description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
+  caregiver_use_rails_logging_over_sentry:
+    actor_type: user
+    description: Use Rails for logging instead of Sentry
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -337,6 +337,10 @@ features:
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_poa_v1_pdf_gen_fixup_job:
+    actor_type: user
+    description: Enables POA pdfs to be regenerated & sent to VBMS without requesting a POA change
     enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
@@ -1660,10 +1664,6 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for VA appointments
     enable_in_development: true
-  va_online_scheduling_static_landing_page:
-    actor_type: user
-    description: Allows updates to the static landing widget on the Public Websites page
-    enable_in_development: true
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
@@ -1766,6 +1766,9 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_enable_vbms_exception_logging:
+    actor_type: user
+    description: Enables exception logging for failures in upload_to_vbms method
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API

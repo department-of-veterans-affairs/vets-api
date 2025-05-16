@@ -21,12 +21,24 @@ module Ccra
 
     # Nested provider information
     attribute :provider do |referral|
-      {
+      provider_info = {
         name: referral.provider_name,
         npi: referral.provider_npi,
-        telephone: referral.provider_telephone,
-        location: referral.treating_facility
+        phone: referral.treating_facility_phone
       }
+
+      # Only add address if it exists and has actual data
+      address = referral.treating_facility_address
+      if address.present? && address.values.any?(&:present?)
+        provider_info[:address] = {
+          street1: address[:street1],
+          city: address[:city],
+          state: address[:state],
+          zip: address[:zip]
+        }
+      end
+
+      provider_info
     end
 
     # Nested referring facility information
