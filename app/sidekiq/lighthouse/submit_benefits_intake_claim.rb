@@ -83,6 +83,7 @@ module Lighthouse
 
     def process_record(record)
       pdf_path = record.to_pdf
+
       # coordinates 0, 0 is bottom left of the PDF
       # This is the bottom left of the form, right under the form date, e.g. "AUG 2022"
       stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,

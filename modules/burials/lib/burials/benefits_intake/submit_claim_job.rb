@@ -111,7 +111,7 @@ module Burials
       # @param file_path [String] pdf file path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path) # rubocop:disable Metrics/MethodLength
+      def process_document(file_path)
         document = PDFUtilities::DatestampPdf.new(file_path).run(
           text: 'VA.GOV',
           timestamp: @claim.created_at,
@@ -127,7 +127,17 @@ module Burials
           text_only: true
         )
 
-        document = PDFUtilities::DatestampPdf.new(document).run(
+        stamp_application_submission(document)
+      end
+
+      ##
+      # Stamp the 'Application Submitted on va.gov' text on the provided PDF.
+      #
+      # @param [String] document Path to the intermediate stamped PDF file.
+      # @return [String] Path to the newly stamped PDF file.
+      # @api private
+      def stamp_application_submission(document)
+        PDFUtilities::DatestampPdf.new(document).run(
           text: 'Application Submitted on va.gov',
           x: 425,
           y: 675,
@@ -138,8 +148,6 @@ module Burials
           template: Burials::PDF_PATH,
           multistamp: true
         )
-
-        @intake_service.valid_document?(document:)
       end
 
       # Upload generated pdf to Benefits Intake API
