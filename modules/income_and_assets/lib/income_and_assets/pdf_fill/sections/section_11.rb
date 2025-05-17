@@ -12,6 +12,8 @@ module IncomeAndAssets
         'discontinuedIncome' => { key: 'F[0].#subform[9].DependentReceiveIncome11a[0]' },
         # 11b-11c (only space for 2 on form)
         'discontinuedIncomes' => {
+          # Label for each discontinued income entry (e.g., 'Discontinued Income 1')
+          item_label: 'Discontinued Income',
           limit: 2,
           first_key: 'otherRecipientRelationshipType',
           # Q1

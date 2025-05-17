@@ -14,6 +14,8 @@ module IncomeAndAssets
         },
         # 7b-7d (only space for three on form)
         'assetTransfers' => {
+          # Label for each transfer entry (e.g., 'Asset Transfer 1')
+          item_label: 'Asset Transfer',
           limit: 3,
           first_key: 'otherOriginalOwnerRelationshipType',
           # Q1

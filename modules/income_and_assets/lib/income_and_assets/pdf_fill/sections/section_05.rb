@@ -14,6 +14,8 @@ module IncomeAndAssets
         },
         # 5b - 5d (only space for three on form)
         'ownedAssets' => {
+          # Label for each asset entry (e.g., 'Asset 1')
+          item_label: 'Asset',
           limit: 3,
           first_key: 'otherRecipientRelationshipType',
           # Q1
