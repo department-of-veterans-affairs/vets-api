@@ -67,6 +67,7 @@ class SourceAppMiddleware
     burials
     burials-v2
     burials-ez
+    chatbot
     check-in
     claims-status
     coe

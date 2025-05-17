@@ -145,6 +145,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
     context 'when there is a standarderror' do
       it 'increments statsd except applications_retried' do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
         start_time = Time.current
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
         allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
@@ -169,6 +170,47 @@ RSpec.describe Form1010cg::SubmissionJob do
           expect do
             job.perform(claim.id)
           end.to raise_error(StandardError)
+        end
+      end
+
+      context 'with :caregiver_use_rails_logging_over_sentry enabled' do
+        it 'increments statsd except applications_retried' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
+
+          allow_any_instance_of(Form1010cg::Service).to receive(
+            :process_claim_v2!
+          ).and_raise(StandardError)
+
+          expect(Rails.logger).to receive(:error).with(
+            '[10-10CG] - Error processing Caregiver claim submission in job',
+            { exception: StandardError, claim_id: claim.id }
+          ).twice
+          expect(job).not_to receive(:log_exception_to_sentry)
+
+          2.times do
+            expect do
+              job.perform(claim.id)
+            end.to raise_error(StandardError)
+          end
+        end
+      end
+
+      context 'with :caregiver_use_rails_logging_over_sentry disabled' do
+        it 'increments statsd except applications_retried' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
+
+          allow_any_instance_of(Form1010cg::Service).to receive(
+            :process_claim_v2!
+          ).and_raise(StandardError)
+
+          expect(Rails.logger).not_to receive(:error)
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
+
+          2.times do
+            expect do
+              job.perform(claim.id)
+            end.to raise_error(StandardError)
+          end
         end
       end
     end
@@ -231,14 +273,35 @@ RSpec.describe Form1010cg::SubmissionJob do
       end
     end
 
-    context 'when claim cant be destroyed' do
-      it 'logs the exception to sentry' do
-        expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
-        error = StandardError.new
-        expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
+    context 'when claim can not be destroyed' do
+      context 'with :caregiver_use_rails_logging_over_sentry enabled' do
+        it 'logs the exception using the Rails logger' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
+          expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
+          error = StandardError.new
+          expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
 
-        expect(job).to receive(:log_exception_to_sentry).with(error, { claim_id: claim.id })
-        job.perform(claim.id)
+          expect(Rails.logger).to receive(:error).with(
+            '[10-10CG] - Error destroying Caregiver claim after processing submission in job',
+            { exception: error, claim_id: claim.id }
+          )
+          expect(job).not_to receive(:log_exception_to_sentry)
+
+          job.perform(claim.id)
+        end
+      end
+
+      context 'with :caregiver_use_rails_logging_over_sentry disabled' do
+        it 'logs the exception to sentry' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
+          expect_any_instance_of(Form1010cg::Service).to receive(:process_claim_v2!)
+          error = StandardError.new
+          expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:destroy!).and_raise(error)
+
+          expect(Rails.logger).not_to receive(:error)
+          expect(job).to receive(:log_exception_to_sentry).with(error, { claim_id: claim.id })
+          job.perform(claim.id)
+        end
       end
     end
 
