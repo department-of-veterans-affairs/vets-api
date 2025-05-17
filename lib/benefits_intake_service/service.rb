@@ -5,10 +5,11 @@ require 'common/client/concerns/monitoring'
 require 'common/client/errors'
 require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
-require 'benefits_intake_service/configuration'
+require 'lighthouse/benefits_intake/service'
 require 'benefits_intake_service/utilities/convert_to_pdf'
 require 'lighthouse/benefits_intake/metadata'
 require 'pdf_utilities/pdf_validator'
+require 'benefits_intake_service/configuration'
 
 module BenefitsIntakeService
   ##
@@ -16,14 +17,17 @@ module BenefitsIntakeService
   # We are using it here to submit claims that cannot be auto-established,
   # via paper submission (electronic PDF submission to CMP)
   #
+  # @deprecated Please use BenefitsIntake::Service instead
+  # This class is maintained for backward compatibility but will be removed in the future.
+  #
   class Service < Common::Client::Base
     include SentryLogging
     include Common::Client::Concerns::Monitoring
 
+    # Set the configuration class for this service
     configuration BenefitsIntakeService::Configuration
 
-    attr_reader :uuid, :location
-
+    # Forward declaration to ensure the embedded constants are available
     class InvalidDocumentError < StandardError; end
 
     REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
@@ -35,13 +39,30 @@ module BenefitsIntakeService
       height_limit_in_inches: 101
     }.freeze
 
+    def initialize(with_upload_location: false)
+      ActiveSupport::Deprecation.new.warn(
+        'BenefitsIntakeService::Service is deprecated. ' \
+        'Please use BenefitsIntake::Service instead.'
+      )
+      super()
+      @benefits_intake_service = BenefitsIntake::Service.new
+      if with_upload_location
+        upload_return = get_location_and_uuid
+        @uuid = upload_return[:uuid]
+        @location = upload_return[:location]
+      end
+    end
+
     # Validate a file satisfies Benefits Intake specifications. File must be a PDF.
+    # This is a simple wrapper around valid_document? that preserves the old API
     # @param [String] doc_path
     def validate_document(doc_path:)
-      # TODO: allow headers: to be passed to function if/when other file types are allowed
-      headers = { 'Content-Type': 'application/pdf' }
-      request_body = File.read(doc_path, mode: 'rb')
-      perform :post, 'uploads/validate_document', request_body, headers
+      @benefits_intake_service.valid_document?(document: doc_path)
+      # If valid_document? succeeds, return a successful response object
+      OpenStruct.new(success?: true, body: {})
+    rescue BenefitsIntake::Service::InvalidDocumentError => e
+      # If validation fails, return a failure response object
+      OpenStruct.new(success?: false, body: e.message)
     end
 
     ##
@@ -59,20 +80,11 @@ module BenefitsIntakeService
       result = PDFUtilities::PDFValidator::Validator.new(document, PDF_VALIDATOR_OPTIONS).validate
       raise InvalidDocumentError, "Invalid Document: #{result.errors}" unless result.valid_pdf?
 
+      # Then call the API validation
       response = validate_document(doc_path: document)
       raise InvalidDocumentError, "Invalid Document: #{response}" unless response.success?
 
       document
-    end
-
-    # TODO: Remove param and clean up Form526BackupSubmissionProcess::Processor to use instance vars
-    def initialize(with_upload_location: false)
-      super()
-      if with_upload_location
-        upload_return = get_location_and_uuid
-        @uuid = upload_return[:uuid]
-        @location = upload_return[:location]
-      end
     end
 
     def upload_form(main_document:, attachments:, form_metadata:)
@@ -87,24 +99,13 @@ module BenefitsIntakeService
       )
     end
 
+    # Method name mapping between BenefitsIntakeService::Service and BenefitsIntake::Service
     def get_upload_location
-      headers = {}
-      request_body = {}
-      perform :post, 'uploads', request_body, headers
+      @benefits_intake_service.request_upload
     end
 
     def get_bulk_status_of_uploads(ids)
-      body = { ids: }.to_json
-      response = perform(
-        :post,
-        'uploads/report',
-        body,
-        { 'Content-Type' => 'application/json', 'accept' => 'application/json' }
-      )
-
-      raise response.body unless response.success?
-
-      response
+      @benefits_intake_service.bulk_status(uuids: ids)
     end
 
     def get_file_path_from_objs(file)
@@ -142,11 +143,10 @@ module BenefitsIntakeService
     def get_location_and_uuid
       upload_return = get_upload_location
       {
-        uuid: upload_return.body.dig('data', 'id'),
-        location: upload_return.body.dig('data', 'attributes', 'location')
+        uuid: upload_return[1],
+        location: upload_return[0]
       }
     end
-    # Combines instantiating a new location/uuid and returning the important bits
 
     def get_upload_docs(file_with_full_path:, metadata:, attachments: [])
       json_tmpfile = generate_tmp_metadata_file(metadata)
@@ -165,7 +165,7 @@ module BenefitsIntakeService
       file_with_full_path = get_file_path_from_objs(file)
       params, _json_tmpfile = get_upload_docs(file_with_full_path:, metadata:,
                                               attachments:)
-      response = perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+      response = perform(:put, upload_url, params, { 'Content-Type' => 'multipart/form-data' })
 
       raise response.body unless response.success?
 
@@ -194,6 +194,19 @@ module BenefitsIntakeService
     # Overload in other services to define files not meant to be deleted
     def permanent_file?(_file)
       false
+    end
+
+    # For methods not explicitly defined, delegate to the lighthouse implementation
+    def method_missing(method_name, *, &)
+      if @benefits_intake_service.respond_to?(method_name)
+        @benefits_intake_service.send(method_name, *, &)
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      @benefits_intake_service.respond_to?(method_name, include_private) || super
     end
   end
 end
