@@ -8,12 +8,25 @@ require 'medical_records/lighthouse_client'
 module MyHealth
   class MRController < ApplicationController
     include MyHealth::MHVControllerConcerns
+    include JsonApiPaginationLinks
     service_tag 'mhv-medical-records'
 
     # skip_before_action :authenticate
     before_action :authenticate_bb_client
 
     protected
+
+    ##
+    # Renders 202 Accepted if the upstream client returns :patient_not_found, otherwise yields
+    # the real resource to the block.
+    #
+    def with_patient_resource(resource)
+      if resource == :patient_not_found
+        render plain: '', status: :accepted
+      else
+        yield resource
+      end
+    end
 
     def render_resource(resource)
       if resource == :patient_not_found

@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module MHV
   module MR
     # Abstract superclass for models built from FHIR resources
     # template class that handles common lookup and construction logic
-    class FHIRRecord < Common::Base
+    class FHIRRecord
+      include Vets::Model
+
       # Build a new instance from a FHIR resource, or return nil if none
       def self.from_fhir(fhir)
         return nil if fhir.nil?

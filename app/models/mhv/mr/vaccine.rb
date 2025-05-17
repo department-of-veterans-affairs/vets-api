@@ -9,7 +9,7 @@ module MHV
       attribute :location,      String
       attribute :manufacturer,  String
       attribute :reactions,     String
-      attribute :notes,         Array
+      attribute :notes,         String, array: true
 
       ##
       # Map from a FHIR::Immunization resource
