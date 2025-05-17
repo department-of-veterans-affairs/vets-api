@@ -104,6 +104,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         VCR.eject_cassette("#{arp_vcr_path}mpi/valid_icn_full")
       end
 
+      before do
+        allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?) do |_, document:|
+          document
+        end
+      end
+
       it 'makes the veteran request' do
         expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
         post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)

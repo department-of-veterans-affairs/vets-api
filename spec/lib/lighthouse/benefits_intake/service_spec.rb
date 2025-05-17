@@ -59,6 +59,10 @@ RSpec.describe BenefitsIntake::Service do
     let(:headers) { { 'Content-Type' => 'multipart/form-data' } }
 
     before do
+      # stub out PDF validation in perform_upload to avoid filesystem errors
+      allow(service).to receive(:valid_document?) do |**kwargs|
+        kwargs[:document]
+      end
       service.instance_variable_set(:@uploads, true)
       service.instance_variable_set(:@location, 'location')
       service.instance_variable_set(:@uuid, 'uuid')

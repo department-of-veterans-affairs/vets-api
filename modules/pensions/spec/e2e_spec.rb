@@ -49,7 +49,7 @@ RSpec.describe 'Pensions End to End', type: :request do
     # claim upload to benefits intake
     expect(BenefitsIntake::Metadata).to receive(:generate).and_call_original
 
-    expect(service).to receive(:valid_document?).and_return(pdf_path)
+    allow(service).to receive(:valid_document?).and_return(pdf_path)
     expect(service).to receive(:request_upload)
     expect(monitor).to receive(:track_submission_begun).and_call_original
 

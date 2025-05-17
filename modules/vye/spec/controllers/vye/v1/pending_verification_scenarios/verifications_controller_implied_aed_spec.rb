@@ -41,13 +41,13 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
         setup_award(award_begin_date: award_begin_date_2, award_end_date: award_end_date_2, payment_date:)
       end
 
-      # rubocop:disable Rspec/NoExpectationExample
+      # rubocop:disable RSpec/NoExpectationExample
       it 'creates a pending verification for the 1st row with an act end of 3/14' do
         Timecop.freeze(run_date) { subject.create }
         pv = Vye::Verification.first
         check_expectations_for(pv, award_begin_date, Date.new(2025, 3, 14), Date.new(2025, 4, 1), 'case5')
       end
-      # rubocop:enable Rspec/NoExpectationExample
+      # rubocop:enable RSpec/NoExpectationExample
     end
     # rubocop:enable Naming/VariableNumber
 
