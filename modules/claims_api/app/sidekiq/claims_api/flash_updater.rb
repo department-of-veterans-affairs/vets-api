@@ -34,7 +34,7 @@ module ClaimsApi
         auto_claim.bgs_flash_responses = auto_claim.bgs_flash_responses + [message]
         auto_claim.save
       end
-      log_exception_to_sentry(e)
+      log_exception_to_rails e
     end
 
     def add_flash(user, flash_name)
