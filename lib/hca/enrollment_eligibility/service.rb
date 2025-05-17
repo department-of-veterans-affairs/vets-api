@@ -421,7 +421,7 @@ module HCA
         Date.parse(date_str).to_s
       rescue Date::Error => e
         if Flipper.enabled?(:hca_disable_sentry_logs)
-          Rails.logger.error('[HCA] - DateError', { exception: e, date_str: })
+          Rails.logger.error('[HCA] - DateError', { exception: e })
         else
           log_exception_to_sentry(e)
         end
