@@ -110,7 +110,7 @@ describe MedicalRecords::Client do
         it 'gets a list of vaccines', :vcr do
           VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
             vaccine_list = client.list_vaccines
-            expect(vaccine_list).to be_a(Common::Collection)
+            expect(vaccine_list).to be_a(Vets::Collection)
             expect(
               a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
             ).to have_been_made.at_least_once
@@ -127,7 +127,7 @@ describe MedicalRecords::Client do
         it 'gets a list of health conditions', :vcr do
           VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
             condition_list = client.list_conditions
-            expect(condition_list).to be_a(Common::Collection)
+            expect(condition_list).to be_a(Vets::Collection)
             expect(
               a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
             ).to have_been_made.at_least_once
