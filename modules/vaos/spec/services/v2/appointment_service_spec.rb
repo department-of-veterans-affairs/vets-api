@@ -154,6 +154,99 @@ describe VAOS::V2::AppointmentsService do
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
   end
 
+  describe '#appointment_with_referral_exists?' do
+    # Create a test service that lets us access the private method
+    let(:service_with_exposed_method) do
+      service_class = Class.new(VAOS::V2::AppointmentsService) do
+        def public_appointment_with_referral_exists?(appointments, referral_id)
+          appointment_with_referral_exists?(appointments, referral_id)
+        end
+      end
+      service_class.new(user)
+    end
+
+    let(:referral_id) { 'REF-12345' }
+
+    context 'when the appointments list is empty' do
+      let(:appointments) { [] }
+
+      it 'returns false' do
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(false)
+      end
+    end
+
+    context 'when no appointment has a referral field' do
+      let(:appointments) do
+        [
+          { id: 'appt-1', status: 'booked' },
+          { id: 'appt-2', status: 'booked' }
+        ]
+      end
+
+      it 'returns false' do
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(false)
+      end
+    end
+
+    context 'when appointments have referrals but none match the target referral_id' do
+      let(:appointments) do
+        [
+          { id: 'appt-1', referral: { referral_number: 'REF-99999' } },
+          { id: 'appt-2', referral: { referral_number: 'REF-88888' } }
+        ]
+      end
+
+      it 'returns false' do
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(false)
+      end
+    end
+
+    context 'when one appointment has a matching referral' do
+      let(:appointments) do
+        [
+          { id: 'appt-1', referral: { referral_number: 'REF-99999' } },
+          { id: 'appt-2', referral: { referral_number: referral_id } }
+        ]
+      end
+
+      it 'returns true' do
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(true)
+      end
+    end
+
+    context 'when some appointments lack a referral field' do
+      let(:appointments) do
+        [
+          { id: 'appt-1', status: 'booked' }, # No referral
+          { id: 'appt-2', referral: { referral_number: referral_id } }
+        ]
+      end
+
+      it 'handles nil referrals safely and returns true if any match is found' do
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(true)
+      end
+    end
+
+    context 'when referral is present but referral_number is nil' do
+      let(:appointments) do
+        [
+          { id: 'appt-1', referral: { some_other_field: 'value' } }, # referral present but no referral_number
+          { id: 'appt-2', referral: { referral_number: nil } }
+        ]
+      end
+
+      it 'returns false' do
+        result = service_with_exposed_method.public_appointment_with_referral_exists?(appointments, referral_id)
+        expect(result).to be(false)
+      end
+    end
+  end
+
   describe '#post_appointment' do
     let(:va_proposed_clinic_request_body) do
       build(:appointment_form_v2, :va_proposed_clinic, user:).attributes
@@ -465,6 +558,24 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointments(start_date3, end_date3)
             expect(response.dig(:meta, :failures).to_json).to match(/\d{10}V\d{6}/)
+          end
+        end
+
+        it 'returns partial error message' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
+                           match_requests_on: %i[method path query]) do
+            response = subject.get_appointments(start_date3, end_date3)
+            partial_error_message = response[:meta][:partialErrorMessage]
+            expect(partial_error_message[:request][:title]).to eq('We can’t show some of your requests right now.')
+            expect(partial_error_message[:request][:body]).to eq('We’re working to fix this problem. To reschedule ' \
+                                                                 'a request that’s not in this list, contact the ' \
+                                                                 'VA facility where it was requested.')
+            expect(partial_error_message[:booked][:title]).to eq('We can’t show some of your appointments right now.')
+            expect(partial_error_message[:booked][:body]).to eq('We’re working to fix this problem. To manage an ' \
+                                                                'appointment that’s not in this list, contact the ' \
+                                                                'VA facility where it was scheduled.')
+            expect(partial_error_message[:linkText]).to eq('Find your VA health facility')
+            expect(partial_error_message[:linkUrl]).to eq('/find-locations')
           end
         end
 

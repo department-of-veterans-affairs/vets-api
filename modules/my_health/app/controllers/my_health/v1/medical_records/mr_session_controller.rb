@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class MrSessionController < MrController
+      class MRSessionController < MRController
         def create
           client
           head :no_content

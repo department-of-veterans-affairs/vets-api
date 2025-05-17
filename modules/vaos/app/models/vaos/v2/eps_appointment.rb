@@ -6,7 +6,7 @@ module VAOS
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
-                  :provider, :type_of_care, :referral_phone_number, :referring_facility_details
+                  :provider, :type_of_care, :provider_phone, :referring_facility_details
 
       def initialize(appointment_data = {}, referral = nil, provider = nil)
         appointment_details = appointment_data[:appointment_details]
@@ -28,7 +28,7 @@ module VAOS
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
 
         @type_of_care = referral&.category_of_care
-        @referral_phone_number = referral&.phone_number
+        @provider_phone = referral&.treating_facility_phone
         @referring_facility_details = parse_referring_facility_details(referral)
         @provider = provider
       end
@@ -53,22 +53,48 @@ module VAOS
       def provider_details
         return nil if provider.nil?
 
-        {
+        result = {
           id: provider.id,
-          name: provider.name,
-          is_active: provider.is_active,
-          organization: provider.provider_organization,
+          name: provider.provider_name,
+          practice: provider.practice_name,
           location: provider.location,
-          network_ids: provider.network_ids,
-          phone_number: referral_phone_number
-        }.compact
+          phone: provider_phone
+        }
+
+        # Transform address fields if address exists
+        if provider.address.present?
+          result[:address] = {
+            street1: provider.address[:line1],
+            street2: provider.address[:line2],
+            city: provider.address[:city],
+            state: provider.address[:state],
+            zip: provider.address[:postal_code]
+          }.compact
+        end
+
+        result.compact
       end
 
       def parse_referring_facility_details(referral)
-        {
-          name: referral&.referring_facility_name,
-          phone_number: referral&.referring_facility_phone
-        }.compact
+        return {} if referral.nil?
+
+        result = {
+          name: referral.referring_facility_name,
+          phone: referral.referring_facility_phone
+        }
+
+        # Add address information if present
+        if referral.referring_facility_address.present?
+          result[:address] = {
+            street1: referral.referring_facility_address[:street1],
+            street2: referral.referring_facility_address[:street2],
+            city: referral.referring_facility_address[:city],
+            state: referral.referring_facility_address[:state],
+            zip: referral.referring_facility_address[:zip]
+          }.compact
+        end
+
+        result.compact
       end
 
       private
