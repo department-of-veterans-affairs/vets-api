@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
+require 'vets/collection'
 
 module MedicalRecords
   ##
@@ -115,7 +116,7 @@ module MedicalRecords
 
       if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
         vaccines = sorted.entry.map { |e| MHV::MR::Vaccine.from_fhir(e.resource) }.compact
-        Common::Collection.new(MHV::MR::Vaccine, data: vaccines)
+        Vets::Collection.new(vaccines, MHV::MR::Vaccine)
       else
         sorted
       end
@@ -152,7 +153,7 @@ module MedicalRecords
 
       if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
         conditions = sorted.entry.map { |e| MHV::MR::HealthCondition.from_fhir(e.resource) }.compact
-        Common::Collection.new(MHV::MR::HealthCondition, data: conditions)
+        Vets::Collection.new(conditions, MHV::MR::HealthCondition)
       else
         sorted
       end

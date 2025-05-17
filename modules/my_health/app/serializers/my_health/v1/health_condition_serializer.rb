@@ -13,7 +13,7 @@ module MyHealth
       attribute :comments
 
       link :self do |object|
-        MyHealth::UrlHelper.new.v1_message_url(object.id)
+        MyHealth::UrlHelper.new.v1_condition_url(object.id)
       end
     end
   end

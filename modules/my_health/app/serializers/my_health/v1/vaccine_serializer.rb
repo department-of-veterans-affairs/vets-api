@@ -14,7 +14,7 @@ module MyHealth
       attribute :notes
 
       link :self do |object|
-        MyHealth::UrlHelper.new.v1_message_url(object.id)
+        MyHealth::UrlHelper.new.v1_vaccine_url(object.id)
       end
     end
   end
