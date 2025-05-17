@@ -31,7 +31,7 @@ module ClaimsApi
       service.manage_contentions(options)
     rescue BGS::ShareError, BGS::PublicError => e
       log_exception_to_claim_record(auto_claim_id, { key: e.code, text: e.message })
-      log_exception_to_sentry(e)
+      log_exception_to_rails e
     end
 
     # Store off exception information on the claim record within the database
@@ -53,13 +53,6 @@ module ClaimsApi
     # @param message [any] Anything in any format that explains the error
     def self.log_exception_to_claim_record(auto_claim_id, message)
       ClaimsApi::SpecialIssueUpdater.new.log_exception_to_claim_record(auto_claim_id, message)
-    end
-
-    # Passthru to allow calling from sidekiq_retries_exhausted section above
-    #
-    # @param e [StandardError] Error to be logged
-    def self.log_exception_to_sentry(e)
-      ClaimsApi::SpecialIssueUpdater.new.log_exception_to_sentry(e)
     end
 
     # Service object to interface with BGS

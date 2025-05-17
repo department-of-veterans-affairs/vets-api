@@ -12,45 +12,22 @@ module ClaimsApi
       @doc_type = doc_type
     end
 
-    # rubocop:disable Metrics/MethodLength
     def upload!
       upload_token_response = fetch_upload_token(
         filepath: @filepath,
         file_number: @file_number
       )
 
-      # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
-      file_exists = File.exist?(@filepath)
-      if !file_exists && caller.first.match(/veteran_readiness_employment_claim.rb/)
-        log_message_to_sentry(
-          "VBMSUploader#upload! file exists?: #{file_exists}",
-          :warn,
-          {},
-          { team: 'vfs-ebenefits' }
-        )
-      end
-
       upload_response = upload_document(
         filepath: @filepath,
         upload_token: upload_token_response.upload_token
       )
 
-      # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
-      file_exists = File.exist?(@filepath)
-      if !file_exists && caller.first.match(/veteran_readiness_employment_claim.rb/)
-        log_message_to_sentry(
-          "VBMSUploader#upload! upload_response: #{upload_response}",
-          :warn,
-          {},
-          { team: 'vfs-ebenefits' }
-        )
-      end
       {
         vbms_new_document_version_ref_id: upload_response.upload_document_response[:@new_document_version_ref_id],
         vbms_document_series_ref_id: upload_response.upload_document_response[:@document_series_ref_id]
       }
     end
-    # rubocop:enable Metrics/MethodLength
 
     def fetch_upload_token(filepath:, file_number:)
       content_hash = Digest::SHA1.hexdigest(File.read(filepath))
