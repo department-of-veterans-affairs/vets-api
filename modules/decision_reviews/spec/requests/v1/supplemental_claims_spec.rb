@@ -171,6 +171,9 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
       end
 
       before do
+        allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?) do |_, document:|
+          document
+        end
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
@@ -229,6 +232,9 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
     context 'when tracking 4142 is disabled' do
       before do
+        allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?) do |_, document:|
+          document
+        end
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)

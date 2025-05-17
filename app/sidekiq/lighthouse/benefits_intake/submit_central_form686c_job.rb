@@ -127,7 +127,7 @@ module Lighthouse
       end
 
       def cleanup_file_paths
-        Common::FileHelpers.delete_file_if_exists(form_path)
+        Common::FileHelpers.delete_file_if_exists(form_path) if form_path
         attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       end
 
@@ -171,7 +171,14 @@ module Lighthouse
       end
 
       def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-        stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+        # PDF is generated, stamps are in PDF Utilities
+        stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(
+          text: 'VA.GOV',
+          timestamp: timestamp || Time.current,
+          x: 5,
+          y: 5
+        )
+        # stamps 'FDC Reviewed - VA.gov Submission' in upper right of docment
         stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
           text: 'FDC Reviewed - va.gov Submission',
           x: 400,

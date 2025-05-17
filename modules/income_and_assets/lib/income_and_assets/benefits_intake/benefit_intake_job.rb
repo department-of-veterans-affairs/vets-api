@@ -93,14 +93,12 @@ module IncomeAndAssets
     # @return [String] path to stamped PDF
     def process_document(file_path)
       document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
-      document = PDFUtilities::DatestampPdf.new(document).run(
+      PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
         x: 429,
         y: 770,
         text_only: true
       )
-
-      @intake_service.valid_document?(document:)
     end
 
     # Generate form metadata to send in upload to Benefits Intake API

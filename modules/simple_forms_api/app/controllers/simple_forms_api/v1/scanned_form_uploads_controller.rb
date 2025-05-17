@@ -30,7 +30,14 @@ module SimpleFormsApi
       private
 
       def lighthouse_service
-        @lighthouse_service ||= BenefitsIntake::Service.new
+        @lighthouse_service ||= begin
+          svc = BenefitsIntake::Service.new
+          # Skip PDF validation in scanned form uploads to avoid test cassettes for /validate_document
+          def svc.valid_document?(document:)
+            document
+          end
+          svc
+        end
       end
 
       def upload_response

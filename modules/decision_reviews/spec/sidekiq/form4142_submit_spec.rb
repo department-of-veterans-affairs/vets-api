@@ -57,6 +57,12 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
     let(:request_body) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }
 
     context 'when form4142 data exists' do
+      before do
+        allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?) do |_, document:|
+          document
+        end
+      end
+
       it '#decrypt_form properly decrypts encrypted payloads' do
         form4142 = request_body['form4142']
         payload = get_and_rejigger_required_info(

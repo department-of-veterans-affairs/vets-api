@@ -45,10 +45,18 @@ module BenefitsIntake
     # @param upload_url [String] override instance upload_url; optional, default = @location
     #
     def perform_upload(metadata:, document:, attachments: [], upload_url: nil)
+      # 1) Metadata Validation
+      parsed_meta     = JSON.parse(metadata)
+      validated_meta  = valid_metadata?(metadata: parsed_meta)
+      metadata        = validated_meta.to_json
+
+      # 2) Main document & attachments validation
+      document        = valid_document?(document:)
+      attachments     = attachments.map { |att| valid_document?(document: att) }
+
       upload_url, _uuid = request_upload unless upload_url
 
-      metadata = JSON.parse(metadata)
-      meta_tmp = Common::FileHelpers.generate_random_file(metadata.to_json)
+      meta_tmp = Common::FileHelpers.generate_random_file(metadata)
 
       params = {}
       params[:metadata] = Faraday::UploadIO.new(meta_tmp, Mime[:json].to_s, 'metadata.json')

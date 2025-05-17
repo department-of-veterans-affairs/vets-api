@@ -204,15 +204,15 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
         text_only: true
       ).and_return(pdf_path)
 
-      expect(service).to receive(:valid_document?).and_return(pdf_path)
-
       new_path = job.send(:process_document, 'test/path')
 
       expect(new_path).to eq(pdf_path)
     end
 
     it 'successfully stamps the generated pdf' do
-      expect(service).to receive(:valid_document?).and_return(pdf_path)
+      # stub PDFUtilities to return controlled pdf_path
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf_double)
+      allow(datestamp_pdf_double).to receive(:run).and_return(pdf_path)
       new_path = job.send(:process_document, claim.to_pdf)
       expect(new_path).to eq(pdf_path)
     end
