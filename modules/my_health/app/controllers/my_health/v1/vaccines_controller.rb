@@ -6,9 +6,10 @@ module MyHealth
       def index
         if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
           with_patient_resource(client.list_vaccines) do |resource|
-            resource = resource.paginate(**pagination_params) if pagination_params[:per_page]
-
-            links = pagination_links(resource)
+            if pagination_params[:per_page]
+              resource = resource.paginate(**pagination_params)
+              links = pagination_links(resource) if pagination_params[:per_page]
+            end
             options = { meta: resource.metadata, links: }
             render json: VaccineSerializer.new(resource.data, options)
           end
