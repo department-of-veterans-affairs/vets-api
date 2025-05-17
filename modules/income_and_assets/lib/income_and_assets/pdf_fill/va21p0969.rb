@@ -42,40 +42,31 @@ module IncomeAndAssets
       QUESTION_KEY = {
         1 => 'Veteran name',
         2 => 'Social Security Number',
-        3 => 'VA file number',
-        4 => 'Claimant name',
-        5 => 'Claimant Social Security Number',
-        6 => 'Claimant telephone number',
-        7 => 'Claimant type',
-        8 => 'Income/net worth date range',
-        9 => 'Unassociated incomes',
-        10 => 'Associated incomes',
-        11 => 'Owned assets',
-        12 => 'Royalties and other properties',
-        13 => 'Asset transfers',
-        14 => 'Trusts',
-        15 => 'Annuities',
-        16 => 'Unreported assets',
-        17 => 'Discontinued incomes',
-        18 => 'Income receipt waivers',
-        19 => 'Statement of truth'
+        3 => 'Recurring Income Not Associated with Accounts or Assets',
+        4 => 'Associated Incomes',
+        5 => 'Income and Net Worth Associated with Owned Assets',
+        6 => 'Income and Net Worth Associated with Royalties and Other Properties',
+        7 => 'Asset Transfers',
+        8 => 'Trusts',
+        9 => 'Annuities',
+        10 => 'Assets Previously Not Reported',
+        11 => 'Discontinued or Irregular Income',
+        12 => 'Waiver of Receipt of Income'
       }.freeze
 
       # V2-style sections grouping question numbers for overflow pages
       SECTIONS = [
-        { label: 'Section I: Veteran Information', question_nums: [1, 2, 3] },
-        { label: 'Section II: Claimant Information', question_nums: [4, 5, 6, 7, 8] },
-        { label: 'Section III: Unassociated Incomes', question_nums: [9] },
-        { label: 'Section IV: Associated Incomes', question_nums: [10] },
-        { label: 'Section V: Owned Assets', question_nums: [11] },
-        { label: 'Section VI: Royalties and Other Properties', question_nums: [12] },
-        { label: 'Section VII: Asset Transfers', question_nums: [13] },
-        { label: 'Section VIII: Trusts', question_nums: [14] },
-        { label: 'Section IX: Annuities', question_nums: [15] },
-        { label: 'Section X: Unreported Assets', question_nums: [16] },
-        { label: 'Section XI: Discontinued Incomes', question_nums: [17] },
-        { label: 'Section XII: Income Receipt Waivers', question_nums: [18] },
-        { label: 'Section XIII: Statement of Truth', question_nums: [19] }
+        { label: 'Section III: Recurring Income Not Associated with Accounts or Assets', question_nums: [3] },
+        { label: 'Section IV: Associated Incomes', question_nums: [4] },
+        { label: 'Section V: Income and Net Worth Associated with Owned Assets', question_nums: [5] },
+        { label: 'Section VI: Income and Net Worth Associated with Royalties and Other Properties',
+          question_nums: [6] },
+        { label: 'Section VII: Asset Transfers', question_nums: [7] },
+        { label: 'Section VIII: Trusts', question_nums: [8] },
+        { label: 'Section IX: Annuities', question_nums: [9] },
+        { label: 'Section X: Assets Previously Not Reported', question_nums: [10] },
+        { label: 'Section XI: Discontinued or Irregular Income', question_nums: [11] },
+        { label: 'Section XII: Waiver of Receipt of Income', question_nums: [12] }
       ].freeze
 
       # The list of section classes for form expansion and key building
