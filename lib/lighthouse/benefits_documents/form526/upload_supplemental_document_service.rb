@@ -3,7 +3,7 @@
 require 'lighthouse/benefits_documents/worker_service'
 require 'lighthouse/service_exception'
 require 'pdf_utilities/datestamp_pdf'
-require 'benefits_intake/service'
+require 'lighthouse/benefits_intake/service'
 require 'common/exceptions/unprocessable_entity'
 require 'persistent_attachment'
 
@@ -53,18 +53,31 @@ module BenefitsDocuments
       private
 
       def validate_document
-        # Create temporary file to validate
-        temp_file = Tempfile.new(['document', File.extname(@lighthouse_document.file_name)])
-        temp_file.binmode
-        temp_file.write(@file_body)
-        temp_file.rewind
+        temp_file = prepare_temp_file
+        guard_file_type(temp_file)
+        remote_validate(temp_file)
+      rescue => e
+        cleanup_temp_file(temp_file)
+        raise e
+      ensure
+        cleanup_temp_file(temp_file)
+      end
 
+      def prepare_temp_file
+        tf = Tempfile.new(['document', File.extname(@lighthouse_document.file_name)])
+        tf.binmode
+        tf.write(@file_body)
+        tf.rewind
+        tf
+      end
+
+      def guard_file_type(temp_file)
         extension = File.extname(@lighthouse_document.file_name)
-        allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
+        allowed = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
 
-        if allowed_types.exclude?(extension)
+        if allowed.exclude?(extension)
           raise Common::Exceptions::UnprocessableEntity.new(
-            detail: I18n.t('errors.messages.extension_allowlist_error', extension: extension, allowed_types: allowed_types),
+            detail: I18n.t('errors.messages.extension_allowlist_error', extension:, allowed_types: allowed),
             source: 'BenefitsDocuments::Form526::UploadSupplementalDocumentService.validate_document'
           )
         elsif temp_file.size < PersistentAttachment::MINIMUM_FILE_SIZE
@@ -73,16 +86,14 @@ module BenefitsDocuments
             source: 'BenefitsDocuments::Form526::UploadSupplementalDocumentService.validate_document'
           )
         end
+      end
 
-        # Validate with Benefits Intake API
+      def remote_validate(temp_file)
         document = PDFUtilities::DatestampPdf.new(temp_file.path).run(text: 'VA.GOV', x: 5, y: 5)
-        intake_service = BenefitsIntake::Service.new
-        intake_service.valid_document?(document: document)
-      rescue => e
-        temp_file.close
-        temp_file.unlink if temp_file.respond_to?(:unlink)
-        raise e
-      ensure
+        BenefitsIntake::Service.new.valid_document?(document:)
+      end
+
+      def cleanup_temp_file(temp_file)
         temp_file.close
         temp_file.unlink if temp_file.respond_to?(:unlink)
       end

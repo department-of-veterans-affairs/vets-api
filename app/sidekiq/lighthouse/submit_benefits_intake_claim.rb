@@ -84,13 +84,10 @@ module Lighthouse
     def process_record(record)
       pdf_path = record.to_pdf
 
-      # Validate document before stamping
-      validate_document(pdf_path)
-
       # coordinates 0, 0 is bottom left of the PDF
       # This is the bottom left of the form, right under the form date, e.g. "AUG 2022"
       stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,
-                                                               timestamp: record.created_at)
+                                                                   timestamp: record.created_at)
       # This is the top right of the PDF, above "OMB approved line"
       stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
@@ -103,18 +100,6 @@ module Lighthouse
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.document_upload_error")
       raise e
-    end
-
-    def validate_document(file_path)
-      extension = File.extname(file_path)
-      allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
-
-      if allowed_types.exclude?(extension)
-        raise BenefitsIntakeClaimError,
-          I18n.t('errors.messages.extension_allowlist_error', extension: extension, allowed_types: allowed_types)
-      elsif File.size(file_path) < PersistentAttachment::MINIMUM_FILE_SIZE
-        raise BenefitsIntakeClaimError, 'File size must not be less than 1.0 KB'
-      end
     end
 
     def split_file_and_path(path)

@@ -141,15 +141,13 @@ module Pensions
         x: 5,
         y: 5
       )
-      document = PDFUtilities::DatestampPdf.new(document).run(
+      PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
         timestamp: @claim.created_at,
         x: 429,
         y: 770,
         text_only: true
       )
-
-      @intake_service.valid_document?(document:)
     rescue => e
       monitor.track_document_processing_error(@claim, @intake_service, @user_account_uuid, e)
       raise e

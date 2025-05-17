@@ -111,18 +111,7 @@ module Burials
       # @param file_path [String] pdf file path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path) # rubocop:disable Metrics/MethodLength
-        # Validate file extension and size
-        extension = File.extname(file_path)
-        allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
-
-        if allowed_types.exclude?(extension)
-          raise BurialsBenefitIntakeError,
-            I18n.t('errors.messages.extension_allowlist_error', extension: extension, allowed_types: allowed_types)
-        elsif File.size(file_path) < PersistentAttachment::MINIMUM_FILE_SIZE
-          raise BurialsBenefitIntakeError, 'File size must not be less than 1.0 KB'
-        end
-
+      def process_document(file_path)
         document = PDFUtilities::DatestampPdf.new(file_path).run(
           text: 'VA.GOV',
           timestamp: @claim.created_at,
@@ -138,7 +127,17 @@ module Burials
           text_only: true
         )
 
-        document = PDFUtilities::DatestampPdf.new(document).run(
+        stamp_application_submission(document)
+      end
+
+      ##
+      # Stamp the 'Application Submitted on va.gov' text on the provided PDF.
+      #
+      # @param [String] document Path to the intermediate stamped PDF file.
+      # @return [String] Path to the newly stamped PDF file.
+      # @api private
+      def stamp_application_submission(document)
+        PDFUtilities::DatestampPdf.new(document).run(
           text: 'Application Submitted on va.gov',
           x: 425,
           y: 675,
@@ -149,8 +148,6 @@ module Burials
           template: Burials::PDF_PATH,
           multistamp: true
         )
-
-        @intake_service.valid_document?(document: document)
       end
 
       # Upload generated pdf to Benefits Intake API
