@@ -5,7 +5,8 @@ module MyHealth
     class VaccinesController < MRController
       def index
         if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
-          with_patient_resource(client.list_vaccines) do |resource|
+          with_patient_resource(client.list_vaccines(@current_user.uuid)) do |resource|
+            resource = resource.sort('-date_received')
             if pagination_params[:per_page]
               resource = resource.paginate(**pagination_params)
               links = pagination_links(resource) if pagination_params[:per_page]
