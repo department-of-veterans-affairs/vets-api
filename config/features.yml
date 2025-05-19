@@ -926,6 +926,9 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
+  form1010d_extended:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-10d merged with form 10-7959c
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
@@ -1192,6 +1195,14 @@ features:
   mhv_medical_records_milestone_two:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vaccine:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vaccine objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_health_condition:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -1536,7 +1547,7 @@ features:
     actor_type: user
     description: Enables the One VA Debt Letter feature
     enable_in_development: true
-  show_payment_history_mvp:
+  show_cdp_one_thing_per_page:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
@@ -2189,3 +2200,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  debt_deduction_code_filtering:
+    actor_type: user
+    description:  Enables filtering of debts based on approved deduction codes and current amounts > 0.
