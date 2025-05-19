@@ -6,7 +6,6 @@ require 'common/client/middleware/response/raise_custom_error'
 module IvcChampva
   module VesApi
     class Configuration < Common::Client::Configuration::REST
-
       # Override the default timeouts from lib/common/client/configuration/base.rb
       self.open_timeout = 60
       self.read_timeout = 60
