@@ -31,14 +31,27 @@ module PdfFill
     class PdfFillerException < StandardError; end
     module_function
 
+    # A PdfForms instance for handling standard PDF forms.
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+
+    # A PdfForms instance for handling Unicode PDF forms with XFdf data format.
     UNICODE_PDF_FORMS = PdfForms.new(Settings.binaries.pdftk, data_format: 'XFdf', utf8_fields: true)
+
+    # A hash mapping form IDs to their corresponding form classes.
+    # This constant is intentionally mutable.
     FORM_CLASSES = {} # rubocop:disable Style/MutableConstant
 
+    ##
+    # Registers a form class with a specific form ID.
+    #
+    # @param form_id [String] The form ID to register.
+    # @param form_class [Class] The class associated with the form ID.
+    #
     def register_form(form_id, form_class)
       FORM_CLASSES[form_id] = form_class
     end
 
+    # Registers form classes for various form IDs.
     {
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
@@ -62,6 +75,14 @@ module PdfFill
       register_form(form_id, form_class)
     end
 
+    ##
+    # Combines extra pages into the main PDF if necessary.
+    #
+    # @param old_file_path [String] The path to the original PDF file.
+    # @param extras_generator [ExtrasGenerator] The generator for extra pages.
+    #
+    # @return [String] The path to the final combined PDF.
+    #
     def combine_extras(old_file_path, extras_generator)
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
@@ -78,20 +99,49 @@ module PdfFill
       end
     end
 
+    ##
+    # Fills a form based on the provided saved claim and options.
+    #
+    # @param saved_claim [SavedClaim] The saved claim containing form data.
+    # @param file_name_extension [String, nil] Optional file name extension.
+    # @param fill_options [Hash] Options for filling the form.
+    #
+    # @raise [PdfFillerException] If the form is not found.
+    # @return [String] The path to the filled PDF form.
+    #
     def fill_form(saved_claim, file_name_extension = nil, fill_options = {})
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
       raise PdfFillerException, "Form #{form_id} was not found." unless form_class
 
-      file_name_extension ||= saved_claim.id
-      process_form_with_saved_claim(form_id, saved_claim.parsed_form, form_class, file_name_extension, fill_options)
+      process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end
 
+    ##
+    # Fills an ancillary form based on the provided data and form ID.
+    #
+    # @param form_data [Hash] The data to fill in the form.
+    # @param claim_id [String] The ID of the claim.
+    # @param form_id [String] The form ID.
+    #
+    # @return [String] The path to the filled PDF form.
+    #
     def fill_ancillary_form(form_data, claim_id, form_id, fill_options = {})
       process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id, fill_options)
     end
 
+    ##
+    # Processes a form by filling it with data and saving it to a file.
+    #
+    # @param form_id [String] The form ID.
+    # @param form_data [Hash] The data to fill in the form.
+    # @param form_class [Class] The class associated with the form ID.
+    # @param file_name_extension [String] The file name extension for the output PDF.
+    # @param fill_options [Hash] Options for filling the form.
+    #
+    # @return [String] The path to the filled PDF form.
+    #
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -104,21 +154,36 @@ module PdfFill
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
 
+      fill_pdf_form(form_id, form_class, file_path, new_hash)
+
+      # Handle stamps and extras
+      file_path = add_stamps_if_needed(file_path, submit_date, fill_options)
+      output = combine_extras(file_path, hash_converter.extras_generator)
+
+      log_pdf_fill_completion(fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
+      output
+    end
+
+    def fill_pdf_form(form_id, form_class, file_path, form_data)
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-      unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
-                               EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
-      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
-        template_path, file_path, new_hash, flatten: Rails.env.production?
-      )
+      unicode_pdf_form_list = [
+        SavedClaim::CaregiversAssistanceClaim::FORM,
+        EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2
+      ]
 
-      if fill_options.fetch(:extras_redesign, false) && submit_date.present?
-        file_path = stamp_form(file_path, submit_date)
-      end
+      pdf_forms = form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS
+      pdf_forms.fill_form(template_path, file_path, form_data, flatten: Rails.env.production?)
+    end
 
-      output = combine_extras(file_path, hash_converter.extras_generator)
-      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
-      output
+    def add_stamps_if_needed(file_path, submit_date, fill_options)
+      return file_path unless fill_options.fetch(:extras_redesign, false) && submit_date.present?
+
+      stamp_form(file_path, submit_date)
+    end
+
+    def log_pdf_fill_completion(options)
+      Rails.logger.info('PdfFill done', options)
     end
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
@@ -156,14 +221,11 @@ module PdfFill
       File.delete(initial_stamp_path) if initial_stamp_path
     end
 
+    # Formats the timestamp for the PDF footer
     def format_timestamp(datetime)
       return nil if datetime.blank?
 
       "#{datetime.utc.strftime('%H:%M')} UTC #{datetime.utc.strftime('%Y-%m-%d')}"
-    end
-
-    private_class_method def process_form_with_saved_claim(form_id, parsed_form, form_class, file_name_extension, fill_options)
-      process_form(form_id, parsed_form, form_class, file_name_extension, fill_options)
     end
   end
 end
