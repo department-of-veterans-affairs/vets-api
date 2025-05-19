@@ -145,16 +145,11 @@ describe MAP::SecurityToken::Service do
         let(:expected_error) { Common::Client::Errors::ParsingError }
         let(:expected_error_message) { "unexpected token 'Not valid JSON' at line 1 column 1" }
         let(:expected_logger_message) { "#{log_prefix} token failed, parsing error" }
+        let(:expected_log_values) { { application:, icn:, context: expected_error_message } }
 
         it 'raises an gateway timeout error and creates a log' do
-          expect(Rails.logger).to receive(:error).with(
-            expected_logger_message,
-            hash_including(application:, icn:)
-          )
-
-          expect { subject }.to raise_exception(expected_error) do |error|
-            expect(error.message).to include('Not valid JSON')
-          end
+          expect(Rails.logger).to receive(:error).with(expected_logger_message, expected_log_values)
+          expect { subject }.to raise_exception(expected_error, expected_error_message)
         end
       end
 
