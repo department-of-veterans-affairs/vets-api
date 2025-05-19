@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'vets/model'
+require 'common/models/base'
 require 'va_profile/models/email'
 
 # Secure Messaging Notification Preference Model
-class MessagingPreference
-  include Vets::Model
+class MessagingPreference < Common::Base
+  include ActiveModel::Validations
 
   FREQUENCY_UPDATE_MAP = {
     'none' => 0,
