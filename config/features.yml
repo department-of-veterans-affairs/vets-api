@@ -1536,7 +1536,7 @@ features:
     actor_type: user
     description: Enables the One VA Debt Letter feature
     enable_in_development: true
-  show_payment_history_mvp:
+  show_cdp_one_thing_per_page:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
@@ -2189,3 +2189,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  debt_deduction_code_filtering:
+    actor_type: user
+    description:  Enables filtering of debts based on approved deduction codes and current amounts > 0.

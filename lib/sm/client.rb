@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'sm/client_session'
 require 'sm/configuration'
-require 'vets/collection'
 
 module SM
   ##
@@ -79,7 +78,7 @@ module SM
     # @return [Sting] json response
     #
     def post_signature(params)
-      request_body = MessagingSignature.new(params).to_json
+      request_body = MessagingSignature.new(params).to_h
       perform(:post, 'preferences/signature', request_body, token_headers).body
     end
     # @!endgroup
@@ -98,8 +97,8 @@ module SM
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, path, nil, token_headers).body
-        data = Vets::Collection.new(json[:data], Folder, metadata: json[:metadata], errors: json[:errors])
-        Folder.set_cached(cache_key, data.records)
+        data = Common::Collection.new(Folder, **json)
+        Folder.set_cached(cache_key, data)
         data
       end
     end
@@ -114,7 +113,7 @@ module SM
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
       json = perform(:get, path, nil, token_headers).body
-      Folder.new(json[:data].merge(json[:metadata]))
+      Folder.new(json)
     end
 
     ##
@@ -125,7 +124,7 @@ module SM
     #
     def post_create_folder(name)
       json = perform(:post, 'folder', { 'name' => name }, token_headers).body
-      Folder.new(json[:data].merge(json[:metadata]))
+      Folder.new(json)
     end
 
     ##
@@ -137,7 +136,7 @@ module SM
     #
     def post_rename_folder(folder_id, name)
       json = perform(:post, "folder/#{folder_id}/rename", { 'folderName' => name }, token_headers).body
-      Folder.new(json[:data].merge(json[:metadata]))
+      Folder.new(json)
     end
 
     ##
@@ -171,8 +170,8 @@ module SM
 
           page += 1
         end
-        messages = Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
-        Message.set_cached(cache_key, messages.records)
+        messages = Common::Collection.new(Message, **json)
+        Message.set_cached(cache_key, messages)
         messages
       end
     end
@@ -201,7 +200,7 @@ module SM
 
       json = perform(:get, path, nil, token_headers).body
 
-      Vets::Collection.new(json[:data], MessageThread, metadata: json[:metadata], errors: json[:errors])
+      Common::Collection.new(MessageThread, **json)
     end
 
     ##
@@ -220,11 +219,11 @@ module SM
       path = "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
-      json = perform(:post,
-                     path,
-                     args.attributes,
-                     token_headers).body
-      Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+      json_data = perform(:post,
+                          path,
+                          args.to_h,
+                          token_headers).body
+      Common::Collection.new(Message, **json_data)
     end
     # @!endgroup
 
@@ -242,8 +241,8 @@ module SM
       validate_draft(args)
 
       json = perform(:post, 'message/draft', args, token_headers).body
-      draft = MessageDraft.new(json[:data].merge(json[:metadata]))
-      draft.body = json[:data][:body]
+      draft = MessageDraft.new(json)
+      draft.body = draft.original_attributes[:body]
       draft
     end
 
@@ -262,8 +261,8 @@ module SM
       json = perform(:post, "message/#{id}/replydraft", args, token_headers).body
       json[:data][:has_message] = true
 
-      draft = MessageDraft.new(json[:data].merge(json[:metadata]))
-      draft.body = json[:data][:body]
+      draft = MessageDraft.new(json)
+      draft.body = draft.original_attributes[:body]
       draft.as_reply
     end
     # @!endgroup
@@ -291,7 +290,7 @@ module SM
     def get_message(id)
       path = "message/#{id}/read"
       json = perform(:get, path, nil, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      Message.new(json[:data])
     end
 
     ##
@@ -303,7 +302,7 @@ module SM
     def get_message_history(id)
       path = "message/#{id}/history"
       json = perform(:get, path, nil, token_headers).body
-      Vets::Collection.new(json[:data], Message, metadata: json[:metadata], errors: json[:errors])
+      Common::Collection.new(Message, **json)
     end
 
     ##
@@ -317,7 +316,7 @@ module SM
       path = append_requires_oh_messages_query(path, requires_oh_messages)
 
       json = perform(:get, path, nil, token_headers).body
-      Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
+      Common::Collection.new(MessageThreadDetails, **json)
     end
 
     ##
@@ -330,7 +329,7 @@ module SM
       path = "message/#{id}/allmessagesforthread/1"
       path = append_requires_oh_messages_query(path, requires_oh_messages)
       json = perform(:get, path, nil, token_headers).body
-      Vets::Collection.new(json[:data], MessageThreadDetails, metadata: json[:metadata], errors: json[:errors])
+      Common::Collection.new(MessageThreadDetails, **json)
     end
 
     ##
@@ -344,7 +343,7 @@ module SM
       validate_create_context(args)
 
       json = perform(:post, 'message', args.to_h, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      Message.new(json[:data])
     end
 
     ##
@@ -359,7 +358,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, 'message/attach', args.to_h, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      Message.new(json[:data])
     end
 
     ##
@@ -374,7 +373,7 @@ module SM
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
       json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      Message.new(json[:data])
     end
 
     ##
@@ -388,7 +387,7 @@ module SM
       validate_reply_context(args)
 
       json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
-      Message.new(json[:data].merge(json[:metadata]))
+      Message.new(json[:data])
     end
 
     ##
@@ -458,8 +457,8 @@ module SM
       cache_key = "#{user_uuid}-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
-        data = Vets::Collection.new(json[:data], TriageTeam, metadata: json[:metadata], errors: json[:errors])
-        TriageTeam.set_cached(cache_key, data.records)
+        data = Common::Collection.new(TriageTeam, **json)
+        TriageTeam.set_cached(cache_key, data)
         data
       end
     end
@@ -480,8 +479,8 @@ module SM
           path += "#{separator}requiresOHTriageGroup=#{requires_oh}"
         end
         json = perform(:get, path, nil, token_headers).body
-        data = Vets::Collection.new(json[:data], AllTriageTeams, metadata: json[:metadata], errors: json[:errors])
-        AllTriageTeams.set_cached(cache_key, data.records)
+        data = Common::Collection.new(AllTriageTeams, **json)
+        AllTriageTeams.set_cached(cache_key, data)
         data
       end
     end
@@ -508,7 +507,7 @@ module SM
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
         statsd_cache_hit
-        Vets::Collection.new(data, model)
+        Common::Collection.new(model, data:)
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
         statsd_cache_miss
@@ -558,7 +557,7 @@ module SM
     end
 
     def reply_draft?(id)
-      get_message_history(id).records.present?
+      get_message_history(id).data.present?
     end
 
     def validate_draft(args)
