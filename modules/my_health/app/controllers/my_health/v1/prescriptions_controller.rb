@@ -159,7 +159,9 @@ module MyHealth
       end
 
       def apply_filters(resource)
-        if filter_params[:disp_status]&.[](:eq).downcase == 'active,expired'.downcase
+        disp_status = filter_params[:disp_status]
+        if disp_status.present? &&
+          disp_status[:eq]&.downcase == 'active,expired'.downcase
           filter_renewals(resource)
         else
           filters = filter_params[:disp_status][:eq].split(',').map(&:strip).map(&:downcase)
