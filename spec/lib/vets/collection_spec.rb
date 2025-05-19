@@ -27,7 +27,7 @@ RSpec.describe Vets::Collection do
   end
 
   describe '#initialize' do
-    it 'initializes with sorted records' do
+    it 'initializes with unsorted records' do
       record1 = dummy_class.new(name: 'Bob', age: 25)
       record2 = dummy_class.new(name: 'Alice', age: 30)
 

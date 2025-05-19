@@ -42,7 +42,7 @@ module Vets
       end
 
       @size = records.size
-      @records = order(records)
+      @records = records
     end
 
     def self.from_will_paginate(records)
