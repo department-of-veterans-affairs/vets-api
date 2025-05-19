@@ -170,7 +170,7 @@ jobs:
   fetch-pr-reviews:
     name: Fetch Pull Request Reviews
     needs: [get-pr-data, check-workflow-status, check-backend-requirement]
-    if: needs.check-workflow-status.outputs.failures_detected == 'false'
+    # if: needs.check-workflow-status.outputs.failures_detected == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -226,12 +226,15 @@ jobs:
             echo "author_is_backend=false" >> $GITHUB_OUTPUT
           fi
 
-          TEAM_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -viE "$BACKEND_REVIEWERS" | wc -l)
-
-          # TEAM_APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -viE "$BACKEND_REVIEWERS" | wc -l
-          # ${{ steps.get_pr_reviews.outputs.data }}
-          # EOF
-          # )
+          TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user)
+            | map(select(.state == "APPROVED"))
+            | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
 
           echo "Number of non backend-review-group approvals: $TEAM_APPROVALS"
           if [ "$TEAM_APPROVALS" -eq 0 ]; then
@@ -240,13 +243,15 @@ jobs:
             echo "team_approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-          BE_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l)
-
-
-          # BE_APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-          # ${{ steps.get_pr_reviews.outputs.data }}
-          # EOF
-          # )
+          BE_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user)
+            | map(select(.state == "APPROVED"))
+            | .[].user' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
 
           echo "Number of backend-review-group approvals: $BE_APPROVALS"
           if [ "$BE_APPROVALS" -eq 0 ]; then
@@ -258,6 +263,7 @@ jobs:
       # The ready-for-review label will be added when pull request has not been reviewed
       - name: Add ready-for-review label
         if: |
+          needs.check-workflow-status.outputs.failures_detected == 'false' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           steps.verify_approval.outputs.team_approval_status == 'required'
         uses: actions-ecosystem/action-add-labels@v1
@@ -269,6 +275,7 @@ jobs:
       # The ready-for-backend-review label will be added for backend-review-group team members
       - name: Add ready-for-backend-review label
         if: |
+          needs.check-workflow-status.outputs.failures_detected == 'false' &&
           needs.check-backend-requirement.outputs.backend_approval_required == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required' &&
           (
