@@ -249,10 +249,6 @@ describe MAP::SecurityToken::Service do
       let(:expected_error_message) { "#{log_prefix} token failed, application mismatch detected" }
       let(:expected_log_values) { { application:, icn: } }
 
-      before do
-        allow(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-      end
-
       it 'raises an application mismatch error and creates a log' do
         expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
         expect { subject }.to raise_exception(expected_error, expected_error_message)
