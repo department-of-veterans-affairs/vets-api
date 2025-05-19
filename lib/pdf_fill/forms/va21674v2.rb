@@ -875,6 +875,7 @@ module PdfFill
         }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
         students_information = @form_data['dependents_application']['student_information']
@@ -897,6 +898,7 @@ module PdfFill
         end
         format_checkboxes(dependents_application)
       end
+      # rubocop:enable Metrics/MethodLength
 
       def get_program(parent_object)
         type_mapping = {
