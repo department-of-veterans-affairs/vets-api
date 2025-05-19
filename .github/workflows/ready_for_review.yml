@@ -112,6 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
     outputs:
@@ -157,8 +158,6 @@ jobs:
           done
 
           echo "failures_detected=$failures" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove ready-for-backend-review label
         if: steps.check_workflow_status.outputs.failures_detected == 'true'

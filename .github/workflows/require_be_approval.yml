@@ -10,7 +10,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       pr_draft: ${{ steps.approval_permissions.outputs.pr_draft }}
       pr_branch: ${{ steps.approval_permissions.outputs.pr_branch }}
