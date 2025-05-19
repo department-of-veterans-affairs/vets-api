@@ -1,0 +1,112 @@
+description: Application for CHAMPVA Benefits (based on VA.gov eligibility criteria)
+rules:
+  # Scenario A1: Veteran is ALIVE and P&T Disabled
+  - name: Spouse of living Veteran rated P&T for SC disability
+    if:
+      # veteran_deceased: false (or not a required field for this rule)
+      relationship_to_veteran: spouse # This field needs to be in the 'submitted_data' or derived
+      sc_disability_is_permanent_and_total: true # This needs mapping from 10-10EZ
+    then:
+      eligible: true
+      reason: "You may be eligible as the spouse of a Veteran rated permanently and totally disabled from a service-connected disability."
+      confidence: medium # Medium as sc_disability_is_permanent_and_total is an interpretation of 10-10EZ data
+      target_form_name: "10-10D"
+      target_form_description: "Application for CHAMPVA Benefits"
+      notes: "Assumes Veteran is alive. TRICARE eligibility not checked."
+      # No clarifying questions here as the primary conditions are derivable from 10-10EZ (with interpretation)
+
+  - name: Child of living Veteran rated P&T for SC disability
+    if:
+      # veteran_deceased: false (or not a required field for this rule)
+      relationship_to_veteran: child # This field needs to be in the 'submitted_data' or derived
+      sc_disability_is_permanent_and_total: true # This needs mapping from 10-10EZ
+      child_is_eligible_age_or_status: true # Combines age/student status checks
+    then:
+      eligible: true
+      reason: "You may be eligible as the child of a Veteran rated permanently and totally disabled from a service-connected disability."
+      confidence: medium # Medium as sc_disability and child_status are interpretations/calculations
+      target_form_name: "10-10D"
+      target_form_description: "Application for CHAMPVA Benefits"
+      notes: "Assumes Veteran is alive. TRICARE eligibility not checked."
+
+  # Scenario A3 (was Rule 1 & 2): Veteran DECEASED and was P&T Disabled
+  - name: Surviving spouse of Veteran who was P&T for SC disability at time of death
+    if:
+      relationship_to_veteran: spouse
+      veteran_deceased: true # This data point is NOT on 10-10EZ
+      sc_disability_was_permanent_and_total_at_death: true # NOT on 10-10EZ
+    then:
+      eligible: true
+      reason: "You may be eligible as the surviving spouse of a Veteran who was rated permanently and totally disabled from a service-connected disability at the time of death."
+      confidence: low
+      target_form_name: "10-10D"
+      target_form_description: "Application for CHAMPVA Benefits"
+      notes: "TRICARE eligibility not checked."
+      clarifying_questions:
+        - "Is the Veteran deceased?"
+        - "At the time of death, was the Veteran rated permanently and totally disabled due to a service-connected condition?"
+
+  - name: Surviving child of Veteran who was P&T for SC disability at time of death
+    if:
+      relationship_to_veteran: child
+      veteran_deceased: true # NOT on 10-10EZ
+      sc_disability_was_permanent_and_total_at_death: true # NOT on 10-10EZ
+      child_is_eligible_age_or_status: true
+    then:
+      eligible: true
+      reason: "You may be eligible as the surviving child of a Veteran who was rated permanently and totally disabled from a service-connected disability at the time of death."
+      confidence: low
+      target_form_name: "10-10D"
+      target_form_description: "Application for CHAMPVA Benefits"
+      notes: "TRICARE eligibility not checked."
+      clarifying_questions:
+        - "Is the Veteran deceased?"
+        - "At the time of death, was the Veteran rated permanently and totally disabled due to a service-connected condition?"
+        # Child status questions are implicitly handled by child_is_eligible_age_or_status if that logic were also conditional
+        # For now, if child_is_eligible_age_or_status is based on submitted data, no extra questions for that part needed.
+
+  # Scenario B1 (was Rule 3): Veteran DECEASED in line of duty
+  - name: Surviving spouse/child of Veteran who died in line of duty
+    if:
+      relationship_to_veteran: # This implies an OR condition for the values in the list
+        - spouse
+        - child
+      veteran_deceased: true # NOT on 10-10EZ
+      died_in_line_of_duty: true # NOT on 10-10EZ (10-10EZ has disabledInLineOfDuty)
+      # child_is_eligible_age_or_status: true (implicitly, if relationship is child) - might need explicit handling
+    then:
+      eligible: true
+      reason: "You may be eligible as the surviving spouse or child of a service member who died in the line of duty (not due to misconduct)."
+      confidence: low
+      target_form_name: "10-10D"
+      target_form_description: "Application for CHAMPVA Benefits"
+      notes: "TRICARE eligibility not checked."
+      clarifying_questions:
+        - "Is the Veteran deceased?"
+        - "Did the Veteran/service member die in the line of duty (and was it not due to misconduct)?"
+
+  # Scenario A2: Veteran DECEASED *from* SC disability (New, very specific)
+  - name: Surviving spouse/child of Veteran who died from an SC disability
+    if:
+      relationship_to_veteran:
+        - spouse
+        - child
+      veteran_deceased: true # NOT on 10-10EZ
+      died_from_sc_disability: true # NOT on 10-10EZ
+      # child_is_eligible_age_or_status: true (implicitly, if relationship is child) - might need explicit handling
+    then:
+      eligible: true
+      reason: "You may be eligible as the surviving spouse or child of a Veteran who died from a service-connected disability."
+      confidence: low
+      target_form_name: "10-10D"
+      target_form_description: "Application for CHAMPVA Benefits"
+      notes: "TRICARE eligibility not checked."
+      clarifying_questions:
+        - "Is the Veteran deceased?"
+        - "Was the Veteran\'s death caused by a service-connected disability?"
+
+# TODO: Consider how to handle child_is_eligible_age_or_status more uniformly,
+# perhaps as a separate check or a complex field in the 'if' that implies age/student checks.
+# TODO: The TRICARE exclusion is global. If we can get this data, it would preempt many rules. 
+
+# A clarifying question could be: "Are you eligible for or enrolled in TRICARE?" 

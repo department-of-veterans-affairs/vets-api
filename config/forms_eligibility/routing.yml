@@ -1,0 +1,13 @@
+"10-10EZ": # Source Form ID
+  suggested_forms:
+    - target_form_id: "10-10D"
+      rules_file: "rules/10-10D.yml"
+      data_mapping:
+        relationship_to_veteran: "_meta.relationship_to_veteran"
+        sc_disability_is_permanent_and_total: "veteranInfo.vaCompensationType"
+        child_date_of_birth: "applicantDetails.dateOfBirth"
+        child_attended_school_last_year: "applicantDetails.attendedSchoolLastYear"
+        veteran_deceased: "veteranInfo.isDeceased"
+        sc_disability_was_permanent_and_total_at_death: "veteranInfo.scPAndTAtDeath"
+        died_in_line_of_duty: "veteranInfo.diedInLineOfDuty"
+        died_from_sc_disability: "veteranInfo.diedFromScDisability" 
