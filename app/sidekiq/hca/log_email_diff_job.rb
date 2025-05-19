@@ -5,8 +5,9 @@ module HCA
     include Sidekiq::Job
     sidekiq_options retry: false
 
-    def perform(in_progress_form_id, user_uuid)
-      return if FormEmailMatchesProfileLog.exists?(user_uuid:, in_progress_form_id:)
+    def perform(in_progress_form_id, user_uuid, user_account_id)
+      return if FormEmailMatchesProfileLog.exists?(user_uuid:, in_progress_form_id:) ||
+                FormEmailMatchesProfileLog.exists?(user_account_id:, in_progress_form_id:)
 
       in_progress_form = InProgressForm.find_by(id: in_progress_form_id)
       return if in_progress_form.nil?
@@ -25,7 +26,7 @@ module HCA
         "api.1010ez.in_progress_form_email.#{tag_text}"
       )
 
-      FormEmailMatchesProfileLog.create(user_uuid:, in_progress_form_id:)
+      FormEmailMatchesProfileLog.create(user_uuid:, user_account_id:, in_progress_form_id:)
     end
   end
 end

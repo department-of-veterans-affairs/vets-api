@@ -50,6 +50,7 @@
         "school_information": {
           "isSchoolAccredited": true,
           "student_is_enrolled_full_time": false,
+          "date_full_time_ended": "2024-05-05",
           "student_did_attend_school_last_term": false,
           "current_term_dates": {
             "official_school_start_date": "2024-09-25",

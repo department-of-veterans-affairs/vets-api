@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class ConditionsController < MrController
+    class ConditionsController < MRController
       def index
         render_resource client.list_conditions
       end
