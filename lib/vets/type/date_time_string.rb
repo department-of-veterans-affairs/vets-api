@@ -12,9 +12,9 @@ module Vets
       def cast(value)
         return nil if value.nil?
 
-        Time.parse(value).iso8601
+        value if value.is_a?(::String) && Time.parse(value).iso8601
       rescue ArgumentError
-        raise TypeError, "#{@name} is not Time parseable"
+        nil
       end
     end
   end

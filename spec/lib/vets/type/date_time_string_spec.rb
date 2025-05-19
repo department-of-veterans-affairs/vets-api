@@ -19,17 +19,15 @@ RSpec.describe Vets::Type::DateTimeString do
       let(:valid_datetime) { '2024-12-19T12:34:56Z' }
 
       it 'returns the ISO8601 formatted datetime string' do
-        expect(datetime_instance.cast(valid_datetime)).to eq(Time.parse(valid_datetime).iso8601)
+        expect(datetime_instance.cast(valid_datetime)).to eq(valid_datetime)
       end
     end
 
     context 'when value is an invalid datetime string' do
       let(:invalid_datetime) { 'invalid-datetime' }
 
-      it 'raises a TypeError with the correct message' do
-        expect do
-          datetime_instance.cast(invalid_datetime)
-        end.to raise_error(TypeError, "#{name} is not Time parseable")
+      it 'returns nil' do
+        expect(datetime_instance.cast(invalid_datetime)).to be_nil
       end
     end
   end

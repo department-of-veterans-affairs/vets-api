@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module MPI
   module Models
     class MviProfileAddress
-      include Virtus.model
+      include Vets::Model
 
       attribute :street, String
       attribute :street2, String
