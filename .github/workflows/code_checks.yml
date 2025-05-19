@@ -43,14 +43,14 @@ jobs:
 
       # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label
-        if: ${{ failure() }}
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
 
       - name: Remove Lint Failure label
-        if: ${{ success() }}
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
