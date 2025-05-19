@@ -2,7 +2,11 @@ module V0
   class BenefitsSuggestionsController < ApplicationController
     rescue_from ArgumentError, with: :handle_argument_error
     rescue_from ActionController::ParameterMissing, with: :handle_parameter_missing
+    
     skip_before_action(:authenticate, only: %i[create])
+    skip_before_action :verify_authenticity_token
+
+    rescue_from JSON::ParserError, with: :handle_json_parser_error
 
 
     def create
@@ -25,6 +29,12 @@ module V0
 
     def handle_parameter_missing(exception)
       render json: { errors: [{ title: 'Parameter Missing', detail: exception.message }] }, status: :bad_request
+    end
+
+    def handle_json_parser_error(exception)
+      logger.error "JSON Parser Error: #{exception.message}"
+      logger.error "Request Body: #{request.raw_post}" # Log the raw body for inspection
+      render json: { errors: [{ title: 'Invalid JSON', detail: "There was an error parsing the JSON request body: #{exception.message}" }] }, status: :bad_request
     end
   end
 end 

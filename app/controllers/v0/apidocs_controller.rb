@@ -120,6 +120,7 @@ module V0
       Swagger::Requests::Appointments,
       Swagger::Requests::ContactUs::Inquiries,
       Swagger::Requests::BackendStatuses,
+      Swagger::Requests::BenefitsSuggestions,
       Swagger::Requests::Banners,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::BenefitsReferenceData,

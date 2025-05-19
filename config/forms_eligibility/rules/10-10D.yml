@@ -103,7 +103,7 @@ rules:
       notes: "TRICARE eligibility not checked."
       clarifying_questions:
         - "Is the Veteran deceased?"
-        - "Was the Veteran\'s death caused by a service-connected disability?"
+        - "Was the Veteran's death caused by a service-connected disability?"
 
 # TODO: Consider how to handle child_is_eligible_age_or_status more uniformly,
 # perhaps as a separate check or a complex field in the 'if' that implies age/student checks.
