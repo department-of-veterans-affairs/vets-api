@@ -248,7 +248,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['recipient_id']).to eq(3_188_767)
         expect(first_message['recipient_name']).to eq('TG API TESTING')
         expect(first_message['sent_date']).to be_nil
-        expect(first_message['draft_date']).to eq('2023-12-19T17:21:47+00:00')
+        expect(first_message['draft_date']).to eq('2023-12-19T17:21:47.000+00:00')
         expect(first_message['triage_group_name']).to eq('TG API TESTING')
         expect(first_message['has_attachments']).to be(false)
         expect(first_message['subject']).to eq('Test Inquiry')

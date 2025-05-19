@@ -73,7 +73,8 @@ describe PrescriptionDetails do
     end
 
     it 'sorted_dispensed_date should be nil' do
-      expect(subject.sorted_dispensed_date).to be_nil
+      puts subject.rx_rf_records
+      expect(subject[:sorted_dispensed_date]).to be_nil
     end
   end
 end

@@ -3,7 +3,6 @@
 require_relative '../../../../../support/helpers/rails_helper'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
-require 'vets/collection'
 
 RSpec.describe 'health/rx/prescriptions', type: :request do
   include JsonSchemaMatchers
@@ -16,7 +15,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
     json_data = JSON.parse(File.read(path), symbolize_names: true)
 
-    Vets::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
+    Common::Collection.fetch(Prescription, cache_key: '123:medications', ttl: 3600) { json_data }
   end
 
   before do
@@ -192,7 +191,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
           get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
         end
-
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('prescription')
 
@@ -414,7 +412,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       context 'invalid sort option' do
         let(:params) { { sort: 'quantity' } }
 
-        it 'sorts prescriptions by refill_status', skip: 'not needed with Vets::Collection' do
+        it 'sorts prescriptions by refill_status' do
           VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
             get '/mobile/v0/health/rx/prescriptions', params:, headers: sis_headers
           end
