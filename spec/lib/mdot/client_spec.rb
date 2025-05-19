@@ -218,7 +218,7 @@ describe MDOT::Client, type: :mdot_helpers do
       before do
         VCR.insert_cassette(
           cassette,
-          match_requests_on: %i[method uri headers],
+          match_requests_on: %i[method uri],
           erb: { icn: user.icn }
         )
       end

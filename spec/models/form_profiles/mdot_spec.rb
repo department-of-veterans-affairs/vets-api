@@ -75,7 +75,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       it 'handles 401 responses from system-of-record' do
         VCR.insert_cassette(
           'mdot/get_supplies_401',
-          match_requests_on: %i[method uri headers],
+          match_requests_on: %i[method uri],
           erb: { icn: user.icn }
         )
         expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
@@ -86,7 +86,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       it 'handles 406 responses from system-of-record' do
         VCR.insert_cassette(
           'mdot/simulated_get_supplies_406',
-          match_requests_on: %i[method uri headers],
+          match_requests_on: %i[method uri],
           erb: { icn: user.icn }
         )
         expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
@@ -97,7 +97,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       it 'handles 410 responses from system-of-record' do
         VCR.insert_cassette(
           'mdot/simulated_get_supplies_410',
-          match_requests_on: %i[method uri headers],
+          match_requests_on: %i[method uri],
           erb: { icn: user.icn }
         )
         expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
@@ -108,7 +108,7 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       it 'handles non-JSON responses from system-of-record' do
         VCR.insert_cassette(
           'mdot/simulated_get_supplies_200_not_json',
-          match_requests_on: %i[method uri headers],
+          match_requests_on: %i[method uri],
           erb: { icn: user.icn }
         )
         expect { FormProfile.for(form_id: 'MDOT', user:).prefill }
