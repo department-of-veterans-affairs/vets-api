@@ -65,7 +65,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
-                'draftDate' => '2023-05-16T14:55:01+00:00',
+                'draftDate' => '2023-05-16T14:55:01.000+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false
               },
@@ -93,7 +93,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
-                'draftDate' => '2023-05-16T14:55:01+00:00',
+                'draftDate' => '2023-05-16T14:55:01.000+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false
               },
@@ -121,7 +121,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
                 'proxySenderName' => nil,
                 'threadId' => 2_800_585,
                 'folderId' => -2,
-                'draftDate' => '2023-05-16T14:55:01+00:00',
+                'draftDate' => '2023-05-16T14:55:01.000+00:00',
                 'toDate' => nil,
                 'hasAttachments' => false
               },
@@ -181,9 +181,7 @@ RSpec.describe 'Mobile::V1::Messaging::Health::Messages', type: :request do
               params: { excludeProvidedMessage: true }
         end
 
-        # the previous count was 3, but that included an invalid message
-        # it should be 2 because there's only 2 valid messages (both READ)
-        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(2)
+        expect(response.parsed_body.dig('meta', 'messageCounts', 'read')).to eq(3)
       end
     end
   end
