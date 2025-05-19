@@ -57,7 +57,6 @@ module MPI
       def mhv_correlation_id
         @active_mhv_ids&.first
       end
-
     end
   end
 end
