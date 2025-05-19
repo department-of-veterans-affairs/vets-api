@@ -2192,3 +2192,6 @@ features:
   disable_bdn_processing:
     actor_type: user
     description: If enabled, skip all BDN-related processing for VYE
+  debt_deduction_code_filtering:
+    actor_type: user
+    description:  Enables filtering of debts based on approved deduction codes and current amounts > 0.

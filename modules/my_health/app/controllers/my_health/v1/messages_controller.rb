@@ -63,7 +63,7 @@ module MyHealth
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
         options = { meta: resource.metadata, is_collection: true }
-        render json: MessageDetailsSerializer.new(resource.data, options)
+        render json: MessageDetailsSerializer.new(resource, options)
       end
 
       def reply
