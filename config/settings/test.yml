@@ -127,20 +127,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: ~
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
-    client_id: ~
-    client_number: ~
-    client_secret: ~
-    redis_token_expiry: 3540
-    scope: ~
-    service_name: BTSSS-API
-    subscription_key: ~
-    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: https://login.microsoftonline.us
