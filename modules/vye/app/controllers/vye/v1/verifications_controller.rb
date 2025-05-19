@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Vye
-  module Vye::V1
-    class Vye::V1::VerificationsController < Vye::V1::ApplicationController
+  module V1
+    class VerificationsController < Vye::V1::ApplicationController
       class EmptyAwards < StandardError; end
       class AwardsMismatch < StandardError; end
 
