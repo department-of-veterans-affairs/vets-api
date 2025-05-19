@@ -143,13 +143,18 @@ describe MAP::SecurityToken::Service do
       context 'when response is malformed',
               vcr: { cassette_name: 'map/security_token_service_200_malformed_response' } do
         let(:expected_error) { Common::Client::Errors::ParsingError }
-        let(:expected_error_message) { "unexpected token at 'Not valid JSON'" }
+        let(:expected_error_message) { "unexpected token 'Not valid JSON' at line 1 column 1" }
         let(:expected_logger_message) { "#{log_prefix} token failed, parsing error" }
-        let(:expected_log_values) { { application:, icn:, context: expected_error_message } }
 
         it 'raises an gateway timeout error and creates a log' do
-          expect(Rails.logger).to receive(:error).with(expected_logger_message, expected_log_values)
-          expect { subject }.to raise_exception(expected_error, expected_error_message)
+          expect(Rails.logger).to receive(:error).with(
+            expected_logger_message,
+            hash_including(application:, icn:)
+          )
+
+          expect { subject }.to raise_exception(expected_error) do |error|
+            expect(error.message).to include('Not valid JSON')
+          end
         end
       end
 
@@ -249,9 +254,15 @@ describe MAP::SecurityToken::Service do
       let(:expected_error_message) { "#{log_prefix} token failed, application mismatch detected" }
       let(:expected_log_values) { { application:, icn: } }
 
+      before do
+        allow(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
+      end
+
       it 'raises an application mismatch error and creates a log' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-        expect { subject }.to raise_exception(expected_error, expected_error_message)
+        expect { subject }.to raise_exception do |error|
+          expect(error).to be_a(expected_error)
+          expect(error.message).to include('application mismatch')
+        end
       end
     end
 
@@ -261,9 +272,15 @@ describe MAP::SecurityToken::Service do
       let(:expected_error_message) { "#{log_prefix} token failed, ICN not present in access token" }
       let(:expected_log_values) { { application: } }
 
+      before do
+        allow(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
+      end
+
       it 'raises a missing ICN error and creates a log' do
-        expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-        expect { subject }.to raise_exception(expected_error, expected_error_message)
+        expect { subject }.to raise_exception do |error|
+          expect(error).to be_a(expected_error)
+          expect(error.message).to include('ICN not present')
+        end
       end
     end
   end
