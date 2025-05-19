@@ -147,29 +147,70 @@ RSpec.describe 'IvcChampva Upload Data Transformation Chain Integration Test', t
       # Verify transformation results
       expect(transformations[:form_instance]).to be_a(form_class)
 
-      # Verify all metadata fields are present and retained in the transformation chain
-      expected_common_fields = %w[veteranFirstName veteranLastName fileNumber source docType businessLine uuid]
-      expected_common_fields.each do |field|
-        expect(transformations[:metadata_after_form_class]).to have_key(field),
-                                                               "Expected field '#{field}' missing from initial metadata"
-        expect(transformations[:validated_metadata]).to have_key(field),
-                                                        "Expected field '#{field}' missing from validated metadata"
-        expect(transformations[:metadata_after_merge]).to have_key(field),
-                                                          "Expected field '#{field}' missing from merged metadata"
-      end
-
-      # Verify data integrity through the entire chain for all fields
+      # Verify that all fields in initial metadata are preserved through the chain
       transformations[:metadata_after_form_class].each_key do |field|
-        next if field == 'primaryContactInfo' # Skip complex nested objects
+        if field == 'primaryContactInfo'
+          # Validate primaryContactInfo structure which should contain name, email, and optionally phone
+          expect(transformations[:validated_metadata]).to have_key('primaryContactInfo')
+          expect(transformations[:metadata_after_merge]).to have_key('primaryContactInfo')
 
-        # Check that field value is preserved from form class to validation
-        if transformations[:validated_metadata].key?(field)
+          # Get the contact info from each transformation stage
+          original_contact = transformations[:metadata_after_form_class]['primaryContactInfo']
+          validated_contact = transformations[:validated_metadata]['primaryContactInfo']
+          merged_contact = transformations[:metadata_after_merge]['primaryContactInfo']
+
+          # Verify name structure (always present)
+          if original_contact&.key?('name')
+            expect(validated_contact).to have_key('name')
+            expect(merged_contact).to have_key('name')
+
+            # Check first name
+            if original_contact['name']&.key?('first')
+              expect(validated_contact['name']).to have_key('first')
+              expect(validated_contact['name']['first']).to eq(original_contact['name']['first'])
+              expect(merged_contact['name']).to have_key('first')
+              expect(merged_contact['name']['first']).to eq(validated_contact['name']['first'])
+            end
+
+            # Check last name
+            if original_contact['name']&.key?('last')
+              expect(validated_contact['name']).to have_key('last')
+              expect(validated_contact['name']['last']).to eq(original_contact['name']['last'])
+              expect(merged_contact['name']).to have_key('last')
+              expect(merged_contact['name']['last']).to eq(validated_contact['name']['last'])
+            end
+          end
+
+          # Check email (may be a boolean 'false' in some cases)
+          if original_contact&.key?('email')
+            expect(validated_contact).to have_key('email')
+            expect(validated_contact['email']).to eq(original_contact['email'])
+            expect(merged_contact).to have_key('email')
+            expect(merged_contact['email']).to eq(validated_contact['email'])
+          end
+
+          # Check phone (optional)
+          if original_contact&.key?('phone')
+            expect(validated_contact).to have_key('phone')
+            expect(validated_contact['phone']).to eq(original_contact['phone'])
+            expect(merged_contact).to have_key('phone')
+            expect(merged_contact['phone']).to eq(validated_contact['phone'])
+          end
+        else
+          # Regular field validation
+          # Each field in the initial metadata should be present in validated metadata
+          expect(transformations[:validated_metadata]).to have_key(field),
+                                                          "Field '#{field}' is missing from validated metadata"
+
+          # Check field is preserved through validation
           expect(transformations[:validated_metadata][field]).to eq(transformations[:metadata_after_form_class][field]),
                                                                  "Field '#{field}' value changed during validation"
-        end
 
-        # Check that field value is preserved from validation to merging
-        if transformations[:metadata_after_merge].key?(field)
+          # Each field should also be present in merged metadata
+          expect(transformations[:metadata_after_merge]).to have_key(field),
+                                                            "Field '#{field}' is missing from merged metadata"
+
+          # Check field is preserved through merging
           expect(transformations[:metadata_after_merge][field]).to eq(transformations[:validated_metadata][field]),
                                                                    "Field '#{field}' value changed during merging"
         end
