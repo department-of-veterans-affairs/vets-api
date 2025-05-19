@@ -7,6 +7,10 @@ RSpec.shared_examples 'debt service behavior' do
 
   describe '#get_debts' do
     context 'with a valid file number' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debt_deduction_code_filtering, user).and_return(true)
+      end
+
       it 'fetches the veterans debt data' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
@@ -20,6 +24,10 @@ RSpec.shared_examples 'debt service behavior' do
     end
 
     context 'without a valid file number' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debt_deduction_code_filtering, user).and_return(true)
+      end
+
       it 'returns a bad request error' do
         VCR.use_cassette('bgs/people_service/no_person_data') do
           VCR.use_cassette('debts/get_letters_empty_ssn', VCR::MATCH_EVERYTHING) do
@@ -49,6 +57,10 @@ RSpec.shared_examples 'debt service behavior' do
     end
 
     context 'empty DMC response' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debt_deduction_code_filtering, user).and_return(true)
+      end
+
       it 'handles an empty payload' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters_empty_response', VCR::MATCH_EVERYTHING) do
@@ -68,6 +80,10 @@ RSpec.shared_examples 'debt service behavior' do
     end
 
     context 'with count_only parameter' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debt_deduction_code_filtering, user).and_return(true)
+      end
+
       it 'returns only count when count_only is true' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters_count_only', VCR::MATCH_EVERYTHING) do
@@ -96,6 +112,50 @@ RSpec.shared_examples 'debt service behavior' do
 
             expect(StatsD).to have_received(:increment).with('api.dmc.fetch_debts_from_dmc.total')
             expect(StatsD).to have_received(:increment).with('api.dmc.get_debts.success')
+          end
+        end
+      end
+    end
+
+    context 'filtering debts' do
+      context 'when debt_deduction_code_filtering feature is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:debt_deduction_code_filtering, user).and_return(true)
+        end
+
+        it 'filters out debts based on deduction code, payee number, and current amount' do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            VCR.use_cassette('debts/get_letters_with_filterable_debts', VCR::MATCH_EVERYTHING) do
+              response = described_class.new(user).get_debts
+
+              debts = response[:debts]
+
+              expect(debts.map do |d|
+                d['deductionCode']
+              end).to all(be_in(DebtManagementCenter::Constants::APPROVED_DEDUCTION_CODES.keys))
+              expect(debts.map { |d| d['currentAR'].to_f }).to all(be > 0)
+              expect(debts.map { |d| d['payeeNumber'] }).to all(eq('00'))
+            end
+          end
+        end
+      end
+
+      context 'when debt_deduction_code_filtering feature is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:debt_deduction_code_filtering, user).and_return(false)
+        end
+
+        it 'only filters by payee number' do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            VCR.use_cassette('debts/get_letters_with_filterable_debts', VCR::MATCH_EVERYTHING) do
+              response = described_class.new(user).get_debts
+
+              debts = response[:debts]
+
+              expect(debts.map { |d| d['payeeNumber'] }).to all(eq('00'))
+              expect(debts.map { |d| d['deductionCode'] }).to include('99')
+              expect(debts.any? { |d| d['currentAR'].to_f == 0 }).to be true
+            end
           end
         end
       end

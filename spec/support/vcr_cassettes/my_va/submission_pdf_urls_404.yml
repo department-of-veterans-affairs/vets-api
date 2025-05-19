@@ -1,0 +1,47 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: https://example.com/file1.pdf
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '1256'
+      Content-Type:
+      - text/html
+      Etag:
+      - '"84238dfc8092e5d9c0dac8ef93371a07:1736799080.121134"'
+      Last-Modified:
+      - Mon, 13 Jan 2025 20:11:20 GMT
+      Server:
+      - AkamaiNetStorage
+      Expires:
+      - Tue, 13 May 2025 19:27:23 GMT
+      Cache-Control:
+      - max-age=0, no-cache, no-store
+      Pragma:
+      - no-cache
+      Date:
+      - Tue, 13 May 2025 19:27:23 GMT
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Tue, 13 May 2025 19:27:23 GMT
+recorded_with: VCR 6.3.1
