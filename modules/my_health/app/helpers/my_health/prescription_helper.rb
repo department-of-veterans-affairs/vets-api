@@ -15,12 +15,12 @@ module MyHealth
       end
 
       def filter_non_va_meds(data)
-        data.reject { |item| item.prescription_source == 'NV' && item.disp_status != 'Active: Non-VA' }
+        data.reject { |item| item[:prescription_source] == 'NV' && item[:disp_status] != 'Active: Non-VA' }
       end
 
       def sort_by(resource, sort_params)
         sort_orders = sort_params.map { |param| param.to_s.start_with?('-') }
-        resource.records = resource.data.sort do |a, b|
+        resource.data = resource.data.sort do |a, b|
           comparison = 0
           sort_params.each_with_index do |field, index|
             is_descending = sort_orders[index]
@@ -60,29 +60,29 @@ module MyHealth
       def get_field_data(field, data, is_descending)
         case field
         when /dispensed_date/
-          if data.sorted_dispensed_date.nil?
+          if data[:sorted_dispensed_date].nil?
             is_descending ? Date.new(9999, 12, 31) : Date.new(0, 1, 1)
           else
-            data.sorted_dispensed_date
+            data[:sorted_dispensed_date]
           end
         when 'prescription_name'
-          if data.disp_status == 'Active: Non-VA' && data.prescription_name.nil?
-            data.orderable_item
-          elsif !data.prescription_name.nil?
-            data.prescription_name
+          if data[:disp_status] == 'Active: Non-VA' && data[:prescription_name].nil?
+            data[:orderable_item]
+          elsif !data[:prescription_name].nil?
+            data[:prescription_name]
           else
             '~'
           end
         when 'disp_status'
-          data.disp_status
+          data[:disp_status]
         else
-          data.public_send(field.sub(/^-/, '').to_sym)
+          data[field.sub(/^-/, '')]
         end
       end
 
       def filter_data_by_refill_and_renew(data)
         data.select do |item|
-          next true if item.is_refillable
+          next true if item[:is_refillable]
           next true if renewable(item)
 
           false
@@ -90,13 +90,13 @@ module MyHealth
       end
 
       def renewable(item)
-        disp_status = item.disp_status
-        refill_history_expired_date = item.rx_rf_records&.dig(0, :expiration_date)&.to_date
-        expired_date = refill_history_expired_date || item.expiration_date&.to_date
+        disp_status = item[:disp_status]
+        refill_history_expired_date = item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
+        expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
         not_refillable = ['false'].include?(item.is_refillable.to_s)
-        if item.refill_remaining.to_i.zero? && not_refillable
+        if item[:refill_remaining].to_i.zero? && not_refillable
           return true if disp_status&.downcase == 'active'
-          return true if disp_status&.downcase == 'active: parked' && !item.rx_rf_records.all?(&:empty?)
+          return true if disp_status&.downcase == 'active: parked' && !item[:rx_rf_records].all?(&:empty?)
         end
         if disp_status == 'Expired' && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
           return true
