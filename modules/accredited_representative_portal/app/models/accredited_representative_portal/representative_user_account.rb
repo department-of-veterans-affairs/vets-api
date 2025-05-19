@@ -9,10 +9,6 @@ module AccreditedRepresentativePortal
       @email = email
     end
 
-    def set_registration_numbers(registration_numbers)
-      @registration_numbers = registration_numbers
-    end
-
     def active_power_of_attorney_holders
       power_of_attorney_holders
         .select(&:accepts_digital_power_of_attorney_requests?)

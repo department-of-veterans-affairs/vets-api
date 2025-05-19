@@ -90,14 +90,12 @@ module AccreditedRepresentativePortal
     def registration_numbers
       return @registration_numbers if @registration_numbers.present?
 
-      # TODO
-      @credential_emails = ['vets.gov.user+0@gmail.com']
-
       icn = session.user_account.icn
       @registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_number_for_icn(icn)
 
       if @registration_numbers.blank?
-        representatives = Veteran::Service::Representative.where(email: @credential_emails)
+        #FIXME need to get all_csp_emails data here
+        representatives = Veteran::Service::Representative.where(email: [session.credential_email])
 
         if representatives.empty?
           raise Common::Exceptions::Unauthorized, 
