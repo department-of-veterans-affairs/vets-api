@@ -110,13 +110,6 @@ Rails.application.reloader.to_prepare do
     logger: Rails.logger,
     plugins: [plugin]
   )
-  if Settings.vsp_environment == 'staging'
-    services.each do |service|
-      Rails.logger.info(
-        "#{service&.name} outage_ended?=#{service&.latest_outage&.ended?}"
-      )
-    end
-  end
 
   # No need to prefix it when using the namespace
   Breakers.redis_prefix = ''
