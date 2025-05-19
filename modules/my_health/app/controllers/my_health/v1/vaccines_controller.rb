@@ -15,7 +15,7 @@ module MyHealth
             render json: VaccineSerializer.new(resource.data, options)
           end
         else
-          render_resource client.list_vaccines
+          render_resource client.list_vaccines(@current_user.uuid)
         end
       end
 

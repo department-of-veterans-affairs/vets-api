@@ -15,7 +15,7 @@ module MyHealth
             render json: HealthConditionSerializer.new(resource.data, options)
           end
         else
-          render_resource client.list_conditions
+          render_resource client.list_conditions(@current_user.uuid)
         end
       end
 

@@ -109,7 +109,7 @@ describe MedicalRecords::Client do
 
         it 'gets a list of vaccines', :vcr do
           VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-            vaccine_list = client.list_vaccines
+            vaccine_list = client.list_vaccines('uuid')
             expect(vaccine_list).to be_a(Vets::Collection)
             expect(
               a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
@@ -126,7 +126,7 @@ describe MedicalRecords::Client do
 
         it 'gets a list of health conditions', :vcr do
           VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
-            condition_list = client.list_conditions
+            condition_list = client.list_conditions('uuid')
             expect(condition_list).to be_a(Vets::Collection)
             expect(
               a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
@@ -213,7 +213,7 @@ describe MedicalRecords::Client do
 
       it 'gets a list of vaccines', :vcr do
         VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-          vaccine_list = client.list_vaccines
+          vaccine_list = client.list_vaccines('uuid')
           expect(vaccine_list).to be_a(FHIR::Bundle)
           expect(
             a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
@@ -252,7 +252,7 @@ describe MedicalRecords::Client do
 
       it 'gets a list of health conditions', :vcr do
         VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
-          condition_list = client.list_conditions
+          condition_list = client.list_conditions('uuid')
           expect(
             a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
           ).to have_been_made.at_least_once
