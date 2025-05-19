@@ -13,16 +13,28 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
+      pr_branch: ${{ steps.get_pr_data.outputs.pr_branch }}
+      pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
       require_be_approval: ${{ steps.approval_permissions.outputs.require_be_approval }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Remove backend-approval-confirmed label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: backend-approval-confirmed
+
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
         run: |
           # Pull recent data
-          DRAFT=$(gh pr view 22129 --json isDraft  --jq '.isDraft')
+
+          echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
+          DRAFT=$(gh pr view ${{ github.event.pull_request.number }} --json isDraft  --jq '.isDraft')
           echo "pr_draft='$DRAFT'" >> $GITHUB_OUTPUT
 
           LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
@@ -36,42 +48,109 @@ jobs:
             echo "Label 'require-backend-approval' found. Approval required."
           fi
 
+      # Sucessfully exit this workflow if backend approval is not required.
+      # This workflow should never fail for non backend approval pull requests
+      - name: Exit for non backend approvals
+        id: check_backend_requirement
+        if: steps.get-pr-data.outputs.require_be_approval == 'false'
+        run: exit 0
+
+  # This workflow should fail when backend approval is required and when PR is in draft mode.
   handle-draft-state:
     name: Handle Draft State
     needs: get-pr-data
     if: needs.get-pr-data.outputs.pr_draft == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
     steps:
       - name: Remove ready-for-backend-review label
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ needs.get-pr-data.outputs.pr_number }}
+          number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
       - name: Fail if draft
         run: exit 1
 
-  exit-for-non-backend-approvals:
-    name: Exit for non backend approvals
-    needs: get-pr-data
-    if: needs.get-pr-data.outputs.require_be_approval == 'false'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Exit if backend approval not required
-        run: exit 0
-
-
-  check-backend-approvals:
-    name: Check Backend Approvals
-    needs: get-pr-data
+  # This workflow should fail when backend approval is required and required workflows are not complete.
+  check-workflow-status:
+    name: Check Workflow Statuses
+    needs: [get-pr-data]
     if: needs.get-pr-data.outputs.pr_draft == 'false' && needs.get-pr-data.outputs.require_be_approval == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+    outputs:
+      failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
+    steps:
+      - name: Check if workflows have completed successfully
+        id: check_workflow_status
+        run: |
+          failures=false
+          GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
+          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
+
+          for WORKFLOW in "${WORKFLOWS[@]}"; do
+            # Check if there's any in-progress run for this workflow
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
+              '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request")')
+
+            if [ -n "$IN_PROGRESS" ]; then
+              echo "$WORKFLOW is still in progress."
+              failures=true
+            else
+              # Check if the latest completed run was successful
+              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
+                '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
+              if [ -z "$SUCCESSFUL" ]; then
+                echo "$WORKFLOW did not complete successfully."
+                failures=true
+                # break
+              else
+                echo "$WORKFLOW completed successfully."
+              fi
+            fi
+          done
+
+          echo "failures_detected=$failures" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  exit-on-workflow-failure:
+    name: Exit if required workflows have not successfully completed
+    needs: [get-pr-data, check-workflow-status]
+    if: needs.check-workflow-status.outputs.failures_detected == 'true'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+    steps:
+      - name: Remove ready-for-backend-review label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review
+
+      - name: Fail if required workflows are not successful
+        run: exit 1
+
+  # Fetch approvals when required workflows are successful.
+  check-backend-approvals:
+    name: Check Backend Approvals
+    needs: [get-pr-data, check-workflow-status]
+    if: needs.check-workflow-status.outputs.failures_detected == 'false'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+    outputs:
+      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
       - name: Configure AWS Credentials
-        if:
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
@@ -116,14 +195,54 @@ jobs:
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
-            exit 1
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
+  succeed-on-be-approval-confirmed:
+    name: Succeed if backend approval is confirmed
+    needs: [get-pr-data, check-backend-approvals]
+    if: needs.check-backend-approvals.outputs.approval_status == 'confirmed'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+    steps:
       - name: Remove ready-for-review label
-        if: success() && steps.verify_approval.outputs.approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ github.event.pull_request.number }}
+          number: ${{ env.pr_number }}
           labels: ready-for-backend-review
+
+      - name: Add backend-approval-confirmed label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: backend-approval-confirmed
+
+      - name: Succeed if backend approval is confirmed
+        run: exit 0
+
+  fail-on-be-approval-required:
+    name: Fail if still waiting for backend approval
+    needs: [get-pr-data, check-backend-approvals]
+    if: needs.check-backend-approvals.outputs.approval_status == 'required'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+    steps:
+      - name: Add ready-for-backend-review label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review
+
+      - name: Add require-backend-approval label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+      - name: Fail if backend approval is required
+        run: exit 1

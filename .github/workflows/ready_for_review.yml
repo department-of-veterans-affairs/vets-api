@@ -3,7 +3,7 @@ on:
   pull_request:
      types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested, review_request_removed, labeled, unlabeled]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags", "CodeQL"]
     types: [completed]
 jobs:
   get-pr-data:
