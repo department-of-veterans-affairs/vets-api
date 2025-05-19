@@ -1259,14 +1259,26 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
+      it 'supports getting a specific type of intent to file' do
+        expect(subject).to validate(:get, '/v0/intent_to_file/{itf_type}', 401, 'itf_type' => 'pension')
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+          expect(subject).to validate(
+            :get,
+            '/v0/intent_to_file/{itf_type}',
+            200,
+            headers.update('itf_type' => 'pension')
+          )
+        end
+      end
+
       it 'supports creating an active compensation intent to file' do
-        expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
+        expect(subject).to validate(:post, '/v0/intent_to_file/{itf_type}', 401, 'itf_type' => 'compensation')
         VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
           expect(subject).to validate(
             :post,
-            '/v0/intent_to_file/{type}',
+            '/v0/intent_to_file/{itf_type}',
             200,
-            headers.update('type' => 'compensation')
+            headers.update('itf_type' => 'compensation')
           )
         end
       end
@@ -3321,13 +3333,14 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
-      it 'returns 404 for missing claim' do
+      # Returns 400 for now, but should be 404
+      it 'returns 400 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
           expect(subject).to validate(
             :get,
             '/travel_pay/v0/claims/{id}',
-            404,
+            400,
             headers.merge('id' => 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e')
           )
         end

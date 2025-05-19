@@ -17,6 +17,9 @@ module TravelPay
       rescue Faraday::Error => e
         Rails.logger.error("Error downloading document: #{e.message}")
         render json: { error: 'Error downloading document' }, status: e.response[:status]
+      rescue Common::Exceptions::BackendServiceException => e
+        Rails.logger.error("Error downloading document: #{e.message}")
+        render json: { error: 'Error downloading document' }, status: e.original_status
       end
 
       private

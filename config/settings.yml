@@ -222,6 +222,8 @@ claims_api:
     services:
       lighthouse:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
+        notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
+        notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -819,7 +821,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
-    travel_pay: PO9X8XN
+    travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
