@@ -254,10 +254,8 @@ describe MAP::SecurityToken::Service do
       end
 
       it 'raises an application mismatch error and creates a log' do
-        expect { subject }.to raise_exception do |error|
-          expect(error).to be_a(expected_error)
-          expect(error.message).to include('application mismatch')
-        end
+        expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
       end
     end
 
@@ -267,15 +265,9 @@ describe MAP::SecurityToken::Service do
       let(:expected_error_message) { "#{log_prefix} token failed, ICN not present in access token" }
       let(:expected_log_values) { { application: } }
 
-      before do
-        allow(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-      end
-
       it 'raises a missing ICN error and creates a log' do
-        expect { subject }.to raise_exception do |error|
-          expect(error).to be_a(expected_error)
-          expect(error.message).to include('ICN not present')
-        end
+        expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
+        expect { subject }.to raise_exception(expected_error, expected_error_message)
       end
     end
   end
