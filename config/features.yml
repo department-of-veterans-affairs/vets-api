@@ -1193,6 +1193,14 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
     enable_in_development: true
+  mhv_medical_records_support_new_model_vaccine:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vaccine objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_health_condition:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed health condition objects
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
     description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
