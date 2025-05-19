@@ -167,7 +167,9 @@ module PdfFill
       if fill_options.fetch(:extras_redesign, false) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
-      combine_extras(file_path, hash_converter.extras_generator)
+      output = combine_extras(file_path, hash_converter.extras_generator)
+      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
+      output
     end
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
