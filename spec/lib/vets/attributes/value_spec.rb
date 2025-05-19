@@ -105,10 +105,8 @@ RSpec.describe Vets::Attributes::Value do
     context 'when casting an Array contains nil values' do
       let(:value) { [nil, 'test', nil] }
 
-      it 'raise a TypeError' do
-        expect do
-          described_class.cast(name, String, value, array: true)
-        end.to raise_error(TypeError, "All elements of #{name} must be of type String")
+      it 'returns a compacted array of Strings' do
+        expect(described_class.cast(name, String, value, array: true)).to eq(value.compact)
       end
     end
 

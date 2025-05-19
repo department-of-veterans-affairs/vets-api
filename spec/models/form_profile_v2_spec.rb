@@ -15,7 +15,18 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1') }
+  let(:user_address) do
+    va_profile_v3_address = build(:va_profile_v3_address)
+    {
+      'street' => va_profile_v3_address.address_line1,
+      'street2' => va_profile_v3_address.address_line2,
+      'city' => va_profile_v3_address.city,
+      'state' => va_profile_v3_address.state_code,
+      'country' => va_profile_v3_address.country_code_iso3,
+      'postal_code' => va_profile_v3_address.zip_code
+    }
+  end
+  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: user_address, vet360_id: '1') }
   let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
@@ -1530,8 +1541,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'when Vet360 prefill is enabled' do
           let(:user) do
-            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: build(:va_profile_v3_address),
-                                vet360_id: '1781151')
+            build(:user, :loa3, icn: '123498767V234859', suffix: 'Jr.', address: user_address, vet360_id: '1781151')
           end
 
           before do

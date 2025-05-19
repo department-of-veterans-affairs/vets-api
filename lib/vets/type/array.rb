@@ -12,7 +12,7 @@ module Vets
       def cast(value)
         return nil if value.nil?
 
-        value.compact!
+        value.try(:compact!)
         return value if value.empty?
 
         raise TypeError, "#{@name} must be an Array" unless value.is_a?(::Array)
