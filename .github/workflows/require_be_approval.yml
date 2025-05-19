@@ -20,12 +20,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Remove backend-approval-confirmed label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: backend-approval-confirmed
-
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
         run: |
@@ -213,12 +207,6 @@ jobs:
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
-
-      - name: Add backend-approval-confirmed label
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: backend-approval-confirmed
 
       - name: Succeed if backend approval is confirmed
         run: exit 0
