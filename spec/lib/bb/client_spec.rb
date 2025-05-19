@@ -82,7 +82,7 @@ describe 'bb client' do
     # will revisit this later.
     it 'gets a list of extract statuses', :vcr do
       client_response = client.get_extract_status
-      expect(client_response).to be_a(Vets::Collection)
+      expect(client_response).to be_a(Common::Collection)
       expect(client_response.members.first).to be_a(ExtractStatus)
     end
 
@@ -103,7 +103,7 @@ describe 'bb client' do
     # These are the list of eligible data classes that can be used to generate a report
     it 'gets a list of eligible data classes', :vcr do
       client_response = client.get_eligible_data_classes
-      expect(client_response).to be_a(Vets::Collection)
+      expect(client_response).to be_a(Common::Collection)
       expect(client_response.type).to eq(EligibleDataClass)
       expect(client_response.cached?).to be(true)
       expect(client_response.members).to all(respond_to(:name))
