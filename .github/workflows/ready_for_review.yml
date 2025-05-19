@@ -146,7 +146,7 @@ jobs:
                 --workflow="$WORKFLOW" \
                 --status=completed \
                 --json headBranch,event,conclusion \
-                -q '.[] | select(.headBranch == \"$pr_branch\" and .event == \"pull_request\") | select(.conclusion == "success")' | head -n 1)
+                -q ".[] | select(.headBranch == \"$pr_branch\" and .event == \"pull_request\") | select(.conclusion == \"success\")" | head -n 1)
               if [ -z "$SUCCESSFUL" ]; then
                 echo "$WORKFLOW did not complete successfully."
                 failures=true
