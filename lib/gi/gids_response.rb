@@ -24,7 +24,7 @@ module GI
       @status == 200
     end
 
-    def initialize(attributes={})
+    def initialize(attributes = {})
       attributes[:body] = nil if attributes[:body].to_s.empty?
       super(attributes)
     end
