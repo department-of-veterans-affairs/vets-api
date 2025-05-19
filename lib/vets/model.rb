@@ -46,6 +46,10 @@ module Vets
       self.class.attribute_set.to_h { |attr| [attr.to_s, send(attr)] }
     end
 
+    def to_h
+      attributes.deep_symbolize_keys
+    end
+
     private
 
     # Collect values from attribute and nested objects

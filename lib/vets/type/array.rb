@@ -12,6 +12,9 @@ module Vets
       def cast(value)
         return nil if value.nil?
 
+        value.compact!
+        return value if value.empty?
+
         raise TypeError, "#{@name} must be an Array" unless value.is_a?(::Array)
 
         casted_value = value.map { |item| type.cast(item) }

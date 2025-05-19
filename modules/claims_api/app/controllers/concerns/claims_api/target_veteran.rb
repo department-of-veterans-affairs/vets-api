@@ -38,7 +38,7 @@ module ClaimsApi
 
       def mpi_profile_from(target_veteran) # rubocop:disable Metrics/MethodLength
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
-        if mpi_profile[:participant_id].blank?
+        if mpi_profile.participant_id.blank?
           if Flipper.enabled?(:lighthouse_claims_api_add_person_proxy)
             claims_logging('add_person_proxy',
                            message: 'calling add_person_proxy in target veteran (Flipper on).')
@@ -106,13 +106,13 @@ module ClaimsApi
     private
 
     def populate_target_veteran(mpi_profile, target_veteran)
-      target_veteran.first_name = mpi_profile[:given_names]&.first
-      target_veteran.last_name = mpi_profile[:family_name]
-      target_veteran.gender = mpi_profile[:gender]
-      target_veteran.edipi = mpi_profile[:edipi]
-      target_veteran.uuid = mpi_profile[:ssn]
-      target_veteran.ssn = mpi_profile[:ssn]
-      target_veteran.participant_id = mpi_profile[:participant_id]
+      target_veteran.first_name = mpi_profile.given_names&.first
+      target_veteran.last_name = mpi_profile.family_name
+      target_veteran.gender = mpi_profile.gender
+      target_veteran.edipi = mpi_profile.edipi
+      target_veteran.uuid = mpi_profile.ssn
+      target_veteran.ssn = mpi_profile.ssn
+      target_veteran.participant_id = mpi_profile.participant_id
       target_veteran.last_signed_in = Time.now.utc
       target_veteran.va_profile = ClaimsApi::Veteran.build_profile(mpi_profile.birth_date)
       target_veteran

@@ -779,10 +779,10 @@ RSpec.describe User, type: :model do
 
         it 'fetches address data from MPI and stores it as a hash' do
           expect(user.address[:street]).to eq(mpi_profile.address.street)
-          expect(user.address[:street2]).to be(mpi_profile.address[:street2])
-          expect(user.address[:city]).to be(mpi_profile.address[:city])
-          expect(user.address[:postal_code]).to be(mpi_profile.address[:postal_code])
-          expect(user.address[:country]).to be(mpi_profile.address[:country])
+          expect(user.address[:street2]).to be(mpi_profile.address.street2)
+          expect(user.address[:city]).to be(mpi_profile.address.city)
+          expect(user.address[:postal_code]).to be(mpi_profile.address.postal_code)
+          expect(user.address[:country]).to be(mpi_profile.address.country)
         end
 
         it 'fetches ssn from MPI' do
