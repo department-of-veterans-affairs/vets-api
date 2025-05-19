@@ -14,9 +14,12 @@ RSpec.describe Vets::Collections::Finder do
 
       set_pagination per_page: 21, max_per_page: 41
 
-      # Simulating filterable attributes for this dummy model
+      def self.filterable_params
+        { name: %w[match eq], age: %w[eq lteq gteq] }.with_indifferent_access
+      end
+
       def self.filterable_attributes
-        { name: %w[match eq], age: %w[eq lteq gteq] }
+        filterable_params.keys
       end
     end
   end

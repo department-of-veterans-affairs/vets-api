@@ -7,6 +7,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
 
   FORM = '28-1900'
+  FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
@@ -164,8 +165,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     send_vbms_confirmation_email(user)
-  rescue
-    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+  rescue => e
+    log_error(user, e)
     send_to_lighthouse!(user)
   end
 
@@ -183,6 +184,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
     form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
     form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
+
+    unless form_copy['veteranSocialSecurityNumber']
+      if user&.loa3?
+        Rails.logger.warn('VRE: No SSN found for LOA3 user', { user_uuid: user.uuid })
+      else
+        Rails.logger.info('VRE: No SSN found for LOA1 user', { user_uuid: user.uuid })
+      end
+    end
 
     update!(form: form_copy.to_json)
 
@@ -208,6 +217,38 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     service = RES::Ch31Form.new(user:, claim: self)
     service.submit
+  end
+
+  def add_errors_from_form_validation(form_errors)
+    form_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+    unless form_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: form_errors })
+    end
+  end
+
+  def form_matches_schema
+    return unless form_is_string
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
+
+    schema_errors = validate_schema(schema)
+    validation_errors = validate_form(schema)
+
+    if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
+      schema_v2_errors = validate_schema(schema_v2)
+      v2_errors = validate_form(schema_v2)
+      add_errors_from_form_validation(v2_errors)
+      return schema_v2_errors.empty? && v2_errors.empty?
+    end
+
+    add_errors_from_form_validation(validation_errors)
+
+    schema_errors.empty? && validation_errors.empty?
   end
 
   # SavedClaims require regional_office to be defined
@@ -317,5 +358,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     yield
     elapsed_time = Time.current - start_time
     StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
+  end
+
+  def log_error(user, e)
+    if Flipper.enabled?(:vre_enable_vbms_exception_logging)
+      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
+    else
+      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+    end
   end
 end

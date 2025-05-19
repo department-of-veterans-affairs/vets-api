@@ -22,11 +22,12 @@ module Eps
 
     def connection
       Faraday.new(api_url, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :camelcase
         conn.request :json
 
-        if ENV['VAOS_EPS_DEBUG'] && !Rails.env.production?
+        # Enable debug logging in development by default
+        if (ENV['VAOS_EPS_DEBUG'] || Rails.env.development?) && !Rails.env.production?
           conn.request(:curl, ::Logger.new($stdout), :warn)
           conn.response(:logger, ::Logger.new($stdout), bodies: true)
         end

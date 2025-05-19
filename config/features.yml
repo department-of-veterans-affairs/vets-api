@@ -23,6 +23,14 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_intent_to_file_api:
+    actor_type: user
+    description: Enables the endpoints of the accredited representative portal intent to file
+    enable_in_development: true
+  accredited_representative_portal_search:
+    actor_type: user
+    description: Enables the people search of the accredited representative portal
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -34,12 +42,20 @@ features:
   appointments_consolidation:
     actor_type: user
     description: For features being tested while merging logic for appointments between web and mobile
+  arm_use_datadog_real_user_monitoring:
+    actor_type: user
+    description: Enables Datadog Real User Monitoring for ARM apps (Find a Rep, Appoint a Rep)
   ask_va_announcement_banner:
     actor_type: cookie_id
     description: >
       The Ask VA announcement banner displays message(s) to visitors
       from the CRM-managed, expirable notifications - as retrieved
       from the /ask_va_api/v0/announcements endpoint.
+    enable_in_development: true
+  ask_va_alert_link_to_old_portal:
+    actor_type: user
+    description: >
+      The Ask VA form alert banner with a link to the old portal. To use while form is down for maintenance.
     enable_in_development: true
   ask_va_canary_release:
     actor_type: cookie_id
@@ -59,6 +75,14 @@ features:
       This is used for testing purposes only and should not be enabled in production.
       We need to remove this feature from the codebase ASAP.
       Mocks shouldn't live in the app logic. If needed, add at the API/middleware level.
+    enable_in_development: true
+  ask_va_api_maintenance_mode:
+    actor_type: user
+    description: >
+      A system-wide control flag that governs the overall availability of Ask VA API endpoints.
+      When enabled, the API restricts external access and returns a service unavailable response across all routes.
+      Primarily used for coordinated maintenance windows or temporary system suspensions,
+      allowing the team to manage API exposure dynamically without requiring a redeploy.
     enable_in_development: true
   auth_exp_vba_downtime_message:
     actor_type: user
@@ -91,12 +115,12 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_carma_submitted_at:
+  caregiver_request_duration_monitoring:
     actor_type: user
-    description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver_retry_form_validation:
+    description: Enables logging of 10-10CG request durations to StatsD
+  caregiver_use_rails_logging_over_sentry:
     actor_type: user
-    description: Enables 1010CG to retry schema validation
+    description: Use Rails for logging instead of Sentry
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -107,22 +131,19 @@ features:
   hca_disable_bgs_service:
     actor_type: user
     description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
+  hca_disable_sentry_logs:
+    actor_type: user
+    description: Use rails logging instead of Sentry for logging
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-  hca_ez_use_facilities_v2:
-    actor_type: user
-    description: Use Lighthouse Facilities API V2 for EZ queries
-  hca_cache_facilities:
-    actor_type: user
-    description: Return facilities list from health_facility table
-  hca_cache_facilities_job:
-    actor_type: user
-    description: Use import job to update health facilities daily to limit facilities api requests
   hca_insurance_v2_enabled:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
+  hca_json_schemer_validation:
+    actor_type: user
+    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
@@ -137,12 +158,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
-  hca_retrieve_facilities_without_repopulating:
-    actor_type: user
-    description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
-  cg1010_oauth_2_enabled:
-    actor_type: user
-    description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
+  hca_ez_kafka_submission_enabled:
+    actor_type: cookie_id
+    description: Enables the 10-10EZ Kafka Event Bus submission
   ezr_prod_enabled:
     actor_type: user
     description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
@@ -179,6 +197,13 @@ features:
     actor_type: user
     description: Adds insurance providers and dependents to ezr prefill data
     enable_in_development: true
+  ezr_associations_api_enabled:
+    actor_type: user
+    description: Enables VES's Associations REST API
+  ezr_prefill_contacts:
+    actor_type: user
+    description: Adds Veteran contacts to ezr prefill data
+    enable_in_development: true
   cerner_override_653:
     actor_type: user
     description: This will show the Cerner facility 653 as `isCerner`.
@@ -203,21 +228,24 @@ features:
   champva_log_all_s3_uploads:
     actor_type: user
     description: Enables logging for all s3 uploads using UUID or keys for monitoring
-  champva_failure_email_job_enabled:
+  champva_send_to_ves:
     actor_type: user
-    description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
-  champva_enhanced_monitor_logging:
-    actor_type: user
-    description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
-  champva_pdf_decrypt:
-    actor_type: user
-    description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
-  champva_require_all_s3_success:
-    actor_type: user
-    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
+    description: Enables sending form submission data to the VES API.
   champva_enable_pega_report_check:
     actor_type: user
     description: Enables querying PEGA reporting API from MissingFormStatusJob to determine CHAMPVA form status
+  champva_retry_logic_refactor:
+    actor_type: user
+    description: Enables refactored retry logic for IVC CHAMPVA form submissions
+  champva_pega_applicant_metadata_enabled:
+    actor_type: user
+    description: Enables including applicant data in the S3 metadata sent to PEGA
+  champva_fmp_single_file_upload:
+    actor_type: user
+    description: Enables the ability to upload a single merged PDF file for FMP claims
+  champva_old_records_cleanup_job:
+    actor_type: user
+    description: Enables the job to cleanup old IVC CHAMPVA form records
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -310,6 +338,10 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
+  claims_api_poa_v1_pdf_gen_fixup_job:
+    actor_type: user
+    description: Enables POA pdfs to be regenerated & sent to VBMS without requesting a POA change
+    enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
     description: When enabled, will allow for add_person_proxy call in both versions
@@ -398,6 +430,10 @@ features:
     actor_type: user
     description: Enables users to submit FSR forms for VHA and VBA debts
     enable_in_development: true
+  fsr_zero_silent_errors_in_progress_email:
+    actor_type: user
+    description: Enables sending an email to the veteran when FSR form is in progress
+    enable_in_development: true
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
@@ -429,9 +465,6 @@ features:
   debts_cache_dmc_empty_response:
     actor_type: user
     description: Enables caching of empty DMC response
-  debts_cache_vbs_copays_empty_response:
-    actor_type: user
-    description: Enables caching of empty VBS medical copay response
   debts_copay_logging:
     actor_type: user
     description: Logs copay request data
@@ -551,6 +584,12 @@ features:
   dependents_failure_callback_email:
     actor_type: user
     description: Enables the dependents action needed email callback to be used when an action needed email is triggered
+  dependents_submitted_email:
+    actor_type: cookie_id
+    description: Enables the dependents submitted email
+  dependents_separate_confirmation_email:
+    actor_type: cookie_id
+    description: Enables the dependents confirmation/received email to be differentiated by form
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -562,6 +601,10 @@ features:
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
+    enable_in_development: true
+  disability_526_ee_mst_special_issue:
+    actor_type: user
+    description: enables adding MST special issue to disability_526 prior to submission.
     enable_in_development: true
   disability_526_ee_process_als_flash:
     actor_type: user
@@ -581,6 +624,9 @@ features:
   disability_compensation_temp_separation_location_code_string:
     actor_type: user
     description: enables forcing separation location code to be a string in submit_all_claim endpoint.
+  disability_compensation_temp_toxic_exposure_optional_dates_fix:
+    actor_type: user
+    description: enables removing malformed optional dates from the Toxic Exposure node of a Form526Submission at SavedClaim creation.
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -601,9 +647,19 @@ features:
     actor_type: user
     description: enables a new form flow for 0781 and 0781a in the 526 submission workflow
     enable_in_development: true
+  disability_compensation_sync_modern0781_flow_metadata:
+    actor_type: user
+    description: enables adding new 0781 form indicator to in progress 526 forms and saved claim records for 526 submissions
+  disability_compensation_0781_stats_job:
+    actor_type: user
+    description: enables a job to run that will check DB records and report stats as metrics, into Datadog
+    enable_in_development: true
   disability_526_send_form526_submitted_email:
     actor_type: user
     description: enables sending submitted email in both primary and backup paths
+  disability_526_send_mas_all_ancillaries:
+    actor_type: user
+    description: enables sending all 526 uploads and ancillary forms to MAS's APCAS API
   disability_526_send_received_email_from_backup_path:
     actor_type: user
     description: enables received email in complete success state of backup path
@@ -622,6 +678,10 @@ features:
   dispute_debt:
     actor_type: user
     description: Enables the Dispute Debt feature
+    enable_in_development: true
+  event_bus_gateway_emails_enabled:
+    actor_type: user
+    description: When enabled, vets-api opens an endpoint to Event Bus Gateway for sending notification emails
     enable_in_development: true
   facilities_autosuggest_vamc_services_enabled:
     actor_type: user
@@ -644,6 +704,9 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  filter_saved_claim_logs:
+    actor_type: user
+    description: Enabled filtering out attributes in saved claim validation logs
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
@@ -698,6 +761,14 @@ features:
   appoint_a_representative_enable_pdf:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
+    enable_in_development: true
+  representative_status_enable_v2_features:
+    actor_type: user
+    description: Enables Representative Status widget 2.0 features for frontend and backend
+    enable_in_development: true
+  accredited_representative_portal_declination:
+    actor_type: user
+    description: Enables declination reason feature for frontend and backend
     enable_in_development: true
   form4142_validate_schema:
     actor_type: user
@@ -777,6 +848,9 @@ features:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_4138_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4138 email submission confirmation (VaNotify)
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -814,10 +888,6 @@ features:
   form5495_confirmation_email:
     actor_type: user
     description: Enables form 5495 email submission confirmation (VaNotify)
-    enable_in_development: true
-  simple_forms_email_confirmations:
-    actor_type: user
-    description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
   simple_forms_email_notifications:
     actor_type: user
@@ -859,6 +929,15 @@ features:
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
+  form107959c_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959c (IVC CHAMPVA)
+  form107959f1_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959f-1 (IVC CHAMPVA)
+  form107959a_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-7959a (IVC CHAMPVA)
   form107959c:
     actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
@@ -973,6 +1052,10 @@ features:
     actor_type: user
     description: Control fetching OH allergies data
     enable_in_development: false
+  mhv_accelerated_delivery_labs_and_tests_enabled:
+    actor_type: user
+    description: Control fetching lab and test data from UHD (SCDF) service (web)
+    enable_in_development: false
   mhv_accelerated_delivery_vital_signs_enabled:
     actor_type: user
     description: Control fetching OH vitals data
@@ -999,17 +1082,12 @@ features:
     actor_type: user
     description: Enables personalized content on the My HealtheVet landing page.
     enable_in_development: true
-  mhv_transitional_medical_records_landing_page:
+  mhv_landing_page_show_share_my_health_data_link:
     actor_type: user
-    description: Enables the transitional Medical Records page at /my-health/records
-  mhv_integration_medical_records_to_phase_1:
+    description: Show Share My Health Data (SMHD) link on Medical Records card of the MHV landing page
+  mhv_supply_reordering_enabled:
     actor_type: user
-    description: Enables MHV integration to point the Medical Records application on VA.gov
-    enable_in_development: true
-  mhv_interstitial_enabled:
-    actor_type: user
-    descriptiom: Enables interstitial for upcoming mhv deprecation
-    enable_in_development: false
+    description: Enables the launch of mhv supply reordering application at /my-health/order-medical-supplies
   mhv_secure_messaging_cerner_pilot:
     actor_type: user
     description: Enables/disables Secure Messaging Cerner Transition Pilot environment on VA.gov
@@ -1021,9 +1099,6 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging lefthand navigation for new navigation solution
     enable_in_development: true
-  mhv_secure_messaging_edit_contact_list:
-    actor_type: user
-    description: Disables/Enables Secure Messaging edit contact list page
   mhv_secure_messaging_triage_group_plain_language:
     actor_type: user
     description: Disables/Enables Secure Messaging recipients group plain language design
@@ -1035,13 +1110,16 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
-  mhv_secure_messaging_remove_landing_page:
+  mhv_secure_messaging_migrate_to_api_gateway:
     actor_type: user
-    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
+    description: Enables/disables Secure Messaging migration to the new API Gateway endpoints
+  mhv_secure_messaging_read_receipts:
+    actor_type: user
+    description: Disables/Enables Secure Messaging read receipts
     enable_in_development: true
-  mhv_secure_messaging_signature_settings:
+  mhv_secure_messaging_milestone_2_aal:
     actor_type: user
-    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
+    description: Disables/Enables Secure Messaging AAL Milestone 2
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -1079,6 +1157,10 @@ features:
     actor_type: user
     description: Show/hide content related to Vitals in Medical Records
     enable_in_development: true
+  mhv_medical_records_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables the switch to the new MHV API Gateway endpoints
+    enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
     description: Enables/disables the PHR refresh for MHV users when logging into VA.gov
@@ -1103,9 +1185,17 @@ features:
     actor_type: user
     description: Enables/disables Medical Records new filter and sort changes
     enable_in_development: true
+  mhv_medical_records_use_unified_sei_api:
+    actor_type: user
+    description: Enables/disables use of the unified API call self-entered information
+    enable_in_development: true
+  mhv_medical_records_milestone_two:
+    actor_type: user
+    description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
-    description: Enables/disables Medications on VA.gov (intial transition from MHV to VA.gov)
+    description: Enables/disables Medications on VA.gov (initial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_medications_display_refill_content:
     actor_type: user
@@ -1127,6 +1217,10 @@ features:
     actor_type: user
     description: Enables/disables grouping medications related work
     enable_in_development: true
+  mhv_enable_aal_integration:
+    actor_type: user
+    description: Enables/disables integration with MHV's AAL-creation endpoint
+    enable_in_development: true
   mhv_modern_cta_links:
     actor_type: user
     description: CTA widget links point to va.gov services
@@ -1138,6 +1232,10 @@ features:
     actor_type: user
     description: Enables/disables refill progress related work
     enable_in_development: true
+  mhv_medications_migrate_to_api_gateway:
+    actor_type: user
+    description: Enables/disables medications migration to the new API Gateway endpoints
+    enable_in_development: true
   mhv_medications_remove_landing_page:
     actor_type: user
     description: Enables/disables removal of landing page
@@ -1146,9 +1244,20 @@ features:
     actor_type: user
     description: Enables/disables ipe content
     enable_in_development: true
+  mhv_medications_dont_increment_ipe_count:
+    actor_type: user
+    description: when this flag is on the count will not be incremented for ipe
+    enable_in_development: true
   mhv_medications_partial_fill_content:
     actor_type: user
     description: Enables/disables partial fill content
+    enable_in_development: true
+  mhv_milestone_2_changes_enabled:
+    actor_type: user
+    description: Enables MHV Milestone 2 changes
+  mhv_header_links:
+    actor_type: user
+    description: Display My HealtheVet and My VA links in the site header
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1204,6 +1313,9 @@ features:
   profile_enhanced_military_info:
     actor_type: user
     description: When enabled, /v1/profile/military_info endpoint will return all military information for a user.
+  profile_international_phone_numbers:
+    actor_type: user
+    description: Enables international phone number support on VA.gov profile.
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
@@ -1230,6 +1342,10 @@ features:
     actor_type: user
     description: Hides the Profile - Direct Deposit page content during a service outage
     enable_in_development: false
+  profile_limit_direct_deposit_for_non_beneficiaries:
+    actor_type: user
+    description: Limits the Direct Deposit page functionality based on the veteranStatus property.
+    enable_in_development: true
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
@@ -1316,6 +1432,10 @@ features:
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
+    enable_in_development: true
+  saved_claim_pdf_overflow_tracking:
+    actor_type: user
+    description: When enabled, record metrics for claims which have overflow in the generated pdf
     enable_in_development: true
   schema_contract_appointments_index:
     actor_type: user
@@ -1408,6 +1528,10 @@ features:
     actor_type: user
     description: Displays an alert to users on 5490 intro page that the Backend Service is Down.
     enable_in_development: false
+  show_meb_5490_1990e_text_update:
+    actor_type: user
+    description: Displays updated text to more clearly explain who needs to fill out form
+    enable_in_development: false
   show_one_va_debt_letter:
     actor_type: user
     description: Enables the One VA Debt Letter feature
@@ -1420,10 +1544,6 @@ features:
     actor_type: user
     description: Enables the VHA Payment history (including copay resolution) feature for combined debt portal
     enable_in_development: true
-  submission_pdf_s3_upload:
-    actor_type: user
-    description: Used to toggle use of uploading a submission pdf to S3 and returning a pre-signed url.
-    enable_in_development: false
   meb_1606_30_automation:
     actor_type: user
     description: Enables MEB form to handle Chapter 1606/30 forms as well as Chapter 33.
@@ -1463,6 +1583,14 @@ features:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
     enable_in_development: false
+  dslogon_interstitial_redirect:
+    actor_type: user
+    description: Enables DS Logon users to be redirected to the DS Logon deprecation interstitial page (Identity)
+    enable_in_development: false
+  dslogon_button_disabled:
+    actor_type: user
+    description: Hides the DS Logon button credential on sign-in page + modal (Identity)
+    enable_in_development: false
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
@@ -1490,10 +1618,6 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: Enables email notifications for CreateDailySpoolFiles errors
-  stem_automated_decision:
-    actor_type: user
-    description: Add automated decision to 10203 application workflow
-    enable_in_development: true
   subform_8940_4192:
     actor_type: user
     description: Form 526 subforms for unemployability & connected employment information
@@ -1544,46 +1668,22 @@ features:
     actor_type: user
     description: Allows veterans to submit requests for VA appointments
     enable_in_development: true
-  va_online_scheduling_static_landing_page:
-    actor_type: user
-    description: Allows updates to the static landing widget on the Public Websites page
-    enable_in_development: true
-  va_online_scheduling_vaos_service_cc_appointments:
-    actor_type: user
-    description: Toggle for new vaos service cc appointments.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_requests:
-    actor_type: user
-    description: Toggle for new vaos service requests.
-    enable_in_development: true
-  va_online_scheduling_vaos_service_va_appointments:
-    actor_type: user
-    description: Toggle for new vaos service va appointments.
-    enable_in_development: true
   va_online_scheduling_vaos_alternate_route:
     actor_type: user
     enable_in_development: false
     description: Toggle for the vaos module to use an alternate vaos-service route
-  va_online_scheduling_clinic_filter:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for VAOS direct scheduling & appointment request clinic filtering
-  va_online_scheduling_breadcrumb_url_update:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for the breadcrumb and url changes for mhv
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
   va_dependents_v2_banner:
     actor_type: user
     description: Allows us to toggle a form maintenance banner on the V1 form for pre-launch.
+  va_dependents_browser_monitoring_enabled:
+    actor_type: user
+    description: Allows us to toggle Datadog RUM/LOG monitoring for the 686C-674
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
-  va_dependents_submit674:
-    actor_type: user
-    description: Allows submission of 674 without MANUAL_VAGOV flag
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -1620,10 +1720,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  vaos_online_scheduling_use_va_date:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle to use VaDate/VaDateField.
   va_online_scheduling_fe_source_of_truth:
     actor_type: user
     enable_in_development: true
@@ -1644,10 +1740,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to use API response as the source of truth in FE for Video at VA, Video at ATLAS, Video at Home modalities.
-  va_online_scheduling_past_appt_date_range:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for modifying the date range selection on the Past appointments page.
   va_online_scheduling_mhv_route_guards:
     actor_type: user
     enable_in_development: true
@@ -1656,10 +1748,9 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for warning user of appointment conflicts on the direct scheduling calendar during booking.
-  va_online_scheduling_display_past_cancelled_appointments:
+  vba_documents_virus_scan:
     actor_type: user
-    enable_in_development: true
-    description: Toggle for displaying past cancelled appointments.
+    description: ClamAV virus scanning for Benefits Intake API upload submissions
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1670,9 +1761,18 @@ features:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
     enable_in_development: false
+  vet_status_pdf_logging:
+    actor_type: user
+    description: Enables the Veteran Status Card to log PDF download events/failures
+  vet_status_stage_1:
+    actor_type: user
+    description: Enables the stage 1 features of the veteran status card
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
+  vre_enable_vbms_exception_logging:
+    actor_type: user
+    description: Enables exception logging for failures in upload_to_vbms method
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -1704,10 +1804,6 @@ features:
   cdp_payment_history_vba:
     actor_type: user
     description: Enables showing the overpayment and summary pages for the CDP Payment History
-    enable_in_development: true
-  show_digital_form_1095b:
-    actor_type: user
-    description: Enables access to digital 1095-B form download
     enable_in_development: true
   show_meb_dgi40_features:
     actor_type: user
@@ -1801,9 +1897,6 @@ features:
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
-  disability_compensation_lighthouse_intent_to_file_provider:
-    actor_type: user
-    description: If enabled uses the lighthouse intent to file endpoint
   disability_compensation_prevent_submission_job:
     actor_type: user
     description: If enabled, the submission form526 record will be created, but there will be submission job
@@ -1813,6 +1906,10 @@ features:
   disability_compensation_upload_bdd_instructions_to_lighthouse:
     actor_type: user
     description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_0781v2_extras_redesign:
+    actor_type: user
+    description: If enabled, the 0781v2 overflow page will use the new design
+    enable_in_development: true
   disability_compensation_use_api_provider_for_0781_uploads:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading 0781/a forms
@@ -1834,6 +1931,9 @@ features:
   virtual_agent_lighthouse_claims:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims for virtual agent chatbot application
+  virtual_agent_use_sts_authentication:
+    actor_type: user
+    description: Use STS authentication for the virtual agent chatbot application
   virtual_agent_voice:
     actor_type: user
     description: Enable the voice feature of the VA Chatbot
@@ -1852,18 +1952,6 @@ features:
     actor_type: user
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
-  nod_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  hlr_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  sc_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
@@ -1874,12 +1962,6 @@ features:
   sc_browser_monitoring_enabled:
     actor_type: user
     description: Supplemental Claim Datadog RUM monitoring
-  virtual_agent_enable_pva2_chatbot:
-    actor_type: user
-    description: If enabled, switches VA chatbot from PVA1 to PVA2
-  virtual_agent_enable_root_bot:
-    actor_type: user
-    description: If enabled, switches VA chatbot from PVA to Root Bot
   virtual_agent_component_testing:
     actor_type: user
     description: If enabled, allows for testing of the chatbot components
@@ -1890,12 +1972,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_document_upload_update:
-    actor_type: user
-    description: Show updated document upload page
-  burial_location_of_death_update:
-    actor_type: user
-    description: Show updated location of death pattern
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1922,20 +1998,35 @@ features:
     actor_type: user
     description: Implement multiple page response pattern
     enable_in_development: true
-  pension_confirmation_update:
-    actor_type: user
-    description: Show updated confirmation page
   pension_form_profile_module_enabled:
     actor_type: user
     description: Use the module version of the FormProfile
+  pension_kafka_event_bus_submission_enabled:
+    actor_type: user
+    description: Enable the EventBusSubmissionJob for Kafka
+  pension_itf_enabled:
+    actor_type: user
+    description: Enable the Intent to File for Pension
+    enable_in_development: true
+  pension_itf_show_alert:
+    actor_type: user
+    description: Show the alert on frontend for the Intent to File for Pension
+    enable_in_development: true
   income_and_assets_form_enabled:
     actor_type: user
     description: Enable form 21P-0969 Update Income and Assets Evidence Form
-    enable_in_development: true
-  intent_to_file_lighthouse_enabled:
+  income_and_assets_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  income_and_assets_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
+  income_and_assets_submitted_email_notification:
     actor_type: user
-    description: Enable new Lighthouse ITF logic
-    enable_in_development: true
+    description: Toggle sending of the Submission in Progress email notification
+  intent_to_file_synchronous_enabled:
+    actor_type: user
+    description: Enable ITF synchronous call logic
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API
@@ -1945,12 +2036,6 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
-  virtual_agent_enable_msft_pva_testing:
-    actor_type: user
-    description: If enabled, allows for connecting to MSFT PVA
-  virtual_agent_enable_nlu_pva_testing:
-    actor_type: user
-    description: If enabled, allows for connecting to NLU PVA
   vye_request_allowed:
     actor_type: user
     description: >-
@@ -2024,6 +2109,10 @@ features:
     actor_type: user
     description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
     enable_in_development: true
+  override_address_pou:
+    actor_type: user
+    description: If enabled, ADDRESS_POU == RESIDENCE/CHOICE
+    enable_in_development: true
   show_yellow_ribbon_table:
     actor_type: cookie_id
     description: Used to show yellow ribbon table in Comparison Tool
@@ -2062,10 +2151,10 @@ features:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
   is_updated_gi:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use updated gi design
   gi_ct_collab:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled, use VEBT/EDM team GI Comparison Tool homepage
   show_rudisill_1995:
     actor_type: user
@@ -2082,22 +2171,21 @@ features:
   kafka_producer:
     actor_type: cookie_id
     description: Enables the Kafka producer for the VA.gov platform
-  kafka_producer_fetch_schema_dynamically:
-    actor_type: cookie_id
-    description: Enables the Kafka producer to fetch schema dynamically
   show_about_yellow_ribbon_program:
     actor_type: user
     description: If enabled, show additional info about the yellow ribbon program
   accredited_representative_portal_sort_by:
     actor_type: user
-    description: Hides sort by in POA Request Search page
+    description: Enables sort by in POA Request Search page
   accredited_representative_portal_help:
     actor_type: user
-    description: Hides Get Help link on navigation
+    description: Enables Get Help link on navigation
   accredited_representative_portal_profile:
     actor_type: user
-    description: Hides Profile link on navigation dropdown
+    description: Enables Profile link on navigation dropdown
   forms_10215_10216_release:
     actor_type: user
     description: If enabled, show links to new forms instead of download links on SCO page
-
+  form_10282_sftp_upload:
+    actor_type: user
+    description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP

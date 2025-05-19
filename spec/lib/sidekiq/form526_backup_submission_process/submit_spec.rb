@@ -16,7 +16,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       .and_return('access_token')
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user_account) { create(:user_account, icn: '123498767V234859') }
+  let(:user) { create(:user, :loa3, icn: user_account.icn) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -27,7 +28,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive(:enabled).and_return(false)
     end
 
-    let!(:submission) { create(:form526_submission, :with_everything) }
+    let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
 
     it 'creates a submission job' do
       expect { subject.perform_async(submission.id) }.to change(subject.jobs, :size).by(1)
@@ -42,7 +43,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     let(:timestamp) { Time.now.utc }
 
     context 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, user_account:) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -106,12 +107,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   end
 
   %w[single multi].each do |payload_method|
-    describe ".perform_async, enabled, #{payload_method} payload", skip: 'Flaky test' do
+    describe ".perform_async, enabled, #{payload_method} payload" do
       before do
         allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
       end
 
-      let!(:submission) { create(:form526_submission, :with_everything) }
+      let!(:submission) { create(:form526_submission, :with_everything, user_account:) }
       let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
       context 'successfully' do
@@ -136,39 +137,41 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
           VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             VCR.use_cassette('form526_backup/200_evss_get_pdf') do
               VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-                jid = subject.perform_async(submission.id)
-                last = subject.jobs.last
-                jid_from_jobs = last['jid']
-                expect(jid).to eq(jid_from_jobs)
-                described_class.drain
-                expect(jid).not_to be_empty
-                # The Backup Submission process gathers form 526 and any ancillary forms
-                # to send to Central Mail at the same time
+                VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response_generate_pdf') do
+                  jid = subject.perform_async(submission.id)
+                  last = subject.jobs.last
+                  jid_from_jobs = last['jid']
+                  expect(jid).to eq(jid_from_jobs)
+                  described_class.drain
+                  expect(jid).not_to be_empty
+                  # The Backup Submission process gathers form 526 and any ancillary forms
+                  # to send to Central Mail at the same time
 
-                # Form 4142 Backup Submission Process
-                expect(submission.form['form4142']).not_to be_nil
-                form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
-                  form_data: submission.form['form4142'], submission_id: submission.id
-                )
-                request_body = form4142_processor.request_body
-                metadata_hash = JSON.parse(request_body['metadata'])
-                form4142_received_date = metadata_hash['receiveDt'].in_time_zone('Central Time (US & Canada)')
-                expect(
-                  submission.created_at.in_time_zone('Central Time (US & Canada)')
-                ).to be_within(1.second).of(form4142_received_date)
+                  # Form 4142 Backup Submission Process
+                  expect(submission.form['form4142']).not_to be_nil
+                  form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
+                    form_data: submission.form['form4142'], submission_id: submission.id
+                  )
+                  request_body = form4142_processor.request_body
+                  metadata_hash = JSON.parse(request_body['metadata'])
+                  form4142_received_date = metadata_hash['receiveDt'].in_time_zone('Central Time (US & Canada)')
+                  expect(
+                    submission.created_at.in_time_zone('Central Time (US & Canada)')
+                  ).to be_within(1.second).of(form4142_received_date)
 
-                # Form 0781 Backup Submission Process
-                expect(submission.form['form0781']).not_to be_nil
-                # not really a way to test the dates here
+                  # Form 0781 Backup Submission Process
+                  expect(submission.form['form0781']).not_to be_nil
+                  # not really a way to test the dates here
 
-                job_status = Form526JobStatus.last
-                expect(job_status.form526_submission_id).to eq(submission.id)
-                expect(job_status.job_class).to eq('BackupSubmission')
-                expect(job_status.job_id).to eq(jid)
-                expect(job_status.status).to eq('success')
-                submission = Form526Submission.last
-                expect(submission.backup_submitted_claim_id).not_to be_nil
-                expect(submission.submit_endpoint).to eq('benefits_intake_api')
+                  job_status = Form526JobStatus.last
+                  expect(job_status.form526_submission_id).to eq(submission.id)
+                  expect(job_status.job_class).to eq('BackupSubmission')
+                  expect(job_status.job_id).to eq(jid)
+                  expect(job_status.status).to eq('success')
+                  submission = Form526Submission.last
+                  expect(submission.backup_submitted_claim_id).not_to be_nil
+                  expect(submission.submit_endpoint).to eq('benefits_intake_api')
+                end
               end
             end
           end
@@ -220,7 +223,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive_messages(submission_method: 'single', enabled: true)
     end
 
-    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads) }
+    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads, user_account:) }
     let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
     context 'converts non-pdf files to pdf' do

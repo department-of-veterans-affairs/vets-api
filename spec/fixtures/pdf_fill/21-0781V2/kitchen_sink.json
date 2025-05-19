@@ -14,8 +14,8 @@
   "additionalInformation": "Lorem ipsum dolor sit amet",
   "eventTypes": {
     "combat": true,
-    "mst": false,
-    "nonMst": true,
+    "mst": true,
+    "nonMst": false,
     "other": false
   },
   "events": [
@@ -98,8 +98,7 @@
       "treatmentYear": "2024"
     },
     {
-      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
-      "noDates": true
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL"
     }
   ],
   "optionIndicator": "notEnrolled",

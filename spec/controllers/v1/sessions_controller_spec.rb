@@ -61,6 +61,41 @@ RSpec.describe V1::SessionsController, type: :controller do
   # Helper variable
   let(:once) { { times: 1, value: 1 } }
 
+  shared_examples 'a successful UserAudit log' do
+    let(:user_verification) { user.user_verification }
+    let(:event) { :sign_in }
+    let!(:user_action_event) { create(:user_action_event, identifier: event) }
+    let(:icn) { user.icn }
+    let(:remote_ip) { Faker::Internet.ip_v4_address }
+    let(:user_agent) { Faker::Internet.user_agent }
+    let(:expected_log_payload) do
+      {
+        event: :sign_in,
+        user_verification_id: user_verification.id,
+        status: :success
+      }
+    end
+    let(:expected_log_tags) { { remote_ip:, user_agent: } }
+    let(:expected_audit_log_message) do
+      expected_log_payload.merge(acting_ip_address: remote_ip, acting_user_agent: user_agent).as_json
+    end
+
+    before do
+      allow(SemanticLogger).to receive(:named_tags).and_return(expected_log_tags)
+      allow(UserAudit.logger).to receive(:success).and_call_original
+    end
+
+    it 'creates a user audit log' do
+      expect { call_endpoint }.to change(Audit::Log, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event:, user_verification:)
+    end
+
+    it 'creates a user action' do
+      expect { call_endpoint }.to change(UserAction, :count).by(1)
+      expect(UserAudit.logger).to have_received(:success).with(event: :sign_in, user_verification:)
+    end
+  end
+
   def verify_session_cookie
     token = session[:token]
     expect(token).not_to be_nil
@@ -78,6 +113,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   before do
     request.host = request_host
+    request.remote_ip = Faker::Internet.ip_v4_address
+    request.user_agent = Faker::Internet.user_agent
+
     allow(SAML::SSOeSettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
     allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
@@ -158,6 +196,58 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                       'client_id:vamobile',
                                                       'operation:authorize'],
                                                **once)
+              end
+            end
+          end
+
+          context 'cerner eligiblility check' do
+            let(:params) { { type:, clientId: '123123' } }
+            let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
+            let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
+            let(:expected_log_payload) { { eligible:, cookie_action: } }
+
+            context 'when cerner eligible cookie is present' do
+              let(:cookie_action) { :found }
+
+              before do
+                cookies.signed[cerner_eligible_cookie] = eligible.to_s
+                allow(Rails.logger).to receive(:info)
+              end
+
+              context 'when cerner eligible cookie is true' do
+                let(:eligible) { true }
+
+                it 'logs the cerner eligibility' do
+                  call_endpoint
+
+                  expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+                end
+              end
+
+              context 'when cerner eligible cookie is false' do
+                let(:eligible) { false }
+
+                it 'logs the cerner eligibility' do
+                  call_endpoint
+
+                  expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+                end
+              end
+            end
+
+            context 'when cerner eligible cookie is not present' do
+              let(:cookie_action) { :not_found }
+              let(:eligible) { :unknown }
+
+              before do
+                cookies.delete(cerner_eligible_cookie)
+                allow(Rails.logger).to receive(:info)
+              end
+
+              it 'logs the cerner eligibility' do
+                call_endpoint
+
+                expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
               end
             end
           end
@@ -676,6 +766,10 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
         end
       end
+
+      context 'after redirecting the client' do
+        it_behaves_like 'a successful UserAudit log'
+      end
     end
 
     context 'when user has level of assurance 3' do
@@ -727,6 +821,65 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'when user has accepted the current terms of use' do
         it 'redirects to expected auth page' do
           expect(call_endpoint).to redirect_to(expected_redirect_url)
+        end
+      end
+
+      context 'after redirecting the client' do
+        it_behaves_like 'a successful UserAudit log'
+      end
+
+      context 'when cerner eligibiltiy is checked' do
+        let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, cerner_id:) }
+        let(:cerner_id) { 'some-cerner-id' }
+        let(:cerner_eligible_cookie) { 'CERNER_ELIGIBLE' }
+        let(:expected_log_message) { '[SessionsController] Cerner Eligibility' }
+        let(:expected_log_payload) { { eligible:, cookie_action: :set, icn: user.icn } }
+
+        before do
+          SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'some-applicaton' })
+          allow(Rails.logger).to receive(:info)
+        end
+
+        context 'when the cerner eligible cookie is not present' do
+          before do
+            allow(IdentitySettings.sign_in).to receive(:info_cookie_domain).and_return('some-domain')
+          end
+
+          context 'when the user is cerner eligible' do
+            let(:eligible) { true }
+
+            it 'sets the cookie and logs the cerner eligibility' do
+              call_endpoint
+
+              expect(response.headers['set-cookie']).to include('domain=some-domain')
+              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+
+          context 'when the user is not cerner eligible' do
+            let(:cerner_id) { nil }
+            let(:eligible) { false }
+
+            it 'sets the cookie and logs the cerner eligibility' do
+              call_endpoint
+
+              expect(cookies.signed[cerner_eligible_cookie]).to eq(eligible)
+              expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+            end
+          end
+        end
+
+        context 'when the cerner eligible cookie is present' do
+          before do
+            cookies.signed[cerner_eligible_cookie] = 'true'
+          end
+
+          it 'does not log a message' do
+            call_endpoint
+
+            expect(Rails.logger).not_to have_received(:info).with(expected_log_message, anything)
+          end
         end
       end
     end

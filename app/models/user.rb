@@ -467,10 +467,6 @@ class User < Common::RedisStore
     (edipi.present? && veteran?) || military_person?
   end
 
-  def power_of_attorney
-    EVSS::CommonService.get_current_info[:poa]
-  end
-
   def flipper_id
     email&.downcase || account_uuid
   end
@@ -483,6 +479,16 @@ class User < Common::RedisStore
     return unless can_create_mhv_account?
 
     MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def provision_cerner_async(source: nil)
+    return unless cerner_eligible?
+
+    Identity::CernerProvisionerJob.perform_async(icn, source)
+  end
+
+  def cerner_eligible?
+    loa3? && cerner_id.present?
   end
 
   def can_create_mhv_account?

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module ClaimsApi
   class EVSSClaim
-    include Virtus.model
-    include ActiveModel::Serialization
+    include Vets::Model
 
     #############################
     # This mapping exists on the front end here:
@@ -59,6 +60,11 @@ module ClaimsApi
             id: document.id,
             type: 'claim_supporting_document',
             md5: document.file_data['filename'].present? ? Digest::MD5.hexdigest(document.file_data['filename']) : '',
+            header_hash: if document.file_data['filename'].present?
+                           Digest::SHA256.hexdigest(document.file_data['filename'])
+                         else
+                           ''
+                         end,
             filename: document.file_data['filename'],
             uploaded_at: document.created_at
           }

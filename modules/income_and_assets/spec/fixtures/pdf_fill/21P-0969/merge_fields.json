@@ -1,0 +1,671 @@
+{
+  "vaFileNumber": "123456789",
+  "veteranFullName": {
+    "first": "John",
+    "middle": "E",
+    "last": "Doe"
+  },
+  "veteranSocialSecurityNumber": "333224444",
+  "claimantFullName": {
+    "first": "Jane",
+    "middle": "E",
+    "last": "Doe"
+  },
+  "claimantSocialSecurityNumber": "333224445",
+  "claimantPhone": "5552345555",
+  "claimantType": 1,
+  "incomeNetWorthDateRange": {
+    "from": "01/01/2020",
+    "to": "12/31/2020",
+    "useDateReceivedByVA": false
+  },
+  "statementOfTruthCertified": true,
+  "statementOfTruthSignature": "John Edmund Doe",
+  "unassociatedIncomes": [
+    {
+      "recipientRelationship": 3,
+      "recipientRelationshipOverflow": "CHILD",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Jane Doe",
+      "incomeType": 2,
+      "incomeTypeOverflow": "WAGES",
+      "otherIncomeType": null,
+      "grossMonthlyIncome": {
+        "cents": "99",
+        "dollars": "999",
+        "thousands": "99"
+      },
+      "grossMonthlyIncomeOverflow": 99999.99,
+      "payer": "Generic Company, LLC"
+    },
+    {
+      "recipientRelationship": 5,
+      "recipientRelationshipOverflow": "OTHER",
+      "otherRecipientRelationshipType": "Cousin",
+      "recipientName": "Sam Jenkins",
+      "incomeType": 5,
+      "incomeTypeOverflow": "OTHER",
+      "otherIncomeType": "Stocks",
+      "grossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "099",
+        "thousands": "00"
+      },
+      "grossMonthlyIncomeOverflow": 99,
+      "payer": "Investment Company"
+    },
+    {
+      "recipientRelationship": 0,
+      "recipientRelationshipOverflow": "VETERAN",
+      "otherRecipientRelationshipType": null,
+      "recipientName": null,
+      "incomeType": 0,
+      "incomeTypeOverflow": "SOCIAL_SECURITY",
+      "otherIncomeType": null,
+      "grossMonthlyIncome": {
+        "cents": "33",
+        "dollars": "102",
+        "thousands": "00"
+      },
+      "grossMonthlyIncomeOverflow": 102.33,
+      "payer": "Social Security Administration"
+    },
+    {
+      "recipientRelationship": 1,
+      "recipientRelationshipOverflow": "SPOUSE",
+      "otherRecipientRelationshipType": null,
+      "recipientName": null,
+      "incomeType": 1,
+      "incomeTypeOverflow": "RETIREMENT_PENSION",
+      "otherIncomeType": null,
+      "grossMonthlyIncome": {
+        "cents": "99",
+        "dollars": "099",
+        "thousands": "01"
+      },
+      "grossMonthlyIncomeOverflow": 1099.99,
+      "payer": "Pension Benefit Management"
+    },
+    {
+      "recipientRelationship": 4,
+      "recipientRelationshipOverflow": "PARENT",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Edmund Doe",
+      "incomeType": 4,
+      "incomeTypeOverflow": "CIVIL_SERVICE",
+      "otherIncomeType": null,
+      "grossMonthlyIncome": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "grossMonthlyIncomeOverflow": 12345.67,
+      "payer": "Personnel Management"
+    }
+  ],
+  "associatedIncomes": [
+    {
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Jim Brown",
+      "payer": "Jack Smith",
+      "incomeType": 0,
+      "incomeTypeOverflow": "INTEREST",
+      "otherIncomeType": null,
+      "grossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "grossMonthlyIncomeOverflow": 12345,
+      "accountValue": {
+        "cents": "00",
+        "dollars": "987",
+        "thousands": "012",
+        "millions": "00"
+      },
+      "accountValueOverflow": 12987
+    },
+    {
+      "recipientRelationship": 5,
+      "recipientRelationshipOverflow": "OTHER",
+      "otherRecipientRelationshipType": "Friend",
+      "recipientName": "Brandon Jones",
+      "payer": "Harold Washington",
+      "incomeType": 1,
+      "incomeTypeOverflow": "DIVIDENDS",
+      "otherIncomeType": null,
+      "grossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "987",
+        "thousands": "23"
+      },
+      "grossMonthlyIncomeOverflow": 23987,
+      "accountValue": {
+        "cents": "00",
+        "dollars": "900",
+        "thousands": "009",
+        "millions": "00"
+      },
+      "accountValueOverflow": 9900
+    }
+  ],
+  "ownedAssets": [
+    {
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Jim Brown",
+      "assetType": 0,
+      "assetTypeOverflow": "FARM",
+      "grossMonthlyIncome": {
+        "cents": "55",
+        "dollars": "555",
+        "thousands": "05"
+      },
+      "grossMonthlyIncomeOverflow": 5555.55,
+      "ownedPortionValue": {
+        "cents": "55",
+        "dollars": "555",
+        "thousands": "555",
+        "millions": "05"
+      },
+      "ownedPortionValueOverflow": 5555555.55
+    },
+    {
+      "recipientRelationship": 5,
+      "recipientRelationshipOverflow": "OTHER",
+      "otherRecipientRelationshipType": "Friend",
+      "recipientName": "Brandon Jones",
+      "assetType": 1,
+      "assetTypeOverflow": "BUSINESS",
+      "grossMonthlyIncome": {
+        "cents": "99",
+        "dollars": "999",
+        "thousands": "00"
+      },
+      "grossMonthlyIncomeOverflow": 999.99,
+      "ownedPortionValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "010",
+        "millions": "00"
+      },
+      "ownedPortionValueOverflow": 10000
+    },
+    {
+      "recipientRelationship": 4,
+      "recipientRelationshipOverflow": "PARENT",
+      "otherRecipientRelationshipType": null,
+      "recipientName": "Edmund Doe",
+      "assetType": 2,
+      "assetTypeOverflow": "RENTAL_PROPERTY",
+      "grossMonthlyIncome": {
+        "cents": "45",
+        "dollars": "123",
+        "thousands": "00"
+      },
+      "grossMonthlyIncomeOverflow": 123.45,
+      "ownedPortionValue": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "012",
+        "millions": "00"
+      },
+      "ownedPortionValueOverflow": 12345.67
+    }
+  ],
+  "royaltiesAndOtherProperties": [
+    {
+      "incomeGenerationMethod": 3,
+      "otherIncomeType": "Rental",
+      "grossMonthlyIncome": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "fairMarketValue": {
+        "cents": "91",
+        "dollars": "678",
+        "thousands": "345",
+        "millions": "12"
+      },
+      "canBeSold": 1,
+      "mitigatingCircumstances": "Contractual obligations",
+      "recipientRelationship": 1,
+      "recipientRelationshipOverflow": "SPOUSE",
+      "incomeGenerationMethodOverflow": "OTHER",
+      "grossMonthlyIncomeOverflow": "$12,345.67",
+      "fairMarketValueOverflow": "$12,345,678.91",
+      "canBeSoldOverflow": false
+    },
+    {
+      "incomeGenerationMethod": 2,
+      "grossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "123",
+        "thousands": "00"
+      },
+      "fairMarketValue": {
+        "cents": "00",
+        "dollars": "234",
+        "thousands": "001",
+        "millions": "00"
+      },
+      "canBeSold": 0,
+      "recipientName": "John Smith",
+      "recipientRelationship": 5,
+      "otherRecipientRelationshipType": "Sibling",
+      "recipientRelationshipOverflow": "OTHER",
+      "incomeGenerationMethodOverflow": "USE_OF_LAND",
+      "grossMonthlyIncomeOverflow": "$123.00",
+      "fairMarketValueOverflow": "$1,234.00",
+      "canBeSoldOverflow": true
+    }
+  ],
+  "assetTransfers": [
+    {
+      "originalOwnerRelationship": 5,
+      "originalOwnerRelationshipOverflow": "OTHER",
+      "otherOriginalOwnerRelationshipType": "Cousin",
+      "transferMethod": 4,
+      "transferMethodOverflow": "OTHER",
+      "otherTransferMethod": "Earned",
+      "assetType": "Clothes",
+      "assetTypeOverflow": "Clothes",
+      "newOwnerName": "John Doe Jr.",
+      "newOwnerNameOverflow": "John Doe Jr.",
+      "newOwnerRelationship": "Sibling",
+      "newOwnerRelationshipOverflow": "Sibling",
+      "saleReportedToIrs": 0,
+      "transferDate": {
+        "month": "01",
+        "day": "01",
+        "year": "1992"
+      },
+      "assetTransferredUnderFairMarketValue": 1,
+      "fairMarketValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "01"
+      },
+      "fairMarketValueOverflow": 1000000,
+      "saleValue": {
+        "cents": "89",
+        "dollars": "567",
+        "thousands": "234",
+        "millions": "08"
+      },
+      "saleValueOverflow": 8234567.89,
+      "capitalGainValue": {
+        "cents": "89",
+        "dollars": "567",
+        "thousands": "234",
+        "millions": "07"
+      },
+      "capitalGainValueOverflow": 7234567.89
+    },
+    {
+      "originalOwnerRelationship": 3,
+      "originalOwnerRelationshipOverflow": "CHILD",
+      "otherOriginalOwnerRelationshipType": null,
+      "transferMethod": 1,
+      "transferMethodOverflow": "GIFTED",
+      "otherTransferMethod": null,
+      "assetType": "Artwork",
+      "assetTypeOverflow": "Artwork",
+      "newOwnerName": "Jacob Doe Sr.",
+      "newOwnerNameOverflow": "Jacob Doe Sr.",
+      "newOwnerRelationship": "Aunt",
+      "newOwnerRelationshipOverflow": "Aunt",
+      "saleReportedToIrs": 1,
+      "transferDate": {
+        "month": "02",
+        "day": "02",
+        "year": "1993"
+      },
+      "assetTransferredUnderFairMarketValue": 0,
+      "fairMarketValue": {
+        "cents": "12",
+        "dollars": "123",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "fairMarketValueOverflow": 123.12,
+      "saleValue": {
+        "cents": "00",
+        "dollars": "100",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "saleValueOverflow": 100,
+      "capitalGainValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "capitalGainValueOverflow": 0
+    },
+    {
+      "originalOwnerRelationship": 4,
+      "originalOwnerRelationshipOverflow": "PARENT",
+      "otherOriginalOwnerRelationshipType": null,
+      "transferMethod": 3,
+      "transferMethodOverflow": "TRADED",
+      "otherTransferMethod": null,
+      "assetType": "Bike",
+      "assetTypeOverflow": "Bike",
+      "newOwnerName": "John Doe Jr.",
+      "newOwnerNameOverflow": "John Doe Jr.",
+      "newOwnerRelationship": "Brother",
+      "newOwnerRelationshipOverflow": "Brother",
+      "saleReportedToIrs": 0,
+      "transferDate": {
+        "month": "05",
+        "day": "12",
+        "year": "1995"
+      },
+      "assetTransferredUnderFairMarketValue": 1,
+      "fairMarketValue": {
+        "cents": "99",
+        "dollars": "800",
+        "thousands": "001",
+        "millions": "00"
+      },
+      "fairMarketValueOverflow": 1800.99,
+      "saleValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "002",
+        "millions": "00"
+      },
+      "saleValueOverflow": 2000,
+      "capitalGainValue": {
+        "cents": "99",
+        "dollars": "200",
+        "thousands": "000",
+        "millions": "00"
+      },
+      "capitalGainValueOverflow": 200.99
+    }
+  ],
+  "trusts": [
+    {
+      "establishedDate": {
+        "month": "02",
+        "day": "02",
+        "year": "1982"
+      },
+      "marketValueAtEstablishment": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "000",
+        "millions": "9"
+      },
+      "trustType": 0,
+      "addedFundsAfterEstablishment": 0,
+      "addedFundsDate": {
+        "month": "02",
+        "day": "01",
+        "year": "1985"
+      },
+      "addedFundsAmount": {
+        "cents": "99",
+        "dollars": "199",
+        "thousands": "00"
+      },
+      "receivingIncomeFromTrust": 0,
+      "annualReceivedIncome": {
+        "cents": "00",
+        "dollars": "200",
+        "thousands": "00"
+      },
+      "trustUsedForMedicalExpenses": 0,
+      "monthlyMedicalReimbursementAmount": {
+        "cents": "67",
+        "dollars": "345",
+        "thousands": "12"
+      },
+      "trustEstablishedForVeteransChild": 0,
+      "haveAuthorityOrControlOfTrust": 0,
+      "establishedDateOverflow": "1982-02-02",
+      "marketValueAtEstablishmentOverflow": 9000000,
+      "trustTypeOverflow": "REVOCABLE",
+      "addedFundsAfterEstablishmentOverflow": true,
+      "addedFundsDateOverflow": "1985-02-01",
+      "addedFundsAmountOverflow": 199.99,
+      "receivingIncomeFromTrustOverflow": true,
+      "annualReceivedIncomeOverflow": 200,
+      "trustUsedForMedicalExpensesOverflow": true,
+      "monthlyMedicalReimbursementAmountOverflow": 12345.67,
+      "trustEstablishedForVeteransChildOverflow": true,
+      "haveAuthorityOrControlOfTrustOverflow": true
+    }
+  ],
+  "annuities": [
+    {
+      "addedFundsDate": {
+        "month": "02",
+        "day": "02",
+        "year": "2022"
+      },
+      "addedFundsAmount": {
+        "cents": "22",
+        "dollars": "222",
+        "thousands": "222",
+        "millions": "2"
+      },
+      "addedFundsAfterEstablishment": 0,
+      "canBeLiquidated": 0,
+      "surrenderValue": {
+        "cents": "88",
+        "dollars": "777",
+        "thousands": "666",
+        "millions": "5"
+      },
+      "receivingIncomeFromAnnuity": 0,
+      "annualReceivedIncome": {
+        "cents": "44",
+        "dollars": "333",
+        "thousands": "222",
+        "millions": "1"
+      },
+      "revocable": 0,
+      "establishedDate": {
+        "month": "01",
+        "day": "01",
+        "year": "2020"
+      },
+      "marketValueAtEstablishment": {
+        "cents": "89",
+        "dollars": "568",
+        "thousands": "234",
+        "millions": "1"
+      },
+      "addedFundsDateOverflow": "2022-02-02",
+      "addedFundsAmountOverflow": 2222222.22,
+      "addedFundsAfterEstablishmentOverflow": true,
+      "canBeLiquidatedOverflow": true,
+      "surrenderValueOverflow": 5666777.88,
+      "receivingIncomeFromAnnuityOverflow": true,
+      "annualReceivedIncomeOverflow": 1222333.44,
+      "revocableOverflow": true,
+      "establishedDateOverflow": "2020-01-01",
+      "marketValueAtEstablishmentOverflow": 1234568.89
+    }
+  ],
+  "unreportedAssets": [
+    {
+      "assetOwnerRelationship": 0,
+      "recipientName": null,
+      "assetType": "Cash",
+      "ownedPortionValue": {
+        "cents": "44",
+        "dollars": "333",
+        "thousands": "222",
+        "millions": "11"
+      },
+      "assetLocation": "Financial institution",
+      "assetOwnerRelationshipOverflow": "VETERAN",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Cash",
+      "ownedPortionValueOverflow": 11222333.44,
+      "assetLocationOverflow": "Financial institution"
+    },
+    {
+      "assetOwnerRelationship": 1,
+      "recipientName": null,
+      "assetType": "Art",
+      "ownedPortionValue": {
+        "cents": "45",
+        "dollars": "123"
+      },
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationshipOverflow": "SPOUSE",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Art",
+      "ownedPortionValueOverflow": 123.45,
+      "assetLocationOverflow": "123 Main St"
+    },
+    {
+      "assetOwnerRelationship": 3,
+      "recipientName": null,
+      "assetType": "Coins",
+      "ownedPortionValue": {
+        "cents": "00",
+        "dollars": "010"
+      },
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationshipOverflow": "CHILD",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Coins",
+      "ownedPortionValueOverflow": 10,
+      "assetLocationOverflow": "123 Main St"
+    },
+    {
+      "assetOwnerRelationship": 4,
+      "recipientName": null,
+      "assetType": "Chandelier",
+      "ownedPortionValue": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "002"
+      },
+      "assetLocation": "123 Main St",
+      "assetOwnerRelationshipOverflow": "PARENT",
+      "recipientNameOverflow": null,
+      "assetTypeOverflow": "Chandelier",
+      "ownedPortionValueOverflow": 2000,
+      "assetLocationOverflow": "123 Main St"
+    }
+  ],
+  "discontinuedIncomes": [
+    {
+      "grossAnnualAmount": {
+        "cents": "78",
+        "dollars": "456",
+        "thousands": "123"
+      },
+      "incomeLastReceivedDate": {
+        "month": "01",
+        "day": "01",
+        "year": "2022"
+      },
+      "incomeFrequency": 2,
+      "incomeType": "Dividends",
+      "payer": "Banking America",
+      "recipientName": "John Smith",
+      "recipientRelationship": 5,
+      "otherRecipientRelationshipType": "Sibling",
+      "recipientRelationshipOverflow": "OTHER",
+      "incomeFrequencyOverflow": "ONE_TIME",
+      "grossAnnualAmountOverflow": 123456.78,
+      "incomeLastReceivedDateOverflow": "01/01/2022"
+    },
+    {
+      "grossAnnualAmount": {
+        "cents": "00",
+        "dollars": "000",
+        "thousands": "200"
+      },
+      "incomeLastReceivedDate": {
+        "month": "05",
+        "day": "01",
+        "year": "2000"
+      },
+      "incomeFrequency": 1,
+      "incomeType": "Interest",
+      "payer": "George Smith",
+      "recipientName": "Brandon Johnson",
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "incomeFrequencyOverflow": "IRREGULAR",
+      "grossAnnualAmountOverflow": 200000,
+      "incomeLastReceivedDateOverflow": "05/01/2000"
+    }
+  ],
+  "incomeReceiptWaivers": [
+    {
+      "expectedIncome": {
+        "cents": "90",
+        "dollars": "567",
+        "thousands": "123"
+      },
+      "paymentResumeDate": {
+        "month": "04",
+        "day": "01",
+        "year": "2026"
+      },
+      "waivedGrossMonthlyIncome": {
+        "cents": "78",
+        "dollars": "456",
+        "thousands": "123"
+      },
+      "payer": "Bank of America",
+      "recipientName": "George Bankman",
+      "recipientRelationship": 2,
+      "recipientRelationshipOverflow": "CUSTODIAN",
+      "expectedIncomeOverflow": 123567.9,
+      "waivedGrossMonthlyIncomeOverflow": 123456.78,
+      "paymentResumeDateOverflow": "04/01/2026",
+      "paymentWillNotResume": 0,
+      "paymentWillNotResumeOverflow": "NO"
+    },
+    {
+      "waivedGrossMonthlyIncome": {
+        "cents": "00",
+        "dollars": "100",
+        "thousands": "00"
+      },
+      "payer": "Bank of America",
+      "recipientName": "John Smith",
+      "recipientRelationship": 4,
+      "recipientRelationshipOverflow": "PARENT",
+      "expectedIncomeOverflow": null,
+      "waivedGrossMonthlyIncomeOverflow": 100,
+      "expectedIncome": {},
+      "paymentResumeDate": null,
+      "paymentResumeDateOverflow": null,
+      "paymentWillNotResume": 1,
+      "paymentWillNotResumeOverflow": "YES"
+    }
+  ],
+  "unassociatedIncome": 0,
+  "associatedIncome": 0,
+  "ownedAsset": 0,
+  "royaltiesAndOtherProperty": 0,
+  "assetTransfer": 0,
+  "trust": 0,
+  "annuity": 0,
+  "unreportedAsset": 0,
+  "discontinuedIncome": 0,
+  "incomeReceiptWaiver": 0,
+  "statementOfTruthSignatureDate": {
+    "month": "12",
+    "day": "31",
+    "year": "2016"
+  }
+}

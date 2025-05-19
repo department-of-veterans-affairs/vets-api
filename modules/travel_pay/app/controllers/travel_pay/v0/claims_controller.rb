@@ -6,13 +6,12 @@ module TravelPay
       after_action :scrub_logs, only: [:show]
 
       def index
-        begin
-          claims = claims_service.get_claims(params)
-        rescue Faraday::Error => e
-          TravelPay::ServiceError.raise_mapped_error(e)
-        end
-
+        claims = claims_service.get_claims(params)
         render json: claims, status: :ok
+      rescue Faraday::ResourceNotFound => e
+        handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
+      rescue Faraday::Error => e
+        TravelPay::ServiceError.raise_mapped_error(e)
       end
 
       def show
@@ -22,7 +21,10 @@ module TravelPay
         end
 
         begin
-          claim = claims_service.get_claim_by_id(params[:id])
+          claim = claims_service.get_claim_details(params[:id])
+        rescue Faraday::ResourceNotFound => e
+          handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
+          return
         rescue Faraday::Error => e
           TravelPay::ServiceError.raise_mapped_error(e)
         rescue ArgumentError => e
@@ -30,7 +32,9 @@ module TravelPay
         end
 
         if claim.nil?
-          raise Common::Exceptions::ResourceNotFound, message: "Claim not found. ID provided: #{params[:id]}"
+          handle_resource_not_found_error("Claim not found. ID provided: #{params[:id]}",
+                                          e.response[:request][:headers]['X-Correlation-ID'])
+          return
         end
 
         render json: claim, status: :ok
@@ -46,11 +50,11 @@ module TravelPay
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
-          appt_id = get_appt_or_raise(params['appointment_datetime'])
+          appt_id = get_appt_or_raise(params)
           claim_id = get_claim_id(appt_id)
 
           Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
-          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_datetime'] })
+          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
 
           Rails.logger.info(message: "SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
@@ -72,7 +76,7 @@ module TravelPay
       end
 
       def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager)
+        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
 
       def appts_service
@@ -99,10 +103,10 @@ module TravelPay
         end
       end
 
-      def get_appt_or_raise(appt_datetime)
-        appt_not_found_msg = "No appointment found for #{appt_datetime}"
-        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{appt_datetime}")
-        appt = appts_service.get_appointment_by_date_time({ 'appt_datetime' => appt_datetime })
+      def get_appt_or_raise(params = {})
+        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
+        appt = appts_service.find_or_create_appointment(params)
 
         if appt[:data].nil?
           Rails.logger.error(message: appt_not_found_msg)
@@ -117,6 +121,17 @@ module TravelPay
         claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
 
         claim['claimId']
+      end
+
+      def handle_resource_not_found_error(message, cid)
+        Rails.logger.error("Resource not found: #{message}")
+        render(
+          json: {
+            error: 'Not found',
+            correlation_id: cid
+          },
+          status: :not_found
+        )
       end
     end
   end

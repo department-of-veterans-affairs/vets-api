@@ -5,6 +5,7 @@ require 'lighthouse/benefits_intake/metadata'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
+require 'kafka/concerns/kafka'
 
 module Pensions
   ##
@@ -37,6 +38,18 @@ module Pensions
       rescue
         claim = nil
       end
+
+      if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
+        user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
+
+        Kafka.submit_event(
+          icn: user_icn,
+          current_id: claim&.confirmation_number.to_s,
+          submission_name: Pensions::FORM_ID,
+          state: Kafka::State::ERROR
+        )
+      end
+
       pension_monitor = Pensions::Monitor.new
       pension_monitor.track_submission_exhaustion(msg, claim)
     end
@@ -62,13 +75,11 @@ module Pensions
 
       upload_document
 
+      submit_traceability_to_event_bus if Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
+
       @pension_monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-      if Flipper.enabled?(:pension_submitted_email_notification)
-        send_submitted_email
-      else
-        send_confirmation_email
-      end
+      Flipper.enabled?(:pension_submitted_email_notification) ? send_submitted_email : send_confirmation_email
 
       @intake_service.uuid
     rescue => e
@@ -139,6 +150,9 @@ module Pensions
       )
 
       @intake_service.valid_document?(document:)
+    rescue => e
+      monitor.track_document_processing_error(@claim, @intake_service, @user_account_uuid, e)
+      raise e
     end
 
     ##
@@ -164,6 +178,18 @@ module Pensions
       raise PensionBenefitIntakeError, response.to_s unless response.success?
     end
 
+    # Build payload and submit to EventBusSubmissionJob
+    #
+    def submit_traceability_to_event_bus
+      Kafka.submit_event(
+        icn: @user_account&.icn.to_s,
+        current_id: @claim&.confirmation_number.to_s,
+        submission_name: Pensions::FORM_ID,
+        state: Kafka::State::SENT,
+        next_id: @intake_service&.uuid.to_s
+      )
+    end
+
     ##
     # Generate form metadata to send in upload to Benefits Intake API
     #
@@ -186,6 +212,9 @@ module Pensions
         @claim.form_id,
         @claim.business_line
       )
+    rescue => e
+      monitor.track_metadata_generation_error(@claim, @intake_service, @user_account_uuid, e)
+      raise e
     end
 
     ##
@@ -210,6 +239,9 @@ module Pensions
       end
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
+    rescue => e
+      monitor.track_submission_polling_error(@claim, @intake_service, @user_account_uuid, e)
+      raise e
     end
 
     ##
@@ -218,7 +250,7 @@ module Pensions
     def send_confirmation_email
       Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
     rescue => e
-      @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
+      @pension_monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'confirmation', e)
     end
 
     ##
@@ -227,7 +259,7 @@ module Pensions
     def send_submitted_email
       Pensions::NotificationEmail.new(@claim.id).deliver(:submitted)
     rescue => e
-      @pension_monitor.track_send_submitted_email_failure(@claim, @intake_service, @user_account_uuid, e)
+      @pension_monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
     end
 
     ##

@@ -48,20 +48,6 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '21P-0969',
-        factory: :income_and_assets_claim,
-        use_vets_json_schema: true
-      },
-      {
-        form_id: '10-10CG',
-        factory: :caregivers_assistance_claim,
-        input_data_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'spec/fixtures/pdf_fill/10-10CG/signed',
-        fill_options: {
-          sign: true
-        }
-      },
-      {
         form_id: '686C-674',
         factory: :dependency_claim
       },
@@ -75,7 +61,7 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-0538 26-1880 5655
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-674-V2 21-0538 26-1880 5655
        22-10216 22-10215].each do |form_id|
       context "form #{form_id}" do
         form_types = %w[simple kitchen_sink overflow].product([false])
@@ -88,7 +74,6 @@ describe PdfFill::Filler, type: :model do
 
             it 'fills the form correctly' do
               if type == 'overflow'
-                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
                   the_extras_generator = extras_generator
@@ -96,26 +81,87 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign: })
+              # this is only for 21-674-V2 but it passes in the extras hash. passing nil for all other scenarios
+              student = form_id == '21-674-V2' ? form_data['dependents_application']['student_information'][0] : nil
+
+              expect(described_class).to receive(:stamp_form).once.and_call_original if extras_redesign
+
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id, { extras_redesign:, student: })
+
+              fixture_pdf_base = "spec/fixtures/pdf_fill/#{form_id}/#{type}"
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-                fixture_pdf = extras_redesign ? 'overflow_redesign_extras.pdf' : 'overflow_extras.pdf'
-                expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/#{fixture_pdf}")
-                ).to be(true)
+                fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+                expect(extras_path).to match_file_exactly(fixture_pdf)
 
                 File.delete(extras_path)
               end
 
-              expect(
-                pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              ).to be(true)
+              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
+              expect(file_path).to match_pdf_fields(fixture_pdf)
 
               File.delete(file_path)
             end
           end
         end
+      end
+    end
+  end
+
+  describe '#stamp_form' do
+    let(:file_path) { 'tmp/test.pdf' }
+    let(:submit_date) { DateTime.new(2020, 12, 25, 14, 30, 0, '+0000') }
+    let(:datestamp_pdf) { instance_double(PDFUtilities::DatestampPdf) }
+    let(:stamped_path) { 'tmp/test_stamped.pdf' }
+    let(:final_path) { 'tmp/test_final.pdf' }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).and_return(datestamp_pdf)
+      allow(datestamp_pdf).to receive(:run).and_return(stamped_path, final_path)
+    end
+
+    it 'stamps the form with footer and header' do
+      expected_footer = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
+                        'Signee signed with an identity-verified account.'
+
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with(file_path).ordered
+      expect(datestamp_pdf).to receive(:run).with(
+        text: expected_footer,
+        x: 5,
+        y: 5,
+        text_only: true,
+        size: 9
+      ).ordered.and_return(stamped_path)
+
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with(stamped_path).ordered
+      expect(datestamp_pdf).to receive(:run).with(
+        text: 'VA.gov Submission',
+        x: 510,
+        y: 775,
+        text_only: true,
+        size: 9
+      ).ordered.and_return(final_path)
+
+      expect(File).to receive(:delete).with(stamped_path)
+
+      result = described_class.stamp_form(file_path, submit_date)
+      expect(result).to eq(final_path)
+    end
+
+    context 'when an error occurs' do
+      before do
+        allow(datestamp_pdf).to receive(:run).and_raise(StandardError, 'PDF Error')
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs the error and returns the original file path' do
+        result = described_class.stamp_form(file_path, submit_date)
+
+        expect(Rails.logger).to have_received(:error).with(
+          "Error stamping form for PdfFill: #{file_path}, error: PDF Error"
+        )
+        expect(result).to eq(file_path)
       end
     end
   end

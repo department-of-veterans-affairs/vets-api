@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'unified_health_data/service'
-require 'mobile/v1/lab_or_test_serializer'
+require 'lab_or_test_serializer'
 
 module Mobile
   module V1
@@ -9,10 +9,11 @@ module Mobile
       before_action :controller_enabled?
 
       def index
-        start_date = params[:start_date]
-        end_date = params[:end_date]
+        start_date = params[:startDate]
+        end_date = params[:endDate]
         labs = service.get_labs(start_date:, end_date:)
-        render json: labs.map { |record| LabOrTestSerializer.serialize(record) }
+        response = { data: labs.map { |record| LabOrTestSerializer.serialize(record) } }
+        render json: response
       end
 
       private

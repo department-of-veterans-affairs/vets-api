@@ -1,0 +1,145 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://www.example.com/
+    body:
+      encoding: UTF-8
+      string: |+
+        <?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <soap:Body>
+            <idm:PRPA_IN201301UV02 xmlns:idm="http://**********"><" xmlns:xsi="http://www.w3.org/2001/XMLSchema‐instance" xsi:schemaLocation="urn:hl7‐org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" xmlns="urn:hl7‐org:v3" ITSVersion="XML_1.0">      <id extension="200VGOV-29f74f52-f7a3-4c64-83f7-96e71cf3a7e1" root="22a0f9e0-4454-11dc-a6be-3603d6866807"/>
+              <creationTime value="20200207004352"/>
+              <versionCode code="4.1"/>
+              <interactionId extension="PRPA_IN201301UV02" root="2.16.840.1.113883.1.6"/>
+              <processingCode code="T"/>
+              <processingModeCode code="T"/>
+              <acceptAckCode code="AL"/>
+              <receiver typeCode="RCV">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                  <id root="2.16.840.1.113883.4.349"/>
+                </device>
+              </receiver>
+              <sender typeCode="SND">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                  <id extension="200VGOV" root="2.16.840.1.113883.3.993"/>
+                  <asAgent classCode=\"AGNT\">
+                    <representedOrganization classCode=\"ORG\" determinerCode=\"INSTANCE\">
+                      <typeId extension=\"200DVPE\" root=\"2.16.840.1.113883.4.349\"/>
+                    </representedOrganization>
+                  </asAgent>
+                </device>
+              </sender>
+              <attentionLine>
+                <keyWordText>Search.Token</keyWordText>
+                <value xsi:type="ST">WSDOC2002061943355491900475958</value>
+              </attentionLine>
+              <controlActProcess classCode="CACT" moodCode="EVN">
+                <dataEnterer contextControlCode="AP" typeCode="ENT">
+                  <assignedPerson classCode="ASSIGNED">
+                    <id extension="1008709396V637156^NI^200M^USVHA" root="2.16.840.1.113883.4.349"/>
+                    <assignedPerson determinerCode="INSTANCE" classCode="PSN">
+                      <name>
+                        <given>MARK</given>
+                        <family>WEBB</family>
+                      </name>
+                    </assignedPerson>
+                    <representedOrganization determinerCode="INSTANCE" classCode="ORG">
+                      <id extension="vagov" root="2.16.840.1.113883.4.349"/>
+                      <code code="2020-02-07 00:43:52"/>
+                      <desc>vagov</desc>
+                      <telecom value="1.2.3.4"/>
+                    </representedOrganization>
+                  </assignedPerson>
+                </dataEnterer>
+                <subject typeCode="SUBJ">
+                  <registrationEvent classCode="REG" moodCode="EVN">
+                    <id nullFlavor="NA"/>
+                    <statusCode code="active"/>
+                    <subject1 typeCode="SBJ">
+                      <patient classCode="PAT">
+                        <id extension="1008709396V637156^NI^200M^USVHA" root="2.16.840.1.113883.4.349"/>
+                        <statusCode code="active"/>
+                        <patientPerson>
+                          <name use="L">
+                            <given>MARK</given>
+                            <family>WEBB</family>
+                          </name>
+                          <birthTime value="19501004"/>
+                          <asOtherIDs classCode="SSN">
+                            <id extension="796104437" root="2.16.840.1.113883.4.1"/>
+                            <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
+                              <id root="2.16.840.1.113883.4.1"/>
+                            </scopingOrganization>
+                          </asOtherIDs>
+                          <asOtherIDs classCode="PAT">
+                            <id extension="PROXY_ADD^PI^200VBA^USVBA" root="2.16.840.1.113883.4.349"/>
+                            <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
+                              <id extension="VBA" root="2.16.840.1.113883.4.349"/>
+                              <name>MVI.ORCHESTRATION</name>
+                            </scopingOrganization>
+                          </asOtherIDs>
+                        </patientPerson>
+                        <providerOrganization determinerCode="INSTANCE" classCode="ORG">
+                          <id root="2.16.840.1.113883.3.933"/>
+                          <name>Good Health Clinic</name>
+                          <contactParty classCode="CON">
+                            <telecom value="3425558394"/>
+                          </contactParty>
+                        </providerOrganization>
+                      </patient>
+                    </subject1>
+                    <custodian typeCode="CST">
+                      <assignedEntity classCode="ASSIGNED">
+                        <id root="2.16.840.1.113883.3.933"/>
+                        <assignedOrganization determinerCode="INSTANCE" classCode="ORG">
+                          <name>Good Health Clinic</name>
+                        </assignedOrganization>
+                      </assignedEntity>
+                    </custodian>
+                  </registrationEvent>
+                </subject>
+              </controlActProcess>
+            </idm:PRPA_IN201301UV02>
+          </soap:Body>
+        </soap:Envelope>
+
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      soapaction:
+      - PRPA_IN201301UV02
+      Date:
+      - Fri, 07 Feb 2020 00:43:52 GMT
+      Content-Length:
+      - '4641'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      x-backside-transport:
+      - OK OK,OK OK
+      transfer-encoding:
+      - chunked
+      date:
+      - Fri, 07 Feb 2020 00:43:52 GMT
+      content-type:
+      - text/xml
+      x-global-transaction-id:
+      - 4bae058f5e3cb2c800274633
+      connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <env:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><env:Header/><env:Body><idm:MCCI_IN000002UV01 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/MCCI_IN000002UV01.xsd" xmlns="urn:hl7-org:v3" xmlns:idm="http://**********"><id extension="WSDOC2002061943528880069871986" root="2.16.840.1.113883.4.349"/><creationTime value="20200206194352"/><versionCode code="4.1"/><interactionId extension="MCCI_IN000002UV01" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-29f74f52-f7a3-4c64-83f7-96e71cf3a7e1" root="22a0f9e0-4454-11dc-a6be-3603d6866807"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="796104437^PI^200BRLS^USVBA" displayName="IEN"/></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="13367440^PI^200CORP^USVBA" displayName="IEN"/></acknowledgementDetail><acknowledgementDetail><code codeSystem="2.16.840.1.113883.4.349" code="WRN206" displayName="Existing Key Identifier"/><text>BIRLS and CORP Identifiers Already Exist</text></acknowledgementDetail></acknowledgement></idm:MCCI_IN000002UV01></env:Body></env:Envelope>
+    http_version:
+  recorded_at: Fri, 07 Feb 2020 00:43:53 GMT
+recorded_with: VCR 5.0.0

@@ -7,10 +7,11 @@ module IvcChampva
     GENDERS = %w[MALE FEMALE].freeze
     VALID_RELATIONSHIPS_LOOKUP = RELATIONSHIPS.index_by(&:downcase).freeze
     VALID_GENDER_LOOKUP = { 'm' => 'MALE', 'male' => 'MALE', 'f' => 'FEMALE', 'female' => 'FEMALE' }.freeze
-    DEFAULT_ADDRESS = { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }.freeze
 
-    # Transform parsed form data from frontend format to VES format & validate
-    def self.format(parsed_form_data)
+    # Transform parsed form data from frontend format to a VES request & validate
+    # @param parsed_form_data [Hash] the parsed form data from the frontend
+    # @return [IvcChampva::VesRequest] the VES request object
+    def self.format_for_request(parsed_form_data)
       ves_data = transform_to_ves_format(parsed_form_data)
       validate_ves_data(ves_data)
 
@@ -25,14 +26,15 @@ module IvcChampva
 
     def self.transform_to_ves_format(parsed_form_data)
       {
-        application_type: 'CHAMPVA',
+        application_type: 'CHAMPVA_APPLICATION',
         application_uuid: SecureRandom.uuid,
         sponsor: map_sponsor(parsed_form_data['veteran']),
         beneficiaries: parsed_form_data['applicants'].map { |applicant| map_beneficiary(applicant) },
         certification: map_certification(
           parsed_form_data['certification'],
           parsed_form_data['statement_of_truth_signature']
-        )
+        ),
+        transaction_uuid: SecureRandom.uuid
       }
     end
 
@@ -51,10 +53,10 @@ module IvcChampva
         last_name: transliterate_and_strip(veteran_data.dig('full_name', 'last')),
         middle_initial: veteran_data.dig('full_name', 'middle'),
         ssn: veteran_data['ssn_or_tin'],
-        va_file_number: veteran_data['va_claim_number'] || '',
+        va_file_number: veteran_data['va_claim_number'] || veteran_data['va_file_number'] || '',
         date_of_birth: veteran_data['date_of_birth'],
         date_of_marriage: veteran_data['date_of_marriage'] || '',
-        is_deceased: veteran_data['sponsor_is_deceased'],
+        is_deceased: veteran_data['sponsor_is_deceased'] || veteran_data['is_deceased'] || false,
         date_of_death: veteran_data['date_of_death'],
         is_death_on_active_service: veteran_data['is_active_service_death'] || false,
         phone_number: format_phone_number(veteran_data['phone_number']),
@@ -80,7 +82,6 @@ module IvcChampva
           data.dig('applicant_relationship_origin', 'relationship_to_veteran')),
         enrolled_in_medicare: data.dig('applicant_medicare_status', 'eligibility') == 'enrolled' ||
           data['is_enrolled_in_medicare'],
-        enrolled_in_part_d: data.dig('applicant_medicare_part_d', 'enrollment') == 'enrolled',
         has_other_insurance: data.dig('applicant_has_ohi', 'has_ohi') == 'yes' || data['has_other_health_insurance']
       }
     end
@@ -101,29 +102,32 @@ module IvcChampva
     end
 
     def self.map_address(address_data)
-      return DEFAULT_ADDRESS unless address_data.is_a?(Hash)
+      return nil unless address_data.is_a?(Hash)
 
-      {
+      address = {
         street_address: address_data['street_combined'] || address_data['street'] ||
-          address_data['street_address'] || DEFAULT_ADDRESS[:street_address],
-        city: address_data['city'] || DEFAULT_ADDRESS[:city],
-        state: address_data['state'] || DEFAULT_ADDRESS[:state],
-        zip_code: address_data['postal_code'] || DEFAULT_ADDRESS[:zip_code]
+                        address_data['street_address'],
+        city: address_data['city'],
+        state: address_data['state'],
+        zip_code: address_data['postal_code']
       }
+
+      return nil if address.values.all?(&:nil?)
+
+      address
     end
 
     # Data formatting methods
     def self.format_phone_number(phone)
       return nil if phone.blank?
 
+      phone = phone.to_s.gsub(/\D/, '')
+
       # regex from VES swagger
-      return phone if phone.match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
+      return phone if phone.match?(/^[0-9+]+$/)
 
       # TODO: add country code check/formatting
-      digits = phone.to_s.gsub(/\D/, '')
-      return phone unless digits.length == 10
-
-      "(#{digits[0..2]}) #{digits[3..5]}-#{digits[6..9]}"
+      phone.to_s.gsub(/\D/, '')
     end
 
     def self.format_ssn(ssn)
@@ -138,7 +142,7 @@ module IvcChampva
       digits
     end
 
-    def format_date(date_string)
+    def self.format_date(date_string)
       return nil if date_string.blank?
 
       return date_string if date_string.match?(/^\d{4}-\d{2}-\d{2}$/)
@@ -146,7 +150,7 @@ module IvcChampva
       begin
         # parsed_form_data should be correct already
         # TODO: add checks for other delimiters
-        Date.parse(date_string, '%d-%m-%Y').strftime('%Y-%m-%d')
+        "#{date_string[6..]}-#{date_string[0..4]}" if date_string.match?(/^\d{2}-\d{2}-\d{4}$/)
       rescue
         date_string
       end
@@ -164,11 +168,6 @@ module IvcChampva
 
       key = relationship.to_s.downcase
       return VALID_RELATIONSHIPS_LOOKUP[key] if VALID_RELATIONSHIPS_LOOKUP[key]
-
-      # Try to find a partial match
-      RELATIONSHIPS.each do |r|
-        return r if key.match?(r.downcase)
-      end
 
       raise ArgumentError, "Relationship #{relationship} is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
     end
@@ -194,14 +193,21 @@ module IvcChampva
       I18n.transliterate(text).gsub(%r{[^a-zA-Z\-\/\s]}, '').strip
     end
 
-    # Validation methods - consolidated
     def self.validate_sponsor(request_body)
       sponsor = request_body[:sponsor]
 
-      # Basic validation
       validate_name_fields(sponsor, 'sponsor')
+      if sponsor[:is_deceased] == true
+        sponsor[:address] =
+          { street_address: 'NA', city: 'NA', state: 'NA', zip_code: 'NA' }
+        sponsor[:date_of_death] = validate_date(sponsor[:date_of_death], 'date of death')
+      end
       validate_address(sponsor[:address], 'sponsor')
-      validate_date(sponsor[:date_of_birth], 'date of birth')
+      sponsor[:date_of_birth] = validate_date(sponsor[:date_of_birth], 'date of birth')
+      if sponsor[:date_of_marriage].presence
+        sponsor[:date_of_marriage] =
+          validate_date(sponsor[:date_of_marriage], 'date of marriage')
+      end
       validate_uuid(sponsor[:person_uuid], 'person uuid')
       validate_ssn(sponsor[:ssn], 'ssn')
       validate_phone(sponsor, 'sponsor phone') if sponsor[:phone_number]
@@ -214,14 +220,16 @@ module IvcChampva
       raise ArgumentError, 'beneficiaries is invalid. Must be an array' unless beneficiaries.is_a?(Array)
 
       beneficiaries.each do |beneficiary|
-        # Basic validation
         validate_name_fields(beneficiary, 'beneficiary')
-        validate_date(beneficiary[:date_of_birth], 'date of birth')
+        beneficiary[:date_of_birth] = validate_date(beneficiary[:date_of_birth], 'date of birth')
         validate_uuid(beneficiary[:person_uuid], 'person uuid')
         validate_address(beneficiary[:address], 'beneficiary')
-        validate_relationship_fields(beneficiary)
-        validate_gender(beneficiary)
         validate_ssn(beneficiary[:ssn], 'ssn')
+
+        # not required by VES
+        validate_relationship_fields(beneficiary) if beneficiary[:relationship_to_sponsor]
+        validate_gender(beneficiary) if beneficiary[:gender]
+        validate_email(beneficiary[:email_address]) if beneficiary[:email_address]
       end
 
       request_body
@@ -231,8 +239,9 @@ module IvcChampva
       certification = request_body[:certification]
       return request_body if certification.blank? || certification.empty?
 
+      # only signature and signature_date are required by VES
       validate_presence_and_stringiness(certification[:signature], 'certification signature')
-      validate_date(certification[:signature_date], 'certification signature date')
+      certification[:signature_date] = validate_date(certification[:signature_date], 'certification signature date')
       validate_phone(certification, 'certification phone') if certification[:phone_number]
 
       request_body
@@ -240,8 +249,8 @@ module IvcChampva
 
     def self.validate_application_type(request_body)
       validate_presence_and_stringiness(request_body[:application_type], 'application type')
-      unless request_body[:application_type] == 'CHAMPVA'
-        raise ArgumentError, 'application type invalid. Must be CHAMPVA'
+      unless request_body[:application_type] == 'CHAMPVA_APPLICATION'
+        raise ArgumentError, 'application type invalid. Must be CHAMPVA_APPLICATION'
       end
 
       request_body
@@ -263,7 +272,8 @@ module IvcChampva
       validate_presence_and_stringiness(beneficiary[:relationship_to_sponsor], 'beneficiary relationship to sponsor')
 
       unless RELATIONSHIPS.include?(beneficiary[:relationship_to_sponsor])
-        raise ArgumentError, "beneficiary relationship to sponsor is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
+        raise ArgumentError, "beneficiary relationship to sponsor #{beneficiary[:relationship_to_sponsor]}" \
+                             " is invalid. Must be in #{RELATIONSHIPS.join(', ')}"
       end
 
       # Validate childtype if relationship is CHILD
@@ -289,6 +299,8 @@ module IvcChampva
     end
 
     def self.validate_address(address, name)
+      raise ArgumentError, "#{name} address is missing" if address.nil?
+
       validate_nonempty_presence_and_stringiness(address[:city], "#{name} city")
       validate_nonempty_presence_and_stringiness(address[:state], "#{name} state")
       validate_nonempty_presence_and_stringiness(address[:zip_code], "#{name} zip code")
@@ -297,7 +309,11 @@ module IvcChampva
 
     def self.validate_date(date, name)
       validate_presence_and_stringiness(date, name)
-      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
+
+      # If we can, coerce date into proper format
+      date = format_date(date)
+
+      raise ArgumentError, "#{name} is invalid. Must match YYYY-MM-DD#{date}" unless date.match?(/^\d{4}-\d{2}-\d{2}$/)
 
       date
     end
@@ -318,9 +334,17 @@ module IvcChampva
       ssn
     end
 
+    def self.validate_email(email)
+      validate_presence_and_stringiness(email, 'email address')
+      unless email.match?(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)
+        raise ArgumentError, 'email address is invalid. See regex for more detail'
+      end
+    end
+
     def self.validate_phone(object, name)
       validate_presence_and_stringiness(object[:phone_number], 'phone number')
-      unless object[:phone_number].match?(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/)
+
+      unless object[:phone_number].match?(/^[0-9+]+$/) && object[:phone_number].length >= 10
         raise ArgumentError, "#{name} is invalid. See regex for more detail"
       end
 

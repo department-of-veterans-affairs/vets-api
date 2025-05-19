@@ -9,6 +9,10 @@ module AskVAApi
         class InquiryPayloadError < StandardError; end
         attr_reader :inquiry_params, :inquiry_details, :submitter_profile, :user, :veteran_profile
 
+        # NOTE: These two constants share the same ID value ('722310000') intentionally.
+        # This is due to an API quirk where different fields (e.g., authentication status and inquiry source)
+        # are assigned overlapping ID ranges. Although the context differs, the ID is reused across fields
+        # by the external system.
         UNAUTHENTICATE_ID = '722310000'
         INQUIRY_SOURCE_AVA_ID = '722310000'
 
@@ -88,8 +92,13 @@ module AskVAApi
           return if inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
-            { FileName: file[:file_name], FileContent: file[:file_content] }
+            file_name = normalize_file_name(file[:file_name])
+            { FileName: file_name, FileContent: file[:file_content] }
           end
+        end
+
+        def normalize_file_name(file_name)
+          file_name.sub(/\.([^.]+)$/) { ".#{::Regexp.last_match(1).downcase}" }
         end
 
         def build_school_object
@@ -112,24 +121,25 @@ module AskVAApi
         end
 
         def counselor_info
-          inquiry_params[:their_vre_couselor] || inquiry_params[:your_vre_counselor]
+          inquiry_params[:their_vre_counselor] || inquiry_params[:your_vre_counselor]
         end
 
         def build_residency_state_data
+          residency_state = inquiry_params.dig(:state_or_residency, :residency_state).presence
+          family_location = inquiry_params[:family_members_location_of_residence].presence
+          your_location   = inquiry_params[:your_location_of_residence].presence
+
+          fallback_location = family_location || your_location
+
           {
-            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)) ||
-              inquiry_params[:family_members_location_of_residence],
-            StateCode: inquiry_params.dig(:state_or_residency, :residency_state) ||
-              fetch_state_code(inquiry_params[:family_members_location_of_residence])
+            Name: fetch_state(residency_state) || fallback_location,
+            StateCode: residency_state || fetch_state_code(fallback_location)
           }
         end
 
         def build_state_data(obj, key)
-          state = if key.nil?
-                    inquiry_params[obj]
-                  else
-                    inquiry_params.dig(obj, key)
-                  end
+          raw_state = key.nil? ? inquiry_params[obj] : inquiry_params.dig(obj, key)
+          state = raw_state.presence
 
           {
             Name: fetch_state(state),

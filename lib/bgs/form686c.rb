@@ -15,7 +15,7 @@ module BGS
   class Form686c
     include SentryLogging
 
-    attr_reader :user, :saved_claim
+    attr_reader :user, :saved_claim, :proc_id
 
     REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
                               report_stepchild_not_in_household
@@ -30,15 +30,17 @@ module BGS
       @end_product_code = '130DPNEBNADJ'
       @proc_state = 'Ready'
       @note_text = nil
+      @proc_id = nil
+      @v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
-      proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
+      @proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
       veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130DPNEBNADJ').create
 
-      process_relationships(proc_id, veteran, payload)
+      process_relationships(@proc_id, veteran, payload)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
@@ -46,7 +48,7 @@ module BGS
       set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
 
       # temporary logging to troubleshoot
-      log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
+      log_message_to_sentry("#{@proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
       benefit_claim_record = BenefitClaim.new(
         args: {
@@ -62,11 +64,19 @@ module BGS
       begin
         benefit_claim_id = benefit_claim_record[:benefit_claim_id]
         # temporary logging to troubleshoot
-        log_message_to_sentry("#{proc_id} - #{benefit_claim_id}", :warn, '', { team: 'vfs-ebenefits' })
+        log_message_to_sentry("#{@proc_id} - #{benefit_claim_id}", :warn, '', { team: 'vfs-ebenefits' })
 
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-        prep_manual_claim(benefit_claim_id) if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
-        bgs_service.update_proc(proc_id, proc_state: @proc_state)
+        if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
+          prep_manual_claim(benefit_claim_id)
+        else
+          Rails.logger.info("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
+                            saved_claim_id: @saved_claim.id,
+                            proc_id: @proc_id,
+                            automatic: true)
+          StatsD.increment("#{stats_key}.automatic")
+        end
+        bgs_service.update_proc(@proc_id, proc_state: @proc_state)
       rescue => e
         Rails.logger.warning('BGS::Form686c.submit failed after creating benefit claim in BGS',
                              {
@@ -121,13 +131,14 @@ module BGS
 
       # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
       if selectable_options['add_spouse'] && MARRIAGE_TYPES.any? do |m|
-           m == dependents_app['current_marriage_information']['type']
+           current_marriage_info = dependents_app['current_marriage_information']
+           m == (@v2 ? current_marriage_info['type_of_marriage'] : current_marriage_info['type'])
          end
         return set_to_manual_vagov('add_spouse')
       end
 
       # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
-      if selectable_options['report_death'] && dependents_app['deaths'].any? do |h|
+      if selectable_options['report_death'] && dependents_app['deaths']&.any? do |h|
            RELATIONSHIPS.include?(h['dependent_type'])
          end
         return set_to_manual_vagov('report_death')
@@ -145,7 +156,7 @@ module BGS
       # if any of the dependent_removal_options in selectable_options is set to true, we are removing a dependent
       removing_dependent = false
       if Flipper.enabled?(:dependents_removal_check)
-        dependent_removal_options = REMOVE_CHILD_OPTIONS.dup << ('report_death') << ('report_divorce')
+        dependent_removal_options = REMOVE_CHILD_OPTIONS.dup << 'report_death' << 'report_divorce'
         removing_dependent = dependent_removal_options.any? { |option| selectable_options[option] }
       end
 
@@ -193,7 +204,17 @@ module BGS
 
     def prep_manual_claim(benefit_claim_id)
       @proc_state = 'MANUAL_VAGOV'
-
+      if @saved_claim.submittable_674?
+        Rails.logger.info(@note_text,
+                          saved_claim_id: @saved_claim.id,
+                          proc_id: @proc_id,
+                          manual: true,
+                          combination_claim: true)
+        StatsD.increment("#{stats_key}.manual.combo")
+      else
+        Rails.logger.info(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true)
+        StatsD.increment("#{stats_key}.manual")
+      end
       bgs_service.create_note(benefit_claim_id, @note_text)
     end
 
@@ -216,6 +237,10 @@ module BGS
       end
 
       'MANUAL_VAGOV'
+    end
+
+    def stats_key
+      'bgs.form686c'
     end
   end
 end

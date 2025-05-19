@@ -106,6 +106,12 @@ module Mobile
           document_data = EVSSClaimDocument.new(evss_claim_id: claim_id, file_obj: file, uuid: SecureRandom.uuid,
                                                 file_name: file.original_filename, tracked_item_id:,
                                                 document_type:, password:)
+          Rails.logger.info('claim_id', claim_id:)
+          Rails.logger.info('document_type', document_type:)
+          Rails.logger.info('file_name present?', file&.original_filename.present?)
+          Rails.logger.info('file extension', file&.original_filename&.split('.')&.last)
+          Rails.logger.info('file content type', file&.content_type)
+
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
           evss_claim_service.upload_document(document_data)

@@ -13,11 +13,11 @@ class ClaimDocumentation::Uploader < VetsShrine
 
   Attacher.validate do
     validate_virus_free
-    validate_max_size 20.megabytes
+    validate_max_size 100.megabytes
     validate_min_size 1.kilobyte
     validate_mime_type_inclusion %w[image/jpg image/jpeg image/png application/pdf]
-    validate_max_width 5000 if get.width
-    validate_max_height 10_000 if get.height
+    validate_max_width 5616 if get.width
+    validate_max_height 7272 if get.height
     validate_unlocked_pdf
   end
 end

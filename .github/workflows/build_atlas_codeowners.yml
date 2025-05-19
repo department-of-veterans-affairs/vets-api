@@ -30,7 +30,7 @@ jobs:
 
       - name:  Check codeowner changes
         id: check-codeowner-changes
-        uses: tj-actions/changed-files@v46.0.3 # v46 has a CVE
+        uses: tj-actions/changed-files@v46.0.5 # v46 has a CVE
         with:
           files: |
             .github/CODEOWNERS

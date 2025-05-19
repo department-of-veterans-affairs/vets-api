@@ -74,13 +74,13 @@ module BenefitsDocuments
       data = {
         data: {
           systemName: SYSTEM_NAME,
-          docType: document_data[:document_type],
-          claimId: document_data[:claim_id],
-          participantId: document_data[:participant_id],
-          fileName: document_data[:file_name],
+          docType: document_data.document_type,
+          claimId: document_data.claim_id,
+          participantId: document_data.participant_id,
+          fileName: document_data.file_name,
           # In theory one document can correspond to multiple tracked items
           # To do that, add multiple query parameters
-          trackedItemIds: document_data[:tracked_item_id]
+          trackedItemIds: document_data.tracked_item_id
         }
       }
 
@@ -89,10 +89,10 @@ module BenefitsDocuments
         'application/json'
       )
 
-      file = Tempfile.new(document_data[:file_name])
+      file = Tempfile.new(document_data.file_name)
       File.write(file, file_body)
 
-      mime_type = MimeMagic.by_path(document_data[:file_name]).type
+      mime_type = MimeMagic.by_path(document_data.file_name).type
       payload[:file] = Faraday::UploadIO.new(file, mime_type)
 
       payload
@@ -120,7 +120,7 @@ module BenefitsDocuments
     #
     def connection(api_path = base_api_path)
       @conn ||= Faraday.new(api_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
+        faraday.use(:breakers, service_name:)
         faraday.use Faraday::Response::RaiseError
 
         faraday.request :multipart

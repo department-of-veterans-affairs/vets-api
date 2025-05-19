@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 require 'rx/client'
+require 'rx/configuration'
+require 'vets/collection'
 
 # Mock upstream request to return source app for Rx client
 class UpstreamRequest
@@ -11,14 +13,11 @@ class UpstreamRequest
 end
 
 describe Rx::Client do
-  before(:all) do
+  before do
     VCR.use_cassette 'rx_client/session' do
-      @client ||= begin
-        client = Rx::Client.new(session: { user_id: '12210827' },
-                                upstream_request: UpstreamRequest)
-        client.authenticate
-        client
-      end
+      @client = Rx::Client.new(session: { user_id: '12210827' },
+                               upstream_request: UpstreamRequest)
+      @client.authenticate
     end
   end
 
@@ -65,7 +64,7 @@ describe Rx::Client do
     it 'gets a list of active prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
         client_response = client.get_active_rxs
-        expect(client_response).to be_a(Common::Collection)
+        expect(client_response).to be_a(Vets::Collection)
         expect(client_response.type).to eq(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
 
@@ -80,7 +79,7 @@ describe Rx::Client do
     it 'gets a list of all prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
         client_response = client.get_history_rxs
-        expect(client_response).to be_a(Common::Collection)
+        expect(client_response).to be_a(Vets::Collection)
         expect(client_response.members.first).to be_a(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
 
@@ -101,9 +100,9 @@ describe Rx::Client do
     it 'refills a prescription' do
       VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
         if caching_enabled
-          expect(Common::Collection).to receive(:bust).with(cache_keys)
+          expect(Vets::Collection).to receive(:bust).with(cache_keys)
         else
-          expect(Common::Collection).not_to receive(:bust).with([nil, nil])
+          expect(Vets::Collection).not_to receive(:bust).with([nil, nil])
         end
 
         client_response = client.post_refill_rx(13_650_545)
@@ -142,7 +141,7 @@ describe Rx::Client do
         cassette = 'gets_a_list_of_tracking_history_for_a_prescription'
         VCR.use_cassette("rx_client/prescriptions/nested_resources/#{cassette}") do
           client_response = client.get_tracking_history_rx(13_650_541)
-          expect(client_response).to be_a(Common::Collection)
+          expect(client_response).to be_a(Vets::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
           expect(client_response.cached?).to be(false)
           expect(cache_key_for(client_response)).to be_nil
@@ -164,6 +163,34 @@ describe Rx::Client do
 
   describe 'Prescriptions with caching enabled' do
     it_behaves_like 'prescriptions', true
+  end
+
+  describe 'Test new API gateway methods' do
+    let(:config) { Rx::Configuration.instance }
+
+    context 'when mhv_medications_migrate_to_api_gateway flipper flag is true' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(true)
+        allow(Settings.mhv.rx).to receive(:x_api_key).and_return('test-api-key')
+      end
+
+      it 'returns the x-api-key header' do
+        result = client.send(:auth_headers)
+        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
+        allow(client).to receive(:auth_headers).and_return(headers)
+        expect(result).to include('x-api-key' => 'test-api-key')
+        expect(config.x_api_key).to eq('test-api-key')
+      end
+    end
+
+    context 'when mhv_medications_migrate_to_api_gateway flipper flag is false' do
+      it 'returns nil for x-api-key' do
+        result = client.send(:auth_headers)
+        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
+        allow(client).to receive(:auth_headers).and_return(headers)
+        expect(result).not_to include('x-api-key')
+      end
+    end
   end
 
   def cache_key_for(collection)

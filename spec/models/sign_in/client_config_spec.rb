@@ -45,6 +45,11 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     it_behaves_like 'implements certifiable concern'
   end
 
+  describe 'associations' do
+    it { is_expected.to have_many(:config_certificates).dependent(:destroy) }
+    it { is_expected.to have_many(:certs).through(:config_certificates).class_name('SignIn::Certificate') }
+  end
+
   describe 'validations' do
     subject { client_config }
 
@@ -546,8 +551,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
-  describe '#device_sso_enabled?' do
-    subject { client_config.device_sso_enabled? }
+  describe '#api_sso_enabled?' do
+    subject { client_config.api_sso_enabled? }
 
     context 'when authentication method is set to API' do
       let(:authentication) { SignIn::Constants::Auth::API }

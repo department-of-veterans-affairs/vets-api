@@ -4,10 +4,11 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'va_profile/prefill/military_information'
+require 'vets/model'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
-  include Virtus.model
+  include Vets::Model
 
   attribute :first, String
   attribute :middle, String
@@ -16,51 +17,51 @@ class FormFullName
 end
 
 class FormDate
-  include Virtus.model
+  include Vets::Model
 
   attribute :from, Date
   attribute :to, Date
 end
 
 class FormMilitaryInformation
-  include Virtus.model
+  include Vets::Model
 
-  attribute :service_episodes_by_date, Array
+  attribute :service_episodes_by_date, VAProfile::Models::ServiceHistory, array: true
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
-  attribute :post_nov111998_combat, Boolean
-  attribute :sw_asia_combat, Boolean
-  attribute :tours_of_duty, Array
-  attribute :currently_active_duty, Boolean
+  attribute :post_nov111998_combat, Bool, default: false
+  attribute :sw_asia_combat, Bool, default: false
+  attribute :tours_of_duty, Hash, array: true
+  attribute :currently_active_duty, Bool, default: false
   attribute :currently_active_duty_hash, Hash
-  attribute :vic_verified, Boolean
-  attribute :service_branches, Array[String]
-  attribute :service_periods, Array
-  attribute :guard_reserve_service_history, Array[FormDate]
+  attribute :vic_verified, Bool, default: false
+  attribute :service_branches, String, array: true
+  attribute :service_periods, Hash, array: true
+  attribute :guard_reserve_service_history, FormDate, array: true
   attribute :latest_guard_reserve_service_period, FormDate
 end
 
 class FormAddress
-  include Virtus.model
+  include Vets::Model
 
-  attribute :street
-  attribute :street2
-  attribute :city
-  attribute :state
-  attribute :country
-  attribute :postal_code
+  attribute :street, String
+  attribute :street2, String
+  attribute :city, String
+  attribute :state, String
+  attribute :country, String
+  attribute :postal_code, String
 end
 
 class FormIdentityInformation
-  include Virtus.model
+  include Vets::Model
 
   attribute :full_name, FormFullName
   attribute :date_of_birth, Date
   attribute :gender, String
-  attribute :ssn
+  attribute :ssn, String
 
   def hyphenated_ssn
     StringHelpers.hyphenated_ssn(ssn)
@@ -72,7 +73,7 @@ class FormIdentityInformation
 end
 
 class FormContactInformation
-  include Virtus.model
+  include Vets::Model
 
   attribute :address, FormAddress
   attribute :home_phone, String
@@ -82,7 +83,7 @@ class FormContactInformation
 end
 
 class FormProfile
-  include Virtus.model
+  include Vets::Model
   include SentryLogging
 
   MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
@@ -104,7 +105,12 @@ class FormProfile
       21-509-UPLOAD
       21-8940-UPLOAD
       21P-0516-1-UPLOAD
+      21P-0517-1-UPLOAD
       21P-0518-1-UPLOAD
+      21P-0519C-1-UPLOAD
+      21P-0519S-1-UPLOAD
+      21P-530a-UPLOAD
+      21P-8049-UPLOAD
     ],
     fsr: ['5655'],
     hca: %w[1010ez 10-10EZR],
@@ -131,12 +137,16 @@ class FormProfile
     '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-686C' => ::FormProfiles::VA21686c,
     '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
+    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
@@ -173,7 +183,7 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007 0873]
+    forms = %w[40-10007 0873]
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end
@@ -318,22 +328,26 @@ class FormProfile
     return_val
   end
 
+  def pciu_disabled?
+    Flipper.enabled?(:remove_pciu, user)
+  end
+
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    if Flipper.enabled?(:remove_pciu, user)
+    if pciu_disabled?
       # Monitor logs to validate the presence of Contact Information V2 user data
       Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
         Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    else
+      # The following pciu lines need to removed when tearing down the EVSS PCIU service.
+      opt[:email] ||= extract_pciu_data(:pciu_email)
+      if opt[:home_phone].nil?
+        opt[:home_phone] = pciu_primary_phone
+        opt[:us_phone] = pciu_us_phone
+      end
     end
     opt[:address] ||= user_address_hash
-
-    # The following pciu lines need to removed when tearing down the EVSS PCIU service.
-    opt[:email] ||= extract_pciu_data(:pciu_email)
-    if opt[:home_phone].nil?
-      opt[:home_phone] = pciu_primary_phone
-      opt[:us_phone] = pciu_us_phone
-    end
 
     format_for_schema_compatibility(opt)
     FormContactInformation.new(opt)
@@ -344,7 +358,7 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if Flipper.enabled?(:remove_pciu, user) && user.icn.present?
+    if pciu_disabled?
       @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
     elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
@@ -405,7 +419,7 @@ class FormProfile
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
 
-    if Flipper.enabled?(:remove_pciu, user)
+    if pciu_disabled?
       # Track precense of home and mobile
       Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
     end

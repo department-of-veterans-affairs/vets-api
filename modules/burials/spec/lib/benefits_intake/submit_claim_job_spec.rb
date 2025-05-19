@@ -207,7 +207,7 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
         timestamp: claim.created_at,
         page_number: 5,
         size: 9,
-        template: "#{Burials::MODULE_PATH}/lib/burials/pdf_fill/forms/pdfs/#{claim.form_id}.pdf",
+        template: Burials::PDF_PATH,
         multistamp: true
       ).and_return(pdf_path)
 
@@ -252,13 +252,13 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive(:track_send_confirmation_email_failure)
+      allow(monitor).to receive(:track_send_email_failure)
     end
 
     it 'errors and logs but does not reraise' do
       expect(Burials::NotificationEmail).to receive(:new).with(claim.id)
       expect(notification).to receive(:deliver).with(:confirmation)
-      expect(monitor).to receive(:track_send_confirmation_email_failure)
+      expect(monitor).to receive(:track_send_email_failure)
       job.send(:send_confirmation_email)
     end
   end
@@ -274,21 +274,21 @@ RSpec.describe Burials::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive(:track_send_submitted_email_failure)
+      allow(monitor).to receive(:track_send_email_failure)
     end
 
     it 'errors and logs but does not reraise' do
       expect(Burials::NotificationEmail).to receive(:new).with(claim.id)
       expect(notification).to receive(:deliver).with(:submitted)
-      expect(monitor).to receive(:track_send_submitted_email_failure)
+      expect(monitor).to receive(:track_send_email_failure)
       job.send(:send_submitted_email)
     end
   end
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occured',
-        'queue' => nil }
+      { 'args' => [], 'class' => 'Burials::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
     end
 
     before do
