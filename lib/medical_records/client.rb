@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
+require 'vets/collection'
 
 module MedicalRecords
   ##
@@ -111,11 +112,23 @@ module MedicalRecords
 
       bundle = fhir_search(FHIR::Immunization,
                            search: { parameters: { patient: patient_fhir_id, 'status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :occurrenceDateTime, :desc)
+      sorted = sort_bundle(bundle, :occurrenceDateTime, :desc)
+
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+        vaccines = sorted.entry.map { |e| MHV::MR::Vaccine.from_fhir(e.resource) }.compact
+        Vets::Collection.new(vaccines, MHV::MR::Vaccine)
+      else
+        sorted
+      end
     end
 
     def get_vaccine(vaccine_id)
-      fhir_read(FHIR::Immunization, vaccine_id)
+      result = fhir_read(FHIR::Immunization, vaccine_id)
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_vaccine)
+        MHV::MR::Vaccine.from_fhir(result)
+      else
+        result
+      end
     end
 
     # Function args are accepted and ignored for compatibility with MedicalRecords::LighthouseClient
@@ -136,13 +149,26 @@ module MedicalRecords
       bundle = fhir_search(FHIR::Condition,
                            search: { parameters: { patient: patient_fhir_id,
                                                    'verification-status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :recordedDate, :desc)
+      sorted = sort_bundle(bundle, :recordedDate, :desc)
+
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+        conditions = sorted.entry.map { |e| MHV::MR::HealthCondition.from_fhir(e.resource) }.compact
+        Vets::Collection.new(conditions, MHV::MR::HealthCondition)
+      else
+        sorted
+      end
     end
 
     def get_condition(condition_id)
       return :patient_not_found unless patient_found?
 
-      fhir_read(FHIR::Condition, condition_id)
+      result = fhir_read(FHIR::Condition, condition_id)
+
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
+        MHV::MR::HealthCondition.from_fhir(result)
+      else
+        result
+      end
     end
 
     def list_clinical_notes
