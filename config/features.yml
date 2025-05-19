@@ -1121,6 +1121,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
     enable_in_development: true
+  mhv_bypass_downtime_notification:
+    actor_type: user
+    description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -2191,4 +2195,4 @@ features:
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
   debt_deduction_code_filtering:
     actor_type: user
-    description:  Enables filtering of debts based on approved deduction codes and current amounts > 0.
+    description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
