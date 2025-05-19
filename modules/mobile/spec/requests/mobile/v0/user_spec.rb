@@ -46,9 +46,11 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     context 'with no upstream errors' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358') do
-            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: sis_headers
+          VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mr_client/bb_internal/apigw_session_auth.yml') do
+              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_757_358', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/user', headers: sis_headers
+              end
             end
           end
         end
@@ -226,12 +228,12 @@ RSpec.describe 'Mobile::V0::User', type: :request do
               {
                 'facilityId' => '757',
                 'isCerner' => true,
-                'facilityName' => "Baxter Springs City Soldiers' Lot"
+                'facilityName' => "Chalmers P. Wylie Veterans Outpatient Clinic"
               },
               {
                 'facilityId' => '358',
                 'isCerner' => true,
-                'facilityName' => 'Congressional Cemetery Government Lots'
+                'facilityName' => 'Manila VA Clinic'
               }
             ]
           }
@@ -343,7 +345,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     context 'empty get_facility test' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-          VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
+        VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v0/user', headers: sis_headers
             end
@@ -433,11 +435,13 @@ RSpec.describe 'Mobile::V0::User', type: :request do
           Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: sis_headers
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              VCR.use_cassette('sm_client/session.yml') do
+                VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
+                  get '/mobile/v0/user', headers: sis_headers
 
-                expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
+                  expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
+                end
               end
             end
           end
@@ -452,8 +456,8 @@ RSpec.describe 'Mobile::V0::User', type: :request do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
-            VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
-              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+              VCR.use_cassette('lighthouse/facilities/v1/200_facilities_no_ids') do
                 get '/mobile/v0/user', headers: sis_headers
               end
             end
