@@ -1,0 +1,92 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fwdproxy-dev.vfs.va.gov:4465/api/v1/digital-services/debt-letter/get
+    body:
+      encoding: UTF-8
+      string: '{"fileNumber":"796043735"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Client-Id:
+      - 0be3d60e3983438199f192b6e723a6f0
+      Client-Secret:
+      - "<DMC_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Fri, 13 Nov 2020 17:14:44 GMT
+    body:
+      encoding: UTF-8
+      string: "[\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n
+        \   \"personEntitled\": null,\n    \"deductionCode\": \"30\",\n    \"benefitType\":
+        \"Comp & Pen\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\":
+        \"Paid In Full\",\n    \"amountOverpaid\": 123.34,\n    \"amountWithheld\":
+        50.00,\n    \"originalAR\": 1177.00,\n    \"currentAR\": 123.34,\n    \"debtHistory\":
+        [\n      {\n        \"date\": \"09/12/1998\",\n        \"letterCode\": \"123\",\n
+        \       \"description\": \"Third Demand Letter - Potential Treasury Referral\"\n
+        \     },\n      {\n        \"date\": \"09/13/1997\",\n        \"letterCode\":
+        \"123\",\n        \"description\": \"Third Demand Letter - Potential Treasury
+        Referral\"\n      }\n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n    \"personEntitled\":
+        null,\n    \"deductionCode\": \"99\",\n    \"benefitType\": \"Invalid Code\",\n
+        \   \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid In Full\",\n
+        \   \"amountOverpaid\": 123.34,\n    \"amountWithheld\": 0.00,\n    \"originalAR\":
+        136.24,\n    \"currentAR\": 123.34,\n    \"debtHistory\": [\n      {\n        \"date\":
+        \"02/12/2009\",\n        \"letterCode\": \"487\",\n        \"description\":
+        \"Death Case Pending Action\"\n      }\n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n    \"personEntitled\":
+        null,\n    \"deductionCode\": \"71\",\n    \"benefitType\": \"CH33 Books, Supplies/MISC
+        EDU\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid
+        In Full\",\n    \"amountOverpaid\": 0.00,\n    \"amountWithheld\": 0.00,\n
+        \   \"originalAR\": 166.67,\n    \"currentAR\": 0.00,\n    \"debtHistory\":
+        [\n      \n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"01\",\n    \"personEntitled\":
+        null,\n    \"deductionCode\": \"30\",\n    \"benefitType\": \"Comp & Pen\",\n
+        \   \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid In Full\",\n
+        \   \"amountOverpaid\": 300.45,\n    \"amountWithheld\": 200.00,\n    \"originalAR\":
+        300.45,\n    \"currentAR\": 300.45,\n    \"debtHistory\": [\n      {\n        \"date\":
+        \"02/12/2019\",\n        \"letterCode\": \"487\",\n        \"description\":
+        \"Non-Veteran Debt Case\"\n      }\n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n    \"personEntitled\":
+        null,\n    \"deductionCode\": \"74\",\n    \"benefitType\": \"CH33 Student Tuition EDU\",\n
+        \   \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid In Full\",\n
+        \   \"amountOverpaid\": 123.34,\n    \"amountWithheld\": 475.00,\n    \"originalAR\":
+        2210.90,\n    \"currentAR\": 123.34,\n    \"debtHistory\": [\n      {\n        \"date\":
+        \"04/01/2017\",\n        \"letterCode\": \"608\",\n        \"description\":
+        \"Full C&P Benefit Offset Notification\"\n      },\n      {\n        \"date\":
+        \"11/18/2015\",\n        \"letterCode\": \"130\",\n        \"description\":
+        \"Debt Increase - Due Process\"\n      }\n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n    \"personEntitled\":
+        null,\n    \"deductionCode\": \"30\",\n    \"benefitType\": \"Comp & Pen\",\n
+        \   \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid In Full\",\n
+        \   \"amountOverpaid\": 0.00,\n    \"amountWithheld\": 0.00,\n    \"originalAR\":
+        400.50,\n    \"currentAR\": 0.00,\n    \"debtHistory\": [\n      {\n        \"date\":
+        \"03/15/2020\",\n        \"letterCode\": \"100\",\n        \"description\":
+        \"First Demand Letter - Inactive Benefits - Due Process\"\n      }\n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n
+        \   \"personEntitled\": null,\n    \"deductionCode\": \"72\",\n    \"benefitType\":
+        \"CH33 Housing EDU\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\":
+        \"Paid In Full\",\n    \"amountOverpaid\": 123.34,\n    \"amountWithheld\":
+        321.76,\n    \"originalAR\": 321.76,\n    \"currentAR\": 123.34,\n    \"debtHistory\":
+        [\n      {\n        \"date\": \"08/08/2018\",\n        \"letterCode\": \"608\",\n
+        \       \"description\": \"Full C&P Benefit Offset Notification\"\n      },\n
+        \     {\n        \"date\": \"07/19/2018\",\n        \"letterCode\": \"100\",\n
+        \       \"description\": \"First Demand Letter - Inactive Benefits - Due Process\"\n
+        \     }\n    ]\n  }\n]"
+  recorded_at: Fri, 13 Nov 2020 17:14:45 GMT
+recorded_with: VCR 6.0.0 

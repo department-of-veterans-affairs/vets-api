@@ -156,8 +156,9 @@ module PdfFill
 
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
-
-      (form_id == SavedClaim::CaregiversAssistanceClaim::FORM ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
+      unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
+                               EVSS::DisabilityCompensationForm::SubmitForm0781::FORM_ID_0781V2]
+      (form_id.in?(unicode_pdf_form_list) ? UNICODE_PDF_FORMS : PDF_FORMS).fill_form(
         template_path, file_path, new_hash, flatten: Rails.env.production?
       )
 
@@ -167,7 +168,9 @@ module PdfFill
       if fill_options.fetch(:extras_redesign, false) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
-      combine_extras(file_path, hash_converter.extras_generator)
+      output = combine_extras(file_path, hash_converter.extras_generator)
+      Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
+      output
     end
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
