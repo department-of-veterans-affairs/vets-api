@@ -62,7 +62,7 @@ module DecisionReviewV1
           timestamp: submission_date
         )
 
-        PDFUtilities::DatestampPdf.new(stamped_path).run(
+        stamped_path = PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,

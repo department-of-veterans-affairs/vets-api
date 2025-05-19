@@ -196,6 +196,17 @@ module PdfFill
             key: 'F[0].#subform[14].SSN3[0]'
           }
         },
+        'veteranSocialSecurityNumber3' => {
+          'first' => {
+            key: 'F[0].#subform[15].SSN1[1]'
+          },
+          'second' => {
+            key: 'F[0].#subform[15].SSN2[1]'
+          },
+          'third' => {
+            key: 'F[0].#subform[15].SSN3[1]'
+          }
+        },
         # NOTE: This is field is not populating F[0].#subform[14].VAFileNumber[0] is the new field in the 2024 form
         'vaFileNumber1' => {
           key: 'F[0].#subform[14].VAFileNumber[0]'
@@ -219,6 +230,19 @@ module PdfFill
           first_key: 'providerFacilityName_0',
           question_text: 'PROVIDER / FACILITY',
 
+          'nameAndAddressOfProvider' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 9
+          },
+          'combinedTreatmentDates' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 9
+          },
+
           # Provider 0
           'providerFacilityName_0' => { key: 'F[0].#subform[14].Provider_Or_Facility_Name[0]' },
           'conditionsTreated_0' => { key: 'F[0].#subform[14].Conditions_You_Are_Being_Treated_For[0]' },
@@ -240,6 +264,19 @@ module PdfFill
           'postalCode_0' => {
             'firstFive' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]' },
             'lastFour' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]' }
+          },
+          # For additional pages
+          'nameAndAddressOfProvider_0' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 9
+          },
+          'combinedTreatmentDates_0' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 9
           },
 
           # Provider 1
@@ -264,6 +301,18 @@ module PdfFill
             'firstFive' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]' },
             'lastFour' => { key: 'F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]' }
           },
+          'nameAndAddressOfProvider_1' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 10
+          },
+          'combinedTreatmentDates_1' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 10
+          },
 
           # Provider 2
           'providerFacilityName_2' => { key: 'F[0].#subform[15].Provider_Or_Facility_Name[2]' },
@@ -286,6 +335,18 @@ module PdfFill
           'postalCode_2' => {
             'firstFive' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]' },
             'lastFour' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]' }
+          },
+          'nameAndAddressOfProvider_2' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 11
+          },
+          'combinedTreatmentDates_2' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 11
           },
 
           # Provider 3
@@ -310,6 +371,18 @@ module PdfFill
             'firstFive' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]' },
             'lastFour' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]' }
           },
+          'nameAndAddressOfProvider_3' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 12
+          },
+          'combinedTreatmentDates_3' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 12
+          },
 
           # Provider 4
           'providerFacilityName_4' => { key: 'F[0].#subform[15].Provider_Or_Facility_Name[4]' },
@@ -332,21 +405,19 @@ module PdfFill
           'postalCode_4' => {
             'firstFive' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]' },
             'lastFour' => { key: 'F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]' }
+          },
+          'nameAndAddressOfProvider_4' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 13
+          },
+          'combinedTreatmentDates_4' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 13
           }
-
-          # For additional pages
-          # 'nameAndAddressOfProvider' => {
-          #   key: '',
-          #   question_suffix: 'A',
-          #   question_text: 'Name and Address of Provider',
-          #   question_num: 9
-          # },
-          # 'combinedTreatmentDates' => {
-          #   key: '',
-          #   question_suffix: 'B',
-          #   question_text: 'Treatment Dates',
-          #   question_num: 9
-          # }
         }
 
       }.freeze
@@ -428,6 +499,9 @@ module PdfFill
           updates = {}
 
           provider.each_key do |key| # key = providerFacilityName
+
+            next if key.match?(/nameAndAddressOfProvider|combinedTreatmentDates/)
+
             if key == 'providerFacilityAddress'
               updates["#{key}_#{i}"] = {}
 
@@ -480,11 +554,18 @@ module PdfFill
       end
 
       def expand_provider_extras(providers)
-        providers.each do |provider|
+binding.pry
+        providers.each_with_index do |provider, i|
           name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
-          provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
           dates_extras = combine_date_ranges(provider['treatmentDateRange'])
-          provider['combinedTreatmentDates'] = PdfFill::FormValue.new('', dates_extras)
+
+          if providers.size > 5
+            provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
+            provider['combinedTreatmentDates'] = PdfFill::FormValue.new('', dates_extras)
+          else
+            provider["nameAndAddressOfProvider_#{i}"] = PdfFill::FormValue.new('', name_address_extras)
+            provider["combinedTreatmentDates_#{i}"] = PdfFill::FormValue.new('', dates_extras)
+          end
         end
       end
 
@@ -496,6 +577,8 @@ module PdfFill
         expand_provider_date_range(providers)
 
         expand_provider_facility_name(providers)
+
+        providers
       end
 
       def merge_fields(_options = {})
@@ -519,7 +602,7 @@ module PdfFill
         expand_veteran_service_number
 
         @form_data['providerFacility'] = expand_providers(@form_data['providerFacility'])
-
+binding.pry
         @form_data
       end
     end
