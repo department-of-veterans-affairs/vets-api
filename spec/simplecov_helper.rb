@@ -64,6 +64,7 @@ class SimpleCovHelper
     add_group 'Banners', 'modules/banners/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'

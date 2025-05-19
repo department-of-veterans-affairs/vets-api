@@ -99,6 +99,7 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
       dry-schema
+    claims_evidence_api (0.1.0)
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -257,7 +258,7 @@ GEM
     aws-sdk-kms (1.101.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.186.0)
+    aws-sdk-s3 (1.186.1)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -1067,7 +1068,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.23.0)
+    sentry-ruby (5.24.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1234,6 +1235,7 @@ DEPENDENCIES
   carrierwave-aws
   check_in!
   claims_api!
+  claims_evidence_api!
   clamav-client
   combine_pdf
   committee-rails
