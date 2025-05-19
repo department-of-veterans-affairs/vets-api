@@ -259,6 +259,8 @@ jobs:
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # The ready-for-review label will be added when pull request has not been reviewed
       - name: Add ready-for-review label
