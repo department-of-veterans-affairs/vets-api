@@ -45,7 +45,6 @@ jobs:
       # Sucessfully exit this workflow if backend approval is not required.
       # This workflow should never fail for non backend approval pull requests
       - name: Exit for non backend approvals
-        id: check_backend_requirement
         if: steps.approval_permissions.outputs.require_be_approval == 'false'
         run: exit 0
 
