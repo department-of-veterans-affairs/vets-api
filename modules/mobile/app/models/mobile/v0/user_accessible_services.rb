@@ -17,7 +17,6 @@ module Mobile
         service_auth_map.keys.sort
       end
 
-      # rubocop:disable Metrics/MethodLength
       def service_auth_map
         @service_auth_map ||= {
           appeals: access?(appeals: :access?),
@@ -40,7 +39,6 @@ module Mobile
           userProfileUpdate: access?(va_profile: :access_to_v2?)
         }
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
