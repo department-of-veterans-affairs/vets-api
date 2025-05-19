@@ -83,7 +83,7 @@ module IncomeAndAssets
       KEY = key.freeze
 
       # Default label column width (points) for redesigned extras in this form
-      DEFAULT_LABEL_WIDTH = 300
+      DEFAULT_LABEL_WIDTH = 130
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.

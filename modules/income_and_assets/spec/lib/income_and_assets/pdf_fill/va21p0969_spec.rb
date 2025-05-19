@@ -17,28 +17,20 @@ describe IncomeAndAssets::PdfFill::Va21p0969 do
     VetsJsonSchema::EXAMPLES.fetch('21P-0969-KITCHEN_SINK')
   end
 
-  [true, false].each do |extras_redesign|
-    context "with extras_redesign: #{extras_redesign}" do
-      before do
-        fixture_pdf = extras_redesign ? 'overflow_redesign_extras.pdf' : 'overflow_extras.pdf'
-        generator_class = extras_redesign ? PdfFill::ExtrasGeneratorV2 : PdfFill::ExtrasGenerator
-        src = Rails.root.join("modules/income_and_assets/spec/fixtures/pdf_fill/21P-0969/#{fixture_pdf}")
-        dest = File.join(Dir.mktmpdir, fixture_pdf)
-        FileUtils.cp(src, dest)
-        allow_any_instance_of(generator_class).to receive(:generate).and_return(dest)
-        allow_any_instance_of(generator_class)
-          .to receive(:placeholder_text)
-          .and_return(PdfFill::ExtrasGenerator.new.placeholder_text)
-      end
-
+  [
+    { test_data_types: %w[simple kitchen_sink], extras_redesign: false },
+    { test_data_types: %w[overflow], extras_redesign: false },
+    { test_data_types: %w[overflow], extras_redesign: true }
+  ].each do |config|
+    context "with #{config[:test_data_types].join(', ')} and extras_redesign: #{config[:extras_redesign]}" do
       it_behaves_like 'a form filler', {
         form_id: IncomeAndAssets::FORM_ID,
         factory: :income_and_assets_claim,
         use_vets_json_schema: true,
         input_data_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
         output_pdf_fixture_dir: "modules/income_and_assets/spec/fixtures/pdf_fill/#{IncomeAndAssets::FORM_ID}",
-        test_data_types: %w[simple kitchen_sink overflow],
-        fill_options: { extras_redesign: }
+        test_data_types: config[:test_data_types],
+        fill_options: config[:extras_redesign] ? { extras_redesign: true } : {}
       }
     end
   end

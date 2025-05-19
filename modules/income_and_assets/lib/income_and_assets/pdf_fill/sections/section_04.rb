@@ -25,13 +25,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 4,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -39,14 +41,16 @@ module IncomeAndAssets
             question_num: 4,
             question_suffix: '(2)',
             question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Name'
           },
           # Q3
           'payer' => {
             key: "F[0].IncomePayer4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',
+            question_label: 'Payer'
           },
           # Q4
           'incomeType' => {
@@ -55,13 +59,15 @@ module IncomeAndAssets
           'incomeTypeOverflow' => {
             question_num: 4,
             question_suffix: '(4)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
+            question_text: 'SPECIFY THE TYPE OF INCOME',
+            question_label: 'Income Type'
           },
           'otherIncomeType' => {
             key: "F[0].OtherIncomeType4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(4)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
+            question_text: 'SPECIFY THE TYPE OF INCOME',
+            question_label: 'Other Income Type'
           },
           # Q5
           'grossMonthlyIncome' => {
@@ -78,7 +84,8 @@ module IncomeAndAssets
           'grossMonthlyIncomeOverflow' => {
             question_num: 4,
             question_suffix: '(5)',
-            question_text: 'GROSS MONTHLY INCOME'
+            question_text: 'GROSS MONTHLY INCOME',
+            question_label: 'Gross Monthly Income'
           },
           # Q6
           'accountValue' => {
@@ -98,7 +105,8 @@ module IncomeAndAssets
           'accountValueOverflow' => {
             question_num: 4,
             question_suffix: '(6)',
-            question_text: 'VALUE OF ACCOUNT'
+            question_text: 'VALUE OF ACCOUNT',
+            question_label: 'Account Value'
           }
         }
       }.freeze
@@ -140,9 +148,9 @@ module IncomeAndAssets
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => item['otherIncomeType'],
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => gross_monthly_income,
+          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
           'accountValue' => split_currency_amount_lg(account_value),
-          'accountValueOverflow' => account_value
+          'accountValueOverflow' => number_to_currency(account_value)
         }
       end
     end

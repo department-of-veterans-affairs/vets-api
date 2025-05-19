@@ -350,7 +350,7 @@ module PdfFill
       @question_key           = options[:question_key]
       @start_page             = options[:start_page] || 1
       @sections               = options[:sections]
-      @default_label_width    = options[:label_width]
+      @default_label_width    = options[:label_width] || LABEL_WIDTH
       @questions              = {}
       super()
     end
@@ -367,7 +367,7 @@ module PdfFill
 
     def add_text(value, metadata)
       metadata[:format_options] ||= {}
-      metadata[:format_options][:label_width] = @default_label_width if @default_label_width
+      metadata[:format_options][:label_width] ||= @default_label_width
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
         question_text = @question_key[question_num]

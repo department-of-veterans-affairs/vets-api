@@ -25,13 +25,15 @@ module IncomeAndAssets
           'originalOwnerRelationshipOverflow' => {
             question_num: 7,
             question_suffix: '(1)',
-            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherOriginalOwnerRelationshipType' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
             question_suffix: '(1)',
-            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)"
+            question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN (OTHER)",
+            question_label: 'Relationship Type'
           },
           # Q2
           'transferMethod' => {
@@ -40,13 +42,15 @@ module IncomeAndAssets
           'transferMethodOverflow' => {
             question_num: 7,
             question_suffix: '(2)',
-            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED'
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED',
+            question_label: 'Transfer Method'
           },
           'otherTransferMethod' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
             question_num: 7,
             question_suffix: '(2)',
-            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)'
+            question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED (OTHER)',
+            question_label: 'Other Transfer Method'
           },
           # Q3
           'assetType' => {
@@ -55,7 +59,8 @@ module IncomeAndAssets
           'assetTypeOverflow' => {
             question_num: 7,
             question_suffix: '(3)',
-            question_text: 'WHAT ASSET WAS TRANSFERRED?'
+            question_text: 'WHAT ASSET WAS TRANSFERRED?',
+            question_label: 'What Was Transferred'
           },
           # Q4
           'newOwnerName' => {
@@ -64,7 +69,8 @@ module IncomeAndAssets
           'newOwnerNameOverflow' => {
             question_num: 7,
             question_suffix: '(4)',
-            question_text: 'WHO RECEIVED THE ASSET?'
+            question_text: 'WHO RECEIVED THE ASSET?',
+            question_label: 'New Owner Name'
           },
           # Q5
           'newOwnerRelationship' => {
@@ -73,11 +79,16 @@ module IncomeAndAssets
           'newOwnerRelationshipOverflow' => {
             question_num: 7,
             question_suffix: '(5)',
-            question_text: 'RELATIONSHIP TO NEW OWNER'
+            question_text: 'RELATIONSHIP TO NEW OWNER',
+            question_label: 'Relationship to New Owner'
           },
           # Q6
           'saleReportedToIrs' => {
-            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]"
+            key: "F[0].WasSaleReportedToIRS[#{ITERATOR}]",
+            question_num: 7,
+            question_suffix: '(6)',
+            question_text: 'WAS THE SALE REPORTED TO THE IRS?',
+            question_label: 'Sale Reported to IRS'
           },
           # Q7
           'transferDate' => {
@@ -113,7 +124,8 @@ module IncomeAndAssets
           'fairMarketValueOverflow' => {
             question_num: 7,
             question_suffix: '(9)',
-            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?'
+            question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?',
+            question_label: 'Fair Market Value'
           },
           # Q10
           'saleValue' => {
@@ -133,7 +145,8 @@ module IncomeAndAssets
           'saleValueOverflow' => {
             question_num: 7,
             question_suffix: '(10)',
-            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)'
+            question_text: 'WHAT WAS THE SALE PRICE? (If applicable)',
+            question_label: 'Sale Price'
           },
           # Q11
           'capitalGainValue' => {
@@ -153,7 +166,8 @@ module IncomeAndAssets
           'capitalGainValueOverflow' => {
             question_num: 7,
             question_suffix: '(11)',
-            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)'
+            question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)',
+            question_label: 'Capital Gain'
           }
         }
       }.freeze
@@ -200,11 +214,11 @@ module IncomeAndAssets
           'transferDate' => split_date(item['transferDate']),
           'assetTransferredUnderFairMarketValue' => item['assetTransferredUnderFairMarketValue'] ? 0 : 1,
           'fairMarketValue' => split_currency_amount_lg(item['fairMarketValue']),
-          'fairMarketValueOverflow' => item['fairMarketValue'],
+          'fairMarketValueOverflow' => number_to_currency(item['fairMarketValue']),
           'saleValue' => split_currency_amount_lg(item['saleValue']),
-          'saleValueOverflow' => item['saleValue'],
+          'saleValueOverflow' => number_to_currency(item['saleValue']),
           'capitalGainValue' => split_currency_amount_lg(item['capitalGainValue']),
-          'capitalGainValueOverflow' => item['capitalGainValue']
+          'capitalGainValueOverflow' => number_to_currency(item['capitalGainValue'])
         }
       end
     end
