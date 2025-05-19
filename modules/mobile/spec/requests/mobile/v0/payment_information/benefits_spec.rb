@@ -38,10 +38,9 @@ RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
   before do
     Settings.mobile_lighthouse.rsa_key = rsa_key.to_s
     Settings.lighthouse.direct_deposit.use_mocks = true
-    Flipper.enable_actor(:mobile_lighthouse_direct_deposit, user)
   end
 
-  describe 'GET /mobile/v0/payment-information/benefits lighthouse' do
+  describe 'GET /mobile/v0/payment-information/benefits' do
     context 'user without access' do
       let!(:user) { sis_user(:api_auth, :loa1) }
 
@@ -160,8 +159,15 @@ Payment account info missing for user #{user.uuid}",
     end
   end
 
-  describe 'PUT /mobile/v0/payment-information lighthouse' do
-    let(:payment_info_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
+  describe 'PUT /mobile/v0/payment-information' do
+    let(:payment_info_request) do
+      {
+        account_type: 'Checking',
+        financial_institution_name: 'Bank of Ad Hoc',
+        account_number: '12345678',
+        financial_institution_routing_number: '021000021'
+      }
+    end
     let(:post_payment_info_body) do
       {
         'data' => {
@@ -203,7 +209,7 @@ Payment account info missing for user #{user.uuid}",
     end
 
     context 'with a valid response' do
-      it 'matches the ppiu schema' do
+      it 'matches the payment_information schema' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)
