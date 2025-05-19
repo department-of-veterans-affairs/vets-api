@@ -167,6 +167,12 @@ RSpec.describe Vets::Collection do
       sorted_collection = collection.order(age: :asc)
       expect(sorted_collection.records.last).to eq(record5)
     end
+
+    it 'returns an empty collection if no records exist' do
+      collection = described_class.new([])
+      sorted_collection = collection.order(age: :asc)
+      expect(sorted_collection.records).to eq([])
+    end
   end
 
   describe '#paginate' do
