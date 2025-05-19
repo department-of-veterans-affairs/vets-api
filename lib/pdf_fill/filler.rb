@@ -142,6 +142,7 @@ module PdfFill
     #
     # @return [String] The path to the filled PDF form.
     #
+    # rubocop:disable Metrics/MethodLength
     def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -172,6 +173,7 @@ module PdfFill
       Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
     end
+    # rubocop:enable Metrics/MethodLength
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
       extras_generator =
