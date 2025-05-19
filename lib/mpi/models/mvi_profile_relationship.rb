@@ -7,9 +7,9 @@ module MPI
     class MviProfileRelationship
       include Vets::Model
 
-      attribute :given_names, String, array: true
+      attribute :given_names, String, array: true, default: []
       attribute :family_name, String
-      attribute :preferred_names, String, array: true
+      attribute :preferred_names, String, array: true, default: []
       attribute :suffix, String
       attribute :gender, String
       attribute :birth_date, Vets::Type::DateTimeString
@@ -17,26 +17,26 @@ module MPI
       attribute :ssn, String
       attribute :address, MviProfileAddress
       attribute :home_phone, String
-      attribute :person_types, String, array: true
-      attribute :full_mvi_ids, String, array: true
+      attribute :person_types, String, array: true, default: []
+      attribute :full_mvi_ids, String, array: true, default: []
       attribute :icn, String
       attribute :icn_with_aaid, String
-      attribute :mhv_ids, String, array: true
-      attribute :active_mhv_ids, String, array: true
-      attribute :vha_facility_ids, String, array: true
+      attribute :mhv_ids, String, array: true, default: []
+      attribute :active_mhv_ids, String, array: true, default: []
+      attribute :vha_facility_ids, String, array: true, default: []
       attribute :vha_facility_hash, Hash
       attribute :edipi, String
-      attribute :edipis, String, array: true
+      attribute :edipis, String, array: true, default: []
       attribute :participant_id, String
-      attribute :participant_ids, String, array: true
+      attribute :participant_ids, String, array: true, default: []
       attribute :mhv_ien, String
-      attribute :mhv_iens, String, array: true
+      attribute :mhv_iens, String, array: true, default: []
       attribute :birls_id, String
-      attribute :birls_ids, String, array: true
+      attribute :birls_ids, String, array: true, default: []
       attribute :sec_id, String
-      attribute :sec_ids, String, array: true
+      attribute :sec_ids, String, array: true, default: []
       attribute :vet360_id, String
-      attribute :cerner_facility_ids, String, array: true
+      attribute :cerner_facility_ids, String, array: true, default: []
       attribute :cerner_id, String
 
       def normalized_suffix
