@@ -122,4 +122,12 @@ Rails.application.reloader.to_prepare do
   Breakers.redis_prefix = ''
   Breakers.client = client
   Breakers.disabled = true if Settings.breakers_disabled
+
+  if Settings.vsp_environment == 'staging'
+    services.each do |service|
+      Rails.logger.info(
+        "#{service&.name} outage_ended?=#{service&.latest_outage&.ended?}"
+      )
+    end
+  end
 end
