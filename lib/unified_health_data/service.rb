@@ -131,9 +131,15 @@ module UnifiedHealthData
           contained_resource['resourceType'] == 'ServiceRequest' &&
             contained_resource['id'] == extract_reference_id(reference)
         end
-        body_site_object = service_request_object['bodySite'] if service_request_object
-        body_site_object&.each do |body_site|
-          body_sites << body_site['text']
+        
+        next unless service_request_object && service_request_object['bodySite']
+        
+        service_request_object['bodySite'].each do |body_site|
+          next unless body_site['coding'] && body_site['coding'].is_a?(Array)
+          
+          body_site['coding'].each do |coding|
+            body_sites << coding['display'] if coding['display']
+          end
         end
       end
 
