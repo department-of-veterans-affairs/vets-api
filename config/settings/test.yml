@@ -874,13 +874,13 @@ mhv:
     mock: false
   api_gateway:
     hosts:
-      bluebutton: http://example.org
-      fhir: http://example.org
-      pharmacy: http://example.org
-      phrmgr: http://example.org
-      security: http://example.org
-      sm_patient: http://example.org
-      usermgmt: http://example.org
+      bluebutton: http://mhv-api.example.com
+      fhir: http://mhv-api.example.com
+      pharmacy: http://mhv-api.example.com
+      phrmgr: http://mhv-api.example.com
+      security: http://mhv-api.example.com
+      sm_patient: http://mhv-api.example.com
+      usermgmt: http://mhv-api.example.com
   bb:
     collection_caching_enabled: true
     mock: true
@@ -899,7 +899,7 @@ mhv:
   medical_records:
     app_id: 103
     app_token: xyz
-    host: http://example.org
+    host: http://mhv-api.example.com
     mhv_x_api_key: ~
     x_api_key: fake-x-api-key
     x_api_key_v2: fake-x-api-key-v2
