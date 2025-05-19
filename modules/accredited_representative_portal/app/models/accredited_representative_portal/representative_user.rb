@@ -17,6 +17,7 @@ module AccreditedRepresentativePortal
     attribute :last_signed_in, Common::UTCTime
     attribute :loa, String
     attribute :logingov_uuid, String
+    attribute :registration_numbers, Array
     attribute :sign_in, Hash
     attribute :user_account_uuid, String
     attribute :uuid, String
@@ -33,6 +34,9 @@ module AccreditedRepresentativePortal
       @user_account ||=
         RepresentativeUserAccount.find(user_account_uuid).tap do |account|
           account.set_email(email)
+          if(Flipper.enabled?(:accredited_representative_portal_self_service_auth))
+            account.set_registration_numbers(registration_numbers)
+          end
         end
     end
 

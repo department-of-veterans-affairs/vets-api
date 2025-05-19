@@ -9,6 +9,10 @@ module AccreditedRepresentativePortal
       @email = email
     end
 
+    def set_registration_numbers(registration_numbers)
+      @registration_numbers = registration_numbers
+    end
+
     def active_power_of_attorney_holders
       power_of_attorney_holders
         .select(&:accepts_digital_power_of_attorney_requests?)
@@ -27,17 +31,21 @@ module AccreditedRepresentativePortal
     private
 
     def registrations
+      Rails.logger.info "Getting registrations for #{@email}"
+      Rails.logger.info "Registration numbers: #{@registration_numbers}"
       @email.present? or
         raise ArgumentError, 'Must set user email'
-      if FeatureToggle.enabled?(:accredited_representative_portal_self_service_auth)
-        @registrations ||= [
-          OpenStruct.new(
-            accredited_individual_registration_number: session.rep_registration_number,
-            power_of_attorney_holder_type: 'veteran_service_organization', 
-            user_account_email: @email,
-            user_account_icn: icn
-          )
-        ]
+      if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
+        @registrations ||= Array(
+          @registration_numbers.map do |registration_number|
+            OpenStruct.new(
+              accredited_individual_registration_number: registration_number,
+              power_of_attorney_holder_type: 'veteran_service_organization', 
+              user_account_email: @email,
+              user_account_icn: icn
+            )
+          end
+        )
       else
         @registrations ||=
           UserAccountAccreditedIndividual.for_user_account_email(

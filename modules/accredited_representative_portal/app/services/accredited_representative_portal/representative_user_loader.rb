@@ -31,33 +31,6 @@ module AccreditedRepresentativePortal
 
     def validate_account_and_session
       raise SignIn::Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
-      if FeatureToggle.enabled?(:accredited_representative_portal_self_service_auth)
-
-        email = session.credential_email
-        raise Common::Exceptions::Unauthorized, detail: 'Email not provided' unless email.present?
-
-        icn = session.user_account.icn
-        registration_number = AccreditedRepresentativePortal::OGCClient.new.find_registration_number_for_icn(icn)
-
-        if registration_number.blank?
-          representatives = Veteran::Service::Representative.where(email: email)
-
-          if representatives.empty?
-            raise Common::Exceptions::Unauthorized, 
-                  detail: 'Email not associated with any accredited representative'
-          elsif representatives.size > 1
-            raise Common::Exceptions::Unauthorized,
-                  detail: 'Email associated with multiple accredited representatives'
-          end
-          representative = representatives.first
-          registration_number = representative.representative_id
-        end
-
-        # register the icn with the OGC API
-        AccreditedRepresentativePortal::OGCClient.new.post_icn_and_registration_combination(icn, registration_number)
-        
-        session.rep_registration_number = registration_number
-      end
     end
 
     def loa
@@ -104,9 +77,43 @@ module AccreditedRepresentativePortal
       user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
+      if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
+        user.registration_numbers = registration_numbers
+      end
       user.save
 
+      Rails.logger.info("Accredited Representative User loaded: #{user.uuid} with email: #{user.email}")
+
       @current_user = user
+    end
+
+    def registration_numbers
+      return @registration_numbers if @registration_numbers.present?
+
+      # TODO
+      @credential_emails = ['vets.gov.user+0@gmail.com']
+
+      icn = session.user_account.icn
+      @registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_number_for_icn(icn)
+
+      if @registration_numbers.blank?
+        representatives = Veteran::Service::Representative.where(email: @credential_emails)
+
+        if representatives.empty?
+          raise Common::Exceptions::Unauthorized, 
+                detail: 'Email not associated with any accredited representative'
+        elsif representatives.size > 1
+          raise Common::Exceptions::Unauthorized,
+                detail: 'Email associated with multiple accredited representatives'
+        end
+        representative = representatives.first
+        @registration_numbers = [representative.representative_id]
+      end
+
+      # register the icn with the OGC API
+      AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn, @registration_numbers)
+      
+      @registration_numbers
     end
   end
 end

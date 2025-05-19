@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class OGCClient
+  class OgcClient
     attr_reader :config
 
     def initialize
@@ -67,7 +67,7 @@ module AccreditedRepresentativePortal
     end
 
     def make_reg_number_request(icn)
-      url = [:icn_endpoint_url]
+      url = config[:icn_endpoint_url]
       
       headers = {
         'Content-Type' => 'application/json',
