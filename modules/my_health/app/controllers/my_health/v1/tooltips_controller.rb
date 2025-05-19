@@ -75,6 +75,7 @@ module MyHealth
 
       def set_user_account
         @user_account = current_user.user_account
+        # Rails.logger.info("User account set: #{@user_account.inspect}")
       end
     end
   end
