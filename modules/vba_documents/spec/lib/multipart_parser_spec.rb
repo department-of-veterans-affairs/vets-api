@@ -9,6 +9,8 @@ RSpec.describe VBADocuments::MultipartParser do
   include VBADocuments::Fixtures
 
   describe '#parse' do
+    before { allow(Rails.logger).to receive(:info) }
+
     it 'successfully parses a valid multipart payload' do
       valid_doc = get_fixture('valid_multipart_pdf.blob').path
       result = described_class.parse(valid_doc)

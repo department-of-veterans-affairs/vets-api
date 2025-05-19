@@ -115,12 +115,12 @@ features:
   caregiver_browser_monitoring_enabled:
     actor_type: user
     description: Enables Datadog Real Time User Monitoring
-  caregiver_carma_submitted_at:
-    actor_type: user
-    description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
   caregiver_request_duration_monitoring:
     actor_type: user
     description: Enables logging of 10-10CG request durations to StatsD
+  caregiver_use_rails_logging_over_sentry:
+    actor_type: user
+    description: Use Rails for logging instead of Sentry
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
@@ -337,6 +337,10 @@ features:
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_poa_v1_pdf_gen_fixup_job:
+    actor_type: user
+    description: Enables POA pdfs to be regenerated & sent to VBMS without requesting a POA change
     enable_in_development: true
   lighthouse_claims_api_add_person_proxy:
     actor_type: user
@@ -597,6 +601,10 @@ features:
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
+    enable_in_development: true
+  disability_526_ee_mst_special_issue:
+    actor_type: user
+    description: enables adding MST special issue to disability_526 prior to submission.
     enable_in_development: true
   disability_526_ee_process_als_flash:
     actor_type: user
@@ -1528,7 +1536,7 @@ features:
     actor_type: user
     description: Enables the One VA Debt Letter feature
     enable_in_development: true
-  show_payment_history_mvp:
+  show_cdp_one_thing_per_page:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
@@ -2181,3 +2189,6 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  debt_deduction_code_filtering:
+    actor_type: user
+    description:  Enables filtering of debts based on approved deduction codes and current amounts > 0.
