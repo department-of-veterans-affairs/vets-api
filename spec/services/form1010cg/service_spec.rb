@@ -440,10 +440,28 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#assert_veteran_status' do
-    it "raises error if veteran's icn can not be found" do
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
-      expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
+    context 'with :caregiver_use_rails_logging_over_sentry enabled' do
+      it "raises error if veteran's icn can not be found" do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
+        expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+        # expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error fetching Veteran ICN',
+          { error: instance_of(described_class::InvalidVeteranStatus) }
+        )
+
+        expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
+      end
+    end
+
+    context 'with :caregiver_use_rails_logging_over_sentry disabled' do
+      it "raises error if veteran's icn can not be found" do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
+        expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
+
+        expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
+      end
     end
 
     it "does not raise error if veteran's icn is found" do
@@ -570,23 +588,47 @@ RSpec.describe Form1010cg::Service do
         allow(mule_soft_client).to receive(:create_submission_v2).and_raise(exception)
       end
 
-      it 'logs claim_guid for any exceptions and raises error' do
-        expect(service).to receive(:log_exception_to_sentry)
-          .with(exception, {
-                  form: '10-10CG',
-                  claim_guid: claim_with_mpi_veteran.guid
-                })
+      context 'with :caregiver_use_rails_logging_over_sentry enabled' do
+        it 'logs claim_guid for any exceptions and raises error' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
+          expect(Rails.logger).to receive(:error).with(
+            '[10-10CG] - Error processing Caregiver submission',
+            { form: '10-10CG', exception:, claim_guid: claim_with_mpi_veteran.guid }
+          )
 
-        start_time = Time.current
-        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
-        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
-        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
-        expected_arguments = { context: :process, event: :failure, start_time: }
-        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
-          **expected_arguments
-        )
+          start_time = Time.current
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+          expected_arguments = { context: :process, event: :failure, start_time: }
+          expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+            **expected_arguments
+          )
 
-        expect { subject }.to raise_error(exception)
+          expect { subject }.to raise_error(exception)
+        end
+      end
+
+      context 'with :caregiver_use_rails_logging_over_sentry disabled' do
+        it 'logs claim_guid for any exceptions and raises error' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
+          expect(service).to receive(:log_exception_to_sentry)
+            .with(exception, {
+                    form: '10-10CG',
+                    claim_guid: claim_with_mpi_veteran.guid
+                  })
+
+          start_time = Time.current
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+          expected_arguments = { context: :process, event: :failure, start_time: }
+          expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+            **expected_arguments
+          )
+
+          expect { subject }.to raise_error(exception)
+        end
       end
     end
   end
