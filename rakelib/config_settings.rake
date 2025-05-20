@@ -26,6 +26,7 @@ namespace :settings do
 
     if errors.empty?
       puts 'All config files have keys in alphabetical order.'
+      puts '----------------------------------------------------------'
     else
       puts errors.join("\n")
       exit 1
@@ -49,10 +50,9 @@ namespace :settings do
         missing_keys_message = missing_keys.join("\n    ")
         extra_keys_message = extra_keys.join("\n    ")
         error_message = <<~MSG.chomp
-          Settings must be added to three config files in vets-api and the keys must be identical.
+          ⚠️ Settings must be added to three config files in vets-api and the keys must be identical.
           See documentation for details: #{doc_url}
-
-          ⚠️ The keys in #{file} don’t match the keys in the other config files:
+          ❗The keys in #{file} don’t match the keys in the other config files:
             Missing keys:
               #{missing_keys_message.presence || '— none —'}
             Extra keys:
