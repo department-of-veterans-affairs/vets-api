@@ -10,8 +10,9 @@
 class MessageDraft < Message
   validate :check_as_replydraft, if: proc { reply? }
   validate :check_as_draft, unless: proc { reply? }
+  attr_accessor :original_attributes
 
-  attribute :has_message, Bool, default: false
+  attribute :has_message, Boolean
 
   def message?
     has_message

@@ -6,7 +6,6 @@ require 'rx/configuration'
 require 'rx/client_session'
 require 'rx/rx_gateway_timeout'
 require 'active_support/core_ext/hash/slice'
-require 'vets/collection'
 
 module Rx
   ##
@@ -39,7 +38,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_active_rxs
-      Vets::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL_ZERO) do
         perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
@@ -50,7 +49,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_active_rxs_with_details
-      Vets::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
+      Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
         perform(:get, get_path('getactiverx'), nil, get_headers(token_headers)).body
       end
     end
@@ -61,7 +60,7 @@ module Rx
     # @return [Common::Collection[Prescription]]
     #
     def get_history_rxs
-      Vets::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL_ZERO) do
         perform(:get, get_path('gethistoryrx'), nil, get_headers(token_headers)).body
       end
     end
@@ -73,7 +72,7 @@ module Rx
     # @return [Common::Collection[PrescriptionDetails]]
     #
     def get_all_rxs
-      Vets::Collection.fetch(PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
+      Common::Collection.fetch(::PrescriptionDetails, cache_key: cache_key('medications'), ttl: CACHE_TTL) do
         perform(:get, get_path('medications'), nil, get_headers(token_headers)).body
       end
     end
@@ -95,7 +94,7 @@ module Rx
     #
     def get_rx(id)
       collection = get_history_rxs
-      collection.find_by('prescription_id' => { 'eq' => id })
+      collection.find_first_by('prescription_id' => { 'eq' => id })
     end
 
     ##
@@ -106,7 +105,7 @@ module Rx
     #
     def get_rx_details(id)
       collection = get_all_rxs
-      collection.find_by('prescription_id' => { 'eq' => id })
+      collection.find_first_by('prescription_id' => { 'eq' => id })
     end
 
     ##
@@ -118,7 +117,7 @@ module Rx
     def get_tracking_rx(id)
       json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       data = json[:data].first.merge(prescription_id: id)
-      Tracking.new(data.merge(metadata: json[:metadata]))
+      Tracking.new(json.merge(data:))
     end
 
     ##
@@ -130,8 +129,7 @@ module Rx
     def get_tracking_history_rx(id)
       json = perform(:get, get_path("rxtracking/#{id}"), nil, get_headers(token_headers)).body
       tracking_history = json[:data].map { |t| t.to_h.merge(prescription_id: id) }
-      json = json.merge(data: tracking_history)
-      Vets::Collection.new(json[:data], Tracking, metadata: json[:metadata], errors: json[:errors])
+      Common::Collection.new(::Tracking, **json.merge(data: tracking_history))
     end
 
     ##
@@ -156,7 +154,7 @@ module Rx
     def post_refill_rx(id)
       if (result = perform(:post, get_path("rxrefill/#{id}"), nil, get_headers(token_headers)))
         keys = [cache_key('getactiverx'), cache_key('gethistoryrx')].compact
-        Vets::Collection.bust(keys) unless keys.empty?
+        Common::Collection.bust(keys) unless keys.empty?
         increment_refill
       end
       result
