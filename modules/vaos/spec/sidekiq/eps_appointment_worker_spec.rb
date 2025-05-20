@@ -103,7 +103,9 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
 
       it 'logs an error and does not send notification' do
         expect(va_notify_service).not_to receive(:send_email)
-        expect(Rails.logger).to receive(:error).with(/EpsAppointmentWorker FAILED for user UUID: missing-uuid: User not found/)
+        expect(Rails.logger).to receive(:error).with(
+          /EpsAppointmentWorker FAILED for user UUID: missing-uuid: User not found/
+        )
         worker.perform(appointment_id, 'missing-uuid')
       end
     end
@@ -117,7 +119,9 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
 
       it 'logs an error and does not send notification' do
         expect(va_notify_service).not_to receive(:send_email)
-        expect(Rails.logger).to receive(:error).with(/EpsAppointmentWorker FAILED for user UUID: user-without-email: Email not found for user/)
+        expect(Rails.logger).to receive(:error).with(
+          /EpsAppointmentWorker FAILED for user UUID: user-without-email: Email not found for user/
+        )
         worker.perform(appointment_id, 'user-without-email')
       end
     end
@@ -131,7 +135,9 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
 
       it 'logs the error with worker failure message and user UUID' do
         allow(va_notify_service).to receive(:send_email) # Allow the notification to be sent
-        expect(Rails.logger).to receive(:error).with(/EpsAppointmentWorker FAILED for user UUID: #{user.uuid}: StandardError/)
+        expect(Rails.logger).to receive(:error).with(
+          /EpsAppointmentWorker FAILED for user UUID: #{user.uuid}: StandardError/
+        )
         worker.perform(appointment_id, user.uuid)
       end
 
