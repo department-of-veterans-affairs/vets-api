@@ -143,7 +143,7 @@ describe MAP::SecurityToken::Service do
       context 'when response is malformed',
               vcr: { cassette_name: 'map/security_token_service_200_malformed_response' } do
         let(:expected_error) { Common::Client::Errors::ParsingError }
-        let(:expected_error_message) { "unexpected token at 'Not valid JSON'" }
+        let(:expected_error_message) { "unexpected token 'Not valid JSON' at line 1 column 1" }
         let(:expected_logger_message) { "#{log_prefix} token failed, parsing error" }
         let(:expected_log_values) { { application:, icn:, context: expected_error_message } }
 

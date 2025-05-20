@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -25,7 +25,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "bpds_submission_status", ["pending", "submitted", "failure"]
   create_enum "itf_remediation_status", ["unprocessed"]
-  create_enum "lighthouse_submission_status", ["pending", "submitted"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -319,6 +319,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "type", null: false
     t.uuid "creator_id", null: false
+    t.integer "declination_reason"
     t.index ["creator_id"], name: "index_ar_power_of_attorney_request_decisions_on_creator_id"
   end
 
