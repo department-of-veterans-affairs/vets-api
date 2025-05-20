@@ -33,7 +33,6 @@ authorization_server_scopes_api:
   auth_server:
     url: https://sandbox-api.va.gov/internal/auth/v2/server
 avs:
-  aa_a: false
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: true
   timeout: 55
