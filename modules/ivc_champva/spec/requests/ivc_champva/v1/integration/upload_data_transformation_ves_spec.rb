@@ -74,7 +74,6 @@ RSpec.describe 'TransformationVES', type: :request do
                 have_attributes(
                   sponsor: an_instance_of(IvcChampva::VesRequest::Sponsor).and(
                     have_attributes(
-                      # person_uuid: '57efab45-b6f3-49d6-a189-9f9ff55552f4', # is this auto generated too?
                       first_name: 'Veteran',
                       last_name: 'Surname',
                       middle_initial: 'B',
