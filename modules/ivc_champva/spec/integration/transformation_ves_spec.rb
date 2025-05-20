@@ -61,7 +61,7 @@ RSpec.describe 'TransformationVES', type: :request do
                 have_attributes(
                   application_type: 'CHAMPVA_APPLICATION',
                   application_uuid: anything, # application uuid may be auto generated per submission
-                  transaction_uuid: anything, # transaction uuid may be auto generated per submission
+                  transaction_uuid: anything # transaction uuid may be auto generated per submission
                 )
               )
             )
