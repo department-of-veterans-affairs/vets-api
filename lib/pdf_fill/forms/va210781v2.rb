@@ -342,13 +342,14 @@ module PdfFill
             question_num: 11,
             question_suffix: 'B',
             question_label: 'Other',
-            question_type: 'checklist_group',
             question_text: 'Other Report'
           },
           'otherOverflow' => {
             key: '',
             question_num: 11,
             question_suffix: 'B',
+            question_label: 'Other',
+            question_type: 'checklist_group',
             question_text: 'Other Report'
           }
         },
@@ -716,7 +717,7 @@ module PdfFill
         no_report = false
         police_reports = []
         unlisted_reports = []
-        reports_details = @form_data['reportsDetails'] ||= {}
+        @form_data['reportsDetails'] ||= {}
 
         @form_data['events'].each do |event|
           reports = merge_reports(event)
@@ -738,7 +739,7 @@ module PdfFill
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
 
         process_police_reports(police_reports, extras_redesign)
-        reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
+        process_unlisted_reports(unlisted_reports, extras_redesign)
       end
 
       def process_police_reports(police_reports, extras_redesign)
@@ -752,6 +753,13 @@ module PdfFill
         @form_data['policeReportOverflow'] = police_events.map do |event|
           event.slice(*%w[agency city state township country])
         end
+      end
+
+      def process_unlisted_reports(unlisted_reports, extras_redesign)
+        return if unlisted_reports.empty?
+
+        @form_data['reportsDetails']['other'] = unlisted_reports.join('; ')
+        @form_data['reportsDetails']['otherOverflow'] = unlisted_reports if extras_redesign
       end
 
       def process_treatment_dates

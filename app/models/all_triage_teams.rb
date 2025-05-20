@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'vets/model'
+require 'common/models/base'
 
 # AllTriageTeams model
-class AllTriageTeams
-  include Vets::Model
+class AllTriageTeams < Common::Base
   include RedisCaching
 
   redis_config REDIS_CONFIG[:secure_messaging_store]
@@ -12,8 +11,8 @@ class AllTriageTeams
   attribute :triage_team_id, Integer
   attribute :name, String, sortable: { order: 'ASC', default: true }
   attribute :station_number, String
-  attribute :blocked_status, Bool, default: false
-  attribute :preferred_team, Bool, default: false
+  attribute :blocked_status, Boolean
+  attribute :preferred_team, Boolean
   attribute :relation_type, String
   attribute :lead_provider_name, String
   attribute :location_name, String
@@ -26,5 +25,7 @@ class AllTriageTeams
   attribute :group_type_patient_display, String
   attribute :sub_group_type_patient_display, String
 
-  default_sort_by name: :asc
+  def <=>(other)
+    name <=> other.name
+  end
 end
