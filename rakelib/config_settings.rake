@@ -37,6 +37,7 @@ namespace :settings do
     comparison_files = ['config/settings/development.yml', 'config/settings/test.yml']
 
     reference_keys = extract_keys(YAML.load_file(reference_file, aliases: true))
+    doc_url = 'https://depo-platform-documentation.scrollhelp.site/developer-docs/settings-and-parameter-store'
     errors = []
 
     comparison_files.each do |file|
@@ -47,9 +48,16 @@ namespace :settings do
       unless missing_keys.empty? && extra_keys.empty?
         missing_keys_message = missing_keys.join("\n    ")
         extra_keys_message = extra_keys.join("\n    ")
-        error_message = "\nKey mismatch in #{file}:\n  \
-                        Missing keys:\n    #{missing_keys_message}\n  \
-                        Extra keys:\n    #{extra_keys_message}"
+        error_message = <<~MSG.chomp
+          Settings need to be added to the three config files in vets-api and the keys must be identical.
+          See documentation for details: #{doc_url}
+
+          The keys in #{file} don’t match the keys in the other config files:
+            Missing keys:
+              #{missing_keys_message.presence || '— none —'}
+            Extra keys:
+              #{extra_keys_message.presence || '— none —'}
+        MSG
         errors << error_message
       end
     end
