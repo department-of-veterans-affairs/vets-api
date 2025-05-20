@@ -123,29 +123,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  exit-on-workflow-failure:
-    name: Exit if required workflows have not successfully completed
-    needs: [get-pr-data, check-workflow-status]
-    if: needs.check-workflow-status.outputs.failures_detected == 'true'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    env:
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
-    steps:
-      - name: Remove ready-for-backend-review label
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-backend-review
-
-      - name: Fail if required workflows are not successful
+      - name: Fail if workflow runs are not successfully completed
+        if: steps.check_workflow_status.outputs.failures_detected == 'true'
         run: exit 1
 
   # Fetch approvals when required workflows are successful.
   check-backend-approvals:
     name: Check Backend Approvals
     needs: [get-pr-data, check-workflow-status]
-    # if: needs.check-workflow-status.outputs.failures_detected == 'false'
+    if: needs.check-workflow-status.outputs.failures_detected == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -244,7 +230,6 @@ jobs:
 
   update-labels:
     name: Succeed if backend approval is confirmed
-    if: needs.check-workflow-status.outputs.failures_detected == 'false'
     needs: [get-pr-data, check-backend-approvals]
     runs-on: ubuntu-latest
     permissions: write-all
