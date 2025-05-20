@@ -3,15 +3,11 @@
 module Vye
   module V1
     class ApplicationController < Vye::ApplicationController
-      class FeatureDisabled < StandardError; end
-
       attr_reader :user_info
 
       before_action :load_user_info
 
       after_action :verify_authorized
-
-      rescue_from FeatureDisabled, with: -> { render json: { error: 'Bad Request' }, status: :bad_request }
 
       private
 
