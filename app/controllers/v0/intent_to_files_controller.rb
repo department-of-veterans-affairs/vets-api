@@ -33,7 +33,7 @@ module V0
     ITF_FORM_IDS = {
       'compensation' => '21-526EZ',
       'pension' => '21P-527EZ',
-      'survivor' => '21P-530EZ'
+      'survivor' => '21P-534EZ'
     }.freeze
 
     def index
