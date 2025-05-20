@@ -1,10 +1,10 @@
 name: Settings Checks
 
 on:
-  push:
-    branches: [master]
   pull_request:
     types: [opened, reopened, synchronize]
+    paths:
+      - 'vets-api/config/**'
 permissions:
   contents: read
   checks: write
@@ -25,20 +25,158 @@ jobs:
 
       - name: Install pdftk
         run: sudo apt-get update && sudo apt-get install -y pdftk-java
-    
+
       - name: Run Settings Validation Rake task
         run: bundle exec rake settings:validate
 
       - name: Add Settings Failure label
-        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'settings-failure')
+        if: failure() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: settings-failure
 
       - name: Remove Settings Failure label
-        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'settings-failure')
+        if: success() && github.event_name == 'pull_request'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: settings-failure
+  check-parameters:
+    runs-on: ubuntu-32-cores-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-gov-west-1
+
+      - name: Obtain GitHub Token
+        uses: department-of-veterans-affairs/action-inject-ssm-secrets@d8e6de3bde4dd728c9d732baef58b3c854b8c4bb # latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Install jq
+        run: |
+          sudo apt update
+          sudo apt install jq -y
+
+      - name: Fetch the remote master branch
+        run: git fetch origin master
+
+      - name: Check ENV diff for aws_ssm_custom lookups
+        shell: bash
+        run: |
+
+          diff_output=$(git diff origin/master config/settings.yml)
+
+          if [[ -z "$diff_output" ]]; then
+            echo "No changes detected in config/settings.yml."
+            exit 0
+          fi
+
+          new_env_keys=$(git diff origin/master config/settings.yml | \
+            grep -o 'ENV\[[^]]*\]' | sed 's/ENV\[\([^]]*\)\]/\1/' | sort -u)
+
+          keys=()
+          for line in $new_env_keys; do
+            # Remove any quotes that might be present
+            line=$(echo "$line" | tr -d "'")
+            keys+=("$line")
+          done
+
+          echo "Found the following ENV keys:"
+          for key in "${keys[@]}"; do
+            echo "  - $key"
+          done
+
+          invalid_parameters=()
+
+          for key in "${keys[@]}"; do
+            param_names=()
+
+            # replace double underscores with slashes
+            formatted_key=$(echo "$key" | sed 's/__/\//g')
+
+            echo "Processing key: $key (formatted as: $formatted_key)"
+
+            dev_ssm_param="/dsva-vagov/vets-api/dev/env_vars/$formatted_key"
+            staging_ssm_param="/dsva-vagov/vets-api/staging/env_vars/$formatted_key"
+            sandbox_ssm_param="/dsva-vagov/vets-api/sandbox/env_vars/$formatted_key"
+            prod_ssm_param="/dsva-vagov/vets-api/prod/env_vars/$formatted_key"
+
+            param_names+=("$dev_ssm_param")
+            param_names+=("$staging_ssm_param")
+            param_names+=("$sandbox_ssm_param")
+            param_names+=("$prod_ssm_param")
+
+            # Use a more resilient approach for the AWS command
+            set +e  # Don't exit on error
+            ssm_output=$(aws ssm get-parameters \
+              --names "${param_names[@]}" \
+              --query "InvalidParameters" \
+              --output json 2>&1)
+            aws_exit_code=$?
+            set -e  # Restore exit on error
+
+            if [ $aws_exit_code -ne 0 ]; then
+              echo "AWS SSM command failed with output: $ssm_output"
+              continue  # Skip to next key
+            fi
+
+            # Process invalid parameters
+            if [[ -n "$ssm_output" && "$ssm_output" != "[]" && "$ssm_output" != "null" ]]; then
+              # Parse the JSON output to extract invalid parameters
+              while read -r param; do
+                if [[ -n "$param" ]]; then
+                  invalid_parameters+=("$param")
+                fi
+              done < <(echo "$ssm_output" | jq -r '.[]' 2>/dev/null || echo "")
+            fi
+          done
+
+          # Display invalid parameters
+          echo "Invalid parameters found: ${#invalid_parameters[@]}"
+          if [[ ${#invalid_parameters[@]} -gt 0 ]]; then
+            for param in "${invalid_parameters[@]}"; do
+              echo "  - $param"
+            done
+
+            invalid_params_string=$(printf -- '- %s\n' "${invalid_parameters[@]}")
+            {
+              echo "INVALID_PARAMETERS<<EOF"
+              echo "$invalid_params_string"
+              echo "EOF"
+            } >> "$GITHUB_ENV"
+          else
+            echo "No invalid parameters found"
+            echo "INVALID_PARAMETERS=" >> $GITHUB_ENV
+          fi
+      - name: Respond to PR if invalid parameters are found
+        if: env.INVALID_PARAMETERS != ''
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          message: |
+            :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
+            ${{ env.INVALID_PARAMETERS }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+      - name: Fail if invalid parameters are found
+        if: env.INVALID_PARAMETERS != ''
+        run: exit 1
+
+      - name: Respond to PR if no invalid parameters are found
+        if: env.INVALID_PARAMETERS == ''
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          message: |
+            :+1: All Parameter Store values in this PR are valid
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}

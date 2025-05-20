@@ -145,6 +145,26 @@ module Logging
           error: e&.message
         )
       end
+
+      # log error occurred when setting signature date to claim.created_at
+      # Error doesn't prevent successful claim submission (defaults to current date)
+      #
+      # @param claim [SavedClaim]
+      # @param lighthouse_service [BenefitsIntake::Service]
+      # @param user_account_uuid [UUID]
+      # @param e [Error]
+      #
+      def track_claim_signature_error(claim, lighthouse_service, user_account_uuid, e)
+        submit_event(
+          :error,
+          "#{message_prefix} claim signature error",
+          "#{submission_stats_key}.claim_signature_error",
+          claim:,
+          user_account_uuid:,
+          benefits_intake_uuid: lighthouse_service&.uuid,
+          error: e&.message
+        )
+      end
     end
   end
 end

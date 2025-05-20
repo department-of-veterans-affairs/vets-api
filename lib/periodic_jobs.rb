@@ -176,7 +176,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
   mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
-  # mgr.register('0 2 * * *', 'Veteran::VSOReloader') # Disabled until upstream data issue resolved - 2025-05-08
+  mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
   mgr.register('* * * * *', 'ExportBreakerStatus')
@@ -238,6 +238,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Every hour job that retries failed VES submissions
   mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
+
+  # Daily job to clean up IvcChampvaForm records older than 60 days
+  mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')

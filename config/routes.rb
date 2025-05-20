@@ -51,8 +51,6 @@ Rails.application.routes.draw do
     resources :user_actions, only: [:index]
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
-    resource :virtual_agent_token_msft, only: [:create], controller: :virtual_agent_token_msft
-    resource :virtual_agent_token_nlu, only: [:create], controller: :virtual_agent_token_nlu
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
     resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
@@ -182,8 +180,16 @@ Rails.application.routes.draw do
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
-    get 'intent_to_file', to: 'intent_to_files#index'
-    post 'intent_to_file/:type', to: 'intent_to_files#submit'
+    namespace :chatbot do
+      get 'claims', to: 'claim_status#index'
+      get 'claims/:id', to: 'claim_status#show'
+      get 'user', to: 'users#show'
+      post 'speech_token', to: 'speech_token#create'
+      post 'token', to: 'token#create'
+    end
+
+    get 'intent_to_file(/:itf_type)', to: 'intent_to_files#index'
+    post 'intent_to_file/:itf_type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
@@ -394,6 +400,7 @@ Rails.application.routes.draw do
   mount Avs::Engine, at: '/avs'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
+  mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

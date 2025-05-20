@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class LabsAndTestsController < MrController
+    class LabsAndTestsController < MRController
       def index
         render_resource client.list_labs_and_tests
       end
