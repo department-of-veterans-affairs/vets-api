@@ -8,22 +8,21 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
   let(:ves_client) { instance_double(IvcChampva::VesApi::Client) }
   let(:success_response) { double('response', status: 200, body: 'success') }
   let(:error_response) { double('response', status: 500, body: 'server error') }
+  let(:initial_request_data) { { data: 'test_data', transaction_uuid: 'tx-old' }.to_json }
 
   # Use instance_double instead of real database objects
   let(:recent_record) do
     instance_double(IvcChampvaForm,
                     form_uuid: 'form-123',
                     ves_status: 'failed',
-                    created_at: 2.hours.ago,
-                    ves_request_data: { 'data' => 'test_data', 'transaction_uuid' => 'tx-old' })
+                    created_at: 2.hours.ago)
   end
 
   let(:old_record) do
     instance_double(IvcChampvaForm,
                     form_uuid: 'form-456',
                     ves_status: 'failed',
-                    created_at: 5.hours.ago,
-                    ves_request_data: { 'data' => 'test_data', 'transaction_uuid' => 'tx-old' })
+                    created_at: 5.hours.ago)
   end
 
   before do
@@ -46,11 +45,15 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     allow(recent_record).to receive_messages(update: true, reload: recent_record)
     allow(old_record).to receive_messages(update: true, reload: old_record)
 
-    # Allow records to have their ves_request_data modified
-    recent_ves_data = recent_record.ves_request_data
-    old_ves_data = old_record.ves_request_data
-    allow(recent_record).to receive(:ves_request_data).and_return(recent_ves_data)
-    allow(old_record).to receive(:ves_request_data).and_return(old_ves_data)
+    # Set up ves_request_data
+    allow(recent_record).to receive(:ves_request_data).and_return(initial_request_data)
+    allow(old_record).to receive(:ves_request_data).and_return(initial_request_data)
+
+    # Mock submit_1010d to verify the request data is properly modified
+    allow(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+      expect(request_data['transaction_uuid']).to eq(uuid)
+      success_response
+    end
   end
 
   describe '#perform' do
@@ -81,9 +84,8 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
           ves_status: 'ok'
         )
 
-        expect(ves_client).to have_received(:submit_1010d) do |transaction_uuid, user, request|
+        expect(ves_client).to have_received(:submit_1010d) do |transaction_uuid, user, _request|
           expect(transaction_uuid).to eq('tx-new')
-          expect(request['transaction_uuid']).to eq('tx-new')
           expect(user).to eq('fake-user')
         end
       end
@@ -129,13 +131,17 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
   describe '#resubmit_ves_request' do
     context 'with a successful response' do
       it 'updates the record status to ok' do
+        # Verify the request data is modified before being sent to VES
+        expect(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+          expect(request_data['transaction_uuid']).to eq(uuid)
+          success_response
+        end
+
         job.resubmit_ves_request(recent_record)
 
         expect(recent_record).to have_received(:update).with(
           ves_status: 'ok'
         )
-
-        expect(recent_record.ves_request_data['transaction_uuid']).to eq('tx-new')
       end
     end
 
@@ -145,13 +151,35 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
       end
 
       it 'updates the record status with the error body' do
+        # Verify the request data is modified before being sent to VES
+        expect(ves_client).to receive(:submit_1010d) do |uuid, _user, request_data|
+          expect(request_data['transaction_uuid']).to eq(uuid)
+          error_response
+        end
+
         job.resubmit_ves_request(recent_record)
 
         expect(recent_record).to have_received(:update).with(
           ves_status: 'server error'
         )
+      end
+    end
 
-        expect(recent_record.ves_request_data['transaction_uuid']).to eq('tx-new')
+    context 'with invalid JSON data' do
+      let(:invalid_record) do
+        instance_double(IvcChampvaForm,
+                      form_uuid: 'form-789',
+                      ves_status: 'failed',
+                      created_at: 2.hours.ago,
+                      ves_request_data: 'invalid json')
+      end
+
+      before do
+        allow(invalid_record).to receive_messages(update: true, reload: invalid_record)
+      end
+
+      it 'handles JSON parse errors gracefully' do
+        expect { job.resubmit_ves_request(invalid_record) }.to raise_error(JSON::ParserError)
       end
     end
   end
