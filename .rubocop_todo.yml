@@ -234,8 +234,6 @@ Naming/VariableNumber:
     - 'spec/serializers/education_stem_claim_status_serializer_spec.rb'
     - 'spec/services/form1010cg/service_spec.rb'
     - 'spec/services/sign_in/revoke_sessions_for_user_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/existing_github_file_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/github_service_spec.rb'
     - 'spec/sidekiq/education_form/create10203_applicant_decision_letters_spec.rb'
     - 'spec/sidekiq/education_form/create10203_spool_submissions_report_spec.rb'
     - 'spec/sidekiq/education_form/create_daily_spool_files_spec.rb'

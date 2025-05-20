@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_15_213037) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -25,7 +25,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_15_213037) do
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "bpds_submission_status", ["pending", "submitted", "failure"]
   create_enum "itf_remediation_status", ["unprocessed"]
-  create_enum "lighthouse_submission_status", ["pending", "submitted"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|

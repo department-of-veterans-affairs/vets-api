@@ -888,7 +888,8 @@ module PdfFill
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
             type_of_program_or_benefit = student_information['type_of_program_or_benefit']
-            get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            program_information = get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            student_information['type_of_program_or_benefit'] = program_information if program_information.present?
             split_earnings(student_expected_earnings) if student_expected_earnings.present?
             split_earnings(student_earnings) if student_earnings.present?
             split_networth_information(student_networth) if student_networth.present?
@@ -904,8 +905,11 @@ module PdfFill
           'feca' => 'FECA',
           'other' => 'Other Benefit'
         }
-        selected_key = parent_object.find { |_, v| v }&.first
-        selected_key ? type_mapping[selected_key] : nil
+        # sanitize object of false values
+        parent_object.compact_blank!
+        return nil if parent_object.blank?
+
+        parent_object.map { |key, _value| type_mapping[key] }.join(', ')
       end
 
       # override from form_helper
