@@ -99,6 +99,7 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
       dry-schema
+    claims_evidence_api (0.1.0)
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -629,8 +630,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.3-java)
-    json (2.11.3)
-    json (2.11.3-java)
+    json (2.12.0)
+    json (2.12.0-java)
     json-schema (5.1.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -852,7 +853,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.14)
+    rack (2.2.15)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1234,6 +1235,7 @@ DEPENDENCIES
   carrierwave-aws
   check_in!
   claims_api!
+  claims_evidence_api!
   clamav-client
   combine_pdf
   committee-rails
@@ -1334,7 +1336,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.14)
+  rack (~> 2.2.15)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
