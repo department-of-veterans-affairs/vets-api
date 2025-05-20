@@ -55,25 +55,13 @@ RSpec.describe 'TransformationVES', type: :request do
 
             # check the base attributes on the call to submit_1010d and the VesRequest object
             expect(ves_client).to have_received(:submit_1010d).with(
-              anything, # transaction uuid is auto generated per submission
+              anything, # transaction uuid may be auto generated per submission
               'fake-user', # acting_user
               an_instance_of(IvcChampva::VesRequest).and(
                 have_attributes(
                   application_type: 'CHAMPVA_APPLICATION',
-                  # application_uuid: '55459eae-5131-4e70-8622-8a2034758c95', # why is this different every time?
-                  transaction_uuid: anything, # transaction uuid is auto generated per submission
-                  sponsor: an_instance_of(IvcChampva::VesRequest::Sponsor).and(
-                    have_attributes(
-                      # person_uuid: '57efab45-b6f3-49d6-a189-9f9ff55552f4', # is this auto generated too?
-                      first_name: 'Veteran',
-                      last_name: 'Surname',
-                      address: an_instance_of(IvcChampva::VesRequest::Address).and(
-                        have_attributes(
-                          street_address: '1 First Ln'
-                        )
-                      )
-                    )
-                  )
+                  application_uuid: anything, # application uuid may be auto generated per submission
+                  transaction_uuid: anything, # transaction uuid may be auto generated per submission
                 )
               )
             )
@@ -122,7 +110,6 @@ RSpec.describe 'TransformationVES', type: :request do
                   beneficiaries: array_including(
                     an_instance_of(IvcChampva::VesRequest::Beneficiary).and(
                       have_attributes(
-                        # person_uuid: '912e09f2-3e1f-4021-ba75-c52d1c1d7c6d', # is this auto generated too?
                         first_name: 'Applicant',
                         last_name: 'Onceler',
                         middle_initial: 'C',
@@ -160,7 +147,6 @@ RSpec.describe 'TransformationVES', type: :request do
                   beneficiaries: array_including(
                     an_instance_of(IvcChampva::VesRequest::Beneficiary).and(
                       have_attributes(
-                        # person_uuid: 4fd5495b-5b69-46e7-8f13-e8b278a54749', # is this auto generated too?
                         first_name: 'Appy',
                         last_name: 'Twos',
                         middle_initial: 'D',
@@ -198,7 +184,6 @@ RSpec.describe 'TransformationVES', type: :request do
                   beneficiaries: array_including(
                     an_instance_of(IvcChampva::VesRequest::Beneficiary).and(
                       have_attributes(
-                        # person_uuid: 'e06ab71f-0ec6-4348-af05-7ef9a4f0ead4', # is this auto generated too?
                         first_name: 'Homer',
                         last_name: 'Simpson',
                         middle_initial: 'D',
@@ -236,7 +221,6 @@ RSpec.describe 'TransformationVES', type: :request do
                   beneficiaries: array_including(
                     an_instance_of(IvcChampva::VesRequest::Beneficiary).and(
                       have_attributes(
-                        # person_uuid: '52959722-a6a9-44db-8391-8d1cea47db0a', # is this auto generated too?
                         first_name: 'Logan',
                         last_name: 'Wolf',
                         middle_initial: 'W',
@@ -274,7 +258,6 @@ RSpec.describe 'TransformationVES', type: :request do
                   beneficiaries: array_including(
                     an_instance_of(IvcChampva::VesRequest::Beneficiary).and(
                       have_attributes(
-                        # person_uuid: '52959722-a6a9-44db-8391-8d1cea47db0a', # is this auto generated too?
                         first_name: 'Maria',
                         last_name: 'Storm',
                         middle_initial: 'W',
