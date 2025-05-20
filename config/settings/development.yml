@@ -33,6 +33,7 @@ authorization_server_scopes_api:
   auth_server:
     url: https://sandbox-api.va.gov/internal/auth/v2/server
 avs:
+  aa_a: false
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: true
   timeout: 55
@@ -1391,11 +1392,11 @@ vanotify:
     dependents:
       api_key: fake_secret
       email:
-        received674: 
+        received674:
           template_id: fake_received674
-        received686: 
+        received686:
           template_id: fake_received686
-        received686c674: 
+        received686c674:
           template_id: fake_received686c674
         submitted674:
           template_id: fake_submitted674
