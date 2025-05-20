@@ -23,8 +23,45 @@ command -v docker >/dev/null 2>&1 || abort "Docker is not installed."
 
 docker compose version >/dev/null 2>&1 || abort "Docker Compose v2 is required (upgrade Docker Desktop)."
 
+# NEW: verify docker daemon running or attempt to start
+if ! docker info >/dev/null 2>&1; then
+  header "Docker daemon not detected; attempting to start it"
+  uname_out=$(uname -s)
+  case "${uname_out}" in
+    Darwin)
+      # macOS – try to launch Docker Desktop
+      open --background -a Docker || true
+      printf "  • Waiting for Docker Desktop to start"
+      for i in {1..30}; do
+        if docker info >/dev/null 2>&1; then
+          echo " ✓"
+          break
+        fi
+        printf "."; sleep 5
+      done
+      ;;
+    Linux)
+      if command -v systemctl >/dev/null 2>&1; then
+        sudo systemctl start docker || true
+      fi
+      ;;
+  esac
+
+  # Final check
+  if ! docker info >/dev/null 2>&1; then
+    abort "Docker daemon still not running after attempts. Please start Docker manually and re-run the script."
+  fi
+fi
+
 # Ensure we are in the repo root (contains Gemfile)
 [ -f "Gemfile" ] || abort "Run this script from the vets-api repository root."
+
+# Set default platform for Apple Silicon to avoid missing amd64 images
+arch=$(uname -m)
+if [[ "$arch" == "arm64" || "$arch" == "aarch64" ]]; then
+  header "Apple Silicon detected; setting DOCKER_DEFAULT_PLATFORM=linux/amd64 for image compatibility"
+  export DOCKER_DEFAULT_PLATFORM=linux/amd64
+fi
 
 # ---------- Local artifact setup ---------------------------------------------
 header "Preparing local configuration files"
@@ -60,12 +97,20 @@ header "Building vets-api web image (this can take a few minutes)"
 docker compose build web
 
 # ---------- Database setup ----------------------------------------------------
-header "Preparing database (rails db:prepare)"
+header "Preparing database (development & test)"
+# development env is default
 docker compose run --rm web bundle exec rails db:prepare
+# test env
+docker compose run --rm -e RAILS_ENV=test web bundle exec rails db:prepare
 
 # ---------- Smoke-test --------------------------------------------------------
-header "Running fast spec subset (spec/lib & spec/models)"
-docker compose run --rm web bundle exec rspec spec/lib spec/models
+header "Running RSpec smoke test"
+RSPEC_PATH=${BOOTSTRAP_RSPEC_PATH:-spec/smoke}
+if [[ "$RSPEC_PATH" == "skip" ]]; then
+  echo "Skipping RSpec run (BOOTSTRAP_RSPEC_PATH=skip)"
+else
+  docker compose run --rm web bundle exec rspec ${RSPEC_PATH}
+fi
 
 end_time=$(date +%s)
 elapsed=$(( end_time - start_time ))
