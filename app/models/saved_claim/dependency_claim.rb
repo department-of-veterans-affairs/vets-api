@@ -46,7 +46,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   after_initialize do
     self.form_id = if Flipper.enabled?(:va_dependents_v2)
-                     use_v2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
+                     if use_v2 || form_id == '686C-674-V2'
+                       '686C-674-V2'
+                     else
+                       self.class::FORM.upcase
+                     end
                    else
                      self.class::FORM.upcase
                    end
@@ -58,7 +62,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     processed_pdfs = []
     if form_id == '21-674-V2'
-      parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+      parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
         processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
       end
     else
@@ -165,8 +169,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # end
 
   def to_pdf(form_id: FORM, student: nil)
+    original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
+  ensure
+    self.form_id = original_form_id
   end
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength

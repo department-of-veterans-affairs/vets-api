@@ -1,5 +1,6 @@
 name: CodeQL
-'on':
+
+on:
   push:
     branches:
       - master
@@ -7,8 +8,9 @@ name: CodeQL
     branches:
       - master
   schedule:
-    - cron: 48 18 * * 6
-  workflow_dispatch: null
+    - cron: '48 18 * * 6'
+  workflow_dispatch:
+
 jobs:
   analyze:
     name: Analyze
@@ -21,9 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language:
-          - ruby
-          - javascript
+        language: [ruby, javascript]
     steps:
       - name: Run Code Scanning
         uses: department-of-veterans-affairs/codeql-tools/codeql-analysis@main
@@ -32,7 +32,7 @@ jobs:
           config-file: ./.github/codeql/config.yml
 
   assign-failure-label:
-    if: github.event_name == 'pull_request' && failure() && !contains(github.event.pull_request.labels.*.name, 'codeql-failure')
+    if: github.event_name == 'pull_request' && failure()
     needs: [analyze]
     runs-on: ubuntu-latest
     steps:
@@ -42,11 +42,10 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            codeql-failure
+          labels: codeql-failure
 
   remove-failure-label:
-    if: github.event_name == 'pull_request' && success() && contains(github.event.pull_request.labels.*.name, 'codeql-failure')
+    if: github.event_name == 'pull_request' && success()
     needs: [analyze]
     runs-on: ubuntu-latest
     steps:
@@ -56,5 +55,4 @@ jobs:
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            codeql-failure
+          labels: codeql-failure

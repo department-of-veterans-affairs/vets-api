@@ -288,13 +288,12 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, true, true,
                                            true])
           friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
-          expect(friendly_name_values).to include('Authorization to Disclose Information')
-          expect(friendly_name_values).to include('Proof of Service')
+          expect(friendly_name_values).to include('Authorization to disclose information')
+          expect(friendly_name_values).to include('Proof of service')
           expect(friendly_name_values).to include('Employment information')
           expect(friendly_name_values).to include('Direct deposit information')
           expect(friendly_name_values).to include('Details about cause of PTSD')
           expect(friendly_name_values).to include('Reserve records')
-          expect(friendly_name_values).to include('Proof of Service')
           expect(friendly_name_values).to include('Non-VA medical records')
           expect(friendly_name_values).to include('Disability exam for hearing')
           expect(friendly_name_values).to include('Mental health exam')
@@ -302,8 +301,6 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(activity_description_values).to include('We need your permission to request your personal' \
                                                          ' information from a non-VA source, like a private' \
                                                          ' doctor or hospital.')
-          expect(activity_description_values).to include('We\'ve requested your Proof of Service on your behalf.' \
-                                                         ' No action is needed.')
           expect(activity_description_values).to include('We need employment information from your most' \
                                                          ' recent employer.')
           expect(activity_description_values).to include('We need your direct deposit information in' \
@@ -312,7 +309,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                          ' your posttraumatic stress disorder (PTSD).')
           expect(activity_description_values).to include('We\'ve requested your reserve records on' \
                                                          ' your behalf. No action is needed.')
-          expect(activity_description_values).to include('We\'ve requested your Proof of Service on' \
+          expect(activity_description_values).to include('We\'ve requested your proof of service on' \
                                                          ' your behalf. No action is needed.')
           expect(activity_description_values).to include('We\'ve requested your non-VA medical records on' \
                                                          ' your behalf. No action is needed.')
@@ -329,7 +326,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
                                                       ' DD Form 214\'s or other separation papers for all' \
                                                       ' your periods of military service.')
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }
-          expect(support_alias_values).to include(['VA Form 21-4142'])
+          expect(support_alias_values).to include(['21-4142/21-4142a'])
           expect(support_alias_values).to include(['VA Form 21-4192'])
           expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
           expect(support_alias_values).to include(['VA Form 21-0781', 'PTSD - Need stressor details'])

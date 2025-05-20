@@ -30,6 +30,7 @@ module IvcChampva
         resp = connection.post("#{config.base_path}/champva-applications") do |req|
           req.headers = headers(transaction_uuid, acting_user)
           req.body = ves_request_data.to_json
+          req.options = { timeout: 60 } # in seconds, anything lower than 5 will certainly cause problems
         end
 
         monitor.track_ves_response(transaction_uuid, resp.status, resp.body)

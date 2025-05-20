@@ -8,6 +8,9 @@ module PdfFill
     HEADER_FOOTER_BOUNDS_HEIGHT = 20
     LABEL_WIDTH = 91
     FREE_TEXT_QUESTION_WIDTH = 404
+    MEAN_CHAR_WIDTH = 4.5
+    HEADER_BODY_GAP = 25
+    BODY_FOOTER_GAP = 27
 
     class Question
       attr_accessor :section_index, :overflow
@@ -18,10 +21,16 @@ module PdfFill
         @text = question_text
         @subquestions = []
         @overflow = false
+        @show_suffix = metadata[:show_suffix] || false
       end
 
       def numbered_label_markup
-        prefix = @number.to_i == @number ? "#{@number}. " : ''
+        suffix = if @show_suffix && @subquestions.size == 1
+                   @subquestions.first[:metadata][:question_suffix]&.downcase
+                 else
+                   ''
+                 end
+        prefix = @number.to_i == @number ? "#{@number.to_i}#{suffix}. " : ''
         "<h3>#{prefix}#{@text}</h3>"
       end
 
@@ -123,21 +132,64 @@ module PdfFill
     end
 
     class FreeTextQuestion < Question
+      def render(pdf, list_format: false)
+        pdf.markup(numbered_label_markup) unless list_format
+        chunks = sorted_subquestions_markup
+        chunks.flatten.each do |chunk|
+          margin_bottom = chunk == Prawn::Text::NBSP ? 10 : 0
+          pdf.markup(chunk, text: { margin_bottom: })
+        end
+      end
+
       def sorted_subquestions_markup
         @subquestions.map do |subq|
           format_options = subq[:metadata][:format_options] || {}
-          value = subq[:value].to_s
+          width = format_options[:question_width] || FREE_TEXT_QUESTION_WIDTH
 
-          if value == 'no response'
-            value = "<i>#{value}</i>"
+          split_into_lines(subq[:value].to_s, width).map do |chunk|
+            if chunk == 'no response'
+              "<i>#{chunk}</i>"
+            elsif format_options[:bold_value]
+              "<b>#{chunk}</b>"
+            else
+              chunk
+            end
+          end
+        end
+      end
+
+      def split_into_lines(text, width) # rubocop:disable Metrics/MethodLength
+        return ['no response'] if text.blank?
+
+        # Approximate characters per line based on width
+        chars_per_line = (width / MEAN_CHAR_WIDTH).to_i
+
+        chunks = []
+        paragraphs = text.to_s.split(/\n+/)
+        paragraphs.each do |paragraph|
+          if paragraph.length <= chars_per_line
+            chunks << paragraph
           else
-            value = "<p>#{value}</p>".gsub("\n", '</p><p>')
-            value = value.gsub('<p>', '<p><b>').gsub('</p>', '</b></p>') if format_options[:bold_value]
+            current_line = ''
+
+            paragraph.split(/\s+/).each do |word|
+              if (current_line.length + word.length + 1) <= chars_per_line
+                current_line += ' ' unless current_line.empty?
+                current_line += word
+              else
+                chunks << current_line unless current_line.empty?
+                current_line = word
+              end
+            end
+
+            chunks << current_line unless current_line.empty?
           end
 
-          width = format_options[:question_width] || FREE_TEXT_QUESTION_WIDTH
-          "<tr><td style='width:#{width}'>#{value}</td><td></td></tr>"
+          # Add a No-Break Space as a separate chunk to represent paragraph break
+          chunks << Prawn::Text::NBSP unless paragraph == paragraphs.last
         end
+
+        chunks.empty? ? ['no response'] : chunks
       end
     end
 
@@ -261,7 +313,7 @@ module PdfFill
 
       def render(pdf)
         render_title(pdf)
-        @items.each.with_index(1) do |question, index|
+        @items.compact.each.with_index(1) do |question, index|
           render_item(pdf, question, index)
         end
       end
@@ -283,7 +335,7 @@ module PdfFill
         heights = { title: measure_title_height(temp_pdf) }
         heights[:items] = []
 
-        @items.each.with_index(1) do |question, index|
+        @items.compact.each.with_index(1) do |question, index|
           temp_pdf.start_new_page
           heights[:items] << measure_item_height(temp_pdf, question, index)
         end
@@ -300,6 +352,10 @@ module PdfFill
       @sections               = options[:sections]
       @questions              = {}
       super()
+    end
+
+    def placeholder_text
+      'See attachment'
     end
 
     def set_font(pdf)
@@ -361,7 +417,7 @@ module PdfFill
     end
 
     def measure_content_heights(generate_blocks)
-      temp_pdf = Prawn::Document.new
+      temp_pdf = Prawn::Document.new(page_size: [612.0, 10_000.0])
       set_font(temp_pdf)
       heights = {}.compare_by_identity
 
@@ -428,11 +484,10 @@ module PdfFill
       block_heights = measure_content_heights(generate_blocks)
 
       current_section_index = nil
-      box_height = 25
       pdf.bounding_box(
-        [pdf.bounds.left, pdf.bounds.top - box_height],
+        [pdf.bounds.left, pdf.bounds.top - HEADER_BODY_GAP],
         width: pdf.bounds.width,
-        height: pdf.bounds.height - box_height
+        height: pdf.bounds.height - HEADER_BODY_GAP - BODY_FOOTER_GAP
       ) do
         generate_blocks.each do |block|
           section_index = block.section_index
@@ -475,7 +530,7 @@ module PdfFill
       heights = block_heights.dig(block, :items).select(&:positive?)
 
       block.items
-           .select(&:should_render?)
+           .select { |item| item&.should_render? }
            .zip(heights) # pair each item with its height
            .each.with_index(1) do |(item, height), index|
              pdf.start_new_page unless will_fit_on_page?(pdf, height)
@@ -512,11 +567,16 @@ module PdfFill
     end
 
     def add_page_numbers(pdf)
-      pdf.number_pages('Page <page>',
-                       start_count_at: @start_page,
-                       at: [pdf.bounds.right - 50, pdf.bounds.bottom],
-                       align: :right,
-                       size: FOOTER_FONT_SIZE)
+      pdf.repeat :all, dynamic: true do
+        pdf.bounding_box(
+          [pdf.bounds.left, pdf.bounds.bottom + HEADER_FOOTER_BOUNDS_HEIGHT],
+          width: pdf.bounds.width,
+          height: HEADER_FOOTER_BOUNDS_HEIGHT
+        ) do
+          pdf.markup("Page #{pdf.page_number + @start_page - 1}",
+                     text: { align: :right, valign: :bottom, size: FOOTER_FONT_SIZE })
+        end
+      end
     end
 
     def add_footer(pdf)
@@ -525,9 +585,12 @@ module PdfFill
         txt = "Signed electronically and submitted via VA.gov at #{ts}. " \
               'Signee signed with an identity-verified account.'
         pdf.repeat :all do
-          pdf.bounding_box([pdf.bounds.left, pdf.bounds.bottom], width: pdf.bounds.width,
-                                                                 height: HEADER_FOOTER_BOUNDS_HEIGHT) do
-            pdf.markup(txt, text: { align: :left, size: FOOTER_FONT_SIZE })
+          pdf.bounding_box(
+            [pdf.bounds.left, pdf.bounds.bottom + HEADER_FOOTER_BOUNDS_HEIGHT],
+            width: pdf.bounds.width,
+            height: HEADER_FOOTER_BOUNDS_HEIGHT
+          ) do
+            pdf.markup(txt, text: { align: :left, valign: :bottom, size: FOOTER_FONT_SIZE })
           end
         end
       end
@@ -557,7 +620,8 @@ module PdfFill
         table: {
           cell: {
             border_width: 0,
-            padding: [1, 0, 1, 0]
+            padding: [1, 0, 1, 0],
+            overflow: :shrink_to_fit
           }
         },
         text: {

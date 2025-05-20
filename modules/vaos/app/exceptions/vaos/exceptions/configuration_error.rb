@@ -20,6 +20,8 @@ module VAOS
       #
       def initialize(error, service_name = 'VAOS')
         @error = error
+        Rails.logger.error("Configuration Error: #{error.message}")
+        Rails.logger.error(error.backtrace.join("\n")) if error.backtrace.present?
 
         super(
           detail: "The #{service_name} service is unavailable due to a configuration issue",
