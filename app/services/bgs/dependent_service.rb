@@ -28,6 +28,7 @@ module BGS
       @icn = user.icn
       @participant_id = user.participant_id
       @va_profile_email = user.va_profile_email
+      @v2 = Flipper.enabled?(:va_dependents_v2, user)
     end
 
     def get_dependents
@@ -79,7 +80,8 @@ module BGS
         claim.id,
         encrypted_vet_info,
         claim.submittable_686?,
-        claim.submittable_674?
+        claim.submittable_674?,
+        @v2
       )
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e

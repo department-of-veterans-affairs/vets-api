@@ -9,7 +9,7 @@ module VBMS
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16
-    attr_reader :claim
+    attr_reader :claim, :v2
 
     sidekiq_retries_exhausted do |msg, error|
       Rails.logger.error('VBMS::SubmitDependentsPdfJob failed, retries exhausted!',
@@ -17,10 +17,11 @@ module VBMS
     end
 
     # Generates PDF for 686c form and uploads to VBMS
-    def perform(saved_claim_id, encrypted_vet_info, submittable_686_form, submittable_674_form)
+    def perform(saved_claim_id, encrypted_vet_info, submittable_686_form, submittable_674_form, v2)
       va_file_number_with_payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('VBMS::SubmitDependentsPdfJob running!', { saved_claim_id: })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      @v2 = v2 # assign instance var to access throughout job
       claim.add_veteran_info(va_file_number_with_payload)
 
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
@@ -56,9 +57,8 @@ module VBMS
     end
 
     def generate_pdf(submittable_686_form, submittable_674_form)
-      use_v2 = Flipper.enabled?(:va_dependents_v2)
-      pdf686 = use_v2 ? '686C-674-V2' : '686C-674'
-      pdf674 = use_v2 ? '21-674-V2' : '21-674'
+      pdf686 = v2 ? '686C-674-V2' : '686C-674'
+      pdf674 = v2 ? '21-674-V2' : '21-674'
       claim.upload_pdf(pdf686) if submittable_686_form
       claim.upload_pdf(pdf674, doc_type: '142') if submittable_674_form
     end
