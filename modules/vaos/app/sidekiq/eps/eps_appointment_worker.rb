@@ -21,23 +21,29 @@ module Eps
     # Performs the job to process the appointment.
     #
     # @param appointment_id [String] the ID of the appointment to process
-    # @param user [User] the user associated with the appointment
+    # @param user_uuid [String] the UUID of the user
     # @param retry_count [Integer] the current retry count (default: 0)
-    def perform(appointment_id, user, retry_count = 0)
+    def perform(appointment_id, user_uuid, retry_count = 0)
+      user = User.find(user_uuid)
+      return unless user
+
+      user_email = user.va_profile_email
+      return unless user_email
+
       service = Eps::AppointmentService.new(user)
       begin
         response = service.get_appointment(appointment_id:)
         if appointment_finished?(response)
           # Appointment finished successfully, do nothing
         elsif retry_count < MAX_RETRIES
-          self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
+          self.class.perform_in(1.minute, appointment_id, user_uuid, retry_count + 1)
         else
-          send_vanotify_message(user:, error: 'Could not complete booking')
+          send_vanotify_message(email: user_email, error: 'Could not complete booking')
         end
       rescue Common::Exceptions::BackendServiceException
-        send_vanotify_message(user:, error: 'Service error, please contact support')
+        send_vanotify_message(email: user_email, error: 'Service error, please contact support')
       rescue => e
-        send_vanotify_message(user:, error: e.message)
+        send_vanotify_message(email: user_email, error: e.message)
       end
     end
 
@@ -55,11 +61,11 @@ module Eps
     ##
     # Sends a failure message via VaNotify with error details.
     #
-    # @param user [User] the user to send the message to
+    # @param email [String] the email address to send the message to
     # @param error [String, nil] the error message (default: nil)
-    def send_vanotify_message(user:, error: nil)
+    def send_vanotify_message(email:, error: nil)
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-      notify_client.send_email(email_address: user.va_profile_email,
+      notify_client.send_email(email_address: email,
                                template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
                                parameters: {
                                  'error' => error
