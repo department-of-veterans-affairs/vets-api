@@ -25,7 +25,7 @@ module Mobile
           'status' => 'ClaimSubmitted',
           'createdOn' => DateTime.now.to_fs(:iso8601),
           'modifiedOn' => DateTime.now.to_fs(:iso8601)
-        })
+          })
 
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
