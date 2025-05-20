@@ -1,8 +1,3 @@
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
-#  @department-of-veterans-affairs/backend-review-group and @department-of-veterans-affairs/va-api-engineers will be requested for
-# review when someone opens a pull request.
-
 Brewfile @department-of-veterans-affairs/backend-review-group
 Dangerfile @department-of-veterans-affairs/backend-review-group
 Dockerfile @department-of-veterans-affairs/backend-review-group
@@ -2225,4 +2220,3 @@ spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-pro
 spec/uploaders/supporting_evidence_attachment_uploader_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/uploader_virus_scan_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/validate_pdf_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-# Place your entry above this comment in alphabetical order.
