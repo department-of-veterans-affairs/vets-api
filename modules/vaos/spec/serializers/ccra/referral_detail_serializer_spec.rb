@@ -75,6 +75,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         provider = serialized_data[:data][:attributes][:provider]
         expect(provider).to be_a(Hash)
         expect(provider[:name]).to eq(provider_name)
+        expect(provider[:facilityName]).to eq(treating_facility_name)
         expect(provider[:npi]).to eq(provider_npi)
         expect(provider[:phone]).to eq(treating_facility_phone)
 
@@ -131,6 +132,7 @@ RSpec.describe Ccra::ReferralDetailSerializer do
         # Provider should be a hash with nil values
         provider = serialized_data[:data][:attributes][:provider]
         expect(provider[:name]).to be_nil
+        expect(provider[:facilityName]).to be_nil
         expect(provider[:npi]).to be_nil
         expect(provider[:phone]).to be_nil
         expect(provider[:address]).to be_nil
