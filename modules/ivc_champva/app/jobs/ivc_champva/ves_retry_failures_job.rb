@@ -53,7 +53,7 @@ module IvcChampva
 
       # update the database record
       record.update(
-        ves_status: ves_status
+        ves_status:
       )
     end
   end

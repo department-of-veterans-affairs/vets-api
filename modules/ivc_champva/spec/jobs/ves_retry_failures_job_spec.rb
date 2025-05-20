@@ -168,10 +168,10 @@ RSpec.describe IvcChampva::VesRetryFailuresJob, type: :job do
     context 'with invalid JSON data' do
       let(:invalid_record) do
         instance_double(IvcChampvaForm,
-                      form_uuid: 'form-789',
-                      ves_status: 'failed',
-                      created_at: 2.hours.ago,
-                      ves_request_data: 'invalid json')
+                        form_uuid: 'form-789',
+                        ves_status: 'failed',
+                        created_at: 2.hours.ago,
+                        ves_request_data: 'invalid json')
       end
 
       before do
