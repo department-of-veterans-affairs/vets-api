@@ -51,6 +51,52 @@ RSpec.describe 'V0::IntentToFile', type: :request do
         end
       end
 
+      context 'for non-compensation ITF types' do
+        let(:intent_to_file) do
+          {
+            'data' => {
+              'id' => '193685',
+              'type' => 'intent_to_file',
+              'attributes' => {
+                'creationDate' => '2021-03-16T19:15:21.000-05:00',
+                'expirationDate' => '2022-03-16T19:15:20.000-05:00',
+                'type' => itf_type,
+                'status' => 'active'
+              }
+            }
+          }
+        end
+
+        before do
+          expect_any_instance_of(BenefitsClaims::Service).to receive(:get_intent_to_file)
+            .with(itf_type, anything, nil).and_return(intent_to_file)
+        end
+
+        context 'with a pension ITF type' do
+          let(:itf_type) { 'pension' }
+
+          it 'matches the intent to files schema' do
+            get '/v0/intent_to_file/pension'
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('intent_to_files')
+            expect(JSON.parse(response.body)['data']['attributes']['intent_to_file'][0]['type']).to eq itf_type
+          end
+        end
+
+        context 'with a survivor ITF type' do
+          let(:itf_type) { 'survivor' }
+
+          it 'matches the intent to files schema' do
+            get '/v0/intent_to_file/survivor'
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('intent_to_files')
+            expect(JSON.parse(response.body)['data']['attributes']['intent_to_file'][0]['type']).to eq itf_type
+          end
+        end
+      end
+
       context 'error handling tests' do
         [:'404'].each do |status, _error_class|
           error_status = status.to_s.to_i
@@ -79,6 +125,49 @@ RSpec.describe 'V0::IntentToFile', type: :request do
             expect(response).to match_response_schema('evss_errors', strict: false)
           end
         end
+      end
+    end
+  end
+
+  describe 'POST /v0/intent_to_file' do
+    before do
+      allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('test_token')
+    end
+
+    shared_examples 'create intent to file with specified itf type' do
+      let(:intent_to_file) do
+        {
+          'data' => {
+            'id' => '193685',
+            'type' => 'intent_to_file',
+            'attributes' => {
+              'creationDate' => '2021-03-16T19:15:21.000-05:00',
+              'expirationDate' => '2022-03-16T19:15:20.000-05:00',
+              'type' => itf_type,
+              'status' => 'active'
+            }
+          }
+        }
+      end
+
+      it 'matches the respective intent to file schema' do
+        expect_any_instance_of(BenefitsClaims::Service).to receive(:create_intent_to_file)
+          .with(itf_type, user.ssn, nil).and_return(intent_to_file)
+
+        post "/v0/intent_to_file/#{itf_type}"
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_response_schema('intent_to_file')
+        expect(JSON.parse(response.body)['data']['attributes']['intent_to_file']['type']).to eq itf_type
+      end
+    end
+
+    context 'when an ITF create request is submitted' do
+      it_behaves_like 'create intent to file with specified itf type' do
+        let(:itf_type) { 'pension' }
+      end
+      it_behaves_like 'create intent to file with specified itf type' do
+        let(:itf_type) { 'survivor' }
       end
     end
   end

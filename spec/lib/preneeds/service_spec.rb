@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'preneeds/service'
+require 'vets/collection'
 
 describe Preneeds::Service do
   let(:subject) { described_class.new }
@@ -13,7 +14,7 @@ describe Preneeds::Service do
         subject.get_cemeteries
       end
 
-      expect(cemeteries).to be_a(Common::Collection)
+      expect(cemeteries).to be_a(Vets::Collection)
       expect(cemeteries.type).to eq(Preneeds::Cemetery)
     end
   end

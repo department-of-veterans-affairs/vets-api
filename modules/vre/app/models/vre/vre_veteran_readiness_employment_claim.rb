@@ -85,9 +85,13 @@ module VRE
       end
 
       send_vbms_confirmation_email(user)
-    rescue
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+    rescue => e
+      log_error(user, e)
       send_to_lighthouse!(user)
+    end
+
+    def to_pdf(file_name = nil)
+      PdfFill::Filler.fill_form(self, file_name, { created_at: })
     end
 
     # Submit claim into lighthouse service, adds veteran info to top level of form,
@@ -243,9 +247,13 @@ module VRE
       elapsed_time = Time.current - start_time
       StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
     end
-  end
 
-  def to_pdf(file_name = nil)
-    PdfFill::Filler.fill_form(self, file_name, { created_at: })
+    def log_error(user, e)
+      if Flipper.enabled?(:vre_enable_vbms_exception_logging)
+        Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
+      else
+        Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+      end
+    end
   end
 end
