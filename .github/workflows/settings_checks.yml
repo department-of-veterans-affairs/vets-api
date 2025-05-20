@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
-      - 'vets-api/config/**'
+      - 'config/**'
 permissions:
   contents: read
   checks: write
