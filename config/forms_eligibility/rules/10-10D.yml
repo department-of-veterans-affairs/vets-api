@@ -10,6 +10,7 @@ rules:
         value: "Married"
     then:
       eligible: true
+      suggested_for: "spouse"
       reason: "As the spouse of a Veteran who has a permanent and total service-connected disability, you may be eligible for CHAMPVA benefits."
       confidence: medium
       target_form_name: "10-10D"
@@ -25,6 +26,7 @@ rules:
         operator: "is_true"
     then:
       eligible: true
+      suggested_for: "child"
       reason: "As the dependent child (under 18) of a Veteran who has a permanent and total service-connected disability, you may be eligible for CHAMPVA benefits."
       confidence: medium
       target_form_name: "10-10D"
