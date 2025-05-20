@@ -35,23 +35,22 @@ module AccreditedRepresentativePortal
       Rails.logger.info "Registration numbers: #{@registration_numbers}"
       @email.present? or
         raise ArgumentError, 'Must set user email'
-      if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
-        @registrations ||= Array(
-          @registration_numbers.map do |registration_number|
-            OpenStruct.new(
-              accredited_individual_registration_number: registration_number,
-              power_of_attorney_holder_type: 'veteran_service_organization', 
-              user_account_email: @email,
-              user_account_icn: icn
-            )
-          end
-        )
-      else
-        @registrations ||=
-          UserAccountAccreditedIndividual.for_user_account_email(
-            @email, user_account_icn: icn
-          )
-      end
+      @registrations ||= if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
+                           Array(
+                             @registration_numbers.map do |registration_number|
+                               OpenStruct.new(
+                                 accredited_individual_registration_number: registration_number,
+                                 power_of_attorney_holder_type: 'veteran_service_organization',
+                                 user_account_email: @email,
+                                 user_account_icn: icn
+                               )
+                             end
+                           )
+                         else
+                           UserAccountAccreditedIndividual.for_user_account_email(
+                             @email, user_account_icn: icn
+                           )
+                         end
     end
 
     def power_of_attorney_holders

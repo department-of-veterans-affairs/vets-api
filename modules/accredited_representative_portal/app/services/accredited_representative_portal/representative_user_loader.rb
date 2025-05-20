@@ -81,9 +81,6 @@ module AccreditedRepresentativePortal
         user.registration_numbers = registration_numbers
       end
       user.save
-
-      Rails.logger.info("Accredited Representative User loaded: #{user.uuid} with email: #{user.email}")
-
       @current_user = user
     end
 
@@ -97,7 +94,7 @@ module AccreditedRepresentativePortal
         representatives = Veteran::Service::Representative.where(email: access_token.user_attributes['all_emails'])
 
         if representatives.empty?
-          raise Common::Exceptions::Unauthorized, 
+          raise Common::Exceptions::Unauthorized,
                 detail: 'Email not associated with any accredited representative'
         elsif representatives.size > 1
           raise Common::Exceptions::Unauthorized,
