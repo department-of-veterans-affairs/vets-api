@@ -13,6 +13,11 @@ module BenefitsClaims
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
+    # #90936 - according to the research done here,
+    # the 960 EP Code was flagged as a claim group that
+    # should be filtered out before they are sent to VA.gov and Mobile
+    FILTERED_BASE_END_PRODUCT_CODES = %w[960].freeze
+
     SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
     def initialize(icn)
@@ -26,7 +31,7 @@ module BenefitsClaims
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-      claims['data'] = filter_by_status(claims['data'])
+      claims['data'] = filter_by_status(claims['data']).filter_by_ep_code
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -281,6 +286,10 @@ module BenefitsClaims
 
     def filter_by_status(items)
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
+    end
+
+    def filter_by_ep_code(items)
+      items.reject { |item| FILTERED_BASE_END_PRODUCT_CODES.include?(item.dig('attributes', 'baseEndProductCode')) }
     end
 
     def override_tracked_items(claim)

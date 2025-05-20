@@ -54,6 +54,45 @@ RSpec.describe BenefitsClaims::Service do
             expect(response['data'].length).to eq(6)
           end
         end
+
+        it 'filters out claims with certain base end product codes' do
+          data = [{ 'id' => '600561746',
+                    'type' => 'claim',
+                    'attributes' =>
+                     { 'baseEndProductCode' => '020',
+                       'claimDate' => '2024-09-24',
+                       'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'COMPLETE' },
+                       'claimType' => 'Compensation',
+                       'claimTypeCode' => '020SUPP',
+                       'closeDate' => '2024-11-20',
+                       'decisionLetterSent' => true,
+                       'developmentLetterSent' => false,
+                       'documentsNeeded' => false,
+                       'endProductCode' => '020',
+                       'evidenceWaiverSubmitted5103' => false,
+                       'lighthouseId' => '2615b33c-cfe8-4dbe-a331-c69f01863750',
+                       'status' => 'OPEN' } },
+                  { 'id' => '600561747',
+                    'type' => 'claim',
+                    'attributes' =>
+                      { 'baseEndProductCode' => '960',
+                        'claimDate' => '2024-09-24',
+                        'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'COMPLETE' },
+                        'claimType' => 'Compensation',
+                        'claimTypeCode' => '960ADMER',
+                        'closeDate' => '2024-11-20',
+                        'decisionLetterSent' => true,
+                        'developmentLetterSent' => false,
+                        'documentsNeeded' => false,
+                        'endProductCode' => '961',
+                        'evidenceWaiverSubmitted5103' => false,
+                        'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44a',
+                        'status' => 'COMPLETE' } }]
+
+          # #110154 - it should filter out the base end product code 960
+          results = @service.send(:filter_by_ep_code, data)
+          expect(results.length).to eq(1)
+        end
       end
 
       describe 'when requesting one single benefit claim' do

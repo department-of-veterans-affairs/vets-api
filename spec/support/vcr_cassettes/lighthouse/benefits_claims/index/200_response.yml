@@ -258,6 +258,27 @@ http_interactions:
                           "lighthouseId":null,
                           "status":"EVIDENCE_GATHERING_REVIEW_DECISION"
                        }
+                    },
+                    {
+                       "id":"600229972",
+                       "type":"claim",
+                       "attributes":{
+                          "baseEndProductCode": "960",
+                          "claimDate":"2024-04-22",
+                          "claimPhaseDates":{
+                             "phaseChangeDate":"2024-05-22"
+                          },
+                          "claimType":"Administrative Error",
+                          "claimTypeCode": "960ADMER",
+                          "closeDate":null,
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"961",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION"
+                       }
                     }
                  ]
               }'
