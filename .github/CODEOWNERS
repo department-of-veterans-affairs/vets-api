@@ -321,7 +321,7 @@ app/policies/coe_policy.rb @department-of-veterans-affairs/benefits-non-disabili
 app/policies/communication_preferences_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/debt_letters_policy.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/policies/debt_policy.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
-app/policies/demographics_policy.rb@department-of-veterans-affairs/mobile-api-team
+app/policies/demographics_policy.rb @department-of-veterans-affairs/mobile-api-team
 app/policies/form1095_policy.rb @department-of-veterans-affairs/vfs-1095-b @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/hca_disability_rating_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/lighthouse_policy.rb @department-of-veterans-affairs/backend-review-group
@@ -595,7 +595,7 @@ app/swagger/swagger/schemas/health/prescriptions.rb @department-of-veterans-affa
 app/swagger/swagger/schemas/health/trackings.rb @department-of-veterans-affairs/vfs-mhv-medications
 app/swagger/swagger/schemas/health/triage_teams.rb @department-of-veterans-affairs/vfs-mhv-medications
 app/swagger/swagger/schemas/intent_to_file.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/disability-benefits
-app/swagger/swagger/schemas/letter_beneficiary.rb@department-of-veterans-affairs/mobile-api-team
+app/swagger/swagger/schemas/letter_beneficiary.rb @department-of-veterans-affairs/mobile-api-team
 app/swagger/swagger/schemas/maintenance_windows.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/onsite_notifications.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/payment_history.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
@@ -1181,7 +1181,7 @@ spec/factories/caregivers_assistance_claim.rb @department-of-veterans-affairs/vf
 spec/factories/central_mail_submissions.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
 spec/factories/coe_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/factories/configurations.rb@department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/configurations.rb @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/decision_review_evidence_attachment.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/decision_review_notification_audit_logs.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/factories/dependency_claim_no_vet_information.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1937,11 +1937,11 @@ spec/support/schemas_camelized/gi @department-of-veterans-affairs/va-api-enginee
 spec/support/schemas_camelized/intent_to_file_base.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/intent_to_file.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/intent_to_files.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/schemas_camelized/letter_base.json@department-of-veterans-affairs/mobile-api-team
-spec/support/schemas_camelized/letter_beneficiary_benefit_information_dependent.json@department-of-veterans-affairs/mobile-api-team
-spec/support/schemas_camelized/letter_beneficiary_benefit_information_veteran.json@department-of-veterans-affairs/mobile-api-team
-spec/support/schemas_camelized/letter_beneficiary.json@department-of-veterans-affairs/mobile-api-team
-spec/support/schemas_camelized/letters.json@department-of-veterans-affairs/mobile-api-team
+spec/support/schemas_camelized/letter_base.json @department-of-veterans-affairs/mobile-api-team
+spec/support/schemas_camelized/letter_beneficiary_benefit_information_dependent.json @department-of-veterans-affairs/mobile-api-team
+spec/support/schemas_camelized/letter_beneficiary_benefit_information_veteran.json @department-of-veterans-affairs/mobile-api-team
+spec/support/schemas_camelized/letter_beneficiary.json @department-of-veterans-affairs/mobile-api-team
+spec/support/schemas_camelized/letters.json @department-of-veterans-affairs/mobile-api-team
 spec/support/schemas_camelized/message_threads.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/message_with_attachment.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/message.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -2017,9 +2017,9 @@ spec/support/schemas/intent_to_file_base.json @department-of-veterans-affairs/di
 spec/support/schemas/intent_to_file.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/intent_to_files.json @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/letter_base.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/schemas/letter_beneficiary_benefit_information_dependent.json@department-of-veterans-affairs/mobile-api-team
-spec/support/schemas/letter_beneficiary_benefit_information_veteran.json@department-of-veterans-affairs/mobile-api-team
-spec/support/schemas/letter_beneficiary.json@department-of-veterans-affairs/mobile-api-team
+spec/support/schemas/letter_beneficiary_benefit_information_dependent.json @department-of-veterans-affairs/mobile-api-team
+spec/support/schemas/letter_beneficiary_benefit_information_veteran.json @department-of-veterans-affairs/mobile-api-team
+spec/support/schemas/letter_beneficiary.json @department-of-veterans-affairs/mobile-api-team
 spec/support/schemas/letter.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/letters.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/mdot_accepted.json @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
