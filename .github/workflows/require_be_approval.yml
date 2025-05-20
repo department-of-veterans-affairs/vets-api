@@ -24,21 +24,29 @@ jobs:
         id: approval_permissions
         run: |
           # Pull recent data
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_BRANCH="${{ github.head_ref }}"
 
-          echo "pr_branch=${{ github.head_ref }}" >> $GITHUB_OUTPUT
-          echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
-          DATA=$(gh pr view ${{ github.event.pull_request.number }} --json isDraft,labels --jq '{draft: .isDraft, labels: [.labels[].name]}')
-          DRAFT=$(echo "$DATA" | jq -r '.draft')
-          LABELS=$(echo "$DATA" | jq -r '.labels[]')
-          echo "pr_draft='$DRAFT'" >> $GITHUB_OUTPUT
-          echo "Labels on PR: $LABELS"
+          # Fetch PR details from GitHub API
+          PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
+            draft: .draft,
+            labels: [.labels[].name]
+          }')
 
-          if ! echo "$LABELS" | grep -q "require-backend-approval"; then
-            echo "require_be_approval=false" >> $GITHUB_OUTPUT
+          PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
+          PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
+
+          echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
+          echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
+
+          if ! echo "$PR_LABELS" | grep -q "require-backend-approval"; then
+            echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
             echo "Label 'require-backend-approval' not found. Exiting successfully."
           else
-            echo "require_be_approval=true" >> $GITHUB_OUTPUT
+            echo "require_be_approval=true" >> "$GITHUB_OUTPUT"
             echo "Label 'require-backend-approval' found. Approval required."
           fi
 
@@ -119,7 +127,7 @@ jobs:
             fi
           done
 
-          echo "failures_detected=$failures" >> $GITHUB_OUTPUT
+          echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -202,10 +210,10 @@ jobs:
           # Check if PR author is in BACKEND_REVIEWERS
           if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
-            echo "author_is_backend=true" >> $GITHUB_OUTPUT
+            echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
           else
             echo "PR author '$PR_AUTHOR' is NOT a backend-review-group member."
-            echo "author_is_backend=false" >> $GITHUB_OUTPUT
+            echo "author_is_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
           TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
@@ -220,9 +228,9 @@ jobs:
 
           echo "Number of non backend-review-group approvals: $TEAM_APPROVALS"
           if [ "$TEAM_APPROVALS" -eq 0 ]; then
-            echo "team_approval_status=required" >> $GITHUB_OUTPUT
+            echo "team_approval_status=required" >> "$GITHUB_OUTPUT"
           else
-            echo "team_approval_status=confirmed" >> $GITHUB_OUTPUT
+            echo "team_approval_status=confirmed" >> "$GITHUB_OUTPUT"
           fi
 
           BE_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
@@ -237,9 +245,9 @@ jobs:
 
           echo "Number of backend-review-group approvals: $BE_APPROVALS"
           if [ "$BE_APPROVALS" -eq 0 ]; then
-            echo "approval_status=required" >> $GITHUB_OUTPUT
+            echo "approval_status=required" >> "$GITHUB_OUTPUT"
           else
-            echo "approval_status=confirmed" >> $GITHUB_OUTPUT
+            echo "approval_status=confirmed" >> "$GITHUB_OUTPUT"
           fi
 
   update-labels:
