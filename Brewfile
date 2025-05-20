@@ -1,6 +1,7 @@
 brew 'clamav' # anti-virus scanner
 brew 'coreutils' # gnu coreutils
 brew 'docker-compose'
+brew 'ghostscript'
 brew 'imagemagick'
 brew 'memcached'
 brew 'poppler' # pdf rendering
