@@ -1,0 +1,39 @@
+type: object
+additionalProperties: false
+required:
+  - data
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
+          description: document id
+        type:
+          type: string
+          example: claim_letter_document
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - docType
+            - typeDescription
+            - receivedAt
+          properties:
+            docType:
+              type: string
+              example: 1215
+            typeDescription:
+              type: string
+              example: DMC - Debt Increase Letter
+            receivedAt:
+              type: datetime
+              example: 2024-09-13T178:32:24Z
