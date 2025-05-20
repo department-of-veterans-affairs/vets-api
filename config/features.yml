@@ -2210,3 +2210,6 @@ features:
   debt_deduction_code_filtering:
     actor_type: user
     description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
+  my_va_auth_exp_redesign_enabled:
+    actor_type: user
+    description: When enabled, a user will see the redesigned experience of MyVA.
