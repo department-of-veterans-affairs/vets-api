@@ -5,6 +5,7 @@ module V0
     service_tag 'event_bus_gateway'
 
     skip_before_action :authenticate, only: :send_email
+
     EMAIL_PARAMS = %i[
       participant_id
       template_id
