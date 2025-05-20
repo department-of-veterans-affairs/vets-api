@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Bootstrap Docker environment for vets-api
+# This script provisions local assets, builds containers, prepares the database,
+# and runs a fast-spec smoke-test so that new developers can verify their
+# installation in ~30 minutes or less.
+
+set -euo pipefail
+
+start_time=$(date +%s)
+
+header() {
+  echo -e "\n\033[1;34m==> $*\033[0m"
+}
+
+abort() {
+  echo -e "\033[1;31mERROR: $*\033[0m" >&2
+  exit 1
+}
+
+# ---------- Pre-flight checks -------------------------------------------------
+header "Verifying prerequisites"
+command -v docker >/dev/null 2>&1 || abort "Docker is not installed."
+
+docker compose version >/dev/null 2>&1 || abort "Docker Compose v2 is required (upgrade Docker Desktop)."
+
+# Ensure we are in the repo root (contains Gemfile)
+[ -f "Gemfile" ] || abort "Run this script from the vets-api repository root."
+
+# ---------- Local artifact setup ---------------------------------------------
+header "Preparing local configuration files"
+mkdir -p config/certs
+: > config/certs/vetsgov-localhost.crt
+: > config/certs/vetsgov-localhost.key
+
+if [ ! -f config/settings.local.yml ]; then
+  cp config/settings.local.yml.example config/settings.local.yml
+  echo "  • Created config/settings.local.yml"
+else
+  echo "  • config/settings.local.yml already exists"
+fi
+
+# ---------- Clone mock data repo ---------------------------------------------
+header "Ensuring vets-api-mockdata exists"
+if [ ! -d ../vets-api-mockdata ]; then
+  git clone https://github.com/department-of-veterans-affairs/vets-api-mockdata.git ../vets-api-mockdata || \
+    abort "Unable to clone vets-api-mockdata"
+else
+  echo "  • vets-api-mockdata already present"
+fi
+
+# ---------- Start dependency containers --------------------------------------
+header "Starting dependency containers"
+docker compose -f docker-compose-deps.yml up -d --wait
+
+docker_ps=$(docker compose ps --services --filter=status=running | wc -l)
+[ "$docker_ps" -ge 3 ] || abort "Dependencies failed to start. Run 'docker compose ps' for details."
+
+# ---------- Build application image ------------------------------------------
+header "Building vets-api web image (this can take a few minutes)"
+docker compose build web
+
+# ---------- Database setup ----------------------------------------------------
+header "Preparing database (rails db:prepare)"
+docker compose run --rm web bundle exec rails db:prepare
+
+# ---------- Smoke-test --------------------------------------------------------
+header "Running fast spec subset (spec/lib & spec/models)"
+docker compose run --rm web bundle exec rspec spec/lib spec/models
+
+end_time=$(date +%s)
+elapsed=$(( end_time - start_time ))
+
+header "Bootstrap completed successfully in ${elapsed}s"
+
+echo "\nYou can now run 'docker compose up' to start the full application." 
