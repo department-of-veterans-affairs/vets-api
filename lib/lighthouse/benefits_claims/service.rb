@@ -31,7 +31,8 @@ module BenefitsClaims
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-      claims['data'] = filter_by_status(claims['data']).filter_by_ep_code
+      claims['data'] = filter_by_status(claims['data'])
+      claims['data'] = filter_by_ep_code(claims['data']) if Flipper.enabled?(:cst_filter_ep_codes)
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'

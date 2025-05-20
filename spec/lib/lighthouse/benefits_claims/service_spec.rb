@@ -48,10 +48,18 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
-        it 'filters out claims with certain statuses' do
+        it 'filters out claims with certain statuses and base end product codes' do
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
             expect(response['data'].length).to eq(6)
+          end
+        end
+
+        it 'does not filter out claims with certain base end product codes' do
+          allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(false)
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            response = @service.get_claims
+            expect(response['data'].length).to eq(7)
           end
         end
 
