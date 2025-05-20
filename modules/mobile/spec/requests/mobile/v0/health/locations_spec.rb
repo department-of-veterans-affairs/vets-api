@@ -39,7 +39,7 @@ RSpec.describe 'Mobile::V0::Health::Locations', type: :request do
                                                { 'id' => 'I2-3JYDMXC6RXTU4H25KRVXATSEJQ000000',
                                                  'type' => 'location',
                                                  'attributes' => {
-                                                   'name' => "Cheyenne VA Medical Center",
+                                                   'name' => 'Cheyenne VA Medical Center',
                                                    'address' => {
                                                      'street' => '2360 East Pershing Boulevard',
                                                      'city' => 'Cheyenne',

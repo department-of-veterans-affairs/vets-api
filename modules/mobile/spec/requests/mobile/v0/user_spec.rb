@@ -228,7 +228,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
               {
                 'facilityId' => '757',
                 'isCerner' => true,
-                'facilityName' => "Chalmers P. Wylie Veterans Outpatient Clinic"
+                'facilityName' => 'Chalmers P. Wylie Veterans Outpatient Clinic'
               },
               {
                 'facilityId' => '358',
@@ -345,7 +345,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     context 'empty get_facility test' do
       before do
         VCR.use_cassette('mobile/payment_information/payment_information') do
-        VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
+          VCR.use_cassette('mobile/lighthouse_health/get_facility_v1_empty_757_358') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v0/user', headers: sis_headers
             end
