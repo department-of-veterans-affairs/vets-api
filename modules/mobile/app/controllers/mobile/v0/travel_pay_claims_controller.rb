@@ -20,14 +20,14 @@ module Mobile
 
         Rails.logger.info(message: '[VAHB] SMOC transaction END')
 
-        new_claim_hash = {
+        new_claim_hash = normalize_submission_response({
           'claimId' => submitted_claim['claimId'],
-          'status' => 'InProcess',
+          'status' => 'ClaimSubmitted',
           'createdOn' => DateTime.now.to_fs(:iso8601),
           'modifiedOn' => DateTime.now.to_fs(:iso8601)
-        }
+        })
 
-        render json: TravelPayClaimSummarySerializer.new(normalize_submission_response(new_claim_hash)),
+        render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
       rescue ArgumentError => e
         raise Common::Exceptions::BadRequest, detail: e.message
