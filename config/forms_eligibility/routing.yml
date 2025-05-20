@@ -3,11 +3,17 @@
     - target_form_id: "10-10D"
       rules_file: "rules/10-10D.yml"
       data_mapping:
-        relationship_to_veteran: "_meta.relationship_to_veteran"
-        sc_disability_is_permanent_and_total: "veteranInfo.vaCompensationType"
-        child_date_of_birth: "applicantDetails.dateOfBirth"
-        child_attended_school_last_year: "applicantDetails.attendedSchoolLastYear"
-        veteran_deceased: "veteranInfo.isDeceased"
-        sc_disability_was_permanent_and_total_at_death: "veteranInfo.scPAndTAtDeath"
-        died_in_line_of_duty: "veteranInfo.diedInLineOfDuty"
-        died_from_sc_disability: "veteranInfo.diedFromScDisability" 
+        # Mappings for current 10-10D suggestion rules based on 10-10EZ (kitchen_sink.json)
+        is_veteran_high_disability: "vaCompensationType"
+        is_veteran_married: "maritalStatus"
+        has_qualifying_dependent_child_under_18:
+          transform: "check_for_qualifying_child_under_18"
+          input_path: "dependents"
+        
+        # Example of a transformed field: child_age
+        # This key 'child_age' can be used as a 'path' in the rule YAML files.
+        # The engine will execute the 'calculate_age' transform using data from 'input_path'.
+        child_age:
+          transform: "calculate_age"
+          input_path: "applicantDetails.dateOfBirth" # Path to the date of birth in the 10-10EZ payload
+          
