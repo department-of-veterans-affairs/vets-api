@@ -36,6 +36,8 @@ Mobile::Engine.routes.draw do
     get '/dependents/request-decisions', to: 'dependents_request_decisions#index'
     get '/disability-rating', to: 'disability_rating#index'
     get '/enrollment-status', to: 'enrollment_status#show'
+    get '/claim/letter/documents', to: 'claims_and_appeals#claim_letter_documents_search'
+    post '/claim/letter/documents/:document_id/download', to: 'claims_and_appeals#claim_letter_document_download'
     get '/efolder/documents', to: 'efolder#index'
     post '/efolder/documents/:document_id/download', to: 'efolder#download'
     get '/facilities-info', to: 'facilities_info#index'
