@@ -179,7 +179,6 @@ module PdfFill
     def transform_data(form_data:, pdftk_keys:, i: nil, from_array_overflow: false)
       return if form_data.nil? || pdftk_keys.nil?
 
-      binding.pry
       case form_data
       when Array
         transform_array(form_data, pdftk_keys)

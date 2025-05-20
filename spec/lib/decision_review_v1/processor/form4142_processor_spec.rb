@@ -11,6 +11,9 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
   end
+  let(:form_json_2024) do
+    File.read('spec/support/disability_compensation_form/submissions/with_4142_2024.json')
+  end
   let(:saved_claim) { create(:va526ez) }
   let(:submission) do
     create(:form526_submission,

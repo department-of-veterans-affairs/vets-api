@@ -68,8 +68,6 @@ module DecisionReviewV1
           y: 775,
           text_only: true
         )
-
-binding.pry
       end
 
       private
