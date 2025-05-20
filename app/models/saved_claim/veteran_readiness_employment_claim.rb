@@ -132,7 +132,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       upload_to_vbms(user:)
     else
       Rails.logger.warn('Participant id is blank when submitting VRE claim, sending to Lighthouse',
-                          { user_uuid: user.uuid })
+                        { user_uuid: user.uuid })
       send_to_lighthouse!(user)
     end
 
@@ -322,7 +322,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         }
       )
     else
-      Rails.logger.warn('VRE claim failure email not sent: email not present.', { user_uuid: user.uuid })
+      Rails.logger.warn('VRE claim failure email not sent: email not present.')
     end
   end
 

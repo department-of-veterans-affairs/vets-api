@@ -187,7 +187,7 @@ module VRE
           }
         )
       else
-        Rails.logger.warn('VRE claim failure email not sent: email not present.', { user_uuid: user.uuid })
+        Rails.logger.warn('VRE claim failure email not sent: email not present.')
       end
     end
 
