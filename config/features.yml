@@ -926,6 +926,9 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
+  form1010d_extended:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-10d merged with form 10-7959c
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
@@ -1192,6 +1195,14 @@ features:
   mhv_medical_records_milestone_two:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vaccine:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vaccine objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_health_condition:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user

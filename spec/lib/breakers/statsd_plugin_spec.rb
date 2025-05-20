@@ -17,6 +17,7 @@ describe Breakers::StatsdPlugin do
       it 'adds source tag when available' do
         RequestStore.store = { 'additional_request_attributes' => { 'source' => 'myapp' } }
         expect(subject.get_tags(request)).to include('source:myapp')
+        RequestStore.clear!
       end
 
       it 'returns endpoint tag' do
