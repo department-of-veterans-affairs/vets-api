@@ -80,7 +80,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def add_claimant_info(user)
-    return if form.blank?
+    if form.blank?
+      Rails.logger.info('VRE claim form is blank, skipping adding veteran info', { user_uuid: user.uuid })
+      return
+    end
 
     updated_form = parsed_form
 
@@ -128,7 +131,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     if user&.participant_id
       upload_to_vbms(user:)
     else
-      Rails.logger.warn('Participant id is blank when submitting VRE claim')
+      Rails.logger.warn('Participant id is blank when submitting VRE claim, sending to Lighthouse',
+                          { user_uuid: user.uuid })
       send_to_lighthouse!(user)
     end
 
@@ -166,7 +170,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     send_vbms_confirmation_email(user)
   rescue => e
-    log_error(user, e)
+    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
     send_to_lighthouse!(user)
   end
 
@@ -257,7 +261,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_vbms_confirmation_email(user)
-    return if user.va_profile_email.blank?
+    if user.va_profile_email.blank?
+      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user.uuid })
+      return
+    end
 
     VANotify::EmailJob.perform_async(
       user.va_profile_email,
@@ -270,7 +277,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_lighthouse_confirmation_email(user)
-    return if user.va_profile_email.blank?
+    if user.va_profile_email.blank?
+      Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
+                        { user_uuid: user.uuid })
+      return
+    end
 
     VANotify::EmailJob.perform_async(
       user.va_profile_email,
@@ -287,6 +298,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
+    Rails.logger.info('VRE claim submitting to Benefits Intake API', { user_uuid: user.uuid })
     Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
@@ -309,6 +321,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           'confirmation_number' => confirmation_number
         }
       )
+    else
+      Rails.logger.warn('VRE claim failure email not sent: email not present.', { user_uuid: user.uuid })
     end
   end
 
@@ -350,6 +364,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     response = BGS::People::Request.new.find_person_by_participant_id(user:)
     response.file_number
   rescue
+    Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user.uuid })
     nil
   end
 
@@ -358,13 +373,5 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     yield
     elapsed_time = Time.current - start_time
     StatsD.measure("api.1900.#{service}.response_time", elapsed_time, tags: {})
-  end
-
-  def log_error(user, e)
-    if Flipper.enabled?(:vre_enable_vbms_exception_logging)
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
-    else
-      Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
-    end
   end
 end
