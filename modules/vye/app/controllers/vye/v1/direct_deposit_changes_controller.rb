@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Vye
-  module V1
-    class DirectDepositChangesController < Vye::V1::ApplicationController
+  module Vye::V1
+    class Vye::V1::DirectDepositChangesController < Vye::V1::ApplicationController
       def create
         authorize user_info, policy_class: Vye::UserInfoPolicy
 
