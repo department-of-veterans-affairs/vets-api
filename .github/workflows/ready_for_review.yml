@@ -118,6 +118,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Remove ready-for-review label
+        if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-review
+
       - name: Remove ready-for-backend-review label
         if: steps.check_workflow_status.outputs.failures_detected == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
