@@ -94,16 +94,19 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
     end
   end
 
-  context 'when there are more than 10 failed va.gov submissions' do
+  context 'when there are more than 10 failed va.gov submissions & TID is in whitelist' do
     let(:num_errors) { 12 }
-    let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, SecureRandom.uuid] } }
+    let(:tid_tag) { "Form526SubMission-#{SecureRandom.uuid}_A" }
+    let(:errored_va_gov_claims) do
+      # TID argument is built to be intentionally esoteric here, to make sure whitelisting works
+      Array.new(num_errors) { [SecureRandom.uuid, "'#{tid_tag}}_A, extra: data, to: ignore'"] }
+    end
     let(:from) { '03:59PM EST' }
     let(:to) { '04:59PM EST' }
     let(:environment) { 'production' }
 
     it 'sends error ids with links to logs' do
       first_cid = errored_va_gov_claims.first[0]
-      first_tid = errored_va_gov_claims.first[1]
 
       messenger = described_class.new(
         errored_va_gov_claims:,
@@ -137,7 +140,7 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
               type: 'mrkdwn',
               text: a_string_including('```',
                                        'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
-                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_tid}",
+                                       'TID', '<https://vagov.ddog-gov.com/logs?query=', "|#{tid_tag}",
                                        '```')
             }
           )
@@ -150,35 +153,36 @@ RSpec.describe ClaimsApi::Slack::FailedSubmissionsMessenger do
       messenger.notify!
     end
 
-    context 'if transaction ids are missing' do
-      let(:errored_va_gov_claims) { Array.new(num_errors) { [SecureRandom.uuid, nil] } }
+    context 'if transaction ids are not in the substring whitelist' do
+      let(:num_errors) { 1 }
 
-      it 'avoids linking to logs that are not there' do
-        first_cid = errored_va_gov_claims.first[0]
-        first_tid = errored_va_gov_claims.first[1]
-        puts first_tid
-        messenger = described_class.new(
-          errored_va_gov_claims:,
-          from:,
-          to:,
-          environment:
-        )
-
-        expect(notifier).to receive(:notify) do |_text, args|
-          expect(args[:blocks]).to include(
-            a_hash_including(
-              text: {
-                type: 'mrkdwn',
-                text: a_string_including('```',
-                                         'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
-                                         'TID', 'N/A',
-                                         '```')
-              }
-            )
+      [nil, SecureRandom.uuid, 'NOT_WHITELISTED_TAG'].each do |tid|
+        it 'avoids linking to logs that are not there' do
+          errored_va_gov_claims = Array.new(num_errors) { [SecureRandom.uuid, tid] }
+          first_cid = errored_va_gov_claims.first[0]
+          messenger = described_class.new(
+            errored_va_gov_claims:,
+            from:,
+            to:,
+            environment:
           )
-        end
 
-        messenger.notify!
+          expect(notifier).to receive(:notify) do |_text, args|
+            expect(args[:blocks]).to include(
+              a_hash_including(
+                text: {
+                  type: 'mrkdwn',
+                  text: a_string_including('```',
+                                           'CID', '<https://vagov.ddog-gov.com/logs?query=', "|#{first_cid}>",
+                                           'TID', 'N/A',
+                                           '```')
+                }
+              )
+            )
+          end
+
+          messenger.notify!
+        end
       end
     end
 
