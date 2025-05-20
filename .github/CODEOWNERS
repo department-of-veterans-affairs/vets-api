@@ -1,6 +1,5 @@
-.devcontainer @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
-.github @department-of-veterans-affairs/backend-review-group
-.github/workflows/build-and-publish.yaml @department-of-veterans-affairs/backend-review-group
+.devcontainer/ @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
+.github/ @department-of-veterans-affairs/backend-review-group
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller.rb @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
@@ -646,10 +645,9 @@ app/uploaders/uploader_virus_scan.rb @department-of-veterans-affairs/va-api-engi
 app/uploaders/validate_pdf.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/uploaders/vets_shrine.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/validators/token_util.rb @department-of-veterans-affairs/backend-review-group
-bin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-bin/merge_imagemagick_policy @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+bin/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 Brewfile @department-of-veterans-affairs/backend-review-group
-clamav_tmp @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+clamav_tmp/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/application.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/audit_log/user_action_events.yml @department-of-veterans-affairs/octo-identity
 config/betamocks @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -778,7 +776,7 @@ config/spring.rb @department-of-veterans-affairs/va-api-engineers @department-of
 config/ssoe_idp_int_metadata_isam.xml @department-of-veterans-affairs/octo-identity
 config/storage.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 Dangerfile @department-of-veterans-affairs/backend-review-group
-datadog-service-catalog @department-of-veterans-affairs/backend-review-group
+datadog-service-catalog/ @department-of-veterans-affairs/backend-review-group
 db/audit_migrate @department-of-veterans-affairs/octo-identity
 db/audit_schema.rb @department-of-veterans-affairs/octo-identity
 db/migrate @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -818,10 +816,10 @@ docs/setup/setup_with_binstubs.md  @department-of-veterans-affairs/backend-revie
 docs/setup/virtual_machine_access.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 Gemfile @department-of-veterans-affairs/backend-review-group
 Gemfile.lock @department-of-veterans-affairs/backend-review-group
-helmCharts @department-of-veterans-affairs/backend-review-group
+helmCharts/ @department-of-veterans-affairs/backend-review-group
 import-va-certs.sh @department-of-veterans-affairs/backend-review-group
 Jenkinsfile @department-of-veterans-affairs/backend-review-group
-lib @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/accredited_representation/constants.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 lib/accredited_representation/create_accredited_individual.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 lib/admin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1067,9 +1065,9 @@ postman/Dockerfile @department-of-veterans-affairs/backend-review-group
 postman/vets-api.pm-collection.json @department-of-veterans-affairs/backend-review-group
 Procfile @department-of-veterans-affairs/backend-review-group
 Procfile.dev @department-of-veterans-affairs/backend-review-group
-public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+public/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 Rakefile @department-of-veterans-affairs/backend-review-group
-rakelib @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+rakelib/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/breakers_outage.rake @department-of-veterans-affairs/backend-review-group
 rakelib/config_settings.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/connectivity.rake @department-of-veterans-affairs/octo-identity
@@ -1098,7 +1096,7 @@ rakelib/support/vic_load_test.rb @department-of-veterans-affairs/octo-identity
 rakelib/test_user_account.rake @department-of-veterans-affairs/octo-identity
 rakelib/vbms.rake @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 README.md @department-of-veterans-affairs/backend-review-group
-script @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+script/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/form_attachment_create_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/retriable_concern_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/concerns/traceable_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
