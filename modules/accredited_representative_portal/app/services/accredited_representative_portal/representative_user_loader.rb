@@ -91,11 +91,10 @@ module AccreditedRepresentativePortal
       return @registration_numbers if @registration_numbers.present?
 
       icn = session.user_account.icn
-      @registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_number_for_icn(icn)
+      @registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
 
       if @registration_numbers.blank?
-        #FIXME need to get all_csp_emails data here
-        representatives = Veteran::Service::Representative.where(email: [session.credential_email])
+        representatives = Veteran::Service::Representative.where(email: access_token.user_attributes['all_emails'])
 
         if representatives.empty?
           raise Common::Exceptions::Unauthorized, 
@@ -106,11 +105,11 @@ module AccreditedRepresentativePortal
         end
         representative = representatives.first
         @registration_numbers = [representative.representative_id]
+
+        # register the icn with the OGC API
+        AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn, @registration_numbers)
       end
 
-      # register the icn with the OGC API
-      AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn, @registration_numbers)
-      
       @registration_numbers
     end
   end
