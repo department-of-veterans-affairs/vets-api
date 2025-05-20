@@ -37,8 +37,8 @@ module VeteranVerification
     ].freeze
 
     ERROR_MESSAGE_TITLE = 'Something went wrong'
-    NOT_FOUND_MESSAGE_TITLE = "There's a problem with your discharge status records"
-    NOT_ELIGIBLE_MESSAGE_TITLE = "You're not eligible for a Veteran Status Card"
+    NOT_FOUND_MESSAGE_TITLE = 'There’s a problem with your discharge status records'
+    NOT_ELIGIBLE_MESSAGE_TITLE = 'You’re not eligible for a Veteran Status Card'
 
     ERROR_MESSAGE_STATUS = 'error'
     NOT_FOUND_MESSAGE_STATUS = 'warning'
