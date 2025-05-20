@@ -874,10 +874,10 @@ mhv:
     app_token: <%= ENV['mhv__medical_records__app_token'] %>
     host: <%= ENV['mhv__medical_records__host'] %>
     mhv_x_api_key: <%= ENV['mhv__medical_records__mhv_x_api_key'] %>
+    temp_fake: <%= ENV['mhv__medical_records__x_auth_key'] %>
     x_api_key: <%= ENV['mhv__medical_records__x_api_key'] %>
     x_api_key_v2: <%= ENV['mhv__medical_records__x_api_key_v2'] %>
     x_auth_key: <%= ENV['mhv__medical_records__x_auth_key'] %>
-    temp_fake: <%= ENV['mhv__medical_records__x_auth_key'] %>
   rx:
     app_token: <%= ENV['mhv__rx__app_token'] %>
     base_path: <%= ENV['mhv__rx__base_path'] %>
