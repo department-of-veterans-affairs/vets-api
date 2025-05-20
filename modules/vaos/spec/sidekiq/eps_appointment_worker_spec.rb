@@ -20,6 +20,7 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
     allow(VaNotify::Service).to receive(:new)
       .with(Settings.vanotify.services.va_gov.api_key)
       .and_return(va_notify_service)
+    allow(Rails.logger).to receive(:error)
   end
 
   describe '.perform_async' do
@@ -92,6 +93,57 @@ RSpec.describe Eps::EpsAppointmentWorker, type: :job do
           }
         )
         worker.perform(appointment_id, user.uuid, Eps::EpsAppointmentWorker::MAX_RETRIES)
+      end
+    end
+
+    context 'when user is not found' do
+      before do
+        allow(User).to receive(:find).with('missing-uuid').and_return(nil)
+      end
+
+      it 'logs an error and does not send notification' do
+        expect(va_notify_service).not_to receive(:send_email)
+        expect(Rails.logger).to receive(:error).with(/EpsAppointmentWorker FAILED for user UUID: missing-uuid: User not found/)
+        worker.perform(appointment_id, 'missing-uuid')
+      end
+    end
+
+    context 'when user email is missing' do
+      before do
+        user_without_email = build(:user, :loa3)
+        allow(user_without_email).to receive(:va_profile_email).and_return(nil)
+        allow(User).to receive(:find).with('user-without-email').and_return(user_without_email)
+      end
+
+      it 'logs an error and does not send notification' do
+        expect(va_notify_service).not_to receive(:send_email)
+        expect(Rails.logger).to receive(:error).with(/EpsAppointmentWorker FAILED for user UUID: user-without-email: Email not found for user/)
+        worker.perform(appointment_id, 'user-without-email')
+      end
+    end
+
+    context 'when a standard error occurs' do
+      before do
+        allow(service).to receive(:get_appointment).with(appointment_id:).and_raise(
+          StandardError.new('An error occurred processing your appointment')
+        )
+      end
+
+      it 'logs the error with worker failure message and user UUID' do
+        allow(va_notify_service).to receive(:send_email) # Allow the notification to be sent
+        expect(Rails.logger).to receive(:error).with(/EpsAppointmentWorker FAILED for user UUID: #{user.uuid}: StandardError/)
+        worker.perform(appointment_id, user.uuid)
+      end
+
+      it 'sends a generic error message to the user' do
+        expect(va_notify_service).to receive(:send_email).with(
+          email_address: user.va_profile_email,
+          template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
+          parameters: {
+            'error' => 'An error occurred processing your appointment'
+          }
+        )
+        worker.perform(appointment_id, user.uuid)
       end
     end
   end
