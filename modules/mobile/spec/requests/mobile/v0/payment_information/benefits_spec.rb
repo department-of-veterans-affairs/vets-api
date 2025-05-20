@@ -166,7 +166,7 @@ Payment account info missing for user #{user.uuid}",
         financial_institution_name: 'Bank of Ad Hoc',
         account_number: '12345678',
         financial_institution_routing_number: '021000021'
-      }
+      }.to_json
     end
     let(:post_payment_info_body) do
       {
