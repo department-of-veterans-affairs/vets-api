@@ -1790,6 +1790,7 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
+  - host.docker.internal
 vre_counseling:
   prefill: true
 vre_readiness:
@@ -1808,7 +1809,7 @@ vye:
     p: 1
     r: 8
     salt: development-vye-scrypt-salt
-web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
 webhooks:
   require_https: true

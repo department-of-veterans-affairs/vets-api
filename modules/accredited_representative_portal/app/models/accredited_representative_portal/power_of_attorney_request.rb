@@ -87,10 +87,16 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def mark_declined!(creator, reason)
+    def mark_declined!(creator, declination_reason)
       PowerOfAttorneyRequestDecision.create_declination!(
-        creator:, power_of_attorney_request: self, reason:
+        creator:,
+        power_of_attorney_request: self,
+        declination_reason:
       )
+    rescue => e
+      Rails.logger.error("Error creating declination: #{e.class} - #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
+      raise
     end
 
     def mark_replaced!(superseding_power_of_attorney_request)
