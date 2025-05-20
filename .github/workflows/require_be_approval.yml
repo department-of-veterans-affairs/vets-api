@@ -25,22 +25,22 @@ jobs:
         run: |
           # Pull recent data
           PR_NUMBER="${{ github.event.pull_request.number }}"
-          PR_BRANCH="${{ github.head_ref }}"
-
-          echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
           # Fetch PR details from GitHub API
           PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
             draft: .draft,
-            labels: [.labels[].name]
+            labels: [.labels[].name],
+            head_ref: .head.ref
           }')
 
           PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
           PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
+          PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
 
           echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
           echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
+          echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
 
           if ! echo "$PR_LABELS" | grep -q "require-backend-approval"; then
             echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
@@ -119,6 +119,7 @@ jobs:
           done
 
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
