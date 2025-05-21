@@ -2,17 +2,17 @@
 
 require 'jwt'
 
-# Usage:
-# Prior to use, Settings.claims_evidence_api.jwt_secret must be set.
-# API requests will fail even with a valid token unless on the VA API.
-# Create token:
-# > require 'claims_evidence_api/jwt_generator'
-# > encoder = ClaimsEvidenceApi::JwtEncoder.new
-# > token = encoder.encode_jwt
-# Use token:
-# > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
-# > -- 'Authentication: Bearer {token}'
 module ClaimsEvidenceApi
+  # Usage:
+  # Prior to use, Settings.claims_evidence_api.jwt_secret must be set.
+  # API requests will fail even with a valid token unless on the VA API.
+  # Create token:
+  # > require 'claims_evidence_api/jwt_generator'
+  # > encoder = ClaimsEvidenceApi::JwtEncoder.new
+  # > token = encoder.encode_jwt
+  # Use token:
+  # > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
+  # > -- 'Authentication: Bearer {token}'
   class JwtEncoder
     # Issuer assigned by Claim Evidence API team
     ISSUER = 'VAGOV'
@@ -22,7 +22,7 @@ module ClaimsEvidenceApi
     STATION_ID = '283'
     # Number of seconds for which the JWT is valid; should be limited to 15 minutes or less
     VALIDITY_LENGTH = 15.minutes
-
+    # Algorithm used to encode and decode the JWT
     ALGORITHM = 'HS256'
 
     # Returns a JWT token for use in Bearer auth
@@ -32,13 +32,12 @@ module ClaimsEvidenceApi
 
     private
 
+    # Returns the headers for the JWT token
     def headers
-      {
-        typ: 'JWT',
-        alg: ALGORITHM
-      }
+      { typ: 'JWT', alg: ALGORITHM }
     end
 
+    # Returns the payload for the JWT token
     def payload
       {
         jti: SecureRandom.uuid, # random id to identify a unique JWT
