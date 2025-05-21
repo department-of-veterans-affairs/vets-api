@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module DisabilityCompensation
   module ApiProvider
     class IntentToFile
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       # The spelling of these status types has been validated with the partner team
       STATUS_TYPES = %w[
@@ -27,16 +28,14 @@ module DisabilityCompensation
 
     # array of Intent to Files
     class IntentToFilesResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
-      attribute :intent_to_file, Array[DisabilityCompensation::ApiProvider::IntentToFile]
+      attribute :intent_to_file, DisabilityCompensation::ApiProvider::IntentToFile, array: true
     end
 
     # a single Intent to File
     class IntentToFileResponse
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :intent_to_file, DisabilityCompensation::ApiProvider::IntentToFile
     end
