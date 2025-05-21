@@ -13,7 +13,7 @@ RSpec.describe IncomeAndAssets::Monitor do
 
   describe '#service_name' do
     it 'returns expected name' do
-      expect(monitor.send(:service_name)).to eq('pension-application')
+      expect(monitor.send(:service_name)).to eq('income-and-assets')
     end
   end
 
