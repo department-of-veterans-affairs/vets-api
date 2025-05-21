@@ -159,10 +159,10 @@ jobs:
         run: |
           echo "Raw team data: ${{ steps.get_team_members.outputs.data }}"
 
-          BACKEND_REVIEWERS=$(echo "${{ steps.get_team_members.outputs.data }}" \
-            | jq -r '.[].login' \
-            | tr '\n' '|' \
-            | sed 's/|$//')
+          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
+          ${{ steps.get_team_members.outputs.data }}
+          EOF
+          )
 
           echo "BACKEND_REVIEWERS: $BACKEND_REVIEWERS"
 
