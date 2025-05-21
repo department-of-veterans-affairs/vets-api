@@ -98,5 +98,29 @@ module Dependents
       track_send_email_failure("'Received' email failure for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
                                claim_id, e, user_account_uuid)
     end
+
+    def track_to_pdf_failure(claim_id, e)
+      metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
+      metric = "#{metric}.v2" if @use_v2
+      payload = default_payload.merge({ statsd: metric, claim_id:, e: })
+
+      StatsD.increment(metric, tags:)
+      Rails.logger.error('SavedClaim::DependencyClaim#to_pdf error', payload)
+    end
+
+    def track_pdf_overflow_tracking_failure(claim_id, e)
+      metric = "#{CLAIM_STATS_KEY}.track_pdf_overflow.failure"
+      metric = "#{metric}.v2" if @use_v2
+      payload = default_payload.merge({ statsd: metric, claim_id:, e: })
+
+      StatsD.increment(metric, tags:)
+      Rails.logger.error('Error tracking PDF overflow', payload)
+    end
+
+    def track_pdf_overflow(form_id)
+      tags = ["form_id:#{form_id}"]
+      metric = 'saved_claim.pdf.overflow'
+      StatsD.increment(metric, tags:)
+    end
   end
 end

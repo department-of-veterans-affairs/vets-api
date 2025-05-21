@@ -56,6 +56,31 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                    end
   end
 
+  def pdf_overflow_tracking
+    track_each_pdf_overflow(use_v2 ? '686C-674-V2' : '686C-674') if submittable_686?
+    track_each_pdf_overflow(use_v2 ? '21-674-V2' : '21-674') if submittable_674?
+  rescue => e
+    monitor.track_pdf_overflow_tracking_failure(id, e)
+  end
+
+  def track_each_pdf_overflow(subform_id)
+    filenames = []
+    if subform_id == '21-674-V2'
+      parsed_form['dependents_application']['student_information']&.each do |student|
+        filenames << to_pdf(form_id: subform_id, student:)
+      end
+    else
+      filenames << to_pdf(form_id: subform_id)
+    end
+    filenames.each do |filename|
+      monitor.track_pdf_overflow(subform_id) if filename.end_with?('_final.pdf')
+    end
+  ensure
+    filenames.each do |filename|
+      Common::FileHelpers.delete_file_if_exists(filename)
+    end
+  end
+
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
@@ -172,6 +197,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
+  rescue => e
+    monitor.track_to_pdf_failure(id, e)
+    raise e
   ensure
     self.form_id = original_form_id
   end
