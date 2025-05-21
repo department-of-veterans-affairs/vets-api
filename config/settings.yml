@@ -1542,7 +1542,6 @@ vaos:
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: fake_kid
     mock: <%= ENV['vaos__eps__mock'] %>
-    redis_token_expiry: 3500
     scopes: care-nav
   referral:
     encryption:
