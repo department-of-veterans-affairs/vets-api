@@ -122,6 +122,7 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
+            dollar: true,
             question_num: 7,
             question_suffix: '(9)',
             question_text: 'WHAT WAS THE FAIR MARKET VALUE WHEN TRANSFERRED?',
@@ -143,6 +144,7 @@ module IncomeAndAssets
             }
           },
           'saleValueOverflow' => {
+            dollar: true,
             question_num: 7,
             question_suffix: '(10)',
             question_text: 'WHAT WAS THE SALE PRICE? (If applicable)',
@@ -164,6 +166,7 @@ module IncomeAndAssets
             }
           },
           'capitalGainValueOverflow' => {
+            dollar: true,
             question_num: 7,
             question_suffix: '(11)',
             question_text: 'WHAT WAS THE GAIN? (Capital gain, etc.)',
@@ -214,11 +217,11 @@ module IncomeAndAssets
           'transferDate' => split_date(item['transferDate']),
           'assetTransferredUnderFairMarketValue' => item['assetTransferredUnderFairMarketValue'] ? 0 : 1,
           'fairMarketValue' => split_currency_amount_lg(item['fairMarketValue']),
-          'fairMarketValueOverflow' => number_to_currency(item['fairMarketValue']),
+          'fairMarketValueOverflow' => item['fairMarketValue'],
           'saleValue' => split_currency_amount_lg(item['saleValue']),
-          'saleValueOverflow' => number_to_currency(item['saleValue']),
+          'saleValueOverflow' => item['saleValue'],
           'capitalGainValue' => split_currency_amount_lg(item['capitalGainValue']),
-          'capitalGainValueOverflow' => number_to_currency(item['capitalGainValue'])
+          'capitalGainValueOverflow' => item['capitalGainValue']
         }
       end
     end

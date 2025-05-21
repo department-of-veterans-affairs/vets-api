@@ -171,7 +171,6 @@ module PdfFill
     end
 
     def make_hash_converter(form_id, form_class, submit_date, fill_options)
-      # Use redesign extras generator with optional form-specific label_width
       extras_generator =
         if fill_options.fetch(:extras_redesign, false)
           ExtrasGeneratorV2.new(

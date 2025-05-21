@@ -74,6 +74,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 3,
             question_suffix: '(4)',
             question_text: 'GROSS MONTHLY INCOME',
@@ -125,7 +126,7 @@ module IncomeAndAssets
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => item['otherIncomeType'],
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'payer' => item['payer']
         }
       end

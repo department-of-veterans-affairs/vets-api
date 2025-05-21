@@ -67,6 +67,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 5,
             question_suffix: '(4)',
             question_text: 'GROSS MONTHLY INCOME',
@@ -88,6 +89,7 @@ module IncomeAndAssets
             }
           },
           'ownedPortionValueOverflow' => {
+            dollar: true,
             question_num: 5,
             question_suffix: '(5)',
             question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY',
@@ -133,9 +135,9 @@ module IncomeAndAssets
           'assetType' => IncomeAndAssets::Constants::ASSET_TYPES[asset_type],
           'assetTypeOverflow' => asset_type,
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'ownedPortionValue' => split_currency_amount_lg(portion_value),
-          'ownedPortionValueOverflow' => number_to_currency(portion_value)
+          'ownedPortionValueOverflow' => portion_value
         }
       end
     end

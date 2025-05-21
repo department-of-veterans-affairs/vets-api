@@ -82,6 +82,7 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 4,
             question_suffix: '(5)',
             question_text: 'GROSS MONTHLY INCOME',
@@ -103,6 +104,7 @@ module IncomeAndAssets
             }
           },
           'accountValueOverflow' => {
+            dollar: true,
             question_num: 4,
             question_suffix: '(6)',
             question_text: 'VALUE OF ACCOUNT',
@@ -148,9 +150,9 @@ module IncomeAndAssets
           'incomeTypeOverflow' => income_type,
           'otherIncomeType' => item['otherIncomeType'],
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'accountValue' => split_currency_amount_lg(account_value),
-          'accountValueOverflow' => number_to_currency(account_value)
+          'accountValueOverflow' => account_value
         }
       end
     end
