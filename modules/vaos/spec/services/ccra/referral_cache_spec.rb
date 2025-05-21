@@ -89,4 +89,4 @@ describe Ccra::ReferralCache do
       end
     end
   end
-end 
+end
