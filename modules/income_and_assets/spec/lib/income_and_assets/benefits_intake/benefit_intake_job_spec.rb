@@ -30,7 +30,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       allow(service).to receive_messages(location:, perform_upload: response)
       allow(response).to receive(:success?).and_return true
 
-      job.instance_variable_set(:@ia_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive :track_submission_begun
       allow(monitor).to receive :track_submission_attempted
       allow(monitor).to receive :track_submission_success

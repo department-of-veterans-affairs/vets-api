@@ -1,18 +1,21 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+
+require 'kafka/sidekiq/event_bus_submission_job'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'pensions/benefits_intake/submit_claim_job'
+require 'pensions/monitor'
 require 'pensions/notification_email'
-require 'kafka/sidekiq/event_bus_submission_job'
 
-RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
+RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
+
   let(:job) { described_class.new }
   let(:claim) { create(:pensions_saved_claim) }
   let(:service) { double('service') }
-  let(:monitor) { double('monitor') }
+  let(:monitor) { Pensions::Monitor.new }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -35,7 +38,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(service).to receive_messages(location:, perform_upload: response)
       allow(response).to receive(:success?).and_return true
 
-      job.instance_variable_set(:@pension_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive :track_submission_begun
       allow(monitor).to receive :track_submission_attempted
       allow(monitor).to receive :track_submission_success
@@ -118,8 +121,8 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        "Unable to find SavedClaim::Pension #{claim.id}"
+        Pensions::BenefitsIntake::SubmitClaimJob::PensionBenefitIntakeError,
+        "Unable to find Pensions::SavedClaim #{claim.id}"
       )
     end
 
@@ -224,7 +227,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       job.instance_variable_set(:@form_path, 'path/file.pdf')
       job.instance_variable_set(:@attachment_paths, '/invalid_path/should_be_an_array.failure')
 
-      job.instance_variable_set(:@pension_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive(:track_file_cleanup_error)
     end
 
@@ -236,7 +239,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
   describe '#set_signature_date' do
     before do
-      job.instance_variable_set(:@pension_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive(:track_claim_signature_error)
     end
 
@@ -263,7 +266,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(Pensions::NotificationEmail).to receive(:new).and_return(notification)
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
-      job.instance_variable_set(:@pension_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive(:track_send_email_failure)
     end
 
@@ -285,7 +288,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(Pensions::NotificationEmail).to receive(:new).and_return(notification)
       allow(notification).to receive(:deliver).and_raise(monitor_error)
 
-      job.instance_variable_set(:@pension_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive(:track_send_email_failure)
     end
 
@@ -299,7 +302,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occurred',
+      { 'args' => [], 'class' => 'Pensions::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
         'queue' => 'low' }
     end
 
@@ -309,14 +312,14 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     context 'when retries are exhausted' do
       it 'logs a distinct error when no claim_id provided' do
-        Pensions::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+        Pensions::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block do
           expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
 
       it 'logs a distinct error when only claim_id provided' do
-        Pensions::PensionBenefitIntakeJob
+        Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
@@ -329,7 +332,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
-        Pensions::PensionBenefitIntakeJob
+        Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
@@ -342,7 +345,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distinct error when claim is not found' do
-        Pensions::PensionBenefitIntakeJob
+        Pensions::BenefitsIntake::SubmitClaimJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
           expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
