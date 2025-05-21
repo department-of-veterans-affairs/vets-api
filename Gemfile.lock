@@ -282,7 +282,7 @@ GEM
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
-    bootsnap (1.18.5)
+    bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
