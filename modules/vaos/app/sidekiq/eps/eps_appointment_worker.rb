@@ -33,8 +33,8 @@ module Eps
       user = find_user(user_uuid)
       user_email = get_user_email(user)
 
-      response = check_appointment_status(appointment_id, user)
-      handle_appointment_status(response, appointment_id, user_uuid, user_email, retry_count)
+      appt_response = fetch_appointment(appointment_id, user)
+      handle_appointment_status(appt_response, appointment_id, user_uuid, user_email, retry_count)
     rescue ArgumentError => e
       log_worker_error(e, user_uuid, include_error_message: true)
       false
@@ -87,7 +87,7 @@ module Eps
     # @param user [User] the User object
     # @return [Object] the response from the appointment service
     # @raise [Common::Exceptions::BackendServiceException] if the service call fails
-    def check_appointment_status(appointment_id, user)
+    def fetch_appointment(appointment_id, user)
       service = Eps::AppointmentService.new(user)
       service.get_appointment(appointment_id:)
     end
@@ -101,14 +101,13 @@ module Eps
     # @param user_email [String] the user's email
     # @param retry_count [Integer] the current retry count
     # @return [Boolean] true if appointment is finished, false otherwise
-    def handle_appointment_status(response, appointment_id, user_uuid, user_email, retry_count)
-      unless appointment_finished?(response)
+    def handle_appointment_status(appt_response, appointment_id, user_uuid, user_email, retry_count)
+      unless appt_response.try(:state) == 'submitted'
         if retry_count < MAX_RETRIES
           self.class.perform_in(1.minute, appointment_id, user_uuid, retry_count + 1)
         else
           send_vanotify_message(email: user_email, error: 'Could not complete booking')
         end
-        return false
       end
 
       true
@@ -131,16 +130,6 @@ module Eps
                       end
 
       Rails.logger.error(error_message)
-    end
-
-    ##
-    # Checks if the appointment is finished.
-    #
-    # @param response [Object] the response object from the appointment service
-    # @return [Boolean] true if the appointment is finished
-    #                  (state is 'submitted' or status is 'booked'), false otherwise
-    def appointment_finished?(response)
-      response.try(:state) == 'submitted' || response.try(:appointment_details).try(:[], :status) == 'booked'
     end
 
     ##
