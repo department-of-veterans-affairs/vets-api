@@ -1818,7 +1818,7 @@ paths:
           required: true
           schema:
             type: string
-            example: '93631483-E9F9-44AA-BB55-3552376400D8'
+            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
         '200':
