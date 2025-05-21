@@ -50,6 +50,12 @@ jobs:
             echo "Label 'require-backend-approval' found. Approval required."
           fi
 
+      - name: Remove backend-approval-confirmed label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: steps.approval_permissions.outputs.pr_number
+          labels: backend-approval-confirmed
+
       # Sucessfully exit this workflow if backend approval is not required.
       # This workflow should never fail for non backend approval pull requests
       # This workflow should fail when backend approval is required and when PR is in draft mode.
@@ -236,6 +242,13 @@ jobs:
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
+
+      - name: Add backend-approval-confirmed label
+        if: needs.check-backend-approvals.outputs.approval_status == 'confirmed'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: backend-approval-confirmed
 
       - name: Succeed if backend approval is confirmed
         if: needs.check-backend-approvals.outputs.approval_status == 'confirmed'
