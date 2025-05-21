@@ -551,12 +551,12 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       let!(:claim_letter_doc_response) do
-        { 'data' => [{ 'id' => '73CD7B28-F695-4337-BBC1-2443A913ACF6', 'type' => 'claim_letter_document',
+        { 'data' => [{ 'id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'type' => 'claim_letter_document',
                        'attributes' => { 'docType' => '702',
                                          'typeDescription' =>
                                            'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
                                          'receivedAt' => '2024-09-13T17:51:56Z' } },
-                     { 'id' => 'EF7BF420-7E49-4FA9-B14C-CE5F6225F615', 'type' => 'claim_letter_document',
+                     { 'id' => '{EF7BF420-7E49-4FA9-B14C-CE5F6225F615}', 'type' => 'claim_letter_document',
                        'attributes' => { 'docType' => '45',
                                          'typeDescription' => 'Military Personnel Record',
                                          'receivedAt' => '2024-09-13T178:32:24Z' } }] }
@@ -625,8 +625,8 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       it 'returns expected document' do
-        post "/mobile/v0/claim/letter/documents/#{CGI.escape(document_uuid)}/download", params: { file_name: 'test' },
-                                                                                        headers: sis_headers
+        post "/mobile/v0/claim/letter/documents/#{CGI.escape("{#{document_uuid}}")}/download", params: { file_name: 'test' },
+                                                                                               headers: sis_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(content)
         expect(response.headers['Content-Disposition']).to eq("attachment; filename=\"test\"; filename*=UTF-8''test")
