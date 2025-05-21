@@ -179,14 +179,21 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: List Failing Spec Files
+      - name: Save Failing Spec Files
         if: failure()
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "grep -E '^rspec .*_spec.rb' tmp/parallel_runtime_rspec.log |
           awk '{print \$2}' |
           sort |
-          uniq"
+          uniq > tmp/failing_specs.txt"
+
+      - name: Upload Failing Spec List
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Failing Spec Files
+          path: tmp/failing_specs.txt
 
 
   update_labels:
