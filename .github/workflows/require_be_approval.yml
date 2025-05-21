@@ -177,15 +177,15 @@ jobs:
             echo "author_is_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-          TEAM_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
-            | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-                      | sort_by(.submitted_at)
-                      | reverse
-                      | unique_by(.user)
-                      | map(select(.state == "APPROVED"))
-                      | .[].user' \
-            | grep -viE "$BACKEND_REVIEWERS" \
-            | wc -l)
+          TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user)
+            | map(select(.state == "APPROVED"))
+            | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
 
           echo "Number of non backend-review-group approvals: $TEAM_APPROVALS"
           if [ "$TEAM_APPROVALS" -eq 0 ]; then
@@ -199,15 +199,15 @@ jobs:
             [ "${{ needs.get-pr-data.outputs.pr_draft }}" == "false" ] && \
             [ "${{ needs.check-workflow-status.outputs.failures_detected }}" == "false" ]; then
 
-            BE_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
-              | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-                        | sort_by(.submitted_at)
-                        | reverse
-                        | unique_by(.user)
-                        | map(select(.state == "APPROVED"))
-                        | .[].user' \
-              | grep -iE "$BACKEND_REVIEWERS" \
-              | wc -l)
+            BE_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+              | sort_by(.submitted_at)
+              | reverse
+              | unique_by(.user)
+              | map(select(.state == "APPROVED"))
+              | .[].user' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+            ${{ steps.get_pr_reviews.outputs.data }}
+            EOF
+            )
 
             echo "Number of backend-review-group approvals: $BE_APPROVALS"
             if [ "$BE_APPROVALS" -eq 0 ]; then
