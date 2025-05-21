@@ -119,10 +119,10 @@ jobs:
   check-backend-requirement:
     name: Check Backend Requirement
     needs: [get-pr-data, check-workflow-status]
-    # if: needs.get-pr-data.outputs.pr_draft == 'false' && needs.check-workflow-status.outputs.failures_detected == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
+      failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
       pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
@@ -139,14 +139,14 @@ jobs:
 
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'  && needs.check-workflow-status.outputs.failures_detected == "false"
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
 
       - name: Remove require-backend-approval label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false' && needs.check-workflow-status.outputs.failures_detected == "false"
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
@@ -166,14 +166,14 @@ jobs:
     steps:
 
       - name: Remove ready-for-backend-review label
-        if: needs.get-pr-data.outputs.pr_draft == 'true' || steps.check_workflow_status.outputs.failures_detected == 'true'
+        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: ready-for-backend-review
 
       - name: Remove ready-for-review label
-        if: needs.get-pr-data.outputs.pr_draft == 'true' || steps.check_workflow_status.outputs.failures_detected == 'true'
+        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
@@ -181,7 +181,7 @@ jobs:
 
 
       - name: Fail if draft or failures
-        if: needs.get-pr-data.outputs.pr_draft == 'true' || steps.check_workflow_status.outputs.failures_detected == 'true'
+        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true'
         run: exit 1
 
       - name: Checkout Repository
