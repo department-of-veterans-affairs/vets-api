@@ -5,7 +5,9 @@ require 'rails_helper'
 require 'benefits_intake_service/service'
 
 RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
-  subject(:perform) { described_class.perform(file) }
+  subject(:perform) { described_class.perform(file, is_form:) }
+
+  let(:is_form) { false }
 
   context 'when record invalid' do
     let(:file) do
@@ -28,15 +30,19 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
     # check.
     #
     before do
-      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+      allow_any_instance_of(PersistentAttachments::VAForm).to(
         receive(:file=)
       )
 
       allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+        receive(:file=)
+      )
+
+      allow_any_instance_of(PersistentAttachment).to(
         receive(:validate!)
       )
 
-      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+      allow_any_instance_of(PersistentAttachment).to(
         receive(:to_pdf)
       )
     end
@@ -68,6 +74,16 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
         expect(perform).to be_a(
           PersistentAttachments::VAFormAttachment
         )
+      end
+
+      context 'when attachment is the main form' do
+        let(:is_form) { true }
+
+        it 'returns a VAForm' do
+          expect(perform).to be_a(
+            PersistentAttachments::VAForm
+          )
+        end
       end
     end
   end

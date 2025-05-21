@@ -7,8 +7,15 @@ module AccreditedRepresentativePortal
       InvalidFileError = Class.new(Error)
 
       class << self
-        def perform(file)
-          PersistentAttachments::VAFormAttachment.new.tap do |attachment|
+        def perform(file, is_form:)
+          klass =
+            if is_form
+              PersistentAttachments::VAForm
+            else
+              PersistentAttachments::VAFormAttachment
+            end
+
+          klass.new.tap do |attachment|
             attachment.file = file
             validate_record!(attachment)
             validate_upstream!(attachment)
