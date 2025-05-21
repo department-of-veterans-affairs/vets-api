@@ -39,7 +39,9 @@ RSpec.describe FormProfiles::MDOT, type: :model do
       )
       form_data = FormProfile.for(form_id: 'MDOT', user:).prefill[:form_data]
       errors = JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS['MDOT'], form_data)
-      schema_error = errors.any?{|error| error.include?("did not contain a required property of 'supplies' in schema")}
+      schema_error = errors.any? do |error|
+        error.include?("did not contain a required property of 'supplies' in schema")
+      end
       expect(schema_error).to be(true)
       VCR.eject_cassette
     end

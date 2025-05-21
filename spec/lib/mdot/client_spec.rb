@@ -355,7 +355,7 @@ describe MDOT::Client, type: :mdot_helpers do
         set_mdot_token_for(user)
 
         expect { subject.submit_order(valid_order) }
-        .to raise_error(Common::Exceptions::BackendServiceException)
+          .to raise_error(Common::Exceptions::BackendServiceException)
         VCR.eject_cassette
       end
     end
@@ -369,7 +369,7 @@ describe MDOT::Client, type: :mdot_helpers do
         set_mdot_token_for(user)
 
         expect { subject.submit_order(valid_order) }
-        .to raise_error(Common::Exceptions::BackendServiceException)
+          .to raise_error(Common::Exceptions::BackendServiceException)
         VCR.eject_cassette
       end
     end
