@@ -139,7 +139,7 @@ jobs:
   check-backend-requirement:
     name: Check Backend Requirement
     needs: [get-pr-data, check-workflow-status]
-    if: needs.get-pr-data.outputs.pr_draft == 'false' && needs.check-workflow-status.outputs.failures_detected == 'false'
+    # if: needs.get-pr-data.outputs.pr_draft == 'false' && needs.check-workflow-status.outputs.failures_detected == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
