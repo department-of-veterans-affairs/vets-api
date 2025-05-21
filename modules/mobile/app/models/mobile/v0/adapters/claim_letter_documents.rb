@@ -6,10 +6,13 @@ module Mobile
       class ClaimLetterDocuments
         def self.parse(documents)
           documents.map do |document|
+            # Backwards compatibility: the document ids that came from eFolder were wrapped in {} brackets
+            # The Front End expects these as the ids are being compared to ids coming from GET claims that have {}'s
+            document_id = document[:documentUuid]
+            document_id = "{#{document_id}}" if document_id.first != '{' && document_id.last != '}'
+
             Mobile::V0::ClaimLetterDocuments.new(
-              # Backwards compatibility: the document ids that came from eFolder were wrapped in {} braces
-              # The Front End excepts these as the ids are being compared to ids coming from GET claims that have {}'s
-              id: "{#{document[:documentUuid]}}",
+              id: document_id,
               doc_type: document[:docTypeId],
               type_description: document[:documentTypeLabel],
               received_at: document[:uploadedDateTime]
