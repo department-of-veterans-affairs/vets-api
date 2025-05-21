@@ -166,5 +166,39 @@ describe PdfFill::Forms::Va1010ez do
         end
       end
     end
+
+    describe '#merge_planned_facility_label_helper' do
+      before do
+        create(:health_facility, name: 'VA Facility Name',
+                                 station_number: '100',
+                                 postal_name: 'OH')
+      end
+
+      context 'plannedClinic is not in health_facilities table' do
+        let(:form_data) do
+          {
+            'vaMedicalFacility' => '99'
+          }
+        end
+
+        it 'sets the plannedClinic to the facility id' do
+          form_class.send(:merge_planned_facility_label_helper)
+          expect(form_class.form_data['vaMedicalFacility']).to eq '99'
+        end
+      end
+
+      context 'plannedClinic is in health_facilities table' do
+        let(:form_data) do
+          {
+            'vaMedicalFacility' => '100'
+          }
+        end
+
+        it 'sets the plannedClinic to facility id and facility name' do
+          form_class.send(:merge_planned_facility_label_helper)
+          expect(form_class.form_data['vaMedicalFacility']).to eq '100 - VA Facility Name'
+        end
+      end
+    end
   end
 end
