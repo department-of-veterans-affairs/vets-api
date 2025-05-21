@@ -128,20 +128,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: ~
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
-    client_id: ~
-    client_number: ~
-    client_secret: ~
-    redis_token_expiry: 3540
-    scope: ~
-    service_name: BTSSS-API
-    subscription_key: ~
-    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: ~
@@ -1405,11 +1391,11 @@ vanotify:
     dependents:
       api_key: fake_secret
       email:
-        received674: 
+        received674:
           template_id: fake_received674
-        received686: 
+        received686:
           template_id: fake_received686
-        received686c674: 
+        received686c674:
           template_id: fake_received686c674
         submitted674:
           template_id: fake_submitted674
@@ -1790,6 +1776,7 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
+  - host.docker.internal
 vre_counseling:
   prefill: true
 vre_readiness:
@@ -1808,7 +1795,7 @@ vye:
     p: 1
     r: 8
     salt: development-vye-scrypt-salt
-web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
 webhooks:
   require_https: true
