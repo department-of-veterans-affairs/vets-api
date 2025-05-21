@@ -92,7 +92,7 @@ describe HCA::EnrollmentEligibility::Service do
 
           expect(Rails.logger).to receive(:error).with(
             '[HCA] - DateError',
-            { exception: instance_of(Date::Error), date_str: }
+            { exception: instance_of(Date::Error) }
           )
 
           expect(
