@@ -21,7 +21,7 @@ jobs:
       - name: Get pull_request data
         id: get_pr_data
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ];
+          if ${{ github.event_name == 'pull_request' }}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
             echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
