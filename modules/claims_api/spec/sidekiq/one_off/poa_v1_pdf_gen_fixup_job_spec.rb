@@ -79,11 +79,12 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
         create(:veteran_organization, poa: 'ABC', name: 'Some org')
       end
 
-      it 'generates the pdf to match example' do
+      it 'generates the pdf to match example & logs success' do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
         expect(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:new).and_call_original
         expect_any_instance_of(ClaimsApi::V1::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
         expect_any_instance_of(ClaimsApi::PoaDocumentService).to receive(:create_upload)
+        expect(ClaimsApi::Logger).to receive(:log)
         subject.new.perform(power_of_attorney.id)
       end
     end
