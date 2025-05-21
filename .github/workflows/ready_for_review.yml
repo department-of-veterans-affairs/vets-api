@@ -209,6 +209,7 @@ jobs:
             | reverse
             | unique_by(.user.login)
             | .[].user.login
+            // true
           ')
           NUM_APPROVALS=$(echo "$APPROVED" | grep -c .)
           echo "Total approvals: $NUM_APPROVALS"
