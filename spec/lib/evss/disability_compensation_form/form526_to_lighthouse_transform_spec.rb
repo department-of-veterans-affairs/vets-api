@@ -743,15 +743,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.additional_exposures[0]).to eq('OTHER')
 
       all_options_nil_and_other_partial = data.merge({
-                                                      'otherExposures' => nil,
-                                                      'specifyOtherExposures' => {
-                                                        'description' => 'Lead, burn pits',
-                                                        'startDate' => '',
-                                                        'endDate' => ''
-                                                      }
-                                                    })
+                                                       'otherExposures' => nil,
+                                                       'specifyOtherExposures' => {
+                                                         'description' => 'Lead, burn pits',
+                                                         'startDate' => '',
+                                                         'endDate' => ''
+                                                       }
+                                                     })
       result = transformer.send(:transform_other_exposures, all_options_nil_and_other_partial['otherExposures'],
-      all_options_nil_and_other_partial['specifyOtherExposures'])
+                                all_options_nil_and_other_partial['specifyOtherExposures'])
       expect(result.additional_exposures.length).to eq(1)
       expect(result.additional_exposures[0]).to eq('OTHER')
 
