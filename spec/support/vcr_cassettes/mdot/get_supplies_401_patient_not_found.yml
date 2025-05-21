@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://localhost:4466/supplies
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      VA_VETERAN_FIRST_NAME:
+      - patient
+      VA_VETERAN_MIDDLE_NAME:
+      - ";"
+      VA_VETERAN_LAST_NAME:
+      - test
+      VA_VETERAN_ID:
+      - '3322'
+      VA_VETERAN_BIRTH_DATE:
+      - '1922-02-22'
+      VA_ICN:
+      - ";"
+      User-Agent:
+      - Faraday v2.12.2
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      vary:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Mon, 14 Apr 2025 20:19:32 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"timestamp":"2025-04-14T20:19:32.688+0000","message":"Invalid","details":"No
+        patient matching ICN found","result":"Invalid"}'
+  recorded_at: Mon, 14 Apr 2025 20:19:43 GMT
+recorded_with: VCR 6.3.1

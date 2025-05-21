@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <MDOT_URL>/supplies
+    body:
+      encoding: UTF-8
+      string: '{"use_veteran_address":true,"use_temporary_address":false,"vet_email":"vets.gov.user+1@gmail.com","permanent_address":{"street":"125
+        SOME RD","street2":"APT 101, ","city":"DENVER","state":"CO","country":"UNITED
+        STATES","postal_code":"11111"},"temporary_address":{},"order":[{"product_id":"6650"}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.12.2
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Tue, 15 Apr 2025 21:35:33 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"timestamp":"2025-04-15T21:35:33.284+0000","status":401,"error":"Unauthorized","message":"Unauthorized","path":"/supplies"}'
+  recorded_at: Tue, 15 Apr 2025 21:35:33 GMT
+recorded_with: VCR 6.3.1

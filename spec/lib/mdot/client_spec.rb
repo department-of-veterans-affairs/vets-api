@@ -318,6 +318,62 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
+    context 'with last order too recent' do
+      it 'returns a 0 order id and a non-Order Processed status' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_200_last_order_too_recent',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+        res = subject.submit_order(valid_order)
+        expect(res[0]['status']).to eq('Unable to order item since the last order was less than 5 months ago.')
+        expect(res[0]['order_id']).to eq(0)
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with no disability station' do
+      it 'returns a 0 order id and a non-Order Processed status' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_200_no_disability_station',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+        res = subject.submit_order(valid_order)
+        expect(res[0]['status']).to eq('No Disability Station for Veteran')
+        expect(res[0]['order_id']).to eq(0)
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with a 401 response' do
+      it 'raises BackendServiceException' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_401',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+
+        expect { subject.submit_order(valid_order) }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'raises BackendServiceException' do
+        VCR.insert_cassette(
+          'mdot/post_supplies_500',
+          match_requests_on: %i[method uri]
+        )
+        set_mdot_token_for(user)
+
+        expect { subject.submit_order(valid_order) }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.eject_cassette
+      end
+    end
+
     context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/submit_order_502') do

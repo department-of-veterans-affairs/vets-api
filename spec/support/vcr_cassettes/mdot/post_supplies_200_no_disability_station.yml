@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <MDOT_URL>/supplies
+    body:
+      encoding: UTF-8
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":null,"permanentAddress":{"street":"123
+        S ELM","street2":", ","city":"MUSKOGEE","state":"OK","country":"UNITED STATES","postalCode":"73477"},"temporaryAddress":{},"order":[{"productId":"6660"}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.12.2
+      VaApiKey:
+      - eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzMzYiLCJpYXQiOjE3NDYwMjM5MDcsImV4cCI6MTc0NjAyNTEwN30.jJNeDZ7vJuAyR-ZfezVO4B74-dWmERgj4Mp-cj3bZNM
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      vary:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Wed, 30 Apr 2025 14:40:34 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"status":"No Disability Station for Veteran","orderID":0,"productId":6660}]'
+  recorded_at: Wed, 30 Apr 2025 14:40:34 GMT
+recorded_with: VCR 6.3.1
