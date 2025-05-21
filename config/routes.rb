@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   namespace :sign_in do
     get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
+    namespace :webhooks do
+      post 'logingov/risc', to: 'logingov#risc'
+    end
+
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
@@ -59,8 +63,6 @@ Rails.application.routes.draw do
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
-
-    post 'login_gov_callback/risc', to: 'login_gov_callback#risc'
 
     resources :medical_copays, only: %i[index show]
     get 'medical_copays/get_pdf_statement_by_id/:statement_id', to: 'medical_copays#get_pdf_statement_by_id'
