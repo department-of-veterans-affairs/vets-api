@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+require 'benefits_intake_service/service'
+
+RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
+  subject(:perform) { described_class.perform(file) }
+
+  context 'when record invalid' do
+    let(:file) do
+      filepath = 'accredited_representative_portal/invalid.pdf'
+      fixture_file_upload(filepath, 'application/pdf')
+    end
+
+    it 'raises' do
+      expect { perform }.to raise_error(
+        described_class::InvalidFileError
+      )
+    end
+  end
+
+  context 'when record valid' do
+    let(:file) { Object.new } # Not actually used.
+
+    ##
+    # Brittle mocking as no-op of everything leading up to the upstream validity
+    # check.
+    #
+    before do
+      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+        receive(:file=)
+      )
+
+      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+        receive(:validate!)
+      )
+
+      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+        receive(:to_pdf)
+      )
+    end
+
+    context 'when upstream invalid' do
+      before do
+        allow_any_instance_of(BenefitsIntakeService::Service).to(
+          receive(:valid_document?).and_raise(
+            BenefitsIntakeService::Service::InvalidDocumentError
+          )
+        )
+      end
+
+      it 'raises' do
+        expect { perform }.to raise_error(
+          described_class::InvalidFileError
+        )
+      end
+    end
+
+    context 'when upstream valid' do
+      before do
+        allow_any_instance_of(BenefitsIntakeService::Service).to(
+          receive(:valid_document?)
+        )
+      end
+
+      it 'returns an attachment' do
+        expect(perform).to be_a(
+          PersistentAttachments::VAFormAttachment
+        )
+      end
+    end
+  end
+end
