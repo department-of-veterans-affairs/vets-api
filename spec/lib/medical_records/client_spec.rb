@@ -100,6 +100,11 @@ describe MedicalRecords::Client do
       let(:info_log_buffer) { StringIO.new }
 
       context 'when new-model flipper flags are enabled' do
+        let(:user_uuid)    { 'user-123' }
+        let(:vac_key)      { "#{user_uuid}-vaccines" }
+        let(:cond_key)     { "#{user_uuid}-conditions" }
+        let(:fake_bundle)  { double('FHIR::Bundle', entry: []) }
+
         before do
           allow(Flipper).to receive(:enabled?)
             .with(:mhv_medical_records_support_new_model_health_condition).and_return(true)
@@ -107,37 +112,142 @@ describe MedicalRecords::Client do
             .with(:mhv_medical_records_support_new_model_vaccine).and_return(true)
         end
 
-        it 'gets a list of vaccines', :vcr do
-          VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-            vaccine_list = client.list_vaccines
-            expect(vaccine_list).to be_a(Vets::Collection)
-            expect(
-              a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
-            ).to have_been_made.at_least_once
+        describe '#list_vaccines' do
+          it 'gets a list of vaccines', :vcr do
+            VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
+              vaccine_list = client.list_vaccines('uuid')
+              expect(vaccine_list).to be_a(Vets::Collection)
+              expect(
+                a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+              ).to have_been_made.at_least_once
+            end
+          end
+
+          context 'when cache is present' do
+            let(:cached_records) { [double('v1'), double('v2')] }
+            let(:fake_collection) { double('Vets::Collection', records: cached_records) }
+
+            before do
+              allow(MHV::MR::Vaccine).to receive(:get_cached).with(vac_key).and_return(cached_records)
+              allow(client).to receive(:fhir_search)
+              allow(Vets::Collection).to receive(:new)
+                .with(cached_records, MHV::MR::Vaccine)
+                .and_return(fake_collection)
+            end
+
+            it 'returns a Vets::Collection built from the cache and does not call FHIR' do
+              coll = client.list_vaccines(user_uuid)
+              expect(coll).to eq(fake_collection)
+              expect(client).not_to have_received(:fhir_search)
+            end
+          end
+
+          context 'when cache is empty' do
+            let(:fetched_resources) { [double('r1'), double('r2')] }
+            let(:vaccine_objs)      { [double('v1'), double('v2')] }
+            let(:fake_collection)   { double('Vets::Collection', records: vaccine_objs) }
+
+            before do
+              allow(MHV::MR::Vaccine).to receive(:get_cached).with(vac_key).and_return(nil)
+              allow(client).to receive(:fhir_search).and_return(fake_bundle)
+              # simulate from_fhir on each entry
+              allow(fake_bundle).to receive(:entry).and_return(fetched_resources.map { |r| double(resource: r) })
+              allow(MHV::MR::Vaccine).to receive(:from_fhir).and_return(*vaccine_objs)
+              allow(MHV::MR::Vaccine).to receive(:set_cached)
+
+              allow(Vets::Collection).to receive(:new)
+                .with(vaccine_objs, MHV::MR::Vaccine)
+                .and_return(fake_collection)
+            end
+
+            it 'fetches via FHIR, wraps in Vets::Collection and writes to cache' do
+              coll = client.list_vaccines(user_uuid)
+              expect(client).to have_received(:fhir_search).with(
+                FHIR::Immunization,
+                search: hash_including(parameters: hash_including(patient: anything))
+              )
+              expect(MHV::MR::Vaccine).to have_received(:set_cached).with(vac_key, vaccine_objs)
+              expect(coll).to eq(fake_collection)
+            end
           end
         end
 
-        it 'gets a single vaccine', :vcr do
-          VCR.use_cassette 'mr_client/get_a_vaccine' do
-            vaccine = client.get_vaccine(2_954)
-            expect(vaccine).to be_a(MHV::MR::Vaccine)
+        describe '#get_vaccine' do
+          it 'gets a single vaccine', :vcr do
+            VCR.use_cassette 'mr_client/get_a_vaccine' do
+              vaccine = client.get_vaccine(2_954)
+              expect(vaccine).to be_a(MHV::MR::Vaccine)
+            end
           end
         end
 
-        it 'gets a list of health conditions', :vcr do
-          VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
-            condition_list = client.list_conditions
-            expect(condition_list).to be_a(Vets::Collection)
-            expect(
-              a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
-            ).to have_been_made.at_least_once
+        describe '#list_conditions' do
+          let(:cond_key) { "#{user_uuid}-conditions" }
+
+          it 'gets a list of health conditions', :vcr do
+            VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
+              condition_list = client.list_conditions('uuid')
+              expect(condition_list).to be_a(Vets::Collection)
+              expect(
+                a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+              ).to have_been_made.at_least_once
+            end
+          end
+
+          context 'when cache is present' do
+            let(:cached_records) { [double('c1'), double('c2')] }
+            let(:fake_collection) { double('Vets::Collection', records: cached_records) }
+
+            before do
+              allow(MHV::MR::HealthCondition).to receive(:get_cached).with(cond_key).and_return(cached_records)
+              allow(client).to receive(:fhir_search)
+              allow(Vets::Collection).to receive(:new)
+                .with(cached_records, MHV::MR::HealthCondition)
+                .and_return(fake_collection)
+            end
+
+            it 'returns a Vets::Collection built from the cache and does not call FHIR' do
+              coll = client.list_conditions(user_uuid)
+              expect(coll).to eq(fake_collection)
+              expect(client).not_to have_received(:fhir_search)
+            end
+          end
+
+          context 'when cache is empty' do
+            let(:fetched_resources) { [double('r1'), double('r2')] }
+            let(:condition_objs)    { [double('c1'), double('c2')] }
+            let(:fake_collection)   { double('Vets::Collection', records: condition_objs) }
+
+            before do
+              allow(MHV::MR::HealthCondition).to receive(:get_cached).with(cond_key).and_return(nil)
+              allow(client).to receive(:fhir_search).and_return(fake_bundle)
+              allow(fake_bundle).to receive(:entry)
+                .and_return(fetched_resources.map { |r| double(resource: r) })
+              allow(MHV::MR::HealthCondition).to receive(:from_fhir).and_return(*condition_objs)
+              allow(MHV::MR::HealthCondition).to receive(:set_cached)
+              allow(Vets::Collection).to receive(:new)
+                .with(condition_objs, MHV::MR::HealthCondition)
+                .and_return(fake_collection)
+            end
+
+            it 'fetches via FHIR, wraps in Vets::Collection and writes to cache' do
+              coll = client.list_conditions(user_uuid)
+              expect(client).to have_received(:fhir_search).with(
+                FHIR::Condition,
+                search: hash_including(parameters: hash_including(patient: anything))
+              )
+              expect(MHV::MR::HealthCondition).to have_received(:set_cached).with(cond_key, condition_objs)
+              expect(coll).to eq(fake_collection)
+            end
           end
         end
 
-        it 'gets a single health condition', :vcr do
-          VCR.use_cassette 'mr_client/get_a_health_condition' do
-            condition = client.get_condition(4169)
-            expect(condition).to be_a(MHV::MR::HealthCondition)
+        describe '#get_condition' do
+          it 'gets a single health condition', :vcr do
+            VCR.use_cassette 'mr_client/get_a_health_condition' do
+              condition = client.get_condition(4169)
+              expect(condition).to be_a(MHV::MR::HealthCondition)
+            end
           end
         end
       end
@@ -213,7 +323,7 @@ describe MedicalRecords::Client do
 
       it 'gets a list of vaccines', :vcr do
         VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-          vaccine_list = client.list_vaccines
+          vaccine_list = client.list_vaccines('uuid')
           expect(vaccine_list).to be_a(FHIR::Bundle)
           expect(
             a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
@@ -252,7 +362,7 @@ describe MedicalRecords::Client do
 
       it 'gets a list of health conditions', :vcr do
         VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
-          condition_list = client.list_conditions
+          condition_list = client.list_conditions('uuid')
           expect(
             a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
           ).to have_been_made.at_least_once
