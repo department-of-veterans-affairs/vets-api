@@ -78,36 +78,10 @@ module AccreditedRepresentativePortal
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
       if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
-        user.registration_numbers = registration_numbers
+        user.all_emails = access_token.user_attributes['all_emails']
       end
       user.save
       @current_user = user
-    end
-
-    def registration_numbers
-      return @registration_numbers if @registration_numbers.present?
-
-      icn = session.user_account.icn
-      @registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
-
-      if @registration_numbers.blank?
-        representatives = Veteran::Service::Representative.where(email: access_token.user_attributes['all_emails'])
-
-        if representatives.empty?
-          raise Common::Exceptions::Unauthorized,
-                detail: 'Email not associated with any accredited representative'
-        elsif representatives.size > 1
-          raise Common::Exceptions::Unauthorized,
-                detail: 'Email associated with multiple accredited representatives'
-        end
-        representative = representatives.first
-        @registration_numbers = [representative.representative_id]
-
-        # register the icn with the OGC API
-        AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn, @registration_numbers)
-      end
-
-      @registration_numbers
     end
   end
 end

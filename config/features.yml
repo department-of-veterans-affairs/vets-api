@@ -34,7 +34,7 @@ features:
   accredited_representative_portal_self_service_auth:
     actor_type: user
     description: Enables the self-service authorization of the accredited representative portal
-    enable_in_development: true
+    enable_in_development: false
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
