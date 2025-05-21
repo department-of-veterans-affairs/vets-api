@@ -21,7 +21,7 @@ module VAOS
       REASON = 'reason'
       REASON_CODE = 'reason_code'
       COMMENT = 'comment'
-      CACHE_ERROR_MSG = 'Error accessing cache for referral data'
+      CACHE_ERROR_MSG = 'Error fetching referral data from cache'
 
       rescue_from Redis::BaseError, with: :handle_redis_error
 

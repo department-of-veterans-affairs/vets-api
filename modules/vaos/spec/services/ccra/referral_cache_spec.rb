@@ -1,0 +1,92 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+describe Ccra::ReferralCache do
+  subject { described_class.new }
+
+  let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+  let(:redis_referral_expiry) { 60.minutes }
+  let(:id) { '12345' }
+  let(:icn) { '1234567890V123456' }
+
+  # Using a simple OpenStruct which can be serialized for testing, instead of an instance double
+  let(:referral_data) do
+    OpenStruct.new(
+      referral_number: '12345',
+      appointment_type_id: 'ov',
+      expiration_date: '2023-12-31',
+      provider_npi: '1234567890',
+      referral_date: '2023-01-01'
+    )
+  end
+
+  before do
+    allow(Rails).to receive(:cache).and_return(memory_store)
+    Rails.cache.clear
+
+    # Set up settings for testing
+    Settings.vaos ||= OpenStruct.new
+    Settings.vaos.ccra ||= OpenStruct.new
+    Settings.vaos.ccra.tap do |ccra|
+      ccra.redis_referral_expiry = redis_referral_expiry
+    end
+  end
+
+  describe 'attributes' do
+    it 'responds to settings' do
+      expect(subject.respond_to?(:settings)).to be(true)
+    end
+  end
+
+  describe '#save_referral_data' do
+    it 'saves the referral data to cache and returns true' do
+      expect(subject.save_referral_data(id:, icn:, referral_data:)).to be(true)
+
+      # Generate the cache key in the same way as the class
+      cache_key = "#{Ccra::ReferralCache::REFERRAL_CACHE_KEY}#{icn}_#{id}"
+      saved_data = Rails.cache.read(
+        cache_key,
+        namespace: Ccra::ReferralCache::REFERRAL_CACHE_NAMESPACE
+      )
+
+      # Verify the data was cached
+      expect(saved_data).to be_a(OpenStruct)
+      expect(saved_data.referral_number).to eq('12345')
+      expect(saved_data.appointment_type_id).to eq('ov')
+    end
+  end
+
+  describe '#fetch_referral_data' do
+    context 'when cache does not exist' do
+      it 'returns nil' do
+        expect(subject.fetch_referral_data(id:, icn:)).to be_nil
+      end
+    end
+
+    context 'when cache exists' do
+      before do
+        subject.save_referral_data(id:, icn:, referral_data:)
+      end
+
+      it 'returns the cached referral detail' do
+        result = subject.fetch_referral_data(id:, icn:)
+        expect(result).to be_a(OpenStruct)
+        expect(result.referral_number).to eq('12345')
+        expect(result.appointment_type_id).to eq('ov')
+      end
+    end
+
+    context 'when cache has expired' do
+      before do
+        subject.save_referral_data(id:, icn:, referral_data:)
+      end
+
+      it 'returns nil' do
+        Timecop.travel(redis_referral_expiry.from_now + 1.second) do
+          expect(subject.fetch_referral_data(id:, icn:)).to be_nil
+        end
+      end
+    end
+  end
+end 
