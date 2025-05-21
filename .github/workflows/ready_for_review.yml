@@ -139,14 +139,14 @@ jobs:
 
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'  && needs.check-workflow-status.outputs.failures_detected == "false"
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'  && needs.check-workflow-status.outputs.failures_detected == 'false'
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
 
       - name: Remove require-backend-approval label
         uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false' && needs.check-workflow-status.outputs.failures_detected == "false"
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false' && needs.check-workflow-status.outputs.failures_detected == 'false'
         with:
           number: ${{ env.pr_number }}
           labels: require-backend-approval
