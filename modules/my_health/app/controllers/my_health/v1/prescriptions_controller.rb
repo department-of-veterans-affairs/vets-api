@@ -18,7 +18,7 @@ module MyHealth
         raw_data = resource.data.dup
         resource.data = resource_data_modifications(resource)
         filter_count = set_filter_metadata(resource.data, raw_data)
-        resource = apply_filters(resource) if params[:filter].present?
+        resource = apply_filters(resource)
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         resource.data = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
@@ -157,20 +157,20 @@ module MyHealth
       end
 
       def apply_filters(resource)
+        resource.metadata[:filter] = {}
         disp_status = filter_params[:disp_status]
-        if disp_status.present? && disp_status[:eq]&.downcase == 'active,expired'.downcase
-          return filter_renewals(resource)
-        end
 
-        filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-        resource.data = resource.data.select do |item|
-          filters.include?(item.disp_status.downcase)
+        if params[:filter].blank?
+          resource.metadata[:filter][:message] = 'No filters applied'
+        elsif disp_status.present?
+          if disp_status[:eq]&.downcase == 'active,expired'.downcase
+            filter_renewals(resource)
+          else
+            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
+            resource.data = resource.data.select { |item| filters.include?(item.disp_status.downcase) }
+            resource.metadata[:filter][:dispStatus] = { eq: disp_status[:eq] }
+          end
         end
-
-        resource.metadata[:filter] ||= {}
-        resource.metadata[:filter][:dispStatus] = {
-          eq: filter_params[:disp_status][:eq]
-        }
         resource
       end
 
