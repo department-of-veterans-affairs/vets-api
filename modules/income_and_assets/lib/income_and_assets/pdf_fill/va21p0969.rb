@@ -36,7 +36,7 @@ module IncomeAndAssets
       TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
       # Starting page number for overflow pages
-      START_PAGE = 14
+      START_PAGE = 11
 
       # Map question numbers to descriptive titles for overflow attachments
       QUESTION_KEY = {
@@ -77,7 +77,7 @@ module IncomeAndAssets
 
       key = {}
 
-      SECTION_CLASSES.each { |section| key = key.merge(section::KEY) }
+      SECTION_CLASSES.each { |section| key.merge!(section::KEY) }
 
       # Form configuration hash
       KEY = key.freeze
