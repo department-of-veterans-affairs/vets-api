@@ -312,7 +312,6 @@ RSpec/MultipleDescribes:
     - 'spec/sidekiq/evss/document_upload_spec.rb'
     - 'spec/sidekiq/evss/request_decision_spec.rb'
     - 'spec/requests/swagger_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/existing_github_file_spec.rb'
 
 # These instances seem to be false positives
 RSpec/RepeatedExample:

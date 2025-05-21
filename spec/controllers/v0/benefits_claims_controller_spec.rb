@@ -285,7 +285,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
           tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
           can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-          expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, true, true,
+          expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, false, false,
                                            true])
           friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
           expect(friendly_name_values).to include('Authorization to disclose information')
