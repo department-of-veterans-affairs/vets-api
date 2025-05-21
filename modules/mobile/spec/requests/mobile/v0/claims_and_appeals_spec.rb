@@ -625,8 +625,9 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       it 'returns expected document' do
-        post "/mobile/v0/claim/letter/documents/#{CGI.escape("{#{document_uuid}}")}/download", params: { file_name: 'test' },
-                                                                                               headers: sis_headers
+        post "/mobile/v0/claim/letter/documents/#{CGI.escape("{#{document_uuid}}")}/download",
+             params: { file_name: 'test' },
+             headers: sis_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(content)
         expect(response.headers['Content-Disposition']).to eq("attachment; filename=\"test\"; filename*=UTF-8''test")
