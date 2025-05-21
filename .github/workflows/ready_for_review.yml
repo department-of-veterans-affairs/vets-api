@@ -99,6 +99,9 @@ jobs:
           done
 
           echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
+
+          BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
+
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
