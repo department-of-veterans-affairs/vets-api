@@ -2,11 +2,13 @@
 
 namespace :form_upload do
   desc 'Add a new form to the Form Upload Tool and integrate with VANotify'
-  task :add, [:form_number, :min_pages, :max_pages] => :environment do |t, args|
+  task :add, %i[form_number min_pages max_pages] => :environment do |_, args|
     require 'fileutils'
     require 'yaml'
 
-    abort 'Usage: rake "form_upload:add[FORM_NUMBER,MIN_PAGES,MAX_PAGES]"' unless args.form_number && args.min_pages && args.max_pages
+    unless args.form_number && args.min_pages && args.max_pages
+      abort 'Usage: rake "form_upload:add[FORM_NUMBER,MIN_PAGES,MAX_PAGES]"'
+    end
 
     form_number = args.form_number.strip
     min_pages = args.min_pages.to_i
@@ -21,10 +23,8 @@ namespace :form_upload do
     File.open(form_profile_path, 'w') do |f|
       lines.each do |line|
         f.puts line
-        if line.include?(form_upload_marker) && !inserted
-          unless lines.any? { |l| l.include?(form_upload_entry) }
-            f.puts form_upload_entry
-          end
+        if !inserted && line.include?(form_upload_marker) && lines.none? { |l| l.include?(form_upload_entry) }
+          f.puts form_upload_entry
           inserted = true
         end
       end
@@ -54,8 +54,12 @@ namespace :form_upload do
           entries = (entries + []).uniq.sort_by do |entry|
             entry.match(/'([\dA-Za-zP-]+)-UPLOAD'/)[1].gsub(/\D/, '').to_i
           end
-          # Ensure each entry is followed by a newline
-          output_lines += entries.map { |e| e.end_with?("\n") ? e : "#{e}\n" }
+          # Remove trailing comma from last entry for Rubocop compliance
+          entries = entries.map.with_index do |e, i|
+            i == entries.length - 1 ? e.chomp.sub(/,+\s*$/, '') : e
+          end
+          # Remove blank line if present before closing }.freeze
+          output_lines += entries.reject(&:empty?).map { |e| e.end_with?("\n") ? e : "#{e}\n" }
           output_lines << line
           next
         end
@@ -71,17 +75,14 @@ namespace :form_upload do
 
     # 2. Add to PersistentAttachments::VAForm::CONFIGS
     va_form_path = 'app/models/persistent_attachments/va_form.rb'
-    va_form_marker = ".merge("
     va_form_entry = "      '#{form_number}' => { max_pages: #{max_pages}, min_pages: #{min_pages} },"
     lines = File.readlines(va_form_path)
     inserted = false
     File.open(va_form_path, 'w') do |f|
-      lines.each_with_index do |line, idx|
+      lines.each_with_index do |line, _|
         # Look for the closing bracket of the merge hash
-        if !inserted && line.strip == '}'
-          unless lines.any? { |l| l.include?(va_form_entry) }
-            f.puts va_form_entry
-          end
+        if !inserted && line.strip == '}' && lines.none? { |l| l.include?(va_form_entry) }
+          f.puts va_form_entry
           inserted = true
         end
         f.puts line
@@ -97,10 +98,8 @@ namespace :form_upload do
     File.open(form_upload_email_path, 'w') do |f|
       lines.each do |line|
         f.puts line
-        if line.include?(supported_forms_marker) && !inserted
-          unless lines.any? { |l| l.include?(supported_forms_entry) }
-            f.puts supported_forms_entry
-          end
+        if !inserted && line.include?(supported_forms_marker) && lines.none? { |l| l.include?(supported_forms_entry) }
+          f.puts supported_forms_entry
           inserted = true
         end
       end
@@ -108,7 +107,7 @@ namespace :form_upload do
 
     puts "\n#{'-' * 72}"
     puts "Form #{form_number} added to Form Upload Tool with min_pages: #{min_pages}, max_pages: #{max_pages}."
-    puts 'Please review and commit the changes.'
+    puts 'Please review and commit the changes and download the PDF into  modules/simple_forms_api/spec/fixtures/pdfs/'
     puts "#{'-' * 72}\n"
   end
 end

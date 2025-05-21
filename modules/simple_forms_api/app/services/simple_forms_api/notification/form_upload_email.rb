@@ -13,6 +13,7 @@ module SimpleFormsApi
         received: template_root.form_upload_received_email
       }.freeze
       SUPPORTED_FORMS = %w[
+        21-651
         21-0304
         21-8960
         21P-4706c

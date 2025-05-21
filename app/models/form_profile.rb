@@ -100,6 +100,7 @@ class FormProfile
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_upload: %w[
+      21-651-UPLOAD
       21-0304-UPLOAD
       21-8960-UPLOAD
       21P-4706c-UPLOAD
@@ -171,16 +172,18 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
     'MDOT' => ::FormProfiles::MDOT,
+    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload,
     '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-651-UPLOAD' => ::FormProfiles::FormUpload,
     '21-674b-UPLOAD' => ::FormProfiles::FormUpload,
     '21-0304-UPLOAD' => ::FormProfiles::FormUpload,
     '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-0788-UPLOAD' => ::FormProfiles::FormUpload,    
+    '21-0788-UPLOAD' => ::FormProfiles::FormUpload,
     '21-2680-UPLOAD' => ::FormProfiles::FormUpload,
     '21-4140-UPLOAD' => ::FormProfiles::FormUpload,
     '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-4193-UPLOAD' => ::FormProfiles::FormUpload,    
+    '21-4193-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-4706c-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-4718a-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
@@ -190,8 +193,7 @@ class FormProfile
     '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
