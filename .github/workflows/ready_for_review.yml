@@ -174,7 +174,6 @@ jobs:
           approval_status=required
           team_approval_status=required
           author_is_backend=false
-          GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
 
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
           BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
@@ -187,7 +186,7 @@ jobs:
             echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
           fi
 
-          APPROVED=$(gh api repos/$GITHUB_REPOSITORY/pulls/$pr_number/reviews --jq '
+          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }} --jq '{
                         [.[] | select(.state == "APPROVED")]
                         | sort_by(.submitted_at)
                         | reverse
