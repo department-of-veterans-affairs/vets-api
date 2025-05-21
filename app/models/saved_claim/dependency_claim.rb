@@ -284,6 +284,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
   end
 
+  def monitor
+    @monitor ||= Dependents::Monitor.new(use_v2 || form_id.include?('-V2'))
+  end
+
   private
 
   def partitioned_686_674_params
@@ -294,9 +298,5 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data:, dependent_data: }
-  end
-
-  def monitor
-    @monitor ||= Dependents::Monitor.new(use_v2 || form_id.include?('-V2'))
   end
 end

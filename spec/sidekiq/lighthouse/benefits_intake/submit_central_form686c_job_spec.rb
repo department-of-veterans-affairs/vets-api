@@ -495,7 +495,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   describe 'sidekiq_retries_exhausted block with dependents_trigger_action_needed_email flipper on' do
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
-      allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+      allow(claim).to receive(:monitor).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
       allow(Flipper).to receive(:enabled?).with(:dependents_trigger_action_needed_email).and_return(true)
     end
