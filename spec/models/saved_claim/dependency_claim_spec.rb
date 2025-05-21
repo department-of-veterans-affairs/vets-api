@@ -130,7 +130,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: all_flows_payload_v2.to_json) }
+      subject { described_class.new(form: all_flows_payload_v2.to_json, use_v2: true) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -181,7 +181,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: form_674_only_v2.to_json) }
+      subject { described_class.new(form: form_674_only_v2.to_json, use_v2: true) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
@@ -217,7 +217,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     context 'va_dependents_v2 is enabled' do
-      subject { described_class.new(form: adopted_child_v2.to_json) }
+      subject { described_class.new(form: adopted_child_v2.to_json, use_v2: true) }
 
       before do
         allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
