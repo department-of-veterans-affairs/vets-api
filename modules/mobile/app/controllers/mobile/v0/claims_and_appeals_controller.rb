@@ -100,7 +100,9 @@ module Mobile
 
       def claim_letter_document_download
         send_data(
-          lighthouse_document_service.claim_letter_download(document_uuid: params[:document_id],
+          # Backwards Compatibility: Delete {} brackets from document id as the
+          # benefit documents service doesn't support them
+          lighthouse_document_service.claim_letter_download(document_uuid: params[:document_id].delete('{}'),
                                                             participant_id: @current_user.participant_id),
           type: 'application/pdf',
           filename: file_name

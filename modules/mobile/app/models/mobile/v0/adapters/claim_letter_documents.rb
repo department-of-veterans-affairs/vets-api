@@ -7,7 +7,9 @@ module Mobile
         def self.parse(documents)
           documents.map do |document|
             Mobile::V0::ClaimLetterDocuments.new(
-              id: document[:documentUuid],
+              # Backwards compatibility: the document ids that came from eFolder were wrapped in {} braces
+              # The Front End excepts these as the ids are being compared to ids coming from GET claims that have {}'s
+              id: "{#{document[:documentUuid]}}",
               doc_type: document[:docTypeId],
               type_description: document[:documentTypeLabel],
               received_at: document[:uploadedDateTime]
