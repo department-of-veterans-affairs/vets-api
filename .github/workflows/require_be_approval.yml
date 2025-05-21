@@ -50,13 +50,6 @@ jobs:
             echo "Label 'require-backend-approval' found. Approval required."
           fi
 
-      # Sucessfully exit this workflow if backend approval is not required.
-      # This workflow should never fail for non backend approval pull requests
-      # This workflow should fail when backend approval is required and when PR is in draft mode.
-      - name: Fail for for draft PR
-        if: steps.approval_permissions.outputs.pr_draft == 'true'
-        run: exit 1
-
 
   # This workflow should fail when backend approval is required and required workflows are not complete.
   check-workflow-status:
@@ -106,15 +99,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fail if workflow runs are not successfully completed
-        if: steps.check_workflow_status.outputs.failures_detected == 'true'
-        run: exit 1
 
   # Fetch approvals when required workflows are successful.
-  check-backend-approvals:
-    name: Check Backend Approvals
+  fetch-pr-reviews:
+    name: Succeed if backend approval is confirmed
     needs: [get-pr-data, check-workflow-status]
-    if: needs.check-workflow-status.outputs.failures_detected == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -177,17 +166,7 @@ jobs:
             echo "author_is_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-          # TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-          #   | sort_by(.submitted_at)
-          #   | reverse
-          #   | unique_by(.user)
-          #   | map(select(.state == "APPROVED"))
-          #   | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
-          # ${{ steps.get_pr_reviews.outputs.data }}
-          # EOF
-          # )
-
-          TEAM_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
+          TEAM_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
             | jq -r '[.[] | {user: .user.login, state, submitted_at}]
                       | sort_by(.submitted_at)
                       | reverse
@@ -204,17 +183,9 @@ jobs:
             echo "team_approval_status=confirmed" >> "$GITHUB_OUTPUT"
           fi
 
-          if [ "${require_be_approval}" == "true" ]; then
-            # BE_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-            #   | sort_by(.submitted_at)
-            #   | reverse
-            #   | unique_by(.user)
-            #   | map(select(.state == "APPROVED"))
-            #   | .[].user' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-            # ${{ steps.get_pr_reviews.outputs.data }}
-            # EOF
-            # )
-            BE_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
+          approval_status=required
+          if [ "${{ needs.get-pr-data.outputs.require_be_approval }}" == "true" ]; then
+            BE_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
               | jq -r '[.[] | {user: .user.login, state, submitted_at}]
                         | sort_by(.submitted_at)
                         | reverse
@@ -226,55 +197,48 @@ jobs:
 
             echo "Number of backend-review-group approvals: $BE_APPROVALS"
             if [ "$BE_APPROVALS" -eq 0 ]; then
-              echo "approval_status=required" >> "$GITHUB_OUTPUT"
+              approval_status=required
             else
-              echo "approval_status=confirmed" >> "$GITHUB_OUTPUT"
+              approval_status=confirmed
             fi
           fi
+          echo "approval_status=$approval_status" >> "$GITHUB_OUTPUT"
 
-  update-labels:
-    name: Succeed if backend approval is confirmed
-    needs: [get-pr-data, check-backend-approvals]
-    runs-on: ubuntu-latest
-    permissions: write-all
-    env:
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
-      require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
-    steps:
       - name: Exit for non backend approvals
         if: needs.get-pr-data.outputs.require_be_approval == 'false'
         run: exit 0
 
+      - name: Fail if draft or failures
+        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true' || steps.verify_approval.outputs.approval_status == 'required'
+        run: exit 1
+
       - name: Remove ready-for-review label
-        if: needs.check-backend-approvals.outputs.team_approval_status == 'confirmed'
+        if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-review
 
       - name: Remove ready-for-backend-review label
-        if: needs.check-backend-approvals.outputs.approval_status == 'confirmed'
+        if: steps.verify_approval.outputs.approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
-      - name: Backend Approval Confirmed
-        if: needs.check-backend-approvals.outputs.approval_status == 'confirmed'
-        run: exit 0
-
       - name: Add ready-for-backend-review label
         if: |
-          needs.check-backend-approvals.outputs.approval_status == 'required' &&
+          steps.verify_approval.outputs.approval_status == 'required' &&
           (
-            needs.check-backend-approvals.outputs.team_approval_status == 'confirmed' ||
-            needs.check-backend-approvals.author_is_backend == 'true'
+            steps.verify_approval.outputs.team_approval_status == 'confirmed' ||
+            steps.verify_approval.author_is_backend == 'true'
           )
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
-      - name: Fail if backend approval is required
-        if: needs.check-backend-approvals.outputs.approval_status == 'required'
-        run: exit 1
+
+      - name: Backend Approval Confirmed
+        if: steps.verify_approval.outputs.approval_status == 'confirmed'
+        run: exit 0
