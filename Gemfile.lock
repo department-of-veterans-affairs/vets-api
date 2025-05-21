@@ -282,7 +282,7 @@ GEM
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
-    bootsnap (1.18.5)
+    bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
@@ -712,7 +712,7 @@ GEM
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
     minitest (5.25.5)
-    mock_redis (0.49.0)
+    mock_redis (0.50.0)
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
