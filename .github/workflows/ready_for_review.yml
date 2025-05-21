@@ -161,7 +161,6 @@ jobs:
       issues: read
       organization: read
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       backend_approval_required: ${{ needs.check-backend-requirement.outputs.backend_approval_required }}
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
@@ -172,6 +171,22 @@ jobs:
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Verify backend-review-group approval
         id: verify_approval
         run: |
@@ -222,7 +237,7 @@ jobs:
           echo "team_approval_status=$team_approval_status" >> "$GITHUB_OUTPUT"
           echo "approval_status=$approval_status" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Remove ready-for-backend-review label
         if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true'
