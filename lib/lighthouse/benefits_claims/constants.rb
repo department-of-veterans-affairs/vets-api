@@ -68,8 +68,8 @@ module BenefitsClaims
       'Proof of service (DD214, etc.)' => true,
       'PMR Request' => true,
       'General Records Request (Medical)' => true,
-      'DBQ AUDIO Hearing Loss and Tinnitus' => true,
-      'DBQ PSYCH Mental Disorders' => true
+      'DBQ AUDIO Hearing Loss and Tinnitus' => false,
+      'DBQ PSYCH Mental Disorders' => false
     }.freeze
   end
 end

@@ -180,10 +180,7 @@ http_interactions:
       string: '
         { "data": 
           {
-            "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "status": "InProcess",
-            "createdOn": "2024-12-10T19:53:08.446Z",
-            "modifiedOn": "2024-12-10T19:53:08.446Z"
+            "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           }
       }'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
