@@ -1788,9 +1788,6 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
-  vre_enable_vbms_exception_logging:
-    actor_type: user
-    description: Enables exception logging for failures in upload_to_vbms method
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
