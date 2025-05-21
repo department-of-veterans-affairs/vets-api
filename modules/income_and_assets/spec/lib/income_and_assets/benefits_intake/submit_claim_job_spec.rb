@@ -149,8 +149,8 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'IncomeAndAssets::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
-        'queue' => 'low' }
+      { 'args' => [], 'class' => 'IncomeAndAssets::BenefitsIntake::SubmitClaimJob',
+        'error_message' => 'An error occurred', 'queue' => 'low' }
     end
 
     before do
@@ -165,7 +165,8 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
       end
 
       it 'logs a distrinct error when only claim_id provided' do
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
           expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
 
@@ -176,7 +177,8 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
           expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
 
@@ -187,7 +189,8 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
       end
 
       it 'logs a distrinct error when claim is not found' do
-        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob
+          .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id - 1)
 
           exhaustion_msg['args'] = [claim.id - 1, 2]
