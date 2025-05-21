@@ -31,48 +31,52 @@ module AccreditedRepresentativePortal
     private
 
     def registrations
-      Rails.logger.info "Getting registrations for #{@email}"
-      Rails.logger.info "Registration numbers: #{@registration_numbers}"
       @email.present? or
         raise ArgumentError, 'Must set user email'
 
       if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
 
-        icn = session.user_account.icn
-        @registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
-
-        if @registration_numbers.blank?
-          representatives = Veteran::Service::Representative.where(email: @all_emails)
-
-          if representatives.empty?
-            raise Common::Exceptions::Unauthorized,
-                  detail: 'Email not associated with any accredited representative'
-          elsif representatives.size > 1
-            raise Common::Exceptions::Unauthorized,
-                  detail: 'Email associated with multiple accredited representatives'
-          end
-          representative = representatives.first
-          @registration_numbers = [representative.representative_id]
-
-          # register the icn with the OGC API
-          AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn, @registration_numbers)
-        end
+        @registration_numbers ||= registration_numbers
 
         @registrations ||= Array(
-                             @registration_numbers.map do |registration_number|
-                               OpenStruct.new(
-                                 accredited_individual_registration_number: registration_number,
-                                 power_of_attorney_holder_type: 'veteran_service_organization',
-                                 user_account_email: @email,
-                                 user_account_icn: icn
-                               )
-                             end
-                           )
+          @registration_numbers.map do |registration_number|
+            OpenStruct.new(
+              accredited_individual_registration_number: registration_number,
+              power_of_attorney_holder_type: 'veteran_service_organization',
+              user_account_email: @email,
+              user_account_icn: icn
+            )
+          end
+        )
       else
         @registrations ||= UserAccountAccreditedIndividual.for_user_account_email(
-                             @email, user_account_icn: icn
-                           )
+          @email, user_account_icn: icn
+        )
       end
+    end
+
+    def registration_numbers
+      icn = session.user_account.icn
+      registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
+
+      if registration_numbers.blank?
+        representatives = Veteran::Service::Representative.where(email: @all_emails)
+
+        if representatives.empty?
+          raise Common::Exceptions::Unauthorized,
+                detail: 'Email not associated with any accredited representative'
+        elsif representatives.size > 1
+          raise Common::Exceptions::Unauthorized,
+                detail: 'Email associated with multiple accredited representatives'
+        end
+        representative = representatives.first
+        registration_numbers = [representative.representative_id]
+
+        # register the icn with the OGC API
+        AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn,
+                                                                                            registration_numbers)
+      end
+      registration_numbers
     end
 
     def power_of_attorney_holders
