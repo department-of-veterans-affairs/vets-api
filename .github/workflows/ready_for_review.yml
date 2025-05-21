@@ -260,7 +260,7 @@ jobs:
       # The ready-for-review label will be added when pull request has not been reviewed
       - name: Add ready-for-review label
         if: |
-          steps.verify_approval.outputs.approval_status == 'required' &&
+          steps.verify_approval.outputs.approval_status == 'required' ||
           steps.verify_approval.outputs.team_approval_status == 'required'
         uses: actions-ecosystem/action-add-labels@v1
         with:
