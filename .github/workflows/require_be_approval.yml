@@ -191,7 +191,10 @@ jobs:
           fi
 
           approval_status=required
-          if [ "${{ needs.get-pr-data.outputs.require_be_approval }}" == "true" ]; then
+          if [ "${{ needs.get-pr-data.outputs.require_be_approval }}" == "true" ] && \
+            [ "${{ needs.get-pr-data.outputs.pr_draft }}" == "false" ] && \
+            [ "${{ needs.check-workflow-status.outputs.failures_detected }}" == "false" ]; then
+
             BE_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
               | jq -r '[.[] | {user: .user.login, state, submitted_at}]
                         | sort_by(.submitted_at)
@@ -211,6 +214,13 @@ jobs:
           fi
           echo "approval_status=$approval_status" >> "$GITHUB_OUTPUT"
 
+      - name: Remove ready-for-review label
+        if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-review
+
       - name: Exit for non backend approvals
         if: needs.get-pr-data.outputs.require_be_approval == 'false'
         run: exit 0
@@ -218,13 +228,6 @@ jobs:
       - name: Fail if draft or failures
         if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true' || steps.verify_approval.outputs.approval_status == 'required'
         run: exit 1
-
-      - name: Remove ready-for-review label
-        if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ env.pr_number }}
-          labels: ready-for-review
 
       - name: Remove ready-for-backend-review label
         if: steps.verify_approval.outputs.approval_status == 'confirmed'
