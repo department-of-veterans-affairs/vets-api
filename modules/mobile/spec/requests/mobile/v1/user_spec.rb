@@ -224,12 +224,12 @@ RSpec.describe 'Mobile::V1::User', type: :request do
               {
                 'facilityId' => '757',
                 'isCerner' => true,
-                'facilityName' => "Baxter Springs City Soldiers' Lot"
+                'facilityName' => 'Chalmers P. Wylie Veterans Outpatient Clinic'
               },
               {
                 'facilityId' => '358',
                 'isCerner' => true,
-                'facilityName' => 'Congressional Cemetery Government Lots'
+                'facilityName' => 'Manila VA Clinic'
               }
             ]
           }
