@@ -216,10 +216,15 @@ jobs:
       - name: Verify backend-review-group approval
         id: verify_approval
         run: |
-          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
-          ${{ steps.get_team_members.outputs.data }}
-          EOF
-          )
+          # BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
+          # ${{ steps.get_team_members.outputs.data }}
+          # EOF
+          # )
+
+          BACKEND_REVIEWERS=$(echo "${{ steps.get_team_members.outputs.data }}" \
+            | jq -r '.[].login' \
+            | tr '\n' '|' \
+            | sed 's/|$//')
 
           # Get PR author
           PR_AUTHOR=$(gh pr view ${{ env.pr_number }} --json author -q '.author.login')
@@ -233,15 +238,26 @@ jobs:
             echo "author_is_backend=false" >> $GITHUB_OUTPUT
           fi
 
-          TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-            | sort_by(.submitted_at)
-            | reverse
-            | unique_by(.user)
-            | map(select(.state == "APPROVED"))
-            | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
-          ${{ steps.get_pr_reviews.outputs.data }}
-          EOF
-          )
+          # TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+          #   | sort_by(.submitted_at)
+          #   | reverse
+          #   | unique_by(.user)
+          #   | map(select(.state == "APPROVED"))
+          #   | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
+          # ${{ steps.get_pr_reviews.outputs.data }}
+          # EOF
+          # )
+
+          TEAM_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
+            | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+                      | sort_by(.submitted_at)
+                      | reverse
+                      | unique_by(.user)
+                      | map(select(.state == "APPROVED"))
+                      | .[].user' \
+            | grep -viE "$BACKEND_REVIEWERS" \
+            | wc -l)
+
 
           echo "Number of non backend-review-group approvals: $TEAM_APPROVALS"
           if [ "$TEAM_APPROVALS" -eq 0 ]; then
