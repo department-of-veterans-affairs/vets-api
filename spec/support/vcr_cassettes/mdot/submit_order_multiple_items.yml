@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <MDOT_URL>/supplies
+    body:
+      encoding: UTF-8
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"vet1@va.gov","order":[{"productId":"8271"},{"productId":"6650"}],"permanentAddress":{"street":"125 SOME RD","street2":"APT 101","city":"DENVER","state":"CO","country":"United States","postalCode":"111119999"},"temporaryAddress":{"street":"17250 w colfax ave","street2":"a-204","city":"Golden","state":"CO","country":"United States","postalCode":"80401"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Vaapikey:
+      - abcd1234abcd1234abcd1234
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - Cowboy
+      Date:
+      - Tue, 31 Mar 2020 14:32:35 GMT
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"570535d1150e372663eb30ca87a98047"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 774129c4-c7f3-401f-893b-9368f526cb46
+      X-Runtime:
+      - '0.007192'
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 vegur
+    body:
+      encoding: UTF-8
+      string: '[{"status":"Order Processed","orderID":11295,"productId":6650},{"status":"Unable to order item since the last order was less than 5 months ago.","orderID":0,"productId":8271}]'
+    http_version: null
+  recorded_at: Tue, 31 Mar 2020 14:32:36 GMT
+recorded_with: VCR 5.1.0

@@ -57,12 +57,17 @@ module Swagger
 
             response 200 do
               key :description, 'mdot order response'
-
               schema do
-                key :required, %i[status order_id]
-
-                property :status, type: :string
-                property :order_id, type: :string
+                key :required, [:order]
+                property :order do
+                  key :type, :array
+                  items do
+                    key :required, %i[status order_id]
+                    property :status, type: :string
+                    property :product_id, type: :string
+                    property :order_id, type: :string
+                  end
+                end
               end
             end
           end
