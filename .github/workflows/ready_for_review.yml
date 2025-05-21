@@ -229,7 +229,7 @@ jobs:
             echo "author_is_backend=false" >> $GITHUB_OUTPUT
           fi
 
-          TEAM_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
+          TEAM_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
             | jq -r '[.[] | {user: .user.login, state, submitted_at}]
                       | sort_by(.submitted_at)
                       | reverse
@@ -247,8 +247,7 @@ jobs:
             echo "team_approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-
-          BE_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
+          BE_APPROVALS=$(echo "${{ steps.get_pr_reviews.outputs.data }}" \
             | jq -r '[.[] | {user: .user.login, state, submitted_at}]
                       | sort_by(.submitted_at)
                       | reverse
