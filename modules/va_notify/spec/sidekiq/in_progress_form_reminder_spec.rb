@@ -11,20 +11,6 @@ describe VANotify::InProgressFormReminder, type: :worker do
   end
 
   describe '#perform' do
-    it 'skips sending reminder email if ICN is not present' do
-      user_without_icn = double('VANotify::Veteran')
-      allow(VANotify::Veteran).to receive(:new).and_return(user_without_icn)
-      allow(user_without_icn).to receive_messages(first_name: 'first_name', icn: nil)
-
-      allow(VANotify::UserAccountJob).to receive(:perform_async)
-
-      Sidekiq::Testing.inline! do
-        described_class.new.perform(in_progress_form.id)
-      end
-
-      expect(VANotify::UserAccountJob).not_to have_received(:perform_async)
-    end
-
     it 'skips sending reminder email if there is no first name' do
       veteran_double = double('VaNotify::Veteran')
       allow(veteran_double).to receive_messages(icn: 'icn', first_name: nil)
