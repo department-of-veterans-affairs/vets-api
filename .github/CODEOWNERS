@@ -1,3 +1,4 @@
+# All lines should be added in alphabetical order (using sort -u)
 .devcontainer/ @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
 .github/ @department-of-veterans-affairs/backend-review-group
 app/concerns/retriable_concern.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -2224,3 +2225,4 @@ spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-pro
 spec/uploaders/supporting_evidence_attachment_uploader_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/uploader_virus_scan_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/validate_pdf_spec.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+# Place your entry above this comment in alphabetical order.
