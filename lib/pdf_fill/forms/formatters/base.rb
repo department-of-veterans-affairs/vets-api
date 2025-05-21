@@ -14,7 +14,8 @@ module PdfFill
             ActiveSupport::NumberHelper.number_to_currency(value)
           end
 
-          # Formats a planned facility label by looking up facility name in HealthFacility and displaying value if not found
+          # Formats a planned facility label by looking up facility name in HealthFacility
+          # and displaying value if not found
           def format_planned_facility_label(value)
             selected_facility = HealthFacility.find_by(station_number: value)
             if selected_facility.nil?
