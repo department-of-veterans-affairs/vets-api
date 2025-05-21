@@ -2,11 +2,13 @@
 
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/field_mappings/va1010cg'
+require 'pdf_fill/forms/formatters/va1010cg'
 
 module PdfFill
   module Forms
     class Va1010cg < FormBase
       KEY = PdfFill::Forms::FieldMappings::Va1010cg::KEY
+      FORMATTER = PdfFill::Forms::Formatters::Va1010cg
 
       def merge_fields(options = {})
         @form_data['helpers'] = {
@@ -78,13 +80,7 @@ module PdfFill
 
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
-        selected_facility = HealthFacility.find_by(station_number: target_facility_code)
-        display_value = if selected_facility.nil?
-                          target_facility_code
-                        else
-                          "#{selected_facility.station_number} - #{selected_facility.name}"
-                        end
-
+        display_value = FORMATTER.format_planned_facility_label(target_facility_code)
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
       end
 
