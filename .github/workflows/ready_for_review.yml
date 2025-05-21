@@ -203,18 +203,16 @@ jobs:
 
           APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
             [ .[]
-            | select(.state == "APPROVED")
+            | select(.state == "APPROVED" and (.dismissed_at == null))
             ]
             | sort_by(.submitted_at)
             | reverse
             | unique_by(.user.login)
             | .[].user.login
-            // true
+            // 0
           ')
-          NUM_APPROVALS=$(echo "$APPROVED" | grep -c .)
-          echo "Total approvals: $NUM_APPROVALS"
 
-          if [ "$NUM_APPROVALS" -gt 0 ]; then
+          if [[ "$APPROVED" -ne 0 ]]; then
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
             echo "Team Approvals: $TEAM_APPROVALS"
             if [ -z "$TEAM_APPROVALS" ]; then
