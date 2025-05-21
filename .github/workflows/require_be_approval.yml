@@ -62,7 +62,6 @@ jobs:
       pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
     outputs:
       failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
