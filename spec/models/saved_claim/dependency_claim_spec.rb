@@ -242,10 +242,23 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
     end
 
     it 'has a form id of 686C-674-V2' do
       expect(subject.form_id).to eq('686C-674-V2')
+    end
+
+    context 'after create' do
+      it 'tracks pdf overflow' do
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
+        allow(StatsD).to receive(:increment)
+        subject.save!
+
+        tags = ['form_id:686C-674-V2']
+        expect(StatsD).to have_received(:increment).with('saved_claim.pdf.overflow', { tags: })
+        expect(StatsD).to have_received(:increment).with('saved_claim.create', { tags: })
+      end
     end
   end
 end
