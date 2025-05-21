@@ -7,7 +7,7 @@ module AccreditedRepresentativePortal
 
       def index
         authorize nil, policy_class: SubmissionPolicy
-        render json: { data: demo_data, meta: pagination_meta(demo_data) }, status: :ok
+        render json: { data: sort(demo_data), meta: pagination_meta(demo_data) }, status: :ok
       end
 
       private
@@ -28,7 +28,7 @@ module AccreditedRepresentativePortal
       end
 
       def params_schema
-        PowerOfAttorneyRequestService::ParamsSchema
+        SubmissionsService::ParamsSchema
       end
 
       def sort_params
@@ -43,10 +43,26 @@ module AccreditedRepresentativePortal
         validated_params.dig(:page, :size)
       end
 
+      def sort(data)
+        if sort_params[:by] == 'submittedDate'
+          if sort_params[:order] == 'asc'
+            data.sort do |a, b| 
+              Date.strptime(a[:submittedDate]) <=> Date.strptime(b[:submittedDate])
+            end
+          elsif sort_params[:order] == 'desc'
+            data.sort do |a, b| 
+              Date.strptime(b[:submittedDate]) <=> Date.strptime(a[:submittedDate])
+            end
+          end
+        else
+          data
+        end
+      end
+
       def demo_data
         [
           {
-            submittedDate: '2025-04-09',
+            submittedDate: '2025-04-01',
             firstName: 'John',
             lastName: 'Snyder',
             formType: '21-686c',
@@ -57,7 +73,7 @@ module AccreditedRepresentativePortal
             url: nil
           },
           {
-            submittedDate: '2025-04-09',
+            submittedDate: '2025-04-03',
             firstName: 'Montgomery',
             lastName: 'Anderson',
             formType: '21-686c',
@@ -65,6 +81,17 @@ module AccreditedRepresentativePortal
             confirmationNumber: '58d1c6a3-f970-48cb-bc92-65403e2a0c16',
             vbmsStatus: 'received',
             vbmsReceivedDate: '2025-04-15',
+            url: nil
+          },
+          {
+            submittedDate: '2025-04-19',
+            firstName: 'Glady',
+            lastName: 'Bahringer',
+            formType: '21-686c',
+            packet: true,
+            confirmationNumber: '68d7b9b2-c7c4-4a98-83cc-faa9a6fd7c18',
+            vbmsStatus: 'received',
+            vbmsReceivedDate: '2025-04-19',
             url: nil
           },
           {
