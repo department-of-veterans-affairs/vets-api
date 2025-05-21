@@ -7,6 +7,9 @@ class Lighthouse::Submission < Submission
 
   self.table_name = 'lighthouse_submissions'
 
+  has_kms_key
+  has_encrypted :reference_data, key: :kms_key, **lockbox_options
+
   validates :form_id, presence: true
 
   has_many :submission_attempts, class_name: 'Lighthouse::SubmissionAttempt', dependent: :destroy,

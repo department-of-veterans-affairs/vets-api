@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'income_and_assets/claims/monitor'
+require 'income_and_assets/benefits_intake/benefit_intake_job'
+require 'income_and_assets/monitor'
 require 'support/controller_spec_helper'
 
 RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
-  let(:monitor) { double('IncomeAndAssets::Claims::Monitor') }
+  let(:monitor) { double('IncomeAndAssets::Monitor') }
   let(:user) { create(:user) }
 
   before do
     sign_in_as(user)
-    allow(IncomeAndAssets::Claims::Monitor).to receive(:new).and_return(monitor)
+    allow(IncomeAndAssets::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil)
   end
@@ -26,7 +27,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
-      expect(claim).not_to receive(:upload_to_lighthouse)
+      expect(IncomeAndAssets::BenefitIntakeJob).not_to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
@@ -36,6 +37,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     it('returns a serialized claim') do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
+      expect(IncomeAndAssets::BenefitIntakeJob).to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 

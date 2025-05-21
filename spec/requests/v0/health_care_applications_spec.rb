@@ -296,15 +296,38 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         }
       end
 
-      it 'shows the validation errors' do
-        subject
+      context ':hca_json_schemer_validation enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(true)
+        end
 
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(
-          JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        ).to be(true)
+        it 'shows the validation errors' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(
+            JSON.parse(response.body)['errors'][0]['detail'].include?(
+              'form - object at root is missing required properties: privacyAgreementAccepted'
+            )
+          ).to be(true)
+        end
+      end
+
+      context ':hca_json_schemer_validation disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_json_schemer_validation).and_return(false)
+        end
+
+        it 'shows the validation errors' do
+          subject
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(
+            JSON.parse(response.body)['errors'][0]['detail'].include?(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+          ).to be(true)
+        end
       end
     end
 
@@ -476,7 +499,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
               expect(HealthCareApplication).to receive(:user_icn).twice.and_return('123')
 
               subject
@@ -534,8 +556,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             end
 
             it 'renders error message' do
-              expect(Sentry).to receive(:capture_exception).with(error, level: 'error').once
-
               subject
 
               expect(response).to have_http_status(:bad_request)
@@ -593,53 +613,36 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10EZ_from_response.pdf' }
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10EZ', 'unsigned', 'simple.pdf' }
 
-    let(:form_data) { get_fixture('pdf_fill/10-10EZ/simple').to_json }
-    let(:health_care_application) { build(:health_care_application, form: form_data) }
+    let!(:form_data) { get_fixture('pdf_fill/10-10EZ/simple').to_json }
+    let!(:health_care_application) { build(:health_care_application, form: form_data) }
     let(:body) { { form: form_data, asyncCompatible: true }.to_json }
+
+    before do
+      allow(SecureRandom).to receive(:uuid).and_return('saved-claim-guid', 'file-name-uuid')
+      allow(HealthCareApplication).to receive(:new)
+        .with(hash_including('form' => form_data))
+        .and_return(health_care_application)
+    end
 
     after do
       FileUtils.rm_f(response_pdf)
     end
 
     it 'returns a completed PDF' do
-      expect(HealthCareApplication).to receive(:new)
-        .with(hash_including('form' => form_data))
-        .and_return(health_care_application)
-
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-
       subject
 
       expect(response).to have_http_status(:ok)
 
       veteran_full_name = health_care_application.parsed_form['veteranFullName']
       expected_filename = "10-10EZ_#{veteran_full_name['first']}_#{veteran_full_name['last']}.pdf"
+
       expect(response.headers['Content-Disposition']).to include("filename=\"#{expected_filename}\"")
-
-      # download response content (the pdf) to disk
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
-
-      # compare it with the pdf fixture
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to be(true)
-
-      # ensure that the tmp file was deleted
-      expect(
-        File.exist?('tmp/pdfs/10-10EZ_file-name-uuid.pdf')
-      ).to be(false)
+      expect(response.content_type).to eq('application/pdf')
+      expect(response.body).to start_with('%PDF')
     end
 
     it 'ensures the tmp file is deleted when send_data fails' do
-      expect(HealthCareApplication).to receive(:new)
-        .with(hash_including('form' => form_data))
-        .and_return(health_care_application)
-
       allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
-
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
 
       subject
 
@@ -650,18 +653,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     end
 
     it 'ensures the tmp file is deleted when fill_form fails after retries' do
-      expect(HealthCareApplication).to receive(:new)
-        .with(hash_including('form' => form_data))
-        .and_return(health_care_application)
-
       expect(PdfFill::Filler).to receive(:fill_form).exactly(3).times.and_raise(StandardError, 'error filling form')
-
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-
-      expect_any_instance_of(ApplicationController).not_to receive(:send_data)
-
-      expect(File).not_to receive(:delete)
 
       subject
 

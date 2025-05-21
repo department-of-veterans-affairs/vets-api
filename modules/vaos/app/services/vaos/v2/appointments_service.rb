@@ -32,7 +32,12 @@ module VAOS
       OUTPUT_FORMAT_PM = '%a, %B %-d, %Y in the afternoon'
 
       # rubocop:disable Metrics/MethodLength
-      def get_appointments(start_date, end_date, statuses = nil, pagination_params = {}, include = {})
+      def get_appointments(start_date, # rubocop:disable Metrics/ParameterLists
+                           end_date,
+                           statuses = nil,
+                           pagination_params = {},
+                           include = {},
+                           tp_client = 'vagov') # rubocop:enable Metrics/ParameterLists
         cnp_count = 0
 
         response = send_appointments_request(start_date, end_date, __method__, pagination_params, statuses)
@@ -48,7 +53,7 @@ module VAOS
         appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
         if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-          appointments = merge_all_travel_claims(start_date, end_date, appointments)
+          appointments = merge_all_travel_claims(start_date, end_date, appointments, tp_client)
         end
 
         if Flipper.enabled?(:appointments_consolidation, user)
@@ -89,13 +94,11 @@ module VAOS
         return { exists: true } if vaos_response[:data].any? { |appt| appt[:referral_id] == referral_id }
 
         eps_appointments = eps_appointments_service.get_appointments[:data]
-        return { exists: true } if eps_appointments.any? { |appt| appt[:referral][:referral_number] == referral_id }
-
-        { exists: false }
+        { exists: appointment_with_referral_exists?(eps_appointments, referral_id) }
       end
 
       # rubocop:enable Metrics/MethodLength
-      def get_appointment(appointment_id, include = {})
+      def get_appointment(appointment_id, include = {}, tp_client = 'vagov')
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
@@ -107,7 +110,7 @@ module VAOS
           prepare_appointment(appointment, include)
 
           if Flipper.enabled?(:travel_pay_view_claim_details, user) && include[:travel_pay_claims]
-            appointment = merge_one_travel_claim(appointment)
+            appointment = merge_one_travel_claim(appointment, tp_client)
           end
 
           OpenStruct.new(appointment)
@@ -408,11 +411,10 @@ module VAOS
 
         clinic = mobile_facility_service.get_clinic(appt[:location_id], appt[:clinic])
         if clinic&.[](:service_name)
-          appt[:service_name] = clinic[:service_name]
           # In VAOS Service there is no dedicated clinic friendlyName field.
           # If the clinic is configured with a patient-friendly name then that will be the value
           # in the clinic service name; otherwise it will be the internal clinic name.
-          appt[:friendly_name] = clinic[:service_name]
+          appt[:service_name] = clinic[:service_name]
         end
 
         appt[:physical_location] = clinic[:physical_location] if clinic&.[](:physical_location)
@@ -955,7 +957,21 @@ module VAOS
         log_partial_errors(response, method_name)
 
         {
-          failures: response.body[:failures]
+          failures: response.body[:failures],
+          partialErrorMessage: {
+            request: {
+              title: 'We can’t show some of your requests right now.',
+              body: 'We’re working to fix this problem. To reschedule a request that’s not in this list, ' \
+                    'contact the VA facility where it was requested.'
+            },
+            booked: {
+              title: 'We can’t show some of your appointments right now.',
+              body: 'We’re working to fix this problem. To manage an appointment that’s not in this list, ' \
+                    'contact the VA facility where it was scheduled.'
+            },
+            linkText: 'Find your VA health facility',
+            linkUrl: '/find-locations'
+          }
         }
       end
 
@@ -1039,8 +1055,8 @@ module VAOS
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
       end
 
-      def merge_all_travel_claims(start_date, end_date, appointments)
-        service = TravelPay::ClaimAssociationService.new(user)
+      def merge_all_travel_claims(start_date, end_date, appointments, tp_client)
+        service = TravelPay::ClaimAssociationService.new(user, tp_client)
         service.associate_appointments_to_claims(
           {
             'start_date' => start_date,
@@ -1050,8 +1066,8 @@ module VAOS
         )
       end
 
-      def merge_one_travel_claim(appointment)
-        service = TravelPay::ClaimAssociationService.new(user)
+      def merge_one_travel_claim(appointment, tp_client)
+        service = TravelPay::ClaimAssociationService.new(user, tp_client)
         service.associate_single_appointment_to_claim({ 'appointment' => appointment })
       end
 
@@ -1188,6 +1204,18 @@ module VAOS
                                                                                                     caller_name)
                                                     })
         }
+      end
+
+      ##
+      # Checks if any appointment in the given list has a referral that matches the referral_id
+      #
+      # @param appointments [Array<Hash>] List of appointments to check
+      # @param referral_id [String] The referral ID to search for
+      # @return [Boolean] true if an appointment with matching referral exists, false otherwise
+      def appointment_with_referral_exists?(appointments, referral_id)
+        appointments.any? do |appt|
+          appt[:referral] && appt[:referral][:referral_number] == referral_id
+        end
       end
     end
   end

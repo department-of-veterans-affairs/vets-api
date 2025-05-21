@@ -20,32 +20,37 @@ describe Ccra::ReferralDetail do
 
     let(:valid_attributes) do
       {
-        'Referral' => {
-          'ReferralExpirationDate' => '2024-05-27',
-          'CategoryOfCare' => 'CARDIOLOGY',
-          'TreatingFacility' => 'VA Medical Center',
-          'ReferralNumber' => 'VA0000005681',
-          'ReferralDate' => '2024-07-24',
-          'StationID' => '528A6',
-          'APPTYesNo1' => 'Y',
-          'ReferringFacilityInfo' => {
-            'FacilityName' => 'Bath VA Medical Center',
-            'Phone' => '555-123-4567',
-            'FacilityCode' => '528A6',
-            'Address' => {
-              'Address1' => '801 VASSAR DR NE',
-              'City' => 'ALBUQUERQUE',
-              'State' => 'NM',
-              'ZipCode' => '87106'
-            }
-          },
-          'TreatingProviderInfo' => {
-            'ProviderName' => 'Dr. Smith',
-            'ProviderNPI' => '1659458917',
-            'Telephone' => '505-248-4062'
-          },
-          'TreatingFacilityInfo' => {
-            'Phone' => '505-555-1234'
+        referral_expiration_date: '2024-05-27',
+        category_of_care: 'CARDIOLOGY',
+        treating_facility: 'VA Medical Center',
+        referral_number: 'VA0000005681',
+        referral_date: '2024-07-24',
+        station_id: '528A6',
+        appointments: [{ appointment_date: '2024-08-15' }],
+        referring_facility_info: {
+          facility_name: 'Bath VA Medical Center',
+          phone: '555-123-4567',
+          facility_code: '528A6',
+          address: {
+            address1: '801 VASSAR DR NE',
+            city: 'ALBUQUERQUE',
+            state: 'NM',
+            zip_code: '87106'
+          }
+        },
+        treating_provider_info: {
+          provider_name: 'Dr. Smith',
+          provider_npi: '1659458917'
+        },
+        treating_facility_info: {
+          facility_name: 'VA Cardiology Clinic',
+          facility_code: '528A7',
+          phone: '505-555-1234',
+          address: {
+            address1: '123 Health Avenue',
+            city: 'Albuquerque',
+            state: 'NM',
+            zip_code: '87107'
           }
         }
       }
@@ -61,13 +66,9 @@ describe Ccra::ReferralDetail do
       expect(subject.uuid).to be_nil
       expect(subject.has_appointments).to be(true)
 
-      # Phone number should come from treating facility
-      expect(subject.phone_number).to eq('505-555-1234')
-
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.provider_npi).to eq('1659458917')
-      expect(subject.provider_telephone).to eq('505-248-4062')
 
       # Referring facility info
       expect(subject.referring_facility_name).to eq('Bath VA Medical Center')
@@ -78,68 +79,64 @@ describe Ccra::ReferralDetail do
       expect(subject.referring_facility_address[:city]).to eq('ALBUQUERQUE')
       expect(subject.referring_facility_address[:state]).to eq('NM')
       expect(subject.referring_facility_address[:zip]).to eq('87106')
+
+      # Treating facility info
+      expect(subject.treating_facility_name).to eq('VA Cardiology Clinic')
+      expect(subject.treating_facility_code).to eq('528A7')
+      expect(subject.treating_facility_phone).to eq('505-555-1234')
+      expect(subject.treating_facility_address).to be_a(Hash)
+      expect(subject.treating_facility_address[:street1]).to eq('123 Health Avenue')
+      expect(subject.treating_facility_address[:city]).to eq('Albuquerque')
+      expect(subject.treating_facility_address[:state]).to eq('NM')
+      expect(subject.treating_facility_address[:zip]).to eq('87107')
     end
 
-    context 'with missing Referral key' do
+    context 'with empty attributes' do
       subject { described_class.new({}) }
 
       include_examples 'has nil attributes'
     end
 
-    context 'with nil Referral value' do
-      subject { described_class.new({ 'Referral' => nil }) }
+    context 'with nil attributes' do
+      subject { described_class.new(nil) }
 
       include_examples 'has nil attributes'
     end
 
-    context 'when phone number comes from provider info' do
-      subject { described_class.new(provider_phone_attributes) }
-
-      let(:provider_phone_attributes) do
-        {
-          'Referral' => {
-            'TreatingFacilityInfo' => {},
-            'TreatingProviderInfo' => {
-              'Telephone' => '123-456-7890'
-            }
-          }
-        }
-      end
-
-      it 'uses provider telephone as phone_number' do
-        expect(subject.phone_number).to eq('123-456-7890')
-      end
-    end
-
-    context 'with APPTYesNo1 values' do
-      it 'parses Y as true' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'Y' } }
+    context 'with appointments array' do
+      it 'sets has_appointments to true when appointments are present' do
+        attributes = { appointments: [{ appointment_date: '2024-08-15' }] }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(true)
       end
 
-      it 'parses N as false' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'N' } }
+      it 'sets has_appointments to false when appointments is empty array' do
+        attributes = { appointments: [] }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(false)
       end
 
-      it 'handles nil value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => nil } }
+      it 'sets has_appointments to false when appointments is nil' do
+        attributes = { appointments: nil }
         detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
+        expect(detail.has_appointments).to be(false)
       end
+    end
 
-      it 'handles blank value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => '' } }
+    context 'with partial treating facility info' do
+      it 'handles missing address information' do
+        attributes = {
+          treating_facility_info: {
+            facility_name: 'VA Clinic',
+            facility_code: '528A8',
+            phone: '555-987-6543'
+          }
+        }
         detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
-      end
-
-      it 'handles invalid value' do
-        attributes = { 'Referral' => { 'APPTYesNo1' => 'X' } }
-        detail = described_class.new(attributes)
-        expect(detail.has_appointments).to be_nil
+        expect(detail.treating_facility_name).to eq('VA Clinic')
+        expect(detail.treating_facility_code).to eq('528A8')
+        expect(detail.treating_facility_phone).to eq('555-987-6543')
+        expect(detail.treating_facility_address).to be_nil
       end
     end
   end

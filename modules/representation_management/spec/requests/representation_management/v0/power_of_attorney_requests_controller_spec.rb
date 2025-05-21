@@ -20,7 +20,7 @@ RSpec.describe 'RepresentationManagement::V0::PowerOfAttorneyRequests', type: :r
             ssn: '123456789',
             va_file_number: '123456789',
             date_of_birth: '1980-12-31',
-            service_number: '123456789',
+            service_number: 'AA12345',
             service_branch: 'ARMY',
             phone: '5555555555',
             email: 'veteran@example.com',

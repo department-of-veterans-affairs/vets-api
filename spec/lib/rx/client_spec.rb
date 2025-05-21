@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'rx/client'
+require 'rx/configuration'
 
 # Mock upstream request to return source app for Rx client
 class UpstreamRequest
@@ -11,14 +12,11 @@ class UpstreamRequest
 end
 
 describe Rx::Client do
-  before(:all) do
+  before do
     VCR.use_cassette 'rx_client/session' do
-      @client ||= begin
-        client = Rx::Client.new(session: { user_id: '12210827' },
-                                upstream_request: UpstreamRequest)
-        client.authenticate
-        client
-      end
+      @client = Rx::Client.new(session: { user_id: '12210827' },
+                               upstream_request: UpstreamRequest)
+      @client.authenticate
     end
   end
 
@@ -167,61 +165,29 @@ describe Rx::Client do
   end
 
   describe 'Test new API gateway methods' do
-    before do
-      allow(Settings.mhv.rx).to receive(:use_new_api).and_return(use_new_api)
-      allow(Settings.mhv_mobile).to receive(:x_api_key).and_return('test-api-key')
-      allow(client).to receive(:config).and_return(OpenStruct.new(base_request_headers: { 'base-header' => 'value' },
-                                                                  app_token: 'test-app-token'))
-    end
+    let(:config) { Rx::Configuration.instance }
 
-    describe '#auth_headers' do
-      let(:use_new_api) { true }
+    context 'when mhv_medications_migrate_to_api_gateway flipper flag is true' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:mhv_medications_migrate_to_api_gateway).and_return(true)
+        allow(Settings.mhv.rx).to receive(:x_api_key).and_return('test-api-key')
+      end
 
-      it 'returns headers with appToken and mhvCorrelationId' do
+      it 'returns the x-api-key header' do
         result = client.send(:auth_headers)
+        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
+        allow(client).to receive(:auth_headers).and_return(headers)
         expect(result).to include('x-api-key' => 'test-api-key')
+        expect(config.x_api_key).to eq('test-api-key')
       end
     end
 
-    describe '#get_headers' do
-      let(:headers) { { 'custom-header' => 'value' } }
-
-      context 'when use_new_api is true' do
-        let(:use_new_api) { true }
-
-        it 'adds x-api-key to headers' do
-          result = client.send(:get_headers, headers)
-          expect(result).to include('custom-header' => 'value', 'x-api-key' => 'test-api-key')
-        end
-      end
-
-      context 'when use_new_api is false' do
-        let(:use_new_api) { false }
-
-        it 'returns headers without x-api-key' do
-          result = client.send(:get_headers, headers)
-          expect(result).to eq(headers)
-        end
-      end
-    end
-
-    describe '#get_path' do
-      context 'when use_new_api is true' do
-        let(:use_new_api) { true }
-
-        it 'returns path with pharmacy/ess' do
-          result = client.send(:get_path, 'test-endpoint')
-          expect(result).to eq('pharmacy/ess/test-endpoint')
-        end
-      end
-
-      context 'when use_new_api is false' do
-        let(:use_new_api) { false }
-
-        it 'returns path with prescription' do
-          result = client.send(:get_path, 'test-endpoint')
-          expect(result).to eq('prescription/test-endpoint')
-        end
+    context 'when mhv_medications_migrate_to_api_gateway flipper flag is false' do
+      it 'returns nil for x-api-key' do
+        result = client.send(:auth_headers)
+        headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
+        allow(client).to receive(:auth_headers).and_return(headers)
+        expect(result).not_to include('x-api-key')
       end
     end
   end
