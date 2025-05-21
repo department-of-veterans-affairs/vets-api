@@ -132,10 +132,6 @@ jobs:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
-      # - name: Fail if workflow runs are not successfully completed
-      #   if: steps.check_workflow_status.outputs.failures_detected == 'true'
-      #   run: exit 1
-
   check-backend-requirement:
     name: Check Backend Requirement
     needs: [get-pr-data, check-workflow-status]
