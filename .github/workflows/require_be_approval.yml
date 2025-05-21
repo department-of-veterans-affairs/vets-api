@@ -59,8 +59,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
+      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
     outputs:
       failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
     steps:
@@ -108,12 +111,16 @@ jobs:
     permissions: write-all
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
+      failures_detected: ${{ needs.check-workflow-status.outputs.failures_detected }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
-      require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
