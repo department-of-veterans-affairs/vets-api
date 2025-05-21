@@ -155,11 +155,7 @@ jobs:
     name: Fetch Pull Request Reviews
     needs: [get-pr-data, check-workflow-status, check-backend-requirement]
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      organization: read
+    permissions: write-all
     env:
       backend_approval_required: ${{ needs.check-backend-requirement.outputs.backend_approval_required }}
       failures_detected:  ${{ needs.check-workflow-status.outputs.failures_detected }}
