@@ -212,11 +212,6 @@ jobs:
       - name: Verify backend-review-group approval
         id: verify_approval
         run: |
-          # BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
-          # ${{ steps.get_team_members.outputs.data }}
-          # EOF
-          # )
-
           BACKEND_REVIEWERS=$(echo "${{ steps.get_team_members.outputs.data }}" \
             | jq -r '.[].login' \
             | tr '\n' '|' \
@@ -233,16 +228,6 @@ jobs:
             echo "PR author '$PR_AUTHOR' is NOT a backend-review-group member."
             echo "author_is_backend=false" >> $GITHUB_OUTPUT
           fi
-
-          # TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-          #   | sort_by(.submitted_at)
-          #   | reverse
-          #   | unique_by(.user)
-          #   | map(select(.state == "APPROVED"))
-          #   | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
-          # ${{ steps.get_pr_reviews.outputs.data }}
-          # EOF
-          # )
 
           TEAM_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
             | jq -r '[.[] | {user: .user.login, state, submitted_at}]
@@ -262,15 +247,7 @@ jobs:
             echo "team_approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-          # BE_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
-          #   | sort_by(.submitted_at)
-          #   | reverse
-          #   | unique_by(.user)
-          #   | map(select(.state == "APPROVED"))
-          #   | .[].user' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-          # ${{ steps.get_pr_reviews.outputs.data }}
-          # EOF
-          # )
+
           BE_APPROVALS=$(echo '${{ steps.get_pr_reviews.outputs.data }}' \
             | jq -r '[.[] | {user: .user.login, state, submitted_at}]
                       | sort_by(.submitted_at)
