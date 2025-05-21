@@ -7,6 +7,8 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
+        return if Flipper.enabled?(:disable_bdn_processing)
+
         if Vye::CloudTransfer.holiday?
           Rails.logger.info("Vye::MidnightRun::IngressTims: holiday detected, job run at: #{Time.zone.now}")
           return
