@@ -107,7 +107,7 @@ namespace :form_upload do
 
     puts "\n#{'-' * 72}"
     puts "Form #{form_number} added to Form Upload Tool with min_pages: #{min_pages}, max_pages: #{max_pages}."
-    puts 'Please review and commit the changes and download the PDF into  modules/simple_forms_api/spec/fixtures/pdfs/'
+    puts 'Please review and commit the changes and download the PDF into modules/simple_forms_api/spec/fixtures/pdfs/'
     puts "#{'-' * 72}\n"
   end
 end
