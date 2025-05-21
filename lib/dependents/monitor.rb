@@ -22,8 +22,17 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
-    def initialize
+    def initialize(use_v2)
+      @use_v2 = use_v2
       super('dependents-application')
+    end
+
+    def default_payload
+      { service:, use_v2: @use_v2 }
+    end
+
+    def tags
+      ["service:#{service}", "v2:#{@use_v2}"]
     end
 
     def track_submission_exhaustion(msg, email = nil)
@@ -39,7 +48,7 @@ module Dependents
         log_silent_failure(additional_context, call_location: caller_locations.first)
       end
 
-      StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
+      StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted", tags:)
       Rails.logger.error(
         'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
         "last error: #{msg['error_message']}"
@@ -48,23 +57,23 @@ module Dependents
 
     def track_unknown_claim_type(claim_id, e)
       metric = "#{EMAIL_STATS_KEY}.unknown_type"
-      payload = { statsd: metric, service:, claim_id:, e: }
+      payload = default_payload.merge({ statsd: metric, claim_id:, e: })
 
-      StatsD.increment(metric, tags: ["service:#{service}"])
+      StatsD.increment(metric, tags:)
       Rails.logger.error("Unknown Dependents form type for claim #{claim_id}", payload)
     end
 
     def track_send_email_success(message, metric, claim_id, user_account_id = nil)
-      payload = { statsd: metric, service:, claim_id:, user_account_id: }
+      payload = default_payload.merge({ statsd: metric, claim_id:, user_account_id: })
 
-      StatsD.increment(metric, tags: ["service:#{service}"])
+      StatsD.increment(metric, tags:)
       Rails.logger.info(message, payload)
     end
 
     def track_send_email_error(message, metric, claim_id, e, user_account_uuid = nil)
-      payload = { statsd: metric, service:, claim_id:, e:, user_account_uuid: }
+      payload = default_payload.merge({ statsd: metric, claim_id:, e:, user_account_uuid: })
 
-      StatsD.increment(metric, tags: ["service:#{service}"])
+      StatsD.increment(metric, tags:)
       Rails.logger.error(message, payload)
     end
 

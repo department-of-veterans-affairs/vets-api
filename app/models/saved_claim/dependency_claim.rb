@@ -216,7 +216,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     FORM674 if submittable_674?
   rescue => e
-    Dependents::Monitor.new.track_unknown_claim_type(id, e)
+    monitor.track_unknown_claim_type(id, e)
     nil
   end
 
@@ -224,7 +224,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # VANotify job to send Submitted/in-Progress email to veteran
   #
   def send_submitted_email(user = nil)
-    @monitor = Dependents::Monitor.new
     type = claim_form_type
     if type == FORM686
       Dependents::NotificationEmail.new(id, user).deliver(:submitted686)
@@ -234,16 +233,15 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       # Combo or unknown form types use combo email
       Dependents::NotificationEmail.new(id, user).deliver(:submitted686c674)
     end
-    @monitor.track_send_submitted_email_success(id, user&.user_account_uuid)
+    monitor.track_send_submitted_email_success(id, user&.user_account_uuid)
   rescue => e
-    @monitor.track_send_submitted_email_failure(id, e, user&.user_account_uuid)
+    monitor.track_send_submitted_email_failure(id, e, user&.user_account_uuid)
   end
 
   ##
   # VANotify job to send Received/Confirmation email to veteran
   #
   def send_received_email(user = nil)
-    @monitor = Dependents::Monitor.new
     type = claim_form_type
     if type == FORM686
       Dependents::NotificationEmail.new(id, user).deliver(:received686)
@@ -253,9 +251,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       # Combo or unknown form types use combo email
       Dependents::NotificationEmail.new(id, user).deliver(:received686c674)
     end
-    @monitor.track_send_received_email_success(id, user&.user_account_uuid)
+    monitor.track_send_received_email_success(id, user&.user_account_uuid)
   rescue => e
-    @monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
+    monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
   end
 
   private
@@ -268,5 +266,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data:, dependent_data: }
+  end
+
+  def monitor
+    @monitor ||= Dependents::Monitor.new(use_v2 || form_id.include?('-V2'))
   end
 end
