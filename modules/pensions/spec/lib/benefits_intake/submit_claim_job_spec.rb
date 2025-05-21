@@ -39,10 +39,6 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       allow(response).to receive(:success?).and_return true
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive :track_submission_begun
-      allow(monitor).to receive :track_submission_attempted
-      allow(monitor).to receive :track_submission_success
-      allow(monitor).to receive :track_submission_retry
     end
 
     context 'Feature pension_submitted_email_notification=false' do
@@ -100,6 +96,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
+      expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
@@ -119,6 +116,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       expect(job).not_to receive(:send_confirmation_email)
       expect(job).not_to receive(:send_submitted_email)
       expect(job).to receive(:cleanup_file_paths)
+      expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         Pensions::BenefitsIntake::SubmitClaimJob::PensionBenefitIntakeError,

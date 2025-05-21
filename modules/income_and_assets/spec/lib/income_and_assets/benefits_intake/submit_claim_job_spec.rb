@@ -2,15 +2,16 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
-require 'income_and_assets/benefits_intake/benefit_intake_job'
+require 'income_and_assets/benefits_intake/submit_claim_job'
+require 'income_and_assets/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
-RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
+RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
   let(:claim) { create(:income_and_assets_claim) }
   let(:service) { double('service') }
-  let(:monitor) { double('monitor') }
+  let(:monitor) { IncomeAndAssets::Monitor.new }
   let(:user_account_uuid) { 123 }
 
   describe '#perform' do
@@ -31,10 +32,6 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       allow(response).to receive(:success?).and_return true
 
       job.instance_variable_set(:@monitor, monitor)
-      allow(monitor).to receive :track_submission_begun
-      allow(monitor).to receive :track_submission_attempted
-      allow(monitor).to receive :track_submission_success
-      allow(monitor).to receive :track_submission_retry
     end
 
     it 'submits the saved claim successfully' do
@@ -59,6 +56,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
+      expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
         ActiveRecord::RecordNotFound,
@@ -75,9 +73,10 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       expect(claim).not_to receive(:to_pdf)
 
       expect(job).to receive(:cleanup_file_paths)
+      expect(monitor).to receive(:track_submission_retry)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsBenefitIntakeError,
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob::IncomeAndAssetsBenefitIntakeError,
         "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
       )
     end
@@ -150,7 +149,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
 
   describe 'sidekiq_retries_exhausted block' do
     let(:exhaustion_msg) do
-      { 'args' => [], 'class' => 'IncomeAndAssets::BenefitIntakeJob', 'error_message' => 'An error occurred',
+      { 'args' => [], 'class' => 'IncomeAndAssets::BenefitsIntake::SubmitClaimJob', 'error_message' => 'An error occurred',
         'queue' => 'low' }
     end
 
@@ -160,13 +159,13 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
 
     context 'when retries are exhausted' do
       it 'logs a distrinct error when no claim_id provided' do
-        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block do
           expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
 
       it 'logs a distrinct error when only claim_id provided' do
-        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
           expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
 
@@ -177,7 +176,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
-        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
           expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
 
@@ -188,7 +187,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       end
 
       it 'logs a distrinct error when claim is not found' do
-        IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
           expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id - 1)
 
           exhaustion_msg['args'] = [claim.id - 1, 2]
