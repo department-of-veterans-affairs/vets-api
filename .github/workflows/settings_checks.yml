@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
-      - 'vets-api/config/**'
+      - 'config/**'
 permissions:
   contents: read
   checks: write
@@ -167,7 +167,7 @@ jobs:
           message: |
             :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
             ${{ env.INVALID_PARAMETERS }}
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Fail if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
@@ -179,4 +179,4 @@ jobs:
         with:
           message: |
             :+1: All Parameter Store values in this PR are valid
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}

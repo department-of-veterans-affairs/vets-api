@@ -9,6 +9,7 @@ RSpec.describe 'Vye::V1::Verify#create', type: :request do
   before do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   describe 'POST /vye/v1/verify with flag turned off' do
@@ -71,6 +72,18 @@ RSpec.describe 'Vye::V1::Verify#create', type: :request do
           post('/vye/v1/verify', headers:, params:)
 
           expect(response).to have_http_status(:no_content)
+        end
+
+        context 'with BDN processing disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(true)
+          end
+
+          it 'returns an bad_request response' do
+            post('/vye/v1/verify', headers:, params:)
+
+            expect(response).to have_http_status(:bad_request)
+          end
         end
       end
     end
