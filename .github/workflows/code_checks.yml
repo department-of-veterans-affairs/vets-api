@@ -179,6 +179,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: List Failing Spec Files
+        if: failure()
+        run: >
+          ${{ env.COMPOSE_BASH_CMD }}
+          "grep -E '^rspec .*_spec.rb' tmp/parallel_runtime_rspec.log |
+          awk '{print \$2}' |
+          sort |
+          uniq"
+
 
   update_labels:
     name: Update Test Status Labels
