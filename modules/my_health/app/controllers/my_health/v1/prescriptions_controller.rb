@@ -18,7 +18,7 @@ module MyHealth
         raw_data = resource.data.dup
         resource.data = resource_data_modifications(resource)
         filter_count = set_filter_metadata(resource.data, raw_data)
-        resource = apply_filters(resource)
+        resource = apply_filters(resource) if params[:filter].present?
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         resource.data = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
@@ -160,9 +160,7 @@ module MyHealth
         resource.metadata[:filter] = {}
         disp_status = filter_params[:disp_status]
 
-        if params[:filter].blank?
-          resource.metadata[:filter][:message] = 'No filters applied'
-        elsif disp_status.present?
+        if disp_status.present?
           if disp_status[:eq]&.downcase == 'active,expired'.downcase
             filter_renewals(resource)
           else
