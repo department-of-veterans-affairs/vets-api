@@ -5,6 +5,8 @@ module Vye
     include Sidekiq::Worker
 
     def perform
+      return if Flipper.enabled?(:disable_bdn_processing)
+
       ActivateBdn.perform_async
     end
   end

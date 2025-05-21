@@ -3,7 +3,7 @@
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'income_and_assets/notification_email'
-require 'income_and_assets/submissions/monitor'
+require 'income_and_assets/monitor'
 require 'pdf_utilities/datestamp_pdf'
 
 module IncomeAndAssets
@@ -21,7 +21,7 @@ module IncomeAndAssets
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16, queue: 'low'
     sidekiq_retries_exhausted do |msg|
-      ia_monitor = IncomeAndAssets::Submissions::Monitor.new
+      ia_monitor = IncomeAndAssets::Monitor.new
       begin
         claim = IncomeAndAssets::SavedClaim.find(msg['args'].first)
       rescue
@@ -81,9 +81,9 @@ module IncomeAndAssets
     end
 
     # Create a monitor to be used for _this_ job
-    # @see IncomeAndAssets::Submissions::Monitor
+    # @see IncomeAndAssets::Monitor
     def monitor
-      @monitor ||= IncomeAndAssets::Submissions::Monitor.new
+      @monitor ||= IncomeAndAssets::Monitor.new
     end
 
     # Create a temp stamped PDF and validate the PDF satisfies Benefits Intake specification
@@ -165,7 +165,7 @@ module IncomeAndAssets
     def send_submitted_email
       IncomeAndAssets::NotificationEmail.new(@claim.id).deliver(:submitted)
     rescue => e
-      monitor.track_send_submitted_email_failure(@claim, @intake_service, @user_account_uuid, e)
+      monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
     end
 
     # Delete temporary stamped PDF files for this instance.

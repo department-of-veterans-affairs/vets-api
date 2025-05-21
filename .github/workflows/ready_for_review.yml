@@ -3,7 +3,7 @@ on:
   pull_request:
      types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, review_requested, review_request_removed, labeled, unlabeled]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Audit Service Tags", "CodeQL"]
     types: [completed]
 jobs:
   get-pr-data:
@@ -71,45 +71,12 @@ jobs:
           number: ${{ needs.get-pr-data.outputs.pr_number }}
           labels: ready-for-backend-review
 
-  check-backend-requirement:
-    name: Check Backend Requirement
-    needs: get-pr-data
-    if: needs.get-pr-data.outputs.pr_draft == 'false'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    env:
-      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
-      pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
-      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
-    outputs:
-      backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
-    steps:
-      - name: Check Backend Requirement
-        id: check_backend_requirement
-        if: |
-          ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }} ||
-          ${{ contains(fromJSON(env.pr_labels), 'require-backend-approval') }}
-        run: |
-          echo "backend_approval_required=true" >> $GITHUB_OUTPUT
-
-      - name: Add require-backend-approval label
-        uses: actions-ecosystem/action-add-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
-        with:
-          number: ${{ env.pr_number }}
-          labels: require-backend-approval
-
-      - name: Remove require-backend-approval label
-        uses: actions-ecosystem/action-remove-labels@v1
-        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
-        with:
-          number: ${{ env.pr_number }}
-          labels: require-backend-approval
+      - name: Fail if draft
+        run: exit 1
 
   check-workflow-status:
     name: Check Workflow Statuses
-    needs: [get-pr-data, check-backend-requirement]
-    if: needs.check-backend-requirement.outputs.backend_approval_required == 'true'
+    needs: [get-pr-data]
     runs-on: ubuntu-latest
     permissions: write-all
     env:
@@ -147,9 +114,16 @@ jobs:
             fi
           done
 
-          echo "failures_detected=$failures" >> $GITHUB_OUTPUT
+          echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove ready-for-review label
+        if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-review
 
       - name: Remove ready-for-backend-review label
         if: steps.check_workflow_status.outputs.failures_detected == 'true'
@@ -158,16 +132,58 @@ jobs:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
 
-  fetch-pr-reviews:
-    name: Fetch Pull Request Reviews
-    needs: [get-pr-data, check-workflow-status, check-backend-requirement]
-    if: needs.check-workflow-status.outputs.failures_detected == 'false' && needs.check-backend-requirement.outputs.backend_approval_required == 'true'
+      - name: Fail if workflow runs are not successfully completed
+        if: steps.check_workflow_status.outputs.failures_detected == 'true'
+        run: exit 1
+
+  check-backend-requirement:
+    name: Check Backend Requirement
+    needs: [get-pr-data, check-workflow-status]
+    if: needs.get-pr-data.outputs.pr_draft == 'false' && needs.check-workflow-status.outputs.failures_detected == 'false'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
+      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
+    outputs:
+      backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
+    steps:
+      - name: Check Backend Requirement
+        id: check_backend_requirement
+        if: |
+          ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }} ||
+          ${{ contains(fromJSON(env.pr_labels), 'require-backend-approval') }}
+        run: |
+          echo "backend_approval_required=true" >> $GITHUB_OUTPUT
+
+      - name: Add require-backend-approval label
+        uses: actions-ecosystem/action-add-labels@v1
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+      - name: Remove require-backend-approval label
+        uses: actions-ecosystem/action-remove-labels@v1
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false'
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+  fetch-pr-reviews:
+    name: Fetch Pull Request Reviews
+    needs: [get-pr-data, check-workflow-status, check-backend-requirement]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
@@ -205,25 +221,73 @@ jobs:
           EOF
           )
 
-          APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+          # Get PR author
+          PR_AUTHOR=$(gh pr view ${{ env.pr_number }} --json author -q '.author.login')
+
+          # Check if PR author is in BACKEND_REVIEWERS
+          if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+            echo "PR author '$PR_AUTHOR' is a backend-review-group member."
+            echo "author_is_backend=true" >> $GITHUB_OUTPUT
+          else
+            echo "PR author '$PR_AUTHOR' is NOT a backend-review-group member."
+            echo "author_is_backend=false" >> $GITHUB_OUTPUT
+          fi
+
+          TEAM_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user)
+            | map(select(.state == "APPROVED"))
+            | .[].user' | grep -viE "$BACKEND_REVIEWERS" | wc -l
           ${{ steps.get_pr_reviews.outputs.data }}
           EOF
           )
 
-          echo "Number of backend-review-group approvals: $APPROVALS"
-          if [ "$APPROVALS" -eq 0 ]; then
+          echo "Number of non backend-review-group approvals: $TEAM_APPROVALS"
+          if [ "$TEAM_APPROVALS" -eq 0 ]; then
+            echo "team_approval_status=required" >> $GITHUB_OUTPUT
+          else
+            echo "team_approval_status=confirmed" >> $GITHUB_OUTPUT
+          fi
+
+          BE_APPROVALS=$(cat <<'EOF' | jq -r '[.[] | {user: .user.login, state, submitted_at}]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user)
+            | map(select(.state == "APPROVED"))
+            | .[].user' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
+
+          echo "Number of backend-review-group approvals: $BE_APPROVALS"
+          if [ "$BE_APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
+      # The ready-for-review label will be added when pull request has not been reviewed
+      - name: Add ready-for-review label
+        if: |
+          steps.verify_approval.outputs.approval_status == 'required' &&
+          steps.verify_approval.outputs.team_approval_status == 'required'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-review
+
+      # The ready-for-backend-review label will be added when a VFS team member has reviewed the pull request
+      # The ready-for-backend-review label will be added for backend-review-group team members
       - name: Add ready-for-backend-review label
-        if: steps.verify_approval.outputs.approval_status == 'required'
+        if: |
+          needs.check-backend-requirement.outputs.backend_approval_required == 'true' &&
+          steps.verify_approval.outputs.approval_status == 'required' &&
+          (
+            steps.verify_approval.outputs.author_is_backend == 'true' ||
+            steps.verify_approval.outputs.team_approval_status == 'confirmed'
+          )
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
-
-
-
-
