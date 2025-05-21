@@ -212,7 +212,7 @@ jobs:
             // 0
           ')
 
-          if [[ "$APPROVED" -ne 0 ]]; then
+          if [ "$APPROVED" -ne 0 ]; then
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
             echo "Team Approvals: $TEAM_APPROVALS"
             if [ -z "$TEAM_APPROVALS" ]; then
