@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
-require 'vets/model'
+require 'common/models/base'
+require 'common/models/attribute_types/date_time_string'
 
 # MessageSearch model
-class MessageSearch
-  include Vets::Model
-
-  attribute :exact_match, Bool, default: false
+class MessageSearch < Common::Base
+  attribute :exact_match, Boolean
   attribute :sender, String
   attribute :subject, String
   attribute :category, String
   attribute :recipient, String
-  attribute :from_date, Vets::Type::DateTimeString
-  attribute :to_date, Vets::Type::DateTimeString
+  attribute :from_date, Common::DateTimeString
+  attribute :to_date, Common::DateTimeString
   attribute :message_id, Integer
 end

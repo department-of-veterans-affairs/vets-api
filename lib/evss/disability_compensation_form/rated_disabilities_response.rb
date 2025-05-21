@@ -11,7 +11,7 @@ module EVSS
     #   @return [Array<EVSS::DisabilityCompensationForm::RatedDisability>] The list of rated disabilities
     #
     class RatedDisabilitiesResponse < EVSS::Response
-      attribute :rated_disabilities, Array[EVSS::DisabilityCompensationForm::RatedDisability]
+      attribute :rated_disabilities, EVSS::DisabilityCompensationForm::RatedDisability, array: true, default: []
 
       def initialize(status, response = nil)
         super(status, response.body) if response

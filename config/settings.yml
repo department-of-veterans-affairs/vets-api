@@ -128,20 +128,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: <%= ENV['check_in__travel_reimbursement_api__auth_url_v2'] %>
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: <%= ENV['check_in__travel_reimbursement_api__claims_url'] %>
-    claims_url_v2: <%= ENV['check_in__travel_reimbursement_api__claims_url_v2'] %>
-    client_id: <%= ENV['check_in__travel_reimbursement_api__client_id'] %>
-    client_number: <%= ENV['check_in__travel_reimbursement_api__client_number'] %>
-    client_secret: <%= ENV['check_in__travel_reimbursement_api__client_secret'] %>
-    redis_token_expiry: 3540
-    scope: <%= ENV['check_in__travel_reimbursement_api__scope'] %>
-    service_name: BTSSS-API
-    subscription_key: <%= ENV['check_in__travel_reimbursement_api__subscription_key'] %>
-    tenant_id: <%= ENV['check_in__travel_reimbursement_api__tenant_id'] %>
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__auth_url_v2'] %>
@@ -821,7 +807,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
-    travel_pay: PO9X8XN
+    travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
