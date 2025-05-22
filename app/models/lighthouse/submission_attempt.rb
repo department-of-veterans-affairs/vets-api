@@ -22,19 +22,19 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
 
   enum status: {
     pending: 'pending',
-    success: 'submitted',
+    submitted: 'submitted',
     vbms: 'vbms',
-    fail: 'failure',
-    manual: 'manually'
+    failure: 'failure',
+    manually: 'manually'
   }
 
   def fail!
-    super
+    failure!
     Rails.logger.public_send(:error, message: 'Lighthouse Submission Attempt failed')
   end
 
   def manual!
-    super
+    manually!
     Rails.logger.public_send(:warn, message: 'Lighthouse Submission Attempt is being manually remediated')
   end
 
@@ -49,7 +49,7 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
   end
 
   def success!
-    super
+    submitted!
     Rails.logger.public_send(:info, message: 'Form Submission Attempt State change')
   end
 end

@@ -17,8 +17,8 @@ FactoryBot.define do
       submission_attempts { create_list(:lighthouse_submission_attempt, 1, :pending) }
     end
 
-    trait :success do
-      submission_attempts { create_list(:lighthouse_submission_attempt, 1, :success) }
+    trait :submitted do
+      submission_attempts { create_list(:lighthouse_submission_attempt, 1, :submitted) }
     end
 
     trait :vbms do

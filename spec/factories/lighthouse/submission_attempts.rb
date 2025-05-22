@@ -12,7 +12,7 @@ FactoryBot.define do
       status { 'pending' }
     end
 
-    trait :success do
+    trait :submitted do
       status { 'submitted' }
     end
 
