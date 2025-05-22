@@ -49,6 +49,7 @@ RSpec.describe BenefitsClaims::Service do
         end
 
         it 'filters out claims with certain statuses and base end product codes' do
+          allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(true)
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
             expect(response['data'].length).to eq(6)
@@ -59,7 +60,7 @@ RSpec.describe BenefitsClaims::Service do
           allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(false)
           VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
             response = @service.get_claims
-            expect(response['data'].length).to eq(7)
+            expect(response['data'].length).to eq(8)
           end
         end
 
@@ -85,8 +86,8 @@ RSpec.describe BenefitsClaims::Service do
                     'attributes' =>
                       { 'baseEndProductCode' => '960',
                         'claimDate' => '2024-09-24',
-                        'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'COMPLETE' },
-                        'claimType' => 'Compensation',
+                        'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
+                        'claimType' => nil,
                         'claimTypeCode' => '960ADMER',
                         'closeDate' => '2024-11-20',
                         'decisionLetterSent' => true,
@@ -95,7 +96,26 @@ RSpec.describe BenefitsClaims::Service do
                         'endProductCode' => '961',
                         'evidenceWaiverSubmitted5103' => false,
                         'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44a',
-                        'status' => 'COMPLETE' } }]
+                        'status' => 'COMPLETE' }
+                  },
+                    { 'id' => '600561748',
+                      'type' => 'claim',
+                      'attributes' =>
+                        { 'baseEndProductCode' => '290',
+                          'claimDate' => '2024-09-24',
+                          'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
+                          'claimType' => nil,
+                          'claimTypeCode' => '290HE7131R',
+                          'closeDate' => '2024-11-20',
+                          'decisionLetterSent' => true,
+                          'developmentLetterSent' => false,
+                          'documentsNeeded' => false,
+                          'endProductCode' => '291',
+                          'evidenceWaiverSubmitted5103' => false,
+                          'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44b',
+                          'status' => 'COMPLETE' }
+
+                  }]
 
           # #110154 - it should filter out the base end product code 960
           results = @service.send(:filter_by_ep_code, data)

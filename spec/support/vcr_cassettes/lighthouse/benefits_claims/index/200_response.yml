@@ -260,7 +260,7 @@ http_interactions:
                        }
                     },
                     {
-                       "id":"600229972",
+                       "id":"600229973",
                        "type":"claim",
                        "attributes":{
                           "baseEndProductCode": "960",
@@ -268,7 +268,7 @@ http_interactions:
                           "claimPhaseDates":{
                              "phaseChangeDate":"2024-05-22"
                           },
-                          "claimType":"Administrative Error",
+                          "claimType":null,
                           "claimTypeCode": "960ADMER",
                           "closeDate":null,
                           "decisionLetterSent":false,
@@ -277,7 +277,28 @@ http_interactions:
                           "endProductCode":"961",
                           "evidenceWaiverSubmitted5103":true,
                           "lighthouseId":null,
-                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION"
+                          "status":"COMPLETE"
+                       }
+                    },
+                    {
+                       "id":"600229974",
+                       "type":"claim",
+                       "attributes":{
+                          "baseEndProductCode": "290",
+                          "claimDate":"2024-04-22",
+                          "claimPhaseDates":{
+                             "phaseChangeDate":"2024-05-22"
+                          },
+                          "claimType":null,
+                          "claimTypeCode": "290HE7131R",
+                          "closeDate":null,
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"291",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"COMPLETE"
                        }
                     }
                  ]

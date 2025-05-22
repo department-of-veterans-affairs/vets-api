@@ -16,7 +16,7 @@ module BenefitsClaims
     # #90936 - according to the research done here,
     # the 960 EP Code was flagged as a claim group that
     # should be filtered out before they are sent to VA.gov and Mobile
-    FILTERED_BASE_END_PRODUCT_CODES = %w[960].freeze
+    FILTERED_BASE_END_PRODUCT_CODES = %w[960 290].freeze
 
     SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fees', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
