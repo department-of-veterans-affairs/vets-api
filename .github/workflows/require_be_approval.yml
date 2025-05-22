@@ -161,21 +161,21 @@ jobs:
             | reverse
             | unique_by(.user.login)
             | .[].user.login
-            // true
+            // false
           ')
 
-          if [ -n "$APPROVED" ]; then
-            TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+          if [ "$APPROVED" != 'false' ]; then
+            TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || false)
             echo "Team Approvals: $TEAM_APPROVALS"
-            if [ -z "$TEAM_APPROVALS" ]; then
+            if [ "$TEAM_APPROVALS" == 'false' ]; then
               team_approval_status=required
             else
               team_approval_status=confirmed
             fi
 
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || false)
             echo "Backend Approvals: $BE_APPROVALS"
-            if [ -z "$BE_APPROVALS" ]; then
+            if [ "$BE_APPROVALS" == 'false' ]; then
               approval_status=required
             else
               approval_status=confirmed
