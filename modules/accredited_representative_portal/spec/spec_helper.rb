@@ -64,16 +64,18 @@ module VcrHelpers
   end
 end
 
-module FixtureHelpers
-  def load_fixture(path_suffix)
-    path =
-      AccreditedRepresentativePortal::Engine.root /
-      'spec/fixtures/' /
-      path_suffix
+module AccreditedRepresentativePortal
+  module FixtureHelpers
+    def load_fixture(path_suffix)
+      path =
+        AccreditedRepresentativePortal::Engine.root /
+        'spec/fixtures/' /
+        path_suffix
 
-    fixture = File.read(path)
-    fixture = yield(fixture) if block_given?
-    fixture
+      fixture = File.read(path)
+      fixture = yield(fixture) if block_given?
+      fixture
+    end
   end
 end
 
@@ -83,6 +85,6 @@ RSpec.configure do |config|
 
   config.include VcrHelpers
   config.include ActiveSupport::Testing::TimeHelpers
-  config.extend FixtureHelpers
-  config.include FixtureHelpers
+  config.extend AccreditedRepresentativePortal::FixtureHelpers
+  config.include AccreditedRepresentativePortal::FixtureHelpers
 end
