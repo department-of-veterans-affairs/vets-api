@@ -8,7 +8,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:referral_consult_id) { '984_646372' }
   let(:encrypted_referral_consult_id) { 'encrypted-984_646372' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
-  let(:referral_statuses) { "'AP','AC','I'" }
+  let(:referral_statuses) { "'AP'" }
   let(:icn) { '1012845331V153043' }
 
   before do
