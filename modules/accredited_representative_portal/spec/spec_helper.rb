@@ -68,8 +68,8 @@ module FixtureHelpers
   def load_fixture(path_suffix)
     path =
       AccreditedRepresentativePortal::Engine.root /
-        'spec/fixtures/' /
-        path_suffix
+      'spec/fixtures/' /
+      path_suffix
 
     fixture = File.read(path)
     fixture = yield(fixture) if block_given?
