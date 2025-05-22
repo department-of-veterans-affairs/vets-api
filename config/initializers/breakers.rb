@@ -14,7 +14,6 @@ require 'dgi/submission/configuration'
 require 'dgi/letters/configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
-require 'evss/dependents/configuration'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
@@ -65,7 +64,6 @@ Rails.application.reloader.to_prepare do
     EVSS::DocumentsService.breakers_service,
     EVSS::Letters::Configuration.instance.breakers_service,
     EVSS::PCIUAddress::Configuration.instance.breakers_service,
-    EVSS::Dependents::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
