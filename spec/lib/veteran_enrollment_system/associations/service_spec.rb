@@ -5,6 +5,13 @@ require 'veteran_enrollment_system/associations/service'
 
 RSpec.describe VeteranEnrollmentSystem::Associations::Service do
   let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
+  let(:updated_form) do
+    form.tap do |f|
+      f['veteranContacts'] = f['veteranContacts'].select do |contact|
+        contact['contactType'] == 'Primary Next of Kin'
+      end
+    end
+  end
   let(:updated_veteran_contacts) do
     [
       {
@@ -197,7 +204,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         'veteran_enrollment_system/associations/create_associations_success',
         { match_requests_on: %i[method uri], erb: true }
       ) do
-        response = described_class.new(current_user, form).update_associations('10-10EZR')
+        response = described_class.new(current_user).update_associations(form['veteranContacts'], '10-10EZR')
 
         expect_successful_response_output(response, '2025-04-24T18:22:00Z')
       end
@@ -212,7 +219,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         'veteran_enrollment_system/associations/delete_associations_success',
         { match_requests_on: %i[method uri], erb: true }
       ) do
-        response = described_class.new(current_user, form).update_associations('10-10EZR')
+        response = described_class.new(current_user).update_associations(form['veteranContacts'], '10-10EZR')
 
         expect_successful_response_output(response, '2025-04-24T17:08:31Z')
       end
@@ -228,7 +235,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             'veteran_enrollment_system/associations/update_associations_success',
             { match_requests_on: %i[method uri], erb: true }
           ) do
-            response = described_class.new(current_user, form).update_associations('10-10EZR')
+            response = described_class.new(current_user).update_associations(form['veteranContacts'], '10-10EZR')
             expect_successful_response_output(response, '2025-04-24T17:08:31Z')
           end
         end
@@ -249,7 +256,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             'veteran_enrollment_system/associations/update_associations_partial_success',
             { match_requests_on: %i[method uri], erb: true }
           ) do
-            response = described_class.new(current_user, update_associations_form).update_associations('10-10EZR')
+            response = described_class.new(current_user).update_associations(update_associations_form['veteranContacts'], '10-10EZR')
 
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.partial_success'
@@ -305,7 +312,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
               'type is required'
 
             expect do
-              described_class.new(current_user, delete_associations_form).update_associations('10-10EZR')
+              described_class.new(current_user).update_associations(delete_associations_form['veteranContacts'], '10-10EZR')
             end.to raise_error(
               an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
             )
@@ -321,10 +328,56 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     end
 
     describe '#form1010_ezr_reconcile_associations' do
-      it 'adds back deleted associations with a deleteIndicator and ' \
-         'returns associations data in the correct VES format' do
-          
-         end
+      context 'when associations were deleted on the frontend' do
+        it "adds the deleted associations back to the form's associations array with a " \
+           "'deleteIndicator' and returns all associations data in the VES format" do
+          # 'updated_form' does not include 'Emergency Contact'
+          reconciled_associations = described_class.new(
+            current_user,
+            updated_form
+          ).form1010_ezr_reconcile_associations(
+            get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec')
+          )
+
+          # 'Emergency Contact' is added back to the associations array
+          expect(reconciled_associations.count).to eq(2)
+          # The data is in the VES format
+          expect(reconciled_associations.find { |a| a['contactType'] == 'Emergency Contact' }).to eq(
+            {
+              "address" => {
+                "street" => "123 NW 5th St",
+                "street2" => "Apt 5",
+                "street3" => "Unit 6",
+                "city" => "durango",
+                "country" => "MEX",
+                "postalCode" => "21231"
+              },
+              "alternatePhone" => "2699352134",
+              "contactType" => "Emergency Contact",
+              "fullName" => {
+                "first" => "FIRSTECA",
+                "middle" => "MIDDLEECA",
+                "last" => "LASTECA"
+              },
+              "primaryPhone" => "7452743546",
+              "relationship" => "BROTHER",
+              "deleteIndicator" => true
+            }
+          )
+        end
+      end
+
+      context 'when no associations were deleted on the frontend' do
+        it 'returns the form associations array unchanged' do
+          reconciled_associations = described_class.new(
+            current_user,
+            form
+          ).form1010_ezr_reconcile_associations(
+            get_fixture('veteran_enrollment_system/associations/associations_maximum')
+          )
+
+          expect(reconciled_associations).to eq(form['veteranContacts'])
+        end
       end
     end
   end

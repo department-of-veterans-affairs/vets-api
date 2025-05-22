@@ -1,0 +1,44 @@
+[
+  {
+    "role": "PRIMARY_NEXT_OF_KIN",
+    "relationType": "SON",
+    "name": {
+      "givenName": "FIRSTNOKA",
+      "middleName": "MIDDLENOKA",
+      "familyName": "LASTNOKA",
+      "suffix": "JR."
+    },
+    "address": {
+      "line1": "476 Test Ave",
+      "city": "Dulles",
+      "state": "VA",
+      "zipCode": "20101",
+      "zipPlus4": "0101",
+      "country": "USA"
+    },
+    "primaryPhone": "1239131234",
+    "alternatePhone": "7254551234",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  },
+  {
+    "role": "EMERGENCY_CONTACT",
+    "relationType": "BROTHER",
+    "name": {
+      "givenName": "FIRSTECA",
+      "middleName": "MIDDLEECA",
+      "familyName": "LASTECA"
+    },
+    "address": {
+      "line1": "123 NW 5th St",
+      "line2": "Apt 5",
+      "line3": "Unit 6",
+      "city": "durango",
+      "provinceCode": "DGO.",
+      "postalCode": "21231",
+      "country": "MEX"
+    },
+    "primaryPhone": "7452743546",
+    "alternatePhone": "2699352134",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  }
+]

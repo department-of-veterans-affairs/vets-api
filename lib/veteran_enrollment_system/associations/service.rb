@@ -72,6 +72,13 @@ module VeteranEnrollmentSystem
         'Emergency Contact' => 3
       }.freeze
 
+      VES_ROLE_MAPPINGS = {
+        'PRIMARY_NEXT_OF_KIN' => 'Primary Next of Kin',
+        'EMERGENCY_CONTACT' => 'Emergency Contact',
+        'OTHER_NEXT_OF_KIN' => 'Other Next of Kin',
+        'OTHER_EMERGENCY_CONTACT' => 'Other emergency contact'
+      }.freeze
+
       ERROR_MAP = {
         400 => Common::Exceptions::BadRequest,
         404 => Common::Exceptions::ResourceNotFound,
@@ -128,12 +135,11 @@ module VeteranEnrollmentSystem
       # were deleted.
       # @return [Array] the reconciled associations data that will be sent to the Associations API
       def form1010_ezr_reconcile_associations(ves_associations)
-        # ves_associations = get_associations('10-10EZR')
         transformed_ves_associations = transform_ves_associations(ves_associations)
 
         form_associations = @parsed_form['veteranContacts']
         # Create a lookup set of contactTypes in the submitted array.
-        # We'll use this to find missing objects (e.g. objects that were deleted on the frontend)
+        # We'll use this to find missing association objects (e.g. associations that were deleted on the frontend)
         submitted_contact_types = form_associations.map { |obj| obj['contactType']&.downcase }.compact.to_set
 
         # Find missing associations based on contactType (case insensitive)
@@ -141,13 +147,15 @@ module VeteranEnrollmentSystem
           submitted_contact_types.include?(obj['contactType']&.downcase)
         end
 
-        # Add a deleteIndicator to the missing objects. The user deleted these objects on the frontend,
+        return form_associations if missing_associations.empty?
+
+        # Add a deleteIndicator to the missing association objects. The user deleted these associations on the frontend,
         # so we need to delete them from the Associations API
         associations_to_delete = missing_associations.map do |obj|
           obj.merge('deleteIndicator' => true)
         end
 
-        # Combine submitted array with deleted objects
+        # Combine submitted array with deleted association objects
         form_associations + associations_to_delete
       end
 
@@ -184,7 +192,7 @@ module VeteranEnrollmentSystem
         transformed_association = {
           'address' => get_address_from_association(association),
           'alternatePhone' => sanitize_phone_number(association['alternatePhone']),
-          'contactType' => remove_underscores(association['role']),
+          'contactType' => VES_ROLE_MAPPINGS[association['role']],
           'fullName' => {},
           'primaryPhone' => sanitize_phone_number(association['primaryPhone']),
           'relationship' => remove_underscores(association['relationType'])
@@ -257,7 +265,7 @@ module VeteranEnrollmentSystem
           StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
           Rails.logger.info("#{form_id} associations updated successfully")
 
-          set_response
+          set_response(status: 'success', message: 'All associations were updated successfully')
         end
       end
 
