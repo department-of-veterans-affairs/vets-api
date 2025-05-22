@@ -198,7 +198,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   rescue => e
-    monitor.track_to_pdf_failure(id, e)
+    monitor.track_to_pdf_failure(id, e, form_id)
     raise e
   ensure
     self.form_id = original_form_id
