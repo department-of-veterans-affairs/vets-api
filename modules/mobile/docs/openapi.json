@@ -3510,7 +3510,7 @@
         "summary": "/v0/efolder/documents/{documentId}/download"
       }
     },
-    "/v0/claim/letter/documents": {
+    "/v0/claim-letter/documents": {
       "get": {
         "description": "Returns the user's list of documents from lighthouse",
         "parameters": [
@@ -3565,10 +3565,10 @@
             "Bearer": []
           }
         ],
-        "summary": "/v0/claim/letter/documents"
+        "summary": "/v0/claim-letter/documents"
       }
     },
-    "/v0/claim/letter/documents/{document_id}/download": {
+    "/v0/claim-letter/documents/{document_id}/download": {
       "post": {
         "description": "returns requested document",
         "parameters": [
@@ -3640,7 +3640,7 @@
             "Bearer": []
           }
         ],
-        "summary": "/v0/claim/letter/documents/{documentId}/download"
+        "summary": "/v0/claim-letter/documents/{documentId}/download"
       }
     },
     "/v0/enrollment-status": {
