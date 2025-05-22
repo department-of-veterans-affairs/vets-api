@@ -1,4 +1,4 @@
-Keep your PR as a Draft until it's ready for Platform review. A PR is ready for Platform review when it has a teammate approval and tests and linting pass CI. See [these tips](https://depo-platform-documentation.scrollhelp.site/developer-docs/vets-api-pr-tips) on how to avoid common delays in getting your PR merged.
+Keep your PR as a Draft until it's ready for Platform review. A PR is ready for Platform review when it has a teammate approval and tests, linting, and settings checks pass CI. See [these tips](https://depo-platform-documentation.scrollhelp.site/developer-docs/vets-api-pr-tips) on how to avoid common delays in getting your PR merged.
 
 ## Summary
 
