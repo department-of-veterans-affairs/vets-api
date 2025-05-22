@@ -105,15 +105,17 @@ module Vets
     private
 
     def validate_sort_clauses(clauses)
-      raise Common::Exceptions::InvalidSortCriteria.new(@model_class, clauses) if clauses.empty?
+      return if @records.empty?
+
+      raise Common::Exceptions::InvalidSortCriteria.new(@model_class.to_s, clauses) if clauses.empty?
 
       clauses.each do |attribute, direction|
-        unless @records.first.respond_to?(attribute)
-          raise Common::Exceptions::InvalidSortCriteria.new(@model_class, attribute)
+        unless @model_class.attribute_set.include?(attribute.to_sym)
+          raise Common::Exceptions::InvalidSortCriteria.new(@model_class.to_s, attribute)
         end
 
         unless %i[asc desc].include?(direction)
-          raise Common::Exceptions::InvalidSortCriteria.new(@model_class, attribute)
+          raise Common::Exceptions::InvalidSortCriteria.new(@model_class.to_s, attribute)
         end
       end
     end

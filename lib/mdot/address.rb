@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'vets/model'
+
 module MDOT
   class Address
-    include Virtus.model
+    include Vets::Model
 
     attribute :street, String
     attribute :street2, String
@@ -10,6 +12,6 @@ module MDOT
     attribute :state, String
     attribute :country, String
     attribute :postal_code, String
-    attribute :is_military_base, Boolean, default: false
+    attribute :is_military_base, Bool, default: false
   end
 end

@@ -180,6 +180,14 @@ Rails.application.routes.draw do
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
+    namespace :chatbot do
+      get 'claims', to: 'claim_status#index'
+      get 'claims/:id', to: 'claim_status#show'
+      get 'user', to: 'users#show'
+      post 'speech_token', to: 'speech_token#create'
+      post 'token', to: 'token#create'
+    end
+
     get 'intent_to_file(/:itf_type)', to: 'intent_to_files#index'
     post 'intent_to_file/:itf_type', to: 'intent_to_files#submit'
 
@@ -392,6 +400,7 @@ Rails.application.routes.draw do
   mount Avs::Engine, at: '/avs'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
+  mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

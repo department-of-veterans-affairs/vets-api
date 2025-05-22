@@ -15,7 +15,7 @@ module V0
       directline_response = fetch_connector_values
       if current_user&.icn
         code = SecureRandom.uuid
-        Chatbot::CodeContainer.new(code:, icn: current_user.icn).save!
+        ::Chatbot::CodeContainer.new(code:, icn: current_user.icn).save!
         render json: { token: directline_response[:token],
                        conversationId: directline_response[:conversationId],
                        apiSession: ERB::Util.url_encode(cookies[:api_session]),
