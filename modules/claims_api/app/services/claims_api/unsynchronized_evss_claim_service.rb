@@ -8,7 +8,6 @@ require 'vets/shared_logging'
 
 module ClaimsApi
   class UnsynchronizedEVSSClaimService
-    include Vets::SharedLogging
     EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
     delegate :power_of_attorney, to: :veteran
 
