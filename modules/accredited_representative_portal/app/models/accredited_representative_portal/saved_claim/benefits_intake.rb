@@ -54,7 +54,7 @@ module AccreditedRepresentativePortal
 
         has_many(
           :persistent_attachments,
-          -> { where(type: PersistentAttachments::VAFormAttachment) }
+          -> { where(type: PersistentAttachments::VAFormDocumentation) }
         )
       end
 
