@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/dependents/retrieved_info'
-
 module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
