@@ -14,7 +14,7 @@ module BenefitsClaims
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
     # #90936 - according to the research done here,
-    # the 960 EP Code was flagged as a claim group that
+    # the 960 and 290 EP Codes were flagged as a claim groups that
     # should be filtered out before they are sent to VA.gov and Mobile
     FILTERED_BASE_END_PRODUCT_CODES = %w[960 290].freeze
 
