@@ -3,7 +3,7 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestNotification < ApplicationRecord
     self.inheritance_column = nil
-    PERMITTED_TYPES = %w[requested declined expiring expired].freeze
+    PERMITTED_TYPES = %w[requested declined expiring expired failed].freeze
     belongs_to :power_of_attorney_request, class_name: 'PowerOfAttorneyRequest'
     belongs_to :va_notify_notification,
                class_name: 'VANotify::Notification',
@@ -19,6 +19,7 @@ module AccreditedRepresentativePortal
     scope :declined, -> { where(type: 'declined') }
     scope :expiring, -> { where(type: 'expiring') }
     scope :expired, -> { where(type: 'expired') }
+    scope :failed, -> { where(type: 'failed') }
 
     def claimant_hash
       @claimant_hash ||= form.parsed_data['dependent'] || form.parsed_data['veteran']
@@ -42,6 +43,8 @@ module AccreditedRepresentativePortal
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_warning_email
       when 'expired'
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_confirmation_email
+      when 'failed'
+        Settings.vanotify.services.va_gov.template_id.accredited_representative_portal_poa_request_failure_email
       end
     end
 

@@ -27,15 +27,20 @@ module AccreditedRepresentativePortal
         end
       rescue PowerOfAttorneyRequestService::Accept::Error => e
         render json: { errors: [e.message] }, status: e.status
+        send_failure_notification_email(@poa_request)
       rescue ActiveRecord::RecordInvalid => e
         error_message = e.message.sub(/^Validation failed: /, '')
         render json: { errors: [error_message] }, status: :unprocessable_entity
+        send_failure_notification_email(@poa_request)
       rescue Faraday::TimeoutError => e
         render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
+        send_failure_notification_email(@poa_request)
       rescue Common::Exceptions::ResourceNotFound
         render json: { errors: ['Record not found'] }, status: :not_found
+        send_failure_notification_email(@poa_request)
       rescue => e
         render json: { errors: [e.message] }, status: :internal_server_error
+        send_failure_notification_email(@poa_request)
       end
 
       private
@@ -81,6 +86,13 @@ module AccreditedRepresentativePortal
 
       def send_declination_email(poa_request)
         notification = poa_request.notifications.create!(type: 'declined')
+        PowerOfAttorneyRequestEmailJob.perform_async(
+          notification.id
+        )
+      end
+
+      def send_failure_notification_email(poa_request)
+        notification = poa_request.notifications.create!(type: 'failed')
         PowerOfAttorneyRequestEmailJob.perform_async(
           notification.id
         )

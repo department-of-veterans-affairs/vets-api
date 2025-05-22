@@ -92,5 +92,20 @@ module AccreditedRepresentativePortal
 
     class Expired < self
     end
+
+    class Failed < self
+      def generate
+        {
+          'first_name' => first_name,
+          'poa_request_url' => poa_request_url
+        }
+      end
+
+      private
+
+      def poa_request_url
+        power_of_attorney_request_url(@notification.por_of_attorney_request)
+      end
+    end
   end
 end
