@@ -154,7 +154,7 @@ module MyHealth
             filter_renewals(resource)
           else
             filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
-            resource.data = resource.data.select { |item| filters.include?(item.disp_status.downcase) }
+            resource.records = resource.data.select { |item| filters.include?(item.disp_status.downcase) }
             resource.metadata[:filter][:dispStatus] = { eq: disp_status[:eq] }
           end
         end
