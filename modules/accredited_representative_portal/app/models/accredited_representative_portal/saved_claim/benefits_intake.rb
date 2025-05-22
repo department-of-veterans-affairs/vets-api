@@ -7,9 +7,9 @@ module AccreditedRepresentativePortal
         ##
         # Types of Benefits Intake API claims differ only by the value of a
         # couple attributes. `::define_claim_type` is a narrow & rigid interface
-        # for defining new claim types. It discourages bespoke customization and
-        # encourages a thoughtful pause in the case that some new requirement
-        # presents friction.
+        # for defining new claim types. This interface discourages bespoke
+        # customization and encourages a thoughtful pause in the case that some
+        # new requirement presents friction for it.
         #
         def define_claim_type(form_id:, business_line:)
           Class.new(self) do
@@ -33,6 +33,10 @@ module AccreditedRepresentativePortal
           business_line: BusinessLines::COMPENSATION
         )
 
+      ##
+      # Needed to interoperate with the form schema validations performed by the
+      # parent class.
+      #
       FORM = 'BENEFITS-INTAKE'
 
       attachment_association_options = {
@@ -41,10 +45,6 @@ module AccreditedRepresentativePortal
       }
 
       with_options(attachment_association_options) do
-        ##
-        # TODO: Add some application-level validation or DB constraint that this
-        # claim has _only one_ `form_attachment`?
-        #
         has_one(
           :form_attachment,
           -> { where(type: PersistentAttachments::VAForm) },
