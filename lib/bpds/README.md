@@ -21,7 +21,7 @@ The team that has been working on integrating with BPDS has been focused on usin
 Context:
 
 - MAS (Mail Automation System) will continue to establish the claim.
-- POI (Program Oversight and Informatics) will need to pickup the data from BDPS and create an automated approval process
+- POI (Pension Optimization Initiative) will need to pickup the data from BDPS and create an automated approval process
 - Users that are logged in will have an ICN.
 
 #### Associating a submission with a unique identifier
