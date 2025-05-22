@@ -256,7 +256,10 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             'veteran_enrollment_system/associations/update_associations_partial_success',
             { match_requests_on: %i[method uri], erb: true }
           ) do
-            response = described_class.new(current_user).update_associations(update_associations_form['veteranContacts'], '10-10EZR')
+            response = described_class.new(current_user).update_associations(
+              update_associations_form['veteranContacts'],
+              '10-10EZR'
+            )
 
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.partial_success'
