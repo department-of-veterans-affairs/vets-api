@@ -76,7 +76,7 @@ RSpec.describe 'Pensions End to End', type: :request do
     lh_bi_uuid = Pensions::BenefitsIntake::SubmitClaimJob.new.perform(saved_claim_id)
 
     # verify upload artifacts - form_submission and claim_va_notification
-    submission = FormSubmission.find_by(saved_claim_id:)
+    submission = Lighthouse::Submission.find_by(saved_claim_id:)
     expect(submission).to be_present
 
     attempt = submission.latest_pending_attempt

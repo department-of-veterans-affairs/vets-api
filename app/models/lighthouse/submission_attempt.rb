@@ -18,5 +18,38 @@ class Lighthouse::SubmissionAttempt < SubmissionAttempt
 
   belongs_to :submission, class_name: 'Lighthouse::Submission', foreign_key: :lighthouse_submission_id,
                           inverse_of: :submission_attempts
-  has_one :saved_claim, through: :lighthouse_submission
+  has_one :saved_claim, through: :submission
+
+  enum status: {
+    pending: 'pending',
+    success: 'submitted',
+    vbms: 'vbms',
+    fail: 'failure',
+    manual: 'manually'
+  }
+
+  def fail!
+    super
+    Rails.logger.public_send(:error, message: 'Lighthouse Submission Attempt failed')
+  end
+
+  def manual!
+    super
+    Rails.logger.public_send(:warn, message: 'Lighthouse Submission Attempt is being manually remediated')
+  end
+
+  def vbms!
+    super
+    Rails.logger.public_send(:info, message: 'Lighthouse Submission Attempt went to vbms')
+  end
+
+  def pending!
+    super
+    Rails.logger.public_send(:info, message: 'Form Submission Attempt State change')
+  end
+
+  def success!
+    super
+    Rails.logger.public_send(:info, message: 'Form Submission Attempt State change')
+  end
 end
