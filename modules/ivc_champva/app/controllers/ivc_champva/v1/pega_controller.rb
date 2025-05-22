@@ -38,15 +38,10 @@ module IvcChampva
       private
 
       def update_data(form_uuid, file_names, status, case_id)
-        base_query = fetch_forms_by_uuid(form_uuid)
-
-        # Check if this submission includes a merged PDF
-        has_merged_pdf = file_names.any? { |name| name.end_with?('_merged.pdf') }
-
         # First get the query that defines which records we want to update
-        ivc_forms = if has_merged_pdf
+        ivc_forms = if file_names.any? { |name| name.end_with?('_merged.pdf') }
                       # Use all forms for this UUID if it's a merged PDF case
-                      base_query
+                      fetch_forms_by_uuid(form_uuid)
                     else
                       # Only use specified files for non-merged cases
                       forms_query(form_uuid, file_names)
