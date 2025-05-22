@@ -13,7 +13,7 @@ module EventBusGateway
 
     def perform(participant_id:, template_id:, personalisation:)
       notify_client.send_email(
-        recipient_identifier: { id_value: participant_id, id_type: 'ICN' },
+        recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
         personalisation:
       )
