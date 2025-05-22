@@ -8,12 +8,12 @@ module ClaimsEvidenceApi
   # API requests will fail even with a valid token unless on the VA API.
   # Create token:
   # > require 'claims_evidence_api/jwt_generator'
-  # > encoder = ClaimsEvidenceApi::JwtEncoder.new
+  # > encoder = ClaimsEvidenceApi::JwtGenerator.new
   # > token = encoder.encode_jwt
   # Use token:
   # > curl -X GET https://claimevidence-api-test.dev.bip.va.gov/api/v1/rest/swagger-ui.html \
   # > -- 'Authentication: Bearer {token}'
-  class JwtEncoder
+  class JwtGenerator
     # Issuer assigned by Claim Evidence API team
     ISSUER = 'VAGOV'
     # VBMS user logged in to the application; if no user interaction needs to be a system user

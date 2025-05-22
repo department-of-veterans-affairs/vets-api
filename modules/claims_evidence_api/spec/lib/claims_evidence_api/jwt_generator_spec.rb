@@ -3,10 +3,10 @@
 require 'rails_helper'
 require 'claims_evidence_api/jwt_generator'
 
-RSpec.describe ClaimsEvidenceApi::JwtEncoder do
+RSpec.describe ClaimsEvidenceApi::JwtGenerator do
   describe '#get_token' do
     it 'returns a token with required fields' do
-      encoded_jwt = ClaimsEvidenceApi::JwtEncoder.new.encode_jwt
+      encoded_jwt = ClaimsEvidenceApi::JwtGenerator.new.encode_jwt
       decoded_jwt = JWT.decode(encoded_jwt, Settings.claims_evidence_api.jwt_secret,
                                true, { typ: 'JWT', alg: 'HS256' }).first
       expect(decoded_jwt.keys).to include('iss', 'jti', 'exp', 'iat', 'applicationID', 'userID', 'stationID')
