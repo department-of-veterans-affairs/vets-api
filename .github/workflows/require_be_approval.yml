@@ -3,13 +3,7 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
-  workflow_dispatch:
-    branches: be-required-bug
-    inputs:
-      pr_number:
-        description: 'Pull request number to test against'
-        required: true
-        type: string
+
 jobs:
   get-pr-data:
     name: Get PR Data
@@ -29,15 +23,9 @@ jobs:
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
         run: |
-          if ${{ github.event_name == 'pull_request' }}; then
-            # Pull recent data
-            PR_NUMBER="${{ github.event.pull_request.number }}"
-            echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
-          else
-            # Pull recent data
-            PR_NUMBER="${{ github.event.inputs.pr_number }}"
-            echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
-          fi
+          # Pull recent data
+          PR_NUMBER="${{ github.event.inputs.pr_number }}"
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
           # Fetch PR details from GitHub API
           PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
