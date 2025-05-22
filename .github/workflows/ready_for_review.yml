@@ -282,16 +282,3 @@ jobs:
         with:
           number: ${{ env.pr_number }}
           labels: ready-for-backend-review
-
-
-
-APPROVED=$(gh api repos/department-of-veterans-affairs/vets-api/pulls/22328/reviews --jq '
-  [ .[]
-  | select(.state == "APPROVED" and (.dismissed_at == null))
-  ]
-  | sort_by(.submitted_at)
-  | reverse
-  | unique_by(.user.login)
-  | .[].user.login
-  // false
-')
