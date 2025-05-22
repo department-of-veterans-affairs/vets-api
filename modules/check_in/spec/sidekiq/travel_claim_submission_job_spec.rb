@@ -56,10 +56,15 @@ shared_examples 'travel claims worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and travel claim returns duplicate error" do
-    it 'does not enqueue notification job with duplicate template' do
+    it 'enqueues notification job with duplicate template and nil claim number' do
       worker = described_class.new
 
-      expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @duplicate_template_id,
+        nil
+      )
 
       VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_400_exists', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -70,10 +75,15 @@ shared_examples 'travel claims worker #perform' do |facility_type|
   end
 
   context "when #{facility_type} facility and travel claim returns general error" do
-    it 'does not enqueue notification job with error template' do
+    it 'enqueues notification job with error template and nil claim number' do
       worker = described_class.new
 
-      expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @error_template_id,
+        nil
+      )
 
       VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_500', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -88,10 +98,15 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       allow(redis_client).to receive(:token).and_return(nil)
     end
 
-    it 'does not enqueue notification job with error template' do
+    it 'enqueues notification job with error template and nil claim number' do
       worker = described_class.new
 
-      expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
+      expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+        uuid,
+        appt_date,
+        @error_template_id,
+        nil
+      )
 
       VCR.use_cassette('check_in/btsss/token/token_500', match_requests_on: [:host]) do
         worker.perform(uuid, appt_date)
@@ -125,10 +140,15 @@ shared_examples 'travel claims worker #perform' do |facility_type|
                                             .and_return(false)
       end
 
-      it 'does not enqueue notification job with timeout template' do
+      it 'enqueues notification job with timeout template and nil claim number' do
         worker = described_class.new
 
-        expect(CheckIn::TravelClaimNotificationJob).not_to receive(:perform_async)
+        expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
+          uuid,
+          appt_date,
+          @timeout_template_id,
+          nil
+        )
 
         expect do
           worker.perform(uuid, appt_date)
