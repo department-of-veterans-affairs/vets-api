@@ -80,7 +80,7 @@ module PdfFill
 
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
-        display_value = FORMATTER.format_planned_facility_label(target_facility_code)
+        display_value = FORMATTER.format_facility_label(target_facility_code)
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
       end
 

@@ -26,6 +26,14 @@ describe PdfFill::Forms::Va1010ez do
   describe '#merge_fields' do
     subject(:merged_fields) { form_class.merge_fields }
 
+    before do
+      # create health_facility record used for vaMedicalFacility field on 10-10EZ
+      # pdf form merge_fields spec
+      create(:health_facility, name: 'Mobile VA Clinic',
+                               station_number: '520GA',
+                               postal_name: 'AL')
+    end
+
     it 'merges the right fields' do
       expect(merged_fields).to eq(
         get_fixture('pdf_fill/10-10EZ/merge_fields')
@@ -163,40 +171,6 @@ describe PdfFill::Forms::Va1010ez do
               )
             end
           end
-        end
-      end
-    end
-
-    describe '#merge_planned_facility_label_helper' do
-      before do
-        create(:health_facility, name: 'VA Facility Name',
-                                 station_number: '100',
-                                 postal_name: 'OH')
-      end
-
-      context 'plannedClinic is not in health_facilities table' do
-        let(:form_data) do
-          {
-            'vaMedicalFacility' => '99'
-          }
-        end
-
-        it 'sets the plannedClinic to the facility id' do
-          form_class.send(:merge_planned_facility_label_helper)
-          expect(form_class.form_data['vaMedicalFacility']).to eq '99'
-        end
-      end
-
-      context 'plannedClinic is in health_facilities table' do
-        let(:form_data) do
-          {
-            'vaMedicalFacility' => '100'
-          }
-        end
-
-        it 'sets the plannedClinic to facility id and facility name' do
-          form_class.send(:merge_planned_facility_label_helper)
-          expect(form_class.form_data['vaMedicalFacility']).to eq '100 - VA Facility Name'
         end
       end
     end

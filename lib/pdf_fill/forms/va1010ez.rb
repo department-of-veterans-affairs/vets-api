@@ -106,7 +106,7 @@ module PdfFill
         merge_veteran_service_info
         merge_disclose_financial_info
         merge_date_fields
-        merge_planned_facility_label_helper
+        merge_va_medical_facility_label_helper
 
         @form_data
       end
@@ -281,9 +281,9 @@ module PdfFill
         @form_data[type] = method(method_name).call(@form_data[type])
       end
 
-      def merge_planned_facility_label_helper
+      def merge_va_medical_facility_label_helper
         target_facility_code = @form_data['vaMedicalFacility']
-        display_value = FORMATTER.format_planned_facility_label(target_facility_code)
+        display_value = FORMATTER.format_facility_label(target_facility_code)
         @form_data['vaMedicalFacility'] = display_value
       end
 
