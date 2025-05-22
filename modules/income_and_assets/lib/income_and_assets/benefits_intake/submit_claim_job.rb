@@ -151,8 +151,9 @@ module IncomeAndAssets
 
         Lighthouse::SubmissionAttempt.transaction do
           @lighthouse_submission = Lighthouse::Submission.create(**lighthouse_submission)
-          @lighthouse_submission_attempt = Lighthouse::SubmissionAttempt.create(lighthouse_submission: @lighthouse_submission,
-                                                                                benefits_intake_uuid: @intake_service.uuid)
+          @lighthouse_submission_attempt =
+            Lighthouse::SubmissionAttempt.create(lighthouse_submission: @lighthouse_submission,
+                                                 benefits_intake_uuid: @intake_service.uuid)
         end
 
         Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)

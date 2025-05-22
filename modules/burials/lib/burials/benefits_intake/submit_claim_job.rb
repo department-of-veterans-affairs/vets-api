@@ -90,7 +90,8 @@ module Burials
       # Check Lighthouse::SubmissionAttempts for record with 'pending' or 'success'
       #
       # @return true if Lighthouse::SubmissionAttempt has 'pending' or 'success'
-      # @return false if unable to find a Lighthouse::Submission or Lighthouse::SubmissionAttempt not 'pending' or 'success'
+      # @return false if unable to find a Lighthouse::Submission or Lighthouse::SubmissionAttempt
+      # not 'pending' or 'success'
       def lighthouse_submission_pending_or_success
         @claim&.lighthouse_submissions&.any? do |lighthouse_submission|
           lighthouse_submission.non_failure_attempt.present?
@@ -190,8 +191,9 @@ module Burials
 
         Lighthouse::SubmissionAttempt.transaction do
           @lighthouse_submission = Lighthouse::Submission.create(**lighthouse_submission)
-          @lighthouse_submission_attempt = Lighthouse::SubmissionAttempt.create(submission: @lighthouse_submission,
-                                                                                benefits_intake_uuid: @intake_service.uuid)
+          @lighthouse_submission_attempt =
+            Lighthouse::SubmissionAttempt.create(submission: @lighthouse_submission,
+                                                 benefits_intake_uuid: @intake_service.uuid)
         end
 
         Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
