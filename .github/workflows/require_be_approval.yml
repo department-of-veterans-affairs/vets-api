@@ -3,7 +3,9 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
-
+  workflow_dispatch:
+    inputs:
+      pr_number: 22328
 jobs:
   get-pr-data:
     name: Get PR Data
@@ -23,9 +25,15 @@ jobs:
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
         run: |
-          # Pull recent data
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          if ${{ github.event_name == 'pull_request' }}; then
+            # Pull recent data
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          else
+            # Pull recent data
+            PR_NUMBER="${{ github.event.inputs.pr_number }}"
+            echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
 
           # Fetch PR details from GitHub API
           PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
@@ -109,26 +117,38 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
       pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
       pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
       require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
       failures_detected: ${{ needs.check-workflow-status.outputs.failures_detected }}
-      GITHUB_REPOSITORY: ${{ github.repository }}
     outputs:
       author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
       - name: Verify backend-review-group approval
         id: verify_approval
         run: |
           approval_status=required
           team_approval_status=required
           author_is_backend=false
-          GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
-
 
           BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
           BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
@@ -139,24 +159,23 @@ jobs:
           if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
             echo "PR author '$PR_AUTHOR' is a backend-review-group member."
             echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "author_is_backend=false" >> "$GITHUB_OUTPUT"
           fi
 
-          APPROVED=$(gh api repos/$GITHUB_REPOSITORY/pulls/$pr_number/reviews --jq '
-                        [.[] | select(.state == "APPROVED")]
-                        | sort_by(.submitted_at)
-                        | reverse
-                        | unique_by(.user.login)
-                        | .[].user.login
+          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
+            [ .[]
+            | select(.state == "APPROVED" and (.dismissed_at == null))
+            ]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user.login)
+            | .[].user.login
+            // 0
           ')
-          NUM_APPROVALS=$(echo "$APPROVED" | grep -c .)
-          echo "Total approvals: $NUM_APPROVALS"
 
-          if [[ "$NUM_APPROVALS" -gt 0 ]]; then
+          if [ "$APPROVED" -ne 0 ]; then
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
             echo "Team Approvals: $TEAM_APPROVALS"
-            if [[ -z "$TEAM_APPROVALS" ]]; then
+            if [ -z "$TEAM_APPROVALS" ]; then
               team_approval_status=required
             else
               team_approval_status=confirmed
@@ -164,7 +183,7 @@ jobs:
 
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
-            if [[ -z "$BE_APPROVALS" ]]; then
+            if [ -z "$BE_APPROVALS" ]; then
               approval_status=required
             else
               approval_status=confirmed
@@ -175,7 +194,7 @@ jobs:
           echo "team_approval_status=$team_approval_status" >> "$GITHUB_OUTPUT"
           echo "approval_status=$approval_status" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Remove ready-for-review label
         if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
