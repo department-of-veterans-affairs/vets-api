@@ -4,7 +4,6 @@ module CheckIn
   class TravelClaimSubmissionJob < TravelClaimBaseJob
     def perform(uuid, appointment_date)
       redis_client = TravelClaim::RedisClient.build
-      mobile_phone = redis_client.patient_cell_phone(uuid:)
       station_number = redis_client.station_number(uuid:)
       facility_type = redis_client.facility_type(uuid:)
 
@@ -17,11 +16,9 @@ module CheckIn
                     facility_type:
                   })
 
-      claim_number, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
-
+      claim_number_last_four, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
       unless template_id.nil?
-        send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:, facility_type:)
-        StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
+        TravelClaimNotificationJob.perform_async(uuid, appointment_date, template_id, claim_number_last_four)
       end
     end
 

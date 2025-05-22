@@ -812,7 +812,7 @@ module PdfFill
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
         student = options[:student]
-        @form_data['dependents_application']['student_information'] = [student]
+        @form_data['dependents_application']['student_information'] = [student.deep_dup]
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
@@ -888,7 +888,8 @@ module PdfFill
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
             type_of_program_or_benefit = student_information['type_of_program_or_benefit']
-            get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            program_information = get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            student_information['type_of_program_or_benefit'] = program_information if program_information.present?
             split_earnings(student_expected_earnings) if student_expected_earnings.present?
             split_earnings(student_earnings) if student_earnings.present?
             split_networth_information(student_networth) if student_networth.present?
@@ -904,8 +905,11 @@ module PdfFill
           'feca' => 'FECA',
           'other' => 'Other Benefit'
         }
-        selected_key = parent_object.find { |_, v| v }&.first
-        selected_key ? type_mapping[selected_key] : nil
+        # sanitize object of false values
+        parent_object.compact_blank!
+        return nil if parent_object.blank?
+
+        parent_object.map { |key, _value| type_mapping[key] }.join(', ')
       end
 
       # override from form_helper

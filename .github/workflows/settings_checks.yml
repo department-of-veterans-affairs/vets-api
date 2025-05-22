@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
-      - 'vets-api/config/**'
+      - 'config/**'
 permissions:
   contents: read
   checks: write
@@ -162,12 +162,12 @@ jobs:
           fi
       - name: Respond to PR if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
-        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
             :warning: The following Parameter Store values are invalid. Please make sure the values are correct and exist in AWS Parameter Store before merging:
             ${{ env.INVALID_PARAMETERS }}
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
       - name: Fail if invalid parameters are found
         if: env.INVALID_PARAMETERS != ''
@@ -175,8 +175,8 @@ jobs:
 
       - name: Respond to PR if no invalid parameters are found
         if: env.INVALID_PARAMETERS == ''
-        uses: thollander/actions-comment-pull-request@1d3973dc4b8e1399c0620d3f2b1aa5e795465308 # v2.4.3
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: |
             :+1: All Parameter Store values in this PR are valid
-          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}

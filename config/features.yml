@@ -578,6 +578,9 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_claims_evidence_api_upload:
+    actor_type: user
+    description: Enable using the ClaimsEvidenceAPI module to upload 686/674 documents to VBMS
   dependents_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
@@ -601,6 +604,10 @@ features:
   contention_classification_claim_linker:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
+    enable_in_development: true
+  disability_526_ee_mst_special_issue:
+    actor_type: user
+    description: enables adding MST special issue to disability_526 prior to submission.
     enable_in_development: true
   disability_526_ee_process_als_flash:
     actor_type: user
@@ -922,6 +929,9 @@ features:
   form400247:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
+  form1010d_extended:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 10-10d merged with form 10-7959c
   form1010d_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
@@ -1117,6 +1127,10 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
     enable_in_development: true
+  mhv_bypass_downtime_notification:
+    actor_type: user
+    description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1188,6 +1202,14 @@ features:
   mhv_medical_records_milestone_two:
     actor_type: user
     description: Enables/disables Medical Records new Milestone 2 changes
+    enable_in_development: true
+  mhv_medical_records_support_new_model_vaccine:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed vaccine objects
+    enable_in_development: true
+  mhv_medical_records_support_new_model_health_condition:
+    actor_type: user
+    description: Enables/disables the use of pre-transformed health condition objects
     enable_in_development: true
   mhv_medications_to_va_gov_release:
     actor_type: user
@@ -1532,7 +1554,7 @@ features:
     actor_type: user
     description: Enables the One VA Debt Letter feature
     enable_in_development: true
-  show_payment_history_mvp:
+  show_cdp_one_thing_per_page:
     actor_type: user
     description: Enables the Payment History MVP features for development
     enable_in_development: true
@@ -1668,6 +1690,9 @@ features:
     actor_type: user
     enable_in_development: false
     description: Toggle for the vaos module to use an alternate vaos-service route
+  va_dependents_verification:
+    actor_type: user
+    description: Toggles new features for the dependents verification form
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
@@ -1857,9 +1882,6 @@ features:
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
-  mobile_lighthouse_direct_deposit:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our direct deposit interactions
   mobile_lighthouse_claims:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
@@ -2032,11 +2054,6 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
-  vye_request_allowed:
-    actor_type: user
-    description: >-
-      Master toggle for the VYE (Verify Your Enrollment) project.
-      If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
   sob_updated_design:
     actor_type: user
     description: >-
@@ -2185,3 +2202,12 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  disable_bdn_processing:
+    actor_type: user
+    description: If enabled, skip all BDN-related processing for VYE
+  debt_deduction_code_filtering:
+    actor_type: user
+    description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
+  my_va_auth_exp_redesign_enabled:
+    actor_type: user
+    description: When enabled, a user will see the redesigned experience of MyVA.
