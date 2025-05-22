@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-require 'vets/shared_logging'
-
 module ClaimsApi
   class VBMSUploader
-    include Vets::SharedLogging
-
     def initialize(filepath:, file_number:, doc_type:)
       @filepath = filepath
       @file_number = file_number
