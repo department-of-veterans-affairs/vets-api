@@ -19,5 +19,13 @@ FactoryBot.define do
         attachment.file_data = uploaded_file.to_json
       end
     end
+
+    factory :persistent_attachment_va_form_documentation, class: 'PersistentAttachments::VAFormDocumentation' do
+      after(:build) do |attachment|
+        file = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf').open('rb')
+        uploaded_file = Shrine.upload(file, :store)
+        attachment.file_data = uploaded_file.to_json
+      end
+    end
   end
 end
