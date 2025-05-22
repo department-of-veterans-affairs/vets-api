@@ -520,7 +520,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
     end
   end
 
-  describe 'GET /v0/claim/letter/documents' do
+  describe 'GET /v0/claim-letter/documents' do
     let!(:user) { sis_user }
 
     context 'with working upstream service' do
@@ -569,7 +569,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       it 'and a result that matches our schema is successfully returned with the 200 status' do
-        get '/mobile/v0/claim/letter/documents', headers: sis_headers
+        get '/mobile/v0/claim-letter/documents', headers: sis_headers
         assert_schema_conform(200)
         expect(response.parsed_body).to eq(claim_letter_doc_response)
       end
@@ -598,7 +598,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       it 'returns expected error' do
-        get '/mobile/v0/claim/letter/documents', headers: sis_headers
+        get '/mobile/v0/claim-letter/documents', headers: sis_headers
 
         assert_schema_conform(400)
         expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Invalid field value',
@@ -609,7 +609,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
     end
   end
 
-  describe 'GET /v0/claim/letter/documents/:document_id/download' do
+  describe 'POST /v0/claim-letter/documents/:document_id/download' do
     let!(:user) { sis_user }
 
     context 'with working upstream service' do
@@ -625,7 +625,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       it 'returns expected document' do
-        post "/mobile/v0/claim/letter/documents/#{CGI.escape("{#{document_uuid}}")}/download",
+        post "/mobile/v0/claim-letter/documents/#{CGI.escape("{#{document_uuid}}")}/download",
              params: { file_name: 'test' },
              headers: sis_headers
         expect(response).to have_http_status(:ok)
@@ -658,7 +658,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
 
       it 'returns expected error' do
-        post '/mobile/v0/claim/letter/documents/123/download', params: { file_name: 'test' }, headers: sis_headers
+        post '/mobile/v0/claim-letter/documents/123/download', params: { file_name: 'test' }, headers: sis_headers
 
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Invalid field value',
