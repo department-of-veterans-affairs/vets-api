@@ -197,6 +197,7 @@ module VAOS
             extract_appointment_fields(appointment)
             merge_clinic(appointment)
             merge_facility(appointment)
+            set_type(appointment)
             appointment[:show_schedule_link] = is_schedulable?(appointment)
             OpenStruct.new(appointment)
           end
@@ -945,11 +946,13 @@ module VAOS
         end
       end
 
-      #
+      # This should be called after set_type has been called
       def is_schedulable?(appointment)
         return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment) || cc?(appointment)
         return true if appointment[:type] == APPOINTMENT_TYPES[:request]
-        return true if SCHEDULABLE_SERVICE_TYPES.include? appointment[:service_type]
+        if appointment[:type] == APPOINTMENT_TYPES[:va] && SCHEDULABLE_SERVICE_TYPES.include?(appointment[:service_type])
+          return true
+        end
 
         false
       end

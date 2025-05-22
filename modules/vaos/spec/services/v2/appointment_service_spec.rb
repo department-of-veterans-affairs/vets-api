@@ -2512,4 +2512,85 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:type]).to eq('COMMUNITY_CARE_REQUEST')
     end
   end
+
+  describe '#is_schedulable?' do
+    it 'returns false for CERNER appointments' do
+      appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:is_schedulable?, appt)).to be(false)
+    end
+
+    it 'returns false for claims exam appointments' do
+      appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+      appt[:id] = '1234'
+      appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
+      subject.send(:set_type, appt)
+      expect(subject.send(:is_schedulable?, appt)).to be(false)
+    end
+
+    it 'returns false for telehealth appointments' do
+      appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+      appt[:id] = '1234'
+      appt[:kind] = 'telehealth'
+      subject.send(:set_type, appt)
+      expect(subject.send(:is_schedulable?, appt)).to be(false)
+    end
+
+    it 'returns false for cc appointments and requests' do
+      appt = build(:appointment_form_v2, :community_cares_base).attributes
+      appt[:id] = '1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:is_schedulable?, appt)).to be(false)
+    end
+
+    it 'returns true for va requests' do
+      appt = build(:appointment_form_v2, :va_proposed_base).attributes
+      appt[:id] = '1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:is_schedulable?, appt)).to be(true)
+    end
+
+    describe 'returns true for schedulable service' do
+      %w[
+        primaryCare
+        clinicalPharmacyPrimaryCare
+        outpatientMentalHealth
+        socialWork
+        amputation
+        audiology
+        moveProgram
+        foodAndNutrition
+        optometry
+        ophthalmology
+        cpap
+        homeSleepTesting
+        covid
+      ].each do |service|
+        it "#{service}" do
+          appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+          appt[:id] = '1234'
+          appt[:service_type] = service
+          subject.send(:set_type, appt)
+          expect(subject.send(:is_schedulable?, appt)).to be(true)
+        end
+      end
+    end
+
+    describe 'returns false for unschedulable service' do
+      [
+        'podiatry',
+        'audiology-routine exam',
+        'audiology-hearing aid support'
+      ].each do |service|
+        it "#{service}" do
+          appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+          appt[:id] = '1234'
+          appt[:service_type] = service
+          subject.send(:set_type, appt)
+          expect(subject.send(:is_schedulable?, appt)).to be(false)
+        end
+      end
+    end
+  end
 end
