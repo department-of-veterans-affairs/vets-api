@@ -66,6 +66,13 @@ module BGS
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
+      if Flipper.enabled?(:dependents_claims_evidence_api_upload)
+        # TODO: implement upload using the claims_evidence_api module
+        Rails.logger.debug('BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
+                           { claim_id: claim.id })
+        return
+      end
+
       Rails.logger.debug('BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                          { claim_id: claim.id })
       VBMS::SubmitDependentsPdfJob.perform_sync(

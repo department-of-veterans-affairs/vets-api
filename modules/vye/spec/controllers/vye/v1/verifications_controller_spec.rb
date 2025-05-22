@@ -11,6 +11,7 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
     allow_any_instance_of(Vye::V1::VerificationsController).to receive(:authorize).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   describe '#create' do

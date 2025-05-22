@@ -3,7 +3,7 @@
 require 'json_marshal/marshaller'
 
 class InProgressForm < ApplicationRecord
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil, optional: false
 
   class CleanUUID < ActiveRecord::Type::String
     def cast(value)

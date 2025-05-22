@@ -10,7 +10,7 @@ class AllTriageTeams
   redis_config REDIS_CONFIG[:secure_messaging_store]
 
   attribute :triage_team_id, Integer
-  attribute :name, String, sortable: { order: 'ASC', default: true }
+  attribute :name, String
   attribute :station_number, String
   attribute :blocked_status, Bool, default: false
   attribute :preferred_team, Bool, default: false
