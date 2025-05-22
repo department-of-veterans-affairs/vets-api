@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Ccra
-  # Ccra::ReferralCache provides a caching mechanism for CCRA referral data.
+  # Ccra::RedisClient provides a caching mechanism for CCRA referral data.
   # It stores and retrieves referral data from Redis, using a configurable expiration time.
-  class ReferralCache
+  class RedisClient
     extend Forwardable
 
     attr_reader :settings
@@ -13,9 +13,9 @@ module Ccra
     REFERRAL_CACHE_KEY = 'vaos_ccra_referral_'
     REFERRAL_CACHE_NAMESPACE = 'vaos-ccra-cache'
 
-    # Initializes the ReferralCache with settings.
+    # Initializes the RedisClient with settings.
     #
-    # @return [Ccra::ReferralCache] A new instance of ReferralCache
+    # @return [Ccra::RedisClient] A new instance of RedisClient
     def initialize
       @settings = Settings.vaos.ccra
     end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Ccra::ReferralCache do
+describe Ccra::RedisClient do
   subject { described_class.new }
 
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
@@ -46,10 +46,10 @@ describe Ccra::ReferralCache do
       expect(subject.save_referral_data(id:, icn:, referral_data:)).to be(true)
 
       # Generate the cache key in the same way as the class
-      cache_key = "#{Ccra::ReferralCache::REFERRAL_CACHE_KEY}#{icn}_#{id}"
+      cache_key = "#{Ccra::RedisClient::REFERRAL_CACHE_KEY}#{icn}_#{id}"
       saved_data = Rails.cache.read(
         cache_key,
-        namespace: Ccra::ReferralCache::REFERRAL_CACHE_NAMESPACE
+        namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
       )
 
       # Verify the data was cached - it's stored as JSON string so no need to check type

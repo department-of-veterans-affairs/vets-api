@@ -1627,7 +1627,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when Redis connection fails' do
         it 'returns a bad_gateway status and appropriate error message' do
-          # Mock the ReferralCache to raise a Redis connection error
+          # Mock the RedisClient to raise a Redis connection error
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
             .and_raise(Redis::BaseError, 'Redis connection refused')
 

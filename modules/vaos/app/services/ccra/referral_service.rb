@@ -85,9 +85,9 @@ module Ccra
     end
 
     # Memoized CCRA Referral cache instance
-    # @return [Ccra::ReferralCache] the CCRA referral cache
+    # @return [Ccra::RedisClient] the CCRA referral cache
     def referral_cache
-      @referral_cache ||= Ccra::ReferralCache.new
+      @referral_cache ||= Ccra::RedisClient.new
     end
   end
 end

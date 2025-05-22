@@ -9,7 +9,7 @@ describe Ccra::ReferralService do
   let(:session_token) { 'fake-session-token' }
   let(:request_id) { 'request-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  let(:referral_cache) { instance_double(Ccra::ReferralCache) }
+  let(:referral_cache) { instance_double(Ccra::RedisClient) }
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return(request_id)
@@ -21,8 +21,8 @@ describe Ccra::ReferralService do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
 
-    # Mock the ReferralCache
-    allow(Ccra::ReferralCache).to receive(:new).and_return(referral_cache)
+    # Mock the RedisClient
+    allow(Ccra::RedisClient).to receive(:new).and_return(referral_cache)
     allow(referral_cache).to receive_messages(
       save_referral_data: true,
       fetch_referral_data: nil
@@ -111,7 +111,7 @@ describe Ccra::ReferralService do
         end
       end
 
-      it 'caches the referral data with the ReferralCache' do
+      it 'caches the referral data with the RedisClient' do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
           expect(referral_cache).to receive(:save_referral_data).with(
             id:,
