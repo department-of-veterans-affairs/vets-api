@@ -34,7 +34,8 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaim::BenefitsIntake, type:
 
       it 'raises `ActiveModel::StrictValidationFailed` when validated' do
         expect { claim.valid? }.to raise_error(
-          ActiveModel::StrictValidationFailed
+          ActiveModel::StrictValidationFailed,
+          'Form is not included in the list'
         )
       end
     end

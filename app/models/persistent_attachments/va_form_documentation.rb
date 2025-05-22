@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PersistentAttachments::VAFormAttachment < PersistentAttachment
+class PersistentAttachments::VAFormDocumentation < PersistentAttachment
   include ::ClaimDocumentation::Uploader::Attachment.new(:file)
 
   before_destroy(:delete_file)

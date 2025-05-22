@@ -34,7 +34,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
         receive(:file=)
       )
 
-      allow_any_instance_of(PersistentAttachments::VAFormAttachment).to(
+      allow_any_instance_of(PersistentAttachments::VAFormDocumentation).to(
         receive(:file=)
       )
 
@@ -72,7 +72,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Attach do
 
       it 'returns an attachment' do
         expect(perform).to be_a(
-          PersistentAttachments::VAFormAttachment
+          PersistentAttachments::VAFormDocumentation
         )
       end
 

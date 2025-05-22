@@ -12,7 +12,7 @@ module AccreditedRepresentativePortal
             if is_form
               PersistentAttachments::VAForm
             else
-              PersistentAttachments::VAFormAttachment
+              PersistentAttachments::VAFormDocumentation
             end
 
           klass.new.tap do |attachment|
