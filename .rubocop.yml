@@ -155,6 +155,7 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/education_benefits_claim.rb"
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
+    - 'modules/accredited_representative_portal/app/models/accredited_representative_portal/*'
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
@@ -375,3 +376,10 @@ Layout/EmptyLineBetweenDefs:
 
 Cops/AmsSerializer:
   Enabled: true
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/Exit:
+  Exclude:
+    - 'bin/lib/vets-api/*/*'
