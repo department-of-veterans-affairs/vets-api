@@ -62,6 +62,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
   context 'with va_dependents_v2 disabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
@@ -267,7 +268,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   context 'with va_dependents_v2 enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 
@@ -494,7 +495,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   describe 'sidekiq_retries_exhausted block with dependents_trigger_action_needed_email flipper on' do
     before do
       allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
-      allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+      allow(claim).to receive(:monitor).and_return(monitor)
       allow(monitor).to receive :track_submission_exhaustion
       allow(Flipper).to receive(:enabled?).with(:dependents_trigger_action_needed_email).and_return(true)
     end
