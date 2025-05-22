@@ -45,11 +45,6 @@ module V0
       render json: SavedClaimSerializer.new(claim)
     end
 
-    def disability_rating
-      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
-      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
-    end
-
     private
 
     def dependent_params
