@@ -1543,7 +1543,7 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
           expect(output['currently_active_duty']).to be(false)
-          expect(output['currently_active_duty_hash']).to eq({ yes: false })
+          expect(output['currently_active_duty_hash']).to match({ yes: false })
           expect(output['discharge_type']).to be_nil
           expect(output['guard_reserve_service_history']).to eq([])
           expect(output['hca_last_service_branch']).to eq('other')
@@ -1923,16 +1923,6 @@ RSpec.describe FormProfile, type: :model do
                     end
                   end
                 end
-              end
-            end
-          end
-
-          it 'returns prefilled 21-686C' do
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                               allow_playback_repeats: true) do
-                expect_prefilled('21-686C')
               end
             end
           end

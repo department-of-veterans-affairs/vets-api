@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'kafka/concerns/kafka'
-require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'pensions/benefits_intake/submit_claim_job'
 require 'pensions/monitor'
 require 'bpds/sidekiq/submit_to_bpds_job'
 
@@ -93,7 +93,7 @@ module Pensions
       def process_and_upload_to_lighthouse(in_progress_form, claim)
         claim.process_attachments!
 
-        Pensions::PensionBenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
+        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
         raise e

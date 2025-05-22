@@ -40,11 +40,18 @@ describe Ccra::ReferralDetail do
         },
         treating_provider_info: {
           provider_name: 'Dr. Smith',
-          provider_npi: '1659458917',
-          telephone: '505-248-4062'
+          provider_npi: '1659458917'
         },
         treating_facility_info: {
-          phone: '505-555-1234'
+          facility_name: 'VA Cardiology Clinic',
+          facility_code: '528A7',
+          phone: '505-555-1234',
+          address: {
+            address1: '123 Health Avenue',
+            city: 'Albuquerque',
+            state: 'NM',
+            zip_code: '87107'
+          }
         }
       }
     end
@@ -59,13 +66,9 @@ describe Ccra::ReferralDetail do
       expect(subject.uuid).to be_nil
       expect(subject.has_appointments).to be(true)
 
-      # Phone number should come from treating facility
-      expect(subject.phone_number).to eq('505-555-1234')
-
       # Provider info
       expect(subject.provider_name).to eq('Dr. Smith')
       expect(subject.provider_npi).to eq('1659458917')
-      expect(subject.provider_telephone).to eq('505-248-4062')
 
       # Referring facility info
       expect(subject.referring_facility_name).to eq('Bath VA Medical Center')
@@ -76,6 +79,16 @@ describe Ccra::ReferralDetail do
       expect(subject.referring_facility_address[:city]).to eq('ALBUQUERQUE')
       expect(subject.referring_facility_address[:state]).to eq('NM')
       expect(subject.referring_facility_address[:zip]).to eq('87106')
+
+      # Treating facility info
+      expect(subject.treating_facility_name).to eq('VA Cardiology Clinic')
+      expect(subject.treating_facility_code).to eq('528A7')
+      expect(subject.treating_facility_phone).to eq('505-555-1234')
+      expect(subject.treating_facility_address).to be_a(Hash)
+      expect(subject.treating_facility_address[:street1]).to eq('123 Health Avenue')
+      expect(subject.treating_facility_address[:city]).to eq('Albuquerque')
+      expect(subject.treating_facility_address[:state]).to eq('NM')
+      expect(subject.treating_facility_address[:zip]).to eq('87107')
     end
 
     context 'with empty attributes' do
@@ -88,23 +101,6 @@ describe Ccra::ReferralDetail do
       subject { described_class.new(nil) }
 
       include_examples 'has nil attributes'
-    end
-
-    context 'when phone number comes from provider info' do
-      subject { described_class.new(provider_phone_attributes) }
-
-      let(:provider_phone_attributes) do
-        {
-          treating_facility_info: {},
-          treating_provider_info: {
-            telephone: '123-456-7890'
-          }
-        }
-      end
-
-      it 'uses provider telephone as phone_number' do
-        expect(subject.phone_number).to eq('123-456-7890')
-      end
     end
 
     context 'with appointments array' do
@@ -124,6 +120,23 @@ describe Ccra::ReferralDetail do
         attributes = { appointments: nil }
         detail = described_class.new(attributes)
         expect(detail.has_appointments).to be(false)
+      end
+    end
+
+    context 'with partial treating facility info' do
+      it 'handles missing address information' do
+        attributes = {
+          treating_facility_info: {
+            facility_name: 'VA Clinic',
+            facility_code: '528A8',
+            phone: '555-987-6543'
+          }
+        }
+        detail = described_class.new(attributes)
+        expect(detail.treating_facility_name).to eq('VA Clinic')
+        expect(detail.treating_facility_code).to eq('528A8')
+        expect(detail.treating_facility_phone).to eq('555-987-6543')
+        expect(detail.treating_facility_address).to be_nil
       end
     end
   end

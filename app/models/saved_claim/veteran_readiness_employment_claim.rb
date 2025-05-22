@@ -7,6 +7,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
 
   FORM = '28-1900'
+  FORMV2 = '28-1900_V2' # use full country name instead of abbreviation ("USA" -> "United States")
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
   PERMITTED_OFFICE_LOCATIONS = %w[].freeze
@@ -79,7 +80,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def add_claimant_info(user)
-    return if form.blank?
+    if form.blank?
+      Rails.logger.info('VRE claim form is blank, skipping adding veteran info', { user_uuid: user.uuid })
+      return
+    end
 
     updated_form = parsed_form
 
@@ -127,7 +131,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     if user&.participant_id
       upload_to_vbms(user:)
     else
-      Rails.logger.warn('Participant id is blank when submitting VRE claim')
+      Rails.logger.warn('Participant id is blank when submitting VRE claim, sending to Lighthouse',
+                        { user_uuid: user.uuid })
       send_to_lighthouse!(user)
     end
 
@@ -164,8 +169,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
 
     send_vbms_confirmation_email(user)
-  rescue
-    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid })
+  rescue => e
+    Rails.logger.error('Error uploading VRE claim to VBMS.', { user_uuid: user.uuid, messsage: e.message })
     send_to_lighthouse!(user)
   end
 
@@ -218,13 +223,48 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     service.submit
   end
 
+  def add_errors_from_form_validation(form_errors)
+    form_errors.each do |e|
+      errors.add(e[:fragment], e[:message])
+      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
+    end
+    unless form_errors.empty?
+      Rails.logger.error('SavedClaim form did not pass validation',
+                         { form_id:, guid:, errors: form_errors })
+    end
+  end
+
+  def form_matches_schema
+    return unless form_is_string
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+    schema_v2 = VetsJsonSchema::SCHEMAS[self.class::FORMV2]
+
+    schema_errors = validate_schema(schema)
+    validation_errors = validate_form(schema)
+
+    if validation_errors.length.positive? && validation_errors.any? { |e| e[:fragment].end_with?('/country') }
+      schema_v2_errors = validate_schema(schema_v2)
+      v2_errors = validate_form(schema_v2)
+      add_errors_from_form_validation(v2_errors)
+      return schema_v2_errors.empty? && v2_errors.empty?
+    end
+
+    add_errors_from_form_validation(validation_errors)
+
+    schema_errors.empty? && validation_errors.empty?
+  end
+
   # SavedClaims require regional_office to be defined
   def regional_office
     []
   end
 
   def send_vbms_confirmation_email(user)
-    return if user.va_profile_email.blank?
+    if user.va_profile_email.blank?
+      Rails.logger.warn('VBMS confirmation email not sent: user missing profile email.', { user_uuid: user.uuid })
+      return
+    end
 
     VANotify::EmailJob.perform_async(
       user.va_profile_email,
@@ -237,7 +277,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_lighthouse_confirmation_email(user)
-    return if user.va_profile_email.blank?
+    if user.va_profile_email.blank?
+      Rails.logger.warn('Lighthouse confirmation email not sent: user missing profile email.',
+                        { user_uuid: user.uuid })
+      return
+    end
 
     VANotify::EmailJob.perform_async(
       user.va_profile_email,
@@ -254,6 +298,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
 
+    Rails.logger.info('VRE claim submitting to Benefits Intake API', { user_uuid: user.uuid })
     Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
@@ -276,6 +321,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           'confirmation_number' => confirmation_number
         }
       )
+    else
+      Rails.logger.warn('VRE claim failure email not sent: email not present.')
     end
   end
 
@@ -317,6 +364,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     response = BGS::People::Request.new.find_person_by_participant_id(user:)
     response.file_number
   rescue
+    Rails.logger.warn('VRE claim unable to add VA File Number.', { user_uuid: user.uuid })
     nil
   end
 

@@ -18,6 +18,8 @@ module BenefitsDocuments
     BASE_PATH = 'services/benefits-documents/v1'
     DOCUMENTS_PATH = "#{BASE_PATH}/documents".freeze
     DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
+    CLAIMS_LETTERS_SEARCH_PATH = "#{BASE_PATH}/claim-letters/search".freeze
+    CLAIMS_LETTER_DOWNLOAD_PATH = "#{BASE_PATH}/claim-letters/download".freeze
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
     QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
 
@@ -74,13 +76,13 @@ module BenefitsDocuments
       data = {
         data: {
           systemName: SYSTEM_NAME,
-          docType: document_data[:document_type],
-          claimId: document_data[:claim_id],
-          participantId: document_data[:participant_id],
-          fileName: document_data[:file_name],
+          docType: document_data.document_type,
+          claimId: document_data.claim_id,
+          participantId: document_data.participant_id,
+          fileName: document_data.file_name,
           # In theory one document can correspond to multiple tracked items
           # To do that, add multiple query parameters
-          trackedItemIds: document_data[:tracked_item_id]
+          trackedItemIds: document_data.tracked_item_id
         }
       }
 
@@ -89,10 +91,10 @@ module BenefitsDocuments
         'application/json'
       )
 
-      file = Tempfile.new(document_data[:file_name])
+      file = Tempfile.new(document_data.file_name)
       File.write(file, file_body)
 
-      mime_type = MimeMagic.by_path(document_data[:file_name]).type
+      mime_type = MimeMagic.by_path(document_data.file_name).type
       payload[:file] = Faraday::UploadIO.new(file, mime_type)
 
       payload
@@ -111,6 +113,70 @@ module BenefitsDocuments
       }.to_json
 
       documents_status_api_connection.post(DOCUMENTS_STATUS_PATH, body, headers)
+    end
+
+    # Returns the identifying information for all Claims Evidence claim letter documents
+    # that are eligible to be downloaded via the Documents Service,
+    # identified the fileNumber or participantId.
+    # @param doc_type_ids: string The numeric code of the types of documents to search for.
+    # If not provided, then all downloadable claim letter documents matching the other
+    # request criteria will be returned.
+    # @param participant_id: string A unique identifier assigned to each patient entry in the
+    # Master Patient Index linking patients to their records across VA systems.
+    # Example: 999012105
+    # @param file_number: string The Veteran's VBMS fileNumber used when uploading the document
+    # to VBMS. It indicates the eFolder in which the document resides. Example: 999012105
+    def claim_letters_search(doc_type_ids: nil, participant_id: nil, file_number: nil)
+      headers = { 'Authorization' => "Bearer #{
+          access_token(
+            nil,
+            nil,
+            {}
+          )
+        }" }
+
+      body = {
+        'data' => {
+          'docTypeIds' => doc_type_ids,
+          'fileNumber' => file_number,
+          'participantId' => participant_id
+        }
+      }
+      connection.post(CLAIMS_LETTERS_SEARCH_PATH, body, headers)
+    end
+
+    # Downloads the binary content for the Claims Evidence claim letter document that is
+    # identified by the given documentId and associated with the given
+    # participantId or fileNumber.
+    # Note that downloading file content is only supported for certain document types.
+    # @param document_uuid: string The document's unique identifier in VBMS,
+    # obtained by making a Document Service API request to search for documents
+    # that are available to download for the Veteran.
+    # Note that this differs from the document's current version UUID.
+    # Example: "12345678-ABCD-0123-cdef-124345679ABC"
+    # @param participant_id: string A unique identifier assigned to each patient entry
+    # in the Master Patient Index linking patients to their records across VA systems.
+    # Example: 999012105
+    # @param file_number: The Veteran's VBMS fileNumber used when uploading the document to VBMS.
+    # It indicates the eFolder in which the document resides.
+    # Example: 999012105
+    def claim_letter_download(document_uuid: nil, participant_id: nil, file_number: nil)
+      headers = { 'Authorization' => "Bearer #{
+          access_token(
+            nil,
+            nil,
+            {}
+          )
+        }", 'Accept' => 'application/octet-stream, application/json' }
+
+      body = {
+        'data' => {
+          'fileNumber' => file_number,
+          'participantId' => participant_id,
+          'documentUuid' => document_uuid
+        }
+      }
+      connection.post(CLAIMS_LETTER_DOWNLOAD_PATH, body, headers)
     end
 
     ##

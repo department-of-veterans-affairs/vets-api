@@ -79,10 +79,6 @@ binaries:
   pdftk: pdftk
 bing:
   key: ~
-bip:
-  claims:
-    mock: false
-    url: https://claims-uat.dev8.bip.va.gov
 bpds:
   jwt_secret: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
@@ -132,20 +128,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: ~
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
-    client_id: ~
-    client_number: ~
-    client_secret: ~
-    redis_token_expiry: 3540
-    scope: ~
-    service_name: BTSSS-API
-    subscription_key: ~
-    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: ~
@@ -226,6 +208,8 @@ claims_api:
     services:
       lighthouse:
         api_key: ~
+        notification_client_secret: ~
+        notify_service_id: ~
 clamav:
   host: 0.0.0.0
   mock: true
@@ -474,7 +458,7 @@ form526_export:
 form_10282:
   sftp:
     host: ~
-    key_data: ~
+    key_path: ~
     pass: ~
     port: ~
     relative_path: ~
@@ -520,6 +504,7 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
@@ -578,50 +563,6 @@ hca:
     region: ~
   timeout: 30
 hostname: 127.0.0.1:3000
-hqva_mobile:
-  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  facilities:
-    ids_path: "/facilities_api/v1/va"
-    url: https://staging-api.va.gov
-  lighthouse:
-    claim_common_id: 0oabja2lpllERXWxo2p7
-    client_assertion_type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
-    condition_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token
-    grant_type: client_credentials
-    health_api: health_api
-    health_api_path: "/services/fhir/v0/r4"
-    health_api_scopes:
-      - launch launch/patient
-      - patient/Appointment.read
-      - patient/Location.read
-      - patient/Organization.read
-      - patient/Patient.read
-      - patient/Condition.read
-      - patient/Observation.read
-      - patient/Practitioner.read
-      - patient/Medication.read
-      - system/Endpoint.read
-    health_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7
-    health_token_path: "/oauth2/health/system/v1/token"
-    host: sandbox-api.va.gov
-    key_path: "/app/secret/health-quest.lighthouse.key"
-    mock: false
-    pgd_api: pgd_api
-    pgd_api_scopes:
-      - launch launch/patient
-      - patient/Observation.read
-      - patient/Observation.write
-      - patient/Questionnaire.read
-      - patient/Questionnaire.write
-      - patient/QuestionnaireResponse.read
-      - patient/QuestionnaireResponse.write
-    pgd_aud_claim_url: https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7
-    pgd_path: "/services/pgd/v0/r4"
-    pgd_token_path: "/oauth2/pgd/v1/token"
-    redis_session_prefix: healthquest_lighthouse
-    url: https://sandbox-api.va.gov
-  mock: false
-  url: https://veteran.apps.va.gov
 iam_ssoe:
   client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
   client_id: Mobile_App_API_Server_LOWERS
@@ -641,8 +582,12 @@ ivc_champva:
     api_key: fake_api_key
     base_path: fake_base_path
   prefill: true
-  ves_api:
-    api_key: fake_api_key
+ivc_champva_ves_api:
+  api_key: fake_api_key
+  app_id: ~
+  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  mock: false
+  subject: "Proxy Client"
 ivc_forms:
   form_status_job:
     enabled: ~
@@ -654,6 +599,8 @@ ivc_forms:
     region: region
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
       enabled: true
@@ -734,6 +681,8 @@ lighthouse:
     use_mocks: false
   facilities:
     api_key: fake_key
+    hqva_mobile:
+      url: https://veteran.apps.va.gov
     url: https://sandbox-api.va.gov
     veterans_health:
       url: ~
@@ -866,6 +815,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
+    travel_pay: ~
     vaos: ~
     vaosWarning: ~
     vaoswarning: ~
@@ -942,14 +892,12 @@ mhv:
     x_api_key_v2: fake-x-api-key-v2
     x_auth_key: fake-x-auth-key
   rx:
-    app_token: fake-app-token
-    app_token_va_gov: ~
+    app_token: ~
     base_path: mhv-api/patient/v1/
     collection_caching_enabled: false
     gw_base_path: v1/
     host: https://mhv-api.example.com
     mock: true
-    use_new_api: false
     x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
@@ -967,10 +915,12 @@ mhv:
     subject: "Proxy Client"
     user_type: usertype
 mhv_mobile:
+  rx:
+    app_token: fake-app-token
+    x_api_key: fake-x-api-key
   sm:
     app_token: fake-app-token
     x_api_key: fake-x-api-key
-  x_api_key: fake-x-api-key
 mobile_lighthouse:
   client_id: 0oajpx78t3M8kurld2p7
   rsa_key: ~
@@ -1286,6 +1236,7 @@ token_validation:
 travel_pay:
   base_url: ~
   client_number: ~
+  mobile_client_number: ~
   mock: true
   service_name: BTSSS-API
   sts:
@@ -1425,6 +1376,7 @@ vanotify:
     benefits_management_tools:
       api_key: fake_secret
       template_id:
+        decision_letter_ready_email: fake_template_id
         evidence_submission_failure_email: fake_template_id
     burials: *vanotify_services_burial
     check_in:
@@ -1436,11 +1388,27 @@ vanotify:
         claim_submission_failure_text: ~
         claim_submission_success_text: fake_template_id
         claim_submission_timeout_text: ~
+    dependents:
+      api_key: fake_secret
+      email:
+        received674:
+          template_id: fake_received674
+        received686:
+          template_id: fake_received686
+        received686c674:
+          template_id: fake_received686c674
+        submitted674:
+          template_id: fake_submitted674
+        submitted686:
+          template_id: fake_submitted686
+        submitted686c674:
+          template_id: fake_submitted686c674
     dmc:
       api_key: fake_secret
       template_id:
         fsr_confirmation_email: fake_template_id
         fsr_failed_email: fake_template_id
+        fsr_step_1_submission_in_progress_email: fake_template_id
         fsr_streamlined_confirmation_email: fake_template_id
         vha_fsr_confirmation_email: ~
         vha_new_copay_statement_email: fake_template_id
@@ -1502,7 +1470,6 @@ vanotify:
         contact_info_change: fake_template_id
         covid_vaccine_registration: ~
         direct_deposit: direct_deposit_template_id
-        direct_deposit_comp_pen: comp_pen_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1809,6 +1776,7 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
+  - host.docker.internal
 vre_counseling:
   prefill: true
 vre_readiness:
@@ -1827,7 +1795,7 @@ vye:
     p: 1
     r: 8
     salt: development-vye-scrypt-salt
-web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
 webhooks:
   require_https: true

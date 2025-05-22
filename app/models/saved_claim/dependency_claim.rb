@@ -2,6 +2,8 @@
 
 require 'claims_api/vbms_uploader'
 require 'pdf_utilities/datestamp_pdf'
+require 'dependents/monitor'
+require 'dependents/notification_email'
 
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
@@ -33,6 +35,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     add_spouse
   ].freeze
 
+  FORM686 = '21-686c'
+  FORM674 = '21-674'
+  FORM_COMBO = '686c-674'
+
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
@@ -40,10 +46,39 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   after_initialize do
     self.form_id = if Flipper.enabled?(:va_dependents_v2)
-                     use_v2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
+                     if use_v2 || form_id == '686C-674-V2'
+                       '686C-674-V2'
+                     else
+                       self.class::FORM.upcase
+                     end
                    else
                      self.class::FORM.upcase
                    end
+  end
+
+  def pdf_overflow_tracking
+    track_each_pdf_overflow(use_v2 ? '686C-674-V2' : '686C-674') if submittable_686?
+    track_each_pdf_overflow(use_v2 ? '21-674-V2' : '21-674') if submittable_674?
+  rescue => e
+    monitor.track_pdf_overflow_tracking_failure(id, e)
+  end
+
+  def track_each_pdf_overflow(subform_id)
+    filenames = []
+    if subform_id == '21-674-V2'
+      parsed_form['dependents_application']['student_information']&.each do |student|
+        filenames << to_pdf(form_id: subform_id, student:)
+      end
+    else
+      filenames << to_pdf(form_id: subform_id)
+    end
+    filenames.each do |filename|
+      monitor.track_pdf_overflow(subform_id) if filename.end_with?('_final.pdf')
+    end
+  ensure
+    filenames.each do |filename|
+      Common::FileHelpers.delete_file_if_exists(filename)
+    end
   end
 
   def upload_pdf(form_id, doc_type: '148')
@@ -52,7 +87,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     processed_pdfs = []
     if form_id == '21-674-V2'
-      parsed_form['dependents_application']['student_information'].each_with_index do |student, index|
+      parsed_form['dependents_application']['student_information']&.each_with_index do |student, index|
         processed_pdfs << process_pdf(to_pdf(form_id:, student:), created_at, form_id, index)
       end
     else
@@ -159,8 +194,14 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # end
 
   def to_pdf(form_id: FORM, student: nil)
+    original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
+  rescue => e
+    monitor.track_to_pdf_failure(id, e)
+    raise e
+  ensure
+    self.form_id = original_form_id
   end
 
   def send_failure_email(email) # rubocop:disable Metrics/MethodLength
@@ -192,6 +233,59 @@ class SavedClaim::DependencyClaim < CentralMailClaim
         )
       end
     end
+  end
+
+  ##
+  # Determine if claim is a 686, 674, both, or unknown
+  #
+  def claim_form_type
+    return FORM_COMBO if submittable_686? && submittable_674?
+    return FORM686 if submittable_686?
+
+    FORM674 if submittable_674?
+  rescue => e
+    monitor.track_unknown_claim_type(id, e)
+    nil
+  end
+
+  ##
+  # VANotify job to send Submitted/in-Progress email to veteran
+  #
+  def send_submitted_email(user = nil)
+    type = claim_form_type
+    if type == FORM686
+      Dependents::NotificationEmail.new(id, user).deliver(:submitted686)
+    elsif type == FORM674
+      Dependents::NotificationEmail.new(id, user).deliver(:submitted674)
+    else
+      # Combo or unknown form types use combo email
+      Dependents::NotificationEmail.new(id, user).deliver(:submitted686c674)
+    end
+    monitor.track_send_submitted_email_success(id, user&.user_account_uuid)
+  rescue => e
+    monitor.track_send_submitted_email_failure(id, e, user&.user_account_uuid)
+  end
+
+  ##
+  # VANotify job to send Received/Confirmation email to veteran
+  #
+  def send_received_email(user = nil)
+    type = claim_form_type
+    if type == FORM686
+      Dependents::NotificationEmail.new(id, user).deliver(:received686)
+    elsif type == FORM674
+      Dependents::NotificationEmail.new(id, user).deliver(:received674)
+    else
+      # Combo or unknown form types use combo email
+      Dependents::NotificationEmail.new(id, user).deliver(:received686c674)
+    end
+    monitor.track_send_received_email_success(id, user&.user_account_uuid)
+  rescue => e
+    monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
+  end
+
+  def monitor
+    @monitor ||= Dependents::Monitor.new(use_v2 || form_id.include?('-V2'))
   end
 
   private

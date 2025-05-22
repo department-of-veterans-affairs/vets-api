@@ -1814,7 +1814,7 @@ module PdfFill
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           if death['dependent_death_location']['location']['country'].present?
             death['dependent_death_location']['location']['country'] =
-              extract_country(death['dependent_death_location'])
+              extract_country(death['dependent_death_location']['location'])
           end
 
           # expand dependent type

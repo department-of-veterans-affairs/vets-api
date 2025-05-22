@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://directline.botframework.com/v3/directline/tokens/generate
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - directline.botframework.com
+      Authorization:
+      - Bearer fake_secret
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '1026'
+      Content-Type:
+      - application/json; charset=utf-8
+      Expires:
+      - "-1"
+      Vary:
+      - Accept-Encoding
+      X-Ms-Request-Id:
+      - 00-af443688d87ad948bcb1a4e88acda829-b5146616833b3a4c-00
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000
+      Date:
+      - Fri, 12 Mar 2021 21:21:12 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: "{\r\n  \"conversationId\": \"fake.conversation.id\",\r\n  \"token\":
+        \"fake.token.bot\",\r\n
+        \ \"expires_in\": 3600\r\n}"
+  recorded_at: Fri, 12 Mar 2021 21:21:12 GMT
+recorded_with: VCR 6.0.0

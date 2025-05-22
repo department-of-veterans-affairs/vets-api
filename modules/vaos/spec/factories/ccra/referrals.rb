@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :ccra_referral_list_entry, class: 'Ccra::ReferralListEntry' do
     category_of_care { 'CARDIOLOGY' }
     referral_number { '5682' }
+    referral_consult_id { '984_646372' }
     referral_expiration_date { (Date.current + 60.days).to_s }
     station_id { '528A6' }
     status { 'AP' }
@@ -13,6 +14,7 @@ FactoryBot.define do
       attributes = {
         category_of_care:,
         referral_number:,
+        referral_consult_id:,
         referral_expiration_date:,
         station_id:,
         status:,
@@ -29,6 +31,7 @@ FactoryBot.define do
     provider_telephone { '555-987-6543' }
     treating_facility { 'VA Medical Center' }
     referral_number { 'VA0000005681' }
+    referral_consult_id { '984_646372' }
     expiration_date { (Date.current + 30.days).to_s }
     referral_date { Date.current.to_s }
     station_id { '528A6' }
@@ -47,6 +50,7 @@ FactoryBot.define do
         category_of_care:,
         treating_facility:,
         referral_number:,
+        referral_consult_id:,
         referral_expiration_date: expiration_date,
         referral_date:,
         station_id:,

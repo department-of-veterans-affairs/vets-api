@@ -669,11 +669,14 @@ module PdfFill
           'did_attend_no' => select_checkbox(!did_attend)
         }
 
-        is_school_accredited = dependents_application['current_term_dates']['is_school_accredited']
-        dependents_application['current_term_dates']['is_school_accredited'] = {
-          'is_school_accredited_yes' => select_radio_button(is_school_accredited),
-          'is_school_accredited_no' => select_radio_button(!is_school_accredited)
-        }
+        current_term_dates = dependents_application['current_term_dates']
+        if current_term_dates.present?
+          is_school_accredited = current_term_dates['is_school_accredited']
+          dependents_application['current_term_dates']['is_school_accredited'] = {
+            'is_school_accredited_yes' => select_radio_button(is_school_accredited),
+            'is_school_accredited_no' => select_radio_button(!is_school_accredited)
+          }
+        end
       end
       # rubocop:enable Metrics/MethodLength
     end
