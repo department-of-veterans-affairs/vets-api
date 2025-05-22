@@ -212,8 +212,7 @@ jobs:
             | reverse
             | unique_by(.user.login)
             | .[].user.login
-            || true
-          ')
+          ' || true)
 
           echo "$APPROVED"
 
