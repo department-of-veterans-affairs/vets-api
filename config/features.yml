@@ -2039,9 +2039,6 @@ features:
   income_and_assets_submitted_email_notification:
     actor_type: user
     description: Toggle sending of the Submission in Progress email notification
-  intent_to_file_synchronous_enabled:
-    actor_type: user
-    description: Enable ITF synchronous call logic
   central_mail_benefits_intake_submission:
     actor_type: user
     description: Enable central mail claims submission uses Benefits Intake API

@@ -33,7 +33,6 @@ module V0
       ClaimFastTracking::MaxCfiMetrics.log_form_update(form, params)
 
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
-      itf_creation(form)
 
       render json: InProgressFormSerializer.new(form)
     end
@@ -64,30 +63,7 @@ module V0
     def camelize_with_olivebranch(form_json)
       # camelize exactly as OliveBranch would
       # inspired by vets-api/blob/327b26c76ea7904744014ea35463022e8b50f3fb/lib/tasks/support/schema_camelizer.rb#L27
-      OliveBranch::Transformations.transform(
-        form_json,
-        OliveBranch::Transformations.method(:camelize)
-      )
-    end
-
-    def itf_creation(form)
-      itf_valid_form = Lighthouse::CreateIntentToFileJob::ITF_FORMS.include?(form.form_id)
-      itf_synchronous = Flipper.enabled?(:intent_to_file_synchronous_enabled, @current_user)
-
-      if itf_valid_form && itf_synchronous
-        itf_monitor.track_create_itf_initiated(form.form_id, form.created_at, @current_user.uuid, form.id)
-
-        begin
-          Lighthouse::CreateIntentToFileJob.new.perform(form.id, @current_user.icn, @current_user.participant_id)
-        rescue Common::Exceptions::ResourceNotFound
-          # prevent false error being reported to user - ICN present but not found by BenefitsClaims
-          # todo: handle itf process from frontend
-        end
-      end
-    end
-
-    def itf_monitor
-      @itf_monitor ||= BenefitsClaims::IntentToFile::Monitor.new
+      OliveBranch::Transformations.transform(form_json, OliveBranch::Transformations.method(:camelize))
     end
   end
 end
