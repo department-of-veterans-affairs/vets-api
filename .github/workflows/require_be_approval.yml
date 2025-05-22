@@ -5,7 +5,10 @@ on:
     branches: master
   workflow_dispatch:
     inputs:
-      pr_number: 22328
+      pr_number:
+        description: 'Pull request number to test against'
+        required: true
+        type: string
 jobs:
   get-pr-data:
     name: Get PR Data
