@@ -217,22 +217,20 @@ jobs:
 
           echo "$APPROVED"
 
-          if [ -n "$APPROVED" ]; then
-            TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || false)
-            echo "Team Approvals: $TEAM_APPROVALS"
-            if [ -z "$TEAM_APPROVALS" ]; then
-              team_approval_status=required
-            else
-              team_approval_status=confirmed
-            fi
+          TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || false)
+          echo "Team Approvals: $TEAM_APPROVALS"
+          if [ -z "$TEAM_APPROVALS" ]; then
+            team_approval_status=required
+          else
+            team_approval_status=confirmed
+          fi
 
-            BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || false)
-            echo "Backend Approvals: $BE_APPROVALS"
-            if [ -z "$BE_APPROVALS" ]; then
-              approval_status=required
-            else
-              approval_status=confirmed
-            fi
+          BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || false)
+          echo "Backend Approvals: $BE_APPROVALS"
+          if [ -z "$BE_APPROVALS" ]; then
+            approval_status=required
+          else
+            approval_status=confirmed
           fi
 
           echo "author_is_backend=$author_is_backend" >> "$GITHUB_OUTPUT"
