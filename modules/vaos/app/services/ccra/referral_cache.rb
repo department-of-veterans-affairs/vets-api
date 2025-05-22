@@ -30,7 +30,7 @@ module Ccra
       cache_key = generate_cache_key(id, icn)
       Rails.cache.write(
         cache_key,
-        referral_data,
+        referral_data.to_json,
         namespace: REFERRAL_CACHE_NAMESPACE,
         expires_in: redis_referral_expiry
       )
@@ -43,10 +43,11 @@ module Ccra
     # @return [Object, nil] The cached referral data if it exists, otherwise nil
     def fetch_referral_data(id:, icn:)
       cache_key = generate_cache_key(id, icn)
-      Rails.cache.read(
+      json_data = Rails.cache.read(
         cache_key,
         namespace: REFERRAL_CACHE_NAMESPACE
       )
+      json_data ? ReferralDetail.new.from_json(json_data) : nil
     end
 
     private

@@ -10,13 +10,15 @@ describe Ccra::ReferralCache do
   let(:id) { '12345' }
   let(:icn) { '1234567890V123456' }
 
-  # Using a simple OpenStruct which can be serialized for testing, instead of an instance double
+  # Use ReferralDetail instead of OpenStruct
   let(:referral_data) do
-    OpenStruct.new(
+    Ccra::ReferralDetail.new(
       referral_number: '12345',
       appointment_type_id: 'ov',
-      expiration_date: '2023-12-31',
-      provider_npi: '1234567890',
+      referral_expiration_date: '2023-12-31',
+      treating_provider_info: {
+        provider_npi: '1234567890'
+      },
       referral_date: '2023-01-01'
     )
   end
@@ -50,10 +52,11 @@ describe Ccra::ReferralCache do
         namespace: Ccra::ReferralCache::REFERRAL_CACHE_NAMESPACE
       )
 
-      # Verify the data was cached
-      expect(saved_data).to be_a(OpenStruct)
-      expect(saved_data.referral_number).to eq('12345')
-      expect(saved_data.appointment_type_id).to eq('ov')
+      # Verify the data was cached - it's stored as JSON string so no need to check type
+      expect(saved_data).to include('referral_number')
+      expect(saved_data).to include('12345')
+      expect(saved_data).to include('appointment_type_id')
+      expect(saved_data).to include('ov')
     end
   end
 
@@ -71,7 +74,7 @@ describe Ccra::ReferralCache do
 
       it 'returns the cached referral detail' do
         result = subject.fetch_referral_data(id:, icn:)
-        expect(result).to be_a(OpenStruct)
+        expect(result).to be_a(Ccra::ReferralDetail)
         expect(result.referral_number).to eq('12345')
         expect(result.appointment_type_id).to eq('ov')
       end
