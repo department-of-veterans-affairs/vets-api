@@ -95,7 +95,7 @@ module Mobile
       def claim_letter_documents_search
         response = lighthouse_document_service.claim_letters_search(participant_id: @current_user.participant_id)
         documents = claim_letter_documents_adapter.parse(response[:data][:documents])
-        render json: Mobile::V0::ClaimLetterDocumentsSerializer.new(documents)
+        render json: Mobile::V0::ClaimLetterDocumentSerializer.new(documents)
       end
 
       def claim_letter_document_download

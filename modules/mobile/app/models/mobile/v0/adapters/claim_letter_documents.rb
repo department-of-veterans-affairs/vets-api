@@ -11,7 +11,7 @@ module Mobile
             document_id = document[:documentUuid]
             document_id = "{#{document_id}}" if document_id.first != '{' && document_id.last != '}'
 
-            Mobile::V0::ClaimLetterDocuments.new(
+            Mobile::V0::ClaimLetterDocument.new(
               id: document_id,
               doc_type: document[:docTypeId],
               type_description: document[:documentTypeLabel],

@@ -2,7 +2,7 @@
 
 module Mobile
   module V0
-    class ClaimLetterDocumentsSerializer
+    class ClaimLetterDocumentSerializer
       include JSONAPI::Serializer
 
       set_type :claim_letter_document
