@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/benefits_intake/benefit_intake_job'
-require 'income_and_assets/claims/monitor'
+require 'income_and_assets/benefits_intake/submit_claim_job'
+require 'income_and_assets/monitor'
 
 module IncomeAndAssets
   module V0
@@ -70,7 +70,7 @@ module IncomeAndAssets
       #
       # @see https://developer.va.gov/explore/api/benefits-intake/docs
       def process_and_upload_to_lighthouse(claim)
-        IncomeAndAssets::BenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
+        IncomeAndAssets::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       end
 
       # Filters out the parameters to form access.
