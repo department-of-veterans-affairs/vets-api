@@ -115,14 +115,12 @@ module IvcChampva
       end
 
       def forms_query(form_uuid, file_names)
-        base_query = fetch_forms_by_uuid(form_uuid)
-
-        # For non-merged submissions, only return the specific files mentioned in the payload
         file_name_conditions = file_names.map { |file_name| { file_name: } }
         file_name_query = file_name_conditions.reduce(IvcChampvaForm.none) do |query, condition|
           query.or(IvcChampvaForm.where(condition))
         end
-        base_query.merge(file_name_query)
+
+        fetch_forms_by_uuid(form_uuid).merge(file_name_query)
       end
 
       def fetch_forms_by_uuid(form_uuid)
