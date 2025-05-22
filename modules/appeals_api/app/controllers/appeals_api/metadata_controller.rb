@@ -10,8 +10,6 @@ module AppealsApi
     skip_before_action(:authenticate)
     before_action :set_default_headers
 
-    WARNING_EMOJI = ':warning:'
-
     def decision_reviews
       render json: {
         meta: {
