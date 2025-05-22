@@ -4,6 +4,7 @@ on:
     types: [submitted]
     branches: master
   workflow_dispatch:
+    branches: be-required-bug
     inputs:
       pr_number:
         description: 'Pull request number to test against'
