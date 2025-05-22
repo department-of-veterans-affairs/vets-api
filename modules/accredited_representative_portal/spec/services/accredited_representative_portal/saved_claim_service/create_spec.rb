@@ -69,9 +69,15 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'none already parented' do
           let(:attachments) { [form_a] }
 
-          it 'returns a saved claim' do
-            expect(perform).to be_a(
+          it 'returns a saved claim and enqueues the submission job' do
+            claim = perform
+
+            expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+            )
+
+            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              have_enqueued_sidekiq_job(claim.id)
             )
           end
         end
@@ -91,9 +97,15 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'with a main form' do
           let(:attachments) { [form_a, attachment_a, attachment_b] }
 
-          it 'returns a saved claim' do
-            expect(perform).to be_a(
+          it 'returns a saved claim and enqueues the submission job' do
+            claim = perform
+
+            expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+            )
+
+            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              have_enqueued_sidekiq_job(claim.id)
             )
           end
 
