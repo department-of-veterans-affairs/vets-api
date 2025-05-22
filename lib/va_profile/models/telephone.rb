@@ -89,7 +89,7 @@ module VAProfile
         return if phone_number.blank?
 
         if is_international
-          Rails.logger.info("International phone number excluded from prefill")
+          Rails.logger.info('International phone number excluded from prefill')
           return
         end
 
