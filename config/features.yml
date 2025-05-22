@@ -1791,9 +1791,6 @@ features:
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
-  vre_enable_vbms_exception_logging:
-    actor_type: user
-    description: Enables exception logging for failures in upload_to_vbms method
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -2054,11 +2051,6 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
-  vye_request_allowed:
-    actor_type: user
-    description: >-
-      Master toggle for the VYE (Verify Your Enrollment) project.
-      If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
   sob_updated_design:
     actor_type: user
     description: >-
@@ -2213,3 +2205,6 @@ features:
   debt_deduction_code_filtering:
     actor_type: user
     description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
+  my_va_auth_exp_redesign_enabled:
+    actor_type: user
+    description: When enabled, a user will see the redesigned experience of MyVA.
