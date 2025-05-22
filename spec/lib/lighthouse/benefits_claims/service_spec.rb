@@ -96,26 +96,23 @@ RSpec.describe BenefitsClaims::Service do
                         'endProductCode' => '961',
                         'evidenceWaiverSubmitted5103' => false,
                         'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44a',
-                        'status' => 'COMPLETE' }
-                  },
-                    { 'id' => '600561748',
-                      'type' => 'claim',
-                      'attributes' =>
-                        { 'baseEndProductCode' => '290',
-                          'claimDate' => '2024-09-24',
-                          'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
-                          'claimType' => nil,
-                          'claimTypeCode' => '290HE7131R',
-                          'closeDate' => '2024-11-20',
-                          'decisionLetterSent' => true,
-                          'developmentLetterSent' => false,
-                          'documentsNeeded' => false,
-                          'endProductCode' => '291',
-                          'evidenceWaiverSubmitted5103' => false,
-                          'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44b',
-                          'status' => 'COMPLETE' }
-
-                  }]
+                        'status' => 'COMPLETE' } },
+                  { 'id' => '600561748',
+                    'type' => 'claim',
+                    'attributes' =>
+                      { 'baseEndProductCode' => '290',
+                        'claimDate' => '2024-09-24',
+                        'claimPhaseDates' => { 'phaseChangeDate' => '2024-11-20', 'phaseType' => 'PENDING' },
+                        'claimType' => nil,
+                        'claimTypeCode' => '290HE7131R',
+                        'closeDate' => '2024-11-20',
+                        'decisionLetterSent' => true,
+                        'developmentLetterSent' => false,
+                        'documentsNeeded' => false,
+                        'endProductCode' => '291',
+                        'evidenceWaiverSubmitted5103' => false,
+                        'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44b',
+                        'status' => 'COMPLETE' } }]
 
           # #110154 - it should filter out the base end product code 960
           results = @service.send(:filter_by_ep_code, data)
