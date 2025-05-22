@@ -25,6 +25,21 @@ module VAOS
         cc_request: 'COMMUNITY_CARE_REQUEST',
         request: 'REQUEST'
       }.freeze
+      SCHEDULABLE_SERVICE_TYPES = %w[
+        primaryCare
+        clinicalPharmacyPrimaryCare
+        outpatientMentalHealth
+        socialWork
+        amputation
+        audiology
+        moveProgram
+        foodAndNutrition
+        optometry
+        ophthalmology
+        cpap
+        homeSleepTesting
+        covid
+      ].freeze
 
       # Output format for preferred dates
       # Example: "Thu, July 18, 2024 in the ..."
@@ -177,12 +192,13 @@ module VAOS
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
-            response = update_appointment_vaos(appt_id, status).body
-            convert_appointment_time(response)
-            extract_appointment_fields(response)
-            merge_clinic(response)
-            merge_facility(response)
-            OpenStruct.new(response)
+            appointment = update_appointment_vaos(appt_id, status).body
+            convert_appointment_time(appointment)
+            extract_appointment_fields(appointment)
+            merge_clinic(appointment)
+            merge_facility(appointment)
+            appointment[:show_schedule_link] = is_schedulable?(appointment)
+            OpenStruct.new(appointment)
           end
         end
       end
@@ -397,6 +413,8 @@ module VAOS
         set_telehealth_visibility(appointment) if telehealth?(appointment)
 
         set_derived_appointment_date_fields(appointment)
+
+        appointment[:show_schedule_link] = is_schedulable?(appointment) if appointment[:status] == 'cancelled'
       end
 
       def find_and_merge_provider_name(appointment)
@@ -925,6 +943,15 @@ module VAOS
         elsif vvs_kind.nil?
           'vaInPerson'
         end
+      end
+
+      #
+      def is_schedulable?(appointment)
+        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment) || cc?(appointment)
+        return true if appointment[:type] == APPOINTMENT_TYPES[:request]
+        return true if SCHEDULABLE_SERVICE_TYPES.include? appointment[:service_type]
+
+        false
       end
 
       def ds_error_details(e)
