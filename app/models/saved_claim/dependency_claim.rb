@@ -60,7 +60,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     track_each_pdf_overflow(use_v2 ? '686C-674-V2' : '686C-674') if submittable_686?
     track_each_pdf_overflow(use_v2 ? '21-674-V2' : '21-674') if submittable_674?
   rescue => e
-    monitor.track_pdf_overflow_tracking_failure(id, e)
+    monitor.track_pdf_overflow_tracking_failure(e)
   end
 
   def track_each_pdf_overflow(subform_id)
@@ -198,7 +198,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
   rescue => e
-    monitor.track_to_pdf_failure(id, e)
+    monitor.track_to_pdf_failure(e)
     raise e
   ensure
     self.form_id = original_form_id
@@ -244,7 +244,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     FORM674 if submittable_674?
   rescue => e
-    monitor.track_unknown_claim_type(id, e)
+    monitor.track_unknown_claim_type(e)
     nil
   end
 
@@ -261,9 +261,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       # Combo or unknown form types use combo email
       Dependents::NotificationEmail.new(id, user).deliver(:submitted686c674)
     end
-    monitor.track_send_submitted_email_success(id, user&.user_account_uuid)
+    monitor.track_send_submitted_email_success(user&.user_account_uuid)
   rescue => e
-    monitor.track_send_submitted_email_failure(id, e, user&.user_account_uuid)
+    monitor.track_send_submitted_email_failure(e, user&.user_account_uuid)
   end
 
   ##
@@ -279,13 +279,13 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       # Combo or unknown form types use combo email
       Dependents::NotificationEmail.new(id, user).deliver(:received686c674)
     end
-    monitor.track_send_received_email_success(id, user&.user_account_uuid)
+    monitor.track_send_received_email_success(user&.user_account_uuid)
   rescue => e
-    monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
+    monitor.track_send_received_email_failure(e, user&.user_account_uuid)
   end
 
   def monitor
-    @monitor ||= Dependents::Monitor.new(use_v2 || form_id.include?('-V2'))
+    @monitor ||= Dependents::Monitor.new(id)
   end
 
   private
