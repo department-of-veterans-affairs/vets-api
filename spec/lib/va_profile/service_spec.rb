@@ -27,7 +27,7 @@ describe VAProfile::Service do
           next if code.blank?
 
           expect { subject.send('handle_error', error) }.to raise_error do |e|
-            puts "Failing code: #{code}" if e.errors.first.code != "VET360_#{code}"
+            Rails.logger.debug { "Failing code: #{code}" } if e.errors.first.code != "VET360_#{code}"
 
             expect(e.errors.first.code).to eq("VET360_#{code}")
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
