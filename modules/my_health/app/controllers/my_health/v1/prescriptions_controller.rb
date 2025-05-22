@@ -71,7 +71,7 @@ module MyHealth
           client.post_refill_rx(id)
           successful_ids << id
         rescue => e
-          puts "Error refilling prescription with ID #{id}: #{e.message}"
+          Rails.logger.debug { "Error refilling prescription with ID #{id}: #{e.message}" }
           failed_ids << id
         end
         render json: { successful_ids:, failed_ids: }
@@ -104,7 +104,7 @@ module MyHealth
             threads << Thread.new(item) do |thread_item|
               thread_item[:prescription_image] = fetch_image(image_uri)
             rescue => e
-              puts "Error fetching image for NDC #{thread_item[:cmop_ndc_number]}: #{e.message}"
+              Rails.logger.debug { "Error fetching image for NDC #{thread_item[:cmop_ndc_number]}: #{e.message}" }
             end
           end
         end

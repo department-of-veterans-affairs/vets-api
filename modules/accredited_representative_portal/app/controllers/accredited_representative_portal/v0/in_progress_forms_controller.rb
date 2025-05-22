@@ -5,6 +5,11 @@ module AccreditedRepresentativePortal
     class InProgressFormsController < ApplicationController
       skip_after_action :verify_pundit_authorization
 
+      def show
+        form = find_form
+        render json: form&.data_and_metadata || {}
+      end
+
       def update
         form = find_form || build_form
         form.update!(
@@ -13,11 +18,6 @@ module AccreditedRepresentativePortal
         )
 
         render json: InProgressFormSerializer.new(form)
-      end
-
-      def show
-        form = find_form
-        render json: form&.data_and_metadata || {}
       end
 
       def destroy
