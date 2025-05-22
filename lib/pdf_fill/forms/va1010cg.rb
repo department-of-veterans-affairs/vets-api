@@ -8,7 +8,7 @@ module PdfFill
   module Forms
     class Va1010cg < FormBase
       KEY = PdfFill::Forms::FieldMappings::Va1010cg::KEY
-      FORMATTER = PdfFill::Forms::Formatters::Va1010cg
+      FORMATTER = PdfFill::Forms::Formatters::Base
 
       def merge_fields(options = {})
         @form_data['helpers'] = {
