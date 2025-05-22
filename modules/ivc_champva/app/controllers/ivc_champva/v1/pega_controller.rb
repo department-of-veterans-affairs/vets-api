@@ -38,16 +38,28 @@ module IvcChampva
       private
 
       def update_data(form_uuid, file_names, status, case_id)
-        ivc_forms = forms_query(form_uuid, file_names)
+        base_query = fetch_forms_by_uuid(form_uuid)
+
+        # Check if this submission includes a merged PDF
+        has_merged_pdf = file_names.any? { |name| name.end_with?('_merged.pdf') }
+
+        # First get the query that defines which records we want to update
+        ivc_forms = if has_merged_pdf
+                      # Use all forms for this UUID if it's a merged PDF case
+                      base_query
+                    else
+                      # Only use specified files for non-merged cases
+                      forms_query(form_uuid, file_names)
+                    end
 
         if ivc_forms.any?
-          ivc_forms.each { |form| form.update!(pega_status: status, case_id:) }
+          ivc_forms.update_all(pega_status: status, case_id:) # rubocop:disable Rails/SkipsModelValidations
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
 
           # Possible values for form.pega_status are 'Processed', 'Not Processed'
-          send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
+          send_email(form_uuid, form) if form.email.present? && status == 'Processed'
 
           monitor.track_update_status(form_uuid, status)
 
@@ -108,12 +120,14 @@ module IvcChampva
       end
 
       def forms_query(form_uuid, file_names)
+        base_query = fetch_forms_by_uuid(form_uuid)
+
+        # For non-merged submissions, only return the specific files mentioned in the payload
         file_name_conditions = file_names.map { |file_name| { file_name: } }
         file_name_query = file_name_conditions.reduce(IvcChampvaForm.none) do |query, condition|
           query.or(IvcChampvaForm.where(condition))
         end
-
-        fetch_forms_by_uuid(form_uuid).merge(file_name_query)
+        base_query.merge(file_name_query)
       end
 
       def fetch_forms_by_uuid(form_uuid)
