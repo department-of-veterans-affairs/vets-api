@@ -20,10 +20,8 @@ module RepresentationManagement
 
         agent_responses << agents
         agents.each do |agent|
-          # This needs expanded to include the type of AccreditedIndividual and all the correct fields
-          # that are needed to create the record.
           agent_hash = data_transform_for_agent(agent)
-          record = AccreditedIndividual.find_or_create_by(agent_hash)
+          record = AccreditedIndividual.find_or_initialize_by(agent_hash)
           agent_ids << record.id
         end
         page += 1
@@ -38,7 +36,7 @@ module RepresentationManagement
         attorney_responses << attorneys
         attorneys.each do |attorney|
           attorney_hash = data_transform_for_attorney(attorney)
-          record = AccreditedIndividual.find_or_create_by(attorney_hash)
+          record = AccreditedIndividual.find_or_initialize_by(attorney_hash)
           attorney_ids << record.id
         end
         page += 1
@@ -67,7 +65,7 @@ module RepresentationManagement
     #   workAddress2 -> address_line2,
     #   workAddress3 -> address_line3,
     #   workZip -> zip_code,
-    #   WorkCountry -> country_code_iso3, country_name,
+    #   workCountry -> country_code_iso3, country_name,
     #   workPhoneNumber -> phone,
     #   workEmailAddress -> email,
     # ]
@@ -84,10 +82,11 @@ module RepresentationManagement
         address_line2: agent['workAddress2'],
         address_line3: agent['workAddress3'],
         zip_code: agent['workZip'],
-        country_code_iso3: agent['WorkCountry'],
-        country_name: agent['WorkCountry'],
+        country_code_iso3: agent['workCountry'],
+        country_name: agent['workCountry'],
         phone: agent['workPhoneNumber'],
-        email: agent['workEmailAddress']
+        email: agent['workEmailAddress'],
+        raw_address: raw_address_for_agent(agent)
       }
     end
 
@@ -119,11 +118,32 @@ module RepresentationManagement
         address_line1: attorney['workAddress1'],
         address_line2: attorney['workAddress2'],
         address_line3: attorney['workAddress3'],
-        zip_code: attorney['workZip'],
         city: attorney['workCity'],
         state_code: attorney['workState'],
+        zip_code: attorney['workZip'],
         phone: attorney['workNumber'],
         email: attorney['emailAddress']
+      }
+    end
+
+    def raw_address_for_agent(agent)
+      {
+        address_line1: agent['workAddress1'],
+        address_line2: agent['workAddress2'],
+        address_line3: agent['workAddress3'],
+        zip_code: agent['workZip'],
+        work_country: agent['workCountry']
+      }
+    end
+
+    def raw_address_for_attorney(attorney)
+      {
+        address_line1: attorney['workAddress1'],
+        address_line2: attorney['workAddress2'],
+        address_line3: attorney['workAddress3'],
+        city: attorney['workCity'],
+        state_code: attorney['workState'],
+        zip_code: attorney['workZip']
       }
     end
 
