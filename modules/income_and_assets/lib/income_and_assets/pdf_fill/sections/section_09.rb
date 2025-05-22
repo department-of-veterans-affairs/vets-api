@@ -87,7 +87,7 @@ module IncomeAndAssets
           'receivingIncomeFromAnnuityOverflow' => {
             question_num: 9,
             question_suffix: 'H',
-            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUNITY?',
+            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUITY?',
             question_label: 'Receiving Income from Annuity'
           },
           # 9i

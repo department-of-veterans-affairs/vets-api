@@ -40,8 +40,8 @@ module IncomeAndAssets
 
       # Map question numbers to descriptive titles for overflow attachments
       QUESTION_KEY = {
-        1 => 'Veteran name',
-        2 => 'Social Security Number',
+        1 => 'Veteran\'s Identification Information',
+        2 => 'Claimant\'s Identification Information',
         3 => 'Recurring Income Not Associated with Accounts or Assets',
         4 => 'Associated Incomes',
         5 => 'Income and Net Worth Associated with Owned Assets',
@@ -56,6 +56,8 @@ module IncomeAndAssets
 
       # V2-style sections grouping question numbers for overflow pages
       SECTIONS = [
+        { label: 'Section I: Veteran\'s Identification Information', question_nums: [1] },
+        { label: 'Section II: Claimant\'s Identification Information', question_nums: [2] },
         { label: 'Section III: Recurring Income Not Associated with Accounts or Assets', question_nums: [3] },
         { label: 'Section IV: Associated Incomes', question_nums: [4] },
         { label: 'Section V: Income and Net Worth Associated with Owned Assets', question_nums: [5] },

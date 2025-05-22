@@ -38,7 +38,7 @@ module IncomeAndAssets
           'marketValueAtEstablishmentOverflow' => {
             question_num: 8,
             question_suffix: 'C',
-            question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHEMENT',
+            question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHMENT',
             question_label: 'Market Value'
           },
           # 8d
