@@ -314,7 +314,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
             expect do
               described_class.new(current_user).update_associations(
                 delete_associations_form['veteranContacts'],
-                 '10-10EZR'
+                '10-10EZR'
               )
             end.to raise_error(
               an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
