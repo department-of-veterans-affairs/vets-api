@@ -25,20 +25,34 @@ module AccreditedRepresentativePortal
         else
           render_invalid_type_error
         end
-      rescue PowerOfAttorneyRequestService::Accept::Error => e
-        render json: { errors: [e.message] }, status: e.status
-      rescue ActiveRecord::RecordInvalid => e
-        error_message = e.message.sub(/^Validation failed: /, '')
-        render json: { errors: [error_message] }, status: :unprocessable_entity
-      rescue Faraday::TimeoutError => e
-        render json: { errors: ["Gateway Timeout: #{e.message}"] }, status: :gateway_timeout
-      rescue Common::Exceptions::ResourceNotFound
-        render json: { errors: ['Record not found'] }, status: :not_found
       rescue => e
-        render json: { errors: [e.message] }, status: :internal_server_error
+        handle_create_error(e)
       end
 
       private
+
+      def handle_create_error(error)
+        if @poa_request.present? && Flipper.enabled?(:ar_poa_request_failure_notification_email)
+          send_failure_notification_email(@poa_request)
+        end
+
+        case error
+        when PowerOfAttorneyRequestService::Accept::Error
+          render json: { errors: [error.message] }, status: error.status
+        when ActiveRecord::RecordInvalid
+          error_message = error.message.sub(/^Validation failed: /, '')
+          render json: { errors: [error_message] }, status: :unprocessable_entity
+        when Faraday::TimeoutError
+          render json: { errors: ["Gateway Timeout: #{error.message}"] }, status: :gateway_timeout
+        when Common::Exceptions::ResourceNotFound
+          render json: { errors: ['Record not found'] }, status: :not_found
+        else
+          Rails.logger.error "Unhandled error in create action (handled by case statement): #{error.class}" \
+                             " - #{error.message}\n#{error.backtrace.join("\n")}"
+          render json: { errors: ['An unexpected error occurred. Please try again later.'] },
+                 status: :internal_server_error
+        end
+      end
 
       def process_acceptance
         PowerOfAttorneyRequestService::Accept.new(@poa_request, creator).call
@@ -81,6 +95,13 @@ module AccreditedRepresentativePortal
 
       def send_declination_email(poa_request)
         notification = poa_request.notifications.create!(type: 'declined')
+        PowerOfAttorneyRequestEmailJob.perform_async(
+          notification.id
+        )
+      end
+
+      def send_failure_notification_email(poa_request)
+        notification = poa_request.notifications.create!(type: 'failed')
         PowerOfAttorneyRequestEmailJob.perform_async(
           notification.id
         )

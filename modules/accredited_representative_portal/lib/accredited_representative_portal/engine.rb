@@ -28,5 +28,10 @@ module AccreditedRepresentativePortal
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do
       FactoryBot.definition_file_paths << File.expand_path('../../spec/factories', __dir__) if defined?(FactoryBot)
     end
+
+    initializer 'accredited_representative_portal.default_url_options', after: :load_config_initializers do |_app|
+      parent_opts = Rails.application.routes.default_url_options.slice(:host, :protocol)
+      routes.default_url_options.merge!(parent_opts)
+    end
   end
 end
