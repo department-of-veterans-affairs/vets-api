@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'dependents/monitor'
 
 RSpec.describe Dependents::Monitor do
-  let(:monitor) { described_class.new }
+  let(:monitor_v1) { described_class.new(false) }
+  let(:monitor_v2) { described_class.new(true) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
   let(:claim) { create(:dependency_claim) }
@@ -47,37 +48,79 @@ RSpec.describe Dependents::Monitor do
   end
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
-  describe '#track_submission_exhaustion' do
-    it 'logs sidekiq job exhaustion' do
-      msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+  context 'v1' do
+    describe '#track_submission_exhaustion' do
+      it 'logs sidekiq job exhaustion' do
+        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
-      log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
-            "last error: #{msg['error_message']}"
-      payload = {
-        message: msg
-      }
+        log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
+              "last error: #{msg['error_message']}"
+        payload = {
+          message: msg
+        }
+        tags = { tags: ['service:dependents-application', 'v2:false'] }
 
-      expect(monitor).to receive(:log_silent_failure).with(payload, anything)
-      expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-      expect(Rails.logger).to receive(:error).with(log)
+        expect(monitor_v1).to receive(:log_silent_failure).with(payload, anything)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags)
+        expect(Rails.logger).to receive(:error).with(log)
 
-      monitor.track_submission_exhaustion(msg)
+        monitor_v1.track_submission_exhaustion(msg)
+      end
+
+      it 'logs sidekiq job exhaustion with failure avoided' do
+        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+
+        log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
+              "last error: #{msg['error_message']}"
+        payload = {
+          message: msg
+        }
+        tags = { tags: ['service:dependents-application', 'v2:false'] }
+
+        expect(monitor_v1).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted", tags)
+        expect(Rails.logger).to receive(:error).with(log)
+
+        monitor_v1.track_submission_exhaustion(msg, user_struct.va_profile_email)
+      end
     end
+  end
 
-    it 'logs sidekiq job exhaustion with failure avoided' do
-      msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+  context 'v2' do
+    describe '#track_submission_exhaustion' do
+      it 'logs sidekiq job exhaustion' do
+        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
-      log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
-            "last error: #{msg['error_message']}"
-      payload = {
-        message: msg
-      }
+        log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
+              "last error: #{msg['error_message']}"
+        payload = {
+          message: msg
+        }
 
-      expect(monitor).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
-      expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-      expect(Rails.logger).to receive(:error).with(log)
+        expect(monitor_v2).to receive(:log_silent_failure).with(payload, anything)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted",
+                                                   { tags: ['service:dependents-application', 'v2:true'] })
+        expect(Rails.logger).to receive(:error).with(log)
 
-      monitor.track_submission_exhaustion(msg, user_struct.va_profile_email)
+        monitor_v2.track_submission_exhaustion(msg)
+      end
+
+      it 'logs sidekiq job exhaustion with failure avoided' do
+        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+
+        log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
+              "last error: #{msg['error_message']}"
+        payload = {
+          message: msg
+        }
+
+        expect(monitor_v2).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted",
+                                                   { tags: ['service:dependents-application', 'v2:true'] })
+        expect(Rails.logger).to receive(:error).with(log)
+
+        monitor_v2.track_submission_exhaustion(msg, user_struct.va_profile_email)
+      end
     end
   end
 end

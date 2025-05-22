@@ -1,20 +1,21 @@
 # frozen_string_literal: true
 
-require 'pdf_utilities/datestamp_pdf'
-require 'burials/monitor'
-require 'burials/notification_email'
-require 'lighthouse/benefits_intake/metadata'
 require 'lighthouse/benefits_intake/service'
+require 'lighthouse/benefits_intake/metadata'
+require 'pensions/monitor'
+require 'pensions/notification_email'
+require 'pdf_utilities/datestamp_pdf'
+require 'kafka/concerns/kafka'
 
-module Burials
+module Pensions
   module BenefitsIntake
-    # sidekig job to send burial pdfs to Lighthouse:BenefitsIntake API
+    # sidekig job to send pension pdf to Lighthouse:BenefitsIntake API
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
     class SubmitClaimJob
       include Sidekiq::Job
 
       # generic job processing error
-      class BurialsBenefitIntakeError < StandardError; end
+      class PensionBenefitIntakeError < StandardError; end
 
       # retry for 2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
@@ -23,18 +24,30 @@ module Burials
       # retry exhaustion
       sidekiq_retries_exhausted do |msg|
         begin
-          claim = Burials::SavedClaim.find(msg['args'].first)
+          claim = Pensions::SavedClaim.find(msg['args'].first)
         rescue
           claim = nil
         end
-        monitor = Burials::Monitor.new
+
+        if claim.present? && Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
+          user_icn = UserAccount.find_by(id: claim&.user_account_id)&.icn.to_s
+
+          Kafka.submit_event(
+            icn: user_icn,
+            current_id: claim&.confirmation_number.to_s,
+            submission_name: Pensions::FORM_ID,
+            state: Kafka::State::ERROR
+          )
+        end
+
+        monitor = Pensions::Monitor.new
         monitor.track_submission_exhaustion(msg, claim)
       end
 
       # Process claim pdfs and upload to Benefits Intake API
-      # On success send email
+      # On success send confirmation email
       #
-      # @param saved_claim_id [Integer] the claim id
+      # @param saved_claim_id [Integer] the pension claim id
       # @param user_account_uuid [UUID] the user submitting the form
       #
       # @return [UUID] benefits intake upload uuid
@@ -49,9 +62,12 @@ module Burials
         @metadata = generate_metadata
 
         upload_document
+
+        submit_traceability_to_event_bus if Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
+
         monitor.track_submission_success(@claim, @intake_service, @user_account_uuid)
 
-        Flipper.enabled?(:burial_submitted_email_notification) ? send_submitted_email : send_confirmation_email
+        Flipper.enabled?(:pension_submitted_email_notification) ? send_submitted_email : send_confirmation_email
 
         @intake_service.uuid
       rescue => e
@@ -67,7 +83,7 @@ module Burials
       # Instantiate instance variables for _this_ job
       #
       # @raise [ActiveRecord::RecordNotFound] if unable to find UserAccount
-      # @raise [BurialsBenefitIntakeError] if unable to find claim
+      # @raise [PensionBenefitIntakeError] if unable to find SavedClaim::Pension
       #
       # @param (see #perform)
       def init(saved_claim_id, user_account_uuid)
@@ -75,16 +91,18 @@ module Burials
         @user_account = UserAccount.find(@user_account_uuid) unless @user_account_uuid.nil?
         # UserAccount.find will raise an error if unable to find the user_account record
 
-        @claim = Burials::SavedClaim.find(saved_claim_id)
-        raise BurialsBenefitIntakeError, "Unable to find Burials::SavedClaim #{saved_claim_id}" unless @claim
+        @claim = Pensions::SavedClaim.find(saved_claim_id)
+        raise PensionBenefitIntakeError, "Unable to find Pensions::SavedClaim #{saved_claim_id}" unless @claim
 
         @intake_service = ::BenefitsIntake::Service.new
+
+        set_signature_date
       end
 
       # Create a monitor to be used for _this_ job
-      # @see Burials::Monitor
+      # @see Pensions::Monitor
       def monitor
-        @monitor ||= Burials::Monitor.new
+        @monitor ||= Pensions::Monitor.new
       end
 
       # Check FormSubmissionAttempts for record with 'pending' or 'success'
@@ -102,32 +120,19 @@ module Burials
       # @param file_path [String] pdf file path
       #
       # @return [String] path to stamped PDF
-      def process_document(file_path) # rubocop:disable Metrics/MethodLength
+      def process_document(file_path)
         document = PDFUtilities::DatestampPdf.new(file_path).run(
           text: 'VA.GOV',
           timestamp: @claim.created_at,
           x: 5,
           y: 5
         )
-
         document = PDFUtilities::DatestampPdf.new(document).run(
           text: 'FDC Reviewed - VA.gov Submission',
           timestamp: @claim.created_at,
-          x: 400,
+          x: 429,
           y: 770,
           text_only: true
-        )
-
-        document = PDFUtilities::DatestampPdf.new(document).run(
-          text: 'Application Submitted on va.gov',
-          x: 425,
-          y: 675,
-          text_only: true, # passing as text only because we override how the date is stamped in this instance
-          timestamp: @claim.created_at,
-          page_number: 5,
-          size: 9,
-          template: Burials::PDF_PATH,
-          multistamp: true
         )
 
         @intake_service.valid_document?(document:)
@@ -135,7 +140,7 @@ module Burials
 
       # Upload generated pdf to Benefits Intake API
       #
-      # @raise [BurialsBenefitIntakeError] on upload failure
+      # @raise [PensionBenefitIntakeError] on upload failure
       def upload_document
         # upload must be performed within 15 minutes of this request
         @intake_service.request_upload
@@ -151,7 +156,18 @@ module Burials
 
         monitor.track_submission_attempted(@claim, @intake_service, @user_account_uuid, payload)
         response = @intake_service.perform_upload(**payload)
-        raise BurialsBenefitIntakeError, response.to_s unless response.success?
+        raise PensionBenefitIntakeError, response.to_s unless response.success?
+      end
+
+      # Build payload and submit to EventBusSubmissionJob
+      def submit_traceability_to_event_bus
+        Kafka.submit_event(
+          icn: @user_account&.icn.to_s,
+          current_id: @claim&.confirmation_number.to_s,
+          submission_name: Pensions::FORM_ID,
+          state: Kafka::State::SENT,
+          next_id: @intake_service&.uuid.to_s
+        )
       end
 
       # Generate form metadata to send in upload to Benefits Intake API
@@ -162,13 +178,12 @@ module Burials
       # @return [Hash] generated metadata for upload
       def generate_metadata
         form = @claim.parsed_form
-        veteran_full_name = form['veteranFullName']
         address = form['claimantAddress'] || form['veteranAddress']
 
-        # also validates/manipulates the metadata
+        # also validates/maniuplates the metadata
         ::BenefitsIntake::Metadata.generate(
-          veteran_full_name['first'],
-          veteran_full_name['last'],
+          form['veteranFullName']['first'],
+          form['veteranFullName']['last'],
           form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
           address['postalCode'],
           self.class.to_s,
@@ -199,16 +214,16 @@ module Burials
         Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
       end
 
-      # VANotify job to send email to veteran
+      # Being VANotify job to send email to veteran
       def send_confirmation_email
-        Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
+        Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
       rescue => e
         monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'confirmation', e)
       end
 
       # VANotify job to send Submission in Progress email to veteran
       def send_submitted_email
-        Burials::NotificationEmail.new(@claim.id).deliver(:submitted)
+        Pensions::NotificationEmail.new(@claim.id).deliver(:submitted)
       rescue => e
         monitor.track_send_email_failure(@claim, @intake_service, @user_account_uuid, 'submitted', e)
       end
@@ -220,6 +235,18 @@ module Burials
         @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
       rescue => e
         monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+      end
+
+      # Sets the signature date to the claim.created_at,
+      # so that retried claims will be considered signed on the date of submission.
+      # Signature date will be set to current date if not provided.
+      def set_signature_date
+        form_data = JSON.parse(@claim.form)
+        form_data['signatureDate'] = @claim.created_at&.strftime('%Y-%m-%d')
+        @claim.form = form_data.to_json
+        @claim.save
+      rescue => e
+        monitor.track_claim_signature_error(@claim, @intake_service, @user_account_uuid, e)
       end
     end
   end
