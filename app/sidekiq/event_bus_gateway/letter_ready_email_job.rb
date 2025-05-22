@@ -11,7 +11,7 @@ module EventBusGateway
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
     MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.decision_letter_ready_email
 
-    def perform(participant_id:, template_id:, personalisation:)
+    def perform(participant_id, template_id, personalisation)
       notify_client.send_email(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
