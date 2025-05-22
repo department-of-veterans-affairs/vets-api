@@ -10,6 +10,12 @@ RSpec.describe Pensions::Monitor do
   let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form) }
 
+  describe '#service_name' do
+    it 'returns expected name' do
+      expect(monitor.send(:service_name)).to eq('pension-application')
+    end
+  end
+
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }

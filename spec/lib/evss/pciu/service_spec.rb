@@ -21,7 +21,7 @@ describe EVSS::PCIU::Service do
       it 'returns a users email address value and effective_date' do
         VCR.use_cassette('evss/pciu/email') do
           response = subject.get_email_address
-          expect(response.attributes.keys).to include :effective_at, :email
+          expect(response.attributes.deep_symbolize_keys).to include :effective_at, :email
         end
       end
     end
@@ -40,7 +40,7 @@ describe EVSS::PCIU::Service do
       it 'returns a users primary phone number, extension and country code' do
         VCR.use_cassette('evss/pciu/primary_phone') do
           response = subject.get_primary_phone
-          expect(response.attributes.keys).to include :country_code, :number, :extension
+          expect(response.attributes.deep_symbolize_keys).to include :country_code, :number, :extension
         end
       end
     end
@@ -60,7 +60,7 @@ describe EVSS::PCIU::Service do
         VCR.use_cassette('evss/pciu/alternate_phone') do
           response = subject.get_alternate_phone
 
-          expect(response.attributes.keys).to include :country_code, :number, :extension
+          expect(response.attributes.deep_symbolize_keys).to include :country_code, :number, :extension
         end
       end
     end
@@ -82,7 +82,7 @@ describe EVSS::PCIU::Service do
         VCR.use_cassette('evss/pciu/post_primary_phone') do
           response = subject.post_primary_phone(phone)
 
-          expect(response.attributes.keys).to include :country_code, :number, :extension
+          expect(response.attributes.deep_symbolize_keys).to include :country_code, :number, :extension
         end
       end
     end
@@ -134,7 +134,7 @@ describe EVSS::PCIU::Service do
         VCR.use_cassette('evss/pciu/post_alternate_phone') do
           response = subject.post_alternate_phone(phone)
 
-          expect(response.attributes.keys).to include :country_code, :number, :extension
+          expect(response.attributes.deep_symbolize_keys).to include :country_code, :number, :extension
         end
       end
     end
@@ -186,7 +186,7 @@ describe EVSS::PCIU::Service do
         VCR.use_cassette('evss/pciu/post_email_address') do
           response = subject.post_email_address(email_address)
 
-          expect(response.attributes.keys).to include :effective_at, :email
+          expect(response.attributes.deep_symbolize_keys).to include :effective_at, :email
         end
       end
     end

@@ -1391,11 +1391,11 @@ vanotify:
     dependents:
       api_key: fake_secret
       email:
-        received674: 
+        received674:
           template_id: fake_received674
-        received686: 
+        received686:
           template_id: fake_received686
-        received686c674: 
+        received686c674:
           template_id: fake_received686c674
         submitted674:
           template_id: fake_submitted674

@@ -3,6 +3,10 @@
 module MHV
   module MR
     class Vaccine < MHV::MR::FHIRRecord
+      include RedisCaching
+
+      redis_config REDIS_CONFIG[:medical_records_cache]
+
       attribute :id,            String
       attribute :name,          String
       attribute :date_received, String # Pass on as-is to the frontend
