@@ -212,7 +212,7 @@ jobs:
             | reverse
             | unique_by(.user.login)
             | .[].user.login
-            // true
+            || true
           ')
 
           echo "$APPROVED"
@@ -220,7 +220,8 @@ jobs:
           if [ -n "$APPROVED" ]; then
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
             echo "Team Approvals: $TEAM_APPROVALS"
-            if [ "$TEAM_APPROVALS" == 'true' ]; then
+            if [ -z "$TEAM_APPROVALS" ]; then
+              echo "TEAM APPROVAL REQUIRED"
               team_approval_status=required
             else
               echo "TEAM APPROVAL CONFIRMED"
@@ -229,7 +230,7 @@ jobs:
 
             BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
             echo "Backend Approvals: $BE_APPROVALS"
-            if [ "$BE_APPROVALS" == 'true' ]; then
+            if [ -z "$BE_APPROVALS" ]; then
               echo "BE APPROVAL REQUIRED"
               approval_status=required
             else

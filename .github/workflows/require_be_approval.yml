@@ -168,6 +168,7 @@ jobs:
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
             echo "Team Approvals: $TEAM_APPROVALS"
             if [ "$TEAM_APPROVALS" == 'true' ]; then
+              echo "TEAM APPROVAL REQUIRED"
               team_approval_status=required
             else
               echo "TEAM APPROVAL CONFIRMED"
