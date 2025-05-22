@@ -2,6 +2,8 @@
 
 require 'bgs/form674'
 
+require 'dependents/monitor'
+
 module BGS
   class SubmitForm674Job < Job
     class Invalid674Claim < StandardError; end
@@ -18,26 +20,26 @@ module BGS
     sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error("BGS::SubmitForm674Job failed, retries exhausted! Last error: #{msg['error_message']}",
-                         { user_uuid:, saved_claim_id:, icn: })
+      ::Dependents::Monitor.new(saved_claim_id).form_674_job_exhaustion(user_uuid, icn, msg)
 
       BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
+    rescue => e
+      ::Dependents::Monitor.new(saved_claim_id).form_674_job_backup_submission_failure({ user_uuid:, icn:, e: })
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
-      Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
+      monitor(saved_claim_id).form_674_job_begin(user_uuid, icn)
       instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
 
       submit_form
 
       send_confirmation_email
-      Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
+      monitor(saved_claim_id).form_674_job_success(user_uuid, icn)
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
 
-      Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
-                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
+      monitor(saved_claim_id).form_674_job_failure(user_uuid, icn, e.message, e.cause&.message)
       raise
     end
 
@@ -45,8 +47,7 @@ module BGS
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
-      Rails.logger.warn('BGS::SubmitForm674Job received error, skipping retries...',
-                        { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
+      monitor(saved_claim_id).form_674_job_skip_retries(user_uuid, icn, e.message, e.cause&.message)
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
@@ -92,15 +93,12 @@ module BGS
       )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      Rails.logger.warn(
-        'BGS::SubmitForm674Job backup submission failed...',
-        {
-          user_uuid:,
-          saved_claim_id:,
-          error: e.message,
-          nested_error: e.cause&.message
-        }
-      )
+      Dependents::Monitor.new(saved_claim_id).form_674_job_backup_submission_failure({
+                                                                                       user_uuid:,
+                                                                                       saved_claim_id:,
+                                                                                       error: e.message,
+                                                                                       nested_error: e.cause&.message
+                                                                                     })
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
 
@@ -129,6 +127,10 @@ module BGS
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
       )
+    end
+
+    def monitor(saved_claim_id)
+      @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
     end
   end
 end

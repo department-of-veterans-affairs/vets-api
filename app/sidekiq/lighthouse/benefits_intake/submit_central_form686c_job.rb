@@ -45,8 +45,7 @@ module Lighthouse
         user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
         # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
         # have to re-find the claim and add the relevant veteran info
-        Rails.logger.info('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!',
-                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
+        monitor(saved_claim_id).submission_backup_begin(user_struct['uuid'], user_struct['icn'])
         @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
         claim.add_veteran_info(vet_info)
 
@@ -55,8 +54,8 @@ module Lighthouse
         check_success(result, saved_claim_id, user_struct)
       rescue => e
         # if we fail, update the associated central mail record to failed and send the user the failure email
-        Rails.logger.warn('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob failed!',
-                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message }) # rubocop:disable Layout/LineLength
+        monitor(saved_claim_id).submission_backup_failure(user_struct['uuid'], user_struct['icn'], e.message)
+
         update_submission('failed')
         raise
       ensure
@@ -77,8 +76,7 @@ module Lighthouse
         )
         create_form_submission_attempt(uuid)
 
-        Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Submission Successful', claim_id: claim.id,
-                            uuid: })
+        monitor(claim.id).submission_backup_success(uuid)
         response
       end
 
@@ -312,6 +310,10 @@ module Lighthouse
 
       def split_file_and_path(path)
         { file: path, file_name: path.split('/').last }
+      end
+
+      def monitor(saved_claim_id)
+        @monitor ||= Dependents::Monitor.new(saved_claim_id)
       end
     end
   end
