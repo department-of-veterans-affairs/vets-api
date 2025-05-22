@@ -161,10 +161,10 @@ jobs:
             | reverse
             | unique_by(.user.login)
             | .[].user.login
-            // 0
+            // true
           ')
 
-          if [ "$APPROVED" -ne 0 ]; then
+          if [ -n "$APPROVED" ]; then
             TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
             echo "Team Approvals: $TEAM_APPROVALS"
             if [ -z "$TEAM_APPROVALS" ]; then
