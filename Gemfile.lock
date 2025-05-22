@@ -365,13 +365,13 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.15.0)
-      datadog-ruby_core_source (~> 3.4)
+    datadog (2.16.0)
+      datadog-ruby_core_source (~> 3.4, >= 3.4.1)
       libdatadog (~> 16.0.1.1.0)
       libddwaf (~> 1.22.0.0.2)
       logger
       msgpack
-    datadog-ruby_core_source (3.4.0)
+    datadog-ruby_core_source (3.4.1)
     date (3.4.1)
     date (3.4.1-java)
     date_time_precision (0.8.1)
@@ -662,7 +662,7 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    language_server-protocol (3.17.0.4)
+    language_server-protocol (3.17.0.5)
     libdatadog (16.0.1.1.0)
     libdatadog (16.0.1.1.0-aarch64-linux)
     libdatadog (16.0.1.1.0-x86_64-linux)
@@ -853,7 +853,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.15)
+    rack (2.2.16)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -998,7 +998,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.75.5)
+    rubocop (1.75.6)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1336,7 +1336,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.15)
+  rack (~> 2.2.16)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
