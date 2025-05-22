@@ -312,7 +312,10 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
               'type is required'
 
             expect do
-              described_class.new(current_user).update_associations(delete_associations_form['veteranContacts'], '10-10EZR')
+              described_class.new(current_user).update_associations(
+                delete_associations_form['veteranContacts'],
+                 '10-10EZR'
+              )
             end.to raise_error(
               an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
             )
@@ -344,24 +347,24 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
           # The data is in the VES format
           expect(reconciled_associations.find { |a| a['contactType'] == 'Emergency Contact' }).to eq(
             {
-              "address" => {
-                "street" => "123 NW 5th St",
-                "street2" => "Apt 5",
-                "street3" => "Unit 6",
-                "city" => "durango",
-                "country" => "MEX",
-                "postalCode" => "21231"
+              'address' => {
+                'street' => '123 NW 5th St',
+                'street2' => 'Apt 5',
+                'street3' => 'Unit 6',
+                'city' => 'durango',
+                'country' => 'MEX',
+                'postalCode' => '21231'
               },
-              "alternatePhone" => "2699352134",
-              "contactType" => "Emergency Contact",
-              "fullName" => {
-                "first" => "FIRSTECA",
-                "middle" => "MIDDLEECA",
-                "last" => "LASTECA"
+              'alternatePhone' => '2699352134',
+              'contactType' => 'Emergency Contact',
+              'fullName' => {
+                'first' => 'FIRSTECA',
+                'middle' => 'MIDDLEECA',
+                'last' => 'LASTECA'
               },
-              "primaryPhone" => "7452743546",
-              "relationship" => "BROTHER",
-              "deleteIndicator" => true
+              'primaryPhone' => '7452743546',
+              'relationship' => 'BROTHER',
+              'deleteIndicator' => true
             }
           )
         end
