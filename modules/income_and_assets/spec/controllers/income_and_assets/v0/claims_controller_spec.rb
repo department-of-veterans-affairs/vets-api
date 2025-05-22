@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'income_and_assets/benefits_intake/benefit_intake_job'
+require 'income_and_assets/benefits_intake/submit_claim_job'
 require 'income_and_assets/monitor'
 require 'support/controller_spec_helper'
 
@@ -27,7 +27,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
-      expect(IncomeAndAssets::BenefitIntakeJob).not_to receive(:perform_async)
+      expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
@@ -37,7 +37,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     it('returns a serialized claim') do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
-      expect(IncomeAndAssets::BenefitIntakeJob).to receive(:perform_async)
+      expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
