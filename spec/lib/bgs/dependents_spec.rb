@@ -4,14 +4,14 @@ require 'rails_helper'
 require 'bgs/dependents'
 
 RSpec.describe BGS::Dependents do
-  let(:user_object) { create(:evss_user, :loa3) }
+  let(:user_object) { build(:user_struct) }
   let(:proc_id) { '3828033' }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
 
   context 'with va_dependents_v2 off' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+      user_object.v2 = false
     end
 
     describe '#create' do
@@ -62,7 +62,7 @@ RSpec.describe BGS::Dependents do
 
   context 'with va_dependents_v2 on' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+      user_object.v2 = true
     end
 
     describe '#create' do

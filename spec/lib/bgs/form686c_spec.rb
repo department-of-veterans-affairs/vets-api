@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'bgs/form686c'
 
 RSpec.describe BGS::Form686c do
-  let(:user_object) { create(:evss_user, :loa3) }
   let(:user_struct) { build(:user_struct) }
   let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
@@ -14,7 +13,7 @@ RSpec.describe BGS::Form686c do
 
   context 'with va_dependents_v2 off' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+      user_struct.v2 = false
     end
 
     describe '#submit' do
@@ -130,7 +129,7 @@ RSpec.describe BGS::Form686c do
       end
 
       context 'The flipper is turned off' do
-        let(:form686c) { BGS::Form686c.new(user_object, saved_claim) }
+        let(:form686c) { BGS::Form686c.new(user_struct, saved_claim) }
 
         context 'form_686c_674_kitchen_sink' do
           let(:payload) { build(:form_686c_674_kitchen_sink) }
@@ -208,7 +207,7 @@ RSpec.describe BGS::Form686c do
                   expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
                   expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-                  BGS::Form686c.new(user_object, saved_claim).submit(payload)
+                  BGS::Form686c.new(user_struct, saved_claim).submit(payload)
                 end
               end
             end
@@ -242,7 +241,7 @@ RSpec.describe BGS::Form686c do
 
   context 'with va_dependents_v2 on' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+      user_struct.v2 = true
     end
 
     describe '#submit' do
@@ -358,7 +357,7 @@ RSpec.describe BGS::Form686c do
       end
 
       context 'The flipper is turned off' do
-        let(:form686c) { BGS::Form686c.new(user_object, saved_claim) }
+        let(:form686c) { BGS::Form686c.new(user_struct, saved_claim) }
 
         context 'form_686c_674_kitchen_sink' do
           let(:payload) { build(:form686c_674_v2) }
@@ -436,7 +435,7 @@ RSpec.describe BGS::Form686c do
                   expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
                   expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-                  BGS::Form686c.new(user_object, saved_claim).submit(payload)
+                  BGS::Form686c.new(user_struct, saved_claim).submit(payload)
                 end
               end
             end

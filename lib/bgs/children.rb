@@ -56,7 +56,7 @@ module BGS
 
     def report_stepchildren
       @dependents_application['step_children'].each do |stepchild_info|
-        step_child = BGSDependents::StepChild.new(stepchild_info, @is_v2)
+        step_child = BGSDependents::StepChild.new(stepchild_info)
         formatted_info = step_child.format_info
         participant = bgs_service.create_participant(@proc_id)
         guardian_participant = bgs_service.create_participant(@proc_id)
