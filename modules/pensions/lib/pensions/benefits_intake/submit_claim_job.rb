@@ -207,7 +207,7 @@ module Pensions
         Lighthouse::SubmissionAttempt.transaction do
           @lighthouse_submission = Lighthouse::Submission.create(**lighthouse_submission)
           @lighthouse_submission_attempt =
-            Lighthouse::SubmissionAttempt.create(lighthouse_submission: @lighthouse_submission,
+            Lighthouse::SubmissionAttempt.create(submission: @lighthouse_submission,
                                                  benefits_intake_uuid: @intake_service.uuid)
         end
 

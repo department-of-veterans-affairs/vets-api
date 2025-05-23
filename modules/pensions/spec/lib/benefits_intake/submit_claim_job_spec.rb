@@ -148,7 +148,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     end
 
     context 'with success form submission attempt' do
-      let(:claim) { create(:pensions_saved_claim, :success) }
+      let(:claim) { create(:pensions_saved_claim, :submitted) }
 
       it 'return true' do
         expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
