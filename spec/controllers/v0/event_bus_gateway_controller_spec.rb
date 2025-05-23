@@ -19,8 +19,7 @@ RSpec.describe V0::EventBusGatewayController, type: :request do
       end
 
       it 'invokes the email-sending job' do
-        expected_args = { participant_id: '1234', template_id: '5678', personalisation: nil }
-        expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with(expected_args)
+        expect(EventBusGateway::LetterReadyEmailJob).to receive(:perform_async).with('1234', '5678', nil)
         post v0_event_bus_gateway_send_email_path(params:), headers: service_account_auth_header
         expect(response).to have_http_status(:ok)
       end
