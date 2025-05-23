@@ -10,7 +10,7 @@ module EventBusGateway
     sidekiq_options retry: 0
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
 
-    def perform(participant_id, template_id, personalisation_params)
+    def perform(participant_id, template_id, personalisation_params = {})
       notify_client.send_email(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,

@@ -4,11 +4,6 @@ module V0
   class EventBusGatewayController < SignIn::ServiceAccountApplicationController
     service_tag 'event_bus_gateway'
 
-    EMAIL_PARAMS = %i[
-      template_id
-      personalisation
-    ].freeze
-
     def send_email
       if Flipper.enabled?(:event_bus_gateway_emails_enabled)
         EventBusGateway::LetterReadyEmailJob.perform_async(
@@ -27,7 +22,7 @@ module V0
     end
 
     def send_email_params
-      params.permit(EMAIL_PARAMS)
+      params.permit(:template_id, personalisation: {})
     end
   end
 end
