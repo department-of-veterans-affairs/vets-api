@@ -231,7 +231,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with('user.icn.blank', tags:)
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.user.icn.blank", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_user_icn_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
@@ -250,7 +250,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with('user.participant_id.blank', tags:)
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.user.participant_id.blank", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_missing_user_pid_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')
@@ -269,7 +269,7 @@ RSpec.describe BenefitsClaims::IntentToFile::Monitor do
           user_uuid: current_user.uuid
         }
 
-        expect(StatsD).to receive(:increment).with('itf.type.invalid', tags:)
+        expect(StatsD).to receive(:increment).with("#{itf_stats_key}.itf.type.invalid", tags:)
         expect(Rails.logger).to receive(:info).with(log, payload)
 
         monitor.track_invalid_itf_type_itf_controller('post', '21P-527EZ', 'pension', current_user.uuid, 'error')

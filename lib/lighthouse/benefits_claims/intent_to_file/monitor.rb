@@ -138,21 +138,21 @@ module BenefitsClaims
 
       def track_missing_user_icn_itf_controller(method, form_id, itf_type, user_uuid, error)
         tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}"]
-        StatsD.increment('user.icn.blank', tags:)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.user.icn.blank", tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
         Rails.logger.info('V0 IntentToFilesController ITF user.icn is blank', context)
       end
 
       def track_missing_user_pid_itf_controller(method, form_id, itf_type, user_uuid, error)
         tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}"]
-        StatsD.increment('user.participant_id.blank', tags:)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.user.participant_id.blank", tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
         Rails.logger.info('V0 IntentToFilesController ITF user.participant_id is blank', context)
       end
 
       def track_invalid_itf_type_itf_controller(method, form_id, itf_type, user_uuid, error)
         tags = ["form_id:#{form_id}", "itf_type:#{itf_type}", "method:#{method}"]
-        StatsD.increment('itf.type.invalid', tags:)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.itf.type.invalid", tags:)
         context = { error:, method:, form_id:, itf_type:, user_uuid: }
         Rails.logger.info('V0 IntentToFilesController ITF invalid ITF type', context)
       end
