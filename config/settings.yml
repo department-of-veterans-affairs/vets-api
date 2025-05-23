@@ -1542,7 +1542,7 @@ vaos:
     client_id: <%= ENV['vaos__eps__client_id'] %>
     grant_type: client_credentials
     key_path: <%= ENV['vaos__eps__key_path'] %>
-    kid: fake_kid
+    kid: <%= ENV['vaos__eps__client_kid'] %>
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
     scopes: care-nav
