@@ -54,7 +54,7 @@ module AAL
 
   class MRConfiguration < Configuration
     def app_token
-      Settings.mhv.rx.app_token
+      Settings.mhv.medical_records.app_token
     end
 
     def x_api_key
@@ -74,7 +74,7 @@ module AAL
 
   class SMConfiguration < Configuration
     def app_token
-      Settings.mhv.rx.app_token
+      Settings.mhv.sm.app_token
     end
 
     def x_api_key
