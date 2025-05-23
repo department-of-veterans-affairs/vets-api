@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -422,7 +422,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "path"
-    t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["entity_id"], name: "index_banners_on_entity_id", unique: true
     t.index ["path"], name: "index_banners_on_path"
   end
 
@@ -1165,7 +1165,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1173,6 +1172,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1181,11 +1181,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
