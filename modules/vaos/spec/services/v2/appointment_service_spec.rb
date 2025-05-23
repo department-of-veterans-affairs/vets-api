@@ -1048,6 +1048,7 @@ describe VAOS::V2::AppointmentsService do
               expect(response[:kind]).to eq('clinic')
               expect(response[:status]).to eq('proposed')
               expect(response[:requested_periods][0][:local_start_time]).to eq('Sun, 19 Dec 2021 19:00:00 -0500')
+              expect(response[:show_schedule_link]).to be_nil
             end
           end
         end
@@ -1062,6 +1063,7 @@ describe VAOS::V2::AppointmentsService do
             resp = subject.get_appointment('180402')
             expect(resp[:id]).to eq('180402')
             expect(resp[:requested_periods]).to be_nil
+            expect(resp[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1074,6 +1076,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).to be(false)
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1086,6 +1089,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).not_to be(false)
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1098,6 +1102,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).to be(false)
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1111,6 +1116,7 @@ describe VAOS::V2::AppointmentsService do
             response = subject.get_appointment('159472')
             expect(response[:service_type]).to be_nil
             expect(response[:service_types]).to be_nil
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1190,6 +1196,7 @@ describe VAOS::V2::AppointmentsService do
               expect(response[:kind]).to eq('clinic')
               expect(response[:status]).to eq('proposed')
               expect(response[:requested_periods][0][:local_start_time]).to eq('Sun, 19 Dec 2021 19:00:00 -0500')
+              expect(response[:show_schedule_link]).to be_nil
             end
           end
         end
@@ -1204,6 +1211,7 @@ describe VAOS::V2::AppointmentsService do
             resp = subject.get_appointment('180402')
             expect(resp[:id]).to eq('180402')
             expect(resp[:requested_periods]).to be_nil
+            expect(resp[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1216,6 +1224,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).to be(false)
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1228,6 +1237,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).to be(false)
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1240,6 +1250,7 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
             expect(response[:cancellable]).not_to be(false)
+            expect(response[:show_schedule_link]).to be_nil
           end
         end
       end
@@ -1253,6 +1264,23 @@ describe VAOS::V2::AppointmentsService do
             response = subject.get_appointment('159472')
             expect(response[:service_type]).to be_nil
             expect(response[:service_types]).to be_nil
+            expect(response[:show_schedule_link]).to be_nil
+          end
+        end
+      end
+
+      context 'when requesting a cancelled appointment' do
+        let(:user) { build(:user, :jac) }
+
+        it 'sets the cancellable attribute to false' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cancelled_vpg',
+                           match_requests_on: %i[method path query]) do
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.get_appointment('70060')
+              expect(response[:cancellable]).to be(true)
+              expect(response[:show_schedule_link]).to be(true)
+            end
           end
         end
       end
@@ -1291,6 +1319,7 @@ describe VAOS::V2::AppointmentsService do
                                  match_requests_on: %i[method path query]) do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
+                  expect(response[:show_schedule_link]).to be(true)
                 end
               end
             end
@@ -1323,6 +1352,7 @@ describe VAOS::V2::AppointmentsService do
                                  match_requests_on: %i[method path query]) do
                   response = subject.update_appointment('70060', 'cancelled')
                   expect(response.status).to eq('cancelled')
+                  expect(response[:show_schedule_link]).to be(true)
                 end
               end
             end
@@ -2510,6 +2540,87 @@ describe VAOS::V2::AppointmentsService do
       appt[:requested_periods] = []
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('COMMUNITY_CARE_REQUEST')
+    end
+  end
+
+  describe '#schedulable?' do
+    it 'returns false for CERNER appointments' do
+      appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(false)
+    end
+
+    it 'returns false for claims exam appointments' do
+      appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+      appt[:id] = '1234'
+      appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(false)
+    end
+
+    it 'returns false for telehealth appointments' do
+      appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+      appt[:id] = '1234'
+      appt[:kind] = 'telehealth'
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(false)
+    end
+
+    it 'returns false for cc appointments and requests' do
+      appt = build(:appointment_form_v2, :community_cares_base).attributes
+      appt[:id] = '1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(false)
+    end
+
+    it 'returns true for va requests' do
+      appt = build(:appointment_form_v2, :va_proposed_base).attributes
+      appt[:id] = '1234'
+      subject.send(:set_type, appt)
+      expect(subject.send(:schedulable?, appt)).to be(true)
+    end
+
+    context 'returns true for schedulable service' do
+      %w[
+        primaryCare
+        clinicalPharmacyPrimaryCare
+        outpatientMentalHealth
+        socialWork
+        amputation
+        audiology
+        moveProgram
+        foodAndNutrition
+        optometry
+        ophthalmology
+        cpap
+        homeSleepTesting
+        covid
+      ].each do |service|
+        it service.to_s do
+          appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+          appt[:id] = '1234'
+          appt[:service_type] = service
+          subject.send(:set_type, appt)
+          expect(subject.send(:schedulable?, appt)).to be(true)
+        end
+      end
+    end
+
+    context 'returns false for unschedulable service' do
+      [
+        'podiatry',
+        'audiology-routine exam',
+        'audiology-hearing aid support'
+      ].each do |service|
+        it service.to_s do
+          appt = build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
+          appt[:id] = '1234'
+          appt[:service_type] = service
+          subject.send(:set_type, appt)
+          expect(subject.send(:schedulable?, appt)).to be(false)
+        end
+      end
     end
   end
 end
