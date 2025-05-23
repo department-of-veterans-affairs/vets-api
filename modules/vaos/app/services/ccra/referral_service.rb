@@ -68,6 +68,15 @@ module Ccra
       end
     end
 
+    # Clears the referral data from the cache
+    #
+    # @param id [String] The referral ID
+    # @param icn [String] The ICN of the patient
+    # @return [Boolean] True if the cache operation was successful
+    def clear_referral_cache(id, icn)
+      referral_cache.clear_referral_data(id:, icn:)
+    end
+
     private
 
     # Caches the entire referral object for future use

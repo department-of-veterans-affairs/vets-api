@@ -93,10 +93,11 @@ module VAOS
 
         drive_time = fetch_drive_times(provider)
 
-        response_data = build_draft_response(draft, provider, slots, drive_time)
+        response_data = build_draft_response(draft, provider, slots, drive_time, referral_id)
+        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
 
         # Clear the referral data from the cache, so it does not become stale
-        ccra_referral_service.clear_referral_data(referral_id, current_user.icn)
+        ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
 
         render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
@@ -486,15 +487,15 @@ module VAOS
       #   - provider [Object] The provider details
       #   - slots [Object] Available appointment slots
       #   - drive_time [Object, nil] Drive time information
+      #   - referral_id [String] The referral ID
       #
-      def build_draft_response(draft_appointment, provider, slots, drive_time)
+      def build_draft_response(draft_appointment, provider, slots, drive_time, referral_id)
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider:,
           slots:,
           drive_time:
         )
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
                           "Response: #{response_data.inspect}")
         response_data
