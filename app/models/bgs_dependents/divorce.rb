@@ -2,7 +2,7 @@
 
 module BGSDependents
   class Divorce < Base
-    def initialize(divorce_info, is_v2 = false)
+    def initialize(divorce_info, is_v2: false)
       @divorce_info = divorce_info
       @is_v2 = is_v2
     end

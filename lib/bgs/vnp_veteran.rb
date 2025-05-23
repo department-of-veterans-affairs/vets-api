@@ -67,7 +67,7 @@ module BGS
     end
 
     def create_address(participant)
-      address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info, @is_v2)
+      address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info, v2: @is_v2)
       address = bgs_service.create_address(address_params)
 
       address[:address_type] = 'OVR' if address[:mlty_post_office_type_cd].present?

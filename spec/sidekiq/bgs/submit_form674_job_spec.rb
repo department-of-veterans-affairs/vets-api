@@ -45,7 +45,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     context 'success' do
       before do
         expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
@@ -58,7 +58,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           .with(hash_including(user_struct.to_h.stringify_keys))
           .and_return(user_struct)
         expect do
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end.not_to raise_error
       end
 
@@ -86,13 +91,18 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             'fake_secret',
             { callback_klass: 'Dependents::NotificationCallback',
               callback_metadata: { email_template_id: 'fake_received686c674',
-                                  email_type: :received686c674,
-                                  form_id: '686C-674',
-                                  saved_claim_id: dependency_claim.id,
-                                  service_name: 'dependents' } }
+                                   email_type: :received686c674,
+                                   form_id: '686C-674',
+                                   saved_claim_id: dependency_claim.id,
+                                   service_name: 'dependents' } }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
 
@@ -111,7 +121,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
     end
@@ -120,7 +135,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       before do
         allow(OpenStruct).to receive(:new).and_call_original
         InProgressForm.create!(form_id: '686C-674-V2', user_uuid: user.uuid, user_account: user.user_account,
-                              form_data: all_flows_payload)
+                               form_data: all_flows_payload)
       end
 
       it 'raises error' do
@@ -131,7 +146,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 
         expect do
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
       end
 
@@ -143,7 +163,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         expect(client_stub).to receive(:submit) { raise_nested_err }
 
         expect do
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end.to raise_error(Sidekiq::JobRetry::Skip)
       end
     end
@@ -166,13 +191,18 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             'fake_secret',
             { callback_klass: 'Dependents::NotificationCallback',
               callback_metadata: { email_template_id: 'fake_received674',
-                                  email_type: :received674,
-                                  form_id: '686C-674',
-                                  saved_claim_id: dependency_claim_674_only.id,
-                                  service_name: 'dependents' } }
+                                   email_type: :received674,
+                                   form_id: '686C-674',
+                                   saved_claim_id: dependency_claim_674_only.id,
+                                   service_name: 'dependents' } }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim_674_only.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
 
@@ -193,13 +223,18 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
     end
   end
 
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     context 'success' do
       before do
         expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
@@ -212,7 +247,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           .with(hash_including(user_struct.to_h.stringify_keys))
           .and_return(user_struct)
         expect do
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end.not_to raise_error
       end
 
@@ -240,13 +280,18 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             'fake_secret',
             { callback_klass: 'Dependents::NotificationCallback',
               callback_metadata: { email_template_id: 'fake_received686c674',
-                                  email_type: :received686c674,
-                                  form_id: '686C-674',
-                                  saved_claim_id: dependency_claim.id,
-                                  service_name: 'dependents' } }
+                                   email_type: :received686c674,
+                                   form_id: '686C-674',
+                                   saved_claim_id: dependency_claim.id,
+                                   service_name: 'dependents' } }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
 
@@ -265,7 +310,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
     end
@@ -274,7 +324,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       before do
         allow(OpenStruct).to receive(:new).and_call_original
         InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, user_account: user.user_account,
-                              form_data: all_flows_payload)
+                               form_data: all_flows_payload)
       end
 
       it 'raises error' do
@@ -285,7 +335,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 
         expect do
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
       end
 
@@ -297,7 +352,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         expect(client_stub).to receive(:submit) { raise_nested_err }
 
         expect do
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end.to raise_error(Sidekiq::JobRetry::Skip)
       end
     end
@@ -320,13 +380,18 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             'fake_secret',
             { callback_klass: 'Dependents::NotificationCallback',
               callback_metadata: { email_template_id: 'fake_received674',
-                                  email_type: :received674,
-                                  form_id: '686C-674',
-                                  saved_claim_id: dependency_claim_674_only.id,
-                                  service_name: 'dependents' } }
+                                   email_type: :received674,
+                                   form_id: '686C-674',
+                                   saved_claim_id: dependency_claim_674_only.id,
+                                   service_name: 'dependents' } }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim_674_only.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
 
@@ -347,7 +412,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
             }
           )
 
-          subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct, user_struct.v2)
+          subject.perform(user.uuid,
+                          user.icn,
+                          dependency_claim.id,
+                          encrypted_vet_info,
+                          encrypted_user_struct,
+                          user_struct.v2)
         end
       end
     end

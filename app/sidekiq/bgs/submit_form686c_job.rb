@@ -16,7 +16,7 @@ module BGS
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _error|
-      user_uuid, icn, saved_claim_id, encrypted_vet_info, v2 = msg['args']
+      user_uuid, icn, saved_claim_id, encrypted_vet_info, _v2 = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error("BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
                          { user_uuid:, saved_claim_id:, icn: })
@@ -70,7 +70,7 @@ module BGS
 
     def instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id, v2)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info, v2)
+      @user = BGS::SubmitForm686cJob.generate_user_struct(@vet_info, v2:)
       @icn = icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
@@ -78,7 +78,7 @@ module BGS
       @v2 = v2
     end
 
-    def self.generate_user_struct(vet_info, v2 = false)
+    def self.generate_user_struct(vet_info, v2: false)
       info = vet_info['veteran_information']
       full_name = info['full_name']
       OpenStruct.new(
@@ -92,12 +92,12 @@ module BGS
         icn: info['icn'],
         uuid: info['uuid'],
         common_name: info['common_name'],
-        v2: v2
+        v2:
       )
     end
 
     def self.send_backup_submission(vet_info, saved_claim_id, user_uuid)
-      user = generate_user_struct(vet_info, @v2)
+      user = generate_user_struct(vet_info, v2:)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
         saved_claim_id,
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),

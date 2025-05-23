@@ -27,7 +27,7 @@ RSpec.describe BGS::DependentService do
   end
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     before do
       allow(claim).to receive(:id).and_return('1234')
       allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)
@@ -322,8 +322,7 @@ RSpec.describe BGS::DependentService do
     end
   end
 
-
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     before do
       allow(claim).to receive(:id).and_return('1234')
       allow_any_instance_of(KmsEncrypted::Box).to receive(:encrypt).and_return(encrypted_vet_info)

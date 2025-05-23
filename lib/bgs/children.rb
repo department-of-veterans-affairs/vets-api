@@ -31,7 +31,7 @@ module BGS
 
     def report_children
       @dependents_application['children_to_add'].each do |child_info|
-        child = BGSDependents::Child.new(child_info, @is_v2)
+        child = BGSDependents::Child.new(child_info, is_v2: @is_v2)
         formatted_info = child.format_info
         participant = bgs_service.create_participant(@proc_id)
 
@@ -113,8 +113,8 @@ module BGS
     end
 
     def send_address(calling_object, participant, address_info)
-      address = calling_object.generate_address(address_info, @is_v2)
-      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, @is_v2)
+      address = calling_object.generate_address(address_info, v2: @is_v2)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, v2: @is_v2)
 
       bgs_service.create_address(address_params)
     end

@@ -46,7 +46,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     )
   end
 
-  context "with va_dependents_v2 on" do
+  context 'with va_dependents_v2 on' do
     before do
       allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
       allow(OpenStruct).to receive(:new)
@@ -78,10 +78,10 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
             'fake_secret',
             { callback_klass: 'Dependents::NotificationCallback',
               callback_metadata: { email_template_id: 'fake_received686',
-                                  email_type: :received686,
-                                  form_id: '686C-674',
-                                  saved_claim_id: dependency_claim.id,
-                                  service_name: 'dependents' } }
+                                   email_type: :received686,
+                                   form_id: '686C-674',
+                                   saved_claim_id: dependency_claim.id,
+                                   service_name: 'dependents' } }
           )
 
           expect { job_v2 }.not_to raise_error
@@ -159,7 +159,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     end
   end
 
-  context "with va_dependents_v2 off" do
+  context 'with va_dependents_v2 off' do
     before do
       allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
       allow(OpenStruct).to receive(:new)
@@ -191,10 +191,10 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
             'fake_secret',
             { callback_klass: 'Dependents::NotificationCallback',
               callback_metadata: { email_template_id: 'fake_received686',
-                                  email_type: :received686,
-                                  form_id: '686C-674',
-                                  saved_claim_id: dependency_claim.id,
-                                  service_name: 'dependents' } }
+                                   email_type: :received686,
+                                   form_id: '686C-674',
+                                   saved_claim_id: dependency_claim.id,
+                                   service_name: 'dependents' } }
           )
 
           expect { job }.not_to raise_error

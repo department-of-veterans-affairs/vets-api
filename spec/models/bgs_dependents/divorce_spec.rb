@@ -47,7 +47,7 @@ RSpec.describe BGSDependents::Divorce do
   context 'with va_dependents_v2 off' do
     describe '#format_info' do
       it 'formats divorce params for submission' do
-        formatted_info = described_class.new(divorce_info, false).format_info
+        formatted_info = described_class.new(divorce_info, is_v2: false).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end
@@ -57,7 +57,7 @@ RSpec.describe BGSDependents::Divorce do
   context 'with va_dependents_v2 on' do
     describe '#format_info' do
       it 'formats divorce params for submission' do
-        formatted_info = described_class.new(divorce_info_v2, true).format_info
+        formatted_info = described_class.new(divorce_info_v2, is_v2: true).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end

@@ -12,7 +12,7 @@ RSpec.describe BGSDependents::ChildStudent do
     described_class.new(all_flows_payload['dependents_application'],
                         '3829729',
                         '149471',
-                        all_flows_payload_v2['dependents_application']['student_information'][0], true)
+                        all_flows_payload_v2['dependents_application']['student_information'][0], is_v2: true)
   end
   let(:formatted_params_result) do
     {
@@ -68,7 +68,6 @@ RSpec.describe BGSDependents::ChildStudent do
   end
 
   context 'with va_dependents_v2 turned off' do
-
     describe '#params_for_686c' do
       it 'formats child student params for submission' do
         formatted_info = child_student_info.params_for_686c
@@ -79,7 +78,6 @@ RSpec.describe BGSDependents::ChildStudent do
   end
 
   context 'with va_dependents_v2 turned on' do
-
     describe '#params_for_686c' do
       it 'formats child student params for submission' do
         formatted_info = child_student_info_v2.params_for_686c_v2

@@ -91,7 +91,7 @@ module BGSDependents
       DateTime.parse("#{date} 12:00:00").to_time.iso8601
     end
 
-    def generate_address(address, v2 = false)
+    def generate_address(address, v2: false)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
         address['military_postal_code'] = v2 ? address.delete('state') : address.delete('state_code')
@@ -160,8 +160,8 @@ module BGSDependents
     # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
-    def create_address_params(proc_id, participant_id, payload, v2 = false)
-      address = generate_address(payload, v2)
+    def create_address_params(proc_id, participant_id, payload, v2: false)
+      address = generate_address(payload, v2:)
       frgn_postal_code = if v2
                            if address['military_postal_code'].present? || address['country'] == 'USA'
                              nil

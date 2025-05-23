@@ -108,7 +108,7 @@ module BGS
       vet_info = JSON.parse(claim.form)['dependents_application']
       vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
-      user = BGS::SubmitForm686cJob.generate_user_struct(vet_info, @v2)
+      user = BGS::SubmitForm686cJob.generate_user_struct(vet_info, v2:)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
         claim.id,
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),

@@ -18,7 +18,7 @@ module BGS
       if @is_v2
         report_adult_children_attending_school if @student.present?
       else
-        adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@dependents_application, @is_v2)
+        adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@dependents_application, is_v2: @is_v2)
         formatted_info = adult_attending_school.format_info
         participant = bgs_service.create_participant(@proc_id)
 
@@ -38,7 +38,7 @@ module BGS
     end
 
     def report_adult_children_attending_school
-      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@student, @is_v2)
+      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@student, is_v2: @is_v2)
       formatted_info = adult_attending_school.format_info
       participant = bgs_service.create_participant(@proc_id)
 
@@ -61,8 +61,8 @@ module BGS
     end
 
     def send_address(calling_object, participant, address_info)
-      address = calling_object.generate_address(address_info, @is_v2)
-      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, @is_v2)
+      address = calling_object.generate_address(address_info, v2: @is_v2)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, v2: @is_v2)
 
       bgs_service.create_address(address_params)
     end
