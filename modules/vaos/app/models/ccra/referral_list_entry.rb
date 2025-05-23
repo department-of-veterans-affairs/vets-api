@@ -3,7 +3,7 @@
 module Ccra
   # ReferralListEntry represents the essential referral data from the CCRA ReferralList endpoint.
   class ReferralListEntry
-    attr_reader :category_of_care, :expiration_date
+    attr_reader :category_of_care, :expiration_date, :station_id
     attr_accessor :referral_number, :uuid, :referral_consult_id
 
     ##
