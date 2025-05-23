@@ -59,15 +59,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
       it 'returns an array of the affected services' do
         expect(response.parsed_body['data']).to eq(
-          {
-            'id' => mw_uuid('disability_rating'),
-            'type' => 'maintenance_window',
-            'attributes' => {
-              'service' => 'disability_rating',
-              'startTime' => '2021-05-25T23:33:39.000Z',
-              'endTime' => '2021-05-26T01:45:00.000Z'
-            }
-          }, {
+          [{
             'id' => mw_uuid('letters_and_documents'),
             'type' => 'maintenance_window',
             'attributes' => {
@@ -80,6 +72,14 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
             'type' => 'maintenance_window',
             'attributes' => {
               'service' => 'claims',
+              'startTime' => '2021-05-25T23:33:39.000Z',
+              'endTime' => '2021-05-26T01:45:00.000Z'
+            }
+          }, {
+            'id' => mw_uuid('disability_rating'),
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'disability_rating',
               'startTime' => '2021-05-25T23:33:39.000Z',
               'endTime' => '2021-05-26T01:45:00.000Z'
             }
@@ -99,7 +99,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
               'startTime' => '2021-05-25T23:33:39.000Z',
               'endTime' => '2021-05-27T01:45:00.000Z'
             }
-          }
+          }]
         )
       end
     end
