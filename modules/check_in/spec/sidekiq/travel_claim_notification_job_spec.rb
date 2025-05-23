@@ -57,14 +57,11 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       job.perform(uuid, appointment_date, template_id, claim_number)
     end
 
-    it 'skips SMS sending and logs when claim number is missing' do
+    it "doesn't skip SMS sending and logs when claim number is missing" do
       job = described_class.new
 
-      expect(notify_client).not_to receive(:send_sms)
-      expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
-      expect(test_logger).to receive(:info).with(
-        hash_including(message: 'TravelClaimNotificationJob failed without retry: missing claim_number_last_four')
-      )
+      expect(notify_client).to receive(:send_sms)
+      expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
 
       job.perform(uuid, appointment_date, template_id, nil)
     end
