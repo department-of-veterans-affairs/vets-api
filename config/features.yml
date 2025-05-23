@@ -2205,3 +2205,6 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  gi_ct_mapbox_mitigation:
+    actor_type: user
+    description: If enabled, hides search by location feature affected by MapBox loss
