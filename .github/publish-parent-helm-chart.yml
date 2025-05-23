@@ -1,0 +1,60 @@
+name: Publish Parent Helm Chart to ECR
+
+on:
+  push:
+    branches:
+      - parent-helm-chart
+      - sc/vets-api/parentHelmChartPushECR
+
+jobs:
+  publish:
+    name: Build and Publish Helm Chart
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: us-gov-west-1
+      ECR_REPO: dsva/helm/vets-api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        id: creds
+        with:
+          aws-region: us-gov-west-1
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
+          output-credentials: true
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Install yq to parse YAML
+        uses: mikefarah/yq@v4.44.1
+
+      - name: Extract version from Chart.yaml
+        id: version
+        run: |
+          echo "chart_version=$(yq '.version' Chart.yaml)" >> "$GITHUB_OUTPUT"
+
+      - name: Log into ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Package Helm chart
+        run: |
+          mkdir -p packaged
+          helm dependency update .
+          helm package . --version "${{ steps.version.outputs.chart_version }}" --destination packaged
+
+      - name: Push Helm chart to ECR
+        run: |
+          helm push packaged/vets-api-${{ steps.version.outputs.chart_version }}.tgz \
+            oci://${{ vars.ECR_PREFIX }}dsva/helm/vets-api
