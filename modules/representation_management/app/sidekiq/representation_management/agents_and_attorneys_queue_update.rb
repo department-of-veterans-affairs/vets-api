@@ -11,6 +11,8 @@ module RepresentationManagement
       attorney_responses = []
       agent_ids = []
       attorney_ids = []
+      agent_ids_for_address_validation = []
+      attorney_ids_for_address_validation = []
       page = 1
 
       loop do
@@ -20,8 +22,11 @@ module RepresentationManagement
 
         agent_responses << agents
         agents.each do |agent|
+          agent_identifier = { individual_type: 'claims_agent', ogc_id: agent['id'] }
           agent_hash = data_transform_for_agent(agent)
-          record = AccreditedIndividual.find_or_initialize_by(agent_hash)
+          record = AccreditedIndividual.find_or_create_by(agent_identifier)
+          agent_ids_for_address_validation << record.id if record.raw_address != raw_address_for_agent(agent)
+          record.update(agent_hash)
           agent_ids << record.id
         end
         page += 1
@@ -35,8 +40,9 @@ module RepresentationManagement
 
         attorney_responses << attorneys
         attorneys.each do |attorney|
+          attorney_identifier = { individual_type: 'attorney', ogc_id: attorney['id'] }
           attorney_hash = data_transform_for_attorney(attorney)
-          record = AccreditedIndividual.find_or_initialize_by(attorney_hash)
+          record = AccreditedIndividual.find_or_create_by(attorney_identifier)
           attorney_ids << record.id
         end
         page += 1
@@ -54,27 +60,12 @@ module RepresentationManagement
 
     private
 
-    # Agent keys that are a close match to AccreditedIndividual:[
-    #   number -> registration_number,
-    #   poa -> poa_code,
-    #   person_id -> ogc_id,
-    #   firstName -> first_name,
-    #   middleName -> middle_initial,
-    #   lastName -> last_name,
-    #   workAddress1 -> address_line1,
-    #   workAddress2 -> address_line2,
-    #   workAddress3 -> address_line3,
-    #   workZip -> zip_code,
-    #   workCountry -> country_code_iso3, country_name,
-    #   workPhoneNumber -> phone,
-    #   workEmailAddress -> email,
-    # ]
     def data_transform_for_agent(agent)
       {
         individual_type: 'claims_agent',
         registration_number: agent['number'],
         poa_code: agent['poa'],
-        ogc_id: agent['person_id'],
+        ogc_id: agent['id'],
         first_name: agent['firstName'],
         middle_initial: agent['middleName'].to_s.strip.first,
         last_name: agent['lastName'],
@@ -90,28 +81,12 @@ module RepresentationManagement
       }
     end
 
-    # Attorney keys that are a close match to AccreditedIndividual:[
-    #   number -> registration_number,
-    #   firstName -> first_name,
-    #   middleName -> middle_initial,
-    #   lastName -> last_name,
-    #   poa -> poa_code,
-    #   workNumber -> phone,
-    #   emailAddress -> email,
-    #   workAddress1 -> address_line1,
-    #   workAddress2 -> address_line2,
-    #   workAddress3 -> address_line3,
-    #   workZip -> zip_code,
-    #   workCity -> city,
-    #   workState -> state_code,
-    #   id, personID, attorneyID -> ogc_id?
-    # ]
     def data_transform_for_attorney(attorney)
       {
         individual_type: 'attorney',
         registration_number: attorney['number'],
         poa_code: attorney['poa'],
-        ogc_id: attorney['personID'] || attorney['attorneyID'],
+        ogc_id: attorney['id'],
         first_name: attorney['firstName'],
         middle_initial: attorney['middleName'].to_s.strip.first,
         last_name: attorney['lastName'],
