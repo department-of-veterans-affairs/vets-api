@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/dependents/retrieved_info'
-
 module V0
   class DependentsApplicationsController < ApplicationController
     service_tag 'dependent-change'
@@ -43,11 +41,6 @@ module V0
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
       render json: SavedClaimSerializer.new(claim)
-    end
-
-    def disability_rating
-      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
-      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
     end
 
     private

@@ -14,7 +14,7 @@ module DebtsApi
 
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true
-    belongs_to :user_account, dependent: nil, optional: true
+    belongs_to :user_account, dependent: nil, optional: false
     has_kms_key
     has_encrypted :form_json, :metadata, :ipf_data, key: :kms_key, **lockbox_options
 

@@ -1888,9 +1888,6 @@ features:
   mobile_lighthouse_document_upload:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our document uploads
-  mobile_lighthouse_disability_ratings:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
   mobile_military_indicator_logger:
     actor_type: user
     description: For mobile app, enables logging of military discharge codes

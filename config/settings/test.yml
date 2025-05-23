@@ -209,6 +209,9 @@ claims_api:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
+claims_evidence_api:
+  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
+  jwt_secret: 'fake_api_key'
 clamav:
   host: 0.0.0.0
   mock: true

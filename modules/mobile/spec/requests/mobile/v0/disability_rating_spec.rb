@@ -45,10 +45,7 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
     token = 'blahblech'
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return(token)
-    Flipper.enable_actor(:mobile_lighthouse_disability_rating, user)
   end
-
-  after { Flipper.disable(:mobile_lighthouse_disability_ratings) }
 
   describe 'Get /v0/disability-rating' do
     context 'user without access' do

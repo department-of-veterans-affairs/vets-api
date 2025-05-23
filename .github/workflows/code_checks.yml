@@ -69,9 +69,6 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
-    outputs:
-      status: ${{ steps.test-status.outputs.status }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -127,7 +124,6 @@ jobs:
             ${{ env.COMPOSE_BASH_CMD }}
             "bundle exec rake parallel:setup[24]"
 
-
       - name: Setup system tmp dir
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
@@ -138,11 +134,6 @@ jobs:
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
           "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
-
-      - name: Set Test Status
-        id: test-status
-        if: always()
-        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
 
       - name: Upload Coverage Report
         if: always()
@@ -179,23 +170,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-
-  update_labels:
-    name: Update Test Status Labels
-    needs: tests
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
       - name: Remove Test Failure label
-        if: needs.tests.outputs.status == 'success'
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
 
       - name: Add Test Failure label
-        if: needs.tests.outputs.status == 'failure'
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
