@@ -75,7 +75,7 @@ module VAOS
       # @return [String] the referral status
       def referral_status_param
         # Default to only show referrals that a veteran can make appointments for.
-        params.fetch(:status, "'AP'")
+        params.fetch(:status, "'AP', 'C'")
       end
 
       # Filters out referrals that have expired (expiration date before today)
