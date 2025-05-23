@@ -660,6 +660,9 @@ lighthouse:
       use_mocks: <%= ENV['lighthouse__benefits_claims__form526__use_mocks'] %>
     host: <%= ENV['lighthouse__benefits_claims__host'] %>
     use_mocks: <%= ENV['lighthouse__benefits_claims__use_mocks'] %>
+  benefits_discovery:
+    x_api_key: <%= ENV['lighthouse__benefits_discovery__x_api_key'] %>
+    x_app_id: <%= ENV['lighthouse__benefits_discovery__x_app_id'] %>
   benefits_documents:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__benefits_documents__access_token__aud_claim_url'] %>
