@@ -11,7 +11,7 @@ module Swagger
           operation :post do
             key :description, 'Create a MDOT supply order'
             key :operationId, 'addMdotOrder'
-            key :tags, %w[ mdot]
+            key :tags, %w[mdot]
 
             extend Swagger::Responses::AuthenticationError
             parameter :authorization
@@ -30,7 +30,7 @@ module Swagger
 
                 property :use_permanent_address, type: :boolean, example: true
                 property :use_temporary_address, type: :boolean, example: false
-                property :vet_email, type: :string, example: "vet1@va.gov"
+                property :vet_email, type: :string, example: 'vet1@va.gov'
                 property :order do
                   key :type, :array
 
@@ -43,23 +43,23 @@ module Swagger
                 property :permanent_address do
                   key :type, :object
                   property :isMilitary, type: :boolean, example: false
-                  property :street, type: :string, example: "125 SOME RD"
-                  property :street2, type: :string, example: "APT 101"
-                  property :city, type: :string, example: "DENVER"
-                  property :state, type: :string, example: "CO"
-                  property :country, type: :string, example: "United States"
-                  property :postalCode, type: :string, example: "11111"
+                  property :street, type: :string, example: '125 SOME RD'
+                  property :street2, type: :string, example: 'APT 101'
+                  property :city, type: :string, example: 'DENVER'
+                  property :state, type: :string, example: 'CO'
+                  property :country, type: :string, example: 'United States'
+                  property :postalCode, type: :string, example: '11111'
                 end
 
                 property :temporary_address do
                   key :type, :object
                   property :isMilitary, type: :boolean, example: false
-                  property :street, type: :string, example: "17250 w colfax ave"
-                  property :street2, type: :string, example: "a-204"
-                  property :city, type: :string, example: "Golden"
-                  property :state, type: :string, example: "CO"
-                  property :country, type: :string, example: "United States"
-                  property :postalCode, type: :string, example: "80401"
+                  property :street, type: :string, example: '17250 w colfax ave'
+                  property :street2, type: :string, example: 'a-204'
+                  property :city, type: :string, example: 'Golden'
+                  property :state, type: :string, example: 'CO'
+                  property :country, type: :string, example: 'United States'
+                  property :postalCode, type: :string, example: '80401'
                 end
               end
             end
