@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - parent-helm-chart
-      - sc/vets-api/parentHelmChartPushECR
-
+      - sc/vets-api/**
+      
 jobs:
   publish:
     name: Build and Publish Helm Chart
