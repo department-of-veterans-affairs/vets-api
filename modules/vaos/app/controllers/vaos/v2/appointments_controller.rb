@@ -518,8 +518,8 @@ module VAOS
           provider_id,
           {
             appointmentTypeId: referral_data[:appointment_type_id],
-            startOnOrAfter: referral_data[:start_date],
-            startBefore: referral_data[:end_date]
+            startOnOrAfter: Date.parse(referral_data[:start_date]).to_time.utc.iso8601,
+            startBefore: Date.parse(referral_data[:end_date]).to_time.utc.iso8601
           }
         )
       end
@@ -555,7 +555,7 @@ module VAOS
       #
       # TODO: pass in date from cached referral data to use as range for CCRA appointments call
       def check_referral_usage(referral_id)
-        check = appointments_service.referral_appointment_already_exists?(referral_id)
+        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
 
         if check[:error]
           { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
