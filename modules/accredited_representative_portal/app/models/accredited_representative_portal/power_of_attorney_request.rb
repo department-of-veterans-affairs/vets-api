@@ -208,6 +208,10 @@ module AccreditedRepresentativePortal
       where(prefixed_names => values)
     }
 
+    scope :for_accredited_individual, lambda { |accredited_individual_registration_number|
+      where(accredited_individual_registration_number:)
+    }
+
     private
 
     def set_claimant_type
