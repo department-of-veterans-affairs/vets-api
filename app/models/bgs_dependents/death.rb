@@ -2,9 +2,9 @@
 
 module BGSDependents
   class Death < Base
-    def initialize(death_info)
+    def initialize(death_info, is_v2 = false)
       @death_info = death_info
-      @is_v2 = v2?
+      @is_v2 = is_v2
     end
 
     def format_info

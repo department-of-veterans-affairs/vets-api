@@ -50,8 +50,8 @@ module Lighthouse
         @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
         claim.add_veteran_info(vet_info)
 
-        get_files_from_claim
-        result = upload_to_lh
+        get_files_from_claim(user_struct)
+        result = upload_to_lh(user_struct)
         check_success(result, saved_claim_id, user_struct)
       rescue => e
         # if we fail, update the associated central mail record to failed and send the user the failure email
@@ -63,7 +63,7 @@ module Lighthouse
         cleanup_file_paths
       end
 
-      def upload_to_lh
+      def upload_to_lh(user_struct)
         Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Initiate Submission Attempt',
                             claim_id: claim.id })
         lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
@@ -75,15 +75,15 @@ module Lighthouse
           attachments: attachment_paths.map(&method(:split_file_and_path)),
           form_metadata: generate_metadata_lh
         )
-        create_form_submission_attempt(uuid)
+        create_form_submission_attempt(uuid, user_struct)
 
         Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Submission Successful', claim_id: claim.id,
                             uuid: })
         response
       end
 
-      def create_form_submission_attempt(intake_uuid)
-        v2 = Flipper.enabled?(:va_dependents_v2)
+      def create_form_submission_attempt(intake_uuid, user_struct)
+        v2 = user_struct['v2']
         form_type = if v2
                       claim.submittable_686? ? FORM_ID_V2 : FORM_ID_674_V2
                     else
@@ -99,9 +99,9 @@ module Lighthouse
         end
       end
 
-      def get_files_from_claim
+      def get_files_from_claim(user_struct)
         # process the main pdf record and the attachments as we would for a vbms submission
-        v2 = Flipper.enabled?(:va_dependents_v2)
+        v2 = user_struct['v2']
         if claim.submittable_674?
           form_674_paths = []
           if v2
@@ -192,13 +192,13 @@ module Lighthouse
         }
       end
 
-      def generate_metadata # rubocop:disable Metrics/MethodLength
+      def generate_metadata(user_struct) # rubocop:disable Metrics/MethodLength
         form = claim.parsed_form['dependents_application']
         veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
         form_pdf_metadata = get_hash_and_pages(form_path)
         address = form['veteran_contact_information']['veteran_address']
         is_usa = address['country_name'] == 'USA'
-        v2 = Flipper.enabled?(:va_dependents_v2)
+        v2 = user_struct['v2']
         zip_code = v2 ? address['postal_code'] : address['zip_code']
         metadata = {
           'veteranFirstName' => veteran_information['full_name']['first'],
@@ -253,11 +253,9 @@ module Lighthouse
       end
 
       def send_confirmation_email(user)
-        return claim.send_received_email(user) if Flipper.enabled?(:dependents_separate_confirmation_email)
-
         return if user.va_profile_email.blank?
 
-        form_id = Flipper.enabled?(:va_dependents_v2) ? FORM_ID_V2 : FORM_ID
+        form_id = user.v2 ? FORM_ID_V2 : FORM_ID
         VANotify::ConfirmationEmail.send(
           email_address: user.va_profile_email,
           template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,

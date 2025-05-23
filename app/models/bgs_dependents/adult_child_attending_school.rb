@@ -31,9 +31,9 @@ module BGSDependents
     validates :first, presence: true
     validates :last, presence: true
 
-    def initialize(dependents_application)
+    def initialize(dependents_application, is_v2 = false)
       @dependents_application = dependents_application
-      @is_v2 = v2?
+      @is_v2 = is_v2
       # with v2 handling, dependents_application is one to many hashes within the student_information array
       @source = @is_v2 ? @dependents_application : @dependents_application['student_name_and_ssn']
       @ssn = @source['ssn']

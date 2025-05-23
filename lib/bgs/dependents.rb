@@ -11,7 +11,7 @@ module BGS
       @dependents_application = @payload['dependents_application']
       @user = user
       @views = payload['view:selectable686_options']
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = user.v2
     end
 
     def create_all
@@ -26,7 +26,7 @@ module BGS
     # rubocop:disable Metrics/MethodLength
     def report_deaths
       @dependents_application['deaths']&.each do |death_info|
-        death = BGSDependents::Death.new(death_info)
+        death = BGSDependents::Death.new(death_info, @is_v2)
         relationship_types = death.relationship_type(death_info)
 
         # next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
@@ -57,7 +57,7 @@ module BGS
     # rubocop:enable Metrics/MethodLength
 
     def report_divorce
-      divorce = BGSDependents::Divorce.new(@dependents_application['report_divorce'])
+      divorce = BGSDependents::Divorce.new(@dependents_application['report_divorce'], @is_v2)
       formatted_info = divorce.format_info
       participant = bgs_service.create_participant(@proc_id)
       bgs_service.create_person(person_params(divorce, participant, formatted_info))
@@ -83,8 +83,8 @@ module BGS
     end
 
     def send_address(calling_object, participant, address_info)
-      address = calling_object.generate_address(address_info)
-      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address)
+      address = calling_object.generate_address(address_info, @is_v2)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, @is_v2)
 
       bgs_service.create_address(address_params)
     end

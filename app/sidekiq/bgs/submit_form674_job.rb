@@ -9,14 +9,14 @@ module BGS
     include Sidekiq::Job
     include SentryLogging
 
-    attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
+    attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn, :v2
 
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _error|
-      user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
+      user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash, v2 = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.error("BGS::SubmitForm674Job failed, retries exhausted! Last error: #{msg['error_message']}",
                          { user_uuid:, saved_claim_id:, icn: })
@@ -24,9 +24,9 @@ module BGS
       BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
     end
 
-    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
+    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil, v2 = false)
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
-      instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
+      instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id, v2)
 
       submit_form
 
@@ -53,16 +53,17 @@ module BGS
       raise Sidekiq::JobRetry::Skip
     end
 
-    def instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
+    def instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id, v2)
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info)
+      @user = BGS::SubmitForm674Job.generate_user_struct(encrypted_user_struct_hash, @vet_info, v2)
       @icn = icn
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      @v2 = v2
     end
 
-    def self.generate_user_struct(encrypted_user_struct, vet_info)
+    def self.generate_user_struct(encrypted_user_struct, vet_info, v2 = false)
       if encrypted_user_struct.present?
         return OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)))
       end
@@ -79,12 +80,13 @@ module BGS
         participant_id: info['participant_id'],
         icn: info['icn'],
         uuid: info['uuid'],
-        common_name: info['common_name']
+        common_name: info['common_name'],
+        v2: v2
       )
     end
 
     def self.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
-      user = generate_user_struct(encrypted_user_struct_hash, vet_info)
+      user = generate_user_struct(encrypted_user_struct_hash, vet_info, @v2)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
         saved_claim_id,
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),

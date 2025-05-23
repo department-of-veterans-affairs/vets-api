@@ -2,9 +2,9 @@
 
 module BGSDependents
   class MarriageHistory < Base
-    def initialize(former_spouse)
+    def initialize(former_spouse, is_v2 = false)
       @former_spouse = former_spouse
-      @is_v2 = v2?
+      @is_v2 = is_v2
       @start_source = @is_v2 ? @former_spouse.dig('start_location', 'location') : @former_spouse['start_location']
       @end_source = @is_v2 ? @former_spouse.dig('end_location', 'location') : @former_spouse['end_location']
     end

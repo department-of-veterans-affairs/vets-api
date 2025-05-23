@@ -8,7 +8,7 @@ module BGS
       @proc_id = proc_id
       @payload = payload
       @dependents_application = payload['dependents_application']
-      @is_v2 = Flipper.enabled?(:va_dependents_v2)
+      @is_v2 = user.v2
       @dependents = {}
       @user = user
       @student = student
@@ -18,7 +18,7 @@ module BGS
       if @is_v2
         report_adult_children_attending_school if @student.present?
       else
-        adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@dependents_application)
+        adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@dependents_application, @is_v2)
         formatted_info = adult_attending_school.format_info
         participant = bgs_service.create_participant(@proc_id)
 
@@ -38,7 +38,7 @@ module BGS
     end
 
     def report_adult_children_attending_school
-      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@student)
+      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@student, @is_v2)
       formatted_info = adult_attending_school.format_info
       participant = bgs_service.create_participant(@proc_id)
 
@@ -61,8 +61,8 @@ module BGS
     end
 
     def send_address(calling_object, participant, address_info)
-      address = calling_object.generate_address(address_info)
-      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address)
+      address = calling_object.generate_address(address_info, @is_v2)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, @is_v2)
 
       bgs_service.create_address(address_params)
     end

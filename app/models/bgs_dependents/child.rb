@@ -55,9 +55,9 @@ module BGSDependents
     validates :first, presence: true
     validates :last, presence: true
 
-    def initialize(child_info)
+    def initialize(child_info, is_v2 = false)
       @child_info = child_info
-      @is_v2 = v2?
+      @is_v2 = is_v2
 
       assign_attributes
     end

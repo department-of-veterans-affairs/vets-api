@@ -12,6 +12,7 @@ module BGS
       @payload = payload.with_indifferent_access
       @veteran_info = veteran.formatted_params(@payload)
       @claim_type = claim_type
+      @is_v2 = user.v2
       @va_file_number = @payload['veteran_information']['va_file_number']
     end
 
@@ -66,7 +67,7 @@ module BGS
     end
 
     def create_address(participant)
-      address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+      address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info, @is_v2)
       address = bgs_service.create_address(address_params)
 
       address[:address_type] = 'OVR' if address[:mlty_post_office_type_cd].present?

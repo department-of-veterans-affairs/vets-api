@@ -8,11 +8,11 @@ module BGSDependents
     attribute :student_expected_earnings_next_year, Hash
     attribute :student_information, Hash
 
-    def initialize(dependents_application, proc_id, vnp_participant_id, student = nil)
+    def initialize(dependents_application, proc_id, vnp_participant_id, student = nil, is_v2 = false)
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @dependents_application = dependents_application
-      @is_v2 = v2?
+      @is_v2 = is_v2
       @student = student
 
       assign_attributes(@is_v2 ? student : dependents_application)

@@ -91,24 +91,24 @@ module BGSDependents
       DateTime.parse("#{date} 12:00:00").to_time.iso8601
     end
 
-    def generate_address(address)
+    def generate_address(address, v2 = false)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
-        address['military_postal_code'] = v2? ? address.delete('state') : address.delete('state_code')
+        address['military_postal_code'] = v2 ? address.delete('state') : address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
 
-      adjust_address_lines_for!(address: address['veteran_address']) if address['veteran_address']
+      adjust_address_lines_for!(address: address['veteran_address'], v2:) if address['veteran_address']
 
-      adjust_address_lines_for!(address:)
-      adjust_country_name_for!(address:)
+      adjust_address_lines_for!(address:, v2:)
+      adjust_country_name_for!(address:, v2:)
 
       address
     end
 
     # BGS will not accept address lines longer than 20 characters
-    def adjust_address_lines_for!(address:)
-      all_lines = if v2?
+    def adjust_address_lines_for!(address:, v2:)
+      all_lines = if v2
                     "#{address['street']} #{address['street2']} #{address['street3']}"
                   else
                     "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
@@ -122,7 +122,7 @@ module BGSDependents
 
     # rubocop:disable Metrics/MethodLength
     # This method converts ISO 3166-1 Alpha-3 country codes to ISO 3166-1 country names.
-    def adjust_country_name_for!(address:)
+    def adjust_country_name_for!(address:, v2:)
       # international postal code is only in v1, return if country is usa in v2
       return if address['international_postal_code'].blank? || address['country'] == 'USA'
 
@@ -154,16 +154,15 @@ module BGSDependents
           IsoCountryCodes.find(country_name).name
         end
 
-      address['country'] = address['country_name'] if v2?
+      address['country'] = address['country_name'] if v2
       address
     end
     # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
-    def create_address_params(proc_id, participant_id, payload)
-      is_v2 = v2?
-      address = generate_address(payload)
-      frgn_postal_code = if is_v2
+    def create_address_params(proc_id, participant_id, payload, v2 = false)
+      address = generate_address(payload, v2)
+      frgn_postal_code = if v2
                            if address['military_postal_code'].present? || address['country'] == 'USA'
                              nil
                            else
@@ -182,13 +181,13 @@ module BGSDependents
         addrs_two_txt: address['address_line2'],
         addrs_three_txt: address['address_line3'],
         city_nm: address['city'],
-        cntry_nm: is_v2 ? address['country'] : address['country_name'],
-        postal_cd: is_v2 ? address['state'] : address['state_code'],
+        cntry_nm: v2 ? address['country'] : address['country_name'],
+        postal_cd: v2 ? address['state'] : address['state_code'],
         frgn_postal_cd: frgn_postal_code,
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
-        zip_prefix_nbr: is_v2 ? address['postal_code'] : address['zip_code'],
-        prvnc_nm: is_v2 ? address['state'] : address['state_code'],
+        zip_prefix_nbr: v2 ? address['postal_code'] : address['zip_code'],
+        prvnc_nm: v2 ? address['state'] : address['state_code'],
         email_addrs_txt: payload['email_address']
       }
     end
@@ -198,12 +197,6 @@ module BGSDependents
       return nil if bool_attribute.nil?
 
       bool_attribute ? 'Y' : 'N'
-    end
-
-    private
-
-    def v2?
-      Flipper.enabled?(:va_dependents_v2)
     end
   end
 end

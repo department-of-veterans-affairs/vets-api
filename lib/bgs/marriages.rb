@@ -9,6 +9,7 @@ module BGS
       @dependents = []
       @proc_id = proc_id
       @payload = payload
+      @is_v2 = user.v2
       @dependents_application = @payload['dependents_application']
     end
 
@@ -24,7 +25,7 @@ module BGS
 
     def report_marriage_history(type)
       @dependents_application[type].each do |former_spouse|
-        former_marriage = BGSDependents::MarriageHistory.new(former_spouse)
+        former_marriage = BGSDependents::MarriageHistory.new(former_spouse, @is_v2)
         marriage_info = former_marriage.format_info
         participant = bgs_service.create_participant(@proc_id)
 
@@ -55,7 +56,7 @@ module BGS
     end
 
     def add_spouse
-      spouse = BGSDependents::Spouse.new(@dependents_application)
+      spouse = BGSDependents::Spouse.new(@dependents_application, @is_v2)
       spouse_info = spouse.format_info
       participant = bgs_service.create_participant(@proc_id)
 
@@ -84,8 +85,8 @@ module BGS
     end
 
     def send_address(calling_object, participant, address_info)
-      address = calling_object.generate_address(address_info)
-      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address)
+      address = calling_object.generate_address(address_info, @is_v2)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address, @is_v2)
 
       bgs_service.create_address(address_params)
     end

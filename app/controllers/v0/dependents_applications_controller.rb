@@ -16,7 +16,7 @@ module V0
     end
 
     def create
-      if Flipper.enabled?(:va_dependents_v2)
+      if Flipper.enabled?(:va_dependents_v2, current_user)
         form = dependent_params.to_json
         use_v2 = form.present? ? JSON.parse(form)&.dig('dependents_application', 'use_v2') : nil
         claim = SavedClaim::DependencyClaim.new(form:, use_v2:)

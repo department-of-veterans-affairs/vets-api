@@ -42,10 +42,10 @@ module BGSDependents
     attribute :martl_status_type_cd, String
     attribute :spouse_income, String
 
-    def initialize(dependents_application)
+    def initialize(dependents_application, is_v2 = false)
       @dependents_application = dependents_application
       @spouse_information = @dependents_application['spouse_information']
-      @is_v2 = v2?
+      @is_v2 = is_v2
 
       assign_attributes
     end
