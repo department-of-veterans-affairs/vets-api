@@ -10,7 +10,6 @@ describe Ccra::RedisClient do
   let(:id) { '12345' }
   let(:icn) { '1234567890V123456' }
 
-  # Use ReferralDetail instead of OpenStruct
   let(:referral_data) do
     Ccra::ReferralDetail.new(
       referral_number: '12345',
@@ -89,6 +88,26 @@ describe Ccra::RedisClient do
         Timecop.travel(redis_referral_expiry.from_now + 1.second) do
           expect(subject.fetch_referral_data(id:, icn:)).to be_nil
         end
+      end
+    end
+  end
+
+  describe '#clear_referral_data' do
+    context 'when cache exists' do
+      before do
+        subject.save_referral_data(id:, icn:, referral_data:)
+      end
+
+      it 'clears the referral data from cache' do
+        # Verify data exists before clearing
+        expect(subject.fetch_referral_data(id:, icn:)).to be_a(Ccra::ReferralDetail)
+
+        # Clear the data
+        result = subject.clear_referral_data(id:, icn:)
+        expect(result).to be(true)
+
+        # Verify data no longer exists
+        expect(subject.fetch_referral_data(id:, icn:)).to be_nil
       end
     end
   end

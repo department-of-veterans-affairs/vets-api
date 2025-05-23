@@ -50,6 +50,19 @@ module Ccra
       json_data ? ReferralDetail.new.from_json(json_data) : nil
     end
 
+    # Clears referral data from the Redis cache for a specific referral.
+    #
+    # @param id [String] The referral ID to clear
+    # @param icn [String] The ICN of the patient
+    # @return [Boolean] True if the key was found and deleted, false otherwise
+    def clear_referral_data(id:, icn:)
+      cache_key = generate_cache_key(id, icn)
+      Rails.cache.delete(
+        cache_key,
+        namespace: REFERRAL_CACHE_NAMESPACE
+      )
+    end
+
     private
 
     # Generates a consistent cache key for a referral.
