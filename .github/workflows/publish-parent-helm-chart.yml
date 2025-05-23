@@ -52,9 +52,9 @@ jobs:
         run: |
           mkdir -p packaged
           helm dependency update chart/
-          helm package chart/ --version "${{ steps.version.outputs.chart_version }}" --destination packaged
+          helm package chart/ --version "${{ steps.version.outputs.chart_version }}-parent-helm-chart" --destination packaged
 
       - name: Push Helm chart to ECR
         run: |
-          helm push packaged/vets-api-${{ steps.version.outputs.chart_version }}.tgz \
+          helm push packaged/vets-api-${{ steps.version.outputs.chart_version }}-parent-helm-chart.tgz \
             oci://${{ vars.ECR_PREFIX }}dsva/helm
