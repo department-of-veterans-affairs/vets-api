@@ -555,7 +555,7 @@ module VAOS
       #
       # TODO: pass in date from cached referral data to use as range for CCRA appointments call
       def check_referral_usage(referral_id)
-        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+        check = appointments_service.referral_appointment_already_exists?(referral_id)
 
         if check[:error]
           { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
