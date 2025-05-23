@@ -22,13 +22,27 @@ module Dependents
     # statsd key for email notifications
     EMAIL_STATS_KEY = 'dependents.email_notification'
 
-    def initialize(use_v2)
+    def initialize(claim_id)
+      @claim_id = claim_id
+      @claim = claim(claim_id)
       @use_v2 = use_v2
       super('dependents-application')
     end
 
+    def use_v2
+      return nil unless @claim
+
+      @claim&.use_v2 || @claim&.form_id&.include?('-V2')
+    end
+
+    def claim(claim_id)
+      SavedClaim::DependencyClaim.find(claim_id)
+    rescue => e
+      Rails.logger.warn('Unable to find claim for Dependents::Monitor', { claim_id:, e: })
+    end
+
     def default_payload
-      { service:, use_v2: @use_v2 }
+      { service:, use_v2: @use_v2, claim_id: @claim_id }
     end
 
     def tags
@@ -55,66 +69,66 @@ module Dependents
       )
     end
 
-    def track_unknown_claim_type(claim_id, e)
+    def track_unknown_claim_type(e)
       metric = "#{EMAIL_STATS_KEY}.unknown_type"
-      payload = default_payload.merge({ statsd: metric, claim_id:, e: })
+      payload = default_payload.merge({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)
-      Rails.logger.error("Unknown Dependents form type for claim #{claim_id}", payload)
+      Rails.logger.error("Unknown Dependents form type for claim #{@claim_id}", payload)
     end
 
-    def track_send_email_success(message, metric, claim_id, user_account_id = nil)
-      payload = default_payload.merge({ statsd: metric, claim_id:, user_account_id: })
+    def track_send_email_success(message, metric, user_account_id = nil)
+      payload = default_payload.merge({ statsd: metric, user_account_id: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.info(message, payload)
     end
 
-    def track_send_email_error(message, metric, claim_id, e, user_account_uuid = nil)
-      payload = default_payload.merge({ statsd: metric, claim_id:, e:, user_account_uuid: })
+    def track_send_email_error(message, metric, e, user_account_uuid = nil)
+      payload = default_payload.merge({ statsd: metric, e:, user_account_uuid: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.error(message, payload)
     end
 
-    def track_send_submitted_email_success(claim_id, user_account_uuid = nil)
-      track_send_email_success("'Submitted' email success for claim #{claim_id}",
+    def track_send_submitted_email_success(user_account_uuid = nil)
+      track_send_email_success("'Submitted' email success for claim #{@claim_id}",
                                "#{EMAIL_STATS_KEY}.submitted.success",
-                               claim_id, user_account_uuid)
+                               user_account_uuid)
     end
 
-    def track_send_submitted_email_failure(claim_id, e, user_account_uuid = nil)
-      track_send_email_error("'Submitted' email failure for claim #{claim_id}",
+    def track_send_submitted_email_failure(e, user_account_uuid = nil)
+      track_send_email_error("'Submitted' email failure for claim #{@claim_id}",
                              "#{EMAIL_STATS_KEY}.submitted.failure",
-                             claim_id, e, user_account_uuid)
+                             e, user_account_uuid)
     end
 
-    def track_send_received_email_success(claim_id, user_account_uuid = nil)
-      track_send_email_success("'Received' email success for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.success",
-                               claim_id, user_account_uuid)
+    def track_send_received_email_success(user_account_uuid = nil)
+      track_send_email_success("'Received' email success for claim #{@claim_id}", "#{EMAIL_STATS_KEY}.received.success",
+                               user_account_uuid)
     end
 
-    def track_send_received_email_failure(claim_id, e, user_account_uuid = nil)
-      track_send_email_failure("'Received' email failure for claim #{claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
-                               claim_id, e, user_account_uuid)
+    def track_send_received_email_failure(e, user_account_uuid = nil)
+      track_send_email_failure("'Received' email failure for claim #{@claim_id}", "#{EMAIL_STATS_KEY}.received.failure",
+                               e, user_account_uuid)
     end
 
-    def track_to_pdf_failure(claim_id, e)
+    def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
       metric = "#{metric}.v2" if @use_v2
-      payload = default_payload.merge({ statsd: metric, claim_id:, e: })
+      payload = default_payload.merge({ statsd: metric, e:, form_id: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.error('SavedClaim::DependencyClaim#to_pdf error', payload)
     end
 
-    def track_pdf_overflow_tracking_failure(claim_id, e)
+    def track_pdf_overflow_tracking_failure(e)
       metric = "#{CLAIM_STATS_KEY}.track_pdf_overflow.failure"
       metric = "#{metric}.v2" if @use_v2
-      payload = default_payload.merge({ statsd: metric, claim_id:, e: })
+      payload = default_payload.merge({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)
-      Rails.logger.error('Error tracking PDF overflow', payload)
+      Rails.logger.warn('Error tracking PDF overflow', payload)
     end
 
     def track_pdf_overflow(form_id)

@@ -9,7 +9,7 @@ RSpec.describe V0::InProgressFormsController do
 
   context 'with a user' do
     let(:loa3_user) { build(:user, :loa3, :with_terms_of_use_agreement) }
-    let(:loa1_user) { build(:user, :loa1) }
+    let(:loa1_user) { build(:user, :loa1, :with_terms_of_use_agreement, icn: nil) }
 
     before do
       sign_in_as(user)
@@ -304,7 +304,7 @@ RSpec.describe V0::InProgressFormsController do
       end
 
       context 'with a new form' do
-        let(:new_form) { create(:in_progress_form, user_uuid: user.uuid) }
+        let(:new_form) { create(:in_progress_form, user_uuid: user.uuid, user_account: user.user_account) }
 
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
@@ -393,7 +393,7 @@ RSpec.describe V0::InProgressFormsController do
 
       context 'with an existing form' do
         let!(:other_existing_form) { create(:in_progress_form, form_id: 'jksdfjk') }
-        let(:existing_form) { create(:in_progress_form, user_uuid: user.uuid) }
+        let(:existing_form) { create(:in_progress_form, user_uuid: user.uuid, user_account: user.user_account) }
         let(:form_data) { { some_form_data: 'form-data' }.to_json }
 
         it 'updates the right form' do

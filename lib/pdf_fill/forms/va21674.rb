@@ -555,7 +555,13 @@ module PdfFill
 
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
+
+        unless @form_data['veteran_information']
+          @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
+        end
+
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
+
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
 
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
