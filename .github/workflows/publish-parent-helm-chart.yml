@@ -16,13 +16,11 @@ jobs:
       id-token: write
       contents: read
 
-    env:
-      AWS_REGION: us-gov-west-1
-      ECR_REPO: dsva/helm/vets-api
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: parent-helm-chart
 
       - name: Configure AWS Credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
