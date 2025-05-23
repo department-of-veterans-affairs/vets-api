@@ -51,6 +51,5 @@ RSpec.configure do |config|
   config.include AccreditedRepresentativePortal::AuthenticationHelper, type: :request
   config.include AccreditedRepresentativePortal::AuthenticationHelper, type: :controller
   config.include AccreditedRepresentativePortal::RequestHelper, type: :request
-  config.include ActiveSupport::Testing::TimeHelpers
   config.include AccreditedRepresentativePortal::TransientErrorHelper
 end

@@ -1,16 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
-def load_fixture(path_suffix)
-  dir = './create_spec/fixtures'
-  File.expand_path("#{dir}/#{path_suffix}", __dir__)
-      .then { |path| File.read(path) }
-      .then { |json| JSON.parse(json) }
-end
-
-dependent_claimant_form =
-  load_fixture('dependent_claimant_form.json')
+require AccreditedRepresentativePortal::Engine.root / 'spec/spec_helper'
 
 RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   subject(:perform) do
@@ -33,6 +24,14 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   end
 
   describe 'with valid metadata' do
+    fixture_path =
+      'form_data/saved_claim/benefits_intake/dependent_claimant.json'
+
+    dependent_claimant_form =
+      load_fixture(fixture_path) do |fixture|
+        JSON.parse(fixture)
+      end
+
     let(:metadata) { dependent_claimant_form }
 
     describe 'attachment composition' do
@@ -69,9 +68,15 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'none already parented' do
           let(:attachments) { [form_a] }
 
-          it 'returns a saved claim' do
-            expect(perform).to be_a(
+          it 'returns a saved claim and enqueues the submission job' do
+            claim = perform
+
+            expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+            )
+
+            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              have_enqueued_sidekiq_job(claim.id)
             )
           end
         end
@@ -91,9 +96,15 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'with a main form' do
           let(:attachments) { [form_a, attachment_a, attachment_b] }
 
-          it 'returns a saved claim' do
-            expect(perform).to be_a(
+          it 'returns a saved claim and enqueues the submission job' do
+            claim = perform
+
+            expect(claim).to be_a(
               AccreditedRepresentativePortal::SavedClaim::BenefitsIntake
+            )
+
+            expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
+              have_enqueued_sidekiq_job(claim.id)
             )
           end
 

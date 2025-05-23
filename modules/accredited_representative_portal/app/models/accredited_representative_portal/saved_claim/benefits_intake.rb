@@ -47,14 +47,14 @@ module AccreditedRepresentativePortal
       with_options(attachment_association_options) do
         has_one(
           :form_attachment,
-          -> { where(type: PersistentAttachments::VAForm) },
+          -> { where(type: 'PersistentAttachments::VAForm') },
           class_name: 'PersistentAttachment',
           required: true
         )
 
         has_many(
           :persistent_attachments,
-          -> { where(type: PersistentAttachments::VAFormDocumentation) }
+          -> { where(type: 'PersistentAttachments::VAFormDocumentation') }
         )
       end
 
