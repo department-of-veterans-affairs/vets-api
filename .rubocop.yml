@@ -386,3 +386,11 @@ Rails/Exit:
   Exclude:
     - 'bin/lib/vets-api/*/*'
     - 'modules/mobile/lib/scripts/parse_rspec_xml.rb'
+
+Rails/UnusedIgnoredColumns:
+  Exclude:
+    - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
+
+Rails/UniqueValidationWithoutIndex:
+  Exclude:
+    - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
