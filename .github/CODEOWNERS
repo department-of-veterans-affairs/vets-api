@@ -1338,7 +1338,6 @@ spec/fixtures/notice_of_disagreements @department-of-veterans-affairs/backend-re
 spec/fixtures/notice_of_disagreements/NOD_contestable_issues_response_200.json @department-of-veterans-affairs/backend-review-group
 spec/fixtures/notice_of_disagreements/NOD_show_response_200.json @department-of-veterans-affairs/backend-review-group
 spec/fixtures/notice_of_disagreements/valid_NOD_create_request.json @department-of-veterans-affairs/backend-review-group
-spec/fixtures/okta @department-of-veterans-affairs/lighthouse-pivot
 spec/fixtures/pdf_fill @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/pdf_fill/10-10CG @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/pdf_fill/21-0781V2 @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
