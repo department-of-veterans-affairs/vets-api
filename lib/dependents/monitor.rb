@@ -113,10 +113,10 @@ module Dependents
                                e, user_account_uuid)
     end
 
-    def track_to_pdf_failure(e)
+    def track_to_pdf_failure(e, form_id)
       metric = "#{CLAIM_STATS_KEY}.to_pdf.failure"
       metric = "#{metric}.v2" if @use_v2
-      payload = default_payload.merge({ statsd: metric, e: })
+      payload = default_payload.merge({ statsd: metric, e:, form_id: })
 
       StatsD.increment(metric, tags:)
       Rails.logger.error('SavedClaim::DependencyClaim#to_pdf error', payload)
@@ -128,7 +128,7 @@ module Dependents
       payload = default_payload.merge({ statsd: metric, e: })
 
       StatsD.increment(metric, tags:)
-      Rails.logger.error('Error tracking PDF overflow', payload)
+      Rails.logger.warn('Error tracking PDF overflow', payload)
     end
 
     def track_pdf_overflow(form_id)
