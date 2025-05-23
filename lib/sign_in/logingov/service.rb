@@ -89,6 +89,24 @@ module SignIn
         }
       end
 
+      def jwt_decode(encoded_jwt)
+        verify_expiration = true
+        JWT.decode(
+          encoded_jwt,
+          nil,
+          verify_expiration,
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: method(:jwks_loader) }
+        ).first
+      rescue JWT::JWKError
+        raise Errors::PublicJWKError, '[SignIn][Logingov][Service] Public JWK is malformed'
+      rescue JWT::VerificationError
+        raise Errors::JWTVerificationError, '[SignIn][Logingov][Service] JWT body does not match signature'
+      rescue JWT::ExpiredSignature
+        raise Errors::JWTExpiredError, '[SignIn][Logingov][Service] JWT has expired'
+      rescue JWT::DecodeError
+        raise Errors::JWTDecodeError, '[SignIn][Logingov][Service] JWT is malformed'
+      end
+
       private
 
       def auth_params(acr, state, scope)
@@ -137,24 +155,6 @@ module SignIn
         access_token = response_body[:access_token]
         logingov_acr = jwt_decode(response_body[:id_token])['acr']
         { access_token:, logingov_acr: }
-      end
-
-      def jwt_decode(encoded_jwt)
-        verify_expiration = true
-        JWT.decode(
-          encoded_jwt,
-          nil,
-          verify_expiration,
-          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: method(:jwks_loader) }
-        ).first
-      rescue JWT::JWKError
-        raise Errors::PublicJWKError, '[SignIn][Logingov][Service] Public JWK is malformed'
-      rescue JWT::VerificationError
-        raise Errors::JWTVerificationError, '[SignIn][Logingov][Service] JWT body does not match signature'
-      rescue JWT::ExpiredSignature
-        raise Errors::JWTExpiredError, '[SignIn][Logingov][Service] JWT has expired'
-      rescue JWT::DecodeError
-        raise Errors::JWTDecodeError, '[SignIn][Logingov][Service] JWT is malformed'
       end
 
       def get_authn_context(current_ial)
