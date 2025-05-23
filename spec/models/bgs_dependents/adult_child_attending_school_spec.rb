@@ -6,10 +6,10 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:adult_child_attending_school) do
-    described_class.new(all_flows_payload['dependents_application'])
+    described_class.new(all_flows_payload['dependents_application'], false)
   end
   let(:adult_child_attending_school_v2) do
-    described_class.new(all_flows_payload_v2['dependents_application']['student_information'][0])
+    described_class.new(all_flows_payload_v2['dependents_application']['student_information'][0], true)
   end
   let(:formatted_info_response) do
     {
@@ -59,9 +59,6 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
   end
 
   context 'with va_dependents_v2 off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
 
     describe '#format_info' do
       it 'formats info' do
@@ -81,9 +78,6 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
 
     describe '#format_info' do
       it 'formats info' do

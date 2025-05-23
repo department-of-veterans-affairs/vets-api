@@ -6,13 +6,13 @@ RSpec.describe BGSDependents::ChildStudent do
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:child_student_info) do
-    described_class.new(all_flows_payload['dependents_application'], '3829729', '149471')
+    described_class.new(all_flows_payload['dependents_application'], '3829729', '149471', false)
   end
   let(:child_student_info_v2) do
     described_class.new(all_flows_payload['dependents_application'],
                         '3829729',
                         '149471',
-                        all_flows_payload_v2['dependents_application']['student_information'][0])
+                        all_flows_payload_v2['dependents_application']['student_information'][0], true)
   end
   let(:formatted_params_result) do
     {
@@ -68,9 +68,6 @@ RSpec.describe BGSDependents::ChildStudent do
   end
 
   context 'with va_dependents_v2 turned off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
 
     describe '#params_for_686c' do
       it 'formats child student params for submission' do
@@ -82,9 +79,6 @@ RSpec.describe BGSDependents::ChildStudent do
   end
 
   context 'with va_dependents_v2 turned on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
 
     describe '#params_for_686c' do
       it 'formats child student params for submission' do

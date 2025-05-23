@@ -44,13 +44,10 @@ RSpec.describe BGSDependents::MarriageHistory do
   end
 
   context 'with va_dependents_v2 turned off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
 
     describe '#format_info' do
       it 'formats marriage history params for submission' do
-        formatted_info = described_class.new(marriage_history_info).format_info
+        formatted_info = described_class.new(marriage_history_info, false).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end
@@ -58,13 +55,10 @@ RSpec.describe BGSDependents::MarriageHistory do
   end
 
   context 'with va_dependents_v2 turned on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
 
     describe '#format_info' do
       it 'formats marriage history params for submission' do
-        formatted_info = described_class.new(marriage_history_info_v2).format_info
+        formatted_info = described_class.new(marriage_history_info_v2, true).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end
