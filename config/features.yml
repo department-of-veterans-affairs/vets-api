@@ -1367,12 +1367,6 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
-  profile_show_payments_notification_setting:
-    actor_type: user
-    description: Show/Hide the payments section of notifications in profile
-  profile_show_new_benefit_overpayment_debt_notification_setting:
-    actor_type: user
-    description: Show/Hide the Benefit overpayment debt notification item of notifications in profile
   profile_show_new_health_care_copay_bill_notification_setting:
     actor_type: user
     description: Show/Hide the Health care copay bill section of notifications in profile
