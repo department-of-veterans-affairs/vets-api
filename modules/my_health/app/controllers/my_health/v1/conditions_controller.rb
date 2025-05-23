@@ -5,7 +5,8 @@ module MyHealth
     class ConditionsController < MRController
       def index
         if Flipper.enabled?(:mhv_medical_records_support_new_model_health_condition)
-          with_patient_resource(client.list_conditions) do |resource|
+          with_patient_resource(client.list_conditions(@current_user.uuid)) do |resource|
+            resource = resource.sort('-date')
             if pagination_params[:per_page]
               resource = resource.paginate(**pagination_params)
               links = pagination_links(resource) if pagination_params[:per_page]
@@ -14,7 +15,7 @@ module MyHealth
             render json: HealthConditionSerializer.new(resource.data, options)
           end
         else
-          render_resource client.list_conditions
+          render_resource client.list_conditions(@current_user.uuid)
         end
       end
 

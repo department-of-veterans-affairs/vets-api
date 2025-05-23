@@ -67,7 +67,7 @@ module Form526ClaimFastTrackingConcern
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
     pending = open_claims.any? do |claim|
-      claim['base_end_product_code'] == '020' && claim['status'].upcase != 'COMPLETE'
+      claim.base_end_product_code == '020' && claim.status.upcase != 'COMPLETE'
     end
     save_metadata(offramp_reason: 'pending_ep') if pending
     pending
@@ -271,7 +271,7 @@ module Form526ClaimFastTrackingConcern
         feature_toggle: nil
       )
       all_claims = api_provider.all_claims
-      all_claims['open_claims']
+      all_claims.open_claims
     end
   end
 
