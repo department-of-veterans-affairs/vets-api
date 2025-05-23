@@ -9,9 +9,8 @@ module Swagger
 
         swagger_path '/v0/mdot/supplies' do
           operation :post do
-            key :summary, 'Order supplies'
-            key :description, 'Place an order for medical supplies'
-            key :operationId, 'orderSupplies'
+            key :description, 'Create a MDOT supply order'
+            key :operationId, 'addMdotOrder'
             key :tags, %w[ mdot]
 
             extend Swagger::Responses::AuthenticationError
