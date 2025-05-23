@@ -1248,6 +1248,7 @@ va_forms:
 va_mobile:
   key_path: <%= ENV['va_mobile__key_path'] %>
   mock: <%= ENV['va_mobile__mock'] %>
+  patients_path: /vaos/v1/patients
   ppms_base_url: <%= ENV['va_mobile__ppms_base_url'] %>
   timeout: <%= ENV['va_mobile__timeout'] %>
   url: <%= ENV['va_mobile__url'] %>

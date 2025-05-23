@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <VA_MOBILE_URL>/vaos/v1/patients/care-nav-patient-casey/appointments?end=2022-09-02T00:00:00Z&pageSize=0&start=2020-09-02T00:00:00Z
+    uri: <VA_MOBILE_URL><VAOS_PATIENTS_PATH>/care-nav-patient-casey/appointments?end=2022-09-02T00:00:00Z&pageSize=0&start=2020-09-02T00:00:00Z
     body:
       encoding: US-ASCII
       string: ''
