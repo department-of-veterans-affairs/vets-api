@@ -112,6 +112,7 @@ Metrics/ClassLength:
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -156,6 +157,7 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
     - 'modules/accredited_representative_portal/app/models/accredited_representative_portal/*'
+    - 'modules/accredited_representative_portal/app/models/accredited_representative_portal/saved_claim/benefits_intake.rb'
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
@@ -383,3 +385,4 @@ Rails/HelperInstanceVariable:
 Rails/Exit:
   Exclude:
     - 'bin/lib/vets-api/*/*'
+    - 'modules/mobile/lib/scripts/parse_rspec_xml.rb'
