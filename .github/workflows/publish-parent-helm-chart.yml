@@ -57,4 +57,4 @@ jobs:
       - name: Push Helm chart to ECR
         run: |
           helm push packaged/vets-api-${{ steps.version.outputs.chart_version }}.tgz \
-            oci://${{ vars.ECR_PREFIX }}dsva/helm/vets-api
+            oci://${{ vars.ECR_PREFIX }}dsva/helm
