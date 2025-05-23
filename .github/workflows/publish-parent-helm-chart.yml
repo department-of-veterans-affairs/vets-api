@@ -51,8 +51,8 @@ jobs:
       - name: Package Helm chart
         run: |
           mkdir -p packaged
-          helm dependency update .
-          helm package . --version "${{ steps.version.outputs.chart_version }}" --destination packaged
+          helm dependency update chart/
+          helm package chart/ --version "${{ steps.version.outputs.chart_version }}" --destination packaged
 
       - name: Push Helm chart to ECR
         run: |
