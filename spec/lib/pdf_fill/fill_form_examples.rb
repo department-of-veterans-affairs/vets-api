@@ -77,15 +77,20 @@ RSpec.shared_examples 'a form filler' do |options|
                           described_class.fill_form(saved_claim)
                         end
 
+            fixture_pdf_base = "#{output_pdf_fixture_dir}/#{type}"
+            extras_redesign = options[:fill_options] && options[:fill_options][:extras_redesign]
+
             if type == 'overflow'
               extras_path = the_extras_generator.generate
 
-              expect(extras_path).to match_file_exactly("#{output_pdf_fixture_dir}/overflow_extras.pdf")
+              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+              expect(extras_path).to match_file_exactly(fixture_pdf)
 
               File.delete(extras_path)
             end
 
-            expect(file_path).to match_pdf_fields("#{output_pdf_fixture_dir}/#{type}.pdf")
+            fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
+            expect(file_path).to match_pdf_fields(fixture_pdf)
 
             File.delete(file_path)
           end

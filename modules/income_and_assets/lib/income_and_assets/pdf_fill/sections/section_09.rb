@@ -12,6 +12,8 @@ module IncomeAndAssets
         'annuity' => { key: 'F[0].#subform[8].DependentsEstablishedAnnuity9a[0]' },
         # 9b-9k (only space for one on form)
         'annuities' => {
+          # Label for each annuity entry (e.g., 'Annuity 1')
+          item_label: 'Annuity',
           limit: 1,
           first_key: 'establishedDate', # No text fields in this section
           # 9b
@@ -23,7 +25,8 @@ module IncomeAndAssets
           'establishedDateOverflow' => {
             question_num: 9,
             question_suffix: 'B',
-            question_text: 'SPECIFY DATE ANNUITY WAS ESTABLISHED'
+            question_text: 'SPECIFY DATE ANNUITY WAS ESTABLISHED',
+            question_label: 'Date Established'
           },
           # 9c
           'marketValueAtEstablishment' => {
@@ -35,14 +38,16 @@ module IncomeAndAssets
           'marketValueAtEstablishmentOverflow' => {
             question_num: 9,
             question_suffix: 'C',
-            question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE'
+            question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE',
+            question_label: 'Market Value'
           },
           # 9d
           'addedFundsAfterEstablishment' => { key: 'F[0].#subform[8].AddedFundsToAnnuity9d[0]' },
           'addedFundsAfterEstablishmentOverflow' => {
             question_num: 9,
             question_suffix: 'D',
-            question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?'
+            question_text: 'HAVE YOU ADDED FUNDS TO THE ANNUITY IN THE CURRENT OR PRIOR THREE YEARS?',
+            question_label: 'Added Funds'
           },
           # 9e
           'addedFundsDate' => {
@@ -53,7 +58,8 @@ module IncomeAndAssets
           'addedFundsDateOverflow' => {
             question_num: 9,
             question_suffix: 'E',
-            question_text: 'WHEN DID YOU ADD FUNDS?'
+            question_text: 'WHEN DID YOU ADD FUNDS?',
+            question_label: 'Date Added'
           },
           # 9f
           'addedFundsAmount' => {
@@ -65,21 +71,24 @@ module IncomeAndAssets
           'addedFundsAmountOverflow' => {
             question_num: 9,
             question_suffix: 'F',
-            question_text: 'HOW MUCH DID YOU ADD?'
+            question_text: 'HOW MUCH DID YOU ADD?',
+            question_label: 'Amount Added'
           },
           # 9g
           'revocable' => { key: "F[0].#subform[8].Annuity9g[#{ITERATOR}]" },
           'revocableOverflow' => {
             question_num: 9,
             question_suffix: 'G',
-            question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?'
+            question_text: 'IS THE ANNUITY REVOCABLE OR IRREVOCABLE?',
+            question_label: 'Revocable or Irrevocable'
           },
           # 9h
           'receivingIncomeFromAnnuity' => { key: "F[0].#subform[8].ReceiveIncomeFromAnnuity9h[#{ITERATOR}]" },
           'receivingIncomeFromAnnuityOverflow' => {
             question_num: 9,
             question_suffix: 'H',
-            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUNITY?'
+            question_text: 'DO YOU RECEIVE INCOME FROM THE ANNUITY?',
+            question_label: 'Receiving Income from Annuity'
           },
           # 9i
           'annualReceivedIncome' => {
@@ -91,14 +100,16 @@ module IncomeAndAssets
           'annualReceivedIncomeOverflow' => {
             question_num: 9,
             question_suffix: 'I',
-            question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED'
+            question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED',
+            question_label: 'Annual Received Income'
           },
           # 9j
           'canBeLiquidated' => { key: "F[0].#subform[8].AnnuityLiquidated9j[#{ITERATOR}]" },
           'canBeLiquidatedOverflow' => {
             question_num: 9,
             question_suffix: 'J',
-            question_text: 'CAN THE ANNUITY BE LIQUIDATED?'
+            question_text: 'CAN THE ANNUITY BE LIQUIDATED?',
+            question_label: 'Can Be Liquidated'
           },
           # 9k
           'surrenderValue' => {
@@ -110,7 +121,8 @@ module IncomeAndAssets
           'surrenderValueOverflow' => {
             question_num: 9,
             question_suffix: 'K',
-            question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE'
+            question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE',
+            question_label: 'Surrender Value'
           }
         }
       }.freeze
