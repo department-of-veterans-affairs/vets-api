@@ -58,54 +58,48 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
       end
 
       it 'returns an array of the affected services' do
-        expect(response.parsed_body['data']).to eq(
-          [
-            {
-              'id' => mw_uuid('disability_rating'),
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'disability_rating',
-                'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-25T22:33:39.000Z'
-              }
-            },
-            {
-              'id' => mw_uuid('letters_and_documents'),
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'letters_and_documents',
-                'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-25T22:33:39.000Z'
-              }
-            },
-            {
-              'id' => 'ebd9fb30-4df2-52e9-b951-297a9a4cc65c',
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'claims',
-                'startTime' => '2021-05-25T23:33:39.000Z',
-                'endTime' => '2021-05-26T01:45:00.000Z'
-              }
-            },
-            {
-              'id' => '0ce167f8-9522-52c3-94e0-4f1e367d7064',
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'immunizations',
-                'startTime' => '2021-05-25T23:33:39.000Z',
-                'endTime' => '2021-05-26T01:45:00.000Z'
-              }
-            },
-            {
-              'id' => 'c07d7af4-b54a-5b82-b94c-3366f79cc500',
-              'type' => 'maintenance_window',
-              'attributes' => {
-                'service' => 'efolder',
-                'startTime' => '2021-05-25T23:33:39.000Z',
-                'endTime' => '2021-05-27T01:45:00.000Z'
-              }
+        expect(response.parsed_body['data']).to contain_exactly(
+          {
+            'id' => mw_uuid('disability_rating'),
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'disability_rating',
+              'startTime' => '2021-05-25T23:33:39.000Z',
+              'endTime' => '2021-05-26T01:45:00.000Z'
             }
-          ]
+          }, {
+            'id' => mw_uuid('letters_and_documents'),
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'letters_and_documents',
+              'startTime' => '2021-05-25T21:33:39.000Z',
+              'endTime' => '2021-05-25T22:33:39.000Z'
+            }
+          }, {
+            'id' => 'ebd9fb30-4df2-52e9-b951-297a9a4cc65c',
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'claims',
+              'startTime' => '2021-05-25T23:33:39.000Z',
+              'endTime' => '2021-05-26T01:45:00.000Z'
+            }
+          }, {
+            'id' => '0ce167f8-9522-52c3-94e0-4f1e367d7064',
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'immunizations',
+              'startTime' => '2021-05-25T23:33:39.000Z',
+              'endTime' => '2021-05-26T01:45:00.000Z'
+            }
+          }, {
+            'id' => 'c07d7af4-b54a-5b82-b94c-3366f79cc500',
+            'type' => 'maintenance_window',
+            'attributes' => {
+              'service' => 'efolder',
+              'startTime' => '2021-05-25T23:33:39.000Z',
+              'endTime' => '2021-05-27T01:45:00.000Z'
+            }
+          }
         )
       end
     end
@@ -158,7 +152,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
         evss_latest_end_time = latest_evss_starting.end_time.iso8601
 
         expect(response.body).to match_json_schema('maintenance_windows')
-        expect(attributes.pluck('service').uniq).to eq(%w[disability_rating letters_and_documents])
+        expect(attributes.pluck('service').uniq).to eq(%w[letters_and_documents])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_eariest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_eariest_end_time])
 
@@ -167,7 +161,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[disability_rating letters_and_documents])
+        expect(attributes.pluck('service').uniq).to eq(%w[letters_and_documents])
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_middle_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_middle_end_time])
 
@@ -176,7 +170,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
 
         expect(response.body).to match_json_schema('maintenance_windows')
         attributes = response.parsed_body['data'].pluck('attributes')
-        expect(attributes.pluck('service').uniq).to eq(%w[disability_rating letters_and_documents])
+        expect(attributes.pluck('service').uniq).to eq(%w[letters_and_documents])
 
         expect(attributes.map { |w| Time.parse(w['startTime']).iso8601 }.uniq).to eq([evss_latest_start_time])
         expect(attributes.map { |w| Time.parse(w['endTime']).iso8601 }.uniq).to eq([evss_latest_end_time])
@@ -188,7 +182,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
       let!(:latest_evss_starting) { create(:mobile_maintenance_evss_second) }
       let!(:earliest_bgs_starting) { create(:mobile_maintenance_bgs_first) }
       let!(:latest_bgs_starting) { create(:mobile_maintenance_bgs_second) }
-      let(:evss_services) { %w[disability_rating letters_and_documents].freeze }
+      let(:evss_services) { %w[letters_and_documents].freeze }
       let(:bgs_services) { %w[payment_history appeals].freeze }
 
       before { Timecop.freeze('2021-05-25T03:33:39Z') }
