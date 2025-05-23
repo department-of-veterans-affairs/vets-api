@@ -42,6 +42,7 @@ jobs:
       - name: Extract version from Chart.yaml
         id: version
         run: |
+          echo "test push"
           echo "chart_version=$(yq '.version' Chart.yaml)" >> "$GITHUB_OUTPUT"
 
       - name: Log into ECR
