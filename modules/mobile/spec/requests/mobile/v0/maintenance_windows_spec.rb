@@ -58,7 +58,7 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
       end
 
       it 'returns an array of the affected services' do
-        expect(response.parsed_body['data']).to contain_exactly(
+        expect(response.parsed_body['data']).to eq(
           {
             'id' => mw_uuid('disability_rating'),
             'type' => 'maintenance_window',
