@@ -42,8 +42,8 @@ module AccreditedRepresentativePortal
 
       with_options(attachment_association_options) do
         ##
-        # TODO: Add some application-level validation that this claim has _only
-        # one_ `form_attachment`?
+        # TODO: Add some application-level validation or DB constraint that this
+        # claim has _only one_ `form_attachment`?
         #
         has_one(
           :form_attachment,
