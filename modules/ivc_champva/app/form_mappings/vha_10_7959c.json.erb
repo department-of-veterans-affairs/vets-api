@@ -36,7 +36,7 @@
   "form1[0].#subform[0].#area[2].CheckBox-Other-1[0]":                        "<%= form.data.dig('applicant_primary_insurance_type') == 'other' ? 1 : 0 %>",
   "form1[0].#subform[0].Comments-Ins-1[0]":                                   "<%= form.data.dig('primary_additional_comments' ) %>",
   "form1[0].#subform[0].#area[6].#area[7].RadioButtonList[1]":                "<%= ['true', true].include?(form.data.dig('has_other_health_insurance')) ? (['true', true].include?(form.data.dig('applicant_primary_eob')) ? 0 : 1) : 'No Fill' %>",
-  "form1[0].#subform[0].RadioButtonList[0]":                                  "<%= ['true', true].include?(form.data.dig('has_other_health_insurance')) ? (['true', true].include?(form.data.dig('applicant_primary_eob')) ? 0 : 1) : 'No Fill' %>",
+  "form1[0].#subform[0].RadioButtonList[0]":                                  "<%= ['true', true].include?(form.data.dig('has_other_health_insurance')) ? (['true', true].include?(form.data.dig('applicant_primary_through_employer')) ? 0 : 1) : 'No Fill' %>",
   "form1[0].#subform[0].RadioButtonList[2]":                                  "<%= ['true', true].include?(form.data.dig('has_other_health_insurance')) ? (['true', true].include?(form.data.dig('applicant_primary_has_prescription')) ? 0 : 1) : 'No Fill' %>",
   "form1[0].#subform[0].#area[8].CheckBox-HMO-2[0]":                          "<%= form.data.dig('applicant_secondary_insurance_type') == 'hmo' ? 1 : 0 %>",
   "form1[0].#subform[0].#area[8].CheckBox-PPO-2[0]":                          "<%= form.data.dig('applicant_secondary_insurance_type') == 'ppo' ? 1 : 0 %>",
