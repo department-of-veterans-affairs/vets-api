@@ -136,5 +136,139 @@ module Dependents
       metric = 'saved_claim.pdf.overflow'
       StatsD.increment(metric, tags:)
     end
+
+    def dependent_service_submit_pdf_job_begin
+      message = 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob'
+      Rails.logger.info(message, default_payload)
+    end
+
+    def dependent_service_submit_pdf_job_failure(icn, error)
+      message = 'DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake'
+      payload = default_payload.merge({ icn:, error: })
+      Rails.logger.error(message, payload)
+    end
+
+    def dependent_service_begin(user_uuid, icn)
+      message = 'BGS::DependentService running!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def dependent_service_failure(user_uuid, icn, error)
+      message = 'BGS::DependentService#submit_686c_form method failed!'
+      payload = default_payload.merge({ user_uuid:, icn:, error: })
+      Rails.logger.error(message, payload)
+    end
+
+    def dependent_service_success(user_uuid, icn)
+      message = 'BGS::DependentService succeeded!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def form_686_job_begin(user_uuid, icn)
+      message = 'BGS::SubmitForm686cJob running!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def form_686_job_failure(user_uuid, icn, error, nested_error)
+      message = 'BGS::SubmitForm686cJob received error, retrying...'
+      payload = default_payload.merge({ user_uuid:, icn:, error:, nested_error: })
+      Rails.logger.warn(message, payload)
+    end
+
+    def form_686_job_skip_retries(user_uuid, icn, error, nested_error)
+      message = 'BGS::SubmitForm686cJob received error, skipping retries...'
+      payload = default_payload.merge({ user_uuid:, icn:, error:, nested_error: })
+      Rails.logger.error(message, payload)
+    end
+
+    def form_686_job_success(user_uuid, icn)
+      message = 'BGS::SubmitForm686cJob succeeded!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def form_686_job_exhaustion(user_uuid, icn, msg)
+      message = "BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}"
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.error(message, payload)
+    end
+
+    def form_686_job_backup_submission_failure(payload)
+      message = 'BGS::SubmitForm686cJob backup submission failed...'
+      Rails.logger.error(message, default_payload.merge(payload))
+    end
+
+    def form_674_job_begin(user_uuid, icn)
+      message = 'BGS::SubmitForm674Job running!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def form_674_job_failure(user_uuid, icn, error, nested_error)
+      message = 'BGS::SubmitForm674Job received error, retrying...'
+      payload = default_payload.merge({ user_uuid:, icn:, error:, nested_error: })
+      Rails.logger.warn(message, payload)
+    end
+
+    def form_674_job_success(user_uuid, icn)
+      message = 'BGS::SubmitForm674Job succeeded!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def form_674_job_skip_retries(user_uuid, icn, error, nested_error)
+      message = 'BGS::SubmitForm674Job received error, skipping retries...'
+      payload = default_payload.merge({ user_uuid:, icn:, error:, nested_error: })
+      Rails.logger.error(message, payload)
+    end
+
+    def form_674_job_exhaustion(user_uuid, icn, msg)
+      message = "BGS::SubmitForm674Job failed, retries exhausted! Last error: #{msg['error_message']}"
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.error(message, payload)
+    end
+
+    def form_674_job_backup_submission_failure(payload)
+      message = 'BGS::SubmitForm674Job backup submission failed...'
+      payload = default_payload.merge(payload)
+      Rails.logger.error(message, payload)
+    end
+
+    def dependent_pdf_job_begin
+      message = 'VBMS::SubmitDependentsPdfJob running!'
+      Rails.logger.info(message, default_payload)
+    end
+
+    def dependent_pdf_job_failure(error)
+      message = 'VBMS::SubmitDependentsPdfJob failed, retrying...'
+      payload = default_payload.merge({ error: })
+      Rails.logger.warn(message, payload)
+    end
+
+    def dependent_pdf_job_success
+      message = 'VBMS::SubmitDependentsPdfJob succeeded!'
+      Rails.logger.info(message, default_payload)
+    end
+
+    def submission_backup_begin(user_uuid, icn)
+      message = 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!'
+      payload = default_payload.merge({ user_uuid:, icn: })
+      Rails.logger.info(message, payload)
+    end
+
+    def submission_backup_failure(user_uuid, icn, e)
+      message = 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob failed!'
+      payload = default_payload.merge({ user_uuid:, icn:, e: })
+      Rails.logger.error(message, payload)
+    end
+
+    def submission_backup_success(user_uuid)
+      message = 'SubmitCentralForm686cJob Lighthouse Submission Successful'
+      payload = default_payload.merge({ user_uuid: })
+      Rails.logger.info(message, payload)
+    end
   end
 end
