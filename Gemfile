@@ -36,7 +36,6 @@ path 'modules' do
   gem 'vaos'
   gem 'vba_documents'
   gem 'veteran'
-  gem 'veteran_confirmation'
   gem 'vre'
   gem 'vye'
 end
