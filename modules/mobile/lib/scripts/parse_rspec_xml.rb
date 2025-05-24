@@ -35,7 +35,7 @@ def extract_xml_attributes(file_path, mode)
   # Flatten the array of attributes and join them into a string
   "bundle exec rspec --seed #{seed} --bisect #{files.uniq.join(' ')}"
 rescue => e
-  puts "Error: #{e.message}"
+  Rails.logger.debug { "Error: #{e.message}" }
 end
 
 options = {}
@@ -51,8 +51,8 @@ file_path = ARGV.join(' ')
 
 # Check if file path is provided
 if file_path.nil?
-  puts 'Error: File path is required.'
-  puts 'Usage: ruby script.rb [options] FILE_PATH'
+  Rails.logger.debug 'Error: File path is required.'
+  Rails.logger.debug 'Usage: ruby script.rb [options] FILE_PATH'
   exit(1)
 end
 
@@ -63,4 +63,4 @@ mode = options[:mode] || 'errors'
 xml_attributes = extract_xml_attributes(file_path, mode)
 
 # Output the XML attributes
-puts "\nRun the following commands in vets-api in order to debug:\n\n#{xml_attributes}"
+Rails.logger.debug { "\nRun the following commands in vets-api in order to debug:\n\n#{xml_attributes}" }
