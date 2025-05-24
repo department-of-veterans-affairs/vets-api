@@ -26,6 +26,10 @@ module ClaimStatusTool
       @allowed_doctypes = allowed_doctypes
     end
 
+    def testing
+      { user: }
+    end
+
     def get_letters
       res = nil
 

@@ -4,5 +4,7 @@ class CreateSignInCertificates < ActiveRecord::Migration[7.2]
       t.text :pem, null: false
       t.timestamps
     end
+
+    add_index :sign_in_certificates, :pem
   end
 end

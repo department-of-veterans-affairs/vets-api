@@ -174,16 +174,21 @@ describe Rx::Client do
       end
 
       it 'returns the x-api-key header' do
+        Flipper.enable(:this_is_only_a_test)
         result = client.send(:auth_headers)
         headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
         allow(client).to receive(:auth_headers).and_return(headers)
         expect(result).to include('x-api-key' => 'test-api-key')
         expect(config.x_api_key).to eq('test-api-key')
+        Flipper.disable(:this_is_only_a_test)
       end
     end
 
     context 'when mhv_medications_migrate_to_api_gateway flipper flag is false' do
       it 'returns nil for x-api-key' do
+        # test variable for demonstration purposes only
+        test = 'hey'
+        { test: }
         result = client.send(:auth_headers)
         headers = { 'base-header' => 'value', 'appToken' => 'test-app-token', 'mhvCorrelationId' => '10616687' }
         allow(client).to receive(:auth_headers).and_return(headers)
