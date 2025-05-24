@@ -25,12 +25,19 @@ module Ccra
     end
 
     # Retrieves detailed Referral information.
+    # First checks if the referral data is available in the cache.
+    # If not, it makes a request to the CCRA API and caches the result.
     #
     # @param id [String] The ID of the referral.
     # @param icn [String] The ICN of the patient.
     #
     # @return [ReferralDetail] A ReferralDetail object representing the detailed referral information.
     def get_referral(id, icn)
+      # Check if referral data is in cache
+      cached_referral = referral_cache.fetch_referral_data(id:, icn:)
+      return cached_referral if cached_referral
+
+      # If not in cache, fetch from API and cache the result
       params = {}
       with_monitoring do
         response = perform(
@@ -41,35 +48,41 @@ module Ccra
         )
 
         referral = ReferralDetail.new(response.body)
-        cache_referral_data(referral)
+        cache_referral_data(referral, id, icn)
+
         referral
       end
     end
 
-    private
-
-    # Caches referral data for use in appointment creation.
-    # Extracts only the necessary fields from the referral object and
-    # passes them to the Redis client for storage.
+    # Clears the referral data from the cache
     #
-    # @param referral [ReferralDetail] The referral data object
-    # @return [Boolean] True if the cache operation was successful, false if required data is missing
-    def cache_referral_data(referral)
-      referral_data = {
-        referral_number: referral.referral_number,
-        appointment_type_id: referral.appointment_type_id,
-        end_date: referral.expiration_date,
-        npi: referral.provider_npi,
-        start_date: referral.referral_date
-      }
-
-      eps_redis_client.save_referral_data(referral_data:)
+    # @param id [String] The referral ID
+    # @param icn [String] The ICN of the patient
+    # @return [Boolean] True if the cache operation was successful
+    def clear_referral_cache(id, icn)
+      referral_cache.clear_referral_data(id:, icn:)
     end
 
-    # Memoized EPS Redis client instance
-    # @return [Eps::RedisClient] the EPS Redis client
-    def eps_redis_client
-      @eps_redis_client ||= Eps::RedisClient.new
+    private
+
+    # Caches the entire referral object for future use
+    #
+    # @param referral [ReferralDetail] The referral data object
+    # @param id [String] The referral ID
+    # @param icn [String] The patient's ICN
+    # @return [Boolean] True if the cache operation was successful
+    def cache_referral_data(referral, id, icn)
+      referral_cache.save_referral_data(
+        id:,
+        icn:,
+        referral_data: referral
+      )
+    end
+
+    # Memoized CCRA Referral cache instance
+    # @return [Ccra::RedisClient] the CCRA referral cache
+    def referral_cache
+      @referral_cache ||= Ccra::RedisClient.new
     end
   end
 end
