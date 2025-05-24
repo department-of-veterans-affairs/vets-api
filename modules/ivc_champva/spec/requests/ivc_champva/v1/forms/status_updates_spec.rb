@@ -25,56 +25,72 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
 
       it 'returns HTTP status 200 with same form_uuid but not all files' do
         IvcChampvaForm.delete_all
+        form_uuid = '12345678-1234-5678-1234-567812345678'
+        different_uuid = '87654321-4321-8765-4321-876543210987'
+
+        # Create main form and supporting documents for this form
+        [
+          "#{form_uuid}_vha_10_10d.pdf",
+          "#{form_uuid}_supporting_doc_1.pdf",
+          "#{form_uuid}_supporting_doc_2.pdf"
+        ].each do |filename|
+          IvcChampvaForm.create!(
+            form_uuid:,
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: filename,
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+        end
+
+        # Create an unrelated supporting document with a different form_uuid
         IvcChampvaForm.create!(
-          form_uuid: '12345678-1234-5678-1234-567812345678',
+          form_uuid: different_uuid,
           email: 'test@email.com',
           first_name: 'Veteran',
           last_name: 'Surname',
           form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
+          file_name: "#{different_uuid}_supporting_doc_1.pdf",
           s3_status: 'Submitted',
           pega_status: nil,
           case_id: nil,
           email_sent: false
         )
 
-        IvcChampvaForm.create!(
-          form_uuid: '12345678-1234-5678-1234-567812345678',
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf',
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false
-        )
+        # Send payload with multiple files to update
+        payload = {
+          'form_uuid' => form_uuid,
+          'file_names' => [
+            "#{form_uuid}_vha_10_10d.pdf",
+            "#{form_uuid}_supporting_doc_1.pdf"
+          ],
+          'case_id' => 'ABC-1234',
+          'status' => 'Processed'
+        }
 
-        IvcChampvaForm.create!(
-          form_uuid: '12345678-1234-5678-1234-567812345678',
-          email: 'test@email.com',
-          first_name: 'Veteran',
-          last_name: 'Surname',
-          form_number: '10-10D',
-          file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d2.pdf',
-          s3_status: 'Submitted',
-          pega_status: nil,
-          case_id: nil,
-          email_sent: false
-        )
+        post '/ivc_champva/v1/forms/status_updates', params: payload
 
-        post '/ivc_champva/v1/forms/status_updates', params: valid_payload
+        # Verify only the specified files were updated
+        updated_forms = IvcChampvaForm.where(form_uuid:, pega_status: 'Processed')
+        expect(updated_forms.count).to eq(2)
+        expect(updated_forms.pluck(:file_name).sort).to eq([
+          "#{form_uuid}_vha_10_10d.pdf",
+          "#{form_uuid}_supporting_doc_1.pdf"
+        ].sort)
 
-        ivc_forms = [IvcChampvaForm.all]
-        status_array = ivc_forms.map { |form| form.pluck(:pega_status) }
-        case_id_array = ivc_forms.map { |form| form.pluck(:case_id) }
-        email_sent_array = ivc_forms.map { |form| form.pluck(:email_sent) }
+        # Verify other documents were not updated
+        non_updated_forms = IvcChampvaForm.where(pega_status: nil)
+        expect(non_updated_forms.count).to eq(2)
+        expect(non_updated_forms.pluck(:file_name).sort).to eq([
+          "#{form_uuid}_supporting_doc_2.pdf",
+          "#{different_uuid}_supporting_doc_1.pdf"
+        ].sort)
 
-        # only 2/3 should be updated
-        expect(status_array.flatten.compact!).to eq(%w[Processed Processed])
-        expect(case_id_array.flatten.compact!).to eq(%w[ABC-1234 ABC-1234])
-        expect(email_sent_array.flatten).to eq([true, true, true])
         expect(response).to have_http_status(:ok)
       end
 
@@ -221,6 +237,155 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
         expect(case_id_array.flatten.compact!).to eq(%w[ABC-1234 ABC-1234])
         expect(email_sent_array.flatten).to eq([false, false, false])
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with merged PDF submission' do
+      let(:form_uuid) { '12345678-1234-5678-1234-567812345678' }
+      let(:merged_pdf_payload) do
+        {
+          'form_uuid' => form_uuid,
+          'file_names' => ["#{form_uuid}_merged.pdf"],
+          'case_id' => 'ABC-1234',
+          'status' => 'Processed'
+        }
+      end
+
+      before do
+        allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
+        IvcChampvaForm.delete_all
+      end
+
+      it 'updates both merged PDF and supporting documents with same status' do
+        # Create merged PDF record
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_merged.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false
+        )
+
+        # Create supporting document records
+        ['supporting_doc_1.pdf', 'supporting_doc_2.pdf'].each do |doc|
+          IvcChampvaForm.create!(
+            form_uuid:,
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: "#{form_uuid}_#{doc}",
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+        end
+
+        post '/ivc_champva/v1/forms/status_updates', params: merged_pdf_payload
+
+        # Verify all records were updated
+        updated_forms = IvcChampvaForm.where(form_uuid:)
+        expect(updated_forms.count).to eq(3)
+        expect(updated_forms.pluck(:pega_status).uniq).to eq(['Processed'])
+        expect(updated_forms.pluck(:case_id).uniq).to eq(['ABC-1234'])
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'sends confirmation email only once when processing merged PDF' do
+        email_instance = instance_double(IvcChampva::Email)
+        allow(IvcChampva::Email).to receive(:new).and_return(email_instance)
+        allow(email_instance).to receive(:send_email).and_return(true)
+
+        # Create merged PDF and supporting docs
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_merged.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false
+        )
+
+        ['supporting_doc_1.pdf', 'supporting_doc_2.pdf'].each do |doc|
+          IvcChampvaForm.create!(
+            form_uuid:,
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: "#{form_uuid}_#{doc}",
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+        end
+
+        post '/ivc_champva/v1/forms/status_updates', params: merged_pdf_payload
+
+        # Verify email was sent exactly once
+        expect(email_instance).to have_received(:send_email).once
+
+        # Verify all records were marked as email_sent
+        updated_forms = IvcChampvaForm.where(form_uuid:)
+        expect(updated_forms.pluck(:email_sent).uniq).to eq([true])
+      end
+
+      it 'handles Not Processed status for merged PDF submissions without sending email' do
+        email_instance = instance_double(IvcChampva::Email)
+        allow(IvcChampva::Email).to receive(:new).and_return(email_instance)
+        allow(email_instance).to receive(:send_email).and_return(true)
+
+        # Create merged PDF and supporting docs
+        IvcChampvaForm.create!(
+          form_uuid:,
+          email: 'test@email.com',
+          first_name: 'Veteran',
+          last_name: 'Surname',
+          form_number: '10-10D',
+          file_name: "#{form_uuid}_merged.pdf",
+          s3_status: 'Submitted',
+          pega_status: nil,
+          case_id: nil,
+          email_sent: false
+        )
+
+        ['supporting_doc_1.pdf', 'supporting_doc_2.pdf'].each do |doc|
+          IvcChampvaForm.create!(
+            form_uuid:,
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: "#{form_uuid}_#{doc}",
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+        end
+
+        not_processed_payload = merged_pdf_payload.merge('status' => 'Not Processed')
+
+        post '/ivc_champva/v1/forms/status_updates', params: not_processed_payload
+
+        # Verify email was not sent
+        expect(email_instance).not_to have_received(:send_email)
+
+        # Verify all records were updated with Not Processed status
+        updated_forms = IvcChampvaForm.where(form_uuid:)
+        expect(updated_forms.pluck(:pega_status).uniq).to eq(['Not Processed'])
+        expect(updated_forms.pluck(:email_sent).uniq).to eq([false])
       end
     end
 
