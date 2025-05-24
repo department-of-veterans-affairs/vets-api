@@ -54,13 +54,9 @@ RSpec.describe BGSDependents::Death do
   end
 
   context 'with va_dependents_v2 off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
-
     describe '#format_info' do
       it 'formats death params for submission' do
-        formatted_info = described_class.new(death_info).format_info
+        formatted_info = described_class.new(death_info, is_v2: false).format_info
 
         expect(formatted_info).to eq(formatted_params_result)
       end
@@ -68,7 +64,8 @@ RSpec.describe BGSDependents::Death do
 
     describe '#format_info for spouse' do
       it 'formats death params for submission' do
-        formatted_info = described_class.new(death_info.merge({ 'dependent_type' => 'SPOUSE' })).format_info
+        formatted_info = described_class.new(death_info.merge({ 'dependent_type' => 'SPOUSE' }),
+                                             is_v2: false).format_info
 
         expect(formatted_info).to eq(formatted_params_result.merge({ 'marriage_termination_type_code' => 'Death' }))
       end
@@ -76,13 +73,9 @@ RSpec.describe BGSDependents::Death do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#format_info' do
       it 'formats death params for submission' do
-        formatted_info = described_class.new(death_info_v2).format_info
+        formatted_info = described_class.new(death_info_v2, is_v2: true).format_info
 
         expect(formatted_info).to eq(formatted_params_result_v2)
       end
@@ -90,7 +83,8 @@ RSpec.describe BGSDependents::Death do
 
     describe '#format_info for spouse' do
       it 'formats death params for submission' do
-        formatted_info = described_class.new(death_info_v2.merge({ 'dependent_type' => 'SPOUSE' })).format_info
+        formatted_info = described_class.new(death_info_v2.merge({ 'dependent_type' => 'SPOUSE' }),
+                                             is_v2: true).format_info
 
         expect(formatted_info).to eq(formatted_params_result_v2.merge({ 'marriage_termination_type_code' => 'Death' }))
       end

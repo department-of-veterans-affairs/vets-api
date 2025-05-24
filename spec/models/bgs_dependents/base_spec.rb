@@ -55,9 +55,7 @@ RSpec.describe BGSDependents::Base do
   end
 
   context 'with va_dependents_v2 turned off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
+    let(:v2) { false }
 
     describe '#dependent_address' do
       it 'returns the vet\'s address' do
@@ -86,7 +84,7 @@ RSpec.describe BGSDependents::Base do
             address = sample_dependent_application['veteran_contact_information']['veteran_address']
             address['country_name'] = abbreviation
             address['international_postal_code'] = '12345'
-            base.adjust_country_name_for!(address:)
+            base.adjust_country_name_for!(address:, v2:)
             expect(address['country_name']).to eq(bis_value)
           end
         end
@@ -96,7 +94,7 @@ RSpec.describe BGSDependents::Base do
           address['country_name'] = 'TUR'
           address['international_postal_code'] = '12345'
           address['city'] = 'Adana'
-          base.adjust_country_name_for!(address:)
+          base.adjust_country_name_for!(address:, v2:)
           expect(address['country_name']).to eq('Turkey (Adana only)')
         end
 
@@ -105,7 +103,7 @@ RSpec.describe BGSDependents::Base do
           address['country_name'] = 'TUR'
           address['international_postal_code'] = '12345'
           address['city'] = 'Istanbul'
-          base.adjust_country_name_for!(address:)
+          base.adjust_country_name_for!(address:, v2:)
           expect(address['country_name']).to eq('Turkey (except Adana)')
         end
 
@@ -113,7 +111,7 @@ RSpec.describe BGSDependents::Base do
           address = sample_dependent_application['veteran_contact_information']['veteran_address']
           address['country_name'] = 'ITA'
           address['international_postal_code'] = '12345'
-          base.adjust_country_name_for!(address:)
+          base.adjust_country_name_for!(address:, v2:)
           expect(address['country_name']).to eq('Italy')
         end
       end
@@ -121,9 +119,7 @@ RSpec.describe BGSDependents::Base do
   end
 
   context 'with va_dependents_v2 turned on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
+    let(:v2) { true }
 
     describe '#dependent_address' do
       it 'returns the vet\'s address' do
@@ -152,7 +148,7 @@ RSpec.describe BGSDependents::Base do
             address = sample_v2_dependent_application['veteran_contact_information']['veteran_address']
             address['country'] = abbreviation
             address['international_postal_code'] = '12345'
-            base.adjust_country_name_for!(address:)
+            base.adjust_country_name_for!(address:, v2:)
             expect(address['country']).to eq(bis_value)
           end
         end
@@ -162,7 +158,7 @@ RSpec.describe BGSDependents::Base do
           address['country'] = 'TUR'
           address['international_postal_code'] = '12345'
           address['city'] = 'Adana'
-          base.adjust_country_name_for!(address:)
+          base.adjust_country_name_for!(address:, v2:)
           expect(address['country']).to eq('Turkey (Adana only)')
         end
 
@@ -171,7 +167,7 @@ RSpec.describe BGSDependents::Base do
           address['country'] = 'TUR'
           address['international_postal_code'] = '12345'
           address['city'] = 'Istanbul'
-          base.adjust_country_name_for!(address:)
+          base.adjust_country_name_for!(address:, v2:)
           expect(address['country']).to eq('Turkey (except Adana)')
         end
 
@@ -179,7 +175,7 @@ RSpec.describe BGSDependents::Base do
           address = sample_v2_dependent_application['veteran_contact_information']['veteran_address']
           address['country'] = 'ITA'
           address['international_postal_code'] = '12345'
-          base.adjust_country_name_for!(address:)
+          base.adjust_country_name_for!(address:, v2:)
           expect(address['country']).to eq('Italy')
         end
       end

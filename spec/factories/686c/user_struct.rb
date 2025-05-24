@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :user_struct, class: OpenStruct do
     first_name { 'WESLEY' }
     last_name { 'FORD' }
-    middle_name { '' }
+    middle_name { nil }
     ssn { '796043735' }
     email { Faker::Internet.email }
     va_profile_email { Faker::Internet.email }
