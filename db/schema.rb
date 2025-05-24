@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_23_205632) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1117,7 +1117,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_19_141104) do
     t.string "edipi", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
+    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi", unique: true
   end
 
   create_table "ivc_champva_forms", force: :cascade do |t|
