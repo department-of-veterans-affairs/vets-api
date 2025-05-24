@@ -42,6 +42,7 @@ module AccreditedRepresentativePortal
         @poa_requests ||= filter_by_status(policy_scope(PowerOfAttorneyRequest))
                           .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
                           .unredacted
+                          .then { |it| as_selected_individual? ? it.for_accredited_individual(get_registration_number) : it }
                           .preload(scope_includes)
                           .paginate(page:, per_page:)
       end
@@ -90,6 +91,16 @@ module AccreditedRepresentativePortal
         return query if sort_params.present?
 
         query.order(resolution: { created_at: :desc })
+      end
+
+      def as_selected_individual?
+        params[:as_selected_individual].present? && params[:as_selected_individual] == 'true'
+      end
+
+      def get_registration_number
+        accr_ind = UserAccountAccreditedIndividual.find_by(
+          user_account_icn: current_user.user_account.icn
+        ).accredited_individual_registration_number
       end
 
       def scope_includes
