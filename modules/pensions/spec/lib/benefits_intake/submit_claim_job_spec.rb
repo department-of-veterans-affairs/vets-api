@@ -44,10 +44,10 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     context 'Feature pension_submitted_email_notification=false' do
       it 'submits the saved claim successfully' do
         allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(false)
-        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+        allow(job).to receive_messages(process_document: pdf_path, lighthouse_submission_pending_or_success: false)
 
-        expect(FormSubmission).to receive(:create)
-        expect(FormSubmissionAttempt).to receive(:create)
+        expect(Lighthouse::Submission).to receive(:create)
+        expect(Lighthouse::SubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
         expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
@@ -67,10 +67,10 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     context 'Feature pension_submitted_email_notification=true' do
       it 'submits the saved claim successfully' do
         allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(true)
-        allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
+        allow(job).to receive_messages(process_document: pdf_path, lighthouse_submission_pending_or_success: false)
 
-        expect(FormSubmission).to receive(:create)
-        expect(FormSubmissionAttempt).to receive(:create)
+        expect(Lighthouse::Submission).to receive(:create)
+        expect(Lighthouse::SubmissionAttempt).to receive(:create)
         expect(Datadog::Tracing).to receive(:active_trace)
         expect(UserAccount).to receive(:find)
         expect(Kafka::EventBusSubmissionJob).to receive(:perform_async)
@@ -127,7 +127,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
     # perform
   end
 
-  describe '#form_submission_pending_or_success' do
+  describe '#lighthouse_submission_pending_or_success' do
     before do
       job.instance_variable_set(:@claim, claim)
       allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
@@ -135,7 +135,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
 
     context 'with no form submissions' do
       it 'returns false' do
-        expect(job.send(:form_submission_pending_or_success)).to be(false).or be_nil
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(false).or be_nil
       end
     end
 
@@ -143,15 +143,15 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       let(:claim) { create(:pensions_saved_claim, :pending) }
 
       it 'return true' do
-        expect(job.send(:form_submission_pending_or_success)).to be(true)
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
       end
     end
 
     context 'with success form submission attempt' do
-      let(:claim) { create(:pensions_saved_claim, :success) }
+      let(:claim) { create(:pensions_saved_claim, :submitted) }
 
       it 'return true' do
-        expect(job.send(:form_submission_pending_or_success)).to be(true)
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(true)
       end
     end
 
@@ -159,7 +159,7 @@ RSpec.describe Pensions::BenefitsIntake::SubmitClaimJob, :uploader_helpers do
       let(:claim) { create(:pensions_saved_claim, :failure) }
 
       it 'return false' do
-        expect(job.send(:form_submission_pending_or_success)).to be(false)
+        expect(job.send(:lighthouse_submission_pending_or_success)).to be(false)
       end
     end
   end

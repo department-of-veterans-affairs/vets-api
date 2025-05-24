@@ -68,8 +68,8 @@ module Burials
       def generate_metadata
         base = super
 
-        submission = FormSubmission.where(saved_claim_id: claim.id)&.order(id: :asc)&.last
-        attempt = submission&.form_submission_attempts&.order(id: :asc)&.last
+        submission = Lighthouse::Submission.where(saved_claim_id: claim.id)&.order(id: :asc)&.last
+        attempt = submission&.submission_attempts&.order(id: :asc)&.last
         burials = {
           lighthouseBenefitIntakeSubmissionUUID: attempt&.benefits_intake_uuid,
           lighthouseBenefitIntakeSubmissionDate: attempt&.created_at
