@@ -26,6 +26,14 @@ describe PdfFill::Forms::Va1010ez do
   describe '#merge_fields' do
     subject(:merged_fields) { form_class.merge_fields }
 
+    before do
+      # create health_facility record used for vaMedicalFacility field on 10-10EZ
+      # pdf form merge_fields spec
+      create(:health_facility, name: 'Mobile VA Clinic',
+                               station_number: '520GA',
+                               postal_name: 'AL')
+    end
+
     it 'merges the right fields' do
       expect(merged_fields).to eq(
         get_fixture('pdf_fill/10-10EZ/merge_fields')

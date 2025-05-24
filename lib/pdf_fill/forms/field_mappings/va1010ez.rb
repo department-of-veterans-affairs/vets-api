@@ -108,7 +108,10 @@ module PdfFill
             key: 'F[0].P4[0].CurrentMaritalStatus[0]'
           },
           'vaMedicalFacility' => {
-            key: 'F[0].P4[0].PreferredVACenter[0]'
+            key: 'F[0].P4[0].PreferredVACenter[0]',
+            limit: 35,
+            question_num: 1.16,
+            question_text: 'WHICH VA MEDICAL CENTER OR OUTPATIENT CLINIC DO YOU PREFER?'
           },
           'wantsInitialVaContact' => {
             key: 'F[0].P4[0].ScheduleFirstAppointment[0]'
