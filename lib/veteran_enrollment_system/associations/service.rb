@@ -32,6 +32,26 @@ module VeteranEnrollmentSystem
         role
       ].freeze
 
+      FIELD_MAPPINGS = [
+        %w[contactType role],
+        %w[relationship relationType]
+      ].freeze
+
+      NAME_MAPPINGS = [
+        %w[first givenName],
+        %w[middle middleName],
+        %w[last familyName],
+        %w[suffix suffix]
+      ].freeze
+
+      ADDRESS_MAPPINGS = [
+        %w[street line1],
+        %w[street2 line2],
+        %w[street3 line3],
+        %w[city city],
+        %w[country country]
+      ].freeze
+
       UPDATED_STATUSES = %w[
         DELETED
         INSERTED
@@ -52,6 +72,13 @@ module VeteranEnrollmentSystem
         'Emergency Contact' => 3
       }.freeze
 
+      VES_ROLE_MAPPINGS = {
+        'PRIMARY_NEXT_OF_KIN' => 'Primary Next of Kin',
+        'EMERGENCY_CONTACT' => 'Emergency Contact',
+        'OTHER_NEXT_OF_KIN' => 'Other Next of Kin',
+        'OTHER_EMERGENCY_CONTACT' => 'Other emergency contact'
+      }.freeze
+
       ERROR_MAP = {
         400 => Common::Exceptions::BadRequest,
         404 => Common::Exceptions::ResourceNotFound,
@@ -59,14 +86,32 @@ module VeteranEnrollmentSystem
         504 => Common::Exceptions::GatewayTimeout
       }.freeze
 
-      def initialize(current_user, parsed_form)
+      def initialize(current_user, parsed_form = nil)
         super()
         @current_user = current_user
         @parsed_form = parsed_form
       end
 
-      def update_associations(form_id)
-        reordered_associations = reorder_associations(@parsed_form['veteranContacts'])
+      def get_associations(form_id)
+        with_monitoring do
+          response = perform(:get, "#{config.base_path}#{@current_user.icn}", nil)
+
+          if response.status == 200
+            response.body['data']['associations']
+          else
+            raise_error(response)
+          end
+        end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_associations.failed")
+        Rails.logger.error("#{form_id} retrieve associations failed: #{e.errors}")
+
+        raise e
+      end
+
+      # @param [String] form_id: the ID of the form that the associations are being updated for (e.g. '10-10EZR')
+      def update_associations(associations, form_id)
+        reordered_associations = reorder_associations(associations)
         transformed_associations = { 'associations' => transform_associations(reordered_associations) }
 
         with_monitoring do
@@ -79,10 +124,39 @@ module VeteranEnrollmentSystem
           handle_ves_update_response(response, form_id)
         end
       rescue => e
-        Rails.logger.error("#{form_id} update associations failed: #{e.errors}")
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
+        Rails.logger.error("#{form_id} update associations failed: #{e.errors}")
 
         raise e
+      end
+
+      # We need to reconcile the associations data from VES with the submitted 10-10EZR form data in order
+      # to ensure we are sending the correct data to the Associations API in case any updates were made or records
+      # were deleted.
+      # @return [Array] the reconciled associations data that will be sent to the Associations API
+      def form1010_ezr_reconcile_associations(ves_associations)
+        transformed_ves_associations = transform_ves_associations(ves_associations)
+
+        form_associations = @parsed_form['veteranContacts']
+        # Create a lookup set of contactTypes in the submitted array.
+        # We'll use this to find missing association objects (e.g. associations that were deleted on the frontend)
+        submitted_contact_types = form_associations.map { |obj| obj['contactType']&.downcase }.compact.to_set
+
+        # Find missing associations based on contactType (case insensitive)
+        missing_associations = transformed_ves_associations.reject do |obj|
+          submitted_contact_types.include?(obj['contactType']&.downcase)
+        end
+
+        return form_associations if missing_associations.empty?
+
+        # Add a deleteIndicator to the missing association objects. The user deleted these associations on the frontend,
+        # so we need to delete them from the Associations API
+        associations_to_delete = missing_associations.map do |obj|
+          obj.merge('deleteIndicator' => true)
+        end
+
+        # Combine submitted array with deleted association objects
+        form_associations + associations_to_delete
       end
 
       private
@@ -101,14 +175,35 @@ module VeteranEnrollmentSystem
         transformed_association['name'] = convert_full_name_alt(association['fullName']).compact_blank
 
         transform_flat_fields(association, transformed_association)
-        # This is a required field in the Associations API for insert/update
-        transformed_association['lastUpdateDate'] = Time.current.iso8601
+        # This is a required field in the Associations API for insert/update, but not for delete
+        unless transformed_association['deleteIndicator']
+          transformed_association['lastUpdateDate'] = Time.current.iso8601
+        end
 
         transformed_association
       end
 
       def transform_associations(associations)
         associations.map { |association| transform_association(association) }
+      end
+
+      # Transform the VES Associations API data to match the EZR veteranContacts schema
+      def transform_ves_association(association)
+        transformed_association = {
+          'address' => get_address_from_association(association),
+          'alternatePhone' => sanitize_phone_number(association['alternatePhone']),
+          'contactType' => VES_ROLE_MAPPINGS[association['role']],
+          'fullName' => {},
+          'primaryPhone' => sanitize_phone_number(association['primaryPhone']),
+          'relationship' => remove_underscores(association['relationType'])
+        }
+        fill_association_full_name_from_ves_association(transformed_association, association)
+
+        Common::HashHelpers.deep_compact(transformed_association)
+      end
+
+      def transform_ves_associations(associations)
+        associations.map { |association| transform_ves_association(association) }
       end
 
       # Transform non-nested fields to match the Associations API schema
@@ -137,8 +232,8 @@ module VeteranEnrollmentSystem
       end
 
       def set_response(
-        status: 'success',
-        message: 'All associations were updated successfully',
+        status:,
+        message:,
         **optional_fields
       )
         {
@@ -170,7 +265,7 @@ module VeteranEnrollmentSystem
           StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
           Rails.logger.info("#{form_id} associations updated successfully")
 
-          set_response
+          set_response(status: 'success', message: 'All associations were updated successfully')
         end
       end
 
@@ -188,6 +283,61 @@ module VeteranEnrollmentSystem
         else
           raise_error(response)
         end
+      end
+
+      def get_address_from_association(association)
+        address = {}
+        fill_address_mappings_from_association(address, association)
+        fill_address_region_from_association(address, association)
+        address
+      end
+
+      def fill_address_mappings_from_association(address, association)
+        ADDRESS_MAPPINGS.each do |address_map|
+          address[address_map.first] = association['address'][address_map.last.to_s]
+        end
+      end
+
+      def fill_address_region_from_association(address, association)
+        case address['country']
+        when 'MEX'
+          fill_mexico_address_from_association(address, association)
+        when 'USA'
+          fill_usa_address_from_association(address, association)
+        else
+          fill_other_address_from_association(address, association)
+        end
+      end
+
+      def fill_mexico_address_from_association(address, association)
+        address['state'] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address['state']]
+        address['postalCode'] = association['address']['postalCode']
+      end
+
+      def fill_usa_address_from_association(address, association)
+        address['state'] = association['address']['state']
+        zip_code = association['address']['zipCode']
+        zip_plus4 = association['address']['zipPlus4']
+        address['postalCode'] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
+      end
+
+      def fill_other_address_from_association(address, association)
+        address['state'] = association['address']['provinceCode']
+        address['postalCode'] = association['address']['postalCode']
+      end
+
+      def fill_association_full_name_from_ves_association(association, ves_association)
+        NAME_MAPPINGS.each do |mapping|
+          association['fullName'][mapping.first] = ves_association['name'][mapping.last.to_s]
+        end
+      end
+
+      def remove_underscores(string)
+        string.gsub(/_/, ' ').split.join(' ')
+      end
+
+      def sanitize_phone_number(phone_number)
+        phone_number.gsub(/[()\-]/, '')
       end
     end
   end
