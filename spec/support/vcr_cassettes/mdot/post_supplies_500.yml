@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <MDOT_URL>/supplies
+    body:
+      encoding: UTF-8
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"vets.gov.user+228@gmail.com","permanentAddress":{"street":"123
+        ASH CIRCLE","street2":", ","city":"ASHVILLE","state":"NC","country":"UNITED
+        STATES","postalCode":"77733"},"temporaryAddress":{},"order":[{"productId":"5939"}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.12.2
+      VaApiKey:
+      - eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3NTgiLCJpYXQiOjE3NDU1OTI2NTcsImV4cCI6MTc0NTU5Mzg1N30.L58TrKmYxqj3SGzjmJ2-2Kaw0Ncs9f3lKylIfgBwSK0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      vary:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Fri, 25 Apr 2025 14:54:09 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"timestamp":"2025-04-25T14:54:09.971+0000","message":"PreparedStatementCallback;
+        [SQLCODE: <-415>:<Fatal error occurred within the SQL filer>]\r\n[Cache Error:
+        <<UNDEFINED>zreorderok+71^ACCESSVA.PastVetOrders.1 *result>]\r\n[Location:
+        <ServerLoop>]\r\n[%msg: <Error occuring during INSERT in table ''ACCESSVA.NewVetOrder'':  $ZE=<UNDEFINED>zreorderok+71^ACCESSVA.PastVetOrders.1
+        *result>]; nested exception is java.sql.SQLException: [SQLCODE: <-415>:<Fatal
+        error occurred within the SQL filer>]\r\n[Cache Error: <<UNDEFINED>zreorderok+71^ACCESSVA.PastVetOrders.1
+        *result>]\r\n[Location: <ServerLoop>]\r\n[%msg: <Error occuring during INSERT
+        in table ''ACCESSVA.NewVetOrder'':  $ZE=<UNDEFINED>zreorderok+71^ACCESSVA.PastVetOrders.1
+        *result>]","details":"uri=/supplies","result":null}'
+  recorded_at: Fri, 25 Apr 2025 14:54:10 GMT
+recorded_with: VCR 6.3.1
