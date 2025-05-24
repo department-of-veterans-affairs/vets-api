@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 # BlueButton EligibleDataClass
-class EligibleDataClass < Common::Base
+class EligibleDataClass
+  include Vets::Model
+
   attribute :name, String
 end
