@@ -95,7 +95,6 @@ Current feature flags used to control functionality:
 | `champva_vanotify_custom_confirmation_callback` | Enables custom callback for confirmation emails | |
 | `champva_log_all_s3_uploads` | Enables detailed logging for all S3 uploads | |
 | `champva_enable_pega_report_check` | Enables querying PEGA reporting API for form status | |
-| `champva_pega_applicant_metadata_enabled` | Enables including applicant data in S3 metadata | |
 | (TODO) | Enables the endpoint to submit combined 10-10d/10-7959c form submissions | Feature is WIP |
 |`form1010d_extended`|Enables access to the combined 10-10d/10-7959c form experience (frontend) |This form is a WIP|
 
