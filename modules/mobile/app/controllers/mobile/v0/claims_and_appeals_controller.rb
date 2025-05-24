@@ -94,16 +94,17 @@ module Mobile
 
       def claim_letter_documents_search
         response = lighthouse_document_service.claim_letters_search(participant_id: @current_user.participant_id)
-        documents = claim_letter_documents_adapter.parse(response[:data][:documents])
+        documents = claim_letter_documents_adapter.parse(response.body)
         render json: Mobile::V0::ClaimLetterDocumentSerializer.new(documents)
       end
 
       def claim_letter_document_download
+        # Backwards Compatibility: Delete {} brackets from document id as the
+        # benefit documents service doesn't support them
+        response = lighthouse_document_service.claim_letter_download(document_uuid: params[:document_id].delete('{}'),
+                                                                     participant_id: @current_user.participant_id)
         send_data(
-          # Backwards Compatibility: Delete {} brackets from document id as the
-          # benefit documents service doesn't support them
-          lighthouse_document_service.claim_letter_download(document_uuid: params[:document_id].delete('{}'),
-                                                            participant_id: @current_user.participant_id),
+          response.body,
           type: 'application/pdf',
           filename: file_name
         )

@@ -565,7 +565,11 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       before do
         benefits_document_service_double = double
         expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
-        expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(response_body)
+        expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(
+          Faraday::Response.new(
+            status: 200, body: response_body.as_json
+          )
+        )
       end
 
       it 'and a result that matches our schema is successfully returned with the 200 status' do
@@ -620,8 +624,14 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         benefits_document_service_double = double
         expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
         expect(benefits_document_service_double)
-          .to receive(:claim_letter_download).with(document_uuid:,
-                                                   participant_id: user.participant_id).and_return(content)
+          .to receive(:claim_letter_download).with(
+            document_uuid:,
+            participant_id: user.participant_id
+          ).and_return(
+            Faraday::Response.new(
+              status: 200, body: content
+            )
+          )
       end
 
       it 'returns expected document' do
