@@ -11,6 +11,8 @@ module AppealsApi
     before_action :set_default_headers
 
     WARNING_EMOJI = ':warning:'
+    REDIS_LAST_SLACK_NOTIFICATION_TS = 'appeals_api:last_slack_healthcheck_notification_ts'
+    SLACK_NOTIFICATION_LIMIT_SECONDS = 1.hour.seconds.to_i
 
     def decision_reviews
       render json: {
@@ -46,25 +48,26 @@ module AppealsApi
 
     # Treat s3 as an internal resource as opposed to an upstream service per VA
     def healthcheck_s3
-      http_status_code = 200
-      s3_heathy = s3_is_healthy?
-      unless s3_heathy
+      s3_healthy = s3_is_healthy?
+      if !s3_healthy && elapsed_seconds_since_last_slack_notify > SLACK_NOTIFICATION_LIMIT_SECONDS
         begin
-          http_status_code = 503
           slack_details = {
             class: self.class.name,
             warning: "#{WARNING_EMOJI} Appeals API healthcheck failed: unable to connect to AWS S3 bucket."
           }
           AppealsApi::Slack::Messager.new(slack_details).notify!
+
+          # save the timestamp of the last slack notification
+          Rails.cache.write(REDIS_LAST_SLACK_NOTIFICATION_TS, Time.zone.now.to_i)
         rescue => e
           Rails.logger.error("Appeals API S3 failed Healthcheck slack notification failed: #{e.message}", e)
         end
       end
       render json: {
         description: 'Appeals API health check',
-        status: s3_heathy ? 'pass' : 'fail',
+        status: s3_healthy ? 'pass' : 'fail',
         time: Time.zone.now.to_formatted_s(:iso8601)
-      }, status: http_status_code
+      }, status: s3_healthy ? 200 : 503
     end
 
     def s3_is_healthy?
@@ -77,6 +80,13 @@ module AppealsApi
       true
     rescue
       false
+    end
+
+    def elapsed_seconds_since_last_slack_notify
+      last_slack_notify_ts = Rails.cache.read(REDIS_LAST_SLACK_NOTIFICATION_TS)
+      return Float::MAX if last_slack_notify_ts.nil?
+
+      Time.zone.now - Time.zone.at(last_slack_notify_ts)
     end
 
     def mail_status_upstream_healthcheck
