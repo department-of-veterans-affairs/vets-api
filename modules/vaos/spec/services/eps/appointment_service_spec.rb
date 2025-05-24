@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234', icn:) }
+  let(:user) { double('User', account_uuid: '1234', icn:, uuid: 'user-uuid-123') }
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
   let(:response_headers) { { 'Content-Type' => 'application/json' } }
@@ -16,6 +16,7 @@ describe Eps::AppointmentService do
   before do
     allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
+    allow(Eps::EpsAppointmentWorker).to receive(:perform_async)
   end
 
   describe '#get_appointment' do
@@ -188,6 +189,8 @@ describe Eps::AppointmentService do
           .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
           .and_return(successful_response)
 
+        expect(Eps::EpsAppointmentWorker).to receive(:perform_async).with(appointment_id, user.uuid)
+
         exp_response = OpenStruct.new(successful_response.body)
 
         expect(service.submit_appointment(appointment_id, valid_params)).to eq(exp_response)
@@ -210,6 +213,8 @@ describe Eps::AppointmentService do
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
           .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
           .and_return(successful_response)
+
+        expect(Eps::EpsAppointmentWorker).to receive(:perform_async).with(appointment_id, user.uuid)
 
         service.submit_appointment(appointment_id, params_with_attributes)
       end
