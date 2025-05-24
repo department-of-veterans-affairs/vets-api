@@ -8,6 +8,14 @@ module Veteran
     include Sidekiq::Job
     include SentryLogging
 
+    # The total number of representatives and organizations parsed from the ingested .ASP files
+    # must be at least the following percentage of the corresponding counts currently in the database.
+    # (These threshold values still need to be finalized.)
+    PERCENT_ATTORNEYS = 0.25
+    PERCENT_CLAIM_AGENTS = 0.25
+    PERCENT_VSO_REPRESENTATIVES = 0.25
+    PERCENT_VSO_ORGANIZATIONS = 0.25
+
     def perform
       array_of_organizations = reload_representatives
 
