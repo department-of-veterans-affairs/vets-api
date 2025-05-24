@@ -132,7 +132,7 @@ module MedicalCopays
       end
 
       def settings
-        Flipper.enabled?(:medical_copays_api_key_change) ? Settings.mcp.vbs_v2 : Settings.mcp.vbs
+        Settings.mcp.vbs_v2
       end
     end
   end
