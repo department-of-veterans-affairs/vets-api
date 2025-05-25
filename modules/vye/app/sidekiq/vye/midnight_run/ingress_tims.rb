@@ -30,7 +30,7 @@ module Vye
         end
       end
 
-      def on_complete(status, _options="")
+      def on_complete(status, _options = '')
         message =
           if status.failures.zero?
             "#{self.class.name}: All chunks have ran for TIMS feed, there were no failures."
@@ -43,7 +43,7 @@ module Vye
         Rails.logger.info message
       end
 
-      def on_success(_status, _options="")
+      def on_success(_status, _options = '')
         Rails.logger.info "#{self.class.name}: Ingress completed successfully for TIMS feed"
       end
     end
