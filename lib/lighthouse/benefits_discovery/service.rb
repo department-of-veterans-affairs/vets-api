@@ -4,7 +4,7 @@ module BenefitsDiscovery
   class Service < Common::Client::Base
     configuration BenefitsDiscovery::Configuration
 
-    def get_eligible_benefits
+    def get_eligible_benefits(params ||= example_params)
       response = perform(:get, 'benefits-discovery-service/v0/recommendations', example_params, headers)
     end
 
@@ -20,17 +20,17 @@ module BenefitsDiscovery
             "endDate": "2006-08-31"
           }
         ],
-        "purpleHeartRecipientDates": [
-          "2010-02-01",
-          "2012-05-13"
-        ]
+        # "purpleHeartRecipientDates": [
+          # "2010-02-01",
+          # "2012-05-13"
+        # ]
       }.to_json
     end
 
     def headers
       {
-        'x-api-key' => 'boo',
-        'x-app-ida' => 'app_id'
+        'x-api-key' => Settings.lighthouse.benefits_discover.x_api_key,
+        'x-app-id' => Settings.lighthouse.benefits_discover.x_app_id
       }
     end
   end
