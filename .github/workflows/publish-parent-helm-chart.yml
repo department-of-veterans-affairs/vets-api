@@ -46,7 +46,7 @@ jobs:
 
       - name: Inject version into Chart.yaml
         run: |
-          yq e -i '.version = "${{ steps.version_override.outputs.version }}"' chart/Chart.yaml
+          yq e -i '.version = "${{ steps.version.outputs.version }}"' chart/Chart.yaml
 
       - name: Log into ECR
         id: login-ecr
