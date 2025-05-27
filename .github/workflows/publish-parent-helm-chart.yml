@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: parent-helm-charts
+          fetch-depth: 0
 
       - name: Configure AWS Credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
