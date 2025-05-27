@@ -143,38 +143,17 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
     end
 
     describe 'disabilityRating' do
-      context 'with mobile_lighthouse_disability_ratings flag off' do
-        before { Flipper.disable(:mobile_lighthouse_disability_ratings) }
-        after { Flipper.enable(:mobile_lighthouse_disability_ratings) }
+      context 'when a user does not have lighthouse access' do
+        let(:user) { non_lighthouse_user }
 
-        context 'when user does not have evss access' do
-          let(:user) { non_evss_user }
-
-          it 'is false' do
-            expect(user_services.service_auth_map[:disabilityRating]).to be(false)
-          end
-        end
-
-        context 'when user does have evss access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:disabilityRating]).to be_truthy
-          end
+        it 'is false' do
+          expect(user_services.service_auth_map[:disabilityRating]).to be(false)
         end
       end
 
-      context 'with mobile_lighthouse_disability_ratings flag on' do
-        context 'when a user does not have lighthouse access' do
-          let(:user) { non_lighthouse_user }
-
-          it 'is false' do
-            expect(user_services.service_auth_map[:disabilityRating]).to be(false)
-          end
-        end
-
-        context 'when user does have lighthouse access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:disabilityRating]).to be_truthy
-          end
+      context 'when user does have lighthouse access' do
+        it 'is true' do
+          expect(user_services.service_auth_map[:disabilityRating]).to be_truthy
         end
       end
     end
