@@ -52,6 +52,10 @@ module PdfFill
       end
     end
 
+    def format_currency(v)
+      ActiveSupport::NumberHelper.number_to_currency(v)
+    end
+
     def overflow?(key_data, value, from_array_overflow = false)
       return false if value.blank? || from_array_overflow
 
@@ -68,7 +72,7 @@ module PdfFill
       return if key_data[:hide_from_overflow]
 
       i = nil if key_data[:skip_index]
-      v = "$#{v}" if key_data[:dollar]
+      v = format_currency(v) if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
       item_label = array_key_data.try(:[], :item_label)
       question_type = array_key_data&.dig(:question_type) || key_data&.dig(:question_type)
