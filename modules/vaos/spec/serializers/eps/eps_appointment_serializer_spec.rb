@@ -96,11 +96,6 @@ RSpec.describe Eps::EpsAppointmentSerializer do
         }
       )
     end
-
-    it 'includes empty referring facility details' do
-      facility_data = serialized[:data][:attributes][:referringFacility]
-      expect(facility_data).to eq({})
-    end
   end
 
   describe 'edge cases' do

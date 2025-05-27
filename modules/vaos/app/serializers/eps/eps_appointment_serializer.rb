@@ -23,9 +23,5 @@ module Eps
     end
 
     attribute :provider, &:provider_details
-
-    attribute :referring_facility do |_object|
-      {}
-    end
   end
 end
