@@ -97,6 +97,50 @@ describe IvcChampva::FileUploader do
         expect(FileUtils).to have_received(:rm_f).with(combined_pdf_path)
       end
 
+      it 'only inserts supporting_doc files into the database when insert_db_row is true' do
+        mixed_file_paths = [
+          'path/to/main_form.pdf',
+          'path/to/supporting_doc_1.pdf',
+          'path/to/regular_attachment.pdf',
+          'path/to/supporting_doc_2.pdf',
+          'path/to/another_file.pdf'
+        ]
+
+        test_uploader = IvcChampva::FileUploader.new(
+          form_id,
+          metadata.merge('attachment_ids' => [1, 2, 3, 4, 5]),
+          mixed_file_paths,
+          true,
+          @current_user
+        )
+
+        # set up tracking for inserted files
+        inserted_files = []
+        allow(test_uploader).to receive(:insert_form) do |file_name, _status|
+          inserted_files << file_name
+          nil
+        end
+
+        # call the method directly with test parameters
+        test_uploader.send(:insert_merged_pdf_and_docs, combined_pdf_path, [200])
+
+        # verify that exactly 3 files were inserted: combined PDF + 2 supporting docs
+        expect(inserted_files.size).to eq(3)
+
+        # first inserted file should be the combined PDF
+        expect(inserted_files[0]).to eq(combined_pdf_path)
+
+        # the rest should all be supporting docs
+        supporting_docs = inserted_files[1..]
+        expect(supporting_docs.size).to eq(2)
+        expect(supporting_docs).to all(include('supporting_doc'))
+
+        # verify that non-supporting_doc files were not inserted
+        expect(supporting_docs).not_to include('main_form.pdf')
+        expect(supporting_docs).not_to include('regular_attachment.pdf')
+        expect(supporting_docs).not_to include('another_file.pdf')
+      end
+
       it 'returns metadata upload results when require_all_s3_success is enabled' do
         allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
 

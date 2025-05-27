@@ -21,14 +21,8 @@ module Rx
     CACHE_TTL = 3600 * 1 # 1 hour cache
     CACHE_TTL_ZERO = 0
 
-    def initialize(session:, upstream_request: nil, app_token: nil)
+    def initialize(session:, upstream_request: nil)
       @upstream_request = upstream_request
-      @app_token = app_token || config.app_token if Flipper.enabled?(:mhv_medications_client_test)
-      if Flipper.enabled?(:mhv_medications_client_test) && @app_token == config.app_token
-        Rails.logger.info('Initializing client for VAHB')
-      elsif Flipper.enabled?(:mhv_medications_client_test) && @app_token == config.app_token_va_gov
-        Rails.logger.info('Initializing client for VA.gov')
-      end
       super(session:)
     end
 
@@ -198,7 +192,7 @@ module Rx
 
     def get_session_tagged
       Sentry.set_tags(error: 'mhv_session')
-      env = if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+      env = if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
               perform(:get, 'usermgmt/auth/session', nil, auth_headers)
             else
               perform(:get, 'session', nil, auth_headers)
@@ -216,27 +210,25 @@ module Rx
           'mhvCorrelationId' => session.user_id.to_s
         )
       )
-      headers['appToken'] = @app_token if Flipper.enabled?(:mhv_medications_client_test)
       get_headers(headers)
     end
 
     def get_headers(headers)
       headers = headers.dup
-      if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
-        api_key = @app_token == config.app_token_va_gov ? Settings.mhv.rx.x_api_key : Settings.mhv_mobile.x_api_key
-        headers.merge('x-api-key' => api_key)
+      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
       else
         headers
       end
     end
 
     def get_path(endpoint)
-      base_path = Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api ? 'pharmacy/ess' : 'prescription'
+      base_path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'pharmacy/ess' : 'prescription'
       "#{base_path}/#{endpoint}"
     end
 
     def get_preferences_path(endpoint)
-      base_path = if Settings.mhv.rx.use_new_api.present? && Settings.mhv.rx.use_new_api
+      base_path = if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
                     'usermgmt/notification'
                   else
                     'preferences'

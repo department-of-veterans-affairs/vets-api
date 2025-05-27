@@ -132,13 +132,13 @@ module BGS
       # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
       if selectable_options['add_spouse'] && MARRIAGE_TYPES.any? do |m|
            current_marriage_info = dependents_app['current_marriage_information']
-           m == @v2 ? current_marriage_info['type_of_marriage'] : current_marriage_info['type']
+           m == (@v2 ? current_marriage_info['type_of_marriage'] : current_marriage_info['type'])
          end
         return set_to_manual_vagov('add_spouse')
       end
 
       # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
-      if selectable_options['report_death'] && dependents_app['deaths'].any? do |h|
+      if selectable_options['report_death'] && dependents_app['deaths']&.any? do |h|
            RELATIONSHIPS.include?(h['dependent_type'])
          end
         return set_to_manual_vagov('report_death')

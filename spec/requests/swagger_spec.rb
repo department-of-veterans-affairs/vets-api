@@ -9,8 +9,6 @@ require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
 require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
-require 'support/sm_client_helpers'
-require 'support/rx_client_helpers'
 require 'bgs/service'
 require 'sign_in/logingov/service'
 require 'hca/enrollment_eligibility/constants'
@@ -1095,79 +1093,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'rx tests' do
-      include Rx::ClientHelpers
-      let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
-
-      before do
-        allow(Rx::Client).to receive(:new).and_return(authenticated_client)
-      end
-
-      context 'successful calls' do
-        it 'supports getting a list of all prescriptions' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
-            expect(subject).to validate(:get, '/v0/prescriptions', 200, headers)
-          end
-        end
-
-        it 'supports getting a list of active prescriptions' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
-            expect(subject).to validate(:get, '/v0/prescriptions/active', 200, headers)
-          end
-        end
-
-        it 'supports getting details of a particular prescription' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-            expect(subject).to validate(:get, '/v0/prescriptions/{id}', 200, headers.merge('id' => '13650545'))
-          end
-        end
-
-        it 'supports refilling a prescription' do
-          VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 204,
-                                        headers.merge('id' => '13650545'))
-          end
-        end
-
-        it 'supports tracking a prescription' do
-          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
-            expect(subject).to validate(
-              :get, '/v0/prescriptions/{prescription_id}/trackings', 200,
-              headers.merge('prescription_id' => '13650541')
-            )
-          end
-        end
-      end
-
-      context 'unsuccessful calls' do
-        it 'returns error on showing a prescription with bad id' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-            expect(subject).to validate(:get, '/v0/prescriptions/{id}', 404, headers.merge('id' => '1'))
-          end
-        end
-
-        it 'returns error on refilling a prescription with bad id' do
-          VCR.use_cassette('rx_client/prescriptions/prescription_refill_error') do
-            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 404, headers.merge('id' => '1'))
-          end
-        end
-
-        it 'returns error on refilling a prescription that is not refillable' do
-          VCR.use_cassette('rx_client/prescriptions/prescription_not_refillable_error') do
-            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 400, headers.merge('id' => '1'))
-          end
-        end
-
-        it 'returns an error tracking a prescription with a bad id' do
-          VCR.use_cassette('rx_client/prescriptions/nested_resources/tracking_error_id') do
-            expect(subject).to validate(
-              :get, '/v0/prescriptions/{prescription_id}/trackings', 404, headers.merge('prescription_id' => '1')
-            )
-          end
-        end
-      end
-    end
-
     describe 'disability compensation' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
@@ -1334,14 +1259,26 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         end
       end
 
+      it 'supports getting a specific type of intent to file' do
+        expect(subject).to validate(:get, '/v0/intent_to_file/{itf_type}', 401, 'itf_type' => 'pension')
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+          expect(subject).to validate(
+            :get,
+            '/v0/intent_to_file/{itf_type}',
+            200,
+            headers.update('itf_type' => 'pension')
+          )
+        end
+      end
+
       it 'supports creating an active compensation intent to file' do
-        expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
+        expect(subject).to validate(:post, '/v0/intent_to_file/{itf_type}', 401, 'itf_type' => 'compensation')
         VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
           expect(subject).to validate(
             :post,
-            '/v0/intent_to_file/{type}',
+            '/v0/intent_to_file/{itf_type}',
             200,
-            headers.update('type' => 'compensation')
+            headers.update('itf_type' => 'compensation')
           )
         end
       end
@@ -1455,445 +1392,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             }
           )
         )
-      end
-    end
-
-    describe 'secure messaging' do
-      include SM::ClientHelpers
-
-      let(:uploads) do
-        [
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg'),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', 'image/jpg'),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', 'image/jpg'),
-          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', 'image/jpg')
-        ]
-      end
-
-      before do
-        allow(SM::Client).to receive(:new).and_return(authenticated_client)
-      end
-
-      let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
-
-      describe 'triage teams' do
-        context 'successful calls' do
-          it 'supports getting a list of all prescriptions' do
-            VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
-              expect(subject).to validate(:get, '/v0/messaging/health/recipients', 200, headers)
-            end
-          end
-        end
-      end
-
-      describe 'folders' do
-        context 'successful calls' do
-          it 'supports getting a list of all folders' do
-            VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-              expect(subject).to validate(:get, '/v0/messaging/health/folders', 200, headers)
-            end
-          end
-
-          it 'supports getting a list of all messages in a folder' do
-            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-              expect(subject).to validate(
-                :get,
-                '/v0/messaging/health/folders/{folder_id}/messages', 200, headers.merge('folder_id' => '0')
-              )
-            end
-          end
-
-          it 'supports getting information about a specific folder' do
-            VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
-              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 200,
-                                          headers.merge('id' => '0'))
-            end
-          end
-
-          it 'supports creating a new folder' do
-            VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-              expect(subject).to validate(:post, '/v0/messaging/health/folders', 201,
-                                          headers.merge(
-                                            '_data' => { 'folder' => { 'name' => 'test folder 66745' } }
-                                          ))
-            end
-          end
-
-          it 'supports deleting a folder' do
-            VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 204,
-                                          headers.merge('id' => '674886'))
-            end
-          end
-        end
-
-        context 'unsuccessful calls' do
-          it 'supports get a single folder id error messages' do
-            VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 404,
-                                          headers.merge('id' => '1000'))
-            end
-          end
-
-          it 'supports deletea folder id folder error messages' do
-            VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404,
-                                          headers.merge('id' => '1000'))
-            end
-          end
-
-          it 'supports folder messages index error in a folder' do
-            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_id_error') do
-              expect(subject).to validate(
-                :get,
-                '/v0/messaging/health/folders/{folder_id}/messages', 404, headers.merge('folder_id' => '1000')
-              )
-            end
-          end
-        end
-      end
-
-      describe 'messages' do
-        context 'successful calls' do
-          it 'supports getting a list of all messages in a thread' do
-            VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200,
-                                          headers.merge('id' => '573059'))
-            end
-          end
-
-          it 'supports getting a message' do
-            VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 200,
-                                          headers.merge('id' => '573059'))
-            end
-          end
-
-          it 'supports getting a list of message categories' do
-            VCR.use_cassette('sm_client/messages/gets_message_categories') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/categories', 200, headers)
-            end
-          end
-
-          it 'supports getting message attachments' do
-            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
-                                          200, headers.merge('message_id' => '629999', 'id' => '629993'))
-            end
-          end
-
-          it 'supports moving a message to another folder' do
-            VCR.use_cassette('sm_client/messages/moves_a_message_with_id') do
-              expect(subject).to validate(:patch, '/v0/messaging/health/messages/{id}/move',
-                                          204, headers.merge('id' => '573052', '_query_string' => 'folder_id=0'))
-            end
-          end
-
-          it 'supports creating a message with no attachments' do
-            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/messages', 200,
-                headers.merge('_data' => { 'message' => {
-                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                'body' => 'Continuous Integration'
-                              } })
-              )
-            end
-          end
-
-          it 'supports creating a message with attachments' do
-            VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/messages', 200,
-                headers.merge('id' => '674838',
-                              '_data' => {
-                                'message' => {
-                                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                  'body' => 'Continuous Integration'
-                                },
-                                'uploads' => uploads
-                              })
-              )
-            end
-          end
-
-          it 'supports replying to a message with no attachments' do
-            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/messages/{id}/reply', 201,
-                headers.merge('id' => '674838',
-                              '_data' => { 'message' => {
-                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                'body' => 'Continuous Integration'
-                              } })
-              )
-            end
-          end
-
-          it 'supports replying to a message with attachments' do
-            VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/messages/{id}/reply', 201,
-                headers.merge('id' => '674838',
-                              '_data' => {
-                                'message' => {
-                                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                  'body' => 'Continuous Integration'
-                                },
-                                'uploads' => uploads
-                              })
-              )
-            end
-          end
-
-          it 'supports deleting a message' do
-            VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 204,
-                                          headers.merge('id' => '573052'))
-            end
-          end
-        end
-
-        context 'unsuccessful calls' do
-          it 'supports errors for list of all messages in a thread with invalid id' do
-            VCR.use_cassette('sm_client/messages/gets_a_message_thread_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 404,
-                                          headers.merge('id' => '999999'))
-            end
-          end
-
-          it 'supports error message with invalid id' do
-            VCR.use_cassette('sm_client/messages/gets_a_message_with_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 404,
-                                          headers.merge('id' => '999999'))
-            end
-          end
-
-          it 'supports errors getting message attachments with invalid message id' do
-            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment_message_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
-                                          404, headers.merge('message_id' => '999999', 'id' => '629993'))
-            end
-          end
-
-          it 'supports errors getting message attachments with invalid attachment id' do
-            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment_attachment_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
-                                          404, headers.merge('message_id' => '629999', 'id' => '999999'))
-            end
-          end
-
-          it 'supports errors moving a message to another folder' do
-            VCR.use_cassette('sm_client/messages/moves_a_message_with_id_error') do
-              expect(subject).to validate(:patch, '/v0/messaging/health/messages/{id}/move',
-                                          404, headers.merge('id' => '999999', '_query_string' => 'folder_id=0'))
-            end
-          end
-
-          it 'supports errors creating a message with no attachments' do
-            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments_recipient_id_error') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/messages', 422,
-                headers.merge('_data' => { 'message' => {
-                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '1',
-                                'body' => 'Continuous Integration'
-                              } })
-              )
-            end
-          end
-
-          it 'supports errors replying to a message with no attachments' do
-            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments_id_error') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/messages/{id}/reply', 404,
-                headers.merge('id' => '999999',
-                              '_data' => { 'message' => {
-                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                'body' => 'Continuous Integration'
-                              } })
-              )
-            end
-          end
-
-          it 'supports errors deleting a message' do
-            VCR.use_cassette('sm_client/messages/deletes_the_message_with_id_error') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 404,
-                                          headers.merge('id' => '999999'))
-            end
-          end
-        end
-      end
-
-      describe 'message drafts' do
-        context 'successful calls' do
-          it 'supports creating a message draft' do
-            VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/message_drafts', 201,
-                headers.merge('_data' => { 'message_draft' => {
-                                'subject' => 'Subject 1', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                'body' => 'Body 1'
-                              } })
-              )
-            end
-          end
-
-          %i[put patch].each do |op|
-            it "supports updating a message draft with #{op}" do
-              VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
-                expect(subject).to validate(
-                  op, '/v0/messaging/health/message_drafts/{id}', 204,
-                  headers.merge('id' => '674942',
-                                '_data' => { 'message_draft' => {
-                                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                  'body' => 'Updated Body'
-                                } })
-                )
-              end
-            end
-          end
-
-          it 'supports creating a message draft reply' do
-            VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
-              expect(subject).to validate(
-                :post, '/v0/messaging/health/message_drafts/{reply_id}/replydraft', 201,
-                headers.merge('reply_id' => '674874',
-                              '_data' => { 'message_draft' => {
-                                'subject' => 'Updated Subject', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                'body' => 'Body 1'
-                              } })
-              )
-            end
-          end
-
-          it 'supports updating a message draft reply' do
-            VCR.use_cassette('sm_client/message_drafts/updates_a_draft_reply') do
-              expect(subject).to validate(
-                :put, '/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}', 204,
-                headers.merge('reply_id' => '674874',
-                              'draft_id' => '674944',
-                              '_data' => { 'message_draft' => {
-                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                'body' => 'Updated Body'
-                              } })
-              )
-            end
-          end
-        end
-      end
-    end
-
-    describe 'bb' do
-      include BB::ClientHelpers
-
-      describe 'health_records' do
-        let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
-
-        before do
-          allow(BB::Client).to receive(:new).and_return(authenticated_client)
-        end
-
-        describe 'show a report' do
-          context 'successful calls' do
-            it 'supports showing a report' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              # Using mucked-up yml because apivore has a problem processing non-json responses
-              VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
-                expect(subject).to validate(:get, '/v0/health_records', 200,
-                                            headers.merge('_query_string' => 'doc_type=txt'))
-              end
-            end
-          end
-
-          context 'unsuccessful calls' do
-            it 'handles a backend error' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              VCR.use_cassette('bb_client/report_error_response') do
-                expect(subject).to validate(:get, '/v0/health_records', 503,
-                                            headers.merge('_query_string' => 'doc_type=txt'))
-              end
-            end
-          end
-        end
-
-        describe 'create a report' do
-          context 'successful calls' do
-            it 'supports creating a report' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              VCR.use_cassette('bb_client/generates_a_report') do
-                expect(subject).to validate(
-                  :post, '/v0/health_records', 202,
-                  headers.merge('_data' => {
-                                  'from_date' => 10.years.ago.iso8601.to_json,
-                                  'to_date' => Time.now.iso8601.to_json,
-                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
-                                })
-                )
-              end
-            end
-          end
-
-          context 'unsuccessful calls' do
-            it 'requires from_date, to_date, and data_classes' do
-              expect(subject).to validate(
-                :post, '/v0/health_records', 422,
-                headers.merge('_data' => {
-                                'to_date' => Time.now.iso8601.to_json,
-                                'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                              })
-              )
-
-              expect(subject).to validate(
-                :post, '/v0/health_records', 422,
-                headers.merge('_data' => {
-                                'from_date' => 10.years.ago.iso8601.to_json,
-                                'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                              })
-              )
-
-              expect(subject).to validate(
-                :post, '/v0/health_records', 422,
-                headers.merge('_data' => {
-                                'from_date' => 10.years.ago.iso8601.to_json,
-                                'to_date' => Time.now.iso8601.to_json
-                              })
-              )
-            end
-          end
-        end
-
-        describe 'eligible data classes' do
-          it 'supports retrieving eligible data classes' do
-            allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-            VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
-              expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200, headers)
-            end
-          end
-        end
-
-        describe 'refresh' do
-          context 'successful calls' do
-            it 'supports health records refresh' do
-              allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_migrate_to_api_gateway).and_return(false)
-
-              VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
-                expect(subject).to validate(:get, '/v0/health_records/refresh', 200, headers)
-              end
-            end
-          end
-
-          context 'unsuccessful calls' do
-            let(:mhv_user) { build(:user, :loa1) } # a user without mhv_correlation_id
-
-            it 'raises forbidden when user is not eligible' do
-              expect(subject).to validate(:get, '/v0/health_records/refresh', 403, headers)
-            end
-          end
-        end
       end
     end
 
@@ -3469,7 +2967,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         end
 
@@ -3515,7 +3012,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       context 'when :va_dependents_v2 is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:va_dependents_submit674, instance_of(User)).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
         end
 
@@ -3812,7 +3308,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
       it 'returns 400 for invalid request' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
-        VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[host path method]) do
+        VCR.use_cassette('travel_pay/400_claims', match_requests_on: %i[host path method]) do
           expect(subject).to validate(:get, '/travel_pay/v0/claims', 400, headers)
         end
       end
@@ -3837,6 +3333,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         )
       end
 
+      # Returns 400 for now, but should be 404
       it 'returns 400 for missing claim' do
         headers = { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } }
         VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[path method]) do
@@ -3910,6 +3407,24 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             '/travel_pay/v0/claims',
             201,
             headers.merge(params)
+          )
+        end
+      end
+    end
+
+    context 'documents' do
+      # doc summaries included in claim details
+
+      context 'show' do
+        it 'returns unauthorized for unauthed user' do
+          expect(subject).to validate(
+            :get,
+            '/travel_pay/v0/claims/{claimId}/documents/{docId}',
+            401,
+            {
+              'claimId' => 'claim-123',
+              'docId' => 'doc-456'
+            }
           )
         end
       end
@@ -4010,6 +3525,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       subject.untested_mappings.delete('/v0/caregivers_assistance_claims/download_pdf')
       subject.untested_mappings.delete('/v0/health_care_applications/download_pdf')
       subject.untested_mappings.delete('/v0/form0969')
+      subject.untested_mappings.delete('/travel_pay/v0/claims/{claimId}/documents/{docId}')
 
       # SiS methods that involve forms & redirects
       subject.untested_mappings.delete('/v0/sign_in/authorize')

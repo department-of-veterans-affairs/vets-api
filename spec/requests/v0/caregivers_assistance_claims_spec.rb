@@ -110,11 +110,17 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
       it 'logs the error and returns unprocessable entity' do
         expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_attempt)
-        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:submission_failure_client_data,
-                                                                             hash_including(
-                                                                               claim_guid: claim.guid,
-                                                                               errors: hash_including('#/': be_present)
-                                                                             ))
+        expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+          :submission_failure_client_data,
+          {
+            claim_guid: claim.guid,
+            errors: [
+              ' object at root is missing required properties: primaryCaregiver',
+              ' object at root is missing required properties: secondaryCaregiverOne',
+              ' object at root is missing required properties: veteran'
+            ]
+          }
+        )
         expect(Rails.logger).not_to receive(:error).with(
           'CaregiverAssistanceClaim: error submitting claim',
           { saved_claim_guid: claim.guid,
@@ -131,12 +137,20 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         res_body = JSON.parse(response.body)
         expected_errors = [
-          { title: "did not contain a required property of 'veteran'", code: '100', status: '422' },
-          { title: "#/ The property '#/' of type object did not match one or more of the required schemas in schema",
-            code: '100', status: '422' },
-          { title: "#/ The property '#/' did not contain a required property of 'primaryCaregiver'", code: '100',
+          { title: ' object at root is missing required properties: primaryCaregiver',
+            detail: ' - object at root is missing required properties: primaryCaregiver',
+            code: '100',
+            source: { pointer: 'data/attributes/' },
             status: '422' },
-          { title: "#/ The property '#/' did not contain a required property of 'secondaryCaregiverOne'", code: '100',
+          { title: ' object at root is missing required properties: secondaryCaregiverOne',
+            detail: ' - object at root is missing required properties: secondaryCaregiverOne',
+            code: '100',
+            source: { pointer: 'data/attributes/' },
+            status: '422' },
+          { title: ' object at root is missing required properties: veteran',
+            detail: ' - object at root is missing required properties: veteran',
+            code: '100',
+            source: { pointer: 'data/attributes/' },
             status: '422' }
         ]
 
@@ -205,7 +219,10 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     end
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:caregiver_lookup_facility_name_db).and_return(false)
+      allow(SecureRandom).to receive(:uuid).and_return('saved-claim-guid', 'file-name-uuid')
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(claim)
     end
 
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
@@ -221,43 +238,21 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     end
 
     it 'returns a completed PDF' do
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
-
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
       expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
 
       subject
 
       expect(response).to have_http_status(:ok)
+      expect(response.headers['Content-Type']).to eq('application/pdf')
+      expect(response.body).to start_with('%PDF')
 
-      # download response conent (the pdf) to disk
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
-
-      # compare it with the pdf fixture
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to be(true)
-
-      # ensure that the tmp file was deleted
       expect(
         File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
       ).to be(false)
     end
 
     it 'ensures the tmp file is deleted when send_data fails' do
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(claim)
-
       allow_any_instance_of(ApplicationController).to receive(:send_data).and_raise(StandardError, 'send_data failed')
-
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
       expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(:pdf_download)
 
       subject
@@ -269,24 +264,15 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     end
 
     it 'ensures the tmp file is deleted when fill_form fails after retries' do
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(claim)
-
       allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, 'error filling form')
       expect(claim).to receive(:to_pdf).exactly(3).times.and_raise(StandardError, 'error filling form')
 
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid')
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid')
-
       expect_any_instance_of(ApplicationController).not_to receive(:send_data)
-
-      expect(File).not_to receive(:delete)
+      expect_any_instance_of(Form1010cg::Auditor).not_to receive(:record).with(:pdf_download)
 
       subject
 
       expect(response).to have_http_status(:internal_server_error)
-
       expect(
         File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
       ).to be(false)

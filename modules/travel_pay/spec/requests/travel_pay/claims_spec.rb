@@ -53,7 +53,8 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           end
         end
 
-        it 'responds with a 404 if the API endpoint is not found' do
+        # Should respond with a 404 but for now a 400
+        it 'responds with a 400 if the API endpoint is not found' do
           VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[method path]) do
             get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
             expect(response).to have_http_status(:bad_request)
@@ -85,13 +86,12 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
     end
 
-    it 'returns a Bad Request response if claim ID valid but claim not found' do
+    # Should be a 404 but for now a 400
+    it 'returns a Not Found response if claim ID valid but claim not found' do
       VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[method path]) do
         claim_id = 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e'
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
-
-        # TODO: This doesn't seem quite right, but it's what the other 404 test returns
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -106,7 +106,6 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
         documents_array = JSON.parse(response.body)['documents']
-
         expect(response).to have_http_status(:ok)
         expect(documents_array).not_to be_empty
       end

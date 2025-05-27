@@ -75,6 +75,14 @@ module Mobile
       attribute :best_time_to_call, Types::Array.optional
       attribute :friendly_location_name, Types::String.optional
       attribute :service_category_name, Types::String.optional
+      attribute? :travelPayClaim do
+        attribute? :metadata do
+          attribute :status, Types::Integer
+          attribute :success, Types::Bool
+          attribute :message, Types::String
+        end
+        attribute? :claim, TravelPayClaimSummary.optional
+      end
 
       # On staging, some upstream services use different facility ids for the same facility.
       # These methods convert between the two sets of ids.

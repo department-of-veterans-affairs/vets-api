@@ -77,7 +77,7 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       expect(job).to receive(:cleanup_file_paths)
 
       expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsIntakeError,
+        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsBenefitIntakeError,
         "Unable to find IncomeAndAssets::SavedClaim #{claim.id}"
       )
     end
@@ -116,60 +116,84 @@ RSpec.describe IncomeAndAssets::BenefitIntakeJob, :uploader_helpers do
       job.instance_variable_set(:@form_path, 'path/file.pdf')
       job.instance_variable_set(:@attachment_paths, '/invalid_path/should_be_an_array.failure')
 
-      job.instance_variable_set(:@ia_monitor, monitor)
+      job.instance_variable_set(:@monitor, monitor)
       allow(monitor).to receive(:track_file_cleanup_error)
     end
 
-    it 'returns expected hash' do
+    it 'errors and logs but does not reraise' do
       expect(monitor).to receive(:track_file_cleanup_error)
-      expect { job.send(:cleanup_file_paths) }.to raise_error(
-        IncomeAndAssets::BenefitIntakeJob::IncomeAndAssetsIntakeError,
-        anything
-      )
+      job.send(:cleanup_file_paths)
+    end
+  end
+
+  describe '#send_submitted_email' do
+    let(:monitor_error) { create(:monitor_error) }
+    let(:notification) { double('notification') }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+
+      allow(IncomeAndAssets::NotificationEmail).to receive(:new).and_return(notification)
+      allow(notification).to receive(:deliver).and_raise(monitor_error)
+
+      job.instance_variable_set(:@monitor, monitor)
+      allow(monitor).to receive(:track_send_email_failure)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(IncomeAndAssets::NotificationEmail).to receive(:new).with(claim.id)
+      expect(notification).to receive(:deliver).with(:submitted)
+      expect(monitor).to receive(:track_send_email_failure)
+      job.send(:send_submitted_email)
     end
   end
 
   describe 'sidekiq_retries_exhausted block' do
+    let(:exhaustion_msg) do
+      { 'args' => [], 'class' => 'IncomeAndAssets::BenefitIntakeJob', 'error_message' => 'An error occurred',
+        'queue' => 'low' }
+    end
+
+    before do
+      allow(IncomeAndAssets::Monitor).to receive(:new).and_return(monitor)
+    end
+
     context 'when retries are exhausted' do
       it 'logs a distrinct error when no claim_id provided' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_account_uuid: nil, claim_id: nil)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
 
       it 'logs a distrinct error when only claim_id provided' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number,
-                                     user_account_uuid: nil, claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
+          expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim_id and user_account_uuid provided' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number, user_account_uuid: 2,
-                                     claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)
+          expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distrinct error when claim is not found' do
         IncomeAndAssets::BenefitIntakeJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'IncomeAndAssets::BenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_account_uuid: 2, claim_id: claim.id - 1)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.income_and_assets_intake_job.exhausted')
+          expect(IncomeAndAssets::SavedClaim).to receive(:find).with(claim.id - 1)
+
+          exhaustion_msg['args'] = [claim.id - 1, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end
