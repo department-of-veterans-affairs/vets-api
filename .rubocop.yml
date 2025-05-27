@@ -394,3 +394,8 @@ Rails/UnusedIgnoredColumns:
 Rails/UniqueValidationWithoutIndex:
   Exclude:
     - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
+
+
+Lint/DuplicateMethods:
+  Exclude:
+    - 'modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb'
