@@ -7,7 +7,7 @@ RSpec.describe V0::EventBusGatewayController, type: :request do
   describe '#send_email' do
     let(:params) do
       {
-        template_id: '5678',
+        template_id: '5678'
       }
     end
 
