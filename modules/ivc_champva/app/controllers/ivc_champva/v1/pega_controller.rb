@@ -48,7 +48,7 @@ module IvcChampva
                     end
 
         if ivc_forms.any?
-          ivc_forms.update_all(pega_status: status, case_id:) # rubocop:disable Rails/SkipsModelValidations
+          ivc_forms.each { |form| form.update!(pega_status: status, case_id:) }
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
