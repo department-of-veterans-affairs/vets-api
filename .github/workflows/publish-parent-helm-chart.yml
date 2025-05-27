@@ -42,8 +42,24 @@ jobs:
         id: version
         uses: codacy/git-version@2.8.0
         with:
-          release-branch: sc/vets-api/parentHelmChartPushECR
+          release-branch: parent-helm-chart
       
+      - name: Fetch latest ECR Helm tag with suffix
+        id: latest-tag
+        run: |
+          TAG=$(aws ecr describe-images \
+            --repository-name dsva/helm/vets-api \
+            --region us-gov-west-1 \
+            --query 'imageDetails[].imageTags[]' \
+            --output text | grep '.*-parent-helm-chart$' | sort -V | tail -n 1 || echo "0.0.0-parent-helm-chart")
+          echo "latest_tag=$TAG" >> "$GITHUB_OUTPUT"
+        
+      - name: Compute next version
+        id: version
+        run: |
+          LATEST="${{ steps.latest-tag.outputs.latest_tag }}"
+          echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+
       - name: Inject version into Chart.yaml
         run: |
           yq e -i '.version = "${{ steps.version.outputs.version }}"' chart/Chart.yaml
