@@ -33,8 +33,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
 
       context 'with a representative belonging to 2 VSOs' do
         before do
-          vso_a = create(:organization, poa: 'PAA')
-          vso_b = create(:organization, poa: 'PBB')
+          vso_a = create(:organization, poa: poa_code_a)
+          vso_b = create(:organization, poa: poa_code_b)
 
           representative =
             create(
@@ -57,6 +57,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           )
         end
 
+        let(:poa_code_a) { Faker::Alphanumeric.alphanumeric(number: 3) }
+        let(:poa_code_b) { Faker::Alphanumeric.alphanumeric(number: 3) }
         let(:representative_icn) { Faker::Number.unique.number(digits: 10) }
         let(:representative_email) { Faker::Internet.email }
         let(:claimant_icn) { Faker::Number.unique.number(digits: 10) }
@@ -98,7 +100,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           end
 
           context 'and a claimant that has poa with one of them' do
-            let(:claimant_poa_code) { 'PAA' }
+            let(:claimant_poa_code) { poa_code_a }
 
             it 'returns a `ClaimantRepresentative`' do
               expect(subject).to have_attributes(
@@ -113,7 +115,15 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           end
 
           context 'and a claimant that does not have poa with one of them' do
-            let(:claimant_poa_code) { 'ZZZ' }
+            alphabet = (?a..?z).to_a
+            let(:claimant_poa_code) do
+              ##
+              # This avoids the other POA codes.
+              #
+              poa_code_a.chars.zip(poa_code_b.chars).map do |chars|
+                alphabet.find { |c| !c.in?(chars) }
+              end.join
+            end
 
             it 'returns nil' do
               expect(subject).to be_nil
