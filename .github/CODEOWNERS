@@ -959,7 +959,13 @@ lib/okta/directory_service.rb @department-of-veterans-affairs/lighthouse-pivot
 lib/olive_branch_patch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pagerduty @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/pcpg @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/pdf_fill @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10
+lib/pdf_fill @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/field_mappings @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/formatters @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/va1010cg.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/pdfs/10-10CG.pdf @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/va1010ez.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
+lib/pdf_fill/forms/pdfs/10-10EZ.pdf @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/pdfs/21P-0969.pdf @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/va21p0969.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 lib/pdf_fill/forms/pdfs/28-1900.pdf @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
