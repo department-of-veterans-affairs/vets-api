@@ -183,7 +183,8 @@ module PdfFill
             submit_date:,
             question_key: form_class::QUESTION_KEY,
             start_page: form_class::START_PAGE,
-            sections: form_class::SECTIONS
+            sections: form_class::SECTIONS,
+            label_width: form_class::DEFAULT_LABEL_WIDTH
           )
         else
           ExtrasGenerator.new
