@@ -42,7 +42,7 @@ RSpec.describe BenefitsClaims::Service do
 
       describe 'when requesting a list of benefits claims' do
         it 'retrieves a list of benefits claims from the Lighthouse API' do
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
             response = @service.get_claims
             expect(response.dig('data', 0, 'id')).to eq('600383363')
           end
@@ -50,7 +50,7 @@ RSpec.describe BenefitsClaims::Service do
 
         it 'filters out claims with certain statuses and base end product codes' do
           allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(true)
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
             response = @service.get_claims
             expect(response['data'].length).to eq(6)
           end
@@ -58,7 +58,7 @@ RSpec.describe BenefitsClaims::Service do
 
         it 'does not filter out claims with certain base end product codes' do
           allow(Flipper).to receive(:enabled?).with(:cst_filter_ep_codes).and_return(false)
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
             response = @service.get_claims
             expect(response['data'].length).to eq(8)
           end
@@ -114,7 +114,7 @@ RSpec.describe BenefitsClaims::Service do
                         'lighthouseId' => 'c72af21b-a82c-4ef2-a953-2a8b9afcb44b',
                         'status' => 'COMPLETE' } }]
 
-          # #110154 - it should filter out the base end product code 960
+          # #110154 - it should filter out the base end product codes 960 and 290
           results = @service.send(:filter_by_ep_code, data)
           expect(results.length).to eq(1)
         end

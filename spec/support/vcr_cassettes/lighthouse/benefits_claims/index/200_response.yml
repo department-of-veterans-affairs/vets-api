@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims
+    uri: https://example.com
     body:
       encoding: US-ASCII
       string: ''
