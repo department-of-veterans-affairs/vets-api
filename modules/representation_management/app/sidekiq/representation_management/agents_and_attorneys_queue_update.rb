@@ -7,53 +7,19 @@ module RepresentationManagement
     include Sidekiq::Job
 
     def perform
-      agent_responses = []
-      attorney_responses = []
-      agent_ids = []
-      attorney_ids = []
-      agent_ids_for_address_validation = []
-      attorney_ids_for_address_validation = []
-      page = 1
+      @agent_responses = []
+      @attorney_responses = []
+      @agent_ids = []
+      @attorney_ids = []
+      @agent_ids_for_address_validation = []
+      @attorney_ids_for_address_validation = []
 
-      loop do
-        response = RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'agents', page:)
-        agents = response.body['items']
-        break if agents.empty?
-
-        agent_responses << agents
-        agents.each do |agent|
-          agent_identifier = { individual_type: 'claims_agent', ogc_id: agent['id'] }
-          agent_hash = data_transform_for_agent(agent)
-          record = AccreditedIndividual.find_or_create_by(agent_identifier)
-          agent_ids_for_address_validation << record.id if record.raw_address != raw_address_for_agent(agent)
-          record.update(agent_hash)
-          agent_ids << record.id
-        end
-        page += 1
-      end
-
-      page = 1
-      loop do
-        response = RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'attorneys', page:)
-        attorneys = response.body['items']
-        break if attorneys.empty?
-
-        attorney_responses << attorneys
-        attorneys.each do |attorney|
-          attorney_identifier = { individual_type: 'attorney', ogc_id: attorney['id'] }
-          attorney_hash = data_transform_for_attorney(attorney)
-          record = AccreditedIndividual.find_or_create_by(attorney_identifier)
-          attorney_ids << record.id
-        end
-        page += 1
-      end
-
-      AccreditedIndividual.where(type: 'agent').where.not(id: agent_ids).find_each do |agent|
-        agent.update(deactivated_at: Time.zone.now)
-      end
-      AccreditedIndividual.where(type: 'attorney').where.not(id: attorney_ids).find_each do |attorney|
-        attorney.update(deactivated_at: Time.zone.now)
-      end
+      update_agents
+      update_attorneys
+      validate_agent_addresses
+      validate_attorney_addresses
+      deactivate_agents
+      deactivate_attorneys
     rescue => e
       log_error("Error in AgentsAndAttorneysQueueUpdate: #{e.message}")
     end
@@ -101,6 +67,18 @@ module RepresentationManagement
       }
     end
 
+    def deactivate_agents
+      AccreditedIndividual.where(individual_type: 'agent').where.not(id: @agent_ids).find_each do |agent|
+        agent.update(deactivated_at: Time.zone.now)
+      end
+    end
+
+    def deactivate_attorneys
+      AccreditedIndividual.where(individual_type: 'attorney').where.not(id: @attorney_ids).find_each do |attorney|
+        attorney.update(deactivated_at: Time.zone.now)
+      end
+    end
+
     def raw_address_for_agent(agent)
       {
         address_line1: agent['workAddress1'],
@@ -108,7 +86,7 @@ module RepresentationManagement
         address_line3: agent['workAddress3'],
         zip_code: agent['workZip'],
         work_country: agent['workCountry']
-      }
+      }.transform_keys(&:to_s)
     end
 
     def raw_address_for_attorney(attorney)
@@ -119,7 +97,48 @@ module RepresentationManagement
         city: attorney['workCity'],
         state_code: attorney['workState'],
         zip_code: attorney['workZip']
-      }
+      }.transform_keys(&:to_s)
+    end
+
+    def update_agents
+      page = 1
+
+      loop do
+        response = RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'agents', page:)
+        agents = response.body['items']
+        break if agents.empty?
+
+        @agent_responses << agents
+        agents.each do |agent|
+          agent_identifier = { individual_type: 'claims_agent', ogc_id: agent['id'] }
+          agent_hash = data_transform_for_agent(agent)
+          record = AccreditedIndividual.find_or_create_by(agent_identifier)
+          @agent_ids_for_address_validation << record.id if record.raw_address != raw_address_for_agent(agent)
+          record.update(agent_hash)
+          @agent_ids << record.id
+        end
+        page += 1
+      end
+    end
+
+    def update_attorneys
+      page = 1
+      loop do
+        response = RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'attorneys', page:)
+        attorneys = response.body['items']
+        break if attorneys.empty?
+
+        @attorney_responses << attorneys
+        attorneys.each do |attorney|
+          attorney_identifier = { individual_type: 'attorney', ogc_id: attorney['id'] }
+          attorney_hash = data_transform_for_attorney(attorney)
+          record = AccreditedIndividual.find_or_create_by(attorney_identifier)
+          @attorney_ids_for_address_validation << record.id if record.raw_address != raw_address_for_attorney(attorney)
+          record.update(attorney_hash)
+          @attorney_ids << record.id
+        end
+        page += 1
+      end
     end
 
     def log_error(message)
