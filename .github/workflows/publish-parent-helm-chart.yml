@@ -44,25 +44,6 @@ jobs:
         with:
           release-branch: parent-helm-chart
 
-      - name: Override version if first publish
-        id: version_override
-        run: |
-          INITIAL="0.15.26-parent-helm-chart"
-
-          EXISTS=$(aws ecr describe-images \
-            --repository-name dsva/helm/vets-api \
-            --region us-gov-west-1 \
-            --query 'imageDetails[].imageTags[]' \
-            --output text | grep -x "$INITIAL" || true)
-
-          if [ -z "$EXISTS" ]; then
-            VERSION="$INITIAL"
-          else
-            VERSION="${{ steps.version.outputs.version }}-parent-helm-chart"
-          fi
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Inject version into Chart.yaml
         run: |
           yq e -i '.version = "${{ steps.version_override.outputs.version }}"' chart/Chart.yaml
