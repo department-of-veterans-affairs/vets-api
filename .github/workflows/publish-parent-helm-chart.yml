@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - parent-helm-chart
-      - sc/vets-api/**
 
 jobs:
   publish:
