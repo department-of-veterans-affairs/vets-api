@@ -10,6 +10,7 @@ module PdfFill
       START_PAGE = 1
       SECTIONS = nil
       QUESTION_KEY = nil
+      DEFAULT_LABEL_WIDTH = nil
 
       def self.date_strftime
         '%m/%d/%Y'

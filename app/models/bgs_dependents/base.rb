@@ -163,7 +163,15 @@ module BGSDependents
     def create_address_params(proc_id, participant_id, payload)
       is_v2 = v2?
       address = generate_address(payload)
-
+      frgn_postal_code = if is_v2
+                           if address['military_postal_code'].present? || address['country'] == 'USA'
+                             nil
+                           else
+                             address['postal_code']
+                           end
+                         else
+                           address['international_postal_code']
+                         end
       {
         efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: participant_id,
@@ -176,7 +184,7 @@ module BGSDependents
         city_nm: address['city'],
         cntry_nm: is_v2 ? address['country'] : address['country_name'],
         postal_cd: is_v2 ? address['state'] : address['state_code'],
-        frgn_postal_cd: is_v2 ? address['postal_code'] : address['international_postal_code'],
+        frgn_postal_cd: frgn_postal_code,
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
         zip_prefix_nbr: is_v2 ? address['postal_code'] : address['zip_code'],

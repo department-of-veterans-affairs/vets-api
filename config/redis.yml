@@ -52,7 +52,10 @@ development: &defaults
     each_ttl: 1200
   medical_records_store:
     namespace: mr-service
-    each_ttl: 1200
+    each_ttl: 3600
+  medical_records_cache:
+    namespace: mr-cache
+    each_ttl: 1800
   bb_internal_store:
     namespace: bb-internal-service
     each_ttl: 600 # 10 minutes
