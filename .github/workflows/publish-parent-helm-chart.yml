@@ -42,7 +42,7 @@ jobs:
         id: version
         uses: codacy/git-version@2.8.0
         with:
-          release-branch: parent-helm-chart
+          release-branch: sc/vets-api/parentHelmChartPushECR
       
       - name: Inject version into Chart.yaml
         run: |
