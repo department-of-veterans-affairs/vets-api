@@ -35,18 +35,57 @@ module IncomeAndAssets
       # The path to the PDF template for the form
       TEMPLATE = "#{IncomeAndAssets::MODULE_PATH}/lib/income_and_assets/pdf_fill/pdfs/#{FORM_ID}.pdf".freeze
 
-      # Each section of the form
-      SECTIONS = [Section1, Section2, Section3, Section4,
-                  Section5, Section6, Section7, Section8,
-                  Section9, Section10, Section11, Section12,
-                  Section13].freeze
+      # Starting page number for overflow pages
+      START_PAGE = 11
+
+      # Map question numbers to descriptive titles for overflow attachments
+      QUESTION_KEY = {
+        1 => 'Veteran\'s Identification Information',
+        2 => 'Claimant\'s Identification Information',
+        3 => 'Recurring Income Not Associated with Accounts or Assets',
+        4 => 'Associated Incomes',
+        5 => 'Income and Net Worth Associated with Owned Assets',
+        6 => 'Income and Net Worth Associated with Royalties and Other Properties',
+        7 => 'Asset Transfers',
+        8 => 'Trusts',
+        9 => 'Annuities',
+        10 => 'Assets Previously Not Reported',
+        11 => 'Discontinued or Irregular Income',
+        12 => 'Waiver of Receipt of Income'
+      }.freeze
+
+      # V2-style sections grouping question numbers for overflow pages
+      SECTIONS = [
+        { label: 'Section I: Veteran\'s Identification Information', question_nums: [1] },
+        { label: 'Section II: Claimant\'s Identification Information', question_nums: [2] },
+        { label: 'Section III: Recurring Income Not Associated with Accounts or Assets', question_nums: [3] },
+        { label: 'Section IV: Associated Incomes', question_nums: [4] },
+        { label: 'Section V: Income and Net Worth Associated with Owned Assets', question_nums: [5] },
+        { label: 'Section VI: Income and Net Worth Associated with Royalties and Other Properties',
+          question_nums: [6] },
+        { label: 'Section VII: Asset Transfers', question_nums: [7] },
+        { label: 'Section VIII: Trusts', question_nums: [8] },
+        { label: 'Section IX: Annuities', question_nums: [9] },
+        { label: 'Section X: Assets Previously Not Reported', question_nums: [10] },
+        { label: 'Section XI: Discontinued or Irregular Income', question_nums: [11] },
+        { label: 'Section XII: Waiver of Receipt of Income', question_nums: [12] }
+      ].freeze
+
+      # The list of section classes for form expansion and key building
+      SECTION_CLASSES = [Section1, Section2, Section3, Section4,
+                         Section5, Section6, Section7, Section8,
+                         Section9, Section10, Section11, Section12,
+                         Section13].freeze
 
       key = {}
 
-      SECTIONS.each { |section| key = key.merge(section::KEY) }
+      SECTION_CLASSES.each { |section| key.merge!(section::KEY) }
 
       # Form configuration hash
       KEY = key.freeze
+
+      # Default label column width (points) for redesigned extras in this form
+      DEFAULT_LABEL_WIDTH = 130
 
       # Post-process form data to match the expected format.
       # Each section of the form is processed in its own expand function.
@@ -56,7 +95,7 @@ module IncomeAndAssets
       # @return [Hash] the processed form data
       #
       def merge_fields(_options = {})
-        SECTIONS.each { |section| section.new.expand(form_data) }
+        SECTION_CLASSES.each { |section| section.new.expand(form_data) }
 
         form_data
       end
