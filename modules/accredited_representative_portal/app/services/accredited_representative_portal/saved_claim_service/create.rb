@@ -7,9 +7,15 @@ module AccreditedRepresentativePortal
       WrongAttachmentsError = Class.new(Error)
 
       class << self
-        def perform(metadata:, attachment_guids:, type:)
-          type.new.tap do |claim|
-            claim.form = metadata.to_json
+        def perform(
+          type:, metadata:, attachment_guids:,
+          claimant_representative:
+        )
+          ##
+          # TODO: Return the `SavedClaimClaimantRepresentative` wrapping this?
+          #
+          type.new.tap do |saved_claim|
+            saved_claim.form = metadata.to_json
 
             ##
             # TODO: More robust (DB) constraints of the invariants expressed in
@@ -26,17 +32,19 @@ module AccreditedRepresentativePortal
             # But there is a complexity cost of needing these assignments to
             # agree over time, rather than being set at only one final moment.
             #
-            claim.form_attachment = attachments[:form]
-            claim.form_attachment.form_id = claim.form_id
+            saved_claim.form_attachment = attachments[:form]
+            saved_claim.form_attachment.form_id = saved_claim.form_id
 
             attachments[:documentations].each do |attachment|
-              claim.persistent_attachments << attachment
+              saved_claim.persistent_attachments << attachment
             end
 
-            claim.save!
+            SavedClaimClaimantRepresentative.create!(
+              saved_claim:, **claimant_representative.to_h
+            )
 
             SubmitBenefitsIntakeClaimJob.perform_async(
-              claim.id
+              saved_claim.id
             )
           end
 
