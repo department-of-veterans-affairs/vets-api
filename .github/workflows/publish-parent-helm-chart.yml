@@ -38,11 +38,15 @@ jobs:
       - name: Install yq to parse YAML
         uses: mikefarah/yq@v4.44.1
 
-      - name: Extract version from Chart.yaml
+      - name: Git Version
         id: version
+        uses: codacy/git-version@2.8.0
+        with:
+          release-branch: parent-helm-chart
+      
+      - name: Inject version into Chart.yaml
         run: |
-          VERSION=$(yq '.version' chart/Chart.yaml)
-          echo "chart_version=$VERSION" >> "$GITHUB_OUTPUT"
+          yq e -i '.version = "${{ steps.version.outputs.version }}"' chart/Chart.yaml
 
       - name: Log into ECR
         id: login-ecr
