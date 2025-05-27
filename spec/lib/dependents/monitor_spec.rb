@@ -4,11 +4,12 @@ require 'rails_helper'
 require 'dependents/monitor'
 
 RSpec.describe Dependents::Monitor do
-  let(:monitor_v1) { described_class.new(false) }
-  let(:monitor_v2) { described_class.new(true) }
+  let(:claim) { create(:dependency_claim) }
+  let(:claim_v2) { create(:dependency_claim_v2) }
+  let(:monitor_v1) { described_class.new(claim.id) }
+  let(:monitor_v2) { described_class.new(claim_v2.id) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
-  let(:claim) { create(:dependency_claim) }
   let(:user) { create(:evss_user, :loa3) }
 
   let(:vet_info) do
