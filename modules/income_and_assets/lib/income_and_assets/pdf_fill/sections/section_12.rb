@@ -12,6 +12,8 @@ module IncomeAndAssets
         'incomeReceiptWaiver' => { key: 'F[0].#subform[9].DependentsWaiveReceiptsOfIncome12a[0]' },
         # 12b-12c (only space for 2 on form)
         'incomeReceiptWaivers' => {
+          # Label for each waiver entry (e.g., 'Income Receipt Waiver 1')
+          item_label: 'Income Receipt Waiver',
           limit: 2,
           first_key: 'otherRecipientRelationshipType',
           # Q1
@@ -21,13 +23,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 12,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship12[#{ITERATOR}]",
             question_num: 12,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Other Relationship'
           },
           # Q2
           'recipientName' => {
@@ -35,14 +39,16 @@ module IncomeAndAssets
             question_num: 12,
             question_suffix: '(2)',
             question_text:
-                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+                'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Recipient Name'
           },
           # Q3
           'payer' => {
             key: "F[0].IncomePayer12[#{ITERATOR}]",
             question_num: 12,
             question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)'
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, etc.)',
+            question_label: 'Income Payer'
           },
           # Q4
           'expectedIncome' => {
@@ -59,7 +65,8 @@ module IncomeAndAssets
           'expectedIncomeOverflow' => {
             question_num: 12,
             question_suffix: '(4)',
-            question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?'
+            question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?',
+            question_label: 'Expected Income'
           },
           # Q5
           'paymentResumeDate' => {
@@ -70,7 +77,8 @@ module IncomeAndAssets
           'paymentResumeDateOverflow' => {
             question_num: 12,
             question_suffix: '(5)',
-            question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)'
+            question_text: 'DATE PAYMENTS WILL RESUME (MM/DD/YYYY)',
+            question_label: 'Date Payments Will Resume'
           },
           'paymentWillNotResume' => {
             key: "F[0].IncomeWillNotResume12[#{ITERATOR}]"
@@ -78,7 +86,8 @@ module IncomeAndAssets
           'paymentWillNotResumeOverflow' => {
             question_num: 12,
             question_suffix: '(5)',
-            question_text: 'This income will not resume'
+            question_text: 'This income will not resume',
+            question_label: 'Payment Will Not Resume'
           },
           # Q6
           'waivedGrossMonthlyIncome' => {
@@ -95,7 +104,8 @@ module IncomeAndAssets
           'waivedGrossMonthlyIncomeOverflow' => {
             question_num: 12,
             question_suffix: '(6)',
-            question_text: 'WAIVED GROSS MONTHLY INCOME'
+            question_text: 'WAIVED GROSS MONTHLY INCOME',
+            question_label: 'Waived Gross Monthly Income'
           }
         }
       }.freeze
