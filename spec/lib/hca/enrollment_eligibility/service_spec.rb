@@ -37,7 +37,7 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data without contacts and with providers and dependents' do
-          expect_veteran_data_to_match(veteran_data.except('veteranContacts'))
+          expect_veteran_data_to_match(veteran_data.except('nextOfKins', 'emergencyContacts'))
         end
       end
 
@@ -47,7 +47,7 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data without contacts, providers, or dependents' do
-          expect_veteran_data_to_match(veteran_data.except('providers', 'dependents', 'veteranContacts'))
+          expect_veteran_data_to_match(veteran_data.except('providers', 'dependents', 'nextOfKins', 'emergencyContacts'))
         end
       end
     end
@@ -72,7 +72,7 @@ describe HCA::EnrollmentEligibility::Service do
           allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
         end
 
-        it 'gets Veteran data without contacts and with providers and dependents' do
+        it 'gets Veteran data with contacts, but without providers and dependents' do
           expect_veteran_data_to_match(veteran_data.except('providers', 'dependents'))
         end
       end

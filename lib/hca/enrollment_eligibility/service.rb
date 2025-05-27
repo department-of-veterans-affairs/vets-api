@@ -73,8 +73,15 @@ module HCA
         end
 
         if Flipper.enabled?(:ezr_prefill_contacts)
-          contacts = parse_contacts(response)
-          ezr_data.merge!({ veteranContacts: contacts }) if contacts.present?
+          contacts = {
+            nextOfKins: ['Primary Next of Kin', 'Other Next of Kin'],
+            emergencyContacts: ['Emergency Contact', 'Other emergency contact']
+          }
+        
+          contacts.each do |key, types|
+            selected = parse_contacts(response).select { |c| types.include?(c[:contactType]) }
+            ezr_data[key] = selected if selected.present?
+          end
         end
 
         OpenStruct.new(ezr_data)
