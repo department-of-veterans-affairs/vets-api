@@ -46,7 +46,7 @@ module BenefitsClaims
     }.freeze
 
     SUPPORT_ALIASES_MAPPING = {
-      '21-4142/21-4142a' => ['VA Form 21-4142'],
+      '21-4142/21-4142a' => ['21-4142/21-4142a'],
       'Employment info needed' => ['VA Form 21-4192'],
       'EFT - Treasury Mandate Notification' => ['EFT - Treasure Mandate Notification'],
       'PTSD - Need stressor details/med evid of stressful incdnt' => ['VA Form 21-0781',
@@ -68,8 +68,8 @@ module BenefitsClaims
       'Proof of service (DD214, etc.)' => true,
       'PMR Request' => true,
       'General Records Request (Medical)' => true,
-      'DBQ AUDIO Hearing Loss and Tinnitus' => true,
-      'DBQ PSYCH Mental Disorders' => true
+      'DBQ AUDIO Hearing Loss and Tinnitus' => false,
+      'DBQ PSYCH Mental Disorders' => false
     }.freeze
   end
 end

@@ -28,10 +28,10 @@ describe VAProfile::Models::Telephone do
     end
 
     context 'with an international country code' do
-      it 'returns the formatted international phone number' do
+      it 'returns nil' do
         telephone.is_international = true
         telephone.country_code = '44'
-        expect(telephone.formatted_phone).to eq('+44 5551234')
+        expect(telephone.formatted_phone).to be_nil
       end
     end
   end
@@ -55,22 +55,25 @@ describe VAProfile::Models::Telephone do
       expect(telephone.errors[:extension].first).to eq('is not a number')
     end
 
+    it 'area_code must be present when is_international is false' do
+      telephone = build(:telephone, area_code: nil, is_international: false)
+      expect(telephone).not_to be_valid
+      expect(telephone.errors[:area_code].first).to eq("can't be blank")
+    end
+
     context 'is_international' do
       it 'is valid when set to false' do
         phone = build(:telephone, is_international: false)
-
         expect(phone).to be_valid
       end
 
       it 'is valid when set to true' do
         phone = build(:telephone, is_international: true)
-
         expect(phone).to be_valid
       end
 
       it 'is not valid when nil' do
         phone = build(:telephone, is_international: nil)
-
         expect(phone).not_to be_valid
       end
     end
@@ -81,7 +84,6 @@ describe VAProfile::Models::Telephone do
 
         valid_country_codes.each do |valid_country_code|
           phone = build(:telephone, country_code: valid_country_code)
-
           expect(phone).to be_valid
         end
       end
@@ -91,7 +93,6 @@ describe VAProfile::Models::Telephone do
 
         invalid_country_codes.each do |invalid_country_code|
           phone = build(:telephone, country_code: invalid_country_code)
-
           expect(phone).not_to be_valid
         end
       end
@@ -101,14 +102,12 @@ describe VAProfile::Models::Telephone do
 
         invalid_country_codes.each do |invalid_country_code|
           phone = build(:telephone, country_code: invalid_country_code)
-
           expect(phone).not_to be_valid
         end
       end
 
       it 'is not valid when nil' do
         phone = build(:telephone, country_code: nil)
-
         expect(phone).not_to be_valid
       end
     end
