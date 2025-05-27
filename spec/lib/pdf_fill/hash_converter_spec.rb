@@ -39,11 +39,15 @@ describe PdfFill::HashConverter do
 
     context 'with a dollar value' do
       [
+        { value: '$100', expected: '$100.00' },
+        { value: '1,000,000', expected: '$1,000,000.00' },
+        { value: '1,000,000.01', expected: '$1,000,000.01' },
         { value: '0', expected: '$0.00' },
         { value: '42', expected: '$42.00' },
         { value: '123.45', expected: '$123.45' },
         { value: 1000, expected: '$1,000.00' },
-        { value: 10_004.10, expected: '$10,004.10' }
+        { value: 10_004.10, expected: '$10,004.10' },
+        { value: -10_004.00, expected: '-$10,004.00' }
       ].each do |test_case|
         it "formats #{test_case[:value]} as #{test_case[:expected]}" do
           verify_extras_text(test_case[:expected], question_num: 1, question_text: 'foo', i: nil)

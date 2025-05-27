@@ -53,6 +53,8 @@ module PdfFill
     end
 
     def format_currency(v)
+      v = v.to_s.gsub('$', '').gsub(',', '')
+
       ActiveSupport::NumberHelper.number_to_currency(v)
     end
 
