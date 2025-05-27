@@ -24,13 +24,21 @@ module Forms
         results = @formatter.format_data(@dataset)
 
         results = results.select do |result|
-          result.updated_at >= 60.days.ago
+          submission_recent?(result)
         end
 
         OpenStruct.new(
           submission_statuses: results,
           errors: @dataset.errors
         )
+      end
+
+      private
+
+      def submission_recent?(submission)
+        return submission.created_at >= 60.days.ago unless submission.updated_at
+
+        submission.updated_at >= 60.days.ago
       end
     end
   end
