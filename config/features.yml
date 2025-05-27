@@ -1765,6 +1765,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for adopting MHV route guards for the appointment tool.
+  va_online_scheduling_convert_slots_to_utc:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for for converting the start & end times in slots fetch to UTC.
   va_online_scheduling_direct_schedule_appointment_conflict:
     actor_type: user
     enable_in_development: true
@@ -2205,3 +2209,6 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  gi_ct_mapbox_mitigation:
+    actor_type: user
+    description: If enabled, hides search by location feature affected by MapBox loss
