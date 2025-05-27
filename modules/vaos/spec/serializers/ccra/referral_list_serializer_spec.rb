@@ -11,7 +11,8 @@ RSpec.describe Ccra::ReferralListSerializer do
           referral_number: '5682',
           referral_consult_id: '984_646372',
           category_of_care: 'CARDIOLOGY',
-          referral_expiration_date: '2024-05-27'
+          referral_expiration_date: '2024-05-27',
+          station_id: '528A6'
         )
         ref.uuid = 'encrypted-984_646372'
         ref
@@ -22,7 +23,8 @@ RSpec.describe Ccra::ReferralListSerializer do
           referral_number: '5683',
           referral_consult_id: '984_646373',
           category_of_care: 'PODIATRY',
-          referral_expiration_date: '2024-05-27'
+          referral_expiration_date: '2024-05-27',
+          station_id: '528A7'
         )
         ref.uuid = 'encrypted-984_646373'
         ref
@@ -33,7 +35,8 @@ RSpec.describe Ccra::ReferralListSerializer do
           referral_number: '5684',
           referral_consult_id: '984_646374',
           category_of_care: 'OPTOMETRY',
-          referral_expiration_date: '2024-05-27'
+          referral_expiration_date: '2024-05-27',
+          station_id: '528A8'
         )
         ref.uuid = 'encrypted-984_646374'
         ref
@@ -55,6 +58,7 @@ RSpec.describe Ccra::ReferralListSerializer do
         expect(serialized_data[:data][0][:attributes][:referralNumber]).to eq('5682')
         expect(serialized_data[:data][0][:attributes][:expirationDate]).to eq('2024-05-27')
         expect(serialized_data[:data][0][:attributes][:uuid]).to eq('encrypted-984_646372')
+        expect(serialized_data[:data][0][:attributes][:stationId]).to eq('528A6')
 
         expect(serialized_data[:data][1][:id]).to eq('encrypted-984_646373')
         expect(serialized_data[:data][1][:type]).to eq(:referrals)
@@ -62,6 +66,7 @@ RSpec.describe Ccra::ReferralListSerializer do
         expect(serialized_data[:data][1][:attributes][:referralNumber]).to eq('5683')
         expect(serialized_data[:data][1][:attributes][:expirationDate]).to eq('2024-05-27')
         expect(serialized_data[:data][1][:attributes][:uuid]).to eq('encrypted-984_646373')
+        expect(serialized_data[:data][1][:attributes][:stationId]).to eq('528A7')
 
         expect(serialized_data[:data][2][:id]).to eq('encrypted-984_646374')
         expect(serialized_data[:data][2][:type]).to eq(:referrals)
@@ -69,6 +74,7 @@ RSpec.describe Ccra::ReferralListSerializer do
         expect(serialized_data[:data][2][:attributes][:referralNumber]).to eq('5684')
         expect(serialized_data[:data][2][:attributes][:expirationDate]).to eq('2024-05-27')
         expect(serialized_data[:data][2][:attributes][:uuid]).to eq('encrypted-984_646374')
+        expect(serialized_data[:data][2][:attributes][:stationId]).to eq('528A8')
       end
     end
 
