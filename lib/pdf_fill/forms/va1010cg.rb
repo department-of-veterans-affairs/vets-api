@@ -2,7 +2,7 @@
 
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/field_mappings/va1010cg'
-require 'pdf_fill/forms/formatters/va1010cg'
+require 'pdf_fill/forms/formatters/base'
 
 module PdfFill
   module Forms
