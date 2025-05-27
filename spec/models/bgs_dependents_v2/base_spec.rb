@@ -16,19 +16,6 @@ TEST_COUNTRIES = {
 
 RSpec.describe BGSDependentsV2::Base do
   let(:base) { described_class.new }
-  let(:sample_dependent_application) do
-    {
-      'veteran_contact_information' => {
-        'veteran_address' => {
-          'country_name' => 'USA',
-          'address_line1' => '8200 Doby LN',
-          'city' => 'Pasadena',
-          'state_code' => 'CA',
-          'zip_code' => '21122'
-        }
-      }
-    }
-  end
   let(:sample_v2_dependent_application) do
     {
       'veteran_contact_information' => {
