@@ -2,109 +2,174 @@
 http_interactions:
 - request:
     method: get
-    uri: https://some.fakesite.com/dws/v1.0/FacilityServiceLocator?address=37.032058,-94.770661&homeHealthSearch=0&maxResults=10&pageNumber=1&pageSize=10&radius=60&specialtycode1=213E00000X&specialtycode2=213EG0000X&specialtycode3=213EP1101X&specialtycode4=213ES0131X&specialtycode5=213ES0103X&telehealthSearch=0
+    uri: https://some.fakesite.com/dws/v1.0/FacilityServiceLocator?address=41.148027,-104.786258&homeHealthSearch=0&maxResults=10&pageNumber=1&pageSize=10&radius=60&specialtycode1=213E00000X&specialtycode2=213EG0000X&specialtycode3=213EP1101X&specialtycode4=213ES0131X&specialtycode5=213ES0103X&telehealthSearch=0
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Fakekey:
+      - fakevalue
       Ocp-Apim-Subscription-Key:
       - "<PPMS_API_KEY>"
-      User-Agent:
-      - Faraday v1.8.0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
       message: OK
     headers:
-      cache-control:
+      Cache-Control:
       - no-cache
-      pragma:
+      Pragma:
       - no-cache
-      transfer-encoding:
+      Transfer-Encoding:
       - chunked
-      content-type:
+      Content-Type:
       - application/json; odata.metadata=minimal
-      expires:
+      Expires:
       - "-1"
-      vary:
+      Vary:
       - Accept-Encoding
-      set-cookie:
-      - ARRAffinity=dad6661c679c93b99c4ae8b602b97b57c02d9858273a9444940bc78934c04f30;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
-        ARRAffinitySameSite=dad6661c679c93b99c4ae8b602b97b57c02d9858273a9444940bc78934c04f30;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
-      odata-version:
-      - '4.0'
-      request-context:
-      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
-      access-control-expose-headers:
+      Access-Control-Expose-Headers:
       - Request-Context
-      x-content-type-options:
+      Odata-Version:
+      - '4.0'
+      Request-Context:
+      - appId=cid-v1:7339ad00-248e-4172-8717-a4b6666a9961
+      X-Content-Type-Options:
       - nosniff
-      x-aspnet-version:
+      Server-Timing:
+      - dtSInfo;desc="0",dtRpid;desc="-1029413258"
+      X-Aspnet-Version:
       - 4.0.30319
-      x-powered-by:
+      X-Powered-By:
       - ASP.NET
-      date:
-      - Tue, 16 Nov 2021 17:16:14 GMT
+      Date:
+      - Tue, 20 May 2025 14:16:43 GMT
     body:
       encoding: ASCII-8BIT
-      string: '{"@odata.context":"https://nprod.api.ppms.va.gov/dws/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.FacilityServiceLocatorResult)","TotalResults":
-        2394,"TotalPages": 240,"PageNumber": 1,"PageSize": 10,"PreviousPageUrl": null,"NextPageUrl":
-        "https://np.dws.ppms.va.gov/v1.0/FacilityServiceLocator?address=40.415217%2C-74.057114&homeHealthSearch=0&maxResults=10&pageNumber=2&pageSize=10&radius=200&specialtycode1=213E00000X&telehealthSearch=0","value":[{"Id":"1437189941__55
-        LEONARDVILLE RD","Name":"55 LEONARDVILLE RD","ProviderServices":[{"Miles":2.5152999999999999,"Minutes":5.5167000000000002,"ProviderName":"LILLIE,
-        ROBERT C","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"ROBERT
-        C LILLIE","CareSiteAddress":"55 LEONARDVILLE RD BELFORD, NJ 07718-1042","CareSiteAddressStreet":"55
-        LEONARDVILLE RD","CareSiteAddressCity":"BELFORD","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07718-1042","CareSitePhoneNumber":"732-787-4747","CareSiteFaxNumber":"732-495-9123","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1437189941","Latitude":40.414248000000001,"Longitude":-74.097581000000005,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1598735631__112
-        TINDALL RD","Name":"112 TINDALL RD","ProviderServices":[{"Miles":3.1858,"Minutes":7.25,"ProviderName":"ANANIA,
-        WILLIAM C","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"WILLIAM
-        C ANANIA DPM","CareSiteAddress":"112 TINDALL RD MIDDLETOWN, NJ 07748-2337","CareSiteAddressStreet":"112
-        TINDALL RD","CareSiteAddressCity":"MIDDLETOWN","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07748-2337","CareSitePhoneNumber":"732-671-3939","CareSiteFaxNumber":"732-671-4799","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1598735631","Latitude":40.407643,"Longitude":-74.101598999999993,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1598053944__1000
-        STATE ROUTE 35 STE 101","Name":"1000 STATE ROUTE 35 STE 101","ProviderServices":[{"Miles":4.3018000000000001,"Minutes":10.183299999999999,"ProviderName":"GROSSOS,
-        DEMETRIOS J","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"BIEBEL
-        AND DECOTIIS ASSOCIATES","CareSiteAddress":"1000 STATE ROUTE 35 STE 101 MIDDLETOWN,
-        NJ 07748-2609","CareSiteAddressStreet":"1000 STATE ROUTE 35 STE 101","CareSiteAddressCity":"MIDDLETOWN","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07748-2609","CareSitePhoneNumber":"732-837-3313","CareSiteFaxNumber":"732-837-3314","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1598053944","Latitude":40.395916,"Longitude":-74.106986000000006,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1689617748__1650
-        HWY 35 STE 4","Name":"1650 HWY 35 STE 4","ProviderServices":[{"Miles":5.0461999999999998,"Minutes":11.833299999999999,"ProviderName":"SILBERMAN,
-        JERRY A","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"JERRY
-        A SILBERMAN DPM","CareSiteAddress":"1650 HWY 35 STE 4 MIDDLETOWN, NJ 07748-1865","CareSiteAddressStreet":"1650
-        HWY 35 STE 4","CareSiteAddressCity":"MIDDLETOWN","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07748-1865","CareSitePhoneNumber":"732-671-2255","CareSiteFaxNumber":"732-671-2258","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1689617748","Latitude":40.405658299999999,"Longitude":-74.1283083,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1154383230__176
-        RIVERSIDE AVE","Name":"176 RIVERSIDE AVE","ProviderServices":[{"Miles":5.4779999999999998,"Minutes":13.466699999999999,"ProviderName":"GESUALDI,
-        AMY","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"ProviderType":"Individual","HPP":"Unknown","CareSite":"VISITING
-        NURSE ASSOCIATION OF CENTRAL J","CareSiteAddress":"176 RIVERSIDE AVE RED BANK,
-        NJ 07701-1063","CareSiteAddressStreet":"176 RIVERSIDE AVE","CareSiteAddressCity":"RED
-        BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1063","CareSitePhoneNumber":"732-219-6625","CareSiteFaxNumber":"4805555555","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1154383230","Latitude":40.353960000000001,"Longitude":-74.074920000000006,"GeoWarning":null,"Telehealth":null,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1083043236__130
-        MAPLE AVE STE 3B","Name":"130 MAPLE AVE STE 3B","ProviderServices":[{"Miles":6.0514999999999999,"Minutes":15.449999999999999,"ProviderName":"NEW
-        JERSEY PODIATRIC PHYSICIANS","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"GroupPracticeOrAgency","HPP":"Unknown","CareSite":"NEW
-        JERSEY PODIATRIC PHYSICIANS SURGEON","CareSiteAddress":"130 MAPLE AVE STE
-        3B RED BANK, NJ 07701-1729","CareSiteAddressStreet":"130 MAPLE AVE STE 3B","CareSiteAddressCity":"RED
-        BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1729","CareSitePhoneNumber":"732-747-2111","CareSiteFaxNumber":"732-530-1348","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1083043236","Latitude":40.346204999999998,"Longitude":-74.069511000000006,"GeoWarning":null,"Telehealth":null,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1407929631__130
-        MAPLE AVE STE 3B","Name":"130 MAPLE AVE STE 3B","ProviderServices":[{"Miles":6.0522,"Minutes":15.449999999999999,"ProviderName":"RIVERVIEW
-        FOOT \u0026 ANKLE ASCS","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"GroupPracticeOrAgency","HPP":"Unknown","CareSite":"RIVERVIEW
-        FOOT \u0026 ANKLE ASCS","CareSiteAddress":"130 MAPLE AVE STE 3B RED BANK,
-        NJ 07701-1729","CareSiteAddressStreet":"130 MAPLE AVE STE 3B","CareSiteAddressCity":"RED
-        BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1729","CareSitePhoneNumber":"732-747-2111","CareSiteFaxNumber":"732-530-1348","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1407929631","Latitude":40.346198999999999,"Longitude":-74.069522000000006,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1770840068__130
-        MAPLE AVE STE 3B","Name":"130 MAPLE AVE STE 3B","ProviderServices":[{"Miles":6.0522,"Minutes":15.449999999999999,"ProviderName":"ACAMPORA,
-        DANIELLE","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"RIVERVIEW
-        FOOT \u0026 ANKLE ASCS","CareSiteAddress":"130 MAPLE AVE STE 3B RED BANK,
-        NJ 07701-1729","CareSiteAddressStreet":"130 MAPLE AVE STE 3B","CareSiteAddressCity":"RED
-        BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1729","CareSitePhoneNumber":"732-747-2111","CareSiteFaxNumber":"732-530-1348","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1770840068","Latitude":40.346198999999999,"Longitude":-74.069522000000006,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1225099500__130
-        MAPLE AVE STE 3B","Name":"130 MAPLE AVE STE 3B","ProviderServices":[{"Miles":6.0522,"Minutes":15.449999999999999,"ProviderName":"MONTER,
-        SHARON I","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"RIVERVIEW
-        FOOT \u0026 ANKLE ASCS","CareSiteAddress":"130 MAPLE AVE STE 3B RED BANK,
-        NJ 07701-1729","CareSiteAddressStreet":"130 MAPLE AVE STE 3B","CareSiteAddressCity":"RED
-        BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1729","CareSitePhoneNumber":"732-747-2111","CareSiteFaxNumber":"732-530-1348","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1225099500","Latitude":40.346198999999999,"Longitude":-74.069522000000006,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1033125174__130
-        MAPLE AVE STE 3B","Name":"130 MAPLE AVE STE 3B","ProviderServices":[{"Miles":6.0522,"Minutes":15.449999999999999,"ProviderName":"DEITCH,
-        STEVEN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"RIVERVIEW
-        FOOT \u0026 ANKLE ASCS","CareSiteAddress":"130 MAPLE AVE STE 3B RED BANK,
-        NJ 07701-1729","CareSiteAddressStreet":"130 MAPLE AVE STE 3B","CareSiteAddressCity":"RED
-        BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1729","CareSitePhoneNumber":"732-747-2111","CareSiteFaxNumber":"732-530-1348","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1033125174","Latitude":40.346198999999999,"Longitude":-74.069522000000006,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]}]}'
-  recorded_at: Tue, 16 Nov 2021 17:16:14 GMT
-recorded_with: VCR 6.0.0
+      string: '{"@odata.context":"https://dws-nprod-ppms.pmtpreprodintswase.appserviceenvironment.us/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.FacilityServiceLocatorResult)","TotalResults":
+        51,"TotalPages": 6,"PageNumber": 1,"PageSize": 10,"PreviousPageUrl": null,"NextPageUrl":
+        "https://dws-nprod-ppms.pmtpreprodintswase.appserviceenvironment.us/v1.0/FacilityServiceLocator?address=41.148027%2C-104.786258&homeHealthSearch=0&maxResults=10&pageNumber=2&pageSize=10&radius=60&specialtycode1=213E00000X&specialtycode2=213EG0000X&specialtycode3=213EP1101X&specialtycode4=213ES0131X&specialtycode5=213ES0103X&telehealthSearch=0","value":[{"Id":"1992820781__2029
+        BLUEGRASS CIR STE 200","Name":"2029 BLUEGRASS CIR STE 200","ProviderServices":[{"Miles":1.8790264853256979,"Minutes":6.7000000000000002,"ProviderName":"ROPER,
+        RICK","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Associated
+        Podiatrists, PC","CareSiteAddress":"2029 Bluegrass Cir Ste 200 Cheyenne, WY
+        82009","CareSiteAddressStreet":"2029 Bluegrass Cir Ste 200","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3077787666","CareSiteFaxNumber":"3076324465","CareSiteEmail":"lidi@cheyennefootdoctor.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1992820781","Latitude":41.159950000000002,"Longitude":-104.791691,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":1.8790264853256979,"Minutes":6.7000000000000002,"ProviderName":"ROPER,
+        RICK","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Associated
+        Podiatrists, PC","CareSiteAddress":"2029 Bluegrass Cir Ste 200 Cheyenne, WY
+        82009","CareSiteAddressStreet":"2029 Bluegrass Cir Ste 200","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3077787666","CareSiteFaxNumber":"3076324465","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1992820781","Latitude":41.159950000000002,"Longitude":-104.791691,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":1.8790264853256979,"Minutes":6.7000000000000002,"ProviderName":"ROPER,
+        RICK","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Associated
+        Podiatrists, PC","CareSiteAddress":"2029 Bluegrass Cir Ste 200 Cheyenne, WY
+        82009","CareSiteAddressStreet":"2029 Bluegrass Cir Ste 200","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3077787666","CareSiteFaxNumber":"3076324465","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1992820781","Latitude":41.159950000000002,"Longitude":-104.791691,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":1.8790264853256979,"Minutes":6.7000000000000002,"ProviderName":"ROPER,
+        RICK","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Associated
+        Podiatrists, PC","CareSiteAddress":"2029 Bluegrass Cir Ste 200 Cheyenne, WY
+        82009","CareSiteAddressStreet":"2029 Bluegrass Cir Ste 200","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3077787666","CareSiteFaxNumber":"3076324465","CareSiteEmail":"lidi@cheyennefootdoctor.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1992820781","Latitude":41.159950000000002,"Longitude":-104.791691,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1275623001__4112
+        LARAMIE ST","Name":"4112 LARAMIE ST","ProviderServices":[{"Miles":1.9088523025530899,"Minutes":6.5333333333333332,"ProviderName":"FISHER,
+        TIMOTHY","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"ADVANCED
+        FOOT CARE","CareSiteAddress":"4112 Laramie St Cheyenne, WY 82001","CareSiteAddressStreet":"4112
+        Laramie St","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3075149901","CareSiteFaxNumber":"3072759880","CareSiteEmail":"mymail8300@gmail.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1275623001","Latitude":41.151432,"Longitude":-104.759773,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1780977868__1202
+        CLEVELAND AVE","Name":"1202 CLEVELAND AVE","ProviderServices":[{"Miles":2.037476139346218,"Minutes":7.3833333333333337,"ProviderName":"Johnson,
+        Kate","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"A
+        Step Ahead Foot \u0026 Ankle Center-Cheyenne","CareSiteAddress":"1202 Cleveland
+        Ave Cheyenne, WY 82001","CareSiteAddressStreet":"1202 Cleveland Ave","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3076321657","CareSiteFaxNumber":"9704934660","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1780977868","Latitude":41.136726000000003,"Longitude":-104.757003,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.037476139346218,"Minutes":7.3833333333333337,"ProviderName":"Johnson,
+        Kate","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"A
+        Step Ahead Foot \u0026 Ankle Center-Cheyenne","CareSiteAddress":"1202 Cleveland
+        Ave Cheyenne, WY 82001","CareSiteAddressStreet":"1202 Cleveland Ave","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3076321657","CareSiteFaxNumber":"9704934660","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1780977868","Latitude":41.136726000000003,"Longitude":-104.757003,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1043419492__1202
+        CLEVELAND AVE","Name":"1202 CLEVELAND AVE","ProviderServices":[{"Miles":2.037476139346218,"Minutes":7.3833333333333337,"ProviderName":"Overman,
+        Jared","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"A
+        Step Ahead Foot \u0026 Ankle Center - Cheyenne","CareSiteAddress":"1202 Cleveland
+        Ave Cheyenne, WY 82001","CareSiteAddressStreet":"1202 Cleveland Ave","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3076321657","CareSiteFaxNumber":"9704934660","CareSiteEmail":"khurst@encompassmedical.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1043419492","Latitude":41.136726000000003,"Longitude":-104.757003,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1922459973__1202
+        CLEVELAND AVE","Name":"1202 CLEVELAND AVE","ProviderServices":[{"Miles":2.037476139346218,"Minutes":7.3833333333333337,"ProviderName":"Noonan,
+        Kelly A.","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"A
+        Step Ahead Foot \u0026 Ankle Center - Cheyenne","CareSiteAddress":"1202 Cleveland
+        Ave Cheyenne, WY 82001","CareSiteAddressStreet":"1202 Cleveland Ave","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3076321657","CareSiteFaxNumber":"9704934660","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1922459973","Latitude":41.136730999999997,"Longitude":-104.757007,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1568482115__1950
+        BLUEGRASS CIR STE 150","Name":"1950 BLUEGRASS CIR STE 150","ProviderServices":[{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"WILKINSON,
+        STEPHEN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":"ckobren@andersonpodiatrycenter.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1568482115","Latitude":41.159328000000002,"Longitude":-104.79329799999999,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"WILKINSON,
+        STEPHEN","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1568482115","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"WILKINSON,
+        STEPHEN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1568482115","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"WILKINSON,
+        STEPHEN","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":"ckobren@andersonpodiatrycenter.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1568482115","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1245686484__2301
+        HOUSE AVE STE 207","Name":"2301 HOUSE AVE STE 207","ProviderServices":[{"Miles":2.0548745327288636,"Minutes":7.8499999999999996,"ProviderName":"FRIIS,
+        BRIAN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"CHEYENNE
+        REGIONAL PHYSICIANS GROUP LLC LAR CO","CareSiteAddress":"2301 House Ave Ste
+        207 Cheyenne, WY 82001","CareSiteAddressStreet":"2301 House Ave Ste 207","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3077781849","CareSiteFaxNumber":"3077784995","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1245686484","Latitude":41.140644999999999,"Longitude":-104.816067,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.8499999999999996,"ProviderName":"FRIIS,
+        BRIAN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"CHEYENNE
+        REGIONAL PHYSICIANS GROUP LLC LAR CO","CareSiteAddress":"2301 House Ave Ste
+        207 Cheyenne, WY 82001","CareSiteAddressStreet":"2301 House Ave Ste 207","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3077781849","CareSiteFaxNumber":"3077784995","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1245686484","Latitude":41.140644999999999,"Longitude":-104.816067,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.8499999999999996,"ProviderName":"FRIIS,
+        BRIAN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"CHEYENNE
+        REGIONAL PHYSICIANS GROUP LLC LAR CO","CareSiteAddress":"2301 House Ave Ste
+        207 Cheyenne, WY 82001","CareSiteAddressStreet":"2301 House Ave Ste 207","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3077781849","CareSiteFaxNumber":"3077784995","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1245686484","Latitude":41.140644999999999,"Longitude":-104.816067,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.8499999999999996,"ProviderName":"FRIIS,
+        BRIAN","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"CHEYENNE
+        REGIONAL PHYSICIANS GROUP LLC LAR CO","CareSiteAddress":"2301 House Ave Ste
+        207 Cheyenne, WY 82001","CareSiteAddressStreet":"2301 House Ave Ste 207","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82001","CareSitePhoneNumber":"3077781849","CareSiteFaxNumber":"3077784995","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1245686484","Latitude":41.140644999999999,"Longitude":-104.816067,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1275577389__1950
+        BLUEGRASS CIR STE 150","Name":"1950 BLUEGRASS CIR STE 150","ProviderServices":[{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"Anderson,
+        James","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center, PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1275577389","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"Anderson,
+        James","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center, PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1275577389","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"Anderson,
+        James","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center, PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1275577389","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":2.0548745327288636,"Minutes":7.75,"ProviderName":"Anderson,
+        James","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":null,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Anderson
+        Podiatry Center, PC","CareSiteAddress":"1950 Bluegrass Cir Ste 150 Cheyenne,
+        WY 82009","CareSiteAddressStreet":"1950 Bluegrass Cir Ste 150","CareSiteAddressCity":"Cheyenne","CareSiteAddressState":"WY","CareSiteAddressZipCode":"82009","CareSitePhoneNumber":"3076347062","CareSiteFaxNumber":"3076349315","CareSiteEmail":"ckobren@andersonpodiatrycenter.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1275577389","Latitude":41.159328000000002,"Longitude":-104.7933,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1497140404__2500
+        E PROSPECT RD","Name":"2500 E PROSPECT RD","ProviderServices":[{"Miles":46.352426827328401,"Minutes":45.399999999999999,"ProviderName":"Le,
+        George","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Orthopaedic
+        \u0026 Spine Center of the Rockies Fort Collins","CareSiteAddress":"2500 E
+        Prospect Rd Fort Collins, CO 80525","CareSiteAddressStreet":"2500 E Prospect
+        Rd","CareSiteAddressCity":"Fort Collins","CareSiteAddressState":"CO","CareSiteAddressZipCode":"80525","CareSitePhoneNumber":"9704930112","CareSiteFaxNumber":"9704930521","CareSiteEmail":"ccrosby@orthohealth.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1497140404","Latitude":40.568185,"Longitude":-105.03158500000001,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":46.352426827328401,"Minutes":45.399999999999999,"ProviderName":"Le,
+        George","ProviderSpecialty":"Podiatrist - Foot Surgery","SpecialtyCode":"213ES0131X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Orthopaedic
+        \u0026 Spine Center of the Rockies Fort Collins","CareSiteAddress":"2500 E
+        Prospect Rd Fort Collins, CO 80525","CareSiteAddressStreet":"2500 E Prospect
+        Rd","CareSiteAddressCity":"Fort Collins","CareSiteAddressState":"CO","CareSiteAddressZipCode":"80525","CareSitePhoneNumber":"9704930112","CareSiteFaxNumber":"9704930521","CareSiteEmail":"ccrosby@orthohealth.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1497140404","Latitude":40.568185,"Longitude":-105.03158500000001,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]},{"Miles":46.352426827328401,"Minutes":45.399999999999999,"ProviderName":"Le,
+        George","ProviderSpecialty":"Podiatrist","SpecialtyCode":"213E00000X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Orthopaedic
+        \u0026 Spine Center of the Rockies Fort Collins","CareSiteAddress":"2500 E
+        Prospect Rd Fort Collins, CO 80525","CareSiteAddressStreet":"2500 E Prospect
+        Rd","CareSiteAddressCity":"Fort Collins","CareSiteAddressState":"CO","CareSiteAddressZipCode":"80525","CareSitePhoneNumber":"9704930112","CareSiteFaxNumber":"9704930521","CareSiteEmail":"ccrosby@orthohealth.com","WorkHours":null,"ProviderGender":"Male","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1497140404","Latitude":40.568185,"Longitude":-105.03158500000001,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]},{"Id":"1366006173__2500
+        E PROSPECT RD","Name":"2500 E PROSPECT RD","ProviderServices":[{"Miles":46.353669569712878,"Minutes":45.416666666666664,"ProviderName":"Dennemeyer,
+        Charlene","ProviderSpecialty":"Podiatrist - Foot \u0026 Ankle Surgery","SpecialtyCode":"213ES0103X","SpecialtyGroupName":"Podiatry","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"ProviderType":"Individual","HPP":"Unknown","CareSite":"Orthopaedic
+        \u0026 Spine Center of the Rockies Fort Collins","CareSiteAddress":"2500 E
+        Prospect Rd Fort Collins, CO 80525","CareSiteAddressStreet":"2500 E Prospect
+        Rd","CareSiteAddressCity":"Fort Collins","CareSiteAddressState":"CO","CareSiteAddressZipCode":"80525","CareSitePhoneNumber":"9704930112","CareSiteFaxNumber":"9704930521","CareSiteEmail":null,"WorkHours":null,"ProviderGender":"Female","ProviderNetwork":"CCN
+        Region 4","NetworkId":40,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1366006173","Latitude":40.568199999999997,"Longitude":-105.03160800000001,"GeoWarning":null,"Telehealth":false,"Homehealth":false,"TelehealthService":false,"SubServices":[]}]}]}'
+  recorded_at: Tue, 20 May 2025 14:16:41 GMT
+recorded_with: VCR 6.3.1

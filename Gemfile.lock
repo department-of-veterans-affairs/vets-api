@@ -99,6 +99,7 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
       dry-schema
+    claims_evidence_api (0.1.0)
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -281,7 +282,7 @@ GEM
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
-    bootsnap (1.18.5)
+    bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
@@ -390,7 +391,7 @@ GEM
     domain_name (0.6.20240107)
     down (5.4.2)
       addressable (~> 2.8)
-    drb (2.2.1)
+    drb (2.2.3)
     dry-configurable (1.3.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
@@ -522,7 +523,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.17.0)
+    google-apis-core (0.18.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.3, < 3.a)
@@ -530,9 +531,9 @@ GEM
       mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-    google-apis-discovery_v1 (0.19.0)
+    google-apis-discovery_v1 (0.20.0)
       google-apis-core (>= 0.15.0, < 2.a)
-    google-apis-generator (0.17.0)
+    google-apis-generator (0.18.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (>= 0.15.0, < 2.a)
@@ -629,8 +630,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.3-java)
-    json (2.11.3)
-    json (2.11.3-java)
+    json (2.12.0)
+    json (2.12.0-java)
     json-schema (5.1.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -661,7 +662,7 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    language_server-protocol (3.17.0.4)
+    language_server-protocol (3.17.0.5)
     libdatadog (16.0.1.1.0)
     libdatadog (16.0.1.1.0-aarch64-linux)
     libdatadog (16.0.1.1.0-x86_64-linux)
@@ -711,7 +712,7 @@ GEM
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
     minitest (5.25.5)
-    mock_redis (0.49.0)
+    mock_redis (0.50.0)
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
@@ -852,7 +853,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.14)
+    rack (2.2.16)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -997,7 +998,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.75.5)
+    rubocop (1.75.6)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1178,7 +1179,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (4.0.1)
-    with_advisory_lock (5.1.0)
+    with_advisory_lock (5.3.0)
       activerecord (>= 6.1)
       zeitwerk (>= 2.6)
     xmldsig (0.3.2)
@@ -1191,7 +1192,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.37)
-    zeitwerk (2.7.2)
+    zeitwerk (2.7.3)
 
 PLATFORMS
   aarch64-linux
@@ -1234,6 +1235,7 @@ DEPENDENCIES
   carrierwave-aws
   check_in!
   claims_api!
+  claims_evidence_api!
   clamav-client
   combine_pdf
   committee-rails
@@ -1334,7 +1336,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.14)
+  rack (~> 2.2.16)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
