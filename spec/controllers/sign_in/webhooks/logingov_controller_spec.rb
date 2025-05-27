@@ -6,7 +6,7 @@ require 'sign_in/logingov/service'
 RSpec.describe 'LoginGovController', type: :request do
   describe 'POST /sign_in/webhooks/logingov/risc' do
     context 'when JWT is invalid' do
-      it 'returns 401 for invalid JWT' do
+      it 'returns 401 when jwt_decode raises JWTDecodeError' do
         allow_any_instance_of(SignIn::Logingov::Service)
           .to receive(:jwt_decode)
           .and_raise(SignIn::Logingov::Errors::JWTDecodeError.new('Invalid token'))
@@ -17,6 +17,21 @@ RSpec.describe 'LoginGovController', type: :request do
 
         expect(response).to have_http_status(:unauthorized)
         expect(response.body).to include('Invalid JWT')
+      end
+    end
+
+    context 'when JWT decoding raises unexpected error' do
+      it 'returns 500 when an unexpected error occurs' do
+        allow_any_instance_of(SignIn::Logingov::Service)
+          .to receive(:jwt_decode)
+          .and_raise(StandardError.new('Something went wrong'))
+
+        post '/sign_in/webhooks/logingov/risc',
+             params: 'some.jwt.token',
+             headers: { 'CONTENT_TYPE' => 'application/jwt' }
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.body).to include('Unexpected error')
       end
     end
 
@@ -36,7 +51,7 @@ RSpec.describe 'LoginGovController', type: :request do
         expect(response.body).to be_empty
       end
 
-      it 'calls the jwt_decode method with the correct JWT' do
+      it 'calls jwt_decode in the before_action with the correct JWT' do
         expect_any_instance_of(SignIn::Logingov::Service)
           .to receive(:jwt_decode)
           .with(valid_jwt)
