@@ -3,7 +3,8 @@ name: Publish Parent Helm Chart to ECR
 on:
   push:
     branches:
-      - parent-helm-chart
+      - parent-helm-charts
+      - helm*
 
 jobs:
   publish:
@@ -40,7 +41,7 @@ jobs:
         id: version
         uses: codacy/git-version@2.8.0
         with:
-          release-branch: parent-helm-chart
+          release-branch: parent-helm-charts
 
       - name: Inject version into Chart.yaml
         run: |
