@@ -271,6 +271,7 @@
           "preferred_language": { "type": "string" },
           "cancellable": { "type": "boolean" },
           "patient_instruction": { "type": "string" },
+          "showScheduleLink": { "type": "boolean" },
           "telehealth": {
             "type": "object",
             "additionalProperties": false,

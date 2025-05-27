@@ -25,6 +25,21 @@ module VAOS
         cc_request: 'COMMUNITY_CARE_REQUEST',
         request: 'REQUEST'
       }.freeze
+      SCHEDULABLE_SERVICE_TYPES = %w[
+        primaryCare
+        clinicalPharmacyPrimaryCare
+        outpatientMentalHealth
+        socialWork
+        amputation
+        audiology
+        moveProgram
+        foodAndNutrition
+        optometry
+        ophthalmology
+        cpap
+        homeSleepTesting
+        covid
+      ].freeze
 
       # Output format for preferred dates
       # Example: "Thu, July 18, 2024 in the ..."
@@ -177,12 +192,14 @@ module VAOS
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
-            response = update_appointment_vaos(appt_id, status).body
-            convert_appointment_time(response)
-            extract_appointment_fields(response)
-            merge_clinic(response)
-            merge_facility(response)
-            OpenStruct.new(response)
+            appointment = update_appointment_vaos(appt_id, status).body
+            convert_appointment_time(appointment)
+            extract_appointment_fields(appointment)
+            merge_clinic(appointment)
+            merge_facility(appointment)
+            set_type(appointment)
+            appointment[:show_schedule_link] = schedulable?(appointment)
+            OpenStruct.new(appointment)
           end
         end
       end
@@ -397,6 +414,8 @@ module VAOS
         set_telehealth_visibility(appointment) if telehealth?(appointment)
 
         set_derived_appointment_date_fields(appointment)
+
+        appointment[:show_schedule_link] = schedulable?(appointment) if appointment[:status] == 'cancelled'
       end
 
       def find_and_merge_provider_name(appointment)
@@ -927,6 +946,18 @@ module VAOS
         end
       end
 
+      # This should be called after set_type has been called
+      def schedulable?(appointment)
+        return false if cerner?(appointment) || cnp?(appointment) || telehealth?(appointment) || cc?(appointment)
+        return true if appointment[:type] == APPOINTMENT_TYPES[:request]
+        if appointment[:type] == APPOINTMENT_TYPES[:va] &&
+           SCHEDULABLE_SERVICE_TYPES.include?(appointment[:service_type])
+          return true
+        end
+
+        false
+      end
+
       def ds_error_details(e)
         {
           status: e.status_code,
@@ -1090,7 +1121,7 @@ module VAOS
       end
 
       ##
-      # Retrieves all appointments over a 200-year window, a temporary range to be replaced with passed
+      # Retrieves all appointments over a 2-year window, a temporary range to be replaced with passed
       # in date from referral data.
       #
       # Uses a fixed date range to fetch all appointments.
@@ -1105,8 +1136,8 @@ module VAOS
       #
       # TODO: accept date from cached referral data to use for range
       def get_all_appointments(pagination_params)
-        start_date = (Time.zone.today - 100.years).in_time_zone
-        end_date   = (Time.zone.today + 100.years).in_time_zone
+        start_date = (Time.zone.today - 1.year).in_time_zone
+        end_date   = (Time.zone.today + 1.year).in_time_zone
 
         response = send_appointments_request(start_date, end_date, __method__, pagination_params)
 
@@ -1135,8 +1166,7 @@ module VAOS
       #   in the format { data: {}, meta: { failures: ... } } if an error occurs.
       def send_appointments_request(start_date, end_date, caller_name, pagination_params = {}, statuses = nil)
         req_params = build_appointment_request_params(start_date, end_date, pagination_params, statuses)
-
-        response   = perform_appointment_request(req_params)
+        response = perform_appointment_request(req_params)
         validate_response_schema(response, 'appointments_index')
         response
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
