@@ -478,7 +478,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         {
           'use_veteran_address' => true,
           'use_temporary_address' => false,
-          'order' => [{ 'product_id' => 6650 },{ 'product_id' => 8271 }],
+          'order' => [{ 'product_id' => 6650 }, { 'product_id' => 8271 }],
           'permanent_address' => {
             'street' => '125 SOME RD',
             'street2' => 'APT 101',
