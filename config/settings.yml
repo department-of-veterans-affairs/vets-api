@@ -210,6 +210,9 @@ claims_api:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
         notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
+claims_evidence_api:
+  base_url: <%= ENV['claims_evidence_api__base_url'] %>
+  jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -364,7 +367,6 @@ edu:
       - noah.stern@va.gov
       - gregg.puhala@va.gov
       - kara.ciprich@va.gov
-      - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
@@ -1245,6 +1247,7 @@ va_forms:
 va_mobile:
   key_path: <%= ENV['va_mobile__key_path'] %>
   mock: <%= ENV['va_mobile__mock'] %>
+  patients_path: /vaos/v1/patients
   ppms_base_url: <%= ENV['va_mobile__ppms_base_url'] %>
   timeout: <%= ENV['va_mobile__timeout'] %>
   url: <%= ENV['va_mobile__url'] %>
@@ -1539,7 +1542,7 @@ vaos:
     client_id: <%= ENV['vaos__eps__client_id'] %>
     grant_type: client_credentials
     key_path: <%= ENV['vaos__eps__key_path'] %>
-    kid: fake_kid
+    kid: <%= ENV['vaos__eps__client_kid'] %>
     mock: <%= ENV['vaos__eps__mock'] %>
     redis_token_expiry: 3500
     scopes: care-nav
