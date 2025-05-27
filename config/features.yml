@@ -1888,9 +1888,6 @@ features:
   mobile_lighthouse_document_upload:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our document uploads
-  mobile_lighthouse_disability_ratings:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
   mobile_military_indicator_logger:
     actor_type: user
     description: For mobile app, enables logging of military discharge codes
@@ -2208,3 +2205,6 @@ features:
   my_va_auth_exp_redesign_enabled:
     actor_type: user
     description: When enabled, a user will see the redesigned experience of MyVA.
+  gi_ct_mapbox_mitigation:
+    actor_type: user
+    description: If enabled, hides search by location feature affected by MapBox loss
