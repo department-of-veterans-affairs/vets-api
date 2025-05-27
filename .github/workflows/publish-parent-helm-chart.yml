@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - parent-helm-chart
+      - sc/vets-api/**
 
 jobs:
   publish:
@@ -39,8 +40,6 @@ jobs:
       - name: Git Version
         id: version
         uses: codacy/git-version@2.8.0
-        with:
-          release-branch: parent-helm-chart
 
       - name: Inject version into Chart.yaml
         run: |
