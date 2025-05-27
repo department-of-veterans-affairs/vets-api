@@ -1121,7 +1121,7 @@ module VAOS
       end
 
       ##
-      # Retrieves all appointments over a 200-year window, a temporary range to be replaced with passed
+      # Retrieves all appointments over a 2-year window, a temporary range to be replaced with passed
       # in date from referral data.
       #
       # Uses a fixed date range to fetch all appointments.
@@ -1136,8 +1136,8 @@ module VAOS
       #
       # TODO: accept date from cached referral data to use for range
       def get_all_appointments(pagination_params)
-        start_date = (Time.zone.today - 100.years).in_time_zone
-        end_date   = (Time.zone.today + 100.years).in_time_zone
+        start_date = (Time.zone.today - 1.year).in_time_zone
+        end_date   = (Time.zone.today + 1.year).in_time_zone
 
         response = send_appointments_request(start_date, end_date, __method__, pagination_params)
 
@@ -1166,8 +1166,7 @@ module VAOS
       #   in the format { data: {}, meta: { failures: ... } } if an error occurs.
       def send_appointments_request(start_date, end_date, caller_name, pagination_params = {}, statuses = nil)
         req_params = build_appointment_request_params(start_date, end_date, pagination_params, statuses)
-
-        response   = perform_appointment_request(req_params)
+        response = perform_appointment_request(req_params)
         validate_response_schema(response, 'appointments_index')
         response
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
