@@ -16,12 +16,12 @@ RSpec.describe 'LoginGovController', type: :request do
              headers: { 'CONTENT_TYPE' => 'application/jwt' }
 
         expect(response).to have_http_status(:unauthorized)
-        expect(response.body).to include('Invalid JWT')
+        expect(response.parsed_body['error']).to include('Invalid token')
       end
     end
 
     context 'when JWT decoding raises unexpected error' do
-      it 'returns 500 when an unexpected error occurs' do
+      it 'returns 401 when an unexpected error occurs' do
         allow_any_instance_of(SignIn::Logingov::Service)
           .to receive(:jwt_decode)
           .and_raise(StandardError.new('Something went wrong'))
@@ -30,8 +30,8 @@ RSpec.describe 'LoginGovController', type: :request do
              params: 'some.jwt.token',
              headers: { 'CONTENT_TYPE' => 'application/jwt' }
 
-        expect(response).to have_http_status(:internal_server_error)
-        expect(response.body).to include('Unexpected error')
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.parsed_body['error']).to include('Something went wrong')
       end
     end
 

@@ -13,14 +13,10 @@ module SignIn
 
       def authenticate_service_account
         jwt = request.raw_post
-
         @risc_jwt = SignIn::Logingov::Service.new.jwt_decode(jwt)
-      rescue SignIn::Logingov::Errors::JWTDecodeError => e
-        Rails.logger.error("Login.gov RISC decode error: #{e.message}")
-        render json: { error: 'Invalid JWT' }, status: :unauthorized
       rescue => e
-        Rails.logger.error("Login.gov RISC unexpected error: #{e.class} - #{e.message}")
-        render json: { error: 'Unexpected error' }, status: :internal_server_error
+        Rails.logger.error('[SignIn][Webhooks][LogingovController] error', e)
+        render json: { error: e.message }, status: :unauthorized
       end
     end
   end
