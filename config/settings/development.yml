@@ -128,20 +128,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: ~
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
-    client_id: ~
-    client_number: ~
-    client_secret: ~
-    redis_token_expiry: 3540
-    scope: ~
-    service_name: BTSSS-API
-    subscription_key: ~
-    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: ~
@@ -222,6 +208,11 @@ claims_api:
     services:
       lighthouse:
         api_key: ~
+        notification_client_secret: ~
+        notify_service_id: ~
+claims_evidence_api:
+  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
+  jwt_secret: 'fake_api_key'
 clamav:
   host: 0.0.0.0
   mock: true
@@ -516,6 +507,7 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
     veteran_service_organizations:
@@ -610,6 +602,8 @@ ivc_forms:
     region: region
   sidekiq:
     missing_form_status_job:
+      enabled: true
+    old_records_cleanup_job:
       enabled: true
     ves_retry_failures_job:
       enabled: true
@@ -824,7 +818,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: ~
     tims: PUL8OQ4
-    travel_pay: PO9X8XN
+    travel_pay: ~
     vaos: ~
     vaosWarning: ~
     vaoswarning: ~
@@ -1273,6 +1267,7 @@ va_forms:
 va_mobile:
   key_path: "/fake/client/key/path"
   mock: false
+  patients_path: /vaos/v1/patients
   ppms_base_url: https://staff.apps.va.gov
   timeout: 25
   url: https://veteran.apps.va.gov
@@ -1400,11 +1395,11 @@ vanotify:
     dependents:
       api_key: fake_secret
       email:
-        received674: 
+        received674:
           template_id: fake_received674
-        received686: 
+        received686:
           template_id: fake_received686
-        received686c674: 
+        received686c674:
           template_id: fake_received686c674
         submitted674:
           template_id: fake_submitted674
@@ -1785,6 +1780,7 @@ virtual_agent:
 virtual_hosts:
   - 127.0.0.1
   - localhost
+  - host.docker.internal
 vre_counseling:
   prefill: true
 vre_readiness:
@@ -1803,7 +1799,7 @@ vye:
     p: 1
     r: 8
     salt: development-vye-scrypt-salt
-web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://host.docker.internal,null
 web_origin_regex: "\\Ahttps?:\\/\\/.*\\z"
 webhooks:
   require_https: true

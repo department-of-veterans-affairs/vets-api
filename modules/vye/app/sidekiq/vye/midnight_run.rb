@@ -38,6 +38,8 @@ module Vye
     include Sidekiq::Worker
 
     def perform
+      return if Flipper.enabled?(:disable_bdn_processing)
+
       Rails.logger.info('Vye::MidnightRun starting')
       IngressBdn.perform_async
       Rails.logger.info('Vye::MidnightRun finished')

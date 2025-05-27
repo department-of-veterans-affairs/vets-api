@@ -67,7 +67,14 @@ module Form1010cg
       self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :success, start_time:)
     rescue => e
       self.class::AUDITOR.log_caregiver_request_duration(context: :process, event: :failure, start_time:)
-      log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
+      if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
+        Rails.logger.error(
+          '[10-10CG] - Error processing Caregiver submission',
+          { form: '10-10CG', exception: e, claim_guid: claim.guid }
+        )
+      else
+        log_exception_to_sentry(e, { form: '10-10CG', claim_guid: claim.guid })
+      end
       raise e
     end
 
@@ -77,7 +84,11 @@ module Form1010cg
     def assert_veteran_status
       if icn_for('veteran') == NOT_FOUND
         error = InvalidVeteranStatus.new
-        log_exception_to_sentry(error)
+        if Flipper.enabled?(:caregiver_use_rails_logging_over_sentry)
+          Rails.logger.error('[10-10CG] - Error fetching Veteran ICN', { error: })
+        else
+          log_exception_to_sentry(error)
+        end
         raise error
       end
     end

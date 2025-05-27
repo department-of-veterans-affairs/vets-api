@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class PatientController < MrController
+      class PatientController < MRController
         # Gets a user's treatment facilities
         # @return [Array] of treatment facilities and related user info
         def index

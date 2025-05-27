@@ -3,7 +3,7 @@
 require 'json_marshal/marshaller'
 
 class InProgressForm < ApplicationRecord
-  belongs_to :user_account, dependent: nil, optional: true
+  belongs_to :user_account, dependent: nil, optional: false
 
   class CleanUUID < ActiveRecord::Type::String
     def cast(value)
@@ -110,7 +110,7 @@ class InProgressForm < ApplicationRecord
   private
 
   def log_hca_email_diff
-    HCA::LogEmailDiffJob.perform_async(id, real_user_uuid) if form_id == '1010ez'
+    HCA::LogEmailDiffJob.perform_async(id, real_user_uuid, user_account_id) if form_id == '1010ez'
   end
 
   def serialize_form_data

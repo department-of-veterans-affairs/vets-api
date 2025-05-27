@@ -192,7 +192,6 @@ class User < Common::RedisStore
   delegate :cerner_facility_ids, to: :mpi
   delegate :edipis, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true
-  delegate :home_phone, to: :mpi
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :id_theft_flag, to: :mpi

@@ -13,7 +13,7 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization: Bearer <TOKEN>
+      Authorization: Bearer blahblech
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
