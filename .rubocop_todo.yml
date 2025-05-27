@@ -260,7 +260,6 @@ RSpec/NoExpectationExample:
     - 'spec/controllers/v1/sessions_controller_spec.rb'
     - 'spec/lib/central_mail/service_spec.rb'
     - 'spec/lib/common/convert_to_pdf_spec.rb'
-    - 'spec/lib/evss/dependents/service_spec.rb'
     - 'spec/lib/evss/vso_search/service_spec.rb'
     - 'spec/lib/hca/soap_parser_spec.rb'
     - 'spec/lib/pdf_fill/extras_generator_spec.rb'
