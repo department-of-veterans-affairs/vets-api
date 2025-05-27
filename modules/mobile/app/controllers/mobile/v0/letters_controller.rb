@@ -25,7 +25,7 @@ module Mobile
       FILTERED_LETTER_TYPES = %w[
         medicare_partd
         minimum_essential_coverage
-      ]
+      ].freeze
 
       before_action do
         if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
