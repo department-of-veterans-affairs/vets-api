@@ -5,7 +5,7 @@ module TestUserDashboard
     attr_reader :tud_account, :availability_log
 
     def initialize(user)
-      @tud_account = TudAccount.find_by(account_uuid: user.account_uuid)
+      @tud_account = TudAccount.find_by(account_uuid: user.user_account_uuid)
       @availability_log = last_tud_account_availability_log
     end
 
