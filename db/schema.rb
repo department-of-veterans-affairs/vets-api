@@ -368,6 +368,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.index ["redacted_at"], name: "index_ar_power_of_attorney_requests_on_redacted_at"
   end
 
+  create_table "ar_saved_claim_claimant_representatives", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "saved_claim_id", null: false
+    t.string "claimant_id", null: false
+    t.string "claimant_type", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.string "power_of_attorney_holder_poa_code", null: false
+    t.string "accredited_individual_registration_number", null: false
+    t.datetime "created_at", null: false
+    t.index ["saved_claim_id"], name: "idx_on_saved_claim_id_f4f27623c2", unique: true
+  end
+
   create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "accredited_individual_registration_number", null: false
     t.string "power_of_attorney_holder_type", null: false
