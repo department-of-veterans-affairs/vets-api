@@ -163,7 +163,7 @@ module VRE
       files = ::PersistentAttachment.where(guid: refs.map(&:confirmationCode))
       files.find_each { |f| f.update(saved_claim_id: id) }
 
-      Rails.logger.info('VRE claim submitting to Benefits Intake API', { user_uuid: user&.uuid })
+      Rails.logger.info('VRE claim submitting to Benefits Intake API')
       ::Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
     end
 
