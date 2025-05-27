@@ -630,29 +630,36 @@ module PdfFill
       SECTIONS = [
         {
           label: "Section I: Veteran's Identification Information",
-          question_nums: %w[1 2 3 4 5 6 7]
+          question_nums: %w[1 2 3 4 5 6 7],
+          page: 'page_1'
         },
         {
           label: 'Section II: Traumatic Event(s) Information',
-          question_nums: %w[8 9]
+          question_nums: %w[8 9],
+          page: 'page_1'
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: %w[10 10C 11 11.5 12]
+          question_nums: %w[10 10C 11 11.5 12],
+          page: 'page_2'
         },
         {
           label: 'Section IV: Treatment Information',
-          question_nums: %w[13]
+          question_nums: %w[13],
+          page: 'page_3'
         },
         {
           label: 'Section V: Remarks',
-          question_nums: %w[14]
+          question_nums: %w[14],
+          page: 'page_4'
         },
         {
           label: 'Section VII: Certification and Signature',
-          question_nums: %w[16]
+          question_nums: %w[16],
+          page: 'page_4'
         }
       ].freeze
+
 
       def merge_fields(options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
