@@ -18,7 +18,7 @@ module V0
       private
 
       def authenticate_one_time_code
-        chatbot_code_container = Chatbot::CodeContainer.find(params[:code])
+        chatbot_code_container = ::Chatbot::CodeContainer.find(params[:code])
 
         @icn = chatbot_code_container&.icn
       ensure

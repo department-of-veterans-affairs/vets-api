@@ -454,6 +454,29 @@ describe PdfFill::HashConverter do
       converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
     end
 
+    it 'passes show_suffix to extras_generator when present in key_data' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        show_suffix: true
+      }
+
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        show_suffix: true,
+        i: nil,
+        overflow: true,
+        item_label: nil,
+        question_type: nil,
+        format_options: {}
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', nil)
+    end
+
     it 'handles when only key_data has format_options' do
       key_data = {
         question_num: 1,

@@ -230,6 +230,8 @@ FactoryBot.define do
   factory :dependency_claim_v2, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674-V2' }
 
+    use_v2 { true }
+
     form {
       {
         'view:selectable686_options': {

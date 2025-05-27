@@ -24,6 +24,7 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
     allow(batch_double).to receive(:on)
     # Allow the jobs block to execute
     allow(batch_double).to receive(:jobs).and_yield
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   context 'when it is not a holiday' do
@@ -44,6 +45,21 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
       worker.perform
 
       expect(Vye::MidnightRun::IngressBdnChunk).to have_enqueued_sidekiq_job.exactly(5).times
+    end
+
+    context 'when BDN processing is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(true)
+      end
+
+      it 'does not enqueue anything' do
+        expect(Vye::BdnClone).not_to receive(:create!)
+
+        worker = described_class.new
+        worker.perform
+
+        expect(Vye::MidnightRun::IngressBdnChunk).to have_enqueued_sidekiq_job.exactly(0).times
+      end
     end
   end
 

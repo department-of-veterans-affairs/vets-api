@@ -48,7 +48,8 @@ module BGS
           {
             type: 'death',
             dep_has_income_ind: formatted_info['dependent_income'],
-            end_date: formatted_info['death_date']
+            end_date: formatted_info['death_date'],
+            marriage_termination_type_code: formatted_info['marriage_termination_type_code']
           }
         )
       end
