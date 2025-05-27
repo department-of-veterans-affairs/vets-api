@@ -15,9 +15,9 @@ module EventBusGateway
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
         personalisation: {
-                            host: Settings.hostname,
-                            first_name: get_first_name_from_participant_id(participant_id)
-                          }
+          host: Settings.hostname,
+          first_name: get_first_name_from_participant_id(participant_id)
+        }
       )
     rescue => e
       record_email_send_failure(e)
