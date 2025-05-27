@@ -10,23 +10,10 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+
       before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
-
-      before_action(only: %i[get_claim]) do
-        if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-          authorize :lighthouse, :access?
-        else
-          authorize :evss, :access?
-        end
-      end
-
-      before_action(only: %i[request_decision]) do
-        if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
-          authorize :lighthouse, :access?
-        else
-          authorize :evss, :access?
-        end
-      end
+      before_action(only: %i[get_claim]) { authorize :lighthouse, :access? }
+      before_action(only: %i[request_decision]) { authorize :lighthouse, :access? }
 
       before_action(only: %i[upload_document upload_multi_image_document]) do
         if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
@@ -40,7 +27,7 @@ module Mobile
         if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
           lighthouse_document_service.cleanup_after_upload
         else
-          evss_claims_proxy.cleanup_after_upload
+          claims_proxy.cleanup_after_upload
         end
       end
 
@@ -50,17 +37,12 @@ module Mobile
       end
 
       def get_claim
-        claim_detail = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-                         lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
-                       else
-                         evss_claim_serializer = evss_claims_proxy.get_claim(params[:id])
-                         OpenStruct.new(evss_claim_serializer.serializable_hash[:data])
-                       end
+        claim_detail = lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
       def get_appeal
-        appeal = evss_claims_proxy.get_appeal(params[:id])
+        appeal = claims_proxy.get_appeal(params[:id])
 
         begin
           appeal = appeal_adapter.parse(appeal) if Flipper.enabled?(:mobile_appeal_model, @current_user)
@@ -72,12 +54,8 @@ module Mobile
       end
 
       def request_decision
-        jid = if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
-                response = lighthouse_claims_proxy.request_decision(params[:id])
-                adapt_response(response)
-              else
-                evss_claims_proxy.request_decision(params[:id])
-              end
+        response = lighthouse_claims_proxy.request_decision(params[:id])
+        jid = adapt_response(response)
 
         render json: { data: { job_id: jid } }, status: :accepted
       end
@@ -87,7 +65,7 @@ module Mobile
                 set_params
                 lighthouse_document_service.queue_document_upload(params)
               else
-                evss_claims_proxy.upload_document(params)
+                claims_proxy.upload_document(params)
               end
         render json: { data: { job_id: jid } }, status: :accepted
       end
@@ -115,7 +93,7 @@ module Mobile
                 set_params
                 lighthouse_document_service.queue_multi_image_upload_document(params)
               else
-                evss_claims_proxy.upload_multi_image(params)
+                claims_proxy.upload_multi_image(params)
               end
 
         render json: { data: { job_id: jid } }, status: :accepted
@@ -199,7 +177,7 @@ module Mobile
         Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
       end
 
-      def evss_claims_proxy
+      def claims_proxy
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
       end
 

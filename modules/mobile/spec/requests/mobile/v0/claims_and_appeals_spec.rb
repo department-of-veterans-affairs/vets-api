@@ -7,31 +7,18 @@ require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 require 'lighthouse/benefits_documents/service'
 
-RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
+RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
   include CommitteeHelper
+  # include JsonSchemaMatchers
 
-  let(:good_claims_response_vcr_path) do
-    lighthouse_flag ? 'mobile/lighthouse_claims/index/200_response' : 'mobile/claims/claims'
-  end
-
-  let(:claim_count) do
-    lighthouse_flag ? 6 : 143
-  end
-
-  let(:error_claims_response_vcr_path) do
-    lighthouse_flag ? 'mobile/lighthouse_claims/index/404_response' : 'mobile/claims/claims_with_errors'
-  end
+  let(:good_claims_response_vcr_path) { 'mobile/lighthouse_claims/index/200_response' }
+  let(:claim_count) { 6 }
+  let(:error_claims_response_vcr_path) { 'mobile/lighthouse_claims/index/404_response' }
 
   before do
     Flipper.enable(:mobile_claims_log_decision_letter_sent)
-
-    if lighthouse_flag
-      token = 'abcdefghijklmnop'
-      allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-      Flipper.enable(:mobile_lighthouse_claims)
-    else
-      Flipper.disable(:mobile_lighthouse_claims)
-    end
+    token = 'abcdefghijklmnop'
+    allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
 
   after { Flipper.disable(:mobile_claims_log_decision_letter_sent) }
@@ -55,35 +42,21 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             assert_schema_conform(200)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
-            if lighthouse_flag
-              expect(parsed_response_contents.length).to eq(11)
-              expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(1)
-              open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
-              closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600229968' }[0]
-              decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600323434' }[0]
-              nil_dates_claim = parsed_response_contents.last
-              expect(open_claim.dig('attributes', 'updatedAt')).to eq('2022-09-30')
-              expect(open_claim.dig('attributes', 'phase')).to eq(4)
-              expect(open_claim.dig('attributes', 'documentsNeeded')).to be(false)
-              expect(open_claim.dig('attributes', 'developmentLetterSent')).to be(true)
-              expect(open_claim.dig('attributes', 'claimTypeCode')).to eq('400PREDSCHRG')
-              expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
-              expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
-              expect(nil_dates_claim.dig('attributes', 'updatedAt')).to be_nil
-              expect(nil_dates_claim.dig('attributes', 'dateFiled')).to be_nil
-            else
-              expect(parsed_response_contents.length).to eq(60)
-              expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(3)
-              open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
-              closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
-              decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600096536' }[0]
-              expect(open_claim.dig('attributes', 'updatedAt')).to eq('2017-09-28')
-              expect(open_claim.dig('attributes', 'phase')).to be_nil
-              expect(open_claim.dig('attributes', 'documentsNeeded')).to be_nil
-              expect(open_claim.dig('attributes', 'developmentLetterSent')).to be_nil
-              expect(open_claim.dig('attributes', 'claimTypeCode')).to be_nil
-              expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2017-09-20')
-            end
+            expect(parsed_response_contents.length).to eq(11)
+            expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(1)
+            open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
+            closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600229968' }[0]
+            decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600323434' }[0]
+            nil_dates_claim = parsed_response_contents.last
+            expect(open_claim.dig('attributes', 'updatedAt')).to eq('2022-09-30')
+            expect(open_claim.dig('attributes', 'phase')).to eq(4)
+            expect(open_claim.dig('attributes', 'documentsNeeded')).to be(false)
+            expect(open_claim.dig('attributes', 'developmentLetterSent')).to be(true)
+            expect(open_claim.dig('attributes', 'claimTypeCode')).to eq('400PREDSCHRG')
+            expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
+            expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
+            expect(nil_dates_claim.dig('attributes', 'updatedAt')).to be_nil
+            expect(nil_dates_claim.dig('attributes', 'dateFiled')).to be_nil
 
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
             expect(open_claim.dig('attributes', 'completed')).to be(false)
@@ -188,12 +161,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents[0]['type']).to eq('appeal')
             expect(parsed_response_contents.last['type']).to eq('appeal')
-            claims_error_message = if lighthouse_flag
-                                     'Resource not found'
-                                   else
-                                     "Please define your custom text for this error in \
-claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
-                                   end
+            claims_error_message = 'Resource not found'
             expect(response.parsed_body.dig('meta', 'errors')).to eq(
               [{ 'service' => 'claims', 'errorDetails' => claims_error_message }]
             )
@@ -220,13 +188,9 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
             expect(response.parsed_body.dig('meta', 'errors')).to eq(
               [{ 'service' => 'appeals', 'errorDetails' => 'Received a 500 response from the upstream server' }]
             )
-            if lighthouse_flag
-              open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
-              closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600229968' }[0]
-            else
-              open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
-              closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
-            end
+            open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
+            closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600229968' }[0]
+
             expect(open_claim.dig('attributes', 'completed')).to be(false)
             expect(closed_claim.dig('attributes', 'completed')).to be(true)
             expect(open_claim['type']).to eq('claim')
@@ -249,12 +213,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
           VCR.use_cassette('mobile/appeals/server_error') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
             assert_schema_conform(502)
-            claims_error_message = if lighthouse_flag
-                                     'Resource not found'
-                                   else
-                                     "Please define your custom text for this error in \
-claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
-                                   end
+            claims_error_message = 'Resource not found'
             expect(response.parsed_body.dig('meta', 'errors')).to eq(
               [{ 'service' => 'claims', 'errorDetails' => claims_error_message },
                { 'service' => 'appeals', 'errorDetails' => 'Received a 500 response from the upstream server' }]
@@ -291,7 +250,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         end
 
         assert_schema_conform(200)
-        expected_count = lighthouse_flag ? 7 : 6
+        expected_count = 7
         active_claims_count = response.parsed_body['data'].count do |item|
           item['attributes']['completed'] == false
         end
@@ -307,7 +266,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         end
 
         assert_schema_conform(200)
-        expected_count = lighthouse_flag ? 12 : 11
+        expected_count = 12
         active_claims_count = response.parsed_body['data'].count do |item|
           item['attributes']['completed'] == false
         end
@@ -318,11 +277,8 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
 
     context 'when an internal error occurs getting claims' do
       it 'includes appeals but has error details in the meta object for claims' do
-        if lighthouse_flag
-          allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_raise(NoMethodError)
-        else
-          allow_any_instance_of(User).to receive(:loa).and_raise(NoMethodError)
-        end
+        allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claims).and_raise(NoMethodError)
+
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
             get('/mobile/v0/claims-and-appeals-overview', headers: sis_headers, params:)
@@ -503,7 +459,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       it 'updates record if it does exist' do
         VCR.use_cassette(good_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/appeals') do
-            evss_id = lighthouse_flag ? 600_383_363 : 600_114_693
+            evss_id = 600_383_363
             claim = EVSSClaim.create(user_uuid: sis_user.uuid,
                                      user_account: sis_user.user_account,
                                      evss_id:,
@@ -678,11 +634,4 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
       end
     end
   end
-end
-
-RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
-  include JsonSchemaMatchers
-
-  it_behaves_like 'claims and appeals overview', false
-  it_behaves_like 'claims and appeals overview', true
 end

@@ -61,39 +61,19 @@ module Mobile
         end
 
         def service
-          claim_status_lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
+          Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
         end
 
         def claims_access?
-          if claim_status_lighthouse?
-            @current_user.authorize(:lighthouse, :access?)
-          else
-            @current_user.authorize(:evss, :access?)
-          end
+          @current_user.authorize(:lighthouse, :access?)
         end
 
         def appeals_access?
           @current_user.authorize(:appeals, :access?)
         end
 
-        def claim_status_lighthouse?
-          Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-        end
-
-        def lighthouse_claims_proxy
-          Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
-        end
-
         def claims_adapter
-          if claim_status_lighthouse?
-            Mobile::V0::Adapters::LighthouseClaimsOverview.new
-          else
-            Mobile::V0::Adapters::ClaimsOverview.new
-          end
-        end
-
-        def evss_claims_proxy
-          @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
+          Mobile::V0::Adapters::LighthouseClaimsOverview.new
         end
       end
     end

@@ -1883,12 +1883,6 @@ features:
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
-  mobile_lighthouse_claims:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
-  mobile_lighthouse_request_decision:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our request decision endpoints upstream service
   mobile_lighthouse_document_upload:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our document uploads

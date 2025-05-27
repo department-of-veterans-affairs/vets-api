@@ -12,10 +12,7 @@ RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, 
     before do
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-      Flipper.enable_actor(:mobile_lighthouse_request_decision, user)
     end
-
-    after { Flipper.disable_actor(:mobile_lighthouse_request_decision, user) }
 
     it 'returns success with 202 status' do
       VCR.use_cassette('mobile/lighthouse_claims/request_decision/200_response') do
