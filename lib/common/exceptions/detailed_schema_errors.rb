@@ -86,7 +86,7 @@ module Common
 
       def required(error)
         data = i18n_interpolated :required
-        data.merge! meta: { missing_fields: error['details']['missing_keys'] }
+        data.merge! meta: { missingFields: error['details']['missing_keys'] }
         data
       end
 
