@@ -530,7 +530,51 @@ module PdfFill
     def render_new_section(pdf, section_index)
       return if @sections.blank?
 
-      pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
+      # Save the current y position before rendering
+      start_y = pdf.cursor
+
+      # Calculate the width of "Back to Form" text using the current font
+      back_to_form_width = pdf.width_of("Back to Form")
+      puts "Back to Form width: #{back_to_form_width}"
+      page_width = pdf.bounds.width
+
+      # Set fixed position for "Back to Form" from right edge
+      back_to_form_position = 150 # Fixed distance from right edge
+
+      # Save current color
+      original_color = pdf.fill_color
+      
+      pdf.markup(
+        "<table width='100%'><tr>" \
+        "<td style='padding: 5px; width: #{page_width - back_to_form_position - 20}px'><h2>#{@sections[section_index][:label]}</h2></td>" \
+        "<td style='padding: 5px; width: #{back_to_form_position}px; text-align: left'><span style='color: #0000EE'><u>Back to Form</u></span></td>" \
+        "</tr></table>"
+      )
+
+      # Calculate link position based on the fixed position
+      x = page_width - back_to_form_position
+      y = start_y + 12  # Adjust y position to align with text baseline
+      
+      # Get the current page number directly from pdf
+      current_page = pdf.page_count
+      
+      puts "Back to Form coordinates for section #{section_index} on page #{current_page}: x=#{x}, y=#{y}"
+      
+      # Store these coordinates for later use
+      (@section_coordinates ||= []) << {
+        section: section_index,
+        page: current_page,
+        x: x,
+        y: y,
+        width: 100,       # Width to cover text
+        height: 20,       # Height to cover text and underline
+        dest: @sections[section_index][:page]
+      }
+    end
+
+    # Add a method to access the coordinates
+    def section_coordinates
+      @section_coordinates || []
     end
 
     def set_header(pdf)
