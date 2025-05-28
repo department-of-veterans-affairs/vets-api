@@ -226,13 +226,13 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           # Create a fresh reloader instance with mocked initial counts
           fresh_reloader = Veteran::VSOReloader.new
           allow(fresh_reloader).to receive(:fetch_initial_counts).and_return({
-            attorneys: 0,
-            claims_agents: 0,
-            vso_representatives: 0,
-            vso_organizations: 0
-          })
+                                                                               attorneys: 0,
+                                                                               claims_agents: 0,
+                                                                               vso_representatives: 0,
+                                                                               vso_organizations: 0
+                                                                             })
           fresh_reloader.send(:ensure_initial_counts)
-          
+
           allow_any_instance_of(SlackNotify::Client).to receive(:notify)
           expect(fresh_reloader.send(:validate_count, :attorneys, 50)).to be true
         end
