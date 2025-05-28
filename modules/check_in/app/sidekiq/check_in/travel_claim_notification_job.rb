@@ -138,7 +138,7 @@ module CheckIn
     end
 
     # Logs information about SMS sending attempts (success or failure)
-    # Extracts phone number last four digits and logs with template ID and message.
+    # Extracts phone number last four digits and logs with template ID, message, and UUID.
     #
     # @param opts [Hash] Options hash containing job parameters
     # @param logger_instance [Logger] Logger instance to use (defaults to Rails.logger for class method calls)
