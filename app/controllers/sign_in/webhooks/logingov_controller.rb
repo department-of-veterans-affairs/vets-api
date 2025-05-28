@@ -3,6 +3,7 @@
 module SignIn
   module Webhooks
     class LogingovController < SignIn::ServiceAccountApplicationController
+      service_tag 'identity'
       before_action :authenticate_service_account
 
       def risc
