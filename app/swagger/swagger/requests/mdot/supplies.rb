@@ -72,7 +72,12 @@ module Swagger
                   key :type, :object
                   property :productId, type: :integer, example: 2499
                   property :orderID, type: :integer, example: 1001
-                  property :status, type: :string, example: 'Order Processed', enum: ['Order Processed', 'Order Pending', 'Unable to order item since the last order was less than 5 months ago.']
+                  property :status, type: :string, example: 'Order Processed', 
+                  enum: [
+                    'Order Processed',
+                    'Order Pending',
+                    'Unable to order item since the last order was less than 5 months ago.'
+                  ]
                 end
               end
             end
