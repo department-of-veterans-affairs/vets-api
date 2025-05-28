@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'bgs/form674'
-
 require 'dependents/monitor'
 
 module BGS
@@ -13,6 +12,8 @@ module BGS
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
+    STATS_KEY = 'worker.submit_674_bgs'
+
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16
@@ -20,26 +21,29 @@ module BGS
     sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      ::Dependents::Monitor.new(saved_claim_id).form_674_job_exhaustion(user_uuid, icn, msg)
+      monitor = ::Dependents::Monitor.new(saved_claim_id)
+      monitor.track_event('error',
+                          "BGS::SubmitForm674Job failed, retries exhausted! Last error: #{msg['error_message']}",
+                          'worker.submit_674_bgs.exhaustion', { icn: })
 
       BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
-    rescue => e
-      ::Dependents::Monitor.new(saved_claim_id).form_674_job_backup_submission_failure({ user_uuid:, icn:, e: })
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
-      monitor(saved_claim_id).form_674_job_begin(user_uuid, icn)
+      monitor(saved_claim_id).track_event('info', 'BGS::SubmitForm674Job running!', "#{STATS_KEY}.begin", { icn: })
       instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
 
       submit_form
 
       send_confirmation_email
-      monitor(saved_claim_id).form_674_job_success(user_uuid, icn)
+      @monitor.track_event('info', 'BGS::SubmitForm674Job succeeded!', "#{STATS_KEY}.success", { icn: })
+
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
 
-      monitor(saved_claim_id).form_674_job_failure(user_uuid, icn, e.message, e.cause&.message)
+      @monitor.track_event('warn', 'BGS::SubmitForm674Job received error, retrying...', "#{STATS_KEY}.failure",
+                           { icn:, error: e.message, nested_error: e.cause&.message })
       raise
     end
 
@@ -47,7 +51,8 @@ module BGS
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
-      monitor(saved_claim_id).form_674_job_skip_retries(user_uuid, icn, e.message, e.cause&.message)
+      @monitor.track_event('warn', 'BGS::SubmitForm674Job received error, skipping retries...',
+                           "#{STATS_KEY}.skip_retries", { icn:, error: e.message, nested_error: e.cause&.message })
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
@@ -93,12 +98,9 @@ module BGS
       )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      Dependents::Monitor.new(saved_claim_id).form_674_job_backup_submission_failure({
-                                                                                       user_uuid:,
-                                                                                       saved_claim_id:,
-                                                                                       error: e.message,
-                                                                                       nested_error: e.cause&.message
-                                                                                     })
+      monitor = Dependents::Monitor.new(saved_claim_id)
+      monitor.track_event('error', 'BGS::SubmitForm674Job backup submission failed...',
+                          "#{STATS_KEY}.backup_failure", { error: e.message, nested_error: e.cause&.message })
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
 
