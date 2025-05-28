@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe V0::MDOT::SuppliesController, type: :controller do
+  let(:resource) { JSON.parse(response.body) }
+
   context 'successful request' do
     before do
       sign_in_as(user)
@@ -21,7 +23,7 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
 
       let(:user) { build(:user, :loa3, user_details) }
 
-      let(:body) do
+      let(:params) do
         {
           'use_veteran_address' => true,
           'use_temporary_address' => false,
@@ -49,10 +51,9 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
       it 'submits the req to the mdot client' do
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
           set_mdot_token_for(user)
-          post(:create, body: body.to_json, as: :json)
-          res = JSON.parse(response.body)
-          expect(res[0]['status']).to eq('Order Processed')
-          expect(res[0]['order_id']).to be_an(Integer)
+          post(:create, params:, as: :json)
+          expect(resource[0]['status']).to eq('Order Processed')
+          expect(resource[0]['order_id']).to be_an(Integer)
         end
       end
     end
@@ -76,6 +77,9 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
     end
 
     describe '#create' do
+      let(:get_cassette) { 'mdot/20250502194411-get-supplies' }
+      let(:post_cassette) { 'mdot/20250502194520-post-supplies' }
+
       let(:user_details) do
         {
           first_name: 'PAULINE',
@@ -86,13 +90,8 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
           icn: '1012845630V900607'
         }
       end
-      let(:user) { build(:user, :loa3, user_details) }
-      let(:cassette_data) { YAML.load_file("spec/support/vcr_cassettes/#{post_cassette}.yml") }
-      let(:token) { cassette_data['http_interactions'].first['request']['headers']['VaApiKey'].first }
-      let(:create_mdot_session) { MDOT::Token.new({ uuid: user.uuid, token: }) }
 
-      let(:get_cassette) { 'mdot/20250502194411-get-supplies' }
-      let(:post_cassette) { 'mdot/20250502194520-post-supplies' }
+      let(:user) { build(:user, :loa3, user_details) }
 
       let(:permanent_address) do
         {
@@ -118,14 +117,12 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
         }
       end
 
-      let(:body) { JSON.parse(response.body) }
-
       it 'responds with status 200, order_id: 0' do
         sign_in_as(user)
         post(:create, params:, as: :json)
         expect(response).to have_http_status(:ok)
-        expect(body[0]['order_id']).to eq(0)
-        expect(body[0]['status']).to match(/^Unable to order/)
+        expect(resource[0]['order_id']).to eq(0)
+        expect(resource[0]['status']).to match(/^Unable to order/)
       end
     end
   end
