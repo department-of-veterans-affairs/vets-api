@@ -3,6 +3,7 @@
 require 'claims_api/vbms_uploader'
 require 'bgs_service/person_web_service'
 require 'vets/shared_logging'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   module PoaVbmsSidekiq
