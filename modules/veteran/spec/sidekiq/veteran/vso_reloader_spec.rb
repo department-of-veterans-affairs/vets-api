@@ -205,16 +205,16 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'blocks updates when decrease exceeds threshold' do
-        # 70 attorneys is a 30% decrease, which exceeds 25% threshold
+        # 75 attorneys is a 25% decrease, which exceeds 20% threshold
         expect(SlackNotify::Client).to receive(:new).with(
           hash_including(channel: '#benefits-representation-management-notifications')
         ).and_return(double(notify: true))
-        expect(reloader.send(:valid_count?, :attorneys, 70)).to be false
+        expect(reloader.send(:valid_count?, :attorneys, 75)).to be false
       end
 
       it 'allows updates when decrease is within threshold' do
-        # 80 attorneys is a 20% decrease, which is within 25% threshold
-        expect(reloader.send(:valid_count?, :attorneys, 80)).to be true
+        # 85 attorneys is a 15% decrease, which is within 20% threshold
+        expect(reloader.send(:valid_count?, :attorneys, 85)).to be true
       end
 
       context 'with no previous count' do
@@ -257,26 +257,6 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    describe '#calculate_dynamic_threshold' do
-      before { reloader.send(:ensure_initial_counts) }
-
-      it 'returns maximum threshold for small counts' do
-        expect(reloader.send(:calculate_dynamic_threshold, 50)).to eq 0.25
-        expect(reloader.send(:calculate_dynamic_threshold, 100)).to eq 0.25
-      end
-
-      it 'returns minimum threshold for large counts' do
-        expect(reloader.send(:calculate_dynamic_threshold, 5000)).to eq 0.10
-        expect(reloader.send(:calculate_dynamic_threshold, 10_000)).to eq 0.10
-      end
-
-      it 'scales linearly for counts in between' do
-        threshold = reloader.send(:calculate_dynamic_threshold, 2550)
-        expect(threshold).to be_between(0.10, 0.25)
-        expect(threshold).to be_within(0.01).of(0.175)
-      end
-    end
-
     describe '#notify_threshold_exceeded' do
       before { reloader.send(:ensure_initial_counts) }
 
@@ -289,7 +269,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           )
         ).and_return(double(notify: true))
 
-        reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.25)
+        reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.20)
       end
 
       it 'logs to Sentry' do
@@ -302,7 +282,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           :warn,
           hash_including(previous_count: 100, new_count: 70, decrease_percentage: 0.30)
         )
-        reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.25)
+        reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.20)
       end
     end
 

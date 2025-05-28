@@ -9,14 +9,8 @@ module Veteran
     include SentryLogging
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
-    # must be at least the following percentage of the corresponding counts currently in the database.
-    # Dynamic thresholds based on count size
-    MIN_THRESHOLD = 0.10 # 10% minimum
-    MAX_THRESHOLD = 0.25 # 25% maximum
-
-    # Count thresholds for scaling
-    SMALL_COUNT = 100
-    LARGE_COUNT = 5000
+    # must not decrease by more than this percentage from the previous count
+    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
     # How many historical records to check for previous counts
     HISTORICAL_RECORDS_TO_CHECK = 10
@@ -208,11 +202,10 @@ module Veteran
 
       # Calculate decrease percentage
       decrease_percentage = (previous_count - new_count).to_f / previous_count
-      threshold = calculate_dynamic_threshold(previous_count)
 
-      if decrease_percentage > threshold
+      if decrease_percentage > DECREASE_THRESHOLD
         # Log to Slack and don't update
-        notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, threshold)
+        notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD)
         @validation_results[rep_type] = nil
         false
       else
@@ -232,21 +225,6 @@ module Veteran
 
       # If no previous count exists in the database, use current count
       @initial_counts[rep_type]
-    end
-
-    def calculate_dynamic_threshold(count)
-      # Scale threshold based on count size
-      # Small counts (< 100) get MAX_THRESHOLD (25%)
-      # Large counts (> 5000) get MIN_THRESHOLD (10%)
-      # In between, scale linearly
-
-      return MAX_THRESHOLD if count <= SMALL_COUNT
-      return MIN_THRESHOLD if count >= LARGE_COUNT
-
-      # Linear interpolation
-      range = LARGE_COUNT - SMALL_COUNT
-      position = (count - SMALL_COUNT).to_f / range
-      MAX_THRESHOLD - (position * (MAX_THRESHOLD - MIN_THRESHOLD))
     end
 
     def notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, threshold)
