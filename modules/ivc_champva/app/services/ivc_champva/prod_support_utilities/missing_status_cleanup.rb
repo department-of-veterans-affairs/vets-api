@@ -74,12 +74,14 @@ module IvcChampva
 
         form = batch[0] # Grab a representative form
         fraction = "#{nil_in_batch.length}/#{batch.length}"
-        puts '---'
-        puts "#{form.first_name} #{form.last_name} missing PEGA status on #{fraction} attachments - #{form.email}\n"
-        puts "Form UUID:   #{form.form_uuid}"
-        puts "Form:   #{form.form_number}"
-        puts "Uploaded at: #{form.created_at}"
-        puts "S3 Status:   #{batch.distinct.pluck(:s3_status)}\n"
+        Rails.logger.debug '---'
+        Rails.logger.debug do
+          "#{form.first_name} #{form.last_name} missing PEGA status on #{fraction} attachments - #{form.email}\n"
+        end
+        Rails.logger.debug { "Form UUID:   #{form.form_uuid}" }
+        Rails.logger.debug { "Form:   #{form.form_number}" }
+        Rails.logger.debug { "Uploaded at: #{form.created_at}" }
+        Rails.logger.debug { "S3 Status:   #{batch.distinct.pluck(:s3_status)}\n" }
 
         nil
       end

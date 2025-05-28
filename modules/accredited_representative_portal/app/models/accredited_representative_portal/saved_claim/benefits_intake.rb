@@ -49,12 +49,15 @@ module AccreditedRepresentativePortal
           :form_attachment,
           -> { where(type: PersistentAttachments::VAForm) },
           class_name: 'PersistentAttachment',
+          inverse_of: :saved_claim,
           required: true
         )
 
         has_many(
           :persistent_attachments,
-          -> { where(type: PersistentAttachments::VAFormAttachment) }
+          -> { where(type: PersistentAttachments::VAFormAttachment) },
+          class_name: 'PersistentAttachment',
+          inverse_of: :saved_claim
         )
       end
 
