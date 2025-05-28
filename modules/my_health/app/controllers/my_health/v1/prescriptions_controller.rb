@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::PrescriptionHelper::Sorting
       include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
