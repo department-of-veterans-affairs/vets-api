@@ -8,7 +8,6 @@ require 'vba_documents/webhooks_registrations'
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
-    include SentryLogging
     include Webhooks
 
     attribute :s3_deleted, default: false
@@ -94,10 +93,8 @@ module VBADocuments
         end
         ActiveRecord::Base.transaction { updated.each(&:save!) }
       else
-        submissions.first.log_message_to_sentry('Error getting status from Central Mail API',
-                                                :warning,
-                                                status: response.status,
-                                                body: response.body)
+        Rails.logger.warning('Vba_documents API: Error getting status from EMMS API.' \
+                             " EMMS Response Status: #{response.status}. EMMS Response Body: #{response.body}")
         raise Common::Exceptions::BadGateway
       end
     end
@@ -108,16 +105,14 @@ module VBADocuments
         if response.success?
           response_object = JSON.parse(response.body)[0][0]
           if response_object.blank?
-            log_message_to_sentry('Empty status response for known UUID from Central Mail API', :warning)
+            Rails.logger.warning('Empty status response for known UUID from Central Mail API')
           else
             map_upstream_status(response_object)
           end
           save!
         else
-          log_message_to_sentry('Error getting status from Central Mail API',
-                                :warning,
-                                status: response.status,
-                                body: response.body)
+          Rails.logger.warning('Vba_documents API: Error getting status from EMMS API.' \
+                               " EMMS Response Status: #{response.status}. EMMS Response Body: #{response.body}")
           raise Common::Exceptions::BadGateway
         end
       end
@@ -225,7 +220,7 @@ module VBADocuments
         self.code = 'DOC202'
         self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
-        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status:)
+        Rails.logger.warning("Unknown status value from EMMS API. Guid: #{guid}. EMMS status: #{status}")
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
     end
@@ -246,7 +241,6 @@ module VBADocuments
       else
         msg = "Unable to determine Complete status. Packets/completedReason not included. Response: #{response_object}"
         Rails.logger.error(msg)
-        log_message_to_sentry(msg, :warning, status: 'undetermined')
       end
     end
 
