@@ -123,6 +123,13 @@ module VAOS
           render json: appt_creation_failed_error, status: :unprocessable_entity and return
         end
 
+        # Check if the appointment contains an error field
+        if appointment[:error].present?
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
+          render json: appointment_error_response(appointment[:error]),
+                 status: appointment_error_status(appointment[:error]) and return
+        end
+
         Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
                           "Response: #{appointment.inspect}")
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
@@ -649,6 +656,42 @@ module VAOS
           errors: [{
             title: 'Appointment creation failed',
             detail: 'Could not create appointment'
+          }]
+        }
+      end
+
+      ##
+      # Maps appointment error codes to appropriate HTTP status codes
+      #
+      # @param error_code [String] The error code from the appointment response
+      # @return [Symbol] The corresponding HTTP status code symbol
+      #
+      def appointment_error_status(error_code)
+        case error_code
+        when 'conflict'
+          :conflict # 409
+        when 'bad-request'
+          :bad_request # 400
+        when 'internal-error'
+          :internal_server_error # 500
+        else
+          # too-far-in-the-future, already-canceled, too-late-to-cancel, etc.
+          :unprocessable_entity # 422
+        end
+      end
+
+      ##
+      # Builds a standardized error response for appointment errors
+      #
+      # @param error_code [String] The error code from the appointment response
+      # @return [Hash] Formatted error response with title and detail
+      #
+      def appointment_error_response(error_code)
+        {
+          errors: [{
+            title: 'Appointment submission failed',
+            detail: "An error occurred: #{error_code}",
+            code: error_code
           }]
         }
       end
