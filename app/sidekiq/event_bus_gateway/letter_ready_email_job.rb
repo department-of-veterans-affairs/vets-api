@@ -9,15 +9,18 @@ module EventBusGateway
 
     sidekiq_options retry: 0
     NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
+    HOSTNAME_MAPPING = {
+      'dev-api.va.gov' => 'dev.va.gov',
+      'staging-api.va.gov' => 'staging.va.gov',
+      'api.va.gov' => 'va.gov'
+    }.freeze
 
-    def perform(participant_id, template_id, personalisation_params)
+    def perform(participant_id, template_id)
       notify_client.send_email(
         recipient_identifier: { id_value: participant_id, id_type: 'PID' },
         template_id:,
-        personalisation: personalisation_params.merge({
-                                                        host: Settings.hostname,
-                                                        first_name: get_first_name_from_participant_id(participant_id)
-                                                      })
+        personalisation: { host: HOSTNAME_MAPPING[Settings.hostname] || Settings.hostname,
+                           first_name: get_first_name_from_participant_id(participant_id) }
       )
     rescue => e
       record_email_send_failure(e)
