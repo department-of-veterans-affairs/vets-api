@@ -366,7 +366,6 @@ edu:
       - noah.stern@va.gov
       - gregg.puhala@va.gov
       - kara.ciprich@va.gov
-      - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
@@ -1266,6 +1265,7 @@ va_forms:
 va_mobile:
   key_path: "/fake/client/key/path"
   mock: false
+  patients_path: /vaos/v1/patients
   ppms_base_url: https://staff.apps.va.gov
   timeout: 25
   url: https://veteran.apps.va.gov

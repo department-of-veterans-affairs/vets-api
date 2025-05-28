@@ -202,7 +202,7 @@ GEM
       activemodel (= 7.2.2.1)
       activesupport (= 7.2.2.1)
       timeout (>= 0.4.0)
-    activerecord-import (2.1.0)
+    activerecord-import (2.2.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (10.0.1)
       activerecord (~> 7.2.0)
@@ -648,10 +648,10 @@ GEM
       base64
     jwt (2.10.1)
       base64
-    karafka-core (2.4.11)
-      karafka-rdkafka (>= 0.17.6, < 0.20.0)
+    karafka-core (2.5.1)
+      karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.19.1)
+    karafka-rdkafka (0.19.4)
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -710,7 +710,7 @@ GEM
       benchmark
       logger
     mini_mime (1.1.5)
-    mini_portile2 (2.8.8)
+    mini_portile2 (2.8.9)
     minitest (5.25.5)
     mock_redis (0.50.0)
       redis (~> 5)
@@ -782,7 +782,7 @@ GEM
     optimist (3.2.0)
     os (1.1.4)
     ostruct (0.6.1)
-    ox (2.14.22)
+    ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
     parallel_tests (5.2.0)
@@ -1159,9 +1159,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.3)
+    waterdrop (2.8.4)
       karafka-core (>= 2.4.9, < 3.0.0)
-      karafka-rdkafka (>= 0.19.1)
+      karafka-rdkafka (>= 0.19.2)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
