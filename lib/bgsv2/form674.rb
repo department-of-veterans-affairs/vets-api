@@ -122,6 +122,7 @@ module BGSV2
     end
     # rubocop:enable Metrics/MethodLength
 
+    # rubocop:disable Naming/VariableNumber
     def process_674(proc_id, dependent, payload, student = nil)
       StudentSchool.new(
         proc_id:,
@@ -131,6 +132,7 @@ module BGSV2
         student:
       ).create
     end
+    # rubocop:enable Naming/VariableNumber
 
     def vnp_proc_id(saved_claim)
       set_to_manual = saved_claim.submittable_686?
