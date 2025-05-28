@@ -820,7 +820,6 @@ Gemfile.lock @department-of-veterans-affairs/backend-review-group
 helmCharts/ @department-of-veterans-affairs/backend-review-group
 import-va-certs.sh @department-of-veterans-affairs/backend-review-group
 Jenkinsfile @department-of-veterans-affairs/backend-review-group
-lib/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/accredited_representation/constants.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 lib/accredited_representation/create_accredited_individual.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 lib/admin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
