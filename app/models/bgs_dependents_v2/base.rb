@@ -110,6 +110,8 @@ module BGSDependentsV2
 
     # BGS will not accept address lines longer than 20 characters
     def adjust_address_lines_for!(address:)
+      return if address.blank?
+
       all_lines = if v2?
                     "#{address['street']} #{address['street2']} #{address['street3']}"
                   else
@@ -125,6 +127,8 @@ module BGSDependentsV2
     # rubocop:disable Metrics/MethodLength
     # This method converts ISO 3166-1 Alpha-3 country codes to ISO 3166-1 country names.
     def adjust_country_name_for!(address:)
+      return if address.blank?
+
       # international postal code is only in v1, return if country is usa in v2
       return if address['international_postal_code'].blank? || address['country'] == 'USA'
 
