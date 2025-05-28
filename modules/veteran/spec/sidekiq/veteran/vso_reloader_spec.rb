@@ -220,15 +220,21 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       context 'with no previous count' do
         before do
           Veteran::AccreditationTotal.destroy_all
-          # Also clear the representatives so initial count is 0
-          Veteran::Service::Representative.destroy_all
-          reloader.instance_variable_set(:@initial_counts, nil)
-          reloader.send(:ensure_initial_counts)
         end
 
         it 'allows any count when no history exists' do
+          # Create a fresh reloader instance with mocked initial counts
+          fresh_reloader = Veteran::VSOReloader.new
+          allow(fresh_reloader).to receive(:fetch_initial_counts).and_return({
+            attorneys: 0,
+            claims_agents: 0,
+            vso_representatives: 0,
+            vso_organizations: 0
+          })
+          fresh_reloader.send(:ensure_initial_counts)
+          
           allow_any_instance_of(SlackNotify::Client).to receive(:notify)
-          expect(reloader.send(:validate_count, :attorneys, 50)).to be true
+          expect(fresh_reloader.send(:validate_count, :attorneys, 50)).to be true
         end
       end
 
