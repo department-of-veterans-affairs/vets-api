@@ -5,14 +5,16 @@ http_interactions:
     uri: <MDOT_URL>/supplies
     body:
       encoding: UTF-8
-      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"veteran@example.com","permanentAddress":{"street":"1000 NOWHERE PL","street2":", ","city":"OKAY","state":"OK","country":"UNITED STATES","postalCode":"74446"},"temporaryAddress":{},"order":[{"productId":8271}]}'
+      string: '{"useVeteranAddress":true,"useTemporaryAddress":false,"vetEmail":"vet@va.gov","order":[{"productId":"8271"}],"permanentAddress":{"street":"1000 NOWHERE PL","street2":", ","city":"OKAY","state":"OK","country":"UNITED STATES","postalCode":"74446"},"temporaryAddress":{}}'
     headers:
-      User-Agent:
-      - Vets.gov agent
-      VaApiKey:
-      - abcd1234abcd1234abcd1234
+      Accept:
+      - application/json
       Content-Type:
       - application/json
+      User-Agent:
+      - Vets.gov Agent
+      VAAPIKEY:
+      - abcd1234abcd1234abcd1234
   response:
     status:
       code: 200

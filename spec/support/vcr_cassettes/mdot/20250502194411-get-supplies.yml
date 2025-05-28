@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <MDOT_URL>/supplies
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      VA_VETERAN_FIRST_NAME:
+      - PAULINE
+      VA_VETERAN_MIDDLE_NAME:
+      - E
+      VA_VETERAN_LAST_NAME:
+      - FOSTER
+      VA_VETERAN_ID:
+      - '0625'
+      VA_VETERAN_BIRTH_DATE:
+      - '1976-06-09'
+      VA_ICN:
+      - 1012845630V900607
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      vary:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers
+      vaapikey:
+      - abcd1234abcd1234abcd1234
+      x-content-type-options:
+      - nosniff
+      x-xss-protection:
+      - 1; mode=block
+      cache-control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      pragma:
+      - no-cache
+      expires:
+      - '0'
+      x-frame-options:
+      - DENY
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      date:
+      - Fri, 02 May 2025 19:44:08 GMT
+      strict-transport-security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"permanentAddress":{"street":"1000 NOWHERE PL","street2":", ","city":"OKAY","state":"OK","country":"UNITED
+        STATES","postalCode":"74446"},"temporaryAddress":{},"vetEmail":"vet@va.gov","supplies":[{"deviceName":"","productName":"ARSNS10-ARCRV10-S9-2PK","productGroup":"Apnea","productId":8278,"availableForReorder":true,"lastOrderDate":"2025-01-20","nextAvailabilityDate":"2025-06-20","quantity":1},{"deviceName":"","productName":"ARSNS-ARCRV10-CLIMTLN-OXY-6FT","productGroup":"Apnea","productId":8271,"availableForReorder":true,"lastOrderDate":"2025-01-20","nextAvailabilityDate":"2025-06-20","quantity":2}]}'
+  recorded_at: Fri, 02 May 2025 19:44:12 GMT
+recorded_with: VCR 6.3.1

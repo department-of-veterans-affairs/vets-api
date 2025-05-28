@@ -69,28 +69,39 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
         allow_unused_http_interactions: false,
         match_requests_on: %i[method uri headers body]
       }
-      VCR.use_cassette(cassette, options) { ex.run }
+      VCR.use_cassettes([{ name: get_cassette, options: }, { name: post_cassette, options: }]) { ex.run }
 
       # Switch back to :webmock, as in spec/rails_helper.rb
       VCR.configure { |c| c.hook_into :webmock }
     end
 
-    describe '#create -- 200 status, orderID: 0' do
-      let(:user) { build(:user, :loa3) }
-      let(:cassette_data) { YAML.load_file("spec/support/vcr_cassettes/#{cassette}.yml") }
+    describe '#create' do
+      let(:user_details) do
+        {
+          first_name: 'PAULINE',
+          middle_name: 'E',
+          last_name: 'FOSTER',
+          birth_date: '19760609',
+          ssn: '000000625',
+          icn: '1012845630V900607'
+        }
+      end
+      let(:user) { build(:user, :loa3, user_details) }
+      let(:cassette_data) { YAML.load_file("spec/support/vcr_cassettes/#{post_cassette}.yml") }
       let(:token) { cassette_data['http_interactions'].first['request']['headers']['VaApiKey'].first }
       let(:create_mdot_session) { MDOT::Token.new({ uuid: user.uuid, token: }) }
 
-      let(:cassette) { 'mdot/20250502194520-post-supplies' }
+      let(:get_cassette) { 'mdot/20250502194411-get-supplies' }
+      let(:post_cassette) { 'mdot/20250502194520-post-supplies' }
 
       let(:permanent_address) do
         {
           street: '1000 NOWHERE PL',
-          street2: ',',
+          street2: ', ',
           city: 'OKAY',
           state: 'OK',
           country: 'UNITED STATES',
-          postal_code: '80004'
+          postal_code: '74446'
         }
       end
 
@@ -98,19 +109,23 @@ RSpec.describe V0::MDOT::SuppliesController, type: :controller do
         {
           use_veteran_address: true,
           use_temporary_address: false,
-          vetEmail: 'veteran@example.com',
-          permanent_address:,
-          temporary_address: {},
+          vet_email: 'vet@va.gov',
           order: [
-            { product_id: 8271 }
-          ]
+            { product_id: '8271' }
+          ],
+          permanent_address:,
+          temporary_address: {}
         }
       end
 
-      it 'does the thing' do
+      let(:body) { JSON.parse(response.body) }
+
+      it 'responds with status 200, order_id: 0' do
         sign_in_as(user)
-        create_mdot_session
-        post(:create, params:)
+        post(:create, params:, as: :json)
+        expect(response).to have_http_status(:ok)
+        expect(body[0]['order_id']).to eq(0)
+        expect(body[0]['status']).to match(/^Unable to order/)
       end
     end
   end
