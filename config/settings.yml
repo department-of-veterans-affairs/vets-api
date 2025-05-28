@@ -661,6 +661,7 @@ lighthouse:
     host: <%= ENV['lighthouse__benefits_claims__host'] %>
     use_mocks: <%= ENV['lighthouse__benefits_claims__use_mocks'] %>
   benefits_discovery:
+    host: <%= ENV['lighthouse__benefits_discovery__host'] %>
     x_api_key: <%= ENV['lighthouse__benefits_discovery__x_api_key'] %>
     x_app_id: <%= ENV['lighthouse__benefits_discovery__x_app_id'] %>
   benefits_documents:

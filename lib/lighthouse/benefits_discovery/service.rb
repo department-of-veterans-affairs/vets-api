@@ -4,8 +4,8 @@ module BenefitsDiscovery
   class Service < Common::Client::Base
     configuration BenefitsDiscovery::Configuration
 
-    def get_eligible_benefits(params ||= example_params)
-      response = perform(:get, 'benefits-discovery-service/v0/recommendations', example_params, headers)
+    def get_eligible_benefits
+      response = perform(:post, 'benefits-discovery-service/v0/recommendations', example_params, headers)
     end
 
     def example_params

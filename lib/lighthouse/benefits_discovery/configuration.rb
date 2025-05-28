@@ -3,7 +3,7 @@
 module BenefitsDiscovery
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      'https://dev.lighthouse.va.gov/'
+      Settings.lighthouse.benefits_discovery.host
     end
 
     def service_name
