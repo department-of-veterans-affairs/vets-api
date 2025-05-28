@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/benefit_claim'
+require 'bgsv2/benefit_claim'
 
 RSpec.describe BGSV2::BenefitClaim do
   let(:user_object) { create(:evss_user, :loa3) }
@@ -29,7 +29,7 @@ RSpec.describe BGSV2::BenefitClaim do
   describe '#create' do
     it 'returns a BenefitClaim hash' do
       VCR.use_cassette('bgs/benefit_claim/create') do
-        benefit_claim = BGS::BenefitClaim.new(
+        benefit_claim = BGSV2::BenefitClaim.new(
           args: {
             vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
             veteran: vet_hash,
@@ -74,7 +74,7 @@ RSpec.describe BGSV2::BenefitClaim do
           )
           .and_call_original
 
-        BGS::BenefitClaim.new(
+        BGSV2::BenefitClaim.new(
           args: {
             vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
             veteran: vet_hash,
@@ -89,12 +89,12 @@ RSpec.describe BGSV2::BenefitClaim do
 
     it 'removes apostrophes and other characters forbidden by BGS, from the names in the payload to BGS' do
       user_object = create(:evss_user, :loa3, first_name: "D'Añgelo", last_name: "O'Briën")
-      expect_any_instance_of(BGS::Service)
+      expect_any_instance_of(BGSV2::Service)
         .to receive(:insert_benefit_claim)
         .with(a_hash_including({ first_name: 'DAngelo', last_name: 'OBrien' }))
         .and_return({})
 
-      BGS::BenefitClaim.new(
+      BGSV2::BenefitClaim.new(
         args: {
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
@@ -111,11 +111,11 @@ RSpec.describe BGSV2::BenefitClaim do
         vet_hash[:file_number] = nil
 
         VCR.use_cassette('bgs/benefit_claim/create/error') do
-          expect_any_instance_of(BGS::BenefitClaim).to receive(:handle_error).with(
+          expect_any_instance_of(BGSV2::BenefitClaim).to receive(:handle_error).with(
             anything, 'create'
           )
 
-          BGS::BenefitClaim.new(
+          BGSV2::BenefitClaim.new(
             args: {
               vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
               veteran: vet_hash,
@@ -131,7 +131,7 @@ RSpec.describe BGSV2::BenefitClaim do
 
         VCR.use_cassette('bgs/benefit_claim/create/error') do
           expect do
-            BGS::BenefitClaim.new(
+            BGSV2::BenefitClaim.new(
               args: {
                 vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
                 veteran: vet_hash,
@@ -139,7 +139,7 @@ RSpec.describe BGSV2::BenefitClaim do
                 proc_id:
               }
             ).create
-          end.to raise_error(BGS::ServiceException)
+          end.to raise_error(BGSV2::ServiceException)
         end
       end
     end

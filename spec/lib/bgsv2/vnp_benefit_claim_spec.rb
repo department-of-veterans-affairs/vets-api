@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/vnp_benefit_claim'
+require 'bgsv2/vnp_benefit_claim'
 
 RSpec.describe BGSV2::VnpBenefitClaim do
   let(:user_object) { create(:evss_user, :loa3) }
@@ -37,7 +37,7 @@ RSpec.describe BGSV2::VnpBenefitClaim do
   describe '#create' do
     it 'returns a VnpBenefitClaimObject' do
       VCR.use_cassette('bgs/vnp_benefit_claim/create') do
-        vnp_benefit_claim = BGS::VnpBenefitClaim.new(
+        vnp_benefit_claim = BGSV2::VnpBenefitClaim.new(
           proc_id:,
           veteran: veteran_hash,
           user: user_object
@@ -68,7 +68,7 @@ RSpec.describe BGSV2::VnpBenefitClaim do
           )
           .and_call_original
 
-        BGS::VnpBenefitClaim.new(
+        BGSV2::VnpBenefitClaim.new(
           proc_id:,
           veteran: veteran_hash,
           user: user_object
@@ -80,7 +80,7 @@ RSpec.describe BGSV2::VnpBenefitClaim do
   describe '#update' do
     it 'updates a VnpBenefitClaimObject' do
       VCR.use_cassette('bgs/vnp_benefit_claim/update') do
-        existing_record = BGS::VnpBenefitClaim.new(
+        existing_record = BGSV2::VnpBenefitClaim.new(
           proc_id:,
           veteran: veteran_hash,
           user: user_object
@@ -110,7 +110,7 @@ RSpec.describe BGSV2::VnpBenefitClaim do
           )
           .and_call_original
 
-        BGS::VnpBenefitClaim.new(
+        BGSV2::VnpBenefitClaim.new(
           proc_id:,
           veteran: veteran_hash,
           user: user_object

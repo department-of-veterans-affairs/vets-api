@@ -24,7 +24,7 @@ module BGSV2
     private
 
     def bgs_service
-      @service ||= BGS::Service.new(@user)
+      @service ||= BGSV2::Service.new(@user)
     end
   end
 end

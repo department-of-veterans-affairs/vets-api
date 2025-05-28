@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/vnp_relationships'
+require 'bgsv2/vnp_relationships'
 
 RSpec.describe BGSV2::VnpRelationships do
   let(:proc_id) { '3828033' }
@@ -33,7 +33,7 @@ RSpec.describe BGSV2::VnpRelationships do
 
           dependent_array = [child]
 
-          dependents = BGS::VnpRelationships.new(
+          dependents = BGSV2::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -68,7 +68,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [divorce]
-          dependents = BGS::VnpRelationships.new(
+          dependents = BGSV2::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -106,7 +106,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [death]
-          dependents = BGS::VnpRelationships.new(
+          dependents = BGSV2::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -143,7 +143,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(
+          dependents = BGSV2::VnpRelationships.new(
             proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
@@ -179,7 +179,7 @@ RSpec.describe BGSV2::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(proc_id:,
+          dependents = BGSV2::VnpRelationships.new(proc_id:,
                                                  veteran: veteran_hash,
                                                  dependents: dependent_array,
                                                  step_children: [],

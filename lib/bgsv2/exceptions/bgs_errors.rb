@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgs/exceptions/service_exception'
+require 'bgsv2/exceptions/service_exception'
 module BGSV2
   module Exceptions
     module BGSErrors
@@ -33,7 +33,7 @@ module BGSV2
       end
 
       def raise_backend_exception(key, source, error)
-        exception = BGS::ServiceException.new(
+        exception = BGSV2::ServiceException.new(
           key,
           { source: source.to_s },
           403,

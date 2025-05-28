@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/disability_compensation_form_flashes'
+require 'bgsv2/disability_compensation_form_flashes'
 
 Rspec.describe BGSV2::DisabilityCompensationFormFlashes do
   subject { described_class.new(user, form_content, disabilities) }

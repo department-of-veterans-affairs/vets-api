@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/exceptions/bgs_errors'
+require 'bgsv2/exceptions/bgs_errors'
 
 RSpec.describe BGSV2::Exceptions::BGSErrors do
   let(:dummy_class) do
@@ -29,7 +29,7 @@ RSpec.describe BGSV2::Exceptions::BGSErrors do
         )
         expect do
           dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
-        end.to raise_error(BGS::ServiceException)
+        end.to raise_error(BGSV2::ServiceException)
       end
     end
 
@@ -39,7 +39,7 @@ RSpec.describe BGSV2::Exceptions::BGSErrors do
         expect(dummy_instance).not_to receive(:log_message_to_sentry)
         expect do
           dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
-        end.to raise_error(BGS::ServiceException)
+        end.to raise_error(BGSV2::ServiceException)
       end
     end
 
@@ -49,7 +49,7 @@ RSpec.describe BGSV2::Exceptions::BGSErrors do
         expect(dummy_instance).not_to receive(:log_message_to_sentry)
         expect do
           dummy_instance.notify_of_service_exception(dummy_error, 'dummy_method')
-        end.to raise_error(BGS::ServiceException)
+        end.to raise_error(BGSV2::ServiceException)
       end
     end
   end
