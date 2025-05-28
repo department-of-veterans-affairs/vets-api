@@ -31,12 +31,15 @@ module Veteran
       @initial_counts = fetch_initial_counts
       @validation_results = {}
 
+      # Collect all valid representative IDs from OGC data
+      # This array is used to determine which representatives should be kept vs removed
       array_of_organizations = reload_representatives
 
       # Save the results to the database
       save_accreditation_totals
 
-      # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC
+      # Remove representatives that are no longer in the OGC data
+      # By using where.not, we delete anyone whose ID is NOT in the array returned by reload_representatives
       Veteran::Service::Representative.where.not(representative_id: array_of_organizations).find_each do |rep|
         # These are test users that Sandbox requires.  Don't delete them.
         next if rep.first_name == 'Tamara' && rep.last_name == 'Ellis'
@@ -52,6 +55,9 @@ module Veteran
       log_to_slack('VSO Reloader job has failed!')
     end
 
+    # Reloads attorney data from OGC
+    # @return [Array<String>] Array of representative IDs that should remain in the system
+    #   Used by perform method to determine which representatives to keep vs delete
     def reload_attorneys
       reload_representative_type(
         endpoint: 'attorneyexcellist.asp',
@@ -61,6 +67,9 @@ module Veteran
       )
     end
 
+    # Reloads claim agent data from OGC
+    # @return [Array<String>] Array of representative IDs that should remain in the system
+    #   Used by perform method to determine which representatives to keep vs delete
     def reload_claim_agents
       reload_representative_type(
         endpoint: 'caexcellist.asp',
@@ -70,6 +79,9 @@ module Veteran
       )
     end
 
+    # Reloads VSO representative and organization data from OGC
+    # @return [Array<String>] Array of representative IDs that should remain in the system
+    #   Used by perform method to determine which representatives to keep vs delete
     def reload_vso_reps
       ensure_initial_counts
       vso_data = fetch_data('orgsexcellist.asp')
@@ -91,10 +103,19 @@ module Veteran
 
     private
 
+    # Combines all representative IDs from attorneys, claim agents, and VSOs
+    # @return [Array<String>] Combined array of all representative IDs that should remain in the system
+    #   This list is used to identify representatives that are no longer in OGC data and should be removed
     def reload_representatives
       reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
+    # Common method for reloading attorney and claim agent data
+    # @param endpoint [String] OGC endpoint to fetch data from
+    # @param rep_type [Symbol] Type of representative for validation (:attorneys, :claims_agents)
+    # @param user_type [String] Database user type constant
+    # @param processor [Method] Method to process each record
+    # @return [Array<String>] Representative IDs - either newly processed IDs or existing IDs if validation fails
     def reload_representative_type(endpoint:, rep_type:, user_type:, processor:)
       ensure_initial_counts
       data = fetch_data(endpoint)
