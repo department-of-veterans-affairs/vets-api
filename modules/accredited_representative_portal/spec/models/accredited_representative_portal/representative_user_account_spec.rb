@@ -46,7 +46,9 @@ module AccreditedRepresentativePortal
       end
 
       context 'with no associated VSO registration' do
-        it { is_expected.to be_empty }
+        it 'raises Common::Exceptions::Forbidden' do
+          expect { subject }.to raise_error(Common::Exceptions::Forbidden)
+        end
       end
 
       context 'with an associated VSO registration' do
@@ -58,7 +60,9 @@ module AccreditedRepresentativePortal
         end
 
         context 'but no associated representative in turn' do
-          it { is_expected.to be_empty }
+          it 'raises Common::Exceptions::Forbidden' do
+            expect { subject }.to raise_error(Common::Exceptions::Forbidden)
+          end
         end
 
         context 'and an associated representative in turn' do

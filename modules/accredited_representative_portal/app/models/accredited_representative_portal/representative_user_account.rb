@@ -62,11 +62,9 @@ module AccreditedRepresentativePortal
         representatives = Veteran::Service::Representative.where(email: @all_emails)
 
         if representatives.empty?
-          # handle empty case
-          return nil
+          raise Common::Exceptions::Forbidden, detail: 'No representatives found for this user.'
         elsif representatives.size > 1
-          # handle more than 1 case
-          return nil
+          raise Common::Exceptions::Forbidden, detail: 'Multiple representatives found for this user.'
         end
 
         representative = representatives.first

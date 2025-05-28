@@ -60,6 +60,7 @@ module AccreditedRepresentativePortal
       @user_verification ||= session.user_verification
     end
 
+    # rubocop:disable Style/MethodLength
     def current_user
       return @current_user if @current_user.present?
 
@@ -87,5 +88,6 @@ module AccreditedRepresentativePortal
       user.save
       @current_user = user
     end
+    # rubocop:enable Style/MethodLength
   end
 end
