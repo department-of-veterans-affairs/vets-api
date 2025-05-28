@@ -63,14 +63,14 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
                 'name' => 'Proof of Service Letter',
                 'letterType' => 'proof_of_service'
               },
-              {
-                'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
-                'letterType' => 'medicare_partd'
-              },
-              {
-                'name' => 'Proof of Minimum Essential Coverage Letter',
-                'letterType' => 'minimum_essential_coverage'
-              },
+              # {
+              #   'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
+              #   'letterType' => 'medicare_partd'
+              # },
+              # {
+              #   'name' => 'Proof of Minimum Essential Coverage Letter',
+              #   'letterType' => 'minimum_essential_coverage'
+              # },
               {
                 'name' => 'Service Verification Letter',
                 'letterType' => 'service_verification'
@@ -109,14 +109,14 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
                 'name' => 'Proof of Service Letter',
                 'letterType' => 'proof_of_service'
               },
-              {
-                'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
-                'letterType' => 'medicare_partd'
-              },
-              {
-                'name' => 'Proof of Minimum Essential Coverage Letter',
-                'letterType' => 'minimum_essential_coverage'
-              },
+              # {
+              #   'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
+              #   'letterType' => 'medicare_partd'
+              # },
+              # {
+              #   'name' => 'Proof of Minimum Essential Coverage Letter',
+              #   'letterType' => 'minimum_essential_coverage'
+              # },
               {
                 'name' => 'Civil Service Preference Letter',
                 'letterType' => 'civil_service'
