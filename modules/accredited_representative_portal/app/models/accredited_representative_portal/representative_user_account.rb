@@ -68,6 +68,7 @@ module AccreditedRepresentativePortal
           # handle more than 1 case
           return nil
         end
+
         representative = representatives.first
         registration_numbers = [representative.representative_id]
 

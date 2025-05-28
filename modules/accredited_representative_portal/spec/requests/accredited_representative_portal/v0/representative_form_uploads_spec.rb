@@ -6,7 +6,9 @@ require 'common/file_helpers'
 
 RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadController, type: :request do
   let!(:poa_code) { '067' }
-  let(:representative_user) { create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov']) }
+  let(:representative_user) do
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
+  end
   let!(:accredited_individual) do
     create(:user_account_accredited_individual,
            user_account_email: representative_user.email,
