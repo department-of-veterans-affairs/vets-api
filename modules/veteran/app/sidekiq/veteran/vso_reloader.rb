@@ -49,6 +49,15 @@ module Veteran
       log_to_slack('VSO Reloader job has failed!')
     end
 
+    private
+
+    # Combines all representative IDs from attorneys, claim agents, and VSOs
+    # @return [Array<String>] Combined array of all representative IDs that should remain in the system
+    #   This list is used to identify representatives that are no longer in OGC data and should be removed
+    def reload_representatives
+      reload_attorneys + reload_claim_agents + reload_vso_reps
+    end
+
     # Reloads attorney data from OGC
     # @return [Array<String>] Array of representative IDs that should remain in the system
     #   Used by perform method to determine which representatives to keep vs delete
@@ -93,15 +102,6 @@ module Veteran
           .where("'#{USER_TYPE_VSO}' = ANY(user_types)")
           .pluck(:representative_id)
       end
-    end
-
-    private
-
-    # Combines all representative IDs from attorneys, claim agents, and VSOs
-    # @return [Array<String>] Combined array of all representative IDs that should remain in the system
-    #   This list is used to identify representatives that are no longer in OGC data and should be removed
-    def reload_representatives
-      reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
     # Common method for reloading attorney and claim agent data
