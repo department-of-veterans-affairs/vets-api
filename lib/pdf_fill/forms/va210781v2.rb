@@ -278,40 +278,12 @@ module PdfFill
           }
         },
         'additionalBehaviorsDetails' => { # question_num: 10C
-          limit: 1,
-          first_key: 'additionalInfo',
-          item_label: 'Behavioral Change',
-          question_text: 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
-          question_type: 'checked_description',
-          question_num: 10,
-          override_index: 14,
-          format_options: {
-            label_width: 140
-          },
-          'description' => {
-            key: '',
-            question_num: 10,
-            question_suffix: 'C',
-            question_text: 'Description',
-            format_options: {
-              bold_value: true,
-              bold_label: true
-            }
-          },
-          'checked' => {
-            key: '',
-            question_num: 10,
-            question_suffix: 'C',
-            question_text: 'Checked'
-          },
-          'additionalInfo' => {
-            key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
-            limit: 784,
-            question_num: 10,
-            question_suffix: 'C',
-            question_text: 'Additional Information about unlisted behavioral changes',
-            question_label: 'Additional Information'
-          }
+          key: 'F[0].#subform[4].List_Additional_Behavioral_Changes[0]',
+          limit: 784,
+          question_num: 10.0, # This is needed to distinguish from the 10B overflow
+          question_suffix: 'C',
+          question_text: 'Additional Behavioral Changes',
+          show_suffix: true
         },
         'reportFiled' => { # question_num: 11
           key: 'F[0].#subform[4].Report_Yes[0]'
@@ -370,13 +342,14 @@ module PdfFill
             question_num: 11,
             question_suffix: 'B',
             question_label: 'Other',
-            question_type: 'checklist_group',
             question_text: 'Other Report'
           },
           'otherOverflow' => {
             key: '',
             question_num: 11,
             question_suffix: 'B',
+            question_label: 'Other',
+            question_type: 'checklist_group',
             question_text: 'Other Report'
           }
         },
@@ -639,6 +612,7 @@ module PdfFill
         8 => 'Type of in-service traumatic event(s)',
         9 => 'Traumatic event(s) information',
         10 => 'Behavioral Changes Following In-service Personal Traumatic Event(s)',
+        10.0 => 'Additional Behavioral Change(s)',
         11 => 'Was an official report filed?',
         11.5 => 'Police report location(s)',
         12 => 'Possible sources of evidence following the traumatic event(s)',
@@ -658,7 +632,7 @@ module PdfFill
         },
         {
           label: 'Section III: Additional Information Associated with the In-service Traumatic Event(s)',
-          question_nums: [10, 11, 11.5, 12]
+          question_nums: [10, 10.0, 11, 11.5, 12]
         },
         {
           label: 'Section IV: Treatment Information',
@@ -743,7 +717,7 @@ module PdfFill
         no_report = false
         police_reports = []
         unlisted_reports = []
-        reports_details = @form_data['reportsDetails'] ||= {}
+        @form_data['reportsDetails'] ||= {}
 
         @form_data['events'].each do |event|
           reports = merge_reports(event)
@@ -765,7 +739,7 @@ module PdfFill
         @form_data['noReportFiled'] = no_report && !report_filed ? 1 : nil
 
         process_police_reports(police_reports, extras_redesign)
-        reports_details['other'] = unlisted_reports.join('; ') unless unlisted_reports.empty?
+        process_unlisted_reports(unlisted_reports, extras_redesign)
       end
 
       def process_police_reports(police_reports, extras_redesign)
@@ -779,6 +753,13 @@ module PdfFill
         @form_data['policeReportOverflow'] = police_events.map do |event|
           event.slice(*%w[agency city state township country])
         end
+      end
+
+      def process_unlisted_reports(unlisted_reports, extras_redesign)
+        return if unlisted_reports.empty?
+
+        @form_data['reportsDetails']['other'] = unlisted_reports.join('; ')
+        @form_data['reportsDetails']['otherOverflow'] = unlisted_reports if extras_redesign
       end
 
       def process_treatment_dates
@@ -801,7 +782,7 @@ module PdfFill
 
         process_standard_behaviors(behaviors_details, extras_redesign)
 
-        process_additional_behaviors_details(behaviors_details['unlisted'], extras_redesign)
+        @form_data['additionalBehaviorsDetails'] = behaviors_details['unlisted']
       end
 
       def process_standard_behaviors(behaviors_details, extras_redesign)
@@ -817,17 +798,6 @@ module PdfFill
           @form_data['behaviorsDetails'].select { |item| item['additionalInfo'].blank? }.each do |item|
             item['description'] = nil
           end
-        end
-      end
-
-      def process_additional_behaviors_details(unlisted, extras_redesign)
-        additional = { 'additionalInfo' => unlisted }
-        if extras_redesign
-          additional['checked'] = @form_data['behaviors'].try(:[], 'unlisted') || false
-          additional['description'] = 'Additional behavioral changes'
-          @form_data['additionalBehaviorsDetails'] = [additional]
-        else
-          @form_data['additionalBehaviorsDetails'] = additional
         end
       end
 
