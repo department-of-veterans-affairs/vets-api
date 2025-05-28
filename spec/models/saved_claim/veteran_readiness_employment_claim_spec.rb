@@ -166,7 +166,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       context "with #{form_type}" do
         let(:claim) { create_claim(form_type) }
 
-
         it 'calls the VA notify email job' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
             user.va_profile_email,
