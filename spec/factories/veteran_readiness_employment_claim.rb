@@ -59,7 +59,7 @@ FactoryBot.define do
       {
         'mainPhone' => '2222222222',
         'cellPhone' => '3333333333',
-        'internationalPhone' => '+4444444444',
+        'internationalNumber' => '+4444444444',
         'email' => 'email@test.com',
         'newAddress' => {
           'country' => 'USA',
