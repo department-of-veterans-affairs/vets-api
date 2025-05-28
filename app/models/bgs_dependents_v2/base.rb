@@ -92,6 +92,8 @@ module BGSDependentsV2
     end
 
     def generate_address(address)
+      return if address.blank?
+
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
         address['military_postal_code'] = v2? ? address.delete('state') : address.delete('state_code')
