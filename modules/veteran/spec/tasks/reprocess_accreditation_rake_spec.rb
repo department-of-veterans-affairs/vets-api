@@ -47,10 +47,10 @@ RSpec.describe 'veteran:accreditation:reprocess', type: :task do
       expect(reloader).to have_received(:instance_variable_set).with(:@manual_reprocess_types, [:attorneys])
     end
 
-    it 'overrides validate_count method' do
+    it 'overrides valid_count? method' do
       task.invoke('attorneys,vso_representatives')
 
-      expect(reloader).to have_received(:define_singleton_method).with(:validate_count)
+      expect(reloader).to have_received(:define_singleton_method).with(:valid_count?)
     end
 
     it 'calls perform on the reloader' do
@@ -76,7 +76,7 @@ RSpec.describe 'veteran:accreditation:reprocess', type: :task do
     end
   end
 
-  describe 'validate_count override behavior' do
+  describe 'valid_count? override behavior' do
     it 'allows manual override for specified types' do
       # This tests the actual override logic
       reloader = Veteran::VSOReloader.new
@@ -84,7 +84,7 @@ RSpec.describe 'veteran:accreditation:reprocess', type: :task do
       reloader.instance_variable_set(:@validation_results, {})
 
       # Define the override method as the rake task does
-      reloader.define_singleton_method(:validate_count) do |rep_type, new_count|
+      reloader.define_singleton_method(:valid_count?) do |rep_type, new_count|
         if @manual_reprocess_types.include?(rep_type)
           @validation_results[rep_type] = new_count
           true
@@ -94,7 +94,7 @@ RSpec.describe 'veteran:accreditation:reprocess', type: :task do
       end
 
       # Test that manual types bypass validation
-      expect(reloader.validate_count(:attorneys, 50)).to be true
+      expect(reloader.valid_count?(:attorneys, 50)).to be true
       expect(reloader.instance_variable_get(:@validation_results)[:attorneys]).to eq(50)
     end
   end

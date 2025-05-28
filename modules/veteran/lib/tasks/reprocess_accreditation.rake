@@ -27,7 +27,7 @@ namespace :veteran do
       reloader.instance_variable_set(:@manual_reprocess_types, rep_types)
 
       # Override validation for manual reprocessing
-      reloader.define_singleton_method(:validate_count) do |rep_type, new_count|
+      reloader.define_singleton_method(:valid_count?) do |rep_type, new_count|
         if @manual_reprocess_types.include?(rep_type)
           puts "Manual override: Processing #{rep_type} with count #{new_count}"
           @validation_results[rep_type] = new_count

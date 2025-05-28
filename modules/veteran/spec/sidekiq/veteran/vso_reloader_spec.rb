@@ -193,15 +193,15 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       )
     end
 
-    describe '#validate_count' do
+    describe '#valid_count?' do
       before { reloader.send(:ensure_initial_counts) }
 
       it 'allows updates when count increases' do
-        expect(reloader.send(:validate_count, :attorneys, 110)).to be true
+        expect(reloader.send(:valid_count?, :attorneys, 110)).to be true
       end
 
       it 'allows updates when count stays the same' do
-        expect(reloader.send(:validate_count, :attorneys, 100)).to be true
+        expect(reloader.send(:valid_count?, :attorneys, 100)).to be true
       end
 
       it 'blocks updates when decrease exceeds threshold' do
@@ -209,12 +209,12 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(SlackNotify::Client).to receive(:new).with(
           hash_including(channel: '#benefits-representation-management-notifications')
         ).and_return(double(notify: true))
-        expect(reloader.send(:validate_count, :attorneys, 70)).to be false
+        expect(reloader.send(:valid_count?, :attorneys, 70)).to be false
       end
 
       it 'allows updates when decrease is within threshold' do
         # 80 attorneys is a 20% decrease, which is within 25% threshold
-        expect(reloader.send(:validate_count, :attorneys, 80)).to be true
+        expect(reloader.send(:valid_count?, :attorneys, 80)).to be true
       end
 
       context 'with no previous count' do
@@ -234,7 +234,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           fresh_reloader.send(:ensure_initial_counts)
 
           allow_any_instance_of(SlackNotify::Client).to receive(:notify)
-          expect(fresh_reloader.send(:validate_count, :attorneys, 50)).to be true
+          expect(fresh_reloader.send(:valid_count?, :attorneys, 50)).to be true
         end
       end
 
@@ -335,7 +335,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         it 'updates all representative types' do
           VCR.use_cassette('veteran/ogc_poa_data') do
             # Mock validation to always pass and set the validation results
-            allow_any_instance_of(Veteran::VSOReloader).to receive(:validate_count) do |instance, rep_type, new_count|
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
               instance.instance_variable_get(:@validation_results)[rep_type] = new_count
               true
             end
@@ -355,7 +355,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         it 'only updates types that pass validation' do
           VCR.use_cassette('veteran/ogc_poa_data') do
             # Mock validation with proper result setting
-            allow_any_instance_of(Veteran::VSOReloader).to receive(:validate_count) do |instance, rep_type, new_count|
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
               if rep_type == :attorneys
                 instance.instance_variable_get(:@validation_results)[rep_type] = nil
                 false
@@ -365,7 +365,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
               end
             end
 
-            # Don't expect the Slack notification since we're mocking validate_count entirely
+            # Don't expect the Slack notification since we're mocking valid_count? entirely
 
             reloader.perform
 

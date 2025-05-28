@@ -88,8 +88,8 @@ module Veteran
       counts = calculate_vso_counts(vso_data)
 
       # Validate both counts
-      process_vso_reps = validate_count(:vso_representatives, counts[:reps])
-      process_vso_orgs = validate_count(:vso_organizations, counts[:orgs])
+      process_vso_reps = valid_count?(:vso_representatives, counts[:reps])
+      process_vso_orgs = valid_count?(:vso_organizations, counts[:orgs])
 
       if process_vso_reps
         process_vso_data(vso_data, process_vso_orgs)
@@ -121,7 +121,7 @@ module Veteran
       data = fetch_data(endpoint)
       new_count = data.count { |record| record['Registration Num'].present? }
 
-      if validate_count(rep_type, new_count)
+      if valid_count?(rep_type, new_count)
         data.map do |record|
           processor.call(record) if record['Registration Num'].present?
           record['Registration Num']
@@ -197,7 +197,7 @@ module Veteran
       @validation_results ||= {}
     end
 
-    def validate_count(rep_type, new_count)
+    def valid_count?(rep_type, new_count)
       previous_count = get_previous_count(rep_type)
 
       # If no previous count exists, allow the update
