@@ -237,7 +237,7 @@ RSpec.describe BGSV2::VnpVeteran do
                 {},
                 { team: 'vfs-ebenefits' }
               )
-              expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
+              expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678')) # rubocop:disable Layout/LineLength
               vnp_veteran.create
             end
           end
@@ -260,7 +260,7 @@ RSpec.describe BGSV2::VnpVeteran do
                 {},
                 { team: 'vfs-ebenefits' }
               )
-              expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
+              expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********')) # rubocop:disable Layout/LineLength
               vnp_veteran.create
             end
           end

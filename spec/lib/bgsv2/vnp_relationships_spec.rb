@@ -180,10 +180,10 @@ RSpec.describe BGSV2::VnpRelationships do
 
           dependent_array = [spouse]
           dependents = BGSV2::VnpRelationships.new(proc_id:,
-                                                 veteran: veteran_hash,
-                                                 dependents: dependent_array,
-                                                 step_children: [],
-                                                 user: user_object).create_all
+                                                   veteran: veteran_hash,
+                                                   dependents: dependent_array,
+                                                   step_children: [],
+                                                   user: user_object).create_all
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',

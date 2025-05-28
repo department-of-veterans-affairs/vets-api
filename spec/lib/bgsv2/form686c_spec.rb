@@ -56,7 +56,7 @@ RSpec.describe BGSV2::Form686c do
                 expect_any_instance_of(BGSV2::BenefitClaim).to receive(:create).and_call_original
                 expect_any_instance_of(BGSV2::VnpBenefitClaim).to receive(:update).and_call_original
                 expect_any_instance_of(BGSV2::Service).to receive(:update_proc).with('3831475',
-                                                                                   { proc_state: 'MANUAL_VAGOV' })
+                                                                                     { proc_state: 'MANUAL_VAGOV' })
                 expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
                 expect_any_instance_of(BGSV2::Service).to receive(:create_note).with(
                   '600210032',
@@ -114,7 +114,7 @@ RSpec.describe BGSV2::Form686c do
               VCR.use_cassette('bid/awards/get_awards_pension') do
                 VCR.use_cassette('bgs/service/create_note') do
                   expect_any_instance_of(BGSV2::Service).to receive(:update_proc).with('3831475',
-                                                                                     { proc_state: 'MANUAL_VAGOV' })
+                                                                                       { proc_state: 'MANUAL_VAGOV' })
                   expect_any_instance_of(BGSV2::Service).to receive(:create_note).with(
                     '600210032',
                     'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
@@ -165,7 +165,7 @@ RSpec.describe BGSV2::Form686c do
                 expect_any_instance_of(BGSV2::BenefitClaim).to receive(:create).and_call_original
                 expect_any_instance_of(BGSV2::VnpBenefitClaim).to receive(:update).and_call_original
                 expect_any_instance_of(BGSV2::Service).to receive(:update_proc).with('3831475',
-                                                                                   { proc_state: 'MANUAL_VAGOV' })
+                                                                                     { proc_state: 'MANUAL_VAGOV' })
                 expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
                 expect_any_instance_of(BGSV2::Service).to receive(:create_note).with(
                   '600210032',
@@ -223,7 +223,7 @@ RSpec.describe BGSV2::Form686c do
               VCR.use_cassette('bid/awards/get_awards_pension') do
                 VCR.use_cassette('bgs/service/create_note') do
                   expect_any_instance_of(BGSV2::Service).to receive(:update_proc).with('3831475',
-                                                                                     { proc_state: 'MANUAL_VAGOV' })
+                                                                                       { proc_state: 'MANUAL_VAGOV' })
                   expect_any_instance_of(BGSV2::Service).to receive(:create_note).with(
                     '600210032',
                     'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
