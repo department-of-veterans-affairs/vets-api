@@ -34,21 +34,24 @@ module CheckIn
         appointment_date:,
         template_id:,
         facility_type: redis_client.facility_type(uuid:),
-        claim_number_last_four:
+        claim_number_last_four:,
+        uuid:
       }
 
-      return self.class.log_failure(opts) unless validate_required_fields(opts)
+      # Early returns here because there is no sense in retrying if the required fields are missing
+      return self.class.log_retries_exhausted_failure(opts) unless required_fields_present?(opts)
 
-      log_sending_travel_claim_notification(opts)
+      parsed_date = parse_appointment_date(opts)
+      return self.class.log_retries_exhausted_failure(opts) if parsed_date.nil?
 
       begin
-        parsed_date = parse_appointment_date(opts[:appointment_date])
-        return self.class.log_failure(opts) if parsed_date.nil?
-
+        log_sending_travel_claim_notification(opts)
         va_notify_send_sms(opts, parsed_date)
-        StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
+        log_success(opts)
       rescue => e
         log_send_sms_failure(e.message, opts)
+
+        # Explicit re-raise to trigger the retry mechanism
         raise e
       end
     end
@@ -57,7 +60,7 @@ module CheckIn
     # @param job [Hash] The Sidekiq job hash containing job metadata
     # @param ex [Exception] The exception that caused the job to fail
     sidekiq_retries_exhausted do |job, ex|
-      CheckIn::TravelClaimNotificationJob.handle_error(job, ex)
+      CheckIn::TravelClaimNotificationJob.handle_retries_exhausted_failure(job, ex)
     end
 
     # Handles errors after all retries have been exhausted
@@ -68,7 +71,7 @@ module CheckIn
     # @param job [Hash] The Sidekiq job hash containing job metadata
     # @param ex [Exception] The exception that caused the job to fail
     # @return [void]
-    def self.handle_error(job, ex)
+    def self.handle_retries_exhausted_failure(job, ex)
       uuid = job.dig('args', 0)
       template_id = job.dig('args', 2)
       claim_number = job.dig('args', 3)
@@ -87,7 +90,7 @@ module CheckIn
       )
 
       facility_type = determine_facility_type_from_template(template_id)
-      log_failure({ template_id:, facility_type: })
+      log_retries_exhausted_failure({ template_id:, facility_type: })
     end
 
     # Determines facility type based on template ID
@@ -103,7 +106,7 @@ module CheckIn
       end
     end
 
-    def self.log_failure(opts)
+    def self.log_retries_exhausted_failure(opts)
       template_id = opts&.dig(:template_id) || (opts.is_a?(String) ? opts : nil)
       facility_type = opts&.dig(:facility_type)
 
@@ -123,6 +126,8 @@ module CheckIn
       end
 
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
+
+      # Explicit return here to be sure retry doesn't trigger.
       nil
     end
 
@@ -132,9 +137,13 @@ module CheckIn
     #
     # @param opts [Hash] Options hash containing job parameters
     # @return [Boolean] true if all required fields are present, false otherwise
-    def validate_required_fields(opts)
+    def required_fields_present?(opts)
       missing_fields = missing_required_fields(opts)
-      missing_fields.empty?
+      return true if missing_fields.empty?
+
+      error_message = "missing #{missing_fields.join(', ')}"
+      log_send_sms_failure(error_message, opts)
+      false
     end
 
     # Checks for missing required fields and logs if any are missing
@@ -146,17 +155,8 @@ module CheckIn
       REQUIRED_FIELDS.each do |field|
         missing_data << field.to_s if opts&.dig(field).blank?
       end
-      log_missing_fields(missing_data) if missing_data.any?
-      missing_data
-    end
 
-    # Logs information about missing fields and increments failure metrics
-    #
-    # @param missing_data [Array<String>] List of missing field names
-    # @return [void]
-    def log_missing_fields(missing_data)
-      missing_data = missing_data.join(', ')
-      logger.info({ message: "TravelClaimNotificationJob failed without retry: missing #{missing_data}" })
+      missing_data
     end
 
     # Parses the appointment date string into a Date object
@@ -164,12 +164,11 @@ module CheckIn
     #
     # @param date_string [String] Appointment date in YYYY-MM-DD format
     # @return [Date, nil] Parsed date if format is valid, nil otherwise
-    def parse_appointment_date(date_string)
+    def parse_appointment_date(opts)
+      date_string = opts[:appointment_date]
       DateTime.strptime(date_string.to_s, '%Y-%m-%d').to_date
     rescue
-      logger.info({ message: 'TravelClaimNotificationJob failed without retry: invalid appointment date format' })
-
-      # return nil to end job without retrying
+      log_send_sms_failure('invalid appointment date format', opts)
       nil
     end
 
@@ -187,11 +186,12 @@ module CheckIn
     def log_sending_travel_claim_notification(opts)
       phone_last_four = opts[:mobile_phone].delete('^0-9').last(4)
       template_id = opts[:template_id]
+      uuid = opts[:uuid]
 
       log_message_and_context = {
-        message: "Sending travel claim notification to #{phone_last_four}, #{template_id}",
+        message: "Sending Travel Claim Notification SMS for #{uuid}",
         phone_last_four:,
-        template_id:
+        template_id:,
       }.compact
 
       logger.info(log_message_and_context)
@@ -225,9 +225,32 @@ module CheckIn
     # @param error_message [String] Error message to log
     # @param opts [Hash] Options hash containing job parameters
     # @return [void]
+    #
+    # NOTE: Don't increment StatsD failure yet, this occurs once the job has run through it's retries
     def log_send_sms_failure(error_message, opts)
+      phone_number = opts[:mobile_phone]
+      phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
+      template_id = opts[:template_id]
+      uuid = opts[:uuid]
+      logger.info({
+                    message: "Failed to send Travel Claim Notification SMS for #{uuid}: #{error_message}",
+                    template_id:,
+                    phone_last_four:
+                  })
+    end
+
+    # Logs information about successful SMS sending
+    #
+    # @param opts [Hash] Options hash containing job parameters
+    # @return [void]
+    def log_success(opts)
       phone_last_four = opts[:mobile_phone].delete('^0-9').last(4)
-      logger.info({ message: "Failed to send SMS to #{phone_last_four}: #{error_message}" })
+      template_id = opts[:template_id]
+      uuid = opts[:uuid]
+      logger.info({ message: "Successfully sent Travel Claim Notification SMS for #{uuid}",
+                    template_id:,
+                    phone_last_four: })
+      StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
   end
 end
