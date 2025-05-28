@@ -15,7 +15,7 @@ module VBADocuments
 
     def set_sentry_tags_and_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'vba_documents' }
-      Sentry.set_tags(source: 'vba_documents')
+      #Sentry.set_tags(source: 'vba_documents')
     end
 
     def consumer
