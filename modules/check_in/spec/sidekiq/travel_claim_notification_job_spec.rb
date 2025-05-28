@@ -68,7 +68,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
       expect(test_logger).to receive(:info).with(
         hash_including(
-          message: "Failed to send Travel Claim Notification SMS for #{uuid}: missing mobile_phone",
+          message: "Failed to send Travel Claim Notification SMS for #{uuid}: missing mobile_phone, Won't Retry",
           phone_last_four: 'unknown',
           template_id:
         )
@@ -94,7 +94,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
       expect(test_logger).to receive(:info).with(
         hash_including(
-          message: "Failed to send Travel Claim Notification SMS for #{uuid}: invalid appointment date format",
+          message: "Failed to send Travel Claim Notification SMS for #{uuid}: invalid appointment date format, Won't Retry",
           phone_last_four: '0123',
           template_id:
         )

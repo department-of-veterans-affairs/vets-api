@@ -29,6 +29,7 @@ module CheckIn
     # @return [void]
     def perform(uuid, appointment_date, template_id, claim_number_last_four)
       redis_client = TravelClaim::RedisClient.build
+
       opts = {
         mobile_phone: redis_client.patient_cell_phone(uuid:) || redis_client.mobile_phone(uuid:),
         appointment_date:,
@@ -38,18 +39,18 @@ module CheckIn
         uuid:
       }
 
-      # Early returns here because there is no sense in retrying if the required fields are missing
-      return self.class.log_retries_exhausted_failure(opts) unless required_fields_present?(opts)
+      # Early return here because there is no sense in retrying if the required fields are missing
+      return false unless required_fields_valid?(opts)
 
       parsed_date = parse_appointment_date(opts)
-      return self.class.log_retries_exhausted_failure(opts) if parsed_date.nil?
+      return false if parsed_date.nil?
 
       begin
         log_sending_travel_claim_notification(opts)
         va_notify_send_sms(opts, parsed_date)
         log_success(opts)
       rescue => e
-        log_send_sms_failure(e.message, opts)
+        self.class.log_send_sms_failure(e.message, opts, logger)
 
         # Explicit re-raise to trigger the retry mechanism
         raise e
@@ -90,7 +91,7 @@ module CheckIn
       )
 
       facility_type = determine_facility_type_from_template(template_id)
-      log_retries_exhausted_failure({ template_id:, facility_type: })
+      log_failure_no_retry('Retries exhausted', { template_id:, facility_type: })
     end
 
     # Determines facility type based on template ID
@@ -106,7 +107,7 @@ module CheckIn
       end
     end
 
-    def self.log_retries_exhausted_failure(opts)
+    def self.log_failure_no_retry(message, opts, logger_instance = Rails.logger)
       template_id = opts&.dig(:template_id) || (opts.is_a?(String) ? opts : nil)
       facility_type = opts&.dig(:facility_type)
 
@@ -126,9 +127,31 @@ module CheckIn
       end
 
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
+      failure_message = "#{message}, Won't Retry"
+      log_send_sms_failure(failure_message, opts, logger_instance)
 
       # Explicit return here to be sure retry doesn't trigger.
-      nil
+      true
+    end
+
+    # Logs information about SMS sending failures
+    #
+    # @param error_message [String] Error message to log
+    # @param opts [Hash] Options hash containing job parameters
+    # @param logger_instance [Logger] Logger instance to use (defaults to Rails.logger for class method calls)
+    # @return [void]
+    #
+    # NOTE: Don't increment StatsD failure yet, this occurs once the job has run through it's retries
+    def self.log_send_sms_failure(error_message, opts, logger_instance = Rails.logger)
+      phone_number = opts[:mobile_phone]
+      phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
+      template_id = opts[:template_id]
+      uuid = opts[:uuid]
+      logger_instance.info({
+                             message: "Failed to send Travel Claim Notification SMS for #{uuid}: #{error_message}",
+                             template_id:,
+                             phone_last_four:
+                           })
     end
 
     private
@@ -137,12 +160,13 @@ module CheckIn
     #
     # @param opts [Hash] Options hash containing job parameters
     # @return [Boolean] true if all required fields are present, false otherwise
-    def required_fields_present?(opts)
+    def required_fields_valid?(opts)
       missing_fields = missing_required_fields(opts)
+
       return true if missing_fields.empty?
 
       error_message = "missing #{missing_fields.join(', ')}"
-      log_send_sms_failure(error_message, opts)
+      self.class.log_failure_no_retry(error_message, opts, logger)
       false
     end
 
@@ -151,12 +175,12 @@ module CheckIn
     # @param opts [Hash] Options hash containing job parameters
     # @return [Array<String>] List of missing field names
     def missing_required_fields(opts)
-      missing_data = []
+      missing_fields = []
       REQUIRED_FIELDS.each do |field|
-        missing_data << field.to_s if opts&.dig(field).blank?
+        missing_fields << field.to_s if opts&.dig(field).blank?
       end
 
-      missing_data
+      missing_fields
     end
 
     # Parses the appointment date string into a Date object
@@ -168,7 +192,7 @@ module CheckIn
       date_string = opts[:appointment_date]
       DateTime.strptime(date_string.to_s, '%Y-%m-%d').to_date
     rescue
-      log_send_sms_failure('invalid appointment date format', opts)
+      self.class.log_failure_no_retry('invalid appointment date format', opts, logger)
       nil
     end
 
@@ -218,25 +242,6 @@ module CheckIn
       personalisation = { claim_number: claim_number_last_four, appt_date: formatted_date }
 
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
-    end
-
-    # Logs information about SMS sending failures
-    #
-    # @param error_message [String] Error message to log
-    # @param opts [Hash] Options hash containing job parameters
-    # @return [void]
-    #
-    # NOTE: Don't increment StatsD failure yet, this occurs once the job has run through it's retries
-    def log_send_sms_failure(error_message, opts)
-      phone_number = opts[:mobile_phone]
-      phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
-      template_id = opts[:template_id]
-      uuid = opts[:uuid]
-      logger.info({
-                    message: "Failed to send Travel Claim Notification SMS for #{uuid}: #{error_message}",
-                    template_id:,
-                    phone_last_four:
-                  })
     end
 
     # Logs information about successful SMS sending
