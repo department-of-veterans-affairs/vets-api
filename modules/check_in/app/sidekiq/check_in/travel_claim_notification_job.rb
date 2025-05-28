@@ -40,14 +40,14 @@ module CheckIn
       begin
         va_notify_send_sms(opts, parsed_date)
       rescue => e
-        message = "Failed to send Travel Claim Notification SMS for #{uuid}: #{e.message}"
+        message = "Failed to send Travel Claim Notification SMS: #{e.message}"
         self.class.log_sms_attempt(opts, logger, message)
 
         # Explicit re-raise to trigger the retry mechanism
         raise e
       end
 
-      message = "Successfully sent Travel Claim Notification SMS for #{uuid}"
+      message = 'Successfully sent Travel Claim Notification SMS'
       self.class.log_sms_attempt(opts, logger, message)
       StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
@@ -130,7 +130,7 @@ module CheckIn
       end
 
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
-      failure_message = "Failed to send Travel Claim Notification SMS for #{opts[:uuid]}: #{message}, Won't Retry"
+      failure_message = "Failed to send Travel Claim Notification SMS: #{message}, Won't Retry"
       log_sms_attempt(opts, logger_instance, failure_message)
 
       # Explicit return here to be sure retry doesn't trigger.
@@ -150,8 +150,9 @@ module CheckIn
       phone_number = opts[:mobile_phone]
       phone_last_four = phone_number ? phone_number.delete('^0-9').last(4) : 'unknown'
       template_id = opts[:template_id]
+      uuid = opts[:uuid]
 
-      logger_instance.info({ message:, template_id:, phone_last_four: })
+      logger_instance.info({ message:, uuid:, template_id:, phone_last_four: })
     end
 
     private
@@ -224,7 +225,7 @@ module CheckIn
       claim_number_last_four = opts[:claim_number_last_four].presence || 'unknown'
       personalisation = { claim_number: claim_number_last_four, appt_date: formatted_date }
 
-      message = "Sending Travel Claim Notification SMS for #{opts[:uuid]}"
+      message = 'Sending Travel Claim Notification SMS'
       self.class.log_sms_attempt(opts, logger, message)
       notify_client.send_sms(phone_number:, template_id:, sms_sender_id:, personalisation:)
     end
