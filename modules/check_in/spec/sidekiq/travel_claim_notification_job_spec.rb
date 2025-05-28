@@ -89,12 +89,13 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
     it 'skips SMS sending and logs when appointment date is invalid' do
       invalid_date = 'invalid-date'
       job = described_class.new
+      message = "Failed to send Travel Claim Notification SMS for #{uuid}: invalid appointment date format, Won't Retry"
 
       expect(notify_client).not_to receive(:send_sms)
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_ERROR)
       expect(test_logger).to receive(:info).with(
         hash_including(
-          message: "Failed to send Travel Claim Notification SMS for #{uuid}: invalid appointment date format, Won't Retry",
+          message:,
           phone_last_four: '0123',
           template_id:
         )
