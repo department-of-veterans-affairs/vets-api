@@ -31,15 +31,22 @@ Some applications in vets-api organize their code into Rails Engines, which we r
 - When invoking a feature toggle in a test, don't disable or enable it. Mock it instead, using this format for enabling a flipper: `allow(Flipper).to receive(:enabled?).with(:feature_flag).and_return(true)`
 
 ## Utilities
-- Common gems: Sidekiq, Faraday.
+- Faraday: The primary HTTP client for all external API calls. Use Faraday in service objects, and ensure requests are properly instrumented.
+- Breakers: Implements the circuit breaker pattern to protect critical external service calls from cascading failures. Use in service configuration.
+- Betamocks: Used to mock external HTTP services in development and test environments. Use betamocks to simulate API responses and enable reliable testing without real network requests.
 - Custom helpers in `app/lib`.
+
+## Migrations
+- Data migrations must be included as a rake task outside of rails database migrations.
+- Index updates must always be included in a migration file by itself.
+- Index updates must be performed with the concurrently algorithm and outside of the DDL transaction to avoid locking.
 
 ## Code Quality
 - Runs RuboCop for linting.
 - Document complex logic with comments.
 
 ## Security
-- Don't log anything that could contain PII or sensitive data, including an entire response_body.
+- Don't log anything that could contain PII or sensitive data, including an entire response_body and `user.icn`.
 - Never commit secrets or keys.
 
 ## Adding Features
