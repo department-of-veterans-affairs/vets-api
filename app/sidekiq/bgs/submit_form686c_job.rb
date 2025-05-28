@@ -12,6 +12,8 @@ module BGS
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
+    STATS_KEY = 'worker.submit_686c_bgs'
+
     # retry for  2d 1h 47m 12s
     # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
     sidekiq_options retry: 16
@@ -21,28 +23,27 @@ module BGS
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
 
       monitor = ::Dependents::Monitor.new(saved_claim_id)
-      monitor.form_686_job_exhaustion(user_uuid, icn, msg)
+      monitor.track_event('error',
+                          "BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
+                          'worker.submit_686c_bgs.exhaustion', { icn: })
 
       BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
-    rescue => e
-      monitor = ::Dependents::Monitor.new(saved_claim_id)
-      monitor.form_686_job_backup_submission_failure({ user_uuid:, icn:, e:, msg: })
     end
 
     # method length lint disabled because this will be cut in half when flipper is removed
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info) # rubocop:disable Metrics/MethodLength
-      monitor(saved_claim_id).form_686_job_begin(user_uuid, icn)
+      monitor(saved_claim_id).track_event('info', 'BGS::SubmitForm686cJob running!', "#{STATS_KEY}.begin", { icn: })
       instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
 
       if Flipper.enabled?(:dependents_separate_confirmation_email)
         submit_686c
+        @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success", { icn: })
 
         if claim.submittable_674?
           enqueue_674_job(encrypted_vet_info)
         else
           # if no 674, form submission is complete
           send_686c_confirmation_email
-          monitor(saved_claim_id).form_686_job_success(user_uuid, icn)
           InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
         end
       else
@@ -50,13 +51,14 @@ module BGS
 
         send_confirmation_email
 
-        monitor(saved_claim_id).form_686_job_success(user_uuid, icn)
+        @monitor.track_event('info', 'BGS::SubmitForm686cJob succeeded!', "#{STATS_KEY}.success", { icn: })
         InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:) unless claim.submittable_674?
       end
     rescue => e
       handle_filtered_errors!(e:, encrypted_vet_info:)
 
-      monitor(saved_claim_id).form_686_job_failure(user_uuid, icn, e.message, e.cause&.message)
+      @monitor.track_event('warn', 'BGS::SubmitForm686cJob received error, retrying...', "#{STATS_KEY}.failure",
+                           { icn:, error: e.message, nested_error: e.cause&.message })
       raise
     end
 
@@ -64,7 +66,8 @@ module BGS
       filter = FILTERED_ERRORS.any? { |filtered| e.message.include?(filtered) || e.cause&.message&.include?(filtered) }
       return unless filter
 
-      monitor(saved_claim_id).form_686_job_skip_retries(user_uuid, icn, e.message, e.cause&.message)
+      @monitor.track_event('warn', 'BGS::SubmitForm686cJob received error, skipping retries...',
+                           "#{STATS_KEY}.skip_retries", { icn:, error: e.message, nested_error: e.cause&.message })
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       self.class.send_backup_submission(vet_info, saved_claim_id, user_uuid)
@@ -107,7 +110,8 @@ module BGS
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       monitor = Dependents::Monitor.new(saved_claim_id)
-      monitor.form_686_job_backup_submission_failure({ user_uuid:, error: e.message, nested_error: e.cause&.message })
+      monitor.track_event('error', 'BGS::SubmitForm686cJob backup submission failed...',
+                          "#{STATS_KEY}.backup_failure", { error: e.message, nested_error: e.cause&.message })
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
 
