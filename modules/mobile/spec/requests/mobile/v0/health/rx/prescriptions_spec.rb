@@ -472,6 +472,25 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                                                               })
       end
     end
+
+    context 'when non va medications are present' do
+      it 'sets the has_non_va_meds flag to true' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_v1') do
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+        end
+        expect(response.parsed_body['meta']['hasNonVaMeds']).to be(true)
+      end
+    end
+
+    context 'when non va medications are not present' do
+      it 'sets the has_non_va_meds flag to false' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_filtered_v1') do
+          get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
+        end
+        puts response.parsed_body.as_json
+        expect(response.parsed_body['meta']['hasNonVaMeds']).to be(false)
+      end
+    end
   end
 
   describe 'GET /mobile/v0/health/rx/prescriptions/:id/tracking', :aggregate_failures do
