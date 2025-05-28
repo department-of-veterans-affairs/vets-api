@@ -19,7 +19,7 @@ module MyHealth
         resource.data = resource_data_modifications(resource)
         filter_count = set_filter_metadata(resource.data, raw_data)
         resource = apply_filters(resource) if params[:filter].present?
-        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
+        resource = apply_sorting(resource, params[:sort])
         resource.data = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
