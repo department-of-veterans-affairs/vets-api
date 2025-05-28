@@ -47,7 +47,9 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data without contacts, providers, or dependents' do
-          expect_veteran_data_to_match(veteran_data.except('providers', 'dependents', 'nextOfKins', 'emergencyContacts'))
+          expect_veteran_data_to_match(
+            veteran_data.except('providers', 'dependents', 'nextOfKins', 'emergencyContacts')
+          )
         end
       end
     end

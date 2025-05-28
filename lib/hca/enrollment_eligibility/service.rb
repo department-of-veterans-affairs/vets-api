@@ -73,15 +73,7 @@ module HCA
         end
 
         if Flipper.enabled?(:ezr_prefill_contacts)
-          contacts = {
-            nextOfKins: ['Primary Next of Kin', 'Other Next of Kin'],
-            emergencyContacts: ['Emergency Contact', 'Other emergency contact']
-          }
-        
-          contacts.each do |key, types|
-            selected = parse_contacts(response).select { |c| types.include?(c[:contactType]) }
-            ezr_data[key] = selected if selected.present?
-          end
+          add_contacts_to_ezr_data(ezr_data, response)
         end
 
         OpenStruct.new(ezr_data)
@@ -502,6 +494,20 @@ module HCA
         )
 
         income_year == (DateTime.now.utc.year - 1).to_s
+      end
+
+      def add_contacts_to_ezr_data(ezr_data, response)
+        contacts = {
+          nextOfKins: ['Primary Next of Kin', 'Other Next of Kin'],
+          emergencyContacts: ['Emergency Contact', 'Other emergency contact']
+        }
+        
+        contacts.each do |key, types|
+          selected = parse_contacts(response).select { |c| types.include?(c[:contactType]) }
+          ezr_data[key] = selected if selected.present?
+        end
+
+        ezr_data
       end
       # rubocop:enable Metrics/MethodLength
     end
