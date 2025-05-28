@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/service'
+require 'bgsv2/service'
 
 RSpec.describe BGSV2::Service do
   let(:user_object) { create(:evss_user, :loa3) }
-  let(:bgs_service) { BGS::Service.new(user_object) }
+  let(:bgs_service) { BGSV2::Service.new(user_object) }
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
   let(:first_name) { 'abraham.lincoln@vets.gov' }
@@ -63,7 +63,7 @@ RSpec.describe BGSV2::Service do
     context 'errors' do
       it 'raises a BGS::ServiceException exception' do
         VCR.use_cassette('bgs/service/errors/create_participant') do
-          expect { bgs_service.create_participant('invalid_proc_id') }.to raise_error(BGS::ServiceException)
+          expect { bgs_service.create_participant('invalid_proc_id') }.to raise_error(BGSV2::ServiceException)
         end
       end
 
