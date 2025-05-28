@@ -47,7 +47,8 @@ module CheckIn
         raise e
       end
 
-      message = 'Successfully sent Travel Claim Notification SMS'
+      # Log API request success (not delivery success - that would require VA Notify callbacks)
+      message = 'Travel Claim Notification SMS API request succeeded'
       self.class.log_sms_attempt(opts, logger, message)
       StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end

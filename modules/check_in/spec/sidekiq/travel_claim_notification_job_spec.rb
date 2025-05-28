@@ -30,7 +30,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   end
 
   describe '#perform' do
-    it 'successfully sends SMS notification using the provided claim number' do
+    it 'successfully completes SMS notification API request using the provided claim number' do
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
         template_id:,
@@ -49,7 +49,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
 
       expect(test_logger).to receive(:info).with(
         hash_including(
-          message: 'Successfully sent Travel Claim Notification SMS',
+          message: 'Travel Claim Notification SMS API request succeeded',
           uuid:,
           phone_last_four: '0123',
           template_id:
@@ -80,10 +80,15 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       job.perform(uuid, appointment_date, template_id, claim_number)
     end
 
-    it "doesn't skip SMS sending and logs success when claim number is missing" do
+    it 'successfully completes SMS API request when claim number is missing' do
       job = described_class.new
 
       expect(notify_client).to receive(:send_sms)
+      expect(test_logger).to receive(:info).with(
+        hash_including(
+          message: 'Travel Claim Notification SMS API request succeeded'
+        )
+      )
       expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
 
       job.perform(uuid, appointment_date, template_id, nil)
@@ -171,7 +176,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   end
 
   describe 'retry configuration' do
-    it 'has MAX_RETRIES matching sidekiq_options retry setting' do
+    it 'has retry setting configured to 12' do
       sidekiq_retry_value = described_class.sidekiq_options_hash['retry']
       expect(sidekiq_retry_value).to eq(12)
     end
