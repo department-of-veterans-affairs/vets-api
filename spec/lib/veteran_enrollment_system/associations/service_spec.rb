@@ -5,7 +5,7 @@ require 'veteran_enrollment_system/associations/service'
 
 RSpec.describe VeteranEnrollmentSystem::Associations::Service do
   let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
-  let(:updated_veteran_contacts) do
+  let(:updated_next_of_kins) do
     [
       {
         'fullName' => {
@@ -48,7 +48,11 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
         },
         'primaryPhone' => '1238835546',
         'alternatePhone' => '2658350023'
-      },
+      }
+    ]
+  end
+  let(:updated_emergency_contacts) do
+    [
       {
         'fullName' => {
           'first' => 'UpdatedFirstECA',
@@ -91,24 +95,37 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       }
     ]
   end
+  def update_contacts(base_form, updates)
+    JSON.parse(base_form.to_json).merge(updates)
+  end
+
+  def modify_contacts(base_form, updates)
+    JSON.parse(base_form.to_json).tap do |f|
+      updates.each do |field, transform|
+        f[field] = f[field].map { |contact| transform.call(contact) }
+      end
+    end
+  end
+
   let(:update_associations_form) do
-    JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = updated_veteran_contacts
-    end
+    update_contacts(form, {
+      'nextOfKins' => updated_next_of_kins,
+      'emergencyContacts' => updated_emergency_contacts
+    })
   end
+  
   let(:delete_associations_form) do
-    JSON.parse(update_associations_form.to_json).tap do |f|
-      f['veteranContacts'] = f['veteranContacts'].map do |contact|
-        contact.deep_dup.merge('deleteIndicator' => true)
-      end
-    end
+    modify_contacts(update_associations_form, {
+      'nextOfKins' => ->(c) { c.deep_dup.merge('deleteIndicator' => true) },
+      'emergencyContacts' => ->(c) { c.deep_dup.merge('deleteIndicator' => true) }
+    })
   end
+  
   let(:missing_required_fields_form) do
-    JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = updated_veteran_contacts.map do |contact|
-        contact.except('contactType', 'relationship')
-      end
-    end
+    modify_contacts(form, {
+      'nextOfKins' => ->(c) { c.except('contactType', 'relationship') },
+      'emergencyContacts' => ->(c) { c.except('contactType', 'relationship') }
+    })
   end
   let(:current_user) do
     create(
@@ -182,7 +199,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       context "when the Associations API code returned is a 'partial_success'" do
         before do
           allow_any_instance_of(described_class).to receive(:reorder_associations).and_return(
-            update_associations_form['veteranContacts']
+            update_associations_form['nextOfKins'] + update_associations_form['emergencyContacts']
           )
         end
 
