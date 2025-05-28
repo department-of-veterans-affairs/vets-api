@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 71b49c2d04ab2edd8b5a582c03ab309bfc5500d2
+  revision: ebbcfc5d318132c70dc48419573dc934a3b0855c
   branch: master
   specs:
-    vets_json_schema (24.14.3)
+    vets_json_schema (24.15.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -202,7 +202,7 @@ GEM
       activemodel (= 7.2.2.1)
       activesupport (= 7.2.2.1)
       timeout (>= 0.4.0)
-    activerecord-import (2.1.0)
+    activerecord-import (2.2.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (10.0.1)
       activerecord (~> 7.2.0)
@@ -782,7 +782,7 @@ GEM
     optimist (3.2.0)
     os (1.1.4)
     ostruct (0.6.1)
-    ox (2.14.22)
+    ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
     parallel_tests (5.2.0)

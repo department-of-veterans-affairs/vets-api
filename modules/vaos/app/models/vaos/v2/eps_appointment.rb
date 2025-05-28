@@ -6,9 +6,9 @@ module VAOS
       attr_reader :id, :status, :patient_icn, :created, :location_id, :clinic,
                   :start, :is_latest, :last_retrieved, :contact, :referral_id,
                   :referral, :provider_service_id, :provider_name,
-                  :provider, :type_of_care, :provider_phone, :referring_facility_details
+                  :provider
 
-      def initialize(appointment_data = {}, referral = nil, provider = nil)
+      def initialize(appointment_data = {}, provider = nil)
         appointment_details = appointment_data[:appointment_details]
         referral_details = appointment_data[:referral]
 
@@ -26,10 +26,6 @@ module VAOS
         @referral = { referral_number: referral_details[:referral_number]&.to_s }
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
-
-        @type_of_care = referral&.category_of_care
-        @provider_phone = referral&.treating_facility_phone
-        @referring_facility_details = parse_referring_facility_details(referral)
         @provider = provider
       end
 
@@ -57,8 +53,7 @@ module VAOS
           id: provider.id,
           name: provider.provider_name,
           practice: provider.practice_name,
-          location: provider.location,
-          phone: provider_phone
+          location: provider.location
         }
 
         # Transform address fields if address exists
@@ -69,28 +64,6 @@ module VAOS
             city: provider.address[:city],
             state: provider.address[:state],
             zip: provider.address[:postal_code]
-          }.compact
-        end
-
-        result.compact
-      end
-
-      def parse_referring_facility_details(referral)
-        return {} if referral.nil?
-
-        result = {
-          name: referral.referring_facility_name,
-          phone: referral.referring_facility_phone
-        }
-
-        # Add address information if present
-        if referral.referring_facility_address.present?
-          result[:address] = {
-            street1: referral.referring_facility_address[:street1],
-            street2: referral.referring_facility_address[:street2],
-            city: referral.referring_facility_address[:city],
-            state: referral.referring_facility_address[:state],
-            zip: referral.referring_facility_address[:zip]
           }.compact
         end
 

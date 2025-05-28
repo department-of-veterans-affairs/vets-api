@@ -30,16 +30,10 @@ module MyHealth
       attribute :indication_for_use_flag
       attribute :category
       attribute :tracking_list do |object|
-        next [] unless object.tracking_list
-
-        tracking_list = object.tracking_list
-        tracking_list.dig(0, 1) || []
+        object&.tracking_list || []
       end
       attribute :rx_rf_records do |object|
-        next [] unless object.rx_rf_records
-
-        records = object.rx_rf_records
-        records.dig(0, 1) || []
+        object&.rx_rf_records || []
       end
       attribute :tracking
       attribute :orderable_item

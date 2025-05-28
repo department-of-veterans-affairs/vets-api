@@ -11,8 +11,6 @@ module Eps
 
     attribute :start, &:start
 
-    attribute :type_of_care, &:type_of_care
-
     attribute :is_latest, &:is_latest
 
     attribute :last_retrieved, &:last_retrieved
@@ -25,7 +23,5 @@ module Eps
     end
 
     attribute :provider, &:provider_details
-
-    attribute :referring_facility, &:referring_facility_details
   end
 end
