@@ -487,7 +487,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_filtered_v1') do
           get '/mobile/v0/health/rx/prescriptions', headers: sis_headers
         end
-        puts response.parsed_body.as_json
         expect(response.parsed_body['meta']['hasNonVaMeds']).to be(false)
       end
     end
