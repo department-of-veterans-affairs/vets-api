@@ -92,12 +92,8 @@ module PdfFill
         main_reader = PDF::Reader.new(old_file_path)
         original_page_count = main_reader.page_count
 
-        
-
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
-
-        add_destinations(file_path, original_page_count)
-        add_links(file_path, extras_generator, original_page_count)
+        add_annotations(file_path, extras_generator, original_page_count)
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -108,65 +104,59 @@ module PdfFill
       end
     end
 
-    def add_destinations(doc_path, original_page_count)
+    def add_annotations(doc_path, extras_generator, original_page_count)
       doc = HexaPDF::Document.open(doc_path)
+      add_destinations(doc, original_page_count)
+      add_links(doc, extras_generator, original_page_count)
+
+      doc.write(doc_path)
+      doc_path
+    end
+
+    def add_destinations(doc, original_page_count)
       names_array = []
       doc.pages.each_with_index do |page, i|
         unless i >= original_page_count
-          dest_name = "page_#{i+1}"
+          dest_name = "page_#{i + 1}"
           dest = doc.wrap([page, :XYZ, 0, 775, nil])
           names_array << dest_name
           names_array << dest
         end
       end
       doc.catalog[:Names] ||= doc.wrap({})
-      doc.catalog[:Names][:Dests] = doc.add({Names: names_array})
-      doc.write(doc_path)
-
-      doc_path
+      doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })
     end
 
-    def add_links(doc_path, extras_generator, original_page_count)
-      doc = HexaPDF::Document.open(doc_path)
-        
-        # Get the coordinates from the extras generator
-        if extras_generator.respond_to?(:section_coordinates)
-          extras_generator.section_coordinates.each do |coord|
-            # Calculate the correct page index
-            coord_page = coord[:page] + original_page_count - 1 # gets the correct overflow page based on main doc length
-            
-            page = doc.pages[coord[:page] + original_page_count - 1]  # coord[:page] is 1-based, convert to 0-based index
-            next unless page  # Skip if page doesn't exist
-            
-            # Create link annotation
-            link = doc.add({
-              Type: :Annot,
-              Subtype: :Link,
-              Rect: [coord[:x], coord[:y], coord[:x] + coord[:width], coord[:y] + coord[:height]],
-              Border: [0, 0, 0],
-              BS: {  # Border Style dictionary
-                Type: :Border,
-                W: 2,  # Width in points
-                S: :S  # Solid border style
-              },
-              C: [1, 0, 0],  # Red border color (RGB values)
-              A: {
-                Type: :Action,
-                S: :GoTo,
-                D: coord[:dest]
-              }
-            })
-            
-            page[:Annots] ||= []
-            page[:Annots] << link
-            
-          end
+    def prepare_link(coord, doc, original_page_count)
+      coord[:page] # gets the correct overflow page based on main doc length
+      doc.pages[coord[:page] + original_page_count - 1] # coord[:page] is 1-based, convert to 0-based index
+    end
+
+    def create_link(doc, coord)
+      doc.add({
+                Type: :Annot,
+                Subtype: :Link,
+                Rect: [coord[:x], coord[:y], coord[:x] + coord[:width], coord[:y] + coord[:height]],
+                Border: [0, 0, 0],
+                A: {
+                  Type: :Action,
+                  S: :GoTo,
+                  D: coord[:dest]
+                }
+              })
+    end
+
+    def add_links(doc, extras_generator, original_page_count)
+      if extras_generator.respond_to?(:section_coordinates)
+        extras_generator.section_coordinates.each do |coord|
+          page = prepare_link(coord, doc, original_page_count)
+          next unless page # Skip if page doesn't exist
+
+          page[:Annots] ||= []
+          page[:Annots] << create_link(doc, coord)
         end
-        
-      doc.write(doc_path, optimize: true)
-      doc_path
+      end
     end
-
 
     ##
     # Fills a form based on the provided saved claim and options.
