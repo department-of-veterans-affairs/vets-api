@@ -7,21 +7,6 @@ require 'claims_api/vbms_uploader'
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }
   let(:user_object) { create(:evss_user, :loa3) }
-  let(:new_address_hash) do
-    {
-      newAddress: {
-        isForeign: false,
-        isMilitary: nil,
-        countryName: 'USA',
-        addressLine1: '1019 Robin Cir',
-        addressLine2: nil,
-        addressLine3: nil,
-        city: 'Arroyo Grande',
-        province: 'CA',
-        internationalPostalCode: '93420'
-      }
-    }
-  end
   let(:user_struct) do
     OpenStruct.new(
       edipi: user_object.edipi,
@@ -188,6 +173,36 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       )
 
       subject
+    end
+  end
+
+  describe '#form_matches_schema' do
+    it 'rejects invalid country format' do
+      claim = build(:veteran_readiness_employment_claim, country: 'Invalid')
+
+      expect(claim).not_to be_valid
+      expect(claim.errors.attribute_names).to contain_exactly(:'/veteranAddress/country', :'/newAddress/country')
+    end
+
+    ['USA', 'United States'].each do |country|
+      context "with #{country} format" do
+        let(:claim) { build(:veteran_readiness_employment_claim, country:) }
+
+        describe 'country validation' do
+          it 'accepts valid country format' do
+            expect(claim).to be_valid
+          end
+
+          it 'validates other fields independently of country format' do
+            claim_data = JSON.parse(claim.form)
+            claim_data['veteranInformation']['fullName'] = {} # Invalid name
+            claim.form = claim_data.to_json
+
+            expect(claim).not_to be_valid
+            expect(claim.errors.attribute_names).to include(:'/veteranInformation/fullName')
+          end
+        end
+      end
     end
   end
 end

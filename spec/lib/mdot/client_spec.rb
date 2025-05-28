@@ -52,7 +52,42 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'with a gateway timeout' do
+    context 'with a 500 internal server error response' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client)
+          .to receive(:perform).and_raise(Common::Exceptions::ExternalServerInternalServerError)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::ExternalServerInternalServerError
+          ) do |e|
+            expect(e.message).to match('Internal server error')
+          end
+        end
+      end
+    end
+
+    context 'with a 501 Not Implemented response' do
+      it 'raises error gracefully' do
+        allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::NotImplemented)
+        VCR.use_cassette(
+          'mdot/get_supplies_200',
+          match_requests_on: %i[method uri headers],
+          erb: { icn: user.icn }
+        ) do
+          expect { subject.get_supplies }.to raise_error(
+            Common::Exceptions::NotImplemented
+          ) do |e|
+            expect(e.message).to match('Not Implemented')
+          end
+        end
+      end
+    end
+
+    context 'with a 504 gateway timeout' do
       it 'raises error gracefully' do
         allow_any_instance_of(MDOT::Client).to receive(:perform).and_raise(Common::Exceptions::GatewayTimeout)
         VCR.use_cassette(
@@ -175,6 +210,82 @@ describe MDOT::Client, type: :mdot_helpers do
           ) do |e|
             expect(e.message).to match(/MDOT_invalid/)
           end
+        end
+      end
+    end
+
+    context 'handles unexpected or malformed responses' do
+      before do
+        VCR.insert_cassette(
+          cassette,
+          match_requests_on: %i[method uri],
+          erb: { icn: user.icn }
+        )
+      end
+
+      after { VCR.eject_cassette }
+
+      context 'with a response that is not actually JSON' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_200_not_json' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsParsingError', 'status:200'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+
+      context 'with a 406 response' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_406' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:406'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+
+      context 'with a 410 response' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_410' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:410'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+
+      context 'with a 418 response' do
+        let!(:cassette) { 'mdot/simulated_get_supplies_418' }
+
+        it 'raises an error' do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:418'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.get_supplies.total'
+          )
+          expect { subject.get_supplies }.to raise_error(MDOT::Exceptions::ServiceException)
         end
       end
     end

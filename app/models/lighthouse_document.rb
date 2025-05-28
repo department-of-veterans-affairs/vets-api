@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require 'pdf_info'
 
-class LighthouseDocument < Common::Base
-  include ActiveModel::Validations
+class LighthouseDocument
+  include Vets::Model
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
@@ -81,13 +81,12 @@ class LighthouseDocument < Common::Base
 
   def to_serializable_hash
     # file_obj is not suitable for serialization
-    to_hash.tap { |h| h.delete :file_obj }
+    attributes.tap { |h| h.delete :file_obj }
   end
 
-  # The front-end URLencodes a nil tracked_item_id as the string 'null'
+  # The front-end URL encodes a nil tracked_item_id as the string 'null'
   def tracked_item_id=(num)
-    num = nil if num == 'null'
-    super num
+    @tracked_item_id = num == 'null' ? nil : num
   end
 
   private
@@ -125,9 +124,11 @@ class LighthouseDocument < Common::Base
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
+    Rails.logger.info("Document for claim #{claim_id} is encrypted") if metadata.encrypted?
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
+    Rails.logger.info("MetadataReadError: Document for claim #{claim_id}")
     if e.message.include?('Incorrect password')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
     else
@@ -136,7 +137,7 @@ class LighthouseDocument < Common::Base
   end
 
   def set_file_extension
-    self.file_extension = file_name.split('.').last
+    self.file_extension = file_name.downcase.split('.').last
   end
 
   def normalize_text

@@ -36,23 +36,23 @@ class FormProfiles::VA686c674v2 < FormProfile
   private
 
   def prefill_form_address
-    mailing_address = begin
-      VAProfileRedis::ContactInformation.for_user(user).mailing_address if user.vet360_id.present?
+    begin
+      mailing_address = if user.icn.present? && Flipper.enabled?(:remove_pciu, user)
+                          VAProfileRedis::V2::ContactInformation.for_user(user).mailing_address
+                        elsif user.vet360_id.present?
+                          VAProfileRedis::ContactInformation.for_user(user).mailing_address
+                        end
     rescue
       nil
     end
+
     return if mailing_address.blank?
 
     @form_address = FormAddress.new(
       mailing_address.to_h.slice(
-        :address_line1,
-        :address_line2,
-        :address_line3,
-        :city,
-        :state_code,
-        :province,
-        :zip_code,
-        :international_postal_code
+        :address_line1, :address_line2, :address_line3,
+        :city, :state_code, :province,
+        :zip_code, :international_postal_code
       ).merge(country_name: mailing_address.country_code_iso3)
     )
   end

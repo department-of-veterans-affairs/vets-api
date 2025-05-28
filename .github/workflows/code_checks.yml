@@ -41,21 +41,25 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
+      # Always add the "lint-failure" label on failure and remove it on success
       - name: Add Lint Failure label
-        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
 
       - name: Remove Lint Failure label
-        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: lint-failure
+
   tests:
     name: Test
+    runs-on: ubuntu-32-cores-latest
+    permissions: write-all
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       ECR_REGISTRY_WITH_SLASH: "${{ secrets.ECR_REGISTRY }}/"
@@ -65,19 +69,16 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
-    permissions: write-all
-    runs-on: ubuntu-32-cores-latest
-    outputs:
-      status: ${{ steps.test-status.outputs.status }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: docker/login-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -90,9 +91,8 @@ jobs:
         with:
           mask-password: true
 
-      - name: Setup Environment
-        run: |
-          echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+      - name: Set Environment Variable
+        run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -121,75 +121,68 @@ jobs:
           retry_wait_seconds: 3 # Seconds
           max_attempts: 3
           command: >
-             ${{ env.COMPOSE_BASH_CMD }}
-             "bundle exec rake parallel:setup[24]"
+            ${{ env.COMPOSE_BASH_CMD }}
+            "bundle exec rake parallel:setup[24]"
+
+      - name: Setup system tmp dir
+        run: >
+          ${{ env.COMPOSE_BASH_CMD }}
+          "mkdir -p tmp/systmp"
 
       - name: Run Specs
         timeout-minutes: 15
         run: >
           ${{ env.COMPOSE_BASH_CMD }}
-          "bundle exec rake 'parallel:spec[24, , , modules\/]'"
-
-      - name: Set Test Status
-        id: test-status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
+          "TMPDIR=tmp/systmp bundle exec rake 'parallel:spec[24, , , modules\/]'"
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: Coverage Report
           path: coverage
           include-hidden-files: true
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
+      - name: Upload Test Results (JUnit XMLs)
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
 
-  update_labels:
-    name: Update Test Status Labels
-    needs: tests
-    if: always() && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
+      - name: Upload Test Artifacts (log)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Artifacts (log directory)
+          path: |
+            log
+            !log/*.xml
+          if-no-files-found: ignore
+
+      - name: Upload Test Artifacts (rails tmp)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Artifacts (rails tmp directory)
+          path: tmp
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Remove Test Failure label
-        if: needs.tests.outputs.status == 'success' && contains(github.event.pull_request.labels.*.name, 'test-failure')
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
 
       - name: Add Test Failure label
-        if: needs.tests.outputs.status == 'failure'
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: test-failure
-
-      - name: Remove Test Passing label
-        if: needs.tests.outputs.status == 'failure' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
-
-      - name: Add Test Passing label
-        if: needs.tests.outputs.status == 'success'
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: test-passing
 
   publish_results:
     name: Publish Test Results and Coverage
@@ -202,8 +195,8 @@ jobs:
       - uses: actions/download-artifact@v4
 
       - name: Publish Test Results to GitHub
-        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: Test Results
           comment_mode: off
@@ -214,8 +207,8 @@ jobs:
         run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
       - name: Publish Coverage Report
+        if: ${{ hashFiles('Coverage Report/.last_run.json') != '' }}
         uses: devmasx/coverage-check-action@v1.2.0
-        if: hashFiles('Coverage Report/.last_run.json') != ''
         with:
           type: simplecov
           result_path: Coverage Report/.last_run.json
