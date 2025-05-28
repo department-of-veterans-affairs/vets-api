@@ -156,8 +156,13 @@ module MyHealth
           next name_comparison if name_comparison != 0
 
           # 3rd sort by fill date(sorted_dispensed_date) - newest to oldest
-          b_date = b[:sorted_dispensed_date] || Date.new(0)
-          a_date = a[:sorted_dispensed_date] || Date.new(0)
+          a_date = a[:sorted_dispensed_date] || Date.new(0, 1, 1)
+          b_date = b[:sorted_dispensed_date] || Date.new(0, 1, 1)
+
+          # Handle nulls first, then newest to oldest
+          null_comparison = (a_date.nil? ? -1 : 0) <=> (b_date.nil? ? -1 : 0)
+          next null_comparison if null_comparison != 0
+
           b_date <=> a_date
         end
         resource
