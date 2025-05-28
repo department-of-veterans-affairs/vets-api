@@ -14,22 +14,9 @@ module Mobile
       before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
       before_action(only: %i[get_claim]) { authorize :lighthouse, :access? }
       before_action(only: %i[request_decision]) { authorize :lighthouse, :access? }
+      before_action(only: %i[upload_document upload_multi_image_document]) { authorize :lighthouse, :access? }
 
-      before_action(only: %i[upload_document upload_multi_image_document]) do
-        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-          authorize :lighthouse, :access?
-        else
-          authorize :evss, :access?
-        end
-      end
-
-      after_action only: :upload_multi_image_document do
-        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-          lighthouse_document_service.cleanup_after_upload
-        else
-          claims_proxy.cleanup_after_upload
-        end
-      end
+      after_action(only: :upload_multi_image_document) { lighthouse_document_service.cleanup_after_upload }
 
       def index
         json, status = prepare_claims_and_appeals
@@ -61,12 +48,16 @@ module Mobile
       end
 
       def upload_document
-        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-                set_params
-                lighthouse_document_service.queue_document_upload(params)
-              else
-                claims_proxy.upload_document(params)
-              end
+        set_params
+        jid = lighthouse_document_service.queue_document_upload(params)
+
+        render json: { data: { job_id: jid } }, status: :accepted
+      end
+
+      def upload_multi_image_document
+        set_params
+        jid = lighthouse_document_service.queue_multi_image_upload_document(params)
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
@@ -86,17 +77,6 @@ module Mobile
           type: 'application/pdf',
           filename: file_name
         )
-      end
-
-      def upload_multi_image_document
-        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-                set_params
-                lighthouse_document_service.queue_multi_image_upload_document(params)
-              else
-                claims_proxy.upload_multi_image(params)
-              end
-
-        render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
