@@ -53,35 +53,21 @@ module Veteran
     end
 
     def reload_attorneys
-      ensure_initial_counts
-      attorneys_data = fetch_data('attorneyexcellist.asp')
-      new_count = attorneys_data.count { |a| a['Registration Num'].present? }
-
-      if validate_count(:attorneys, new_count)
-        attorneys_data.map do |attorney|
-          find_or_create_attorneys(attorney) if attorney['Registration Num'].present?
-          attorney['Registration Num']
-        end
-      else
-        # Return existing attorney IDs to prevent deletion
-        Veteran::Service::Representative.where("'#{USER_TYPE_ATTORNEY}' = ANY(user_types)").pluck(:representative_id)
-      end
+      reload_representative_type(
+        endpoint: 'attorneyexcellist.asp',
+        rep_type: :attorneys,
+        user_type: USER_TYPE_ATTORNEY,
+        processor: method(:find_or_create_attorneys)
+      )
     end
 
     def reload_claim_agents
-      ensure_initial_counts
-      claim_agents_data = fetch_data('caexcellist.asp')
-      new_count = claim_agents_data.count { |ca| ca['Registration Num'].present? }
-
-      if validate_count(:claims_agents, new_count)
-        claim_agents_data.map do |claim_agent|
-          find_or_create_claim_agents(claim_agent) if claim_agent['Registration Num'].present?
-          claim_agent['Registration Num']
-        end
-      else
-        # Return existing claim agent IDs to prevent deletion
-        Veteran::Service::Representative.where("'#{USER_TYPE_CLAIM_AGENT}' = ANY(user_types)").pluck(:representative_id)
-      end
+      reload_representative_type(
+        endpoint: 'caexcellist.asp',
+        rep_type: :claims_agents,
+        user_type: USER_TYPE_CLAIM_AGENT,
+        processor: method(:find_or_create_claim_agents)
+      )
     end
 
     def reload_vso_reps
@@ -107,6 +93,22 @@ module Veteran
 
     def reload_representatives
       reload_attorneys + reload_claim_agents + reload_vso_reps
+    end
+
+    def reload_representative_type(endpoint:, rep_type:, user_type:, processor:)
+      ensure_initial_counts
+      data = fetch_data(endpoint)
+      new_count = data.count { |record| record['Registration Num'].present? }
+
+      if validate_count(rep_type, new_count)
+        data.map do |record|
+          processor.call(record) if record['Registration Num'].present?
+          record['Registration Num']
+        end
+      else
+        # Return existing IDs to prevent deletion
+        Veteran::Service::Representative.where("'#{user_type}' = ANY(user_types)").pluck(:representative_id)
+      end
     end
 
     def find_or_create_attorneys(attorney)
