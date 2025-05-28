@@ -10,14 +10,31 @@ module Veteran
 
     # The total number of representatives and organizations parsed from the ingested .ASP files
     # must be at least the following percentage of the corresponding counts currently in the database.
-    # (These threshold values still need to be finalized.)
-    PERCENT_ATTORNEYS = 0.25
-    PERCENT_CLAIM_AGENTS = 0.25
-    PERCENT_VSO_REPRESENTATIVES = 0.25
-    PERCENT_VSO_ORGANIZATIONS = 0.25
+    # Dynamic thresholds based on count size
+    MIN_THRESHOLD = 0.10 # 10% minimum
+    MAX_THRESHOLD = 0.25 # 25% maximum
+
+    # Count thresholds for scaling
+    SMALL_COUNT = 100
+    LARGE_COUNT = 5000
+
+    # How many historical records to check for previous counts
+    HISTORICAL_RECORDS_TO_CHECK = 10
+
+    # User type constants
+    USER_TYPE_ATTORNEY = 'attorney'
+    USER_TYPE_CLAIM_AGENT = 'claim_agents'
+    USER_TYPE_VSO = 'veteran_service_officer'
 
     def perform
+      # Track initial counts before processing
+      @initial_counts = fetch_initial_counts
+      @validation_results = {}
+
       array_of_organizations = reload_representatives
+
+      # Save the results to the database
+      save_accreditation_totals
 
       # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC
       Veteran::Service::Representative.where.not(representative_id: array_of_organizations).find_each do |rep|
@@ -36,37 +53,54 @@ module Veteran
     end
 
     def reload_attorneys
-      fetch_data('attorneyexcellist.asp').map do |attorney|
-        find_or_create_attorneys(attorney) if attorney['Registration Num'].present?
+      ensure_initial_counts
+      attorneys_data = fetch_data('attorneyexcellist.asp')
+      new_count = attorneys_data.count { |a| a['Registration Num'].present? }
 
-        attorney['Registration Num']
+      if validate_count(:attorneys, new_count)
+        attorneys_data.map do |attorney|
+          find_or_create_attorneys(attorney) if attorney['Registration Num'].present?
+          attorney['Registration Num']
+        end
+      else
+        # Return existing attorney IDs to prevent deletion
+        Veteran::Service::Representative.where("'#{USER_TYPE_ATTORNEY}' = ANY(user_types)").pluck(:representative_id)
       end
     end
 
     def reload_claim_agents
-      fetch_data('caexcellist.asp').map do |claim_agent|
-        find_or_create_claim_agents(claim_agent) if claim_agent['Registration Num'].present?
-        claim_agent['Registration Num']
+      ensure_initial_counts
+      claim_agents_data = fetch_data('caexcellist.asp')
+      new_count = claim_agents_data.count { |ca| ca['Registration Num'].present? }
+
+      if validate_count(:claims_agents, new_count)
+        claim_agents_data.map do |claim_agent|
+          find_or_create_claim_agents(claim_agent) if claim_agent['Registration Num'].present?
+          claim_agent['Registration Num']
+        end
+      else
+        # Return existing claim agent IDs to prevent deletion
+        Veteran::Service::Representative.where("'#{USER_TYPE_CLAIM_AGENT}' = ANY(user_types)").pluck(:representative_id)
       end
     end
 
     def reload_vso_reps
-      vso_reps = []
-      vso_orgs = fetch_data('orgsexcellist.asp').map do |vso_rep|
-        next unless vso_rep['Representative']
+      ensure_initial_counts
+      vso_data = fetch_data('orgsexcellist.asp')
+      counts = calculate_vso_counts(vso_data)
 
-        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
-        vso_reps << vso_rep['Registration Num']
-        {
-          poa: vso_rep['POA'].gsub(/\W/, ''),
-          name: vso_rep['Organization Name'],
-          phone: vso_rep['Org Phone'],
-          state: vso_rep['Org State']
-        }
-      end.compact.uniq
-      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
+      # Validate both counts
+      process_vso_reps = validate_count(:vso_representatives, counts[:reps])
+      process_vso_orgs = validate_count(:vso_organizations, counts[:orgs])
 
-      vso_reps
+      if process_vso_reps
+        process_vso_data(vso_data, process_vso_orgs)
+      else
+        # Return existing VSO rep IDs to prevent deletion
+        Veteran::Service::Representative
+          .where("'#{USER_TYPE_VSO}' = ANY(user_types)")
+          .pluck(:representative_id)
+      end
     end
 
     private
@@ -77,13 +111,13 @@ module Veteran
 
     def find_or_create_attorneys(attorney)
       rep = find_or_initialize(attorney)
-      rep.user_types << 'attorney' unless rep.user_types.include?('attorney')
+      rep.user_types << USER_TYPE_ATTORNEY unless rep.user_types.include?(USER_TYPE_ATTORNEY)
       rep.save
     end
 
     def find_or_create_claim_agents(claim_agent)
       rep = find_or_initialize(claim_agent)
-      rep.user_types << 'claim_agents' unless rep.user_types.include?('claim_agents')
+      rep.user_types << USER_TYPE_CLAIM_AGENT unless rep.user_types.include?(USER_TYPE_CLAIM_AGENT)
       rep.save
     end
 
@@ -106,7 +140,7 @@ module Veteran
       rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
 
       rep.phone = vso['Org Phone']
-      rep.user_types << 'veteran_service_officer' unless rep.user_types.include?('veteran_service_officer')
+      rep.user_types << USER_TYPE_VSO unless rep.user_types.include?(USER_TYPE_VSO)
       rep.middle_initial = middle_initial.presence || ''
       rep.save
     end
@@ -116,6 +150,131 @@ module Veteran
                                        channel: '#api-benefits-claims',
                                        username: 'VSOReloader')
       client.notify(message)
+    end
+
+    def log_to_slack_threshold_channel(message)
+      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                       channel: '#benefits-representation-management-notifications',
+                                       username: 'VSOReloader')
+      client.notify(message)
+    end
+
+    def fetch_initial_counts
+      {
+        attorneys: Veteran::Service::Representative.where("'#{USER_TYPE_ATTORNEY}' = ANY(user_types)").count,
+        claims_agents: Veteran::Service::Representative.where("'#{USER_TYPE_CLAIM_AGENT}' = ANY(user_types)").count,
+        vso_representatives: Veteran::Service::Representative
+          .where("'#{USER_TYPE_VSO}' = ANY(user_types)").count,
+        vso_organizations: Veteran::Service::Organization.count
+      }
+    end
+
+    def ensure_initial_counts
+      @initial_counts ||= fetch_initial_counts
+      @validation_results ||= {}
+    end
+
+    def validate_count(rep_type, new_count)
+      previous_count = get_previous_count(rep_type)
+
+      # If no previous count exists, allow the update
+      return true if previous_count.nil? || previous_count.zero?
+
+      # If new count is greater or equal, allow the update
+      return true if new_count >= previous_count
+
+      # Calculate decrease percentage
+      decrease_percentage = (previous_count - new_count).to_f / previous_count
+      threshold = calculate_dynamic_threshold(previous_count)
+
+      if decrease_percentage > threshold
+        # Log to Slack and don't update
+        notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, threshold)
+        @validation_results[rep_type] = nil
+        false
+      else
+        @validation_results[rep_type] = new_count
+        true
+      end
+    end
+
+    def get_previous_count(rep_type)
+      # Find the most recent non-null value for this rep type
+      recent_totals = Veteran::AccreditationTotal.order(created_at: :desc).limit(HISTORICAL_RECORDS_TO_CHECK)
+
+      recent_totals.each do |total|
+        value = total.send(rep_type)
+        return value if value.present?
+      end
+
+      # If no previous count exists in the database, use current count
+      @initial_counts[rep_type]
+    end
+
+    def calculate_dynamic_threshold(count)
+      # Scale threshold based on count size
+      # Small counts (< 100) get MAX_THRESHOLD (25%)
+      # Large counts (> 5000) get MIN_THRESHOLD (10%)
+      # In between, scale linearly
+
+      return MAX_THRESHOLD if count <= SMALL_COUNT
+      return MIN_THRESHOLD if count >= LARGE_COUNT
+
+      # Linear interpolation
+      range = LARGE_COUNT - SMALL_COUNT
+      position = (count - SMALL_COUNT).to_f / range
+      MAX_THRESHOLD - (position * (MAX_THRESHOLD - MIN_THRESHOLD))
+    end
+
+    def notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, threshold)
+      message = "⚠️ VSO Reloader Alert: #{rep_type.to_s.humanize} count decreased beyond threshold!\n" \
+                "Previous: #{previous_count}\n" \
+                "New: #{new_count}\n" \
+                "Decrease: #{(decrease_percentage * 100).round(2)}%\n" \
+                "Threshold: #{(threshold * 100).round(2)}%\n" \
+                'Action: Update skipped, manual review required'
+
+      log_to_slack_threshold_channel(message)
+      log_message_to_sentry("VSO Reloader threshold exceeded for #{rep_type}", :warn,
+                            previous_count:,
+                            new_count:,
+                            decrease_percentage:)
+    end
+
+    def save_accreditation_totals
+      Veteran::AccreditationTotal.create!(
+        attorneys: @validation_results[:attorneys],
+        claims_agents: @validation_results[:claims_agents],
+        vso_representatives: @validation_results[:vso_representatives],
+        vso_organizations: @validation_results[:vso_organizations]
+      )
+    end
+
+    def calculate_vso_counts(vso_data)
+      {
+        reps: vso_data.count { |v| v['Representative'].present? && v['Registration Num'].present? },
+        orgs: vso_data.map { |v| v['POA'] }.compact.uniq.count # rubocop:disable Rails/Pluck
+      }
+    end
+
+    def process_vso_data(vso_data, process_vso_orgs)
+      vso_reps = []
+      vso_orgs = vso_data.map do |vso_rep|
+        next unless vso_rep['Representative']
+
+        find_or_create_vso(vso_rep) if vso_rep['Registration Num'].present?
+        vso_reps << vso_rep['Registration Num']
+        {
+          poa: vso_rep['POA'].gsub(/\W/, ''),
+          name: vso_rep['Organization Name'],
+          phone: vso_rep['Org Phone'],
+          state: vso_rep['Org State']
+        }
+      end.compact.uniq
+
+      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state]) if process_vso_orgs
+
+      vso_reps
     end
   end
 end
