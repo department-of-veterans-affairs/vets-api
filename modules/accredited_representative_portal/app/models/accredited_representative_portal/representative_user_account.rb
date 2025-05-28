@@ -39,7 +39,7 @@ module AccreditedRepresentativePortal
         @registration_numbers ||= registration_numbers
 
         @registrations ||= Array(
-          @registration_numbers.map do |registration_number|
+          @registration_numbers&.map do |registration_number|
             OpenStruct.new(
               accredited_individual_registration_number: registration_number,
               power_of_attorney_holder_type: 'veteran_service_organization',
@@ -56,18 +56,17 @@ module AccreditedRepresentativePortal
     end
 
     def registration_numbers
-      icn = session.user_account.icn
       registration_numbers = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
 
       if registration_numbers.blank?
         representatives = Veteran::Service::Representative.where(email: @all_emails)
 
         if representatives.empty?
-          raise Common::Exceptions::Unauthorized,
-                detail: 'Email not associated with any accredited representative'
+          # handle empty case
+          return nil
         elsif representatives.size > 1
-          raise Common::Exceptions::Unauthorized,
-                detail: 'Email associated with multiple accredited representatives'
+          # handle more than 1 case
+          return nil
         end
         representative = representatives.first
         registration_numbers = [representative.representative_id]

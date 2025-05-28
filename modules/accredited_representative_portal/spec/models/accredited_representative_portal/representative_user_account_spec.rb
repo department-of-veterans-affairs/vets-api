@@ -8,6 +8,7 @@ module AccreditedRepresentativePortal
     let(:user_account) do
       RepresentativeUserAccount.find(create(:user_account).id).tap do |memo|
         memo.set_email(user_email)
+        memo.set_all_emails([user_email])
       end
     end
 
@@ -66,6 +67,7 @@ module AccreditedRepresentativePortal
               :representative,
               user_types:,
               poa_codes:,
+              email: user_email,
               representative_id:
                 registration.accredited_individual_registration_number
             )
@@ -111,9 +113,8 @@ module AccreditedRepresentativePortal
 
         let!(:registration) do
           create(
-            :user_account_accredited_individual,
-            power_of_attorney_holder_type: 'veteran_service_organization',
-            user_account_email: user_email
+            :representative,
+            email: user_email
           )
         end
 
@@ -126,7 +127,7 @@ module AccreditedRepresentativePortal
         context 'with matching POA holder type' do
           let(:power_of_attorney_holder_type) { 'veteran_service_organization' }
 
-          it { is_expected.to eq(registration.accredited_individual_registration_number) }
+          it { is_expected.to eq(registration.representative_id) }
         end
       end
     end
