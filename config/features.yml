@@ -2200,3 +2200,5 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
+  accredited_representative_portal_self_service_auth_403_err:
+    description: If enabled, shows SSA 403 error page content
