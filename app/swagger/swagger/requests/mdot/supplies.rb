@@ -36,30 +36,30 @@ module Swagger
 
                   items do
                     key :type, :object
-                    property :productId, type: :integer, example: 2499
+                    property :product_id, type: :integer, example: 2499
                   end
                 end
 
                 property :permanent_address do
                   key :type, :object
-                  property :isMilitary, type: :boolean, example: false
+                  property :is_military, type: :boolean, example: false
                   property :street, type: :string, example: '125 SOME RD'
                   property :street2, type: :string, example: 'APT 101'
                   property :city, type: :string, example: 'DENVER'
                   property :state, type: :string, example: 'CO'
                   property :country, type: :string, example: 'United States'
-                  property :postalCode, type: :string, example: '11111'
+                  property :postal_code, type: :string, example: '11111'
                 end
 
                 property :temporary_address do
                   key :type, :object
-                  property :isMilitary, type: :boolean, example: false
+                  property :is_military, type: :boolean, example: false
                   property :street, type: :string, example: '17250 w colfax ave'
                   property :street2, type: :string, example: 'a-204'
                   property :city, type: :string, example: 'Golden'
                   property :state, type: :string, example: 'CO'
                   property :country, type: :string, example: 'United States'
-                  property :postalCode, type: :string, example: '80401'
+                  property :postal_code, type: :string, example: '80401'
                 end
               end
             end
@@ -70,8 +70,8 @@ module Swagger
                 key :type, :array
                 items do
                   key :type, :object
-                  property :productId, type: :integer, example: 2499
-                  property :orderID, type: :integer, example: 1001
+                  property :product_id, type: :integer, example: 2499
+                  property :order_id, type: :integer, example: 1001
                   property :status,
                            type: :string,
                            example: 'Order Processed',
