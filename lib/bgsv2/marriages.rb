@@ -91,7 +91,7 @@ module BGSV2
     end
 
     def bgs_service
-      @bgs_service = BGS::Service.new(@user)
+      @bgs_service = BGSV2::Service.new(@user)
     end
 
     def live_with_vet?

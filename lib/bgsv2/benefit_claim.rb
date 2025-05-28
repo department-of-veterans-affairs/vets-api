@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'bgs/utilities/helpers'
+require 'bgsv2/utilities/helpers'
 require_relative 'service'
 module BGSV2
   class BenefitClaim
     include SentryLogging
-    include BGS::Utilities::Helpers
+    include BGSV2::Utilities::Helpers
 
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
       benefit_claim_type: '1',
@@ -84,7 +84,7 @@ module BGSV2
     end
 
     def bgs_service
-      @bgs_service ||= BGS::Service.new(@user)
+      @bgs_service ||= BGSV2::Service.new(@user)
     end
   end
 end

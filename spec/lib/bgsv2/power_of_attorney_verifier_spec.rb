@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/power_of_attorney_verifier'
+require 'bgsv2/power_of_attorney_verifier'
 
 describe BGSV2::PowerOfAttorneyVerifier do
   let(:user) { create(:user, :loa3) }
@@ -23,7 +23,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
       last_name: identity.last_name
     )
     expect do
-      BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+      BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.not_to raise_error
   end
 
@@ -35,13 +35,13 @@ describe BGSV2::PowerOfAttorneyVerifier do
       last_name: identity.last_name
     )
     expect do
-      BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+      BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.to raise_error(Common::Exceptions::Unauthorized)
   end
 
   it 'raises an exception if representative not found' do
     expect do
-      BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+      BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.to raise_error(Common::Exceptions::Unauthorized)
   end
 
@@ -91,7 +91,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
         )
 
         expect do
-          BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+          BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
 
           expect(Veteran::Service::Representative).to have_received(:all_for_user).with(
             hash_including(
@@ -124,7 +124,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
             )
 
             expect do
-              BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+              BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
             end.not_to raise_error
           end
         end
@@ -149,7 +149,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
             )
 
             expect do
-              BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+              BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
             end.to raise_error { |error|
               expect(error.errors.first.detail).to eq("Power of Attorney code doesn't match Veteran's")
             }
@@ -177,7 +177,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
           )
 
           expect do
-            BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+            BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
           end.to raise_error { |error| expect(error.errors.first.detail).to eq('Ambiguous VSO Representative Results') }
         end
       end
@@ -190,7 +190,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
         identity.middle_name = authenticated_user_middle_name
 
         expect do
-          BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+          BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
         end.to raise_error { |error| expect(error.errors.first.detail).to eq('Ambiguous VSO Representative Results') }
       end
     end
@@ -250,7 +250,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
         )
 
         expect do
-          BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+          BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
 
           expect(Veteran::Service::Representative).to have_received(:all_for_user).with(
             hash_including(
@@ -283,7 +283,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
             )
 
             expect do
-              BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+              BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
             end.not_to raise_error
           end
         end
@@ -308,7 +308,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
             )
 
             expect do
-              BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+              BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
             end.to raise_error { |error|
               expect(error.errors.first.detail).to eq("Power of Attorney code doesn't match Veteran's")
             }
@@ -336,7 +336,7 @@ describe BGSV2::PowerOfAttorneyVerifier do
           )
 
           expect do
-            BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
+            BGSV2::PowerOfAttorneyVerifier.new(user).verify(identity)
           end.to raise_error { |error| expect(error.errors.first.detail).to eq('Ambiguous VSO Representative Results') }
         end
       end

@@ -7,7 +7,7 @@ module BGSV2
   class Service
     STATSD_KEY_PREFIX = 'api.bgs'
 
-    include BGS::Exceptions::BGSErrors
+    include BGSV2::Exceptions::BGSErrors
     include SentryLogging
     include Common::Client::Concerns::Monitoring
 

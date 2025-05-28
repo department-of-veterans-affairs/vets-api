@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/form674'
+require 'bgsv2/form674'
 
 RSpec.describe BGSV2::Form674 do
   let(:user_object) { create(:evss_user, :loa3) }
