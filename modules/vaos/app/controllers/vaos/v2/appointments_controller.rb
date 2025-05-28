@@ -118,17 +118,9 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        unless appointment&.id
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
-          render json: appt_creation_failed_error, status: :unprocessable_entity and return
-        end
-
-        # Check if the appointment contains an error field
-        if appointment[:error].present?
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
-          render json: appointment_error_response(appointment[:error]),
-                 status: appointment_error_status(appointment[:error]) and return
-        end
+        # Handle error cases
+        error_response = handle_appointment_errors(appointment)
+        return error_response if error_response
 
         Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
                           "Response: #{appointment.inspect}")
@@ -694,6 +686,27 @@ module VAOS
             code: error_code
           }]
         }
+      end
+
+      ##
+      # Handles error conditions for appointments and returns appropriate responses
+      #
+      # @param appointment [Object] The appointment object to check for errors
+      # @return [Object, nil] The render result if there's an error, nil otherwise
+      #
+      def handle_appointment_errors(appointment)
+        unless appointment&.id
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+          return render json: appt_creation_failed_error, status: :unprocessable_entity
+        end
+
+        if appointment[:error].present?
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
+          return render json: appointment_error_response(appointment[:error]),
+                        status: appointment_error_status(appointment[:error])
+        end
+
+        nil
       end
     end
   end
