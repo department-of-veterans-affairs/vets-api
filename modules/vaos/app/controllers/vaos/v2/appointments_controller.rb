@@ -92,8 +92,6 @@ module VAOS
         drive_time = fetch_drive_times(provider)
 
         response_data = build_draft_response(draft, provider, slots, drive_time)
-        Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
-                          "Response: #{response_data.inspect}")
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
       end
@@ -123,8 +121,6 @@ module VAOS
           render json: appt_creation_failed_error, status: :unprocessable_entity and return
         end
 
-        Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
-                          "Response: #{appointment.inspect}")
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
       end
