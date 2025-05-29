@@ -47,6 +47,7 @@ module AccreditedRepresentativePortal
       url = config[:icn_endpoint_url] + "/#{registration_number}"
 
       headers = {
+        'Origin' => config[:origin],
         'Content-Type' => 'application/json',
         'x-api-key' => config[:api_key]
       }
@@ -64,6 +65,7 @@ module AccreditedRepresentativePortal
       url = config[:icn_endpoint_url]
 
       headers = {
+        'Origin' => config[:origin],
         'Content-Type' => 'application/json',
         'x-api-key' => config[:api_key]
       }
@@ -87,7 +89,8 @@ module AccreditedRepresentativePortal
     def setup_configuration
       {
         api_key:,
-        icn_endpoint_url:
+        icn_endpoint_url:,
+        origin:
       }
     end
 
@@ -97,6 +100,10 @@ module AccreditedRepresentativePortal
 
     def icn_endpoint_url
       Settings.gclaws.accreditation.icn.url
+    end
+
+    def origin
+      Settings.gclaws.accreditation.origin
     end
   end
 end
