@@ -31,24 +31,35 @@ module AccreditedRepresentativePortal
       end
 
       def form_params
-        params.require(:representative_form_upload).permit(
-          :confirmationCode,
-          :location,
-          :formNumber,
-          :formName,
-          formData: [
-            :veteranSsn,
+        @form_params ||= begin
+          ##
+          # TODO: Remove. This is for temporary debugging into different behavior
+          # observed between localhost and staging.
+          #
+          log_value = params.to_unsafe_h
+          Rails.logger.error(log_value.deep_transform_values do |v|
+            { class: v.class, size: v.try(:size) }
+          end)
+
+          params.require(:representative_form_upload).permit(
+            :confirmationCode,
+            :location,
             :formNumber,
-            :postalCode,
-            :veteranDateOfBirth,
-            :email,
-            :postal_code,
-            :claimantDateOfBirth,
-            :claimantSsn,
-            { claimantFullName: %i[first last] },
-            { veteranFullName: %i[first last] }
-          ]
-        )
+            :formName,
+            formData: [
+              :veteranSsn,
+              :formNumber,
+              :postalCode,
+              :veteranDateOfBirth,
+              :email,
+              :postal_code,
+              :claimantDateOfBirth,
+              :claimantSsn,
+              { claimantFullName: %i[first last] },
+              { veteranFullName: %i[first last] }
+            ]
+          )
+        end
       end
 
       def form_data
