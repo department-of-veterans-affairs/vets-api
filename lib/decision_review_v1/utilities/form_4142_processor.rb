@@ -6,8 +6,6 @@ require 'decision_review_v1/utilities/constants'
 module DecisionReviewV1
   module Processor
     class Form4142Processor < Processors::BaseForm4142Processor
-      FORM_ID = '21-4142'
-
       def initialize(form_data:, submission_id: nil, validate: true)
         @submission = Form526Submission.find_by(id: submission_id)
         @form = set_signature_date(form_data)
@@ -40,8 +38,9 @@ module DecisionReviewV1
         'US'
       end
 
-      def form_id
-        FORM_ID
+       # Flip this on (via Flipper) to use the 2024 template
+      def generate_2024_version?
+        Flipper.enabled?(:form4142_use_2024_template)
       end
     end
   end
