@@ -367,7 +367,6 @@ edu:
       - noah.stern@va.gov
       - gregg.puhala@va.gov
       - kara.ciprich@va.gov
-      - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
@@ -1534,6 +1533,7 @@ vaos:
     api_url: <%= ENV['va_mobile__url'] %>
     base_path: vaos/v1/patients
     mock: <%= ENV['vaos__ccra__mock'] %>
+    redis_referral_expiry: 3600
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1545,7 +1545,6 @@ vaos:
     key_path: <%= ENV['vaos__eps__key_path'] %>
     kid: <%= ENV['vaos__eps__client_kid'] %>
     mock: <%= ENV['vaos__eps__mock'] %>
-    redis_token_expiry: 3500
     scopes: care-nav
   referral:
     encryption:

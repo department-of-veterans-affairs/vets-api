@@ -651,7 +651,9 @@ module HCA
       spouse = spouse_to_association(veteran)
 
       # Next of kin and emergency contacts
-      contacts_list = veteran['veteranContacts'] || []
+      next_of_kins = veteran['nextOfKins'] || []
+      emergency_contacts = veteran['emergencyContacts'] || []
+      contacts_list = next_of_kins.concat(emergency_contacts)
       contacts = contacts_list.map do |contact|
         veteran_contacts_to_association(contact)
       end.compact

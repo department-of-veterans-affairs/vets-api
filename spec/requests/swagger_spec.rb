@@ -468,8 +468,8 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         {
           '_headers' => {
             'Cookie' => sign_in(user, nil, true),
-            'accept' => 'application/json',
-            'content-type' => 'application/json'
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
           }
         }
       end
@@ -478,7 +478,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         {
           'use_veteran_address' => true,
           'use_temporary_address' => false,
-          'order' => [{ 'product_id' => 2499 }],
+          'order' => [{ 'product_id' => 6650 }, { 'product_id' => 8271 }],
           'permanent_address' => {
             'street' => '125 SOME RD',
             'street2' => 'APT 101',
@@ -502,7 +502,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       it 'supports creating a MDOT order' do
         expect(subject).to validate(:post, '/v0/mdot/supplies', 401)
 
-        VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('mdot/submit_order_multi_orders', VCR::MATCH_EVERYTHING) do
           set_mdot_token_for(user)
 
           expect(subject).to validate(
