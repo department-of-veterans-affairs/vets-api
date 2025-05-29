@@ -21,7 +21,15 @@ module CheckIn
 
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-          conn.use(:breakers, service_name:)
+                    conn.use(:breakers,
+                   service_name:,
+                   record_exceptions: [
+                     Common::Exceptions::BackendServiceException,
+                     Common::Client::Errors::ClientError,
+                     Timeout::Error,
+                     Breakers::OutageException
+                   ])
+
           conn.request :camelcase
           conn.request :json
 
