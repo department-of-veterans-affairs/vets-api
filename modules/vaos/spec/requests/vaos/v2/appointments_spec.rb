@@ -1160,8 +1160,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   context 'for eps referrals' do
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
-    let(:draft_params) { { referral_id: 'ref-123' } }
-
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
     let(:npi) { '7894563210' }
@@ -1171,10 +1169,18 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     let(:referral_data) do
       {
         referral_number: 'ref-123',
+        referral_consult_id: '123-123456',
         npi:,
         appointment_type_id:,
         start_date:,
         end_date:
+      }
+    end
+
+    let(:draft_params) do
+      {
+        referral_number: referral_data[:referral_number],
+        referral_consult_id: referral_data[:referral_consult_id]
       }
     end
 
@@ -1189,7 +1195,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     let(:referral_identifiers) do
       {
         data: {
-          id: draft_params[:referral_id],
+          id: draft_params[:referral_number],
           type: :referral_identifier,
           attributes: { npi:, appointment_type_id:, start_date:, end_date: }
         }
@@ -1206,7 +1212,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       Rails.cache.clear
       # Set up mocks for CCRA service to return the referral detail
       allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-        .with(referral_data[:referral_number], current_user.icn)
+        .with(referral_data[:referral_consult_id], current_user.icn)
         .and_return(referral_detail)
     end
 
@@ -1399,12 +1405,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when drive time coords are invalid' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123'
-          }
-        end
-
         it 'handles invalid_range response' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
             VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords', match_requests_on: %i[method path] do
@@ -1433,14 +1433,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           updated_referral_identifiers = {
             data: {
-              id: draft_params[:referral_id],
+              id: draft_params[:referral_number],
               type: :referral_identifier,
               attributes: { npi: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
             }
           }.to_json
 
           Rails.cache.write(
-            "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+            "vaos_eps_referral_identifier_#{draft_params[:referral_number]}",
             updated_referral_identifiers,
             namespace: 'eps-access-token',
             expires_in: redis_token_expiry
@@ -1506,10 +1506,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                                        referral_date: referral_data[:start_date])
 
             allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-              .with(referral_data[:referral_number], current_user.icn)
+              .with(referral_data[:referral_consult_id], current_user.icn)
               .and_return(specific_referral_detail)
 
-            draft_params[:referral_id] = 'ref-124'
+            draft_params[:referral_number] = 'ref-124'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
             response_obj = JSON.parse(response.body)
@@ -1567,10 +1567,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                           referral_date: referral_data[:start_date])
 
           allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-            .with(referral_data[:referral_number], current_user.icn)
+            .with(referral_data[:referral_consult_id], current_user.icn)
             .and_return(ref126_detail)
 
-          draft_params[:referral_id] = 'ref-126'
+          draft_params[:referral_number] = 'ref-126'
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
           response_obj = JSON.parse(response.body)
