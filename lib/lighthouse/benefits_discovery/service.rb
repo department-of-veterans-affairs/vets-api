@@ -4,27 +4,26 @@ module BenefitsDiscovery
   class Service < Common::Client::Base
     configuration BenefitsDiscovery::Configuration
 
-    def get_eligible_benefits
-      response = perform(:post, 'benefits-discovery-service/v0/recommendations', example_params, headers)
+    def get_eligible_benefits(params = {})
+      response = perform(:post, 'benefits-discovery-service/v0/recommendations', permitted_params(params), headers)
     end
 
-    def example_params
+    private
+
+    def permitted_params(params)
       {
-        "dateOfBirth": "1995-01-01",
-        "dischargeStatus": "HONORABLE_DISCHARGE",
-        "branchOfService": "NAVY",
-        "disabilityRating": 60,
+        "dateOfBirth": params[:date_of_birth],
+        "dischargeStatus": params[:discharge_status],
+        "branchOfService": params[:branch_of_service],
+        "disabilityRating": params[:disability_rating],
         "serviceDates": [
           {
-            "startDate": "2002-03-15",
-            "endDate": "2006-08-31"
-          }
-        ],
-        # "purpleHeartRecipientDates": [
-          # "2010-02-01",
-          # "2012-05-13"
-        # ]
-      }.to_json
+            "startDate": params[:service_start_date],
+            "endDate": params[:service_end_date]
+          }.compact.presence
+        ].compact,
+        "purpleHeartRecipientDates": Array.wrap(params[:purple_heart_recipient_dates])
+      }.select{ |_,v| !v.blank? }.to_json
     end
 
     def headers
