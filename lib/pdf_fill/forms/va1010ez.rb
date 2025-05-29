@@ -106,6 +106,7 @@ module PdfFill
         merge_veteran_service_info
         merge_disclose_financial_info
         merge_date_fields
+        merge_va_medical_facility_label_helper
 
         @form_data
       end
@@ -278,6 +279,12 @@ module PdfFill
 
       def merge_value(type, method_name)
         @form_data[type] = method(method_name).call(@form_data[type])
+      end
+
+      def merge_va_medical_facility_label_helper
+        target_facility_code = @form_data['vaMedicalFacility']
+        display_value = FORMATTER.format_facility_label(target_facility_code)
+        @form_data['vaMedicalFacility'] = display_value
       end
 
       # Map helpers - These methods transform input values into the expected format required for PDF fields

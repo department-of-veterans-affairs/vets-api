@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://api.wellhive.com/care-navigation/v1/appointments/J9BhspdR/submit
+      uri: "<VAOS_EPS_API_URL>/<VAOS_EPS_API_PATH>/appointments/J9BhspdR/submit"
       body:
         encoding: UTF-8
         string: '{"networkId":"sandbox-network-5vuTac8v","providerServiceId":"9mN718pH","slotIds":["5vuTac8v-practitioner-4-role-1|2a82f6c9-e693-4091-826d-97b392958301|2024-11-04T17:00:00Z|30m0s|1732735998236|ov"],"referral":{"referralNumber":"12345"},"additionalPatientAttributes":{"name":{"family":"Smith","given":["Sarah","Elizabeth"]},"phone":"407-555-8899","email":"sarah.smith@email.com","birthDate":"1985-03-15","gender":"female","address":{"line":["742
@@ -59,7 +59,6 @@ http_interactions:
               "start": "2026-01-01T17:00:00Z",
               "status": "booked"
             },
-            "error": "conflict",
             "id": "J9BhspdR",
             "networkId": "00eff3f3-ecfb-41ff-9ebc-78ed811e17f9",
             "patientId": "b6cc1875-5313-4ca8-af8b-74adac0c5d0c",

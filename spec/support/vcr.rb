@@ -54,6 +54,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VEIS_AUTH_URL>') { Settings.travel_pay.veis.auth_url }
   c.filter_sensitive_data('<CONTENTION_CLASSIFICATION_API_URL>') { Settings.contention_classification_api.url }
   c.filter_sensitive_data('<VA_MOBILE_URL>') { Settings.va_mobile.url }
+  c.filter_sensitive_data('<VAOS_PATIENTS_PATH>') { Settings.va_mobile.patients_path }
   c.filter_sensitive_data('<ARP_ALLOW_LIST_ACCESS_TOKEN>') do
     Settings.accredited_representative_portal.allow_list.github.access_token
   end
@@ -65,6 +66,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
+  c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')

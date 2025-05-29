@@ -22,6 +22,10 @@ module Mobile
         survivorsAward
       ].freeze
       DOWNLOAD_FORMATS = %w[json pdf].freeze
+      FILTERED_LETTER_TYPES = %w[
+        medicare_partd
+        minimum_essential_coverage
+      ].freeze
 
       before_action do
         if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
@@ -38,12 +42,20 @@ module Mobile
       def index
         response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
                      letters = lighthouse_service.get_eligible_letter_types(icn)[:letters]
-                     letters.map do |letter|
+                     letters.filter_map do |letter|
+                       # The following letters need to be filtered out due to outdated content
+                       next if FILTERED_LETTER_TYPES.include? letter[:letterType]
+
                        Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name])
                      end
                    else
                      letters = evss_service.get_letters.letters
-                     letters.map { |letter| Mobile::V0::Letter.new(letter_type: letter.letter_type, name: letter.name) }
+                     letters.filter_map do |letter|
+                       # The following letters need to be filtered out due to outdated content
+                       next if FILTERED_LETTER_TYPES.include? letter.letter_type
+
+                       Mobile::V0::Letter.new(letter_type: letter.letter_type, name: letter.name)
+                     end
                    end
 
         render json: Mobile::V0::LettersSerializer.new(@current_user, response.select(&:displayable?))
