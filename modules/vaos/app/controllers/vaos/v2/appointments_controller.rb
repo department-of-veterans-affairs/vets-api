@@ -484,18 +484,14 @@ module VAOS
       #   - provider [Object] The provider details
       #   - slots [Object] Available appointment slots
       #   - drive_time [Object, nil] Drive time information
-      #   - referral_id [String] The referral ID
       #
-      def build_draft_response(draft_appointment, provider, slots, drive_time, referral_id)
-        response_data = OpenStruct.new(
+      def build_draft_response(draft_appointment, provider, slots, drive_time)
+        OpenStruct.new(
           id: draft_appointment.id,
           provider:,
           slots:,
           drive_time:
         )
-        Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
-                          "Response: #{response_data.inspect}")
-        response_data
       end
 
       # Fetches available provider slots using referral data.
