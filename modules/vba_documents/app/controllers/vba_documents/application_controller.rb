@@ -5,7 +5,7 @@ module VBADocuments
     service_tag 'lighthouse-benefits-intake'
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
-    before_action :require_gateway_origin
+    before_action :require_gateway_origin, :set_extra_context
 
     def require_gateway_origin
       raise Common::Exceptions::Unauthorized if Rails.env.production? \
@@ -13,9 +13,8 @@ module VBADocuments
         && Flipper.enabled?(:benefits_require_gateway_origin)
     end
 
-    def set_sentry_tags_and_extra_context
+    def set_extra_context
       RequestStore.store['additional_request_attributes'] = { 'source' => 'vba_documents' }
-      # Sentry.set_tags(source: 'vba_documents')
     end
 
     def consumer

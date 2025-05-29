@@ -93,8 +93,8 @@ module VBADocuments
         end
         ActiveRecord::Base.transaction { updated.each(&:save!) }
       else
-        Rails.logger.warning('Vba_documents API: Error getting status from EMMS API.' \
-                             " EMMS Response Status: #{response.status}. EMMS Response Body: #{response.body}")
+        Rails.logger.warn('Vba_documents API: Error getting status from EMMS API.' \
+                          " EMMS Response Status: #{response.status}. EMMS Response Body: #{response.body}")
         raise Common::Exceptions::BadGateway
       end
     end
@@ -105,14 +105,14 @@ module VBADocuments
         if response.success?
           response_object = JSON.parse(response.body)[0][0]
           if response_object.blank?
-            Rails.logger.warning('Empty status response for known UUID from Central Mail API')
+            Rails.logger.warn('Empty status response for known UUID from Central Mail API')
           else
             map_upstream_status(response_object)
           end
           save!
         else
-          Rails.logger.warning('Vba_documents API: Error getting status from EMMS API.' \
-                               " EMMS Response Status: #{response.status}. EMMS Response Body: #{response.body}")
+          Rails.logger.warn('Vba_documents API: Error getting status from EMMS API.' \
+                            " EMMS Response Status: #{response.status}. EMMS Response Body: #{response.body}")
           raise Common::Exceptions::BadGateway
         end
       end
@@ -220,7 +220,7 @@ module VBADocuments
         self.code = 'DOC202'
         self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
-        Rails.logger.warning("Unknown status value from EMMS API. Guid: #{guid}. EMMS status: #{status}")
+        Rails.logger.warn("Unknown status value from EMMS API. Guid: #{guid}. EMMS status: #{status}")
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
     end
