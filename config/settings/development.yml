@@ -367,7 +367,6 @@ edu:
       - noah.stern@va.gov
       - gregg.puhala@va.gov
       - kara.ciprich@va.gov
-      - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
@@ -588,7 +587,7 @@ ivc_champva:
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
-  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
 ivc_forms:
@@ -1267,6 +1266,7 @@ va_forms:
 va_mobile:
   key_path: "/fake/client/key/path"
   mock: false
+  patients_path: /vaos/v1/patients
   ppms_base_url: https://staff.apps.va.gov
   timeout: 25
   url: https://veteran.apps.va.gov

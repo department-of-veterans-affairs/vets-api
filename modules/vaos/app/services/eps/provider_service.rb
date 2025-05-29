@@ -119,12 +119,8 @@ module Eps
       response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
       log_response(response, 'EPS Search Provider Services')
 
-      # NOTE: faraday converts keys to symbols
-      matching_provider = response.body[:provider_services]&.find do |provider|
-        provider[:individual_providers]&.any? { |individual| individual[:npi] == npi }
-      end
-
-      matching_provider ? OpenStruct.new(matching_provider) : nil
+      # NPIs are unique, so we expect either an empty array or an array with exactly one matching provider
+      response.body[:provider_services]&.first&.then { |provider| OpenStruct.new(provider) }
     end
 
     private
