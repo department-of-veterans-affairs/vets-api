@@ -12,6 +12,8 @@ module IncomeAndAssets
         'trust' => { key: 'F[0].Page_10[0].DependentsEstablishedATrust[0]' },
         # 8b-8m (only space for one on form)
         'trusts' => {
+          # Label for each trust entry (e.g., 'Trust 1')
+          item_label: 'Trust',
           limit: 1,
           first_key: 'establishedDate', # No text fields in this section
           # 8b
@@ -22,8 +24,9 @@ module IncomeAndAssets
           },
           'establishedDateOverflow' => {
             question_num: 8,
-            question_suffix: '(b)',
-            question_text: 'DATE TRUST ESTABLISHED (MM/DD/YYYY)'
+            question_suffix: 'B',
+            question_text: 'DATE TRUST ESTABLISHED (MM/DD/YYYY)',
+            question_label: 'Date Established'
           },
           # 8c
           'marketValueAtEstablishment' => {
@@ -33,23 +36,27 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            dollar: true,
             question_num: 8,
-            question_suffix: '(c)',
-            question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHEMENT'
+            question_suffix: 'C',
+            question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHMENT',
+            question_label: 'Market Value'
           },
           # 8d
           'trustType' => { key: "F[0].Page_10[0].TypeOfTrust8d[#{ITERATOR}]" },
           'trustTypeOverflow' => {
             question_num: 8,
-            question_suffix: '(d)',
-            question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED'
+            question_suffix: 'D',
+            question_text: 'SPECIFY TYPE OF TRUST ESTABLISHED',
+            question_label: 'Trust Type'
           },
           # 8e
           'addedFundsAfterEstablishment' => { key: "F[0].Page_10[0].AddedAdditionalFunds8e[#{ITERATOR}]" },
           'addedFundsAfterEstablishmentOverflow' => {
             question_num: 8,
-            question_suffix: '(e)',
-            question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?'
+            question_suffix: 'E',
+            question_text: 'HAVE YOU ADDED FUNDS TO THE TRUST AFTER IT WAS ESTABLISHED?',
+            question_label: 'Added Funds'
           },
           # 8f
           'addedFundsDate' => {
@@ -59,8 +66,9 @@ module IncomeAndAssets
           },
           'addedFundsDateOverflow' => {
             question_num: 8,
-            question_suffix: '(f)',
-            question_text: 'WHEN DID YOU ADD FUNDS? (MM/DD/YYYY)'
+            question_suffix: 'F',
+            question_text: 'WHEN DID YOU ADD FUNDS? (MM/DD/YYYY)',
+            question_label: 'Date Added'
           },
           # 8g
           'addedFundsAmount' => {
@@ -69,16 +77,19 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            dollar: true,
             question_num: 8,
-            question_suffix: '(g)',
-            question_text: 'HOW MUCH DID YOU ADD?'
+            question_suffix: 'G',
+            question_text: 'HOW MUCH DID YOU ADD?',
+            question_label: 'Amount Added'
           },
           # 8h
           'receivingIncomeFromTrust' => { key: "F[0].Page_10[0].ReceivingIncome8h[#{ITERATOR}]" },
           'receivingIncomeFromTrustOverflow' => {
             question_num: 8,
-            question_suffix: '(h)',
-            question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? '
+            question_suffix: 'H',
+            question_text: 'ARE YOU RECEIVING INCOME FROM THE TRUST? ',
+            question_label: 'Receiving Income from Trust'
           },
           # 8i
           'annualReceivedIncome' => {
@@ -87,17 +98,20 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
+            dollar: true,
             question_num: 8,
-            question_suffix: '(i)',
-            question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?'
+            question_suffix: 'I',
+            question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?',
+            question_label: 'Annual Income'
           },
           # 8j
           'trustUsedForMedicalExpenses' => { key: "F[0].Page_10[0].TrustUsedToPay8j[#{ITERATOR}]" },
           'trustUsedForMedicalExpensesOverflow' => {
             question_num: 8,
-            question_suffix: '(j)',
+            question_suffix: 'J',
             question_text:
-                      'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?'
+                      'IS THE TRUST BEING USED TO PAY FOR OR TO REIMBURSE SOMEONE ELSE FOR YOUR MEDICAL EXPENSES?',
+            question_label: 'Used for Medical Expenses'
           },
           # 8k
           'monthlyMedicalReimbursementAmount' => {
@@ -106,23 +120,27 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]" }
           },
           'monthlyMedicalReimbursementAmountOverflow' => {
+            dollar: true,
             question_num: 8,
-            question_suffix: '(k)',
-            question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?'
+            question_suffix: 'K',
+            question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?',
+            question_label: 'Monthly Medical Reimbursement'
           },
           # 8l
           'trustEstablishedForVeteransChild' => { key: "F[0].Page_10[0].EstablishedForChild8l[#{ITERATOR}]" },
           'trustEstablishedForVeteransChildOverflow' => {
             question_num: 8,
-            question_suffix: '(l)',
-            question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?' # rubocop:disable Layout/LineLength
+            question_suffix: 'L',
+            question_text: 'WAS THE TRUST ESTABLISHED FOR A CHILD OF THE VETERAN WHO WAS INCAPABLE OF SELF-SUPPORT PRIOR TO REACHING AGE 18?', # rubocop:disable Layout/LineLength
+            question_label: 'Trust Established for Veterans Child'
           },
           # 8m
           'haveAuthorityOrControlOfTrust' => { key: "F[0].Page_10[0].AdditionalAuthority8m[#{ITERATOR}]" },
           'haveAuthorityOrControlOfTrustOverflow' => {
             question_num: 8,
-            question_suffix: '(m)',
-            question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?'
+            question_suffix: 'M',
+            question_text: 'DO YOU HAVE ANY ADDITIONAL AUTHORITY OR CONTROL OF THE TRUST?',
+            question_label: 'Additional Authority or Control of Trust'
           }
         }
       }.freeze

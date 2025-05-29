@@ -39,7 +39,7 @@ module Logging
     # Subclasses can override this method to provide custom email functionality
     #
     # @param claim_id [Integer] The ID of the claim
-    # @param email_type [symbol] The type of the email (e.g., :error, :submitted)
+    # @param email_type [Symbol] The type of the email (e.g., :error, :submitted)
     def send_email(claim_id, email_type)
       # Default implementation does nothing
     end
@@ -58,7 +58,8 @@ module Logging
     def submit_event(level, message, stats_key, options = {})
       claim = options[:claim]
       user_account_uuid = options[:user_account_uuid]
-      additional_context = options.except(:claim, :user_account_uuid)
+      call_location = options[:call_location] || caller_locations.first
+      additional_context = options.except(:claim, :user_account_uuid, :call_location)
 
       claim_id = claim.respond_to?(:id) ? claim.id : claim
       confirmation_number = claim.respond_to?(:confirmation_number) ? claim.confirmation_number : nil
@@ -74,7 +75,7 @@ module Logging
         **additional_context
       }
 
-      track_request(level, message, stats_key, call_location: caller_locations.first, **payload)
+      track_request(level, message, stats_key, call_location:, **payload)
     end
   end
 end

@@ -62,6 +62,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
   context 'with va_dependents_v2 disabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
@@ -141,7 +142,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
           user_struct.va_profile_email,
           'fake_received686',
           { 'confirmation_number' => claim.confirmation_number,
-            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'first_name' => 'MARK' },
           'fake_secret',
           { callback_klass: 'Dependents::NotificationCallback',
@@ -267,7 +268,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   context 'with va_dependents_v2 enabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
-      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 
@@ -347,7 +348,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
           user_struct.va_profile_email,
           'fake_received686',
           { 'confirmation_number' => claim_v2.confirmation_number,
-            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'first_name' => 'MARK' },
           'fake_secret',
           { callback_klass: 'Dependents::NotificationCallback',

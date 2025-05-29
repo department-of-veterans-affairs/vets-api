@@ -31,17 +31,20 @@ module Vets
 
       # Lists the attributes that are filterable
       def filterable_attributes
-        attributes.select { |_, options| options[:filterable] }.keys
+        ancestors.select { |klass| klass.respond_to?(:attributes) }.flat_map do |klass|
+          klass.attributes.select { |_, options| options[:filterable] }.keys
+        end
       end
 
       # Creates a param hash for filterable
       def filterable_params
-        attributes.each_with_object({}) do |attribute, hash|
-          name = attribute.first
-          options = attribute.second
-
-          hash[name.to_s] = options[:filterable] if options[:filterable]
-        end.with_indifferent_access
+        ancestors
+          .select { |klass| klass.respond_to?(:attributes) }
+          .each_with_object({}.with_indifferent_access) do |klass, result|
+            klass.attributes.each do |name, options|
+              result[name.to_s] = options[:filterable] if options[:filterable]
+            end
+          end
       end
 
       private
@@ -58,11 +61,14 @@ module Vets
           return nil unless defined?(default)
 
           # if there's a default, assign the default value
-          if default.is_a?(Symbol) && respond_to?(default)
-            send(default)
-          else
-            default
-          end
+          value = if default.is_a?(Symbol) && respond_to?(default)
+                    send(default)
+                  else
+                    default.dup
+                  end
+
+          instance_variable_set("@#{name}", value)
+          value
         end
       end
 

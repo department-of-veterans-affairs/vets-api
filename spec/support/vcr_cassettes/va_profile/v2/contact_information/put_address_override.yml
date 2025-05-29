@@ -5,7 +5,7 @@ http_interactions:
     uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
     body:
       encoding: UTF-8
-      string: '{"bio":{"addressId":577127,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Fulton","country":{"countryName":null,"countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":null,"countyName":null},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"MS"},"intPostalCode":null,"zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-09-16T16:09:37.000Z","effectiveStartDate":"2024-09-16T16:09:37.000Z","effectiveEndDate":null,"overrideValidationKey":713117306,"validationKey":713117306}}'
+      string: '{"bio":{"addressId":577127,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Fulton","country":{"countryName":null,"countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":null,"countyName":null},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"MS"},"intPostalCode":null,"zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-09-16T16:09:37.000Z","effectiveStartDate":"2024-09-16T16:09:37.000Z","effectiveEndDate":null,"overrideValidationKey":713117306}}'
     headers:
       User-Agent:
       - Vets.gov Agent

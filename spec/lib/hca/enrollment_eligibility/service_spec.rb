@@ -37,7 +37,7 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data without contacts and with providers and dependents' do
-          expect_veteran_data_to_match(veteran_data.except('veteranContacts'))
+          expect_veteran_data_to_match(veteran_data.except('nextOfKins', 'emergencyContacts'))
         end
       end
 
@@ -47,7 +47,9 @@ describe HCA::EnrollmentEligibility::Service do
         end
 
         it 'gets Veteran data without contacts, providers, or dependents' do
-          expect_veteran_data_to_match(veteran_data.except('providers', 'dependents', 'veteranContacts'))
+          expect_veteran_data_to_match(
+            veteran_data.except('providers', 'dependents', 'nextOfKins', 'emergencyContacts')
+          )
         end
       end
     end
@@ -72,7 +74,7 @@ describe HCA::EnrollmentEligibility::Service do
           allow(Flipper).to receive(:enabled?).with(:ezr_form_prefill_with_providers_and_dependents).and_return(false)
         end
 
-        it 'gets Veteran data without contacts and with providers and dependents' do
+        it 'gets Veteran data with contacts, but without providers and dependents' do
           expect_veteran_data_to_match(veteran_data.except('providers', 'dependents'))
         end
       end
@@ -81,17 +83,49 @@ describe HCA::EnrollmentEligibility::Service do
 
   describe '#parse_es_date' do
     context 'with an invalid date' do
-      it 'returns nil and logs the date' do
-        service = described_class.new
-        expect(service).to receive(:log_exception_to_sentry).with(instance_of(Date::Error))
+      context ':hca_disable_sentry_logs enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+        end
 
-        expect(
-          service.send(:parse_es_date, 'f')
-        ).to be_nil
+        it 'returns nil and logs the date' do
+          date_str = 'f'
+          service = described_class.new
 
-        expect(
-          PersonalInformationLog.where(error_class: 'Form1010Ezr DateError').last.data
-        ).to eq('f')
+          expect(Rails.logger).to receive(:error).with(
+            '[HCA] - DateError',
+            { exception: instance_of(Date::Error) }
+          )
+
+          expect(
+            service.send(:parse_es_date, date_str)
+          ).to be_nil
+
+          expect(
+            PersonalInformationLog.where(error_class: 'Form1010Ezr DateError').last.data
+          ).to eq(date_str)
+        end
+      end
+
+      context ':hca_disable_sentry_logs disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+        end
+
+        it 'returns nil and logs the date' do
+          date_str = 'f'
+          service = described_class.new
+
+          expect(service).to receive(:log_exception_to_sentry).with(instance_of(Date::Error))
+
+          expect(
+            service.send(:parse_es_date, date_str)
+          ).to be_nil
+
+          expect(
+            PersonalInformationLog.where(error_class: 'Form1010Ezr DateError').last.data
+          ).to eq(date_str)
+        end
       end
     end
   end

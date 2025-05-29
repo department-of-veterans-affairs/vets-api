@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
+
+ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -25,7 +26,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "bpds_submission_status", ["pending", "submitted", "failure"]
   create_enum "itf_remediation_status", ["unprocessed"]
-  create_enum "lighthouse_submission_status", ["pending", "submitted"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -319,6 +320,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "type", null: false
     t.uuid "creator_id", null: false
+    t.integer "declination_reason"
     t.index ["creator_id"], name: "index_ar_power_of_attorney_request_decisions_on_creator_id"
   end
 
@@ -421,7 +423,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "path"
-    t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["entity_id"], name: "index_banners_on_entity_id", unique: true
     t.index ["path"], name: "index_banners_on_path"
   end
 
@@ -1018,7 +1020,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
     t.text "ssn_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
+    t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi", unique: true
     t.index ["needs_kms_rotation"], name: "index_gibs_not_found_users_on_needs_kms_rotation"
   end
 
@@ -1116,7 +1118,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
     t.string "edipi", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
+    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi", unique: true
   end
 
   create_table "ivc_champva_forms", force: :cascade do |t|
@@ -1164,7 +1166,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1172,6 +1173,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1180,11 +1182,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_07_151848) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 

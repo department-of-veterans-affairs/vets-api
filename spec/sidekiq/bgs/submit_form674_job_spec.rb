@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
-  let(:user) { create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -79,7 +79,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           user.va_profile_email,
           'fake_received686c674',
           { 'confirmation_number' => dependency_claim.confirmation_number,
-            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'first_name' => 'WESLEY' },
           'fake_secret',
           { callback_klass: 'Dependents::NotificationCallback',
@@ -117,7 +117,8 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
   context 'error with central submission' do
     before do
       allow(OpenStruct).to receive(:new).and_call_original
-      InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+      InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, user_account: user.user_account,
+                             form_data: all_flows_payload)
     end
 
     it 'raises error' do
@@ -158,7 +159,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           user.va_profile_email,
           'fake_received674',
           { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
-            'date_submitted' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'first_name' => 'WESLEY' },
           'fake_secret',
           { callback_klass: 'Dependents::NotificationCallback',

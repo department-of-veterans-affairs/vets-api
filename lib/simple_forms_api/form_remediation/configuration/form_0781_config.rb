@@ -40,6 +40,12 @@ module SimpleFormsApi
           remediation_data_class.new(id:, config: self, form_key:)
         end
 
+        # Override to use relative paths for temporary directories
+        # This prevents RubyZip errors when creating ZIP entries with absolute paths
+        def temp_directory_path
+          File.join('tmp', "#{SecureRandom.hex}-archive")
+        end
+
         def s3_settings
           Settings.form0781_remediation.aws
         end
