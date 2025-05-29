@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'docx'
 
 module TravelPay
   module V0
@@ -22,6 +23,19 @@ module TravelPay
 
         begin
           claim = claims_service.get_claim_details(params[:id])
+
+          if claim['claimStatus'].eql? 'Denied'
+            # download rejection letter
+            document_data = documents_service.download_document(params[:id], '1234')
+            
+            # extract contents
+            #bindata = IO.binread(document_data[:body])
+            doc = Docx::Document.open(document_data[:body])
+
+            # include with claim response
+            claim['all_denial_reasons'] = doc.paragraphs[46].to_s
+          end
+
         rescue Faraday::ResourceNotFound => e
           handle_resource_not_found_error(e.message, e.response[:request][:headers]['X-Correlation-ID'])
           return
@@ -85,6 +99,10 @@ module TravelPay
 
       def expense_service
         @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
+      end
+
+      def documents_service
+        @documents_service ||= TravelPay::DocumentsService.new(auth_manager)
       end
 
       def scrub_logs
