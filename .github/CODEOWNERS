@@ -778,6 +778,7 @@ db/audit_schema.rb @department-of-veterans-affairs/octo-identity
 db/migrate @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 db/schema.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 db/seeds @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+db/seeds/development/identity @department-of-veterans-affairs/octo-identity
 docker-compose-clamav.yml @department-of-veterans-affairs/backend-review-group
 docker-compose-deps.yml @department-of-veterans-affairs/backend-review-group
 docker-compose.review.yml @department-of-veterans-affairs/backend-review-group
