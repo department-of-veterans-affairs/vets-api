@@ -19998,7 +19998,8 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "prescriptionStatusCount"
+              "prescriptionStatusCount",
+              "hasNonVaMeds"
             ],
             "properties": {
               "prescriptionStatusCount": {
@@ -20018,6 +20019,10 @@
                   "unknown": 2,
                   "total": 14
                 }
+              },
+              "hasNonVaMeds": {
+                "type": "boolean",
+                "description": "Notifies if user has any prescriptions that are Non-VA (NV). This boolean will be set regardless of\nthe set of data returned in the \"data\" section of the response (ie. this will still be set to \"true\"\nif the user has Non-VA meds but the current page of the response does not show any).\n"
               }
             }
           }
