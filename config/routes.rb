@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   namespace :sign_in do
     get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
+    namespace :webhooks do
+      post 'logingov/risc', to: 'logingov#risc'
+    end
+
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
