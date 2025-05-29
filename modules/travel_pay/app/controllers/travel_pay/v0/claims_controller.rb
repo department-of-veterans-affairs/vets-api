@@ -104,7 +104,8 @@ module TravelPay
       end
 
       def get_appt_or_raise(params = {})
-        appt_not_found_msg = "No appointment found for appointment date/time provided"
+        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
         appt = appts_service.find_or_create_appointment(params)
 
         if appt[:data].nil?
