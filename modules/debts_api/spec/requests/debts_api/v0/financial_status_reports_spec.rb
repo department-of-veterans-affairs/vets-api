@@ -198,4 +198,223 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
       end
     end
   end
+
+  describe '#submissions' do
+    it 'returns all Financial Status Report submissions for the current user' do
+      get '/debts_api/v0/financial_status_reports/submissions'
+      
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+      expect(json_response).to have_key('submissions')
+    end
+
+    context 'when user has no submissions' do
+      it 'returns an empty array' do
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+        expect(json_response['submissions']).to eq([])
+      end
+    end
+
+    context 'when user has submissions' do
+      let!(:submission1) do
+        create(:debts_api_form5655_submission,
+               user_uuid: user.uuid,
+               user_account: user.user_account,
+               created_at: 1.day.ago,
+               state: 'submitted',
+               public_metadata: {
+                 'debt_type' => 'DEBT',
+                 'streamlined' => { 'value' => true, 'type' => 'short' },
+                 'combined' => false
+               })
+      end
+
+      let!(:submission2) do
+        create(:debts_api_form5655_submission,
+               user_uuid: user.uuid,
+               user_account: user.user_account,
+               created_at: 3.days.ago,
+               state: 'failed',
+               public_metadata: {
+                 'debt_type' => 'COPAY',
+                 'streamlined' => { 'value' => false },
+                 'combined' => true
+               })
+      end
+
+      let!(:other_user_submission) do
+        create(:debts_api_form5655_submission,
+               user_uuid: 'other-user-uuid',
+               user_account: create(:user_account),
+               state: 'submitted')
+      end
+
+      it 'returns submissions for the current user ordered by most recent' do
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+
+        expect(json_response['submissions'].length).to eq(2)
+
+        first_submission = json_response['submissions'][0]
+        second_submission = json_response['submissions'][1]
+        expect(first_submission['id']).to eq(submission1.id)
+        expect(second_submission['id']).to eq(submission2.id)
+      end
+
+      it 'returns the correct data structure for each submission' do
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        json_response = JSON.parse(response.body)
+        first_submission = json_response['submissions'][0]
+
+        expect(first_submission['id']).to eq(submission1.id)
+        expect(first_submission['created_at']).to eq(submission1.created_at.as_json)
+        expect(first_submission['updated_at']).to eq(submission1.updated_at.as_json)
+        expect(first_submission['state']).to eq('submitted')
+
+        expect(first_submission['metadata']['debt_type']).to eq('DEBT')
+        expect(first_submission['metadata']['streamlined']).to eq({ 'value' => true, 'type' => 'short' })
+        expect(first_submission['metadata']['combined']).to be(false)
+      end
+
+      it 'handles nil public_metadata gracefully' do
+        submission1.update!(public_metadata: nil)
+
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        json_response = JSON.parse(response.body)
+        first_submission = json_response['submissions'][0]
+
+        expect(first_submission['metadata']['debt_type']).to be_nil
+        expect(first_submission['metadata']['streamlined']).to be_nil
+        expect(first_submission['metadata']['combined']).to be_nil
+      end
+
+      it 'maintains backwards compatibility with id field' do
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        json_response = JSON.parse(response.body)
+        first_submission = json_response['submissions'][0]
+
+        expect(first_submission.keys.first).to eq('id')
+      end
+
+      it 'handles missing or nil fields without errors' do
+        create(:debts_api_form5655_submission,
+               user_uuid: user.uuid,
+               user_account: user.user_account,
+               state: nil,
+               public_metadata: nil)
+
+        submission1.destroy!
+        submission2.destroy!
+
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+
+        expect(json_response['submissions'].length).to eq(1)
+        submission_data = json_response['submissions'][0]
+
+        expect(submission_data['state']).to be_nil
+        expect(submission_data['metadata']['debt_type']).to be_nil
+        expect(submission_data['metadata']['streamlined']).to be_nil
+        expect(submission_data['metadata']['combined']).to be_nil
+      end
+    end
+
+    context 'when submissions have debt identifiers' do
+      let!(:vba_submission) do
+        create(:debts_api_form5655_submission,
+               user_uuid: user.uuid,
+               user_account: user.user_account,
+               state: 'submitted',
+               public_metadata: {
+                 'debt_type' => 'DEBT',
+                 'streamlined' => { 'value' => false },
+                 'combined' => false
+               },
+               metadata: {
+                 'debts' => [
+                   {
+                     'deductionCode' => '30',
+                     'fileNumber' => '123456789',
+                     'payeeNumber' => '00',
+                     'originalAR' => '1000.00',
+                     'currentAR' => '800.00',
+                     'debtType' => 'DEBT'
+                   },
+                   {
+                     'deductionCode' => '41',
+                     'fileNumber' => '123456789',
+                     'payeeNumber' => '01',
+                     'originalAR' => '500.00',
+                     'currentAR' => '500.00',
+                     'debtType' => 'DEBT'
+                   }
+                 ]
+               }.to_json)
+      end
+
+      let!(:vha_submission) do
+        create(:debts_api_form5655_submission,
+               user_uuid: user.uuid,
+               user_account: user.user_account,
+               state: 'submitted',
+               public_metadata: {
+                 'debt_type' => 'COPAY',
+                 'streamlined' => { 'value' => false },
+                 'combined' => false
+               },
+               metadata: {
+                 'copays' => [
+                   {
+                     'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                     'pSFacilityNum' => '757',
+                     'pSStatementVal' => '0000037953E',
+                     'pHAmtDue' => '107.24',
+                     'debtType' => 'COPAY'
+                   }
+                 ]
+               }.to_json)
+      end
+
+      it 'includes debt identifiers for VBA debts' do
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        json_response = JSON.parse(response.body)
+        vba_submission_data = json_response['submissions'].find { |s| s['id'] == vba_submission.id }
+
+        expect(vba_submission_data['metadata']['debt_identifiers']).to contain_exactly('301000', '41500')
+      end
+
+      it 'includes debt identifiers for VHA copays' do
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        json_response = JSON.parse(response.body)
+        vha_submission_data = json_response['submissions'].find { |s| s['id'] == vha_submission.id }
+
+        expect(vha_submission_data['metadata']['debt_identifiers']).to contain_exactly(
+          '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        )
+      end
+
+      it 'returns empty array when metadata parsing fails' do
+        vba_submission.update!(metadata: 'invalid json')
+
+        get '/debts_api/v0/financial_status_reports/submissions'
+
+        json_response = JSON.parse(response.body)
+        submission_data = json_response['submissions'].find { |s| s['id'] == vba_submission.id }
+
+        expect(submission_data['metadata']['debt_identifiers']).to eq([])
+      end
+    end
+  end
 end
