@@ -28,7 +28,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
 
-   describe 'PDF version selection via feature flag' do
+  describe 'PDF version selection via feature flag' do
     let(:flag_key) { :form4142_use_2024_template }
     let(:legacy_id) { Processors::BaseForm4142Processor::LEGACY_FORM_CLASS_ID }
     let(:new_id)    { Processors::BaseForm4142Processor::FORM_CLASS_ID_2024 }
@@ -57,7 +57,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
       end
     end
   end
-  
+
   describe '#initialize' do
     context 'when schema validation is not enabled' do
       before do

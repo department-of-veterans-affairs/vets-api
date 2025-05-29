@@ -49,7 +49,7 @@ module Processors
       )
 
       # Handle signature stamping for 2024 version
-      if signature.present? && FORM_CLASS_ID_2024 == selected_form_class_id
+      if signature.present? && selected_form_class_id == FORM_CLASS_ID_2024
         pdf = PDFUtilities::DatestampPdf.new(pdf).run(
           text: signature,
           x: 50,
