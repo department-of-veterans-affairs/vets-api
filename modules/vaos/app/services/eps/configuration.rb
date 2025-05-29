@@ -29,7 +29,7 @@ module Eps
         # Enable debug logging in development by default, but without response bodies to prevent PII exposure
         if (ENV['VAOS_EPS_DEBUG'] || Rails.env.development?) && !Rails.env.production?
           conn.request(:curl, ::Logger.new($stdout), :warn)
-          conn.response(:logger, ::Logger.new($stdout), bodies: false)
+          conn.response(:logger, ::Logger.new($stdout), bodies: true)
         end
 
         conn.response :betamocks if mock_enabled?
