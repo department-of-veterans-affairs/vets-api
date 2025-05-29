@@ -115,4 +115,8 @@ Rails.application.reloader.to_prepare do
   Breakers.redis_prefix = ''
   Breakers.client = client
   Breakers.disabled = true if Settings.breakers_disabled
+
+  Breakers.config&.outage_exceptions += [
+    Common::Exceptions::BackendServiceException
+  ]
 end
