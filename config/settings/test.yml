@@ -586,7 +586,7 @@ ivc_champva:
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
-  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
 ivc_forms:
