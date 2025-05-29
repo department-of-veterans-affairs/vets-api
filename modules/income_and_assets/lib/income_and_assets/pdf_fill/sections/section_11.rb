@@ -93,6 +93,7 @@ module IncomeAndAssets
             }
           },
           'grossAnnualAmountOverflow' => {
+            dollar: true,
             question_num: 11,
             question_suffix: '(7)',
             question_text: 'WHAT WAS THE GROSS ANNUAL AMOUNT REPORTED TO THE IRS?',
