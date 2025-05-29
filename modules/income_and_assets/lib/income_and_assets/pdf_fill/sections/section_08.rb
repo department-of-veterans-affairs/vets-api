@@ -36,6 +36,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].MarketValue4_8c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'C',
             question_text: 'SPECIFY MARKET VALUE OF ALL ASSETS WITHIN THE TRUST AT TIME OF ESTABLISHMENT',
@@ -76,6 +77,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].HowMuchTransferred3_8g[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'G',
             question_text: 'HOW MUCH DID YOU ADD?',
@@ -96,6 +98,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].ReceiveAnnually3_8i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'I',
             question_text: 'HOW MUCH DO YOU RECEIVE ANNUALLY?',
@@ -117,6 +120,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].Page_10[0].ReimbursedMonthly3_8k[#{ITERATOR}]" }
           },
           'monthlyMedicalReimbursementAmountOverflow' => {
+            dollar: true,
             question_num: 8,
             question_suffix: 'K',
             question_text: 'HOW MUCH IS BEING REIMBURSED MONTHLY?',

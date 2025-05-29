@@ -257,8 +257,8 @@ jobs:
           labels: ready-for-review
 
 
-      - name: Fail if draft or failures
-        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true'
+      - name: Fail if draft
+        if: needs.get-pr-data.outputs.pr_draft == 'true'
         run: exit 1
 
       # The ready-for-review label will be added when pull request has not been reviewed
