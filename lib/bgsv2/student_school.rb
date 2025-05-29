@@ -14,8 +14,8 @@ module BGSV2
     end
 
     def create
-      child_school = BGSDependentsV2::ChildSchool.new(@dependents_application, @proc_id, @vnp_participant_id, @student)
-      child_student = BGSDependentsV2::ChildStudent.new(@dependents_application, @proc_id, @vnp_participant_id, @student)
+      child_school = BGSDependentsV2::ChildSchool.new(@proc_id, @vnp_participant_id, @student)
+      child_student = BGSDependentsV2::ChildStudent.new(@proc_id, @vnp_participant_id, @student)
 
       bgs_service.create_child_school(child_school.params_for_686c)
       bgs_service.create_child_student(child_student.params_for_686c)
