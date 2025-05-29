@@ -40,9 +40,7 @@ module AccreditedRepresentativePortal
         @registrations ||= @registration_numbers.map do |user_type, registration_number|
           OpenStruct.new(
             accredited_individual_registration_number: registration_number,
-            power_of_attorney_holder_type: map_user_type(user_type),
-            user_account_email: @email,
-            user_account_icn: icn
+            power_of_attorney_holder_type: map_user_type(user_type)
           )
         end
       else
