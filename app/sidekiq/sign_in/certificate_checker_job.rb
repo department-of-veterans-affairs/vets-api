@@ -3,36 +3,44 @@
 class SignIn::CertificateCheckerJob
   include Sidekiq::Job
 
-  def perform(*_args)
-    client_configs = SignIn::ClientConfig.all
-    check_certificates_for(client_configs)
+  LOGGER_PREFIX = '[SignIn] [CertificateChecker]'
+  CONFIG_CLASSES = [
+    SignIn::ClientConfig,
+    SignIn::ServiceAccountConfig
+  ].freeze
 
-    service_account_configs = SignIn::ServiceAccountConfig.all
-    check_certificates_for(service_account_configs)
+  def perform
+    CONFIG_CLASSES.each do |config_class|
+      config_class.find_each { |config| check_certificates(config) }
+    end
   end
 
   private
 
-  def check_certificates_for(configs)
-    configs.find_each do |config|
-      config.expired_certificates.each do |certificate|
-        payload = payload_for_alert(config, certificate)
-        Rails.logger.warn('[SignIn] [CertificateChecker] expired_certificate', payload)
-      end
+  def check_certificates(config)
+    log_expired_certs(config) if config.certs.active.blank?
+    log_expiring_certs(config)
+  end
 
-      config.expiring_certificates.each do |certificate|
-        payload = payload_for_alert(config, certificate)
-        Rails.logger.warn('[SignIn] [CertificateChecker] expiring_certificate', payload)
-      end
-
-      config.self_signed_certificates.each do |certificate|
-        payload = payload_for_alert(config, certificate)
-        Rails.logger.warn('[SignIn] [CertificateChecker] self_signed_certificate', payload)
-      end
+  def log_expired_certs(config)
+    config.certs.expired.each do |cert|
+      log_warning('expired_certificate', config, cert)
     end
   end
 
-  def payload_for_alert(config, certificate)
+  def log_expiring_certs(config)
+    config.certs.expiring.each do |cert|
+      log_warning('expiring_certificate', config, cert)
+    end
+  end
+
+  def log_warning(type, config, certificate)
+    Rails.logger.warn(
+      "#{LOGGER_PREFIX} #{type}", build_payload(config, certificate)
+    )
+  end
+
+  def build_payload(config, certificate)
     {
       config_type: config.class.name,
       config_id: config.id,

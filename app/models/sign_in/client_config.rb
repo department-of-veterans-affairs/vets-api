@@ -2,8 +2,6 @@
 
 module SignIn
   class ClientConfig < ApplicationRecord
-    include SignIn::Concerns::Certifiable
-
     attribute :access_token_duration, :interval
     attribute :refresh_token_duration, :interval
 

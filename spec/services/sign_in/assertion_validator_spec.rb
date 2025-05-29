@@ -28,12 +28,14 @@ RSpec.describe SignIn::AssertionValidator do
     let(:exp) { 1.month.since.to_i }
     let(:scopes) { service_account_config.scopes }
     let(:service_account_id) { service_account_config.service_account_id }
-    let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
+    let(:service_account_config) { create(:service_account_config, certs: [assertion_certificate]) }
     let(:service_account_audience) { service_account_config.access_token_audience }
     let(:assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
     let(:assertion) { JWT.encode(assertion_payload, private_key, assertion_encode_algorithm) }
     let(:certificate_path) { 'spec/fixtures/sign_in/sts_client.crt' }
-    let(:assertion_certificate) { File.read(certificate_path) }
+    let(:assertion_certificate) do
+      create(:sign_in_certificate, pem: File.read(certificate_path))
+    end
     let(:token_route) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
 
     context 'when jwt was not encoded with expected signature' do
@@ -122,7 +124,7 @@ RSpec.describe SignIn::AssertionValidator do
 
               context 'and service account config scopes are not present' do
                 let(:service_account_config) do
-                  create(:service_account_config, certificates: [assertion_certificate], scopes: [])
+                  create(:service_account_config, certs: [assertion_certificate], scopes: [])
                 end
 
                 it 'does not raise an error' do
@@ -216,7 +218,7 @@ RSpec.describe SignIn::AssertionValidator do
 
       context 'and user_attributes claim is provided' do
         let(:service_account_config) do
-          create(:service_account_config, certificates: [assertion_certificate], access_token_user_attributes: ['icn'])
+          create(:service_account_config, certs: [assertion_certificate], access_token_user_attributes: ['icn'])
         end
         let(:assertion_payload) do
           {
