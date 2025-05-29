@@ -704,9 +704,6 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
-  filter_saved_claim_logs:
-    actor_type: user
-    description: Enabled filtering out attributes in saved claim validation logs
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
@@ -1123,6 +1120,10 @@ features:
   mhv_secure_messaging_milestone_2_aal:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
+    enable_in_development: true
+  mhv_secure_messaging_custom_folders_redesign:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user

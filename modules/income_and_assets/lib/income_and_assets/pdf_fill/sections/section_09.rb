@@ -36,6 +36,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].MarketAnnuity4_9c[#{ITERATOR}]" }
           },
           'marketValueAtEstablishmentOverflow' => {
+            dollar: true,
             question_num: 9,
             question_suffix: 'C',
             question_text: 'SPECIFY MARKET VALUE OF ASSET AT TIME OF ANNUITY PURCHASE',
@@ -69,6 +70,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].HowMuchTransferred4_9f[#{ITERATOR}]" }
           },
           'addedFundsAmountOverflow' => {
+            dollar: true,
             question_num: 9,
             question_suffix: 'F',
             question_text: 'HOW MUCH DID YOU ADD?',
@@ -98,6 +100,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].AnnualAmountReceived4_9i[#{ITERATOR}]" }
           },
           'annualReceivedIncomeOverflow' => {
+            dollar: true,
             question_num: 9,
             question_suffix: 'I',
             question_text: 'IF YES IN 9H, PROVIDE ANNUAL AMOUNT RECEIVED',
@@ -119,6 +122,7 @@ module IncomeAndAssets
             'cents' => { key: "F[0].#subform[8].SurrenderValue4_9k[#{ITERATOR}]" }
           },
           'surrenderValueOverflow' => {
+            dollar: true,
             question_num: 9,
             question_suffix: 'K',
             question_text: 'IF YES IN 9J, PROVIDE THE SURRENDER VALUE',
