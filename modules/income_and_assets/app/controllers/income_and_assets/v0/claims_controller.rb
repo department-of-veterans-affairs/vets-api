@@ -43,6 +43,7 @@ module IncomeAndAssets
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
+          monitor.track_create_validation_error(in_progress_form, claim, current_user)
           log_validation_error_to_metadata(in_progress_form, claim)
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
