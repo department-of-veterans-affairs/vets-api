@@ -72,9 +72,7 @@ module HCA
           ezr_data.merge!(spouse)
         end
 
-        if Flipper.enabled?(:ezr_prefill_contacts)
-          add_contacts_to_ezr_data(ezr_data, response)
-        end
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_prefill_contacts)
 
         OpenStruct.new(ezr_data)
       end
@@ -501,7 +499,7 @@ module HCA
           nextOfKins: ['Primary Next of Kin', 'Other Next of Kin'],
           emergencyContacts: ['Emergency Contact', 'Other emergency contact']
         }
-        
+
         contacts.each do |key, types|
           selected = parse_contacts(response).select { |c| types.include?(c[:contactType]) }
           ezr_data[key] = selected if selected.present?
