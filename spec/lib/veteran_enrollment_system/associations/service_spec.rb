@@ -278,6 +278,18 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     end
   end
 
+  def update_contacts(base_form, updates)
+    JSON.parse(base_form.to_json).merge(updates)
+  end
+
+  def modify_contacts(base_form, updates)
+    JSON.parse(base_form.to_json).tap do |f|
+      updates.each do |field, transform|
+        f[field] = f[field].map { |contact| transform.call(contact) }
+      end
+    end
+  end
+
   def expect_successful_response_output(response, timestamp)
     expect(StatsD).to have_received(:increment).with(
       'api.veteran_enrollment_system.associations.update_associations.success'
