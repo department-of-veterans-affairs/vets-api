@@ -297,6 +297,7 @@ app/models/submission.rb @department-of-veterans-affairs/pension-and-burials @de
 app/models/supporting_evidence_attachment.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/terms_of_use_agreement.rb @department-of-veterans-affairs/octo-identity
 app/models/tooltip.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/backend-review-group
+app/models/tracking.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/backend-review-group
 app/models/transaction_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/triage_team.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/user_acceptable_verified_credential.rb @department-of-veterans-affairs/octo-identity
@@ -821,7 +822,6 @@ Gemfile.lock @department-of-veterans-affairs/backend-review-group
 helmCharts/ @department-of-veterans-affairs/backend-review-group
 import-va-certs.sh @department-of-veterans-affairs/backend-review-group
 Jenkinsfile @department-of-veterans-affairs/backend-review-group
-lib/ @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/accredited_representation/constants.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 lib/accredited_representation/create_accredited_individual.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 lib/admin @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
