@@ -9,8 +9,8 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:form_json) do
-    File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
-    # File.read('spec/support/disability_compensation_form/submissions/with_4142_2024.json')
+    # File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
+    File.read('spec/support/disability_compensation_form/submissions/with_4142_2024.json')
   end
 
   let(:saved_claim) { create(:va526ez) }
@@ -28,6 +28,36 @@ describe DecisionReviewV1::Processor::Form4142Processor do
   end
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
 
+   describe 'PDF version selection via feature flag' do
+    let(:flag_key) { :form4142_use_2024_template }
+    let(:legacy_id) { Processors::BaseForm4142Processor::LEGACY_FORM_CLASS_ID }
+    let(:new_id)    { Processors::BaseForm4142Processor::FORM_CLASS_ID_2024 }
+
+    context 'when the 2024 feature flag is OFF' do
+      before { allow(Flipper).to receive(:enabled?).with(flag_key).and_return(false) }
+
+      it 'uses the legacy form ID' do
+        expect(PdfFill::Filler).to receive(:fill_ancillary_form)
+          .with(form4142, anything, legacy_id)
+          .and_call_original
+
+        processor
+      end
+    end
+
+    context 'when the 2024 feature flag is ON' do
+      before { allow(Flipper).to receive(:enabled?).with(flag_key).and_return(true) }
+
+      it 'uses the 2024 form ID' do
+        expect(PdfFill::Filler).to receive(:fill_ancillary_form)
+          .with(form4142, anything, new_id)
+          .and_call_original
+
+        processor
+      end
+    end
+  end
+  
   describe '#initialize' do
     context 'when schema validation is not enabled' do
       before do
@@ -56,7 +86,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
           expect(PdfFill::Filler).to receive(:fill_ancillary_form)
             .and_call_original
             .once
-            .with(form4142, anything, described_class::FORM_ID)
+            .with(form4142, anything, described_class::FORM_SCHEMA_ID)
           # Note on the expectation: #anything is a special keyword that matches any argument.
           # We used it here since the uuid is created at runtime.
 

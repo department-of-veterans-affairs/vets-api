@@ -21,6 +21,9 @@ module Processors
     SIGNATURE_DATE_KEY = 'signatureDate'
     SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
     TIMEZONE = 'Central Time (US & Canada)'
+    FORM_SCHEMA_ID = '21-4142'
+    LEGACY_FORM_CLASS_ID = '21-4142'
+    FORM_CLASS_ID_2024 = '21-4142-2024'
 
     # @return [Pathname] the generated PDF path
     # @return [Hash] the generated request body
@@ -35,11 +38,18 @@ module Processors
       }
     end
 
+    # Single entry point: choose the right form_class_id, then fill & stamp.
     def generate_stamp_pdf
-      pdf = PdfFill::Filler.fill_ancillary_form(form_data, pdf_identifier, form_id)
+      selected_form_class_id = generate_2024_version? ? FORM_CLASS_ID_2024 : LEGACY_FORM_CLASS_ID
 
-      # Handle signature stamping
-      if signature.present?
+      pdf = PdfFill::Filler.fill_ancillary_form(
+        form_data,
+        pdf_identifier,
+        selected_form_class_id
+      )
+
+      # Handle signature stamping for 2024 version
+      if signature.present? && FORM_CLASS_ID_2024 == selected_form_class_id
         pdf = PDFUtilities::DatestampPdf.new(pdf).run(
           text: signature,
           x: 50,
@@ -72,6 +82,10 @@ module Processors
 
     protected
 
+    # Default: use legacy form
+    def generate_2024_version?
+      false
+    end
     # Abstract methods to be implemented by subclasses
     def form_data
       raise NotImplementedError, 'Subclasses must implement form_data method'
@@ -87,10 +101,6 @@ module Processors
 
     def submission_date
       raise NotImplementedError, 'Subclasses must implement submission_date method'
-    end
-
-    def form_id
-      raise NotImplementedError, 'Subclasses must implement form_id method'
     end
 
     def country_code_for_us_validation
@@ -125,7 +135,7 @@ module Processors
         'source' => 'VA Forms Group B',
         'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
         'numberAttachments' => 0,
-        'docType' => form_id,
+        'docType' => FORM_SCHEMA_ID,
         'numberPages' => PDF::Reader.new(@pdf_path).pages.size
       }
 
@@ -143,18 +153,17 @@ module Processors
     end
 
     def signature
-      return unless form_data['signatureDate'].present?
-
       full_name = form_data.dig('veteranFullName')
-      return unless full_name
+      return unless form_data['signatureDate'].present? && full_name
 
-      [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
+      name = [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
+      "/es #{name}"
     end
 
     def validate_form4142
       return unless Flipper.enabled?(:form4142_validate_schema)
 
-      schema = VetsJsonSchema::SCHEMAS[form_id]
+      schema = VetsJsonSchema::SCHEMAS[FORM_SCHEMA_ID]
       errors = JSON::Validator.fully_validate(schema, form_data, errors_as_objects: true)
 
       unless errors.empty?
