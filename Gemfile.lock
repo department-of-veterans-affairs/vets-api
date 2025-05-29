@@ -1402,7 +1402,6 @@ DEPENDENCIES
   vba_documents!
   vcr
   veteran!
-  veteran_confirmation!
   vets_json_schema!
   virtus
   vre!
