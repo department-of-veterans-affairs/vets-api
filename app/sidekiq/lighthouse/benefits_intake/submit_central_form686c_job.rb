@@ -267,14 +267,18 @@ module Lighthouse
       end
 
       def self.trigger_failure_events(msg)
-        monitor = Dependents::Monitor.new
         saved_claim_id, _, encrypted_user_struct = msg['args']
         user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) if encrypted_user_struct.present?
         claim = SavedClaim::DependencyClaim.find(saved_claim_id)
         email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
                 user_struct.try(:va_profile_email)
-        monitor.track_submission_exhaustion(msg, email)
+        Dependents::Monitor.new(claim.id).track_submission_exhaustion(msg, email)
         claim.send_failure_email(email)
+      rescue => e
+        # If we fail in the above failure events, this is a critical error and silent failure.
+        v2 = claim&.use_v2
+        Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg:, v2: })
+        StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::STATSD_KEY_PREFIX}}.silent_failure")
       end
 
       private

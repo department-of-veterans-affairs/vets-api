@@ -48,6 +48,12 @@
                 },
                 "message" : {
                   "type": "array"
+                },
+                "title" : {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
                 }
               },
               "type": "object"

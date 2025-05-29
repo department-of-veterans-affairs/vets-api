@@ -6,6 +6,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 describe Vye::MidnightRun, type: :worker do
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   it 'enqueues child jobs' do
@@ -40,6 +41,17 @@ describe Vye::MidnightRun, type: :worker do
       # support.
       # Todo: followup w/platform about this
       Vye::MidnightRun.new.perform
+    end
+  end
+
+  context 'with disabled flipper set' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(true)
+    end
+
+    it 'does not do any processing' do
+      expect(Vye::MidnightRun::IngressBdn).not_to receive(:perform_async)
+      described_class.new.perform
     end
   end
 end

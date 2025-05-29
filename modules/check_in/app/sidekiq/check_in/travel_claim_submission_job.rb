@@ -17,7 +17,7 @@ module CheckIn
                   })
 
       claim_number_last_four, template_id = submit_claim(uuid:, appointment_date:, station_number:, facility_type:)
-      unless template_id.nil? || claim_number_last_four.nil?
+      unless template_id.nil?
         TravelClaimNotificationJob.perform_async(uuid, appointment_date, template_id, claim_number_last_four)
       end
     end
