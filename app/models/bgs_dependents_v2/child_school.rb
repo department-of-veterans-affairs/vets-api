@@ -16,7 +16,7 @@ module BGSDependentsV2
     end
 
     # rubocop:disable Metrics/MethodLength
-    def params_for_686c_v2
+    def params_for_686c
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id,
