@@ -5,8 +5,7 @@ require 'rails_helper'
 RSpec.describe BGSDependentsV2::ChildSchool do
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:child_school_info_v2) do
-    described_class.new(all_flows_payload_v2['dependents_application'],
-                        '3829729',
+    described_class.new('3829729',
                         '149471',
                         all_flows_payload_v2['dependents_application']['student_information'][0])
   end
