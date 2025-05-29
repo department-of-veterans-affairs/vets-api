@@ -202,7 +202,7 @@ RSpec.describe 'DebtsApi::V0::FinancialStatusReports', type: :request do
   describe '#submissions' do
     it 'returns all Financial Status Report submissions for the current user' do
       get '/debts_api/v0/financial_status_reports/submissions'
-      
+
       expect(response).to have_http_status(:ok)
       json_response = JSON.parse(response.body)
       expect(json_response).to have_key('submissions')
