@@ -40,26 +40,29 @@ module AccreditedRepresentativePortal
           Rails.logger.error(log_value.deep_transform_values do |v|
             { class: v.class, size: v.try(:size) }
           end)
-
-          params.require(:representative_form_upload).permit(
-            :confirmationCode,
-            :location,
-            :formNumber,
-            :formName,
-            formData: [
-              :veteranSsn,
-              :formNumber,
-              :postalCode,
-              :veteranDateOfBirth,
-              :email,
-              :postal_code,
-              :claimantDateOfBirth,
-              :claimantSsn,
-              { claimantFullName: %i[first last] },
-              { veteranFullName: %i[first last] }
-            ]
-          )
+          form_params_list
         end
+      end
+
+      def form_params_list
+        params.require(:representative_form_upload).permit(
+          :confirmationCode,
+          :location,
+          :formNumber,
+          :formName,
+          formData: [
+            :veteranSsn,
+            :formNumber,
+            :postalCode,
+            :veteranDateOfBirth,
+            :email,
+            :postal_code,
+            :claimantDateOfBirth,
+            :claimantSsn,
+            { claimantFullName: %i[first last] },
+            { veteranFullName: %i[first last] }
+          ]
+        )
       end
 
       def form_data
