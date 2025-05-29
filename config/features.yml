@@ -2076,6 +2076,10 @@ features:
     enable_in_development: true
     description: >-
       A switch that toggles new claims management functionality.
+  termsOfUseBrowserMonitoringEnabled:
+    actor_type: user
+    description: Enables Datadog Real User Monitoring for the terms-of-use app
+    enable_in_development: true
   yellow_ribbon_automated_date_on_school_search:
     actor_type: user
     description: Enable the automated date displayed in the Find a Yellow Ribbon school search results
