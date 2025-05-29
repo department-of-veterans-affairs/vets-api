@@ -118,6 +118,7 @@ module AccreditedRepresentativePortal
         let!(:registration) do
           create(
             :representative,
+            :vso,
             email: user_email
           )
         end
