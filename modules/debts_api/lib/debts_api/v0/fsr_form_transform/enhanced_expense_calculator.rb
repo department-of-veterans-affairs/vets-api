@@ -17,7 +17,6 @@ module DebtsApi
         def initialize(form)
           @form = form
           @enhanced = form['view:enhancedFinancialStatusReport'] || false
-          @expense_page_active = @form['view:showUpdatedExpensePages'] || false
           @expense_records = @form.dig('expenses', 'expenseRecords') || []
           @old_rent_mortgage_attr = @form.dig('expenses', 'rentOrMortgage') || 0
           @new_rent_mortgage_attr = @form.dig('expenses', 'monthlyHousingExpenses')
@@ -53,7 +52,6 @@ module DebtsApi
                 food +
                 rent_or_mortgage_sum +
                 credit_card_bills
-          sum -= rent_or_mortgage_sum unless @expense_page_active # rent/mortgage included in calculated_exp_records
 
           sum.round(2)
         end
@@ -100,7 +98,7 @@ module DebtsApi
         end
 
         def get_rent_mortgage_expenses
-          return safe_number(@new_rent_mortgage_attr) if @expense_page_active
+          return safe_number(@new_rent_mortgage_attr)
 
           rent_or_mortgage_expenses = @expense_records.filter do |record|
             [RENT, MORTGAGE_PAYMENT].include?(record['name'])
