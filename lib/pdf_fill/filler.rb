@@ -106,22 +106,25 @@ module PdfFill
 
     def add_annotations(doc_path, extras_generator, original_page_count)
       doc = HexaPDF::Document.open(doc_path)
-      add_destinations(doc, original_page_count)
+      add_destinations(doc)
       add_links(doc, extras_generator, original_page_count)
 
       doc.write(doc_path)
       doc_path
     end
 
-    def add_destinations(doc, original_page_count)
+    def add_destinations(doc)
+      form_class = PdfFill::Forms::Va210781v2
+
       names_array = []
-      doc.pages.each_with_index do |page, i|
-        unless i >= original_page_count
-          dest_name = "page_#{i + 1}"
-          dest = doc.wrap([page, :XYZ, 0, 775, nil])
-          names_array << dest_name
-          names_array << dest
-        end
+      form_class::SECTIONS.each do |section|
+        page = section[:page] - 1
+        x = 0
+        y = section[:dest_y_coord]
+        dest_name = section[:dest_name]
+        dest = doc.wrap([doc.pages[page], :XYZ, x, y, nil]) # doc.pages[page] is 0-based index
+        names_array << dest_name
+        names_array << dest
       end
       doc.catalog[:Names] ||= doc.wrap({})
       doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })

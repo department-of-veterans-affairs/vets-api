@@ -596,7 +596,7 @@ module PdfFill
         y: box_position[:y] + 35,
         width: box_position[:width],
         height: 20,
-        dest: @sections[section_index][:page]
+        dest: @sections[section_index][:dest_name]
       }
     end
 
