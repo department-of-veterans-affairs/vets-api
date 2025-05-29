@@ -63,6 +63,7 @@ module IncomeAndAssets
             }
           },
           'expectedIncomeOverflow' => {
+            dollar: true,
             question_num: 12,
             question_suffix: '(4)',
             question_text: 'IF THE INCOME RESUMES, WHAT AMOUNT DO YOU EXPECT TO RECEIVE?',
@@ -102,6 +103,7 @@ module IncomeAndAssets
             }
           },
           'waivedGrossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 12,
             question_suffix: '(6)',
             question_text: 'WAIVED GROSS MONTHLY INCOME',
