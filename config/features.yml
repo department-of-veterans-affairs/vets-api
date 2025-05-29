@@ -2200,3 +2200,6 @@ features:
   gi_ct_mapbox_mitigation:
     actor_type: user
     description: If enabled, hides search by location feature affected by MapBox loss
+  ar_poa_request_failure_notification_email:
+    actor_type: user
+    description: If enabled, sends email notification to the user when a POA request fails

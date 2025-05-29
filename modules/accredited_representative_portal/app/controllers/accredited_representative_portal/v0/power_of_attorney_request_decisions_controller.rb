@@ -101,6 +101,8 @@ module AccreditedRepresentativePortal
       end
 
       def send_failure_notification_email(poa_request)
+        return unless Flipper.enabled?(:ar_poa_request_failure_notification_email)
+
         notification = poa_request.notifications.create!(type: 'failed')
         PowerOfAttorneyRequestEmailJob.perform_async(
           notification.id
