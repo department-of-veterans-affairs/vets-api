@@ -42,9 +42,10 @@ module BGS
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
-      Rails.logger.info('21-674 Automatic Claim Prior to submission', { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
+      log_if_ready('21-674 Automatic Claim Prior to submission', "#{stats_key}.automatic.begin")
       benefit_claim_record = BenefitClaim.new(args: benefit_claim_args(vnp_benefit_claim_record, veteran)).create
-      Rails.logger.info("21-674 Automatic Benefit Claim successfully created through BGS: #{benefit_claim_record[:benefit_claim_id]}", { saved_claim_id: @saved_claim.id, proc_id: @proc_id }) if @proc_state == 'Ready' # rubocop:disable Layout/LineLength
+      log_if_ready("21-674 Automatic Benefit Claim successfully created through BGS: #{
+                   benefit_claim_record[:benefit_claim_id]}", "#{stats_key}.automatic.success")
 
       begin
         vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
@@ -70,15 +71,12 @@ module BGS
     def log_claim_status(benefit_claim_record, proc_id)
       if @proc_state == 'MANUAL_VAGOV'
         if @saved_claim.submittable_686?
-          Rails.logger.info('21-674 Combination 686C-674 claim set to manual by VA.gov: This
-                            application needs manual review because a 674 was submitted alongside a 686c.',
-                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true,
-                              combination_claim: true })
-          StatsD.increment("#{stats_key}.manual.combo")
+          monitor.track_event('info', '21-674 Combination 686C-674 claim set to manual by VA.gov: This
+                              application needs manual review because a 674 was submitted alongside a 686c.',
+                              "#{stats_key}.manual.combo", { proc_id: @proc_id, manual: true, combination_claim: true })
         else
-          Rails.logger.info('21-674 Claim set to manual by VA.gov: This application needs manual review.',
-                            { saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true })
-          StatsD.increment("#{stats_key}.manual")
+          monitor.track_event('info', '21-674 Claim set to manual by VA.gov: This application needs manual review.',
+                              "#{stats_key}.manual", { proc_id: @proc_id, manual: true })
         end
         # keep bgs note the same
         note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
@@ -86,9 +84,9 @@ module BGS
 
         bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
       else
-        Rails.logger.info("21-674 Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
-                          { saved_claim_id: @saved_claim.id, proc_id: @proc_id, automatic: true })
-        StatsD.increment("#{stats_key}.automatic")
+        monitor.track_event('info',
+                            "21-674 Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
+                            "#{stats_key}.automatic", { proc_id: @proc_id, automatic: true })
       end
     end
 
@@ -168,13 +166,8 @@ module BGS
     end
 
     def log_submit_failure(error)
-      Rails.logger.warning('BGS::Form674.submit failed after creating benefit claim in BGS',
-                           {
-                             user_uuid: user.uuid,
-                             saved_claim_id: saved_claim.id,
-                             icn: user.icn,
-                             error: error.message
-                           })
+      monitor.track_event('warn', 'BGS::Form674.submit failed after creating benefit claim in BGS',
+                          "#{stats_key}.failure", { user_uuid: user.uuid, icn: user.icn, error: error.message })
     end
 
     def bgs_service
@@ -187,6 +180,14 @@ module BGS
 
     def stats_key
       'bgs.form674'
+    end
+
+    def monitor
+      @monitor ||= ::Dependents::Monitor.new(@saved_claim.id)
+    end
+
+    def log_if_ready(message, metric)
+      monitor.track_event('info', message, metric, { proc_id: @proc_id }) if @proc_state == 'Ready'
     end
   end
 end
