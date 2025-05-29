@@ -141,6 +141,14 @@ module RepresentationManagement
       end
     end
 
+    def validate_agent_addresses
+      nil if @agent_ids_for_address_validation.empty?
+    end
+
+    def validate_attorney_addresses
+      nil if @attorney_ids_for_address_validation.empty?
+    end
+
     def log_error(message)
       Rails.logger.error("SendExpiredEmailJob error: #{message}")
     end
