@@ -38,19 +38,32 @@ describe PdfFill::HashConverter do
     end
 
     context 'with a dollar value' do
-      it 'adds text to the extras page' do
-        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil)
+      [
+        { value: '$100', expected: '$100.00' },
+        { value: '1,000,000', expected: '$1,000,000.00' },
+        { value: '1,000,000.01', expected: '$1,000,000.01' },
+        { value: '0', expected: '$0.00' },
+        { value: '42', expected: '$42.00' },
+        { value: '123.45', expected: '$123.45' },
+        { value: 1000, expected: '$1,000.00' },
+        { value: 10_004.10, expected: '$10,004.10' },
+        { value: -10_004.00, expected: '-$10,004.00' }
+      ].each do |test_case|
+        it "formats #{test_case[:value]} as #{test_case[:expected]}" do
+          verify_extras_text(test_case[:expected], question_num: 1, question_text: 'foo', i: nil)
 
-        call_set_value(
-          {
-            key: :foo,
-            dollar: true,
-            limit: 2,
-            question_num: 1,
-            question_text: 'foo'
-          },
-          nil
-        )
+          call_set_custom_value(
+            test_case[:value],
+            {
+              key: :foo,
+              dollar: true,
+              limit: 0,
+              question_num: 1,
+              question_text: 'foo'
+            },
+            nil
+          )
+        end
       end
     end
 

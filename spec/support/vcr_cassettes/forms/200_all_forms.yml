@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/va_forms/v0/forms?query
+    uri: <LIGHTHOUSE_BASE_URL>/services/va_forms/v0/forms?query
     body:
       encoding: US-ASCII
       string: ''

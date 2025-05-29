@@ -22,7 +22,7 @@ module RES
     #
     def submit
       if @claim.nil?
-        Rails.logger.error('Ch31NilClaimError. user uuid:', @user.uuid)
+        Rails.logger.error('Ch31NilClaimError. user uuid:', @user&.uuid)
         raise Ch31NilClaimError
       end
 
