@@ -7,13 +7,12 @@ module BGSDependentsV2
     attribute :program_information, Hash
     attribute :current_term_dates, Hash
 
-    def initialize(dependents_application, proc_id, vnp_participant_id, student = nil) # rubocop:disable Lint/MissingSuper
+    def initialize(_dependents_application, proc_id, vnp_participant_id, student = nil) # rubocop:disable Lint/MissingSuper
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @student = student
-      @is_v2 = v2?
 
-      assign_attributes(@is_v2 ? student : dependents_application)
+      assign_attributes(student)
     end
 
     # rubocop:disable Metrics/MethodLength

@@ -8,14 +8,12 @@ module BGSDependentsV2
     attribute :student_expected_earnings_next_year, Hash
     attribute :student_information, Hash
 
-    def initialize(dependents_application, proc_id, vnp_participant_id, student = nil) # rubocop:disable Lint/MissingSuper
+    def initialize(_dependents_application, proc_id, vnp_participant_id, student = nil) # rubocop:disable Lint/MissingSuper
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
-      @dependents_application = dependents_application
-      @is_v2 = v2?
       @student = student
 
-      assign_attributes(@is_v2 ? student : dependents_application)
+      assign_attributes(student)
     end
 
     # rubocop:disable Metrics/MethodLength
