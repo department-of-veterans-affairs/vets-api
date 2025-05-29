@@ -118,10 +118,9 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        unless appointment&.id
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
-          render json: appt_creation_failed_error, status: :unprocessable_entity and return
-        end
+        # Handle error cases
+        error_response = handle_appointment_errors(appointment)
+        return error_response if error_response
 
         Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
                           "Response: #{appointment.inspect}")
@@ -518,8 +517,8 @@ module VAOS
           provider_id,
           {
             appointmentTypeId: referral_data[:appointment_type_id],
-            startOnOrAfter: referral_data[:start_date],
-            startBefore: referral_data[:end_date]
+            startOnOrAfter: Date.parse(referral_data[:start_date]).to_time.utc.iso8601,
+            startBefore: Date.parse(referral_data[:end_date]).to_time.utc.iso8601
           }
         )
       end
@@ -555,7 +554,7 @@ module VAOS
       #
       # TODO: pass in date from cached referral data to use as range for CCRA appointments call
       def check_referral_usage(referral_id)
-        check = appointments_service.referral_appointment_already_exists?(referral_id, pagination_params)
+        check = appointments_service.referral_appointment_already_exists?(referral_id)
 
         if check[:error]
           { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
@@ -651,6 +650,63 @@ module VAOS
             detail: 'Could not create appointment'
           }]
         }
+      end
+
+      ##
+      # Maps appointment error codes to appropriate HTTP status codes
+      #
+      # @param error_code [String] The error code from the appointment response
+      # @return [Symbol] The corresponding HTTP status code symbol
+      #
+      def appointment_error_status(error_code)
+        case error_code
+        when 'conflict'
+          :conflict # 409
+        when 'bad-request'
+          :bad_request # 400
+        when 'internal-error'
+          :internal_server_error # 500
+        else
+          # too-far-in-the-future, already-canceled, too-late-to-cancel, etc.
+          :unprocessable_entity # 422
+        end
+      end
+
+      ##
+      # Builds a standardized error response for appointment errors
+      #
+      # @param error_code [String] The error code from the appointment response
+      # @return [Hash] Formatted error response with title and detail
+      #
+      def appointment_error_response(error_code)
+        {
+          errors: [{
+            title: 'Appointment submission failed',
+            detail: "An error occurred: #{error_code}",
+            code: error_code
+          }]
+        }
+      end
+
+      ##
+      # Handles error conditions for appointments and returns appropriate responses
+      #
+      # @param appointment [Object] The appointment object to check for errors
+      # @return [Object, nil] The render result if there's an error, nil otherwise
+      #
+      def handle_appointment_errors(appointment)
+        unless appointment&.id
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+          return render json: appt_creation_failed_error, status: :unprocessable_entity
+        end
+
+        if appointment[:error].present?
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
+          return render json: appointment_error_response(appointment[:error]),
+                        status: appointment_error_status(appointment[:error])
+        end
+
+        nil
       end
     end
   end
