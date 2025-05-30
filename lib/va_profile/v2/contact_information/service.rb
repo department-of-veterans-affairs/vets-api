@@ -34,9 +34,9 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
-            verify_user!
+            verify_vet360_id!
 
-            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}")
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vet360_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
@@ -217,6 +217,10 @@ module VAProfile
 
         private
 
+        def verify_vet360_id!
+          raise 'ContactInformationV2 - Missing User VAProfile_ID' if @user&.vet360_id.blank?
+        end
+
         def verify_user!
           unless @user&.vet360_id.present? || @user&.icn.present?
             raise 'ContactInformationV2 - Missing User ICN and VAProfile_ID'
@@ -226,8 +230,12 @@ module VAProfile
             VAProfile Verified? #{@user&.vet360_id.present?}")
         end
 
+        def vet360_aaid
+          "#{@user.vet360_id}^PI^200VETS^USDVA"
+        end
+
         def vaprofile_aaid
-          return "#{@user.vet360_id}^PI^200VETS^USDVA" if @user.vet360_id.present?
+          return vet360_aaid if @user.vet360_id.present?
 
           "#{@user.icn}^NI^200M^USVHA" # AAID for VAProfile Requests ONLY
         end
