@@ -22,7 +22,6 @@ module BGSV2
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def report_deaths
       @dependents_application['deaths']&.each do |death_info|
         death = BGSDependentsV2::Death.new(death_info)
@@ -49,7 +48,6 @@ module BGSV2
         )
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def report_divorce
       divorce = BGSDependentsV2::Divorce.new(@dependents_application['report_divorce'])
