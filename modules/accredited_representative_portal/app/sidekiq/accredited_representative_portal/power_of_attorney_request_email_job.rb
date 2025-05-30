@@ -63,6 +63,8 @@ module AccreditedRepresentativePortal
           EmailPersonalisations::Expiring
         when 'expired'
           EmailPersonalisations::Expired
+        when 'failed'
+          EmailPersonalisations::Failed
         end
 
       personalisation_klass.generate(

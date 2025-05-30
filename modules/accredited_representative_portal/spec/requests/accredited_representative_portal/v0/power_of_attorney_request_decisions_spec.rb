@@ -212,7 +212,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       it 'returns an error' do
         expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob)
-          .not_to receive(:perform_async)
+          .to receive(:perform_async)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: {
@@ -289,6 +289,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
           )
         )
 
+      allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.count).to eq(0)
+
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'acceptance' } }
 
@@ -297,6 +300,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         .to be_empty
       expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.all)
         .to be_empty
+
+      notification = AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.all
+      expect(notification.count).to eq(1)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to have_received(:perform_async)
+        .once.with(notification.first.id)
     end
   end
 
@@ -313,8 +321,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         .with(poa_request, anything)
         .and_return(accept_service)
 
+      allow(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to receive(:perform_async)
+
       allow(accept_service).to receive(:call)
         .and_raise(StandardError, 'Internal server error')
+
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.count).to eq(0)
 
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'acceptance' } }
@@ -324,6 +336,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
         .to be_empty
       expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.all)
         .to be_empty
+
+      notification = AccreditedRepresentativePortal::PowerOfAttorneyRequestNotification.all
+      expect(notification.count).to eq(1)
+      expect(AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob).to have_received(:perform_async)
+        .once.with(notification.first.id)
     end
   end
 end
