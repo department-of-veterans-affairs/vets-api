@@ -26,7 +26,6 @@ module CheckIn
       claim_number_last_four = claim_number&.last(4)
 
       TravelClaimNotificationJob.perform_async(uuid, appointment_date, template_id, claim_number_last_four || '')
-      StatsD.increment(Constants::STATSD_NOTIFY_SUCCESS)
     end
 
     def claim_status(opts = {})
