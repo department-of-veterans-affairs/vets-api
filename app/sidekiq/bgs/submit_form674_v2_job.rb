@@ -5,7 +5,7 @@ require 'bgsv2/form674'
 module BGS
   class SubmitForm674V2Job < Job
     class Invalid674Claim < StandardError; end
-    FORM_ID = '686C-674'
+    FORM_ID = '686C-674-V2'
     include Sidekiq::Job
     include SentryLogging
 
