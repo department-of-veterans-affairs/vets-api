@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'processors/base_form_4142_processor'
+require 'pdf_fill/processors/base_form_4142_processor'
 require 'decision_review_v1/utilities/constants'
 
 module DecisionReviewV1
