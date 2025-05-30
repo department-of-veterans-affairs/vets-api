@@ -153,7 +153,6 @@ module PdfFill
             program['programDateOfCalculation'] = calculation_date
 
             if program['fte']
-              program['fte']['totalFTE'] = "#{program['fte']['totalFTE']}%" if program['fte']['totalFTE'].present?
               if program['fte']['supportedPercentageFTE'].present?
                 program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
               end
