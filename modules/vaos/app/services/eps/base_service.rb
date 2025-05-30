@@ -99,35 +99,60 @@ module Eps
     # @raise [VAOS::Exceptions::BackendServiceException]
     #
     def raise_eps_error(error_message, _response)
-      # Map error types to appropriate HTTP status codes
-      status_code = case error_message
-                    when 'conflict'
-                      409  # HTTP 409 Conflict
-                    when 'bad-request'
-                      400  # HTTP 400 Bad Request
-                    when 'internal-error'
-                      500  # HTTP 500 Internal Server Error
-                    else
-                      422  # HTTP 422 Unprocessable Entity (default for other business logic errors)
-                    end
+      status_code = map_error_to_status_code(error_message)
+      sanitized_body = build_sanitized_error_body(error_message)
+      mock_env = build_mock_env(status_code, sanitized_body)
 
-      # Create a sanitized error body that doesn't contain PII
-      # Only include the error field and minimal context for debugging
-      sanitized_body = {
+      raise VAOS::Exceptions::BackendServiceException, mock_env
+    end
+
+    ##
+    # Maps error message to appropriate HTTP status code
+    #
+    # @param error_message [String] The error message from EPS
+    # @return [Integer] The HTTP status code
+    #
+    def map_error_to_status_code(error_message)
+      case error_message
+      when 'conflict'
+        409  # HTTP 409 Conflict
+      when 'bad-request'
+        400  # HTTP 400 Bad Request
+      when 'internal-error'
+        500  # HTTP 500 Internal Server Error
+      else
+        422  # HTTP 422 Unprocessable Entity (default for other business logic errors)
+      end
+    end
+
+    ##
+    # Builds a sanitized error body that doesn't contain PII
+    #
+    # @param error_message [String] The error message from EPS
+    # @return [String] JSON string of sanitized error body
+    #
+    def build_sanitized_error_body(error_message)
+      {
         error: error_message,
         source: 'EPS service',
         timestamp: Time.current.iso8601
       }.to_json
+    end
 
-      # Create a mock env object that matches what VAOS::Exceptions::BackendServiceException expects
-      mock_env = OpenStruct.new(
+    ##
+    # Builds a mock environment object for VAOS exception
+    #
+    # @param status_code [Integer] The HTTP status code
+    # @param sanitized_body [String] The sanitized error body JSON
+    # @return [OpenStruct] Mock environment object
+    #
+    def build_mock_env(status_code, sanitized_body)
+      OpenStruct.new(
         status: status_code,
         body: sanitized_body,
         url: "#{config.api_url}/#{config.base_path}",
         response_body: sanitized_body
       )
-
-      raise VAOS::Exceptions::BackendServiceException, mock_env
     end
   end
 end
