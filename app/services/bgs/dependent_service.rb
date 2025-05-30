@@ -28,6 +28,7 @@ module BGS
       @icn = user.icn
       @participant_id = user.participant_id
       @va_profile_email = user.va_profile_email
+      @v2 = Flipper.enabled?(:va_dependents_v2, user)
     end
 
     def get_dependents
@@ -39,13 +40,18 @@ module BGS
     def submit_686c_form(claim)
       Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
 
-      InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
+      if @v2
+        InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
+      else
+        InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
+      end
 
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
       submit_pdf_job(claim:, encrypted_vet_info:)
 
       if claim.submittable_686? || claim.submittable_674?
-        submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
+        submit_form_job_id = @v2 ? submit_to_standard_service_v2(claim:, encrypted_vet_info:) : 
+                                   submit_to_standard_service(claim:, encrypted_vet_info:)
         Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
 
@@ -75,17 +81,26 @@ module BGS
 
       Rails.logger.debug('BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                          { claim_id: claim.id })
-      VBMS::SubmitDependentsPdfJob.perform_sync(
-        claim.id,
-        encrypted_vet_info,
-        claim.submittable_686?,
-        claim.submittable_674?
-      )
+      if @v2
+        VBMS::SubmitDependentsPdfV2Job.perform_sync(
+          claim.id,
+          encrypted_vet_info,
+          claim.submittable_686?,
+          claim.submittable_674?
+        )
+      else
+        VBMS::SubmitDependentsPdfJob.perform_sync(
+          claim.id,
+          encrypted_vet_info,
+          claim.submittable_686?,
+          claim.submittable_674?
+        )
+      end
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       Rails.logger.warn('DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, icn:, error: e }) # rubocop:disable Layout/LineLength
-      submit_to_central_service(claim:)
+      @v2 ? submit_to_central_service_v2(claim:) : submit_to_central_service(claim:)
 
       raise e
     end
@@ -102,12 +117,36 @@ module BGS
       end
     end
 
+    def submit_to_standard_service_v2(claim:, encrypted_vet_info:)
+      if claim.submittable_686?
+        BGS::SubmitForm686cV2Job.perform_async(
+          uuid, icn, claim.id, encrypted_vet_info
+        )
+      else
+        BGS::SubmitForm674V2Job.perform_async(
+          uuid, icn, claim.id, encrypted_vet_info
+        )
+      end
+    end
+
     def submit_to_central_service(claim:)
       vet_info = JSON.parse(claim.form)['dependents_application']
       vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
       user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
+        claim.id,
+        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
+      )
+    end
+
+    def submit_to_central_service_v2(claim:)
+      vet_info = JSON.parse(claim.form)['dependents_application']
+      vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
+
+      user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
         claim.id,
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),
         KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
