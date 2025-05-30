@@ -149,7 +149,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -173,7 +174,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -197,7 +199,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     }
                   ]
@@ -1181,7 +1184,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1205,7 +1209,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1228,7 +1233,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1251,7 +1257,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1274,7 +1281,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": "HigherLevelReview",
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1297,7 +1305,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1320,7 +1329,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1343,7 +1353,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": true
+                        "timely": true,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1366,7 +1377,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": false
+                        "timely": false,
+                        "activeReview": false
                       }
                     },
                     {
@@ -1389,7 +1401,8 @@
                         "rampClaimId": null,
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
-                        "timely": false
+                        "timely": false,
+                        "activeReview": false
                       }
                     }
                   ]
@@ -5746,6 +5759,11 @@
                 "description": "An issue is timely if the receipt date is within 372 dates of the decision date.",
                 "example": false
               },
+              "activeReview": {
+                "type": "boolean",
+                "description": "Indicates that a contestable issue is already part of an active Decision Review that is being processed by VA. Submitting an issue with activeReview = TRUE will result in the creation of a duplicate Decision Review.",
+                "example": false
+              },
               "latestIssuesInChain": {
                 "type": "array",
                 "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).",
@@ -6026,6 +6044,11 @@
                     "timely": {
                       "type": "boolean",
                       "description": "An issue is timely if the receipt date is within 372 dates of the decision date.",
+                      "example": false
+                    },
+                    "activeReview": {
+                      "type": "boolean",
+                      "description": "Indicates that a contestable issue is already part of an active Decision Review that is being processed by VA. Submitting an issue with activeReview = TRUE will result in the creation of a duplicate Decision Review.",
                       "example": false
                     },
                     "latestIssuesInChain": {
