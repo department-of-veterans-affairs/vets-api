@@ -1097,7 +1097,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
               response_obj = JSON.parse(response.body)
               expect(response).to have_http_status(:conflict)
-              expect(response_obj.dig('errors', 0, 'code')).to eql('conflict')
+              expect(response_obj.dig('errors', 0, 'code')).to eql('VAOS_409A')
             end
           end
         end
