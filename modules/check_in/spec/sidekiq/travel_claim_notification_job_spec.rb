@@ -36,7 +36,7 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
         template_id:,
-        sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
+        sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
@@ -258,28 +258,30 @@ RSpec.describe CheckIn::TravelClaimNotificationJob do
   end
 
   describe 'SMS sender ID selection' do
-    it 'uses appropriate SMS sender ID based on facility type' do
-      allow(redis_client).to receive(:facility_type).with(uuid:).and_return('oh')
+    it 'uses appropriate SMS sender ID based on facility type derived from template' do
+      # Test with OH template (using actual OH template that will be recognized)
+      oh_template = 'oh-failure-template-id'
 
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
-        template_id:,
+        template_id: oh_template,
         sms_sender_id: CheckIn::Constants::OH_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
-      described_class.new.perform(uuid, appointment_date, template_id, claim_number)
+      described_class.new.perform(uuid, appointment_date, oh_template, claim_number)
 
-      allow(redis_client).to receive(:facility_type).with(uuid:).and_return('cie')
+      # Test with CIE template (generic templates now default to CIE)
+      cie_template = 'some-generic-template-id'
 
       expect(notify_client).to receive(:send_sms).with(
         phone_number: mobile_phone,
-        template_id:,
+        template_id: cie_template,
         sms_sender_id: CheckIn::Constants::CIE_SMS_SENDER_ID,
         personalisation: { claim_number:, appt_date: formatted_date }
       )
 
-      described_class.new.perform(uuid, appointment_date, template_id, claim_number)
+      described_class.new.perform(uuid, appointment_date, cie_template, claim_number)
     end
   end
 end
