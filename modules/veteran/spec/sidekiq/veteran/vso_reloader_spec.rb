@@ -252,7 +252,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
         it 'uses the current count from the database when no previous value exists' do
           # Should use the initial count from the database since the latest record has nil
-          expect(reloader.send(:get_previous_count, :attorneys)).to eq reloader.instance_variable_get(:@initial_counts)[:attorneys]
+          initial_counts = reloader.instance_variable_get(:@initial_counts)
+          expect(reloader.send(:get_previous_count, :attorneys)).to eq initial_counts[:attorneys]
         end
       end
     end
@@ -354,6 +355,45 @@ RSpec.describe Veteran::VSOReloader, type: :job do
             expect(total.claims_agents).to be_present
             expect(total.vso_representatives).to be_present
             expect(total.vso_organizations).to be_present
+          end
+        end
+      end
+
+      context 'when VSO representative or organization count fails validation' do
+        it 'skips processing both VSO reps and orgs to maintain data integrity' do
+          VCR.use_cassette('veteran/ogc_poa_data') do
+            # Mock validation to fail for VSO organizations only
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
+              if rep_type == :vso_organizations
+                # Simulate organization count failing validation
+                instance.instance_variable_get(:@validation_results)[rep_type] = nil
+                false
+              else
+                # All other types pass validation (including VSO representatives)
+                instance.instance_variable_get(:@validation_results)[rep_type] = new_count
+                true
+              end
+            end
+
+            # Expect that VSO representatives are NOT deleted even though their count passed validation
+            # because the organization count failed
+            initial_vso_rep_count = Veteran::Service::Representative
+                                    .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
+                                    .count
+            initial_org_count = Veteran::Service::Organization.count
+
+            reloader.perform
+
+            # Both VSO reps and orgs should remain unchanged
+            expect(Veteran::Service::Representative
+                    .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
+                    .count).to eq initial_vso_rep_count
+            expect(Veteran::Service::Organization.count).to eq initial_org_count
+
+            # Check the saved totals
+            total = Veteran::AccreditationTotal.last
+            expect(total.vso_representatives).to be_present
+            expect(total.vso_organizations).to be_nil
           end
         end
       end

@@ -78,12 +78,13 @@ module Veteran
       vso_data = fetch_data('orgsexcellist.asp')
       counts = calculate_vso_counts(vso_data)
 
-      # Validate both counts
-      process_vso_reps = valid_count?(:vso_representatives, counts[:reps])
-      process_vso_orgs = valid_count?(:vso_organizations, counts[:orgs])
+      # Validate both counts - if either fails, skip processing both to maintain data integrity
+      reps_valid = valid_count?(:vso_representatives, counts[:reps])
+      orgs_valid = valid_count?(:vso_organizations, counts[:orgs])
+      process_vsos = reps_valid && orgs_valid
 
-      if process_vso_reps
-        process_vso_data(vso_data, process_vso_orgs)
+      if process_vsos
+        process_vso_data(vso_data)
       else
         # Return existing VSO rep IDs to prevent deletion
         Veteran::Service::Representative
@@ -251,7 +252,7 @@ module Veteran
       }
     end
 
-    def process_vso_data(vso_data, process_vso_orgs)
+    def process_vso_data(vso_data)
       vso_reps = []
       vso_orgs = vso_data.map do |vso_rep|
         next unless vso_rep['Representative']
@@ -266,7 +267,8 @@ module Veteran
         }
       end.compact.uniq
 
-      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state]) if process_vso_orgs
+      # Always import organizations when processing VSO data to maintain referential integrity
+      Veteran::Service::Organization.import(vso_orgs, on_duplicate_key_update: %i[name phone state])
 
       vso_reps
     end

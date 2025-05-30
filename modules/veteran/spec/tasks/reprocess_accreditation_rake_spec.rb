@@ -29,6 +29,38 @@ RSpec.describe 'veteran:accreditation:reprocess', type: :task do
       expect { task.invoke('attorneys,claims_agents') }
         .to output(/Starting manual reprocessing for: attorneys, claims_agents/).to_stdout
     end
+
+    context 'when VSO types are specified' do
+      it 'automatically includes both VSO types when only representatives specified' do
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:perform)
+
+        expect { task.invoke('vso_representatives') }
+          .to output(/IMPORTANT: VSO representatives and organizations must be processed together.*Starting manual reprocessing for: vso_representatives, vso_organizations/m) # rubocop:disable Layout/LineLength
+          .to_stdout
+      end
+
+      it 'automatically includes both VSO types when only organizations specified' do
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:perform)
+        task.reenable
+
+        expect { task.invoke('vso_organizations') }
+          .to output(/IMPORTANT: VSO representatives and organizations must be processed together.*Starting manual reprocessing for: vso_representatives, vso_organizations/m) # rubocop:disable Layout/LineLength
+          .to_stdout
+      end
+
+      it 'processes both VSO types without warning when both are specified' do
+        allow_any_instance_of(Veteran::VSOReloader).to receive(:perform)
+        task.reenable
+
+        output_text = ''
+        allow($stdout).to receive(:puts) { |msg| output_text += "#{msg}\n" }
+
+        task.invoke('vso_representatives,vso_organizations')
+
+        expect(output_text).to include('Starting manual reprocessing for: vso_representatives, vso_organizations')
+        expect(output_text).not_to include('IMPORTANT: VSO representatives and organizations must be processed')
+      end
+    end
   end
 
   describe 'reprocessing behavior' do
@@ -48,9 +80,18 @@ RSpec.describe 'veteran:accreditation:reprocess', type: :task do
     end
 
     it 'overrides valid_count? method' do
+      task.reenable
       task.invoke('attorneys,vso_representatives')
 
       expect(reloader).to have_received(:define_singleton_method).with(:valid_count?)
+    end
+
+    it 'expands VSO types when invoked with single VSO type' do
+      task.reenable
+      task.invoke('vso_representatives')
+
+      expect(reloader).to have_received(:instance_variable_set)
+        .with(:@manual_reprocess_types, %i[vso_representatives vso_organizations])
     end
 
     it 'calls perform on the reloader' do
