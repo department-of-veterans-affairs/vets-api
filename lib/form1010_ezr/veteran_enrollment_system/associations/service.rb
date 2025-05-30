@@ -45,10 +45,6 @@ module Form1010Ezr
           'OTHER_EMERGENCY_CONTACT' => 'Other emergency contact'
         }.freeze
 
-        def initialize(current_user)
-          super(current_user)
-        end
-
         def update_associations(associations)
           transformed_associations = transform_associations(associations)
 
