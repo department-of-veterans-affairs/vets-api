@@ -108,6 +108,25 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
           end
         end
       end
+
+      context 'when response contains error field' do
+        it 'returns a 400 error' do
+          # Mock the appointment service to raise the exception we added for error field handling
+          error_env = OpenStruct.new(
+            status: 400,
+            body: '{"error": "conflict", "id": "qdm61cJ5"}',
+            url: 'https://api.wellhive.com/care-navigation/v1'
+          )
+          exception = VAOS::Exceptions::BackendServiceException.new(error_env)
+          
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointment)
+            .and_raise(exception)
+
+          get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
     end
   end
 end

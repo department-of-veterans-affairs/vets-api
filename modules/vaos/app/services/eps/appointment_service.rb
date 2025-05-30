@@ -8,6 +8,7 @@ module Eps
     # @param appointment_id [String] The ID of the appointment to retrieve
     # @param retrieve_latest_details [Boolean] Whether to fetch latest details from provider service
     # @raise [ArgumentError] If appointment_id is blank
+    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
     # @return OpenStruct response from EPS get appointment endpoint
     #
     def get_appointment(appointment_id:, retrieve_latest_details: false)
@@ -15,10 +16,15 @@ module Eps
 
       response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
                          request_headers)
-      log_response(response, 'EPS Get Appointment')
 
-      Rails.logger.info("EPS Get Appointment - Data: #{response.body}")
-      OpenStruct.new(response.body)
+      result = OpenStruct.new(response.body)
+      
+      # Check for error field in successful responses
+      if result.error.present?
+        raise_eps_error(result.error, response)
+      end
+      
+      result
     end
 
     ##
@@ -29,7 +35,11 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, request_headers)
-      log_response(response, 'EPS Get Appointments')
+
+      # Check for error field in successful responses  
+      if response.body.is_a?(Hash) && response.body[:error].present?
+        raise_eps_error(response.body[:error], response)
+      end
 
       appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
@@ -44,7 +54,6 @@ module Eps
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
-      log_response(response, 'EPS Create Draft Appointment')
 
       OpenStruct.new(response.body)
     end
@@ -61,6 +70,7 @@ module Eps
     # @option params [String] :referral_number The referral number
     # @option params [Hash] :additional_patient_attributes Optional patient details (address, contact info)
     # @raise [ArgumentError] If any required parameters are missing
+    # @raise [VAOS::Exceptions::BackendServiceException] If response contains error field
     # @return OpenStruct response from EPS submit appointment endpoint
     #
     def submit_appointment(appointment_id, params = {})
@@ -75,24 +85,18 @@ module Eps
 
       EpsAppointmentWorker.perform_async(appointment_id, user)
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
-      log_response(response, 'EPS Submit Appointment')
 
-      OpenStruct.new(response.body)
+      result = OpenStruct.new(response.body)
+      
+      # Check for error field in successful responses
+      if result.error.present?
+        raise_eps_error(result.error, response)
+      end
+      
+      result
     end
 
     private
-
-    ##
-    # Log API response details for debugging
-    #
-    # @param response [Faraday::Response] The API response
-    # @param description [String] Description of the API call
-    # @return [void]
-    def log_response(response, description)
-      response_body = response.body.is_a?(String) ? response.body : response.body.inspect
-      Rails.logger.info("#{description} - Content-Type: #{response.response_headers['Content-Type']}, " \
-                        "Body Class: #{response.body.class}, Body: #{response_body}...")
-    end
 
     ##
     # Merge provider data with appointment data
@@ -141,6 +145,40 @@ module Eps
     # @return [Eps::ProviderService] ProviderService instance
     def provider_services
       @provider_services ||= Eps::ProviderService.new(user)
+    end
+
+    ##
+    # Raises a VAOS::Exceptions::BackendServiceException for EPS error responses
+    #
+    # @param error_message [String] The error message from the EPS response
+    # @param response [Object] The HTTP response object
+    # @raise [VAOS::Exceptions::BackendServiceException]
+    def raise_eps_error(error_message, response)
+      # Log the error without PII - only include safe context information
+      Rails.logger.warn("EPS appointment error detected", {
+        error_type: error_message,
+        method: caller_locations(1, 1)[0].label,
+        status: response.status || 'unknown'
+      })
+
+      # Create a sanitized error body that doesn't contain PII
+      # Only include the error field and minimal context for debugging
+      sanitized_body = {
+        error: error_message,
+        source: 'EPS appointment service',
+        timestamp: Time.current.iso8601
+      }.to_json
+
+      # Create a mock env object that matches what VAOS::Exceptions::BackendServiceException expects
+      # This follows the same pattern as VAOS::Middleware::Response::Errors but with sanitized body
+      mock_env = OpenStruct.new(
+        status: 400,  # Use 400 for business logic errors
+        body: sanitized_body,
+        url: "#{config.api_url}/#{config.base_path}",
+        response_body: sanitized_body
+      )
+      
+      raise VAOS::Exceptions::BackendServiceException, mock_env
     end
   end
 end

@@ -14,7 +14,7 @@ describe Eps::AppointmentService do
   let(:icn) { '123ICN' }
 
   before do
-    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
+    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false, api_url: 'https://api.wellhive.com')
     allow_any_instance_of(Eps::BaseService).to receive_messages(config:, headers:)
   end
 
@@ -71,6 +71,40 @@ describe Eps::AppointmentService do
                                                                            /VA900/)
       end
     end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'submitted',
+                                                'patientId' => icn,
+                                                'error' => 'conflict' },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.get_appointment(appointment_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expect(Rails.logger).to receive(:warn).with(
+          'EPS appointment error detected',
+          hash_including(
+            error_type: 'conflict',
+            method: 'get_appointment',
+            status: 200
+          )
+        )
+
+        expect { service.get_appointment(appointment_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+    end
   end
 
   describe 'get_appointments' do
@@ -109,6 +143,39 @@ describe Eps::AppointmentService do
       it 'throws exception' do
         expect { service.get_appointments }.to raise_error(Common::Exceptions::BackendServiceException,
                                                            /VA900/)
+      end
+    end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { error: 'conflict',
+                                                'count' => 0,
+                                                'appointments' => [] },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.get_appointments }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expect(Rails.logger).to receive(:warn).with(
+          'EPS appointment error detected',
+          hash_including(
+            error_type: 'conflict',
+            method: 'get_appointments',
+            status: 200
+          )
+        )
+
+        expect { service.get_appointments }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
       end
     end
   end
@@ -263,6 +330,40 @@ describe Eps::AppointmentService do
         expect do
           service.submit_appointment(appointment_id, valid_params)
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'submitted',
+                                                'patientId' => icn,
+                                                'error' => 'conflict' },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.submit_appointment(appointment_id, valid_params) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expect(Rails.logger).to receive(:warn).with(
+          'EPS appointment error detected',
+          hash_including(
+            error_type: 'conflict',
+            method: 'submit_appointment',
+            status: 200
+          )
+        )
+
+        expect { service.submit_appointment(appointment_id, valid_params) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
       end
     end
   end
