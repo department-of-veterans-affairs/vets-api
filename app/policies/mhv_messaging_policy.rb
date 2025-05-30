@@ -5,6 +5,7 @@ require 'sm/client'
 MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def access?
     return false unless user.mhv_correlation_id
+    return false if Flipper.enabled?(:mhv_secure_messaging_policy_va_patient) && !user.va_patient?
 
     client = SM::Client.new(session: { user_id: user.mhv_correlation_id, user_uuid: user.uuid })
     validate_client(client)
