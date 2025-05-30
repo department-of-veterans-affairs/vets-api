@@ -56,6 +56,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     end
     let(:pdf_stamper) { double(stamp_pdf: nil) }
     let(:confirmation_code) { '123456' }
+    let(:form) { instance_double(SimpleFormsApi::VBA21686C) }
     let(:attachment) { double }
 
     before do
@@ -64,8 +65,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
         original_method.call(args[0], random_string)
       end
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
-                                                              timestamp: anything).and_return(pdf_stamper)
+      allow(SimpleFormsApi::VBA21686C).to receive(:new).and_return form
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(form:, stamped_template_path: pdf_path.to_s,
+                                                              current_loa: 3, timestamp: anything).and_return(
+                                                                pdf_stamper
+                                                              )
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
     end
