@@ -1033,10 +1033,6 @@ features:
     actor_type: user
     description: This will filter to only show medical copays within the last 6 months
     enable_in_development: true
-  medical_copays_api_key_change:
-    actor_type: user
-    description: This will use new API key name when available
-    enable_in_development: true
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
@@ -1117,6 +1113,10 @@ features:
   mhv_secure_messaging_milestone_2_aal:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
+    enable_in_development: true
+  mhv_secure_messaging_custom_folders_redesign:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
