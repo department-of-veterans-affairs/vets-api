@@ -238,9 +238,9 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         end
       end
 
-      context 'with null values in previous records' do
+      context 'with no stored count for a type' do
         before do
-          # Create a record with null attorney count
+          # Create a record with no attorney count (simulating first run or after reset)
           Veteran::AccreditationTotal.create!(
             attorneys: nil,
             claims_agents: 50,
@@ -250,9 +250,9 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           )
         end
 
-        it 'looks back to find the most recent non-null value' do
-          # Should use the value from 1 day ago (100), not the null from 1 hour ago
-          expect(reloader.send(:get_previous_count, :attorneys)).to eq 100
+        it 'uses the current count from the database when no previous value exists' do
+          # Should use the initial count from the database since the latest record has nil
+          expect(reloader.send(:get_previous_count, :attorneys)).to eq reloader.instance_variable_get(:@initial_counts)[:attorneys]
         end
       end
     end

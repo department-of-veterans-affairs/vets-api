@@ -12,9 +12,6 @@ module Veteran
     # must not decrease by more than this percentage from the previous count
     DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
 
-    # How many historical records to check for previous counts
-    HISTORICAL_RECORDS_TO_CHECK = 10
-
     # User type constants
     USER_TYPE_ATTORNEY = 'attorney'
     USER_TYPE_CLAIM_AGENT = 'claim_agents'
@@ -47,15 +44,6 @@ module Veteran
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("VSO Reloading error: #{e.message}", :warn)
       log_to_slack('VSO Reloader job has failed!')
-    end
-
-    private
-
-    # Combines all representative IDs from attorneys, claim agents, and VSOs
-    # @return [Array<String>] Combined array of all representative IDs that should remain in the system
-    #   This list is used to identify representatives that are no longer in OGC data and should be removed
-    def reload_representatives
-      reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
     # Reloads attorney data from OGC
@@ -124,6 +112,15 @@ module Veteran
         # Return existing IDs to prevent deletion
         Veteran::Service::Representative.where("'#{user_type}' = ANY(user_types)").pluck(:representative_id)
       end
+    end
+
+    private
+
+    # Combines all representative IDs from attorneys, claim agents, and VSOs
+    # @return [Array<String>] Combined array of all representative IDs that should remain in the system
+    #   This list is used to identify representatives that are no longer in OGC data and should be removed
+    def reload_representatives
+      reload_attorneys + reload_claim_agents + reload_vso_reps
     end
 
     def find_or_create_attorneys(attorney)
@@ -215,16 +212,12 @@ module Veteran
     end
 
     def get_previous_count(rep_type)
-      # Find the most recent non-null value for this rep type
-      recent_totals = Veteran::AccreditationTotal.order(created_at: :desc).limit(HISTORICAL_RECORDS_TO_CHECK)
+      # Get the most recent count from the database
+      latest_total = Veteran::AccreditationTotal.order(created_at: :desc).first
 
-      recent_totals.each do |total|
-        value = total.send(rep_type)
-        return value if value.present?
-      end
-
-      # If no previous count exists in the database, use current count
-      @initial_counts[rep_type]
+      # If we have a previous count in the database, use it
+      # Otherwise, use the current count from the database
+      latest_total&.send(rep_type) || @initial_counts[rep_type]
     end
 
     def notify_threshold_exceeded(rep_type, previous_count, new_count, decrease_percentage, threshold)
