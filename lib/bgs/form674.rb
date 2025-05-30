@@ -167,7 +167,7 @@ module BGS
 
     def log_submit_failure(error)
       monitor.track_event('warn', 'BGS::Form674.submit failed after creating benefit claim in BGS',
-                          "#{stats_key}.failure", { user_uuid: user.uuid, icn: user.icn, error: error.message })
+                          "#{stats_key}.failure", { user_uuid: user.uuid, error: error.message })
     end
 
     def bgs_service

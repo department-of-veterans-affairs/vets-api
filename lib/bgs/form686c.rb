@@ -77,7 +77,7 @@ module BGS
         bgs_service.update_proc(@proc_id, proc_state: @proc_state)
       rescue => e
         monitor.track_event('warn', 'BGS::Form686c.submit failed after creating benefit claim in BGS',
-                            "#{stats_key}.failure", { user_uuid: user.uuid, icn: user.icn, error: e.message })
+                            "#{stats_key}.failure", { user_uuid: user.uuid, error: e.message })
       end
     end
     # rubocop:enable Metrics/MethodLength
