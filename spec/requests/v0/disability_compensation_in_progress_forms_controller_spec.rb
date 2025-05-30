@@ -9,7 +9,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
   it_behaves_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
-    let(:loa3_user) { build(:disabilities_compensation_user, uuid: SecureRandom.uuid) }
+    let(:loa3_user) { build(:disabilities_compensation_user, :with_terms_of_use_agreement, uuid: SecureRandom.uuid) }
     let(:loa1_user) { build(:user, :loa1) }
 
     describe '#show' do
