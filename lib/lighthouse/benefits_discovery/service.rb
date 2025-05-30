@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require 'lighthouse/benefits_discovery/configuration'
+
 module BenefitsDiscovery
   class Service < Common::Client::Base
     configuration BenefitsDiscovery::Configuration
@@ -23,7 +26,7 @@ module BenefitsDiscovery
           }.compact.presence
         ].compact,
         "purpleHeartRecipientDates": Array.wrap(params[:purple_heart_recipient_dates])
-      }.select{ |_,v| !v.blank? }.to_json
+      }.reject{ |_,v| v.blank? }.to_json
     end
 
     def headers
