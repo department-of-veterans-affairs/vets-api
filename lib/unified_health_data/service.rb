@@ -19,10 +19,10 @@ module UnifiedHealthData
 
     def get_labs(start_date:, end_date:)
       with_monitoring do
-        token = fetch_access_token
+        headers = { 'Authorization' => fetch_access_token, 'x-api-key' => config.x_api_key }
         patient_id = @user.icn
         path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
-        response = perform(:get, path, nil, { 'Authorization' => token })
+        response = perform(:get, path, nil, headers)
         body = parse_response_body(response.body)
 
         combined_records = fetch_combined_records(body)
