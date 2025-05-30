@@ -73,12 +73,12 @@ module Common
         config.service_name
       end
 
-      def connection
+      def connection # rubocop:disable Metrics/MethodLength
         @connection ||= lambda do
           connection = config.connection
           handlers = connection.builder.handlers
           adapter = connection.builder.adapter
-
+          
           if adapter == Faraday::Adapter::HTTPClient &&
              handlers.exclude?(Common::Client::Middleware::Request::RemoveCookies)
             raise SecurityError, 'http client needs cookies stripped'
@@ -98,7 +98,19 @@ module Common
 
           connection
         end.call
-      end
+      rescue Breakers::OutageException => e
+        Rails.logger.info("[BREAKERS] Outage for #{e&.service&.name} detected at: " \
+                          " #{e&.service&.latest_outage&.start_time}, " \
+                          "service error threshold: #{e&.service&.error_threshold}, " \
+                          "service seconds_before_retry: #{e&.service&.seconds_before_retry}")
+        Rails.logger.warn("[BREAKERS] Outage Errors in Range: #{e&.service&.errors_in_range(
+          start_time: e&.service&.latest_outage&.start_time, end_time: Time.zone.now, sample_minutes: 5
+        )}")
+        raise
+      rescue => e
+        Rails.logger.warn("[BREAKERS] Upstream failure: #{e&.class} - #{e&.message}")
+        raise
+      end # rubocop:enable Metrics/MethodLength
 
       def perform(method, path, params, headers = nil, options = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
