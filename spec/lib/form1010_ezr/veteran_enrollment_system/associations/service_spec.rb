@@ -4,15 +4,14 @@ require 'rails_helper'
 require 'form1010_ezr/veteran_enrollment_system/associations/service'
 
 RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
-  let(:form) { get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact') }
-  let(:form_with_primary_nok) do
-    form.tap do |f|
-      f['veteranContacts'] = f['veteranContacts'].select do |contact|
-        contact['contactType'] == 'Primary Next of Kin'
-      end
-    end
+  let(:associations) do
+    fixture = get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact')
+    fixture['nextOfKins'].concat(fixture['emergencyContacts'])
   end
-  let(:updated_veteran_contacts) do
+  let(:primary_next_of_kin) do
+    associations.select { |association| association['contactType'] == 'Primary Next of Kin' }
+  end
+  let(:updated_associations) do
     [
       {
         'fullName' => {
@@ -98,24 +97,11 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       }
     ]
   end
-  let(:form_with_updated_contacts) do
-    JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = updated_veteran_contacts
-    end
+  let(:associations_with_delete_indicators) do
+    updated_associations.map { |association| association.deep_dup.merge('deleteIndicator' => true) }
   end
-  let(:delete_contacts_form) do
-    JSON.parse(form_with_updated_contacts.to_json).tap do |f|
-      f['veteranContacts'] = f['veteranContacts'].map do |contact|
-        contact.deep_dup.merge('deleteIndicator' => true)
-      end
-    end
-  end
-  let(:missing_required_fields_form) do
-    JSON.parse(form.to_json).tap do |f|
-      f['veteranContacts'] = updated_veteran_contacts.map do |contact|
-        contact.except('contactType', 'relationship')
-      end
-    end
+  let(:associations_with_missing_required_fields) do
+    updated_associations.map { |association| association.except('contactType', 'relationship') }
   end
   let(:current_user) do
     create(
@@ -145,6 +131,8 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       allow(Rails.logger).to receive(:info)
       allow(Rails.logger).to receive(:error)
       allow(StatsD).to receive(:increment)
+      # Because the 'lastUpdateDate' timestamps differ between the cassette's request body and when
+      # they are set in the code, we'll ignore them when matching the request bodies.
       VCR.configure do |config|
         config.register_request_matcher :body_ignoring_last_update_date do |r1, r2|
           body1 = JSON.parse(r1.body)
@@ -165,13 +153,11 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
     it 'creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
-      # Because the timestamps differ between the cassette's request body and when they are set in the code,
-      # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
         'veteran_enrollment_system/associations/create_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
-        response = described_class.new(current_user, form_with_updated_contacts).update_associations
+        response = described_class.new(current_user).update_associations(updated_associations)
 
         expect_successful_response_output(response, '2025-04-24T18:22:00Z')
       end
@@ -180,13 +166,11 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
     it 'deletes associations', run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
-      # Because the timestamps differ between the cassette's request body and when they are set in the code,
-      # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
         'veteran_enrollment_system/associations/delete_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
-        response = described_class.new(current_user, delete_contacts_form).update_associations
+        response = described_class.new(current_user).update_associations(associations_with_delete_indicators)
 
         expect_successful_response_output(response, '2025-04-24T17:08:31Z')
       end
@@ -196,13 +180,11 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       context "when the Associations API code returned is not 'partial_success'" do
         it 'increments StatsD, logs a success message, and returns a success response',
            run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/update_associations_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
-            response = described_class.new(current_user, form).update_associations
+            response = described_class.new(current_user).update_associations(associations)
             expect_successful_response_output(response, '2025-04-24T17:08:31Z')
           end
         end
@@ -213,22 +195,20 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           allow_any_instance_of(
             VeteranEnrollmentSystem::Associations::Service
           ).to receive(:reorder_associations).and_return(
-            described_class.new(current_user, delete_contacts_form).send(
+            described_class.new(current_user).send(
               :transform_associations,
-              delete_contacts_form['veteranContacts']
+              associations_with_delete_indicators
             )
           )
         end
 
         it 'increments StatsD, logs a partial success message, and returns a partial success response',
            run_at: 'Tue, 22 Apr 2025 22:03:48 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/update_associations_partial_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
-            response = described_class.new(current_user, form_with_updated_contacts).update_associations
+            response = described_class.new(current_user).update_associations(updated_associations)
 
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.partial_success'
@@ -270,8 +250,6 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       context 'when any status other than 200 is returned' do
         it 'increments StatsD, logs a failure message, and raises an exception',
            run_at: 'Thu, 24 Apr 2025 19:44:12 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/bad_request',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -284,7 +262,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
               'type is required'
 
             expect do
-              described_class.new(current_user, missing_required_fields_form).update_associations
+              described_class.new(current_user).update_associations(associations_with_missing_required_fields)
             end.to raise_error(
               an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
             )
@@ -305,10 +283,10 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       it "adds the deleted associations back to the form's associations array with a " \
          "'deleteIndicator' and returns all associations data in the VES format" do
         reconciled_associations = described_class.new(
-          current_user,
-          form_with_primary_nok
+          current_user
         ).reconcile_associations(
-          get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec')
+          get_fixture('veteran_enrollment_system/associations/associations_primary_nok_and_ec'),
+          primary_next_of_kin
         )
 
         # 'Emergency Contact' is added back to the associations array
@@ -342,13 +320,13 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
     context 'when no associations were deleted on the frontend' do
       it 'returns the form associations array unchanged' do
         reconciled_associations = described_class.new(
-          current_user,
-          form
+          current_user
         ).reconcile_associations(
-          get_fixture('veteran_enrollment_system/associations/associations_maximum')
+          get_fixture('veteran_enrollment_system/associations/associations_maximum'),
+          associations
         )
 
-        expect(reconciled_associations).to eq(form['veteranContacts'])
+        expect(reconciled_associations).to eq(associations)
       end
     end
   end

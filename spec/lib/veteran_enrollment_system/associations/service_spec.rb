@@ -184,6 +184,8 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       allow(Rails.logger).to receive(:info)
       allow(Rails.logger).to receive(:error)
       allow(StatsD).to receive(:increment)
+      # Because the 'lastUpdateDate' timestamps differ between the cassette's request body and when
+      # they are set in the code, we'll ignore them when matching the request bodies.
       VCR.configure do |config|
         config.register_request_matcher :body_ignoring_last_update_date do |r1, r2|
           body1 = JSON.parse(r1.body)
@@ -204,8 +206,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
     it 'creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
-      # Because the timestamps differ between the cassette's request body and when they are set in the code,
-      # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
         'veteran_enrollment_system/associations/create_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -222,8 +222,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
     # deleting associations works as expected
     it 'deletes associations', run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
-      # Because the timestamps differ between the cassette's request body and when they are set in the code,
-      # the body of the request is not matched in the cassette. We only need the response body to be matched.
       VCR.use_cassette(
         'veteran_enrollment_system/associations/delete_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -241,8 +239,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       context "when the Associations API code returned is not 'partial_success'" do
         it 'increments StatsD, logs a success message, and returns a success response',
            run_at: 'Thu, 24 Apr 2025 17:08:31 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/update_associations_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -265,8 +261,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
 
         it 'increments StatsD, logs a partial success message, and returns a partial success response',
            run_at: 'Tue, 22 Apr 2025 22:03:48 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/update_associations_partial_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
@@ -316,8 +310,6 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
       context 'when any status other than 200 is returned' do
         it 'increments StatsD, logs a failure message, and raises an exception',
            run_at: 'Thu, 24 Apr 2025 19:44:12 GMT' do
-          # Because the timestamps differ between the cassette's request body and when they are set in the code,
-          # the body of the request is not matched in the cassette. We only need the response body to be matched.
           VCR.use_cassette(
             'veteran_enrollment_system/associations/bad_request',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }

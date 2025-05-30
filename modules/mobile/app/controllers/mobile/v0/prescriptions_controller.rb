@@ -9,12 +9,15 @@ module Mobile
 
       def index
         resource = client.get_all_rxs
-        resource.data = resource_data_modifications(resource)
-        resource = resource.find_by(filter_params) if params[:filter].present?
+        has_non_va_meds = non_va_meds? resource.data
+
+        resource.records = resource_data_modifications(resource)
+        resource = resource.where(filter_params) if params[:filter].present?
         resource = resource.sort(params[:sort])
-        page_resource, page_meta_data = paginate(resource.attributes)
+        page_resource, page_meta_data = paginate(resource.records)
 
         page_meta_data[:meta].merge!(status_meta(resource))
+        page_meta_data[:meta].merge!(has_non_va_meds:)
 
         render json: Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
       end
@@ -50,7 +53,7 @@ module Mobile
 
       def status_meta(resource)
         {
-          prescription_status_count: resource.attributes.each_with_object(Hash.new(0)) do |obj, hash|
+          prescription_status_count: resource.records.each_with_object(Hash.new(0)) do |obj, hash|
             hash['isRefillable'] += 1 if obj.is_refillable
 
             if obj.is_trackable || %w[active submitted providerHold activeParked
@@ -69,7 +72,7 @@ module Mobile
 
       def filter_params
         @filter_params ||= begin
-          valid_filter_params = params.require(:filter).permit(Prescription.filterable_attributes)
+          valid_filter_params = params.require(:filter).permit(Prescription.filterable_params)
           raise Common::Exceptions::FilterNotAllowed, params[:filter] if valid_filter_params.empty?
 
           valid_filter_params
@@ -86,22 +89,22 @@ module Mobile
       def resource_data_modifications(resource)
         # Remove Partial Fill (PF) and/or Pending Pescriptions (PD)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
-        resource.data = if params[:filter].blank? && display_pending_meds
-                          resource.data.reject { |item| item.prescription_source.equal? 'PF' }
-                        else
-                          # TODO: remove this line when PF and PD are allowed on the app
-                          resource.data = remove_pf_pd(resource.data)
-                        end
+        resource.records = if params[:filter].blank? && display_pending_meds
+                             resource.data.reject { |item| item.prescription_source.equal? 'PF' }
+                           else
+                             # TODO: remove this line when PF and PD are allowed on the app
+                             resource.records = remove_pf_pd(resource.data)
+                           end
 
         # Remove Non-VA (NV) medications
         # TODO: Update once active Non-VA meds have been whitelisted for the app
-        resource.data = resource.data.reject { |item| item[:prescription_source] == 'NV' }
+        resource.records = resource.data.reject { |item| item.prescription_source == 'NV' }
 
         # Remove discontinued/expired medications that are older than 180 days
-        resource.data = remove_old_meds(resource.data)
+        resource.records = remove_old_meds(resource.data)
 
-        resource.data.each do |r|
-          r[:prescription_name] = r[:orderable_item] if r[:prescription_name].nil?
+        resource.records.each do |r|
+          r.prescription_name = r.orderable_item if r.prescription_name.nil?
         end
       end
 
@@ -115,6 +118,10 @@ module Mobile
         data.reject do |item|
           status_with_date_limit.include?(item.refill_status) && item.expiration_date < 180.days.ago
         end
+      end
+
+      def non_va_meds?(data)
+        data.any? { |item| item.prescription_source == 'NV' }
       end
     end
   end

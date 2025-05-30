@@ -45,30 +45,24 @@ module Form1010Ezr
           'OTHER_EMERGENCY_CONTACT' => 'Other emergency contact'
         }.freeze
 
-        def initialize(current_user, parsed_form)
+        def initialize(current_user)
           super(current_user)
-          @parsed_form = parsed_form
         end
 
-        def update_associations
-          associations = @parsed_form['veteranContacts']
+        def update_associations(associations)
           transformed_associations = transform_associations(associations)
 
           super(transformed_associations, '10-10EZR')
         end
 
-        # We need to reconcile the associations data from VES with the submitted 10-10EZR form data in order
-        # to ensure we are sending the correct data to the Associations API in case any updates were made or records
-        # were deleted.
+        # We need to reconcile the associations data from VES with the associations data in the submitted form in order
+        # to ensure we are sending the correct data to the Associations API in case any records were deleted.
         # @return [Array] the reconciled associations data that will be sent to the Associations API
-        def reconcile_associations(ves_associations)
+        def reconcile_associations(ves_associations, form_associations)
           transformed_ves_associations = transform_ves_associations(ves_associations)
-
-          form_associations = @parsed_form['veteranContacts']
           # Create a lookup set of contactTypes in the submitted array.
           # We'll use this to find missing association objects (e.g. associations that were deleted on the frontend)
           submitted_contact_types = form_associations.map { |obj| obj['contactType']&.downcase }.compact.to_set
-
           # Find missing associations based on contactType (case insensitive)
           missing_associations = transformed_ves_associations.reject do |obj|
             submitted_contact_types.include?(obj['contactType']&.downcase)
@@ -88,6 +82,7 @@ module Form1010Ezr
 
         private
 
+        # Transform the submitted form data to match the Associations API schema
         def transform_association(association)
           transformed_association = {}
           # Format the address to match the Associations schema

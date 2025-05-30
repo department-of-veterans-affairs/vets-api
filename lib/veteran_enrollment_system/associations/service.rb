@@ -76,8 +76,6 @@ module VeteranEnrollmentSystem
       def update_associations(associations, form_id)
         reordered_associations = reorder_associations(associations)
 
-        # debugger
-
         with_monitoring do
           response = perform(
             :put,
