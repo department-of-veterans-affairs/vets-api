@@ -19,15 +19,15 @@ module CheckIn
       metadata = notification.callback_metadata || {}
 
       message, log_level = case notification.status
-                          when 'delivered'
-                            handle_delivered
-                          when 'permanent-failure'
-                            handle_permanent_failure(metadata)
-                          when 'temporary-failure'
-                            handle_temporary_failure(metadata)
-                          else
-                            handle_other_status
-                          end
+                           when 'delivered'
+                             handle_delivered
+                           when 'permanent-failure'
+                             handle_permanent_failure(metadata)
+                           when 'temporary-failure'
+                             handle_temporary_failure(metadata)
+                           else
+                             handle_other_status
+                           end
 
       log_notification(notification, metadata, message, log_level)
     end
