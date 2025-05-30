@@ -78,6 +78,27 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     end
   end
 
+  describe '#process_and_upload_to_lighthouse' do
+    let(:claim) { build(:income_and_assets_claim) }
+    let(:in_progress_form) { build(:in_progress_form) }
+
+    it 'returns a success' do
+      expect(claim).to receive(:process_attachments!)
+
+      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+    end
+
+    it 'raises an error' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
+      expect(monitor).to receive(:track_process_attachment_error).once
+      expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
+
+      expect do
+        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      end.to raise_error(StandardError, 'mock error')
+    end
+  end
+
   describe '#log_validation_error_to_metadata' do
     let(:claim) { build(:income_and_assets_claim) }
     let(:in_progress_form) { build(:in_progress_form) }

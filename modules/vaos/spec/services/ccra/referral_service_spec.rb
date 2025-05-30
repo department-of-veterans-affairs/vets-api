@@ -9,7 +9,7 @@ describe Ccra::ReferralService do
   let(:session_token) { 'fake-session-token' }
   let(:request_id) { 'request-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  let(:redis_client) { instance_double(Eps::RedisClient) }
+  let(:referral_cache) { instance_double(Ccra::RedisClient) }
 
   before do
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return(request_id)
@@ -21,9 +21,12 @@ describe Ccra::ReferralService do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
 
-    # Mock the Redis client
-    allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-    allow(redis_client).to receive(:save_referral_data).and_return(true)
+    # Mock the RedisClient
+    allow(Ccra::RedisClient).to receive(:new).and_return(referral_cache)
+    allow(referral_cache).to receive_messages(
+      save_referral_data: true,
+      fetch_referral_data: nil
+    )
 
     Settings.vaos ||= OpenStruct.new
     Settings.vaos.ccra ||= OpenStruct.new
@@ -78,6 +81,23 @@ describe Ccra::ReferralService do
   describe '#get_referral' do
     let(:id) { '984_646372' }
     let(:icn) { '1012845331V153043' }
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      category_of_care: 'CARDIOLOGY',
+                      referral_number: 'VA0000005681')
+    end
+
+    context 'when cached data exists' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data).with(id:, icn:).and_return(referral_detail)
+      end
+
+      it 'returns the cached referral detail' do
+        # Just verify the service returns what the cache returns
+        result = subject.get_referral(id, icn)
+        expect(result).to eq(referral_detail)
+      end
+    end
 
     context 'with successful response', :vcr do
       it 'returns a ReferralDetail object with correct attributes' do
@@ -91,17 +111,13 @@ describe Ccra::ReferralService do
         end
       end
 
-      it 'caches the referral data in Redis with all required fields' do
+      it 'caches the referral data with the RedisClient' do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-          expect(redis_client).to receive(:save_referral_data) do |args|
-            referral_data = args[:referral_data]
-            expect(referral_data).to be_a(Hash)
-            expect(referral_data).to have_key(:appointment_type_id)
-            expect(referral_data).to have_key(:end_date)
-            expect(referral_data).to have_key(:npi)
-            expect(referral_data).to have_key(:start_date)
-            true
-          end
+          expect(referral_cache).to receive(:save_referral_data).with(
+            id:,
+            icn:,
+            referral_data: instance_of(Ccra::ReferralDetail)
+          ).and_return(true)
 
           subject.get_referral(id, icn)
         end
@@ -126,20 +142,6 @@ describe Ccra::ReferralService do
         VCR.use_cassette('vaos/ccra/post_get_referral_error') do
           expect { subject.get_referral(id, icn) }
             .to raise_error(Common::Exceptions::BackendServiceException)
-        end
-      end
-    end
-
-    context 'when referral data is missing required fields', :vcr do
-      # For this test, we need to modify the behavior of the RedisClient
-      # to simulate the case where save_referral_data returns false due to missing fields
-
-      it 'does not cache incomplete referral data' do
-        # Simulate the validation in save_referral_data failing
-        expect(redis_client).to receive(:save_referral_data).and_return(false)
-
-        VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-          subject.get_referral(id, icn)
         end
       end
     end
