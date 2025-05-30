@@ -11,6 +11,9 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
   let(:test_form) do
     build(:veteran_readiness_employment_claim)
   end
+  let(:new_test_form) do
+    build(:new_veteran_readiness_employment_claim)
+  end
 
   let(:no_veteran_info) do
     hash_copy = JSON.parse(
@@ -48,6 +51,26 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       end
     end
 
+    context 'logged in user with new form' do
+      before { sign_in_as(loa3_user) }
+
+      it 'validates successfully' do
+        form_params = { form: new_test_form.form }
+        expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'shows the validation errors' do
+        post(:create, params: { form: { not_valid: 'not valid' } })
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            'form - can\'t be blank'
+          )
+        ).to be(true)
+      end
+    end
+
     context 'logged in user with no pid' do
       it 'validates successfully' do
         sign_in_as(user_no_pid)
@@ -57,9 +80,26 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       end
     end
 
+    context 'logged in user with no pid and new form' do
+      it 'validates successfully' do
+        sign_in_as(user_no_pid)
+        form_params = { form: new_test_form.form }
+        expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     context 'visitor' do
       it 'returns a 401' do
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
+        post(:create, params: form_params)
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'visitor with new form' do
+      it 'returns a 401' do
+        form_params = { form: new_test_form.form }
         post(:create, params: form_params)
         expect(response).to have_http_status(:unauthorized)
       end
