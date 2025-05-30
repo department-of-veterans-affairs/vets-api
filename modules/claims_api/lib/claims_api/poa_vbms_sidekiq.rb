@@ -2,10 +2,12 @@
 
 require 'claims_api/vbms_uploader'
 require 'bgs_service/person_web_service'
+require 'vets/shared_logging'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   module PoaVbmsSidekiq
-    include SentryLogging
+    include Vets::SharedLogging
 
     def upload_to_vbms(power_of_attorney, path)
       uploader = VBMSUploader.new(
@@ -57,7 +59,7 @@ module ClaimsApi
         status: ClaimsApi::PowerOfAttorney::ERRORED,
         vbms_error_message: error_message
       )
-      log_message_to_sentry(self.class.name, :warning, body: error_message)
+      log_message_to_rails error_message, :warn, class: self.class.name
     end
 
     private
@@ -69,7 +71,7 @@ module ClaimsApi
         bgs_service(power_of_attorney:).find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
       rescue BGS::ShareError => e
         error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
-        log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
+        ClaimsApi::Logger.log 'PoaVbmsSidekiq', detail: error_message, error_message: e.message
         raise ::Common::Exceptions::FailedDependency
       end
     end

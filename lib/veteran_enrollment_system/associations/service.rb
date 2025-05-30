@@ -66,7 +66,8 @@ module VeteranEnrollmentSystem
       end
 
       def update_associations(form_id)
-        reordered_associations = reorder_associations(@parsed_form['veteranContacts'])
+        associations = (@parsed_form['nextOfKins'] || []) + (@parsed_form['emergencyContacts'] || [])
+        reordered_associations = reorder_associations(associations)
         transformed_associations = { 'associations' => transform_associations(reordered_associations) }
 
         with_monitoring do
