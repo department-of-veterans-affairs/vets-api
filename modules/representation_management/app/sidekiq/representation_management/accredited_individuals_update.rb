@@ -7,10 +7,9 @@ require 'va_profile/models/v3/validation_address'
 require 'va_profile/v3/address_validation/service'
 
 module RepresentationManagement
-  # Processes updates for representative records based on provided JSON data.
-  # This class is designed to parse representative data, validate addresses using an external service,
-  # and update records in the database accordingly. It also handles updating flagging records when a representative's
-  # address, email, or phone number is updated.
+  # Processes updates for AccreditedIndividual records based on provided JSON data.
+  # This class is designed to parse AccreditedIndividual data, validate addresses using an external service,
+  # and update records in the database accordingly.
   class AccreditedIndividualsUpdate
     include Sidekiq::Job
 
@@ -21,25 +20,25 @@ module RepresentationManagement
       @reps_update_data = []
     end
 
-    # Processes each representative's data provided in JSON format.
-    # This method parses the JSON, validates each representative's address, and updates the database records.
-    # @param reps_json [String] JSON string containing an array of representative data.
+    # Processes each AccreditedIndividual's data provided in JSON format.
+    # This method parses the JSON, validates each AccreditedIndividual's address, and updates the database records.
+    # @param reps_json [String] JSON string containing an array of AccreditedIndividual data.
     def perform(reps_json)
       reps_data = JSON.parse(reps_json)
       reps_data.each { |rep_data| process_rep_data(rep_data) }
     rescue => e
       log_error("Error processing job: #{e.message}", send_to_slack: true)
     ensure
-      @slack_messages.unshift('Representatives::Update') if @slack_messages.any?
+      @slack_messages.unshift('RepresentationManagement::AccreditedIndividualsUpdate') if @slack_messages.any?
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 
     private
 
-    # Processes individual representative data, validates the address, and updates the record.
+    # Processes individual AccreditedIndividual data, validates the address, and updates the record.
     # If the address validation fails or an error occurs during the update, the error is logged and the process
-    # is halted for the current representative.
-    # @param rep_data [Hash] The representative data including id and address.
+    # is halted for the current AccreditedIndividual.
+    # @param rep_data [Hash] The AccreditedIndividual data including id and address.
     def process_rep_data(rep_data)
       return unless record_can_be_updated?(rep_data)
 
@@ -61,13 +60,11 @@ module RepresentationManagement
         update_rep_record(rep_data, address_validation_api_response)
       rescue Common::Exceptions::BackendServiceException => e
         log_error("Address validation failed for Rep id: #{rep_data['id']}: #{e.message}")
-        return
+        nil
       rescue => e
         log_error("Update failed for Rep id: #{rep_data['id']}: #{e.message}")
-        return
+        nil
       end
-
-      update_flagged_records(rep_data)
     end
 
     def record_can_be_updated?(rep_data)
@@ -75,7 +72,7 @@ module RepresentationManagement
     end
 
     # Constructs a validation address object from the provided address data.
-    # @param address [Hash] A hash containing the details of the representative's address.
+    # @param address [Hash] A hash containing the details of the AccreditedIndividual's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
       validation_model = if Flipper.enabled?(:remove_pciu)
@@ -85,7 +82,7 @@ module RepresentationManagement
                          end
 
       validation_model.new(
-        address_pou: 'RESIDENCE/CHOICE',
+        address_pou: address['address_pou'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
@@ -122,36 +119,12 @@ module RepresentationManagement
     # @param api_response [Hash] The response from the address validation service.
     def update_rep_record(rep_data, api_response)
       record =
-        Veteran::Service::Representative.find_by(representative_id: rep_data['id'])
+        AccreditedIndividual.find(rep_data['id'])
       if record.nil?
-        raise StandardError, 'Representative not found.'
+        raise StandardError, 'AccreditedIndividual not found.'
       else
-        address_attributes = rep_data['address_changed'] ? build_address_attributes(rep_data, api_response) : {}
-        email_attributes = rep_data['email_changed'] ? build_email_attributes(rep_data) : {}
-        phone_attributes = rep_data['phone_number_changed'] ? build_phone_attributes(rep_data) : {}
-        record.update(merge_attributes(address_attributes, email_attributes, phone_attributes))
+        record.update(build_address_attributes(rep_data, api_response))
       end
-    end
-
-    # Updates flags for the representative's records based on changes in address, email, or phone number.
-    # @param rep_data [Hash] The representative data including the id and flags for changes.
-    def update_flagged_records(rep_data)
-      representative_id = rep_data['id']
-      update_flags(representative_id, 'address') if rep_data['address_changed']
-      update_flags(representative_id, 'email') if rep_data['email_changed']
-      update_flags(representative_id, 'phone_number') if rep_data['phone_number_changed']
-    end
-
-    # Updates the flags for a representative's contact data indicating a change.
-    # @param representative_id [String] The ID of the representative.
-    # @param flag_type [String] The type of change (address, email, or phone number).
-    def update_flags(representative_id, flag_type)
-      RepresentationManagement::FlaggedVeteranRepresentativeContactData
-        .where(representative_id:, flag_type:,
-               flagged_value_updated_at: nil)
-        .update_all(flagged_value_updated_at: Time.zone.now) # rubocop:disable Rails/SkipsModelValidations
-    rescue => e
-      log_error("Error updating flagged records. Representative id: #{representative_id}. Flag type: #{flag_type}. Error message: #{e.message}") # rubocop:disable Layout/LineLength
     end
 
     # Updates the given record with the new address and other relevant attributes.
@@ -166,18 +139,6 @@ module RepresentationManagement
         meta = api_response['candidate_addresses'].first['address_meta_data']
         build_address(address, geocode, meta).merge({ raw_address: rep_data['address'].to_json })
       end
-    end
-
-    def build_email_attributes(rep_data)
-      { email: rep_data['email'] }
-    end
-
-    def build_phone_attributes(rep_data)
-      { phone_number: rep_data['phone_number'] }
-    end
-
-    def merge_attributes(address, email, phone)
-      address.merge(email).merge(phone)
     end
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
@@ -230,7 +191,7 @@ module RepresentationManagement
     # Logs an error to Datadog and adds an error to the array that will be logged to slack.
     # @param error [Exception] The error string to be logged.
     def log_error(error, send_to_slack: false)
-      message = "Representatives::Update: #{error}"
+      message = "RepresentationManagement::AccreditedIndividualsUpdate: #{error}"
       Rails.logger.error(message)
       @slack_messages << "----- #{message}" if send_to_slack
     end
@@ -325,7 +286,7 @@ module RepresentationManagement
 
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#benefits-representation-management-notifications',
-                                       username: 'Representatives::Update Bot')
+                                       username: 'RepresentationManagement::AccreditedIndividualsUpdate Bot')
       client.notify(message)
     end
   end
