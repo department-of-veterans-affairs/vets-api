@@ -106,9 +106,11 @@ module Vye
 
     def delete_file_from_bucket(bucket, key)
       s3_client.delete_object(bucket:, key:)
+    rescue Aws::S3::Errors::AccessDenied => e
+      # Failing due to AccessDenied isn't really that critical. The file will be overwritten the next day anyway.
+      Rails.logger.error "SundownSweep: could not delete #{key} from #{bucket}: #{e.message}"
     rescue Aws::S3::Errors::NoSuchBucket,
            Aws::S3::Errors::NoSuchKey,
-           Aws::S3::Errors::AccessDenied,
            Aws::S3::Errors::ServiceError => e
       Rails.logger.error "SundownSweep: could not delete #{key} from #{bucket}: #{e.message}"
 
