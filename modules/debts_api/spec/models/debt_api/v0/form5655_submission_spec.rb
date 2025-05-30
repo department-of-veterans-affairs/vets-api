@@ -249,4 +249,145 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       end
     end
   end
+
+  describe '#vba_debt_identifiers' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+
+    context 'with VBA debts' do
+      before do
+        metadata = {
+          'debts' => [
+            { 'deductionCode' => '30', 'originalAR' => '1000' },
+            { 'deductionCode' => '41', 'originalAR' => '500' }
+          ]
+        }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'debt_type' => 'DEBT' }
+        )
+      end
+
+      it 'returns composite debt identifiers' do
+        expect(form5655_submission.vba_debt_identifiers).to eq(%w[301000 41500])
+      end
+    end
+
+    context 'without debts' do
+      before do
+        metadata = { 'debts' => [] }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'debt_type' => 'DEBT' }
+        )
+      end
+
+      it 'returns empty array' do
+        expect(form5655_submission.vba_debt_identifiers).to eq([])
+      end
+    end
+  end
+
+  describe '#vha_copay_identifiers' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+
+    context 'with VHA copays' do
+      before do
+        metadata = {
+          'copays' => [
+            { 'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
+            { 'id' => '2ea85f64-5717-4562-b3fc-2c963f66afa7' }
+          ]
+        }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'debt_type' => 'COPAY' }
+        )
+      end
+
+      it 'returns copay UUIDs' do
+        expect(form5655_submission.vha_copay_identifiers).to eq(%w[
+                                                                  3fa85f64-5717-4562-b3fc-2c963f66afa6
+                                                                  2ea85f64-5717-4562-b3fc-2c963f66afa7
+                                                                ])
+      end
+    end
+
+    context 'without copays' do
+      before do
+        metadata = { 'copays' => [] }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'debt_type' => 'COPAY' }
+        )
+      end
+
+      it 'returns empty array' do
+        expect(form5655_submission.vha_copay_identifiers).to eq([])
+      end
+    end
+  end
+
+  describe '#debt_identifiers' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+
+    context 'with combined debts and copays' do
+      before do
+        metadata = {
+          'debts' => [
+            { 'deductionCode' => '30', 'originalAR' => '1000' }
+          ],
+          'copays' => [
+            { 'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+          ]
+        }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'combined' => true }
+        )
+      end
+
+      it 'returns all debt identifiers' do
+        expect(form5655_submission.debt_identifiers).to contain_exactly(
+          '301000',
+          '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+        )
+      end
+    end
+
+    context 'with VBA debts only' do
+      before do
+        metadata = {
+          'debts' => [
+            { 'deductionCode' => '30', 'originalAR' => '1000' }
+          ]
+        }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'debt_type' => 'DEBT' }
+        )
+      end
+
+      it 'returns only VBA debt identifiers' do
+        expect(form5655_submission.debt_identifiers).to eq(['301000'])
+      end
+    end
+
+    context 'with VHA copays only' do
+      before do
+        metadata = {
+          'copays' => [
+            { 'id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
+          ]
+        }
+        form5655_submission.update(
+          metadata: metadata.to_json,
+          public_metadata: { 'debt_type' => 'COPAY' }
+        )
+      end
+
+      it 'returns only VHA copay identifiers' do
+        expect(form5655_submission.debt_identifiers).to eq(['3fa85f64-5717-4562-b3fc-2c963f66afa6'])
+      end
+    end
+  end
 end
