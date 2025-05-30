@@ -69,10 +69,11 @@ module VAOS
       end
 
       def create_draft
-        referral_id = draft_params[:referral_id]
+        referral_id = draft_params[:referral_number]
+        referral_consult_id = draft_params[:referral_consult_id]
 
         # Get referral data from the CCRA service which will use the cache if available
-        referral = ccra_referral_service.get_referral(referral_id, current_user.icn)
+        referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
 
         validation = check_referral_data_validation(referral)
         return render(json: validation[:json], status: validation[:status]) unless validation[:success]
@@ -265,10 +266,9 @@ module VAOS
       end
 
       def draft_params
-        params.require(:referral_id)
-        params.permit(
-          :referral_id
-        )
+        params.require(:referral_number)
+        params.require(:referral_consult_id)
+        params.permit(:referral_number, :referral_consult_id)
       end
 
       # rubocop:disable Metrics/MethodLength

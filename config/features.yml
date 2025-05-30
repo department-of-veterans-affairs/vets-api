@@ -1042,10 +1042,6 @@ features:
     actor_type: user
     description: This will filter to only show medical copays within the last 6 months
     enable_in_development: true
-  medical_copays_api_key_change:
-    actor_type: user
-    description: This will use new API key name when available
-    enable_in_development: true
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
