@@ -21,7 +21,7 @@ module CheckIn
 
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-                    conn.use(:breakers,
+          conn.use(:breakers,
                    service_name:,
                    record_exceptions: [
                      Common::Exceptions::BackendServiceException,
