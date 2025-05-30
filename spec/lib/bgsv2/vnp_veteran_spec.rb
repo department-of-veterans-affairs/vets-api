@@ -232,7 +232,7 @@ RSpec.describe BGSV2::VnpVeteran do
               {},
               { team: 'vfs-ebenefits' }
             )
-            expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678')) # rubocop:disable Layout/LineLength
+            expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
             vnp_veteran.create
           end
         end
@@ -255,7 +255,7 @@ RSpec.describe BGSV2::VnpVeteran do
               {},
               { team: 'vfs-ebenefits' }
             )
-            expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********')) # rubocop:disable Layout/LineLength
+            expect_any_instance_of(BGSV2::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
             vnp_veteran.create
           end
         end
@@ -320,8 +320,8 @@ RSpec.describe BGSV2::VnpVeteran do
         # rubocop:enable Layout/LineLength
 
         expected_address = { frgn_postal_cd: nil,
-                              mlty_postal_type_cd: 'AE',
-                              mlty_post_office_type_cd: 'APO' }
+                             mlty_postal_type_cd: 'AE',
+                             mlty_post_office_type_cd: 'APO' }
 
         VCR.use_cassette('bgs/vnp_veteran/create') do
           expect_any_instance_of(BGSV2::Service).to receive(:create_address)
