@@ -22,13 +22,15 @@ module BGS
       return empty_response if response[:payments].nil?
 
       if Flipper.enabled?(:payment_history_exclude_third_party_disbursements)
-        payments = response[:payments][:payment]
+        payments = Array.wrap(response[:payments][:payment])
         payments.select! do |pay|
           pay[:payee_type] != 'Third Party/Vendor' && pay[:beneficiary_participant_id] == pay[:recipient_participant_id]
         end
       end
 
-      recategorize_hardship(response[:payments][:payment]) if Flipper.enabled?(:payment_history_recategorize_hardship)
+      if Flipper.enabled?(:payment_history_recategorize_hardship)
+        recategorize_hardship(Array.wrap(response[:payments][:payment]))
+      end
 
       response
     rescue => e

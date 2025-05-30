@@ -68,11 +68,17 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user.va_profile_email,
-          '686c_confirmation_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
+          'fake_received686',
+          { 'confirmation_number' => dependency_claim.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'Dependents::NotificationCallback',
+            callback_metadata: { email_template_id: 'fake_received686',
+                                 email_type: :received686,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim.id,
+                                 service_name: 'dependents' } }
         )
 
         expect { job }.not_to raise_error

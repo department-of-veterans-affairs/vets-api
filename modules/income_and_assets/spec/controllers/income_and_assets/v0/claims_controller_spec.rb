@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'income_and_assets/benefits_intake/benefit_intake_job'
-require 'income_and_assets/claims/monitor'
+require 'income_and_assets/benefits_intake/submit_claim_job'
+require 'income_and_assets/monitor'
 require 'support/controller_spec_helper'
 
 RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
-  let(:monitor) { double('IncomeAndAssets::Claims::Monitor') }
+  let(:monitor) { double('IncomeAndAssets::Monitor') }
   let(:user) { create(:user) }
 
   before do
     sign_in_as(user)
-    allow(IncomeAndAssets::Claims::Monitor).to receive(:new).and_return(monitor)
+    allow(IncomeAndAssets::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil)
   end
@@ -27,7 +27,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
-      expect(IncomeAndAssets::BenefitIntakeJob).not_to receive(:perform_async)
+      expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
@@ -37,7 +37,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     it('returns a serialized claim') do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_success).once
-      expect(IncomeAndAssets::BenefitIntakeJob).to receive(:perform_async)
+      expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
 
@@ -73,6 +73,27 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
 
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq(claim.guid)
       expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe '#process_and_upload_to_lighthouse' do
+    let(:claim) { build(:income_and_assets_claim) }
+    let(:in_progress_form) { build(:in_progress_form) }
+
+    it 'returns a success' do
+      expect(claim).to receive(:process_attachments!)
+
+      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+    end
+
+    it 'raises an error' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
+      expect(monitor).to receive(:track_process_attachment_error).once
+      expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
+
+      expect do
+        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      end.to raise_error(StandardError, 'mock error')
     end
   end
 

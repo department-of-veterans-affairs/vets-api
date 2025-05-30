@@ -1536,6 +1536,10 @@ module PdfFill
       private
 
       def merge_veteran_helpers
+        unless @form_data['veteran_information']
+          @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
+        end
+
         veteran_information = @form_data['veteran_information']
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
@@ -1814,7 +1818,7 @@ module PdfFill
           # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
           if death['dependent_death_location']['location']['country'].present?
             death['dependent_death_location']['location']['country'] =
-              extract_country(death['dependent_death_location'])
+              extract_country(death['dependent_death_location']['location'])
           end
 
           # expand dependent type

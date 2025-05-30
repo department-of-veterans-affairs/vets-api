@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../app/services/ivc_champva/zsf_email_notification_callback'
+require_relative '../../lib/ivc_champva/monitor'
 
 RSpec.describe IvcChampva::ZsfEmailNotificationCallback do
   let(:monitor) { instance_double(IvcChampva::Monitor) }

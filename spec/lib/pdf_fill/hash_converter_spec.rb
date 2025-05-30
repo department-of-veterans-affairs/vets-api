@@ -8,6 +8,9 @@ describe PdfFill::HashConverter do
     described_class.new('%m/%d/%Y', extras_generator)
   end
   let(:extras_generator) { instance_double(PdfFill::ExtrasGenerator) }
+  let(:placeholder_text) { 'special placeholder text' }
+
+  before { allow(extras_generator).to receive(:placeholder_text).and_return(placeholder_text) }
 
   def verify_extras_text(text, metadata)
     metadata[:overflow] = true unless metadata.key?(:overflow)
@@ -35,19 +38,32 @@ describe PdfFill::HashConverter do
     end
 
     context 'with a dollar value' do
-      it 'adds text to the extras page' do
-        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil)
+      [
+        { value: '$100', expected: '$100.00' },
+        { value: '1,000,000', expected: '$1,000,000.00' },
+        { value: '1,000,000.01', expected: '$1,000,000.01' },
+        { value: '0', expected: '$0.00' },
+        { value: '42', expected: '$42.00' },
+        { value: '123.45', expected: '$123.45' },
+        { value: 1000, expected: '$1,000.00' },
+        { value: 10_004.10, expected: '$10,004.10' },
+        { value: -10_004.00, expected: '-$10,004.00' }
+      ].each do |test_case|
+        it "formats #{test_case[:value]} as #{test_case[:expected]}" do
+          verify_extras_text(test_case[:expected], question_num: 1, question_text: 'foo', i: nil)
 
-        call_set_value(
-          {
-            key: :foo,
-            dollar: true,
-            limit: 2,
-            question_num: 1,
-            question_text: 'foo'
-          },
-          nil
-        )
+          call_set_custom_value(
+            test_case[:value],
+            {
+              key: :foo,
+              dollar: true,
+              limit: 0,
+              question_num: 1,
+              question_text: 'foo'
+            },
+            nil
+          )
+        end
       end
     end
 
@@ -65,7 +81,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: PdfFill::HashConverter::EXTRAS_TEXT)
+        verify_hash(foo: placeholder_text)
       end
 
       it 'formats date' do
@@ -83,7 +99,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
+        verify_hash('foo' => placeholder_text)
       end
 
       it 'does not format string with date' do
@@ -100,7 +116,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
+        verify_hash('foo' => placeholder_text)
       end
 
       it 'displays boolean as string' do
@@ -117,7 +133,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: PdfFill::HashConverter::EXTRAS_TEXT)
+        verify_hash(foo: placeholder_text)
       end
 
       context 'with an index' do
@@ -134,7 +150,7 @@ describe PdfFill::HashConverter do
             0
           )
 
-          verify_hash('foo' => PdfFill::HashConverter::EXTRAS_TEXT)
+          verify_hash('foo' => placeholder_text)
         end
       end
     end
@@ -360,7 +376,7 @@ describe PdfFill::HashConverter do
       # The last item's values should be in the form
       expect(subject.instance_variable_get(:@pdftk_form)).to eq(
         'form.name' => 'Habibi',
-        'form.description' => PdfFill::HashConverter::EXTRAS_TEXT
+        'form.description' => placeholder_text
       )
 
       # Since from_array_overflow is true, add_text should not be called
@@ -377,7 +393,7 @@ describe PdfFill::HashConverter do
 
       converter.handle_overflow_and_label_first_key(pdftk_keys)
 
-      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(placeholder_text)
     end
 
     it 'does nothing if first_key is not found in pdftk_keys' do
@@ -413,7 +429,7 @@ describe PdfFill::HashConverter do
 
       converter.handle_overflow_and_label_first_key(pdftk_keys)
 
-      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(PdfFill::HashConverter::EXTRAS_TEXT)
+      expect(converter.instance_variable_get(:@pdftk_form)['form_key1']).to eq(placeholder_text)
     end
   end
 
@@ -449,6 +465,29 @@ describe PdfFill::HashConverter do
       expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
 
       converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
+    end
+
+    it 'passes show_suffix to extras_generator when present in key_data' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        show_suffix: true
+      }
+
+      expected_metadata = {
+        question_num: 1,
+        question_text: 'Test Question',
+        show_suffix: true,
+        i: nil,
+        overflow: true,
+        item_label: nil,
+        question_type: nil,
+        format_options: {}
+      }
+
+      expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
+
+      converter.add_to_extras(key_data, 'test value', nil)
     end
 
     it 'handles when only key_data has format_options' do
@@ -548,6 +587,18 @@ describe PdfFill::HashConverter do
       expect(extras_generator).to receive(:add_text).with('test value', expected_metadata)
 
       converter.add_to_extras(key_data, 'test value', 0, array_key_data:)
+    end
+
+    it 'prevents text from going to extras generator if hide_from_overflow is set' do
+      key_data = {
+        question_num: 1,
+        question_text: 'Test Question',
+        hide_from_overflow: true
+      }
+
+      expect(extras_generator).not_to receive(:add_text)
+
+      converter.add_to_extras(key_data, 'test value', nil)
     end
   end
 end

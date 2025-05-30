@@ -117,10 +117,10 @@ http_interactions:
     body:
       encoding: US-ASCII
       string: '
-      { "data": {
-            "appointmentId": "aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e"
-          }
-      }'
+        { "data": {
+              "appointmentId": "aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e"
+            }
+        }'
   response:
     headers:
       Content-Type:
@@ -143,11 +143,11 @@ http_interactions:
     body:
       encoding: US-ASCII
       string: '
-      { "data": {
-        "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "dateIncurred": "2024-01-01T16:45:34.465Z"
-        }
-      }'
+        { "data": {
+          "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "dateIncurred": "2024-01-01T16:45:34.465Z"
+          }
+        }'
   response:
     headers:
       Content-Type:
@@ -178,14 +178,9 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '
-        { "data": [
+        { "data": 
           {
-            "expenseId": "12345abcd--5717-4562-b3fc-2c963f66afa6",
-            "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "status": "InProcess",
-            "createdOn": "2024-12-10T19:53:08.446Z",
-            "modifiedOn": "2024-12-10T19:53:08.446Z"
+            "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
           }
-        ]
       }'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT

@@ -6,6 +6,7 @@ on: # `on` parses to `true` in ruby
     paths:
       # https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#patterns-to-match-file-paths
       - modules/burials/**/*.rb
+      - modules/claims_evidence_api/**/*.rb
       - modules/pensions/**/*.rb
       - modules/income_and_assets/**/*.rb
       
@@ -29,12 +30,12 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Fetch target branch
+        run: git fetch origin "${GITHUB_BASE_REF}" --depth=1
+
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Install pdftk
-        run: sudo apt-get update && sudo apt-get install -y pdftk-java
 
       - name: Run Yardoc
         run: bundle exec rake yardoc

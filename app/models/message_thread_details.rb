@@ -5,12 +5,13 @@ class MessageThreadDetails < Message
   attribute :thread_id, Integer
   attribute :folder_id, Integer
   attribute :message_body, String
-  attribute :draft_date, Common::DateTimeString
-  attribute :to_date, Common::DateTimeString
-  attribute :has_attachments, Boolean
+  attribute :draft_date, Vets::Type::DateTimeString
+  attribute :to_date, Vets::Type::DateTimeString
+  attribute :has_attachments, Bool, default: false
   (1..4).each do |i|
-    %i[id name size mime_type].each do |attr|
-      attribute :"attachment#{i}_#{attr}"
-    end
+    attribute :"attachment#{i}_id", Integer
+    attribute :"attachment#{i}_name", String
+    attribute :"attachment#{i}_size", Integer
+    attribute :"attachment#{i}_mime_type", String
   end
 end

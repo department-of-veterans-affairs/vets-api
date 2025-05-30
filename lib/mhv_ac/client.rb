@@ -19,7 +19,8 @@ module MHVAC
     #
     def post_register(params)
       form = MHVAC::RegistrationForm.new(params)
-      perform(:post, 'account/register', form.mhv_params, nonauth_headers).body
+      path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'usermgmt/alter/register' : 'account/register'
+      perform(:post, path, form.mhv_params, nonauth_headers).body
     end
 
     ##
@@ -29,7 +30,8 @@ module MHVAC
     #
     def post_upgrade(params)
       form = MHVAC::UpgradeForm.new(params)
-      perform(:post, 'account/upgrade', form.mhv_params, nonauth_headers).body
+      path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'usermgmt/alter/upgrade' : 'account/upgrade'
+      perform(:post, path, form.mhv_params, nonauth_headers).body
     end
 
     ##
@@ -38,22 +40,34 @@ module MHVAC
     # @return [Hash] an object containing the body of the response
     #
     def get_states
-      perform(:get, 'enum/states', nil, nonauth_headers).body
+      path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'usermgmt/enum/states' : 'enum/states'
+      perform(:get, path, nil, nonauth_headers).body
     end
 
     ##
-    # Get a list of available countries (used for registraion)
+    # Get a list of available countries (used for registration)
     # @note These two lists (state and country) should be cached for any given day.
     # @return [Hash] an object containing the body of the response
     #
     def get_countries
-      perform(:get, 'enum/countries', nil, nonauth_headers).body
+      path = Flipper.enabled?(:mhv_medications_migrate_to_api_gateway) ? 'usermgmt/enum/countries' : 'enum/countries'
+      perform(:get, path, nil, nonauth_headers).body
     end
 
     private
 
     def nonauth_headers
-      config.base_request_headers.merge('appToken' => config.app_token)
+      headers = config.base_request_headers.merge('appToken' => config.app_token)
+      get_headers(headers)
+    end
+
+    def get_headers(headers)
+      headers = headers.dup
+      if Flipper.enabled?(:mhv_medications_migrate_to_api_gateway)
+        headers.merge('x-api-key' => config.x_api_key)
+      else
+        headers
+      end
     end
   end
 end

@@ -21,7 +21,6 @@ module Common
     def sign_assertion
       JWT.encode(claims, rsa_key, SIGNING_ALGORITHM, jwt_headers)
     rescue ConfigurationError => e
-      Rails.logger.error("Service Configuration Error: #{e.message}")
       raise VAOS::Exceptions::ConfigurationError.new(e, @config.service_name)
     end
 
