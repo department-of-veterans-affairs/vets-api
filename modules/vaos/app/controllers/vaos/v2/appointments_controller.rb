@@ -94,7 +94,7 @@ module VAOS
 
         drive_time = fetch_drive_times(provider)
 
-        response_data = build_draft_response(draft, provider, slots, drive_time, referral_id)
+        response_data = build_draft_response(draft, provider, slots, drive_time)
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
 
         # Clear the referral data from the cache, so it does not become stale
@@ -127,8 +127,6 @@ module VAOS
         error_response = handle_appointment_errors(appointment)
         return error_response if error_response
 
-        Rails.logger.info("EPS Submit Referral Appointment Response - ID: #{appointment.id}, " \
-                          "Response: #{appointment.inspect}")
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
       end
@@ -486,18 +484,14 @@ module VAOS
       #   - provider [Object] The provider details
       #   - slots [Object] Available appointment slots
       #   - drive_time [Object, nil] Drive time information
-      #   - referral_id [String] The referral ID
       #
-      def build_draft_response(draft_appointment, provider, slots, drive_time, referral_id)
-        response_data = OpenStruct.new(
+      def build_draft_response(draft_appointment, provider, slots, drive_time)
+        OpenStruct.new(
           id: draft_appointment.id,
           provider:,
           slots:,
           drive_time:
         )
-        Rails.logger.info("EPS Create Draft Response - Referral ID: #{referral_id}, " \
-                          "Response: #{response_data.inspect}")
-        response_data
       end
 
       # Fetches available provider slots using referral data.
