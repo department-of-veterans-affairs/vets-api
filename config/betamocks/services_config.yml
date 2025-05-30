@@ -55,7 +55,7 @@
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v1\.2\/claims\/(.+)\/submit'
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/submit'
     - :method: :post
       :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
