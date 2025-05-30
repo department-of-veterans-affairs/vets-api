@@ -36,9 +36,16 @@ module AccreditedRepresentativePortal
         @lighthouse_service ||= BenefitsIntake::Service.new
       end
 
+      def form
+        @form ||= "SimpleFormsApi::VBA#{form_data[:formNumber].gsub(/-/, '').upcase}".constantize.new(
+          form_number: form_data[:formNumber]
+        )
+      end
+
       def upload_response
         file_path = find_attachment_path(params[:confirmationCode])
         stamper = SimpleFormsApi::PdfStamper.new(
+          form:,
           stamped_template_path: file_path,
           current_loa: @current_user.loa[:current],
           timestamp: Time.current
