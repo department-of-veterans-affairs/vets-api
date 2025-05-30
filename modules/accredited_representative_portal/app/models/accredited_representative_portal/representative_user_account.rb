@@ -44,6 +44,7 @@ module AccreditedRepresentativePortal
           )
         end
       else
+        # When we remove this we can also remove email as a single field
         @registrations ||= UserAccountAccreditedIndividual.for_user_account_email(
           @email, user_account_icn: icn
         )

@@ -136,6 +136,92 @@ module AccreditedRepresentativePortal
         end
       end
     end
+
+    describe '#registration_numbers' do
+      let(:icn) { '1234567890V123456' }
+      let(:user_email) { 'email@email.com' }
+      let(:ogc_client) { instance_double(AccreditedRepresentativePortal::OgcClient) }
+
+      before do
+        allow(user_account).to receive(:icn).and_return(icn)
+        allow(AccreditedRepresentativePortal::OgcClient).to receive(:new).and_return(ogc_client)
+        allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(true)
+      end
+
+      context 'when OGC returns registration numbers' do
+        let!(:representative1) do
+          create(:representative,
+                 user_types: ['veteran_service_officer'],
+                 representative_id: 'REG123456',
+                 email: user_email)
+        end
+
+        let!(:representative2) do
+          create(:representative,
+                 user_types: ['attorney'],
+                 representative_id: 'REG789012',
+                 email: 'another@email.com')
+        end
+
+        it 'returns a hash of user_types to registration numbers' do
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(%w[REG123456 REG789012])
+
+          result = user_account.send(:registration_numbers)
+
+          expect(result).to eq({
+                                 'veteran_service_officer' => 'REG123456',
+                                 'attorney' => 'REG789012'
+                               })
+        end
+      end
+
+      context 'when OGC returns no registration numbers' do
+        let!(:representative) do
+          create(:representative,
+                 user_types: ['veteran_service_officer'],
+                 representative_id: 'REG123456',
+                 email: user_email)
+        end
+
+        it 'falls back to email lookup' do
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(nil)
+
+          allow(ogc_client).to receive(:post_icn_and_registration_combination)
+            .with(icn, 'REG123456')
+            .and_return(true)
+
+          result = user_account.send(:registration_numbers)
+
+          expect(result).to eq({ 'veteran_service_officer' => 'REG123456' })
+        end
+      end
+
+      context 'when OGC returns empty array and no representatives found by email' do
+        it 'raises a Forbidden error' do
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(nil)
+
+          expect { user_account.send(:registration_numbers) }
+            .to raise_error(Common::Exceptions::Forbidden, 'Forbidden')
+        end
+      end
+
+      context 'when OGC returns numbers that do not match any representatives' do
+        it 'returns an empty hash' do
+          allow(ogc_client).to receive(:find_registration_numbers_for_icn)
+            .with(icn)
+            .and_return(['NONEXISTENT'])
+
+          result = user_account.send(:registration_numbers)
+          expect(result).to eq({})
+        end
+      end
+    end
   end
 end
 # rubocop:enable Metrics/ModuleLength
