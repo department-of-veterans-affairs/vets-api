@@ -1258,7 +1258,7 @@
                         "titleOfActiveReview": null,
                         "sourceReviewType": null,
                         "timely": true,
-                        "activeReview": false
+                        "activeReview": true
                       }
                     },
                     {
