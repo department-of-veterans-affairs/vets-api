@@ -237,12 +237,21 @@ module Veteran
     end
 
     def save_accreditation_totals
+      # For manual reprocessing, some types may not be in @validation_results
+      # If a type wasn't processed, use the current count from the database
+      # If a type was processed and failed validation, it will be nil
       Veteran::AccreditationTotal.create!(
-        attorneys: @validation_results[:attorneys],
-        claims_agents: @validation_results[:claims_agents],
-        vso_representatives: @validation_results[:vso_representatives],
-        vso_organizations: @validation_results[:vso_organizations]
+        attorneys: get_count_for_save(:attorneys),
+        claims_agents: get_count_for_save(:claims_agents),
+        vso_representatives: get_count_for_save(:vso_representatives),
+        vso_organizations: get_count_for_save(:vso_organizations)
       )
+    end
+
+    def get_count_for_save(rep_type)
+      # If the type was processed (exists in validation_results), use that value (even if nil)
+      # Otherwise, use the current count from the database
+      @validation_results.key?(rep_type) ? @validation_results[rep_type] : @initial_counts[rep_type]
     end
 
     def calculate_vso_counts(vso_data)

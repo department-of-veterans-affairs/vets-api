@@ -397,6 +397,39 @@ RSpec.describe Veteran::VSOReloader, type: :job do
           end
         end
       end
+
+      context 'when manual reprocessing occurs' do
+        it 'saves all counts in AccreditationTotal, not just manually processed types' do
+          VCR.use_cassette('veteran/ogc_poa_data') do
+            # Simulate manual reprocessing of only attorneys (like the rake task does)
+            # by having validation pass only for attorneys
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
+              if rep_type == :attorneys
+                instance.instance_variable_get(:@validation_results)[rep_type] = new_count
+                true
+              else
+                # Don't add other types to validation_results at all
+                # This simulates them not being processed
+                false
+              end
+            end
+
+            # Override reload methods to simulate only attorneys being processed
+            allow(reloader).to receive_messages(reload_claim_agents: [], reload_vso_reps: [])
+
+            reloader.perform
+
+            # Check that the saved total has all counts, not just attorneys
+            total = Veteran::AccreditationTotal.last
+            expect(total.attorneys).to be_present
+            # These should have current counts from the database, not nil
+            initial_counts = reloader.instance_variable_get(:@initial_counts)
+            expect(total.claims_agents).to eq(initial_counts[:claims_agents])
+            expect(total.vso_representatives).to eq(initial_counts[:vso_representatives])
+            expect(total.vso_organizations).to eq(initial_counts[:vso_organizations])
+          end
+        end
+      end
     end
   end
 end
