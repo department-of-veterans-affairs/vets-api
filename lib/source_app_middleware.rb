@@ -81,6 +81,7 @@ class SourceAppMiddleware
     dhp-consent-flow
     discharge-upgrade-instructions
     discover-your-benefits
+    dispute-debt
     ds-playground
     ds-v3-playground
     education-letters
