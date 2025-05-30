@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/models/attribute_types/date_time_string'
+
 class MessageThreadDetails < Message
   attribute :message_id, Integer
   attribute :thread_id, Integer
