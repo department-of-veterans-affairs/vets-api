@@ -222,6 +222,61 @@ module AccreditedRepresentativePortal
         end
       end
     end
+
+    # rubocop:disable Layout/LineLength
+    describe '#registrations' do
+      let(:icn) { '1234567890V123456' }
+      let(:user_email) { 'email@email.com' }
+      let(:registration_number) { 'REG123456' }
+      let(:user_type) { 'veteran_service_officer' }
+      let(:poa_type) { 'veteran_service_organization' }
+
+      before do
+        allow(user_account).to receive(:icn).and_return(icn)
+      end
+
+      context 'when feature flag is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(true)
+          # Mock the registration_numbers result
+          allow(user_account).to receive(:registration_numbers).and_return({
+                                                                             user_type => registration_number
+                                                                           })
+        end
+
+        it 'creates registrations from registration_numbers' do
+          registrations = user_account.send(:registrations)
+
+          expect(registrations.size).to eq(1)
+          expect(registrations.first.accredited_individual_registration_number).to eq(registration_number)
+          expect(registrations.first.power_of_attorney_holder_type).to eq(poa_type)
+        end
+      end
+
+      context 'when feature flag is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:accredited_representative_portal_self_service_auth).and_return(false)
+
+          # Create a database record to be found
+          create(
+            :user_account_accredited_individual,
+            user_account_email: user_email,
+            user_account_icn: icn,
+            accredited_individual_registration_number: registration_number,
+            power_of_attorney_holder_type: poa_type
+          )
+        end
+
+        it 'retrieves registrations from database' do
+          registrations = user_account.send(:registrations)
+
+          expect(registrations.size).to eq(1)
+          expect(registrations.first.accredited_individual_registration_number).to eq(registration_number)
+          expect(registrations.first.power_of_attorney_holder_type).to eq(poa_type)
+        end
+      end
+    end
+    # rubocop:enable Layout/LineLength
   end
 end
 # rubocop:enable Metrics/ModuleLength
