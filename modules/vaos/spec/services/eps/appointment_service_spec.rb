@@ -221,6 +221,40 @@ describe Eps::AppointmentService do
         end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
+
+    context 'when response contains error field' do
+      let(:error_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'draft',
+                                                'patientId' => icn,
+                                                'error' => 'conflict' },
+                           response_headers:)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(error_response)
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it 'raises VAOS::Exceptions::BackendServiceException' do
+        expect { service.create_draft_appointment(referral_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+
+      it 'logs the error without PII' do
+        expect(Rails.logger).to receive(:warn).with(
+          'EPS appointment error detected',
+          hash_including(
+            error_type: 'conflict',
+            method: 'create_draft_appointment',
+            status: 200
+          )
+        )
+
+        expect { service.create_draft_appointment(referral_id:) }
+          .to raise_error(VAOS::Exceptions::BackendServiceException)
+      end
+    end
   end
 
   describe '#submit_appointment' do

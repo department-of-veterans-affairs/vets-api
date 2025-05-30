@@ -118,7 +118,7 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
             url: 'https://api.wellhive.com/care-navigation/v1'
           )
           exception = VAOS::Exceptions::BackendServiceException.new(error_env)
-          
+
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointment)
             .and_raise(exception)
 

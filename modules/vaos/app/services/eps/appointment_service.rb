@@ -18,12 +18,10 @@ module Eps
                          request_headers)
 
       result = OpenStruct.new(response.body)
-      
-      # Check for error field in successful responses
-      if result.error.present?
-        raise_eps_error(result.error, response)
-      end
-      
+
+      # Check for error field in successful responses using reusable helper
+      check_for_eps_error!(result, response, 'get_appointment')
+
       result
     end
 
@@ -36,10 +34,8 @@ module Eps
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, request_headers)
 
-      # Check for error field in successful responses  
-      if response.body.is_a?(Hash) && response.body[:error].present?
-        raise_eps_error(response.body[:error], response)
-      end
+      # Check for error field in successful responses using reusable helper
+      check_for_eps_error!(response.body, response, 'get_appointments')
 
       appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
@@ -55,7 +51,12 @@ module Eps
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
 
-      OpenStruct.new(response.body)
+      result = OpenStruct.new(response.body)
+
+      # Check for error field in successful responses using reusable helper
+      check_for_eps_error!(result, response, 'create_draft_appointment')
+
+      result
     end
 
     ##
@@ -87,12 +88,10 @@ module Eps
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
 
       result = OpenStruct.new(response.body)
-      
-      # Check for error field in successful responses
-      if result.error.present?
-        raise_eps_error(result.error, response)
-      end
-      
+
+      # Check for error field in successful responses using reusable helper
+      check_for_eps_error!(result, response, 'submit_appointment')
+
       result
     end
 
@@ -145,40 +144,6 @@ module Eps
     # @return [Eps::ProviderService] ProviderService instance
     def provider_services
       @provider_services ||= Eps::ProviderService.new(user)
-    end
-
-    ##
-    # Raises a VAOS::Exceptions::BackendServiceException for EPS error responses
-    #
-    # @param error_message [String] The error message from the EPS response
-    # @param response [Object] The HTTP response object
-    # @raise [VAOS::Exceptions::BackendServiceException]
-    def raise_eps_error(error_message, response)
-      # Log the error without PII - only include safe context information
-      Rails.logger.warn("EPS appointment error detected", {
-        error_type: error_message,
-        method: caller_locations(1, 1)[0].label,
-        status: response.status || 'unknown'
-      })
-
-      # Create a sanitized error body that doesn't contain PII
-      # Only include the error field and minimal context for debugging
-      sanitized_body = {
-        error: error_message,
-        source: 'EPS appointment service',
-        timestamp: Time.current.iso8601
-      }.to_json
-
-      # Create a mock env object that matches what VAOS::Exceptions::BackendServiceException expects
-      # This follows the same pattern as VAOS::Middleware::Response::Errors but with sanitized body
-      mock_env = OpenStruct.new(
-        status: 400,  # Use 400 for business logic errors
-        body: sanitized_body,
-        url: "#{config.api_url}/#{config.base_path}",
-        response_body: sanitized_body
-      )
-      
-      raise VAOS::Exceptions::BackendServiceException, mock_env
     end
   end
 end
