@@ -152,10 +152,8 @@ module PdfFill
             # Add programDateOfCalculation to each valid program entry
             program['programDateOfCalculation'] = calculation_date
 
-            if program['fte']
-              if program['fte']['supportedPercentageFTE'].present?
-                program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
-              end
+            if program['fte'] && program['fte']['supportedPercentageFTE'].present?
+              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
             end
           end
         end
