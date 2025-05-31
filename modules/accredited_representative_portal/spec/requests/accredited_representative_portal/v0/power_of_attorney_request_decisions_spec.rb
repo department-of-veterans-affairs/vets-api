@@ -7,7 +7,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   let!(:other_poa_code) { 'z99' }
 
   let!(:test_user) do
-    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
 
   let!(:accredited_individual) do
@@ -24,6 +24,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     create(
       :representative,
       :vso,
+      email: test_user.email,
       representative_id: accredited_individual.accredited_individual_registration_number,
       poa_codes: [poa_code]
     )

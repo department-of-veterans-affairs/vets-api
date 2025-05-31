@@ -60,6 +60,7 @@ module AccreditedRepresentativePortal
       @user_verification ||= session.user_verification
     end
 
+    # rubocop:disable Style/MethodLength
     def current_user
       return @current_user if @current_user.present?
 
@@ -77,9 +78,16 @@ module AccreditedRepresentativePortal
       user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
+      if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
+        user.all_emails = begin
+          access_token.user_attributes['all_emails']
+        rescue
+          []
+        end
+      end
       user.save
-
       @current_user = user
     end
+    # rubocop:enable Style/MethodLength
   end
 end

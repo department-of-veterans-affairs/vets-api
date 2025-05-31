@@ -507,6 +507,8 @@ gclaws:
     api_key: <%= ENV['gclaws__accreditation__api_key'] %>
     attorneys:
       url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    icn:
+      url: <%= ENV['gclaws__accreditation__icn__url'] %>
     origin: <%= ENV['gclaws__accreditation__origin'] %>
     representatives:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
