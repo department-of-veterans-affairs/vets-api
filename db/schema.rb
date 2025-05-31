@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_30_183256) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -137,6 +136,24 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.index ["location"], name: "index_accredited_organizations_on_location", using: :gist
     t.index ["name"], name: "index_accredited_organizations_on_name"
     t.index ["poa_code"], name: "index_accredited_organizations_on_poa_code", unique: true
+  end
+
+  create_table "accredited_representative_portal_pilot_representatives", force: :cascade do |t|
+    t.string "ogc_registration_number", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_pilot_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_pilot_representatives_on_ogc_number", unique: true
+  end
+
+  create_table "accredited_representative_portal_verified_representatives", force: :cascade do |t|
+    t.string "ogc_registration_number", null: false
+    t.string "email", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_verified_representatives_on_email", unique: true
+    t.index ["ogc_registration_number"], name: "index_verified_representatives_on_ogc_number", unique: true
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -344,8 +361,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.text "reason_ciphertext"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
-    t.integer "declination_reason"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.integer "declination_reason"
     t.index ["needs_kms_rotation"], name: "idx_on_needs_kms_rotation_2e9bb1b8e7"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
@@ -647,6 +664,51 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.boolean "json_api_compatibility", default: true, null: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
+  end
+
+  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "submission_uuid", null: false
+    t.string "vetext_sid"
+    t.boolean "sequestered", default: true, null: false
+    t.string "state"
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.string "batch_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "raw_form_data_ciphertext"
+    t.text "eligibility_info_ciphertext"
+    t.text "form_data_ciphertext"
+    t.text "encrypted_kms_key"
+    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
+    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
+    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
+    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
+  end
+
+  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "sid"
+    t.uuid "account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.text "form_data_ciphertext"
+    t.text "raw_form_data_ciphertext"
+    t.text "encrypted_kms_key"
+    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
+    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
+  create_table "decision_review_evidence_attachment_validations", force: :cascade do |t|
+    t.uuid "decision_review_evidence_attachment_guid", null: false
+    t.text "password_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["decision_review_evidence_attachment_guid"], name: "index_dr_evidence_attachment_validation_on_guid"
   end
 
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|
@@ -1104,6 +1166,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.index ["user_uuid"], name: "index_in_progress_forms_on_user_uuid"
   end
 
+  create_table "inherited_proof_verified_user_accounts", force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_inherited_proof_verified_user_accounts_on_user_account_id", unique: true
+  end
+
   create_table "intent_to_file_queue_exhaustions", force: :cascade do |t|
     t.string "veteran_icn", null: false
     t.string "form_type"
@@ -1166,6 +1235,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1173,7 +1243,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1182,11 +1251,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
@@ -1264,6 +1333,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
+  create_table "pension_ipf_notifications", force: :cascade do |t|
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -1275,6 +1351,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.integer "doctype"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
     t.index ["needs_kms_rotation"], name: "index_persistent_attachments_on_needs_kms_rotation"
@@ -1650,6 +1727,35 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.index ["mhv_uuid"], name: "index_user_verifications_on_mhv_uuid", unique: true
     t.index ["user_account_id"], name: "index_user_verifications_on_user_account_id"
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
+  end
+
+  create_table "va_forms_forms", force: :cascade do |t|
+    t.string "form_name"
+    t.string "url"
+    t.string "title"
+    t.date "first_issued_on"
+    t.date "last_revision_on"
+    t.integer "pages"
+    t.string "sha256"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "valid_pdf", default: false
+    t.text "form_usage"
+    t.text "form_tool_intro"
+    t.string "form_tool_url"
+    t.string "form_type"
+    t.string "language"
+    t.datetime "deleted_at"
+    t.string "related_forms", array: true
+    t.jsonb "benefit_categories"
+    t.string "form_details_url"
+    t.jsonb "va_form_administration"
+    t.integer "row_id"
+    t.float "ranking"
+    t.string "tags"
+    t.date "last_sha256_change"
+    t.jsonb "change_history"
+    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
