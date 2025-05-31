@@ -136,6 +136,43 @@ module DebtsApi
       public_metadata.dig('streamlined', 'value') == true
     end
 
+    def vba_debt_identifiers
+      return [] if metadata.blank?
+
+      parsed_metadata = JSON.parse(metadata)
+      debts = parsed_metadata['debts'] || []
+
+      debts.map do |debt|
+        "#{debt['deductionCode']}#{debt['originalAR'].to_i}"
+      end.compact
+    rescue JSON::ParserError
+      []
+    end
+
+    def vha_copay_identifiers
+      return [] if metadata.blank?
+
+      parsed_metadata = JSON.parse(metadata)
+      copays = parsed_metadata['copays'] || []
+
+      copays.pluck('id').compact
+    rescue JSON::ParserError
+      []
+    end
+
+    def debt_identifiers
+      # For combined forms, we need to check both debts and copays
+      if public_metadata['combined']
+        vba_debt_identifiers + vha_copay_identifiers
+      elsif public_metadata['debt_type'] == 'DEBT'
+        vba_debt_identifiers
+      elsif public_metadata['debt_type'] == 'COPAY'
+        vha_copay_identifiers
+      else
+        []
+      end
+    end
+
     def upsert_in_progress_form(user_account:)
       form = InProgressForm.find_or_initialize_by(form_id: '5655', user_uuid:)
       form.user_account = user_account
