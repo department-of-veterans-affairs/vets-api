@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'zero_silent_failures/monitor'
+require 'logging/base_monitor'
 
 module Dependents
   ##
   # Monitor functions for Rails logging and StatsD
   #
-  class Monitor < ::ZeroSilentFailures::Monitor
+  class Monitor < Logging::BaseMonitor
     # statsd key for api
     CLAIM_STATS_KEY = 'dependent-change'
 
@@ -39,14 +40,15 @@ module Dependents
       SavedClaim::DependencyClaim.find(claim_id)
     rescue => e
       Rails.logger.warn('Unable to find claim for Dependents::Monitor', { claim_id:, e: })
+      nil
     end
 
     def default_payload
-      { service:, use_v2: @use_v2, claim_id: @claim_id }
+      { service:, use_v2: @use_v2, claim: @claim, user_account_uuid: @claim&.user_account_id, tags: }
     end
 
     def tags
-      ["service:#{service}", "v2:#{@use_v2}"]
+      @tags ||= ["service:#{service}", "v2:#{@use_v2}"]
     end
 
     def track_submission_exhaustion(msg, email = nil)
@@ -135,6 +137,10 @@ module Dependents
       tags = ["form_id:#{form_id}"]
       metric = 'saved_claim.pdf.overflow'
       StatsD.increment(metric, tags:)
+    end
+
+    def track_event(level, message, stats_key, payload = {})
+      submit_event(level, message, stats_key, default_payload.merge(payload))
     end
   end
 end
