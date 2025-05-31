@@ -19,7 +19,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   describe '#index' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
           get(:index)
         end
 
@@ -27,7 +27,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
 
       it 'adds a set of EVSSClaim records to the DB' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
           get(:index)
         end
 
@@ -38,7 +38,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
 
       it 'returns claimType language modifications' do
-        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
           get(:index)
         end
         parsed_body = JSON.parse(response.body)
@@ -56,7 +56,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         it 'does not return hasFailedUploads field' do
-          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
             get(:index)
           end
           parsed_body = JSON.parse(response.body)
@@ -77,7 +77,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
 
           it 'returns hasFailedUploads false' do
-            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
               get(:index)
             end
 
@@ -95,7 +95,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
 
           it 'returns hasFailedUploads false' do
-            VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
               get(:index)
             end
 
@@ -121,7 +121,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       it 'updates the ’updated_at’ field on existing EVSSClaim records' do
         Timecop.travel(10.minutes.from_now)
 
-        VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+        VCR.use_cassette('lighthouse/benefits_claims/index/200_response', match_requests_on: [:method]) do
           get(:index)
         end
 
