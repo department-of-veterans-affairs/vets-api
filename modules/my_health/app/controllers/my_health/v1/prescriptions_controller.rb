@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::PrescriptionHelper::Sorting
       include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
@@ -20,7 +21,7 @@ module MyHealth
 
         filter_count = set_filter_metadata(resource.data, raw_data)
         resource = apply_filters(resource) if params[:filter].present?
-        resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
+        resource = apply_sorting(resource, params[:sort])
         resource.records = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
