@@ -897,6 +897,7 @@ mhv:
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
     app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
+    x_api_key: <%= ENV['mhv__uhd__x_api_key'] %>
     host: <%= ENV['mhv__uhd__host'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
