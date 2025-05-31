@@ -10,9 +10,9 @@ module V0
         # request a signed JWT token
         response = perform(:post, url, token, headers)
         # raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
-
+j
         Rails.logger.info('Chatbot JWT session created',
-                          { account_uuid: user.account_uuid, jti: decoded_token(token)['jti'] })
+                          { account_uuid: user.user_account_uuid, jti: decoded_token(token)['jti'] })
         response.body
       end
 

@@ -164,9 +164,6 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }
       idme_uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }
-      callback(:after_build) do |user|
-        create(:account, idme_uuid: user.idme_uuid)
-      end
 
       sign_in do
         {
@@ -185,9 +182,6 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
       idme_uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
-      callback(:after_build) do |user|
-        create(:account, sec_id: user.sec_id)
-      end
 
       sign_in do
         {
@@ -206,9 +200,6 @@ FactoryBot.define do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { '378250b8-28b1-4366-a377-445d04fcd3d5' }
       logingov_uuid { '2j4250b8-28b1-4366-a377-445dfj49turh' }
-      callback(:after_build) do |user|
-        create(:account, logingov_uuid: user.logingov_uuid)
-      end
 
       sign_in do
         {
