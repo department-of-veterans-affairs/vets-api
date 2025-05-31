@@ -18,7 +18,7 @@ RSpec.describe BGS::Form674 do
   context 'The system is able to submit 674s automatically' do
     context 'va_dependents_v2 is on' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+        user_struct.v2 = true
       end
 
       # @TODO: may want to return something else
@@ -82,7 +82,7 @@ RSpec.describe BGS::Form674 do
 
     context 'va_dependents_v2 is off' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+        user_struct.v2 = false
       end
 
       # @TODO: may want to return something else

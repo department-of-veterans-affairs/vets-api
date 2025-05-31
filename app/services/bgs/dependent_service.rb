@@ -28,6 +28,7 @@ module BGS
       @icn = user.icn
       @participant_id = user.participant_id
       @va_profile_email = user.va_profile_email
+      @v2 = Flipper.enabled?(:va_dependents_v2, user)
     end
 
     def get_dependents
@@ -79,7 +80,8 @@ module BGS
         claim.id,
         encrypted_vet_info,
         claim.submittable_686?,
-        claim.submittable_674?
+        claim.submittable_674?,
+        @v2
       )
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
@@ -93,11 +95,11 @@ module BGS
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
         BGS::SubmitForm686cJob.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, icn, claim.id, encrypted_vet_info, @v2
         )
       else
         BGS::SubmitForm674Job.perform_async(
-          uuid, icn, claim.id, encrypted_vet_info
+          uuid, icn, claim.id, encrypted_vet_info, @v2
         )
       end
     end
@@ -106,7 +108,7 @@ module BGS
       vet_info = JSON.parse(claim.form)['dependents_application']
       vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
-      user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
+      user = BGS::SubmitForm686cJob.generate_user_struct(vet_info, v2:)
       Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
         claim.id,
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),

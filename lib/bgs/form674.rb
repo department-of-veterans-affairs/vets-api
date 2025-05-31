@@ -23,6 +23,7 @@ module BGS
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
       @proc_state = 'Ready'
+      @v2 = user.v2
     end
 
     def submit(payload)
@@ -98,7 +99,7 @@ module BGS
       # use this to make sure the created dependent and student payload line up for process_674
       # if it's nil, it is v1.
       dependent_student_map = {}
-      if Flipper.enabled?(:va_dependents_v2)
+      if @v2
         payload&.dig('dependents_application', 'student_information').to_a.each do |student|
           dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
           dependents << dependent

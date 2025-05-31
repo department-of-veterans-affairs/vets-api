@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bgs/vnp_veteran'
 
 RSpec.describe BGS::VnpVeteran do
-  let(:user_object) { create(:evss_user, :loa3) }
+  let(:user_object) { build(:user_struct) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
   let(:all_flows_payload_v2) { build(:form686c_674_v2) }
   let(:formatted_payload) do
@@ -70,7 +70,7 @@ RSpec.describe BGS::VnpVeteran do
 
   context 'with va_dependents_v2 off' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
+      user_object.v2 = false
     end
 
     describe '#create' do
@@ -206,7 +206,7 @@ RSpec.describe BGS::VnpVeteran do
 
         it 'sets ssn to User#ssn' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
-            user_object = create(:evss_user, :loa3, ssn: '123456789')
+            user_object.ssn = '123456789'
             vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
               payload: all_flows_payload,
@@ -223,7 +223,7 @@ RSpec.describe BGS::VnpVeteran do
         context 'User#ssn returns the same invalid ssn' do
           it 'logs an error to Sentry' do
             VCR.use_cassette('bgs/vnp_veteran/create') do
-              allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
+              user_object.ssn = '12345678'
               vnp_veteran = BGS::VnpVeteran.new(
                 proc_id: '3828241',
                 payload: all_flows_payload,
@@ -246,7 +246,7 @@ RSpec.describe BGS::VnpVeteran do
         context 'User#ssn returns ********' do
           it 'logs an error to Sentry' do
             VCR.use_cassette('bgs/vnp_veteran/create') do
-              allow_any_instance_of(User).to receive(:ssn).and_return('********')
+              user_object.ssn = '********'
               vnp_veteran = BGS::VnpVeteran.new(
                 proc_id: '3828241',
                 payload: all_flows_payload,
@@ -325,7 +325,7 @@ RSpec.describe BGS::VnpVeteran do
 
   context 'with va_dependents_v2 on' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
+      user_object.v2 = true
     end
 
     describe '#create' do
@@ -461,7 +461,7 @@ RSpec.describe BGS::VnpVeteran do
 
         it 'sets ssn to User#ssn' do
           VCR.use_cassette('bgs/vnp_veteran/create') do
-            user_object = create(:evss_user, :loa3, ssn: '123456789')
+            user_object.ssn = '123456789'
             vnp_veteran = BGS::VnpVeteran.new(
               proc_id: '3828241',
               payload: all_flows_payload_v2,
@@ -478,7 +478,7 @@ RSpec.describe BGS::VnpVeteran do
         context 'User#ssn returns the same invalid ssn' do
           it 'logs an error to Sentry' do
             VCR.use_cassette('bgs/vnp_veteran/create') do
-              allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
+              user_object.ssn = '12345678'
               vnp_veteran = BGS::VnpVeteran.new(
                 proc_id: '3828241',
                 payload: all_flows_payload_v2,
@@ -501,7 +501,7 @@ RSpec.describe BGS::VnpVeteran do
         context 'User#ssn returns ********' do
           it 'logs an error to Sentry' do
             VCR.use_cassette('bgs/vnp_veteran/create') do
-              allow_any_instance_of(User).to receive(:ssn).and_return('********')
+              user_object.ssn = '********'
               vnp_veteran = BGS::VnpVeteran.new(
                 proc_id: '3828241',
                 payload: all_flows_payload_v2,

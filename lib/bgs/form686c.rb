@@ -31,7 +31,7 @@ module BGS
       @proc_state = 'Ready'
       @note_text = nil
       @proc_id = nil
-      @v2 = Flipper.enabled?(:va_dependents_v2)
+      @v2 = user.v2
     end
 
     # rubocop:disable Metrics/MethodLength
