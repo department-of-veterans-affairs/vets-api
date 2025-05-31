@@ -59,7 +59,7 @@ module PDFUtilities
 
     private
 
-    attr_reader :text, :x, :y, :text_only, :size, :page_number, :template, :multistamp, :file_path, :append_to_stamp,
+    attr_reader :text, :x, :y, :text_only, :size, :page_number, :template, :multistamp, :timestamp_required, :file_path, :append_to_stamp,
                 :stamp_path, :stamped_pdf
 
     # @see #run
@@ -73,7 +73,8 @@ module PDFUtilities
         timestamp: Time.zone.now,
         page_number: nil,
         template: nil,
-        multistamp: false
+        multistamp: false,
+        timestamp_required: true,
       }.freeze
     end
 
@@ -98,7 +99,7 @@ module PDFUtilities
           reader = PDF::Reader.new(template)
           page_number.times { pdf.start_new_page }
           pdf.draw_text(stamp_text, at: [x, y], size:)
-          pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
+          pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:) if timestamp_required
           (reader.page_count - page_number).times { pdf.start_new_page }
         else
           pdf.draw_text(stamp_text, at: [x, y], size:)
