@@ -124,7 +124,7 @@ module MyHealth
         sorted_resource = case sort_param
                           when 'last-fill-date'
                             last_fill_date_sort(resource)
-                          when 'alphabetical'
+                          when 'alphabetical-rx-name'
                             alphabetical_sort(resource)
                           else
                             default_sort(resource)
@@ -133,7 +133,7 @@ module MyHealth
         sort_metadata = case sort_param
                         when 'last-fill-date'
                           { 'dispensed_date' => 'DESC', 'prescription_name' => 'ASC' }
-                        when 'alphabetical'
+                        when 'alphabetical-rx-name'
                           { 'prescription_name' => 'ASC', 'dispensed_date' => 'DESC' }
                         else
                           { 'disp_status' => 'ASC', 'prescription_name' => 'ASC', 'dispensed_date' => 'DESC' }
