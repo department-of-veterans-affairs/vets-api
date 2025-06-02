@@ -915,6 +915,7 @@ mhv:
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
