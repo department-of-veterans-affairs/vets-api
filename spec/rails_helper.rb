@@ -9,7 +9,7 @@ abort('The Rails environment is running in production mode!') if Rails.env.produ
 require 'statsd-instrument'
 require 'statsd/instrument/matchers'
 require 'rspec/rails'
-Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').each { |f| require f }
 
 require 'webmock/rspec'
 require 'shoulda/matchers'
