@@ -269,6 +269,80 @@ describe PdfFill::Forms::Va210781v2 do
 
           expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['other']).to eq('incident report')
         end
+
+        context 'when testing OTHER field overflow behavior' do
+          let(:form_data) do
+            {
+              'events' => [
+                {
+                  'unlistedReport' => other_report,
+                  'otherReports' => other_reports
+                }
+              ]
+            }
+          end
+
+          def expect_other_overflow(expected_value)
+            form_data = new_form_class.instance_variable_get(:@form_data)
+            if expected_value.nil?
+              expect(form_data['reportsDetails']).not_to have_key('otherOverflow')
+            else
+              expect(form_data['reportsDetails']['otherOverflow']).to eq([expected_value])
+            end
+          end
+
+          before do
+            new_form_class.instance_variable_set(:@form_data, form_data)
+            new_form_class.send(:process_reports, extras_redesign: true)
+          end
+
+          context 'when OTHER field exceeds its limit' do
+            let(:other_report) { 'A' * 200 } # has 194 character limit
+            let(:other_reports) { {} }
+
+            it 'overflows regardless of other Q11 fields' do
+              expect_other_overflow(other_report)
+            end
+          end
+
+          context 'when OTHER field is under limit but police report overflows' do
+            let(:other_report) { 'Short report' }
+            let(:other_reports) do
+              {
+                'police' => true
+              }
+            end
+
+            before do
+              new_form_class.instance_variable_set(:@form_data, {
+                                                     'events' => [
+                                                       {
+                                                         'unlistedReport' => other_report,
+                                                         'otherReports' => other_reports,
+                                                         'agency' => 'A' * 100,
+                                                         'city' => 'B' * 100,
+                                                         'state' => 'C' * 100,
+                                                         'country' => 'D' * 100
+                                                       }
+                                                     ]
+                                                   })
+              new_form_class.send(:process_reports, extras_redesign: true)
+            end
+
+            it 'overflows due to other Q11 fields overflowing' do
+              expect_other_overflow(other_report)
+            end
+          end
+
+          context 'when OTHER field is under limit and no other Q11 fields overflow' do
+            let(:other_report) { 'Short report' }
+            let(:other_reports) { {} }
+
+            it 'does not overflow' do
+              expect_other_overflow(nil)
+            end
+          end
+        end
       end
 
       context 'when at least one report is filed' do

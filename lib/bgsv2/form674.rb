@@ -92,20 +92,15 @@ module BGSV2
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def process_relationships(proc_id, veteran, payload)
       dependents = []
       # use this to make sure the created dependent and student payload line up for process_674
       # if it's nil, it is v1.
       dependent_student_map = {}
-      if Flipper.enabled?(:va_dependents_v2)
-        payload&.dig('dependents_application', 'student_information').to_a.each do |student|
-          dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
-          dependents << dependent
-          dependent_student_map[dependent[:vnp_participant_id]] = student
-        end
-      else
-        dependents << DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student: nil).create
+      payload&.dig('dependents_application', 'student_information').to_a.each do |student|
+        dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user, student:).create
+        dependents << dependent
+        dependent_student_map[dependent[:vnp_participant_id]] = student
       end
 
       VnpRelationships.new(
@@ -120,7 +115,6 @@ module BGSV2
         process_674(proc_id, dependent, payload, dependent_student_map[dependent[:vnp_participant_id]])
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Naming/VariableNumber
     def process_674(proc_id, dependent, payload, student = nil)
