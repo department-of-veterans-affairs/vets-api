@@ -24,7 +24,7 @@ module BGSV2
 
     def report_marriage_history(type)
       @dependents_application[type].each do |former_spouse|
-        former_marriage = BGSDependents::MarriageHistory.new(former_spouse)
+        former_marriage = BGSDependentsV2::MarriageHistory.new(former_spouse)
         marriage_info = former_marriage.format_info
         participant = bgs_service.create_participant(@proc_id)
 
@@ -55,7 +55,7 @@ module BGSV2
     end
 
     def add_spouse
-      spouse = BGSDependents::Spouse.new(@dependents_application)
+      spouse = BGSDependentsV2::Spouse.new(@dependents_application)
       spouse_info = spouse.format_info
       participant = bgs_service.create_participant(@proc_id)
 
