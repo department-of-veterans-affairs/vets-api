@@ -88,29 +88,23 @@ RSpec.describe BGSV2::StudentSchool do
     }
   end
 
-  context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
+  describe '#create' do
+    it 'creates a child school and a child student' do
+      VCR.use_cassette('bgs/student_school/create') do
+        expect_any_instance_of(BGS::VnpChildSchoolService).to receive(:child_school_create).with(
+          hash_including(school_params_v2)
+        )
+        expect_any_instance_of(BGS::VnpChildStudentService).to receive(:child_student_create).with(
+          hash_including(student_params_v2)
+        )
 
-    describe '#create' do
-      it 'creates a child school and a child student' do
-        VCR.use_cassette('bgs/student_school/create') do
-          expect_any_instance_of(BGS::VnpChildSchoolService).to receive(:child_school_create).with(
-            hash_including(school_params_v2)
-          )
-          expect_any_instance_of(BGS::VnpChildStudentService).to receive(:child_student_create).with(
-            hash_including(student_params_v2)
-          )
-
-          BGSV2::StudentSchool.new(
-            proc_id:,
-            vnp_participant_id:,
-            payload: all_flows_v2_payload,
-            user: user_object,
-            student: all_flows_v2_payload['dependents_application']['student_information'][0]
-          ).create
-        end
+        BGSV2::StudentSchool.new(
+          proc_id:,
+          vnp_participant_id:,
+          payload: all_flows_v2_payload,
+          user: user_object,
+          student: all_flows_v2_payload['dependents_application']['student_information'][0]
+        ).create
       end
     end
   end
