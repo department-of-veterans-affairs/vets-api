@@ -29,7 +29,7 @@ require 'support/mdot_helpers'
 require 'support/financial_status_report_helpers'
 require 'support/poa_stub'
 require 'support/sm_spec_helper'
-require 'support/pdf_fill_helper'
+require 'support/rx_spec_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
@@ -40,6 +40,7 @@ require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
+SemanticLogger.sync!
 
 # Helper function for testing changes to the global Settings object
 # Pass in the particular settings object that you want to change,
@@ -177,10 +178,6 @@ RSpec.configure do |config|
 
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
-
-  %i[model controller request].each do |type|
-    config.include PdfFillHelper, type:
-  end
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request

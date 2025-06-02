@@ -149,12 +149,6 @@ RSpec.describe IvcChampva::VHA1010d do
 
   describe '#add_applicant_properties' do
     context 'when applicants array is present' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(true)
-      end
-
       let(:applicant_data) do
         data.merge(
           'applicants' => [
@@ -187,12 +181,6 @@ RSpec.describe IvcChampva::VHA1010d do
     end
 
     context 'when applicants array is empty' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(true)
-      end
-
       let(:applicant_data) do
         data.merge(
           'applicants' => []
@@ -208,12 +196,6 @@ RSpec.describe IvcChampva::VHA1010d do
     end
 
     context 'when applicants have wrong properties' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(false)
-      end
-
       let(:applicant_data) do
         data.merge(
           'applicants' => [
@@ -234,28 +216,16 @@ RSpec.describe IvcChampva::VHA1010d do
         expect(vha1010d.metadata.keys.include?('veteranFirstName')).to be(true)
       end
     end
+  end
 
-    context 'when champva_pega_applicant_metadata_enabled flipper is disabled' do
-      before do
-        allow(Flipper).to receive(:enabled?)
-          .with(:champva_pega_applicant_metadata_enabled, @current_user)
-          .and_return(true)
-      end
+  it 'is not past OMB expiration date' do
+    # Update this date string to match the current PDF OMB expiration date:
+    omb_expiration_date = Date.strptime('12312027', '%m%d%Y')
+    error_message = <<~MSG
+      If this test is failing it likely means the form 10-10d PDF has reached
+      OMB expiration date. Please see ivc_champva module README for details on updating the PDF file.
+    MSG
 
-      let(:applicant_data) do
-        data.merge(
-          'applicants' => [
-            { 'malformed' => '123456789' }
-          ]
-        )
-      end
-
-      let(:vha1010d_applicants) { described_class.new(applicant_data) }
-
-      it 'returns an empty object' do
-        json_result = vha1010d.add_applicant_properties
-        expect(json_result.empty?).to be(true)
-      end
-    end
+    expect(omb_expiration_date.past?).to be(false), error_message
   end
 end

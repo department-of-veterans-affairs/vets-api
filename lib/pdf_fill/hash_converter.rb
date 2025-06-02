@@ -2,13 +2,13 @@
 
 require 'pdf_fill/form_value'
 
-# frozen_string_literal: true
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
-    EXTRAS_TEXT = "See add'l info page"
 
     attr_reader :extras_generator
+
+    delegate :placeholder_text, to: :extras_generator
 
     def initialize(date_strftime, extras_generator)
       @pdftk_form = {}
@@ -52,6 +52,12 @@ module PdfFill
       end
     end
 
+    def format_currency(v)
+      v = v.to_s.gsub('$', '').gsub(',', '')
+
+      ActiveSupport::NumberHelper.number_to_currency(v)
+    end
+
     def overflow?(key_data, value, from_array_overflow = false)
       return false if value.blank? || from_array_overflow
 
@@ -64,16 +70,24 @@ module PdfFill
 
     def add_to_extras(key_data, v, i, overflow: true, array_key_data: nil)
       return if v.blank? || key_data.nil?
-      return if key_data[:question_num].blank? || key_data[:question_text].blank?
+      return if key_data[:question_num].blank? || (key_data[:question_text].blank? && key_data[:question_label].blank?)
+      return if key_data[:hide_from_overflow]
 
       i = nil if key_data[:skip_index]
-      v = "$#{v}" if key_data[:dollar]
+      v = format_currency(v) if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
-      array_question_text = array_key_data.try(:[], :question_text)
+      item_label = array_key_data.try(:[], :item_label)
+      question_type = array_key_data&.dig(:question_type) || key_data&.dig(:question_type)
+      array_format_options = array_key_data&.dig(:format_options) || {}
+      key_format_options = key_data&.dig(:format_options) || {}
+      format_options = array_format_options.merge(key_format_options)
+
       @extras_generator.add_text(
         v,
-        key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i:, overflow:, array_question_text:
+        key_data.slice(
+          :question_num, :question_suffix, :question_text, :question_label, :checked_values, :show_suffix
+        ).merge(
+          i:, overflow:, item_label:, question_type:, format_options:
         )
       )
     end
@@ -102,7 +116,7 @@ module PdfFill
       if overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
 
-        new_value = EXTRAS_TEXT
+        new_value = placeholder_text
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
       end
@@ -125,19 +139,35 @@ module PdfFill
       false
     end
 
+    def handle_overflow_and_label_all(form_data, pdftk_keys)
+      form_data.each_with_index do |item, idx|
+        item.each do |k, v|
+          text = overflow?(pdftk_keys[k], v) ? placeholder_text : v
+
+          set_value(text, pdftk_keys[k], idx, true) if pdftk_keys[k].is_a?(Hash)
+        end
+      end
+    end
+
+    def handle_overflow_and_label_first_key(pdftk_keys)
+      first_key = pdftk_keys[:first_key]
+      transform_data(
+        form_data: { first_key => placeholder_text },
+        pdftk_keys:,
+        i: 0,
+        from_array_overflow: true
+      )
+    end
+
     def transform_array(form_data, pdftk_keys)
       has_overflow = check_for_overflow(form_data, pdftk_keys)
 
       if has_overflow
-        first_key = pdftk_keys[:first_key]
-
-        transform_data(
-          form_data: { first_key => EXTRAS_TEXT },
-          pdftk_keys:,
-          i: 0,
-          from_array_overflow: true
-        )
-
+        if pdftk_keys[:label_all]
+          handle_overflow_and_label_all(form_data, pdftk_keys)
+        else
+          handle_overflow_and_label_first_key(pdftk_keys)
+        end
         add_array_to_extras(form_data, pdftk_keys)
       else
         form_data.each_with_index do |v, idx|

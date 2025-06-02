@@ -9,8 +9,6 @@ class SourceAppMiddleware
     mobile
     openid_auth
     test_user_dashboard
-    veteran_confirmation
-    veteran_verification
   ].freeze
 
   OTHER_APP_NAMES = Set.new %w[
@@ -33,6 +31,7 @@ class SourceAppMiddleware
     10206-pa
     10207-pp
     10210-lay-witness-statement
+    10-7959a
     10-7959C
     10-7959f-1-FMP
     1330m2-medallions
@@ -66,6 +65,7 @@ class SourceAppMiddleware
     burials
     burials-v2
     burials-ez
+    chatbot
     check-in
     claims-status
     coe
@@ -79,6 +79,7 @@ class SourceAppMiddleware
     dhp-consent-flow
     discharge-upgrade-instructions
     discover-your-benefits
+    dispute-debt
     ds-playground
     ds-v3-playground
     education-letters

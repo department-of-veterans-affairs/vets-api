@@ -230,6 +230,8 @@ FactoryBot.define do
   factory :dependency_claim_v2, class: 'SavedClaim::DependencyClaim' do
     form_id { '686C-674-V2' }
 
+    use_v2 { true }
+
     form {
       {
         'view:selectable686_options': {
@@ -270,7 +272,7 @@ FactoryBot.define do
           'view:completed_veteran_former_marriage': false,
           'view:completed_spouse_former_marriage': false,
           current_marriage_information: {
-            type: 'CIVIL',
+            type_of_marriage: 'CIVIL',
             location: {
               city: 'washington',
               state: 'DC'
@@ -339,7 +341,7 @@ FactoryBot.define do
               end_date: '2010-07-06',
               start_date: '2010-03-05',
               reason_marriage_ended: 'Other',
-              reason_marriage_ended_other: 'annulled',
+              other_reason_marriage_ended: 'annulled',
               full_name: { first: 'test', middle: 'middle', last: 'spouseformerone' }
             },
             {
@@ -388,7 +390,7 @@ FactoryBot.define do
               end_date: '2011-12-06',
               start_date: '2011-08-02',
               reason_marriage_ended: 'Other',
-              reason_marriage_ended_other: 'annulled',
+              other_reason_marriage_ended: 'annulled',
               full_name: { first: 'test', middle: 'middle', last: 'formerspousetwo' }
             },
             {

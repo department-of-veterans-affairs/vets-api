@@ -15,22 +15,19 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        resource.data = resource_data_modifications(resource)
-        filter_count = set_filter_metadata(resource.data)
-        if params[:filter].present?
-          resource = if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
-                       filter_renewals(resource)
-                     else
-                       resource.find_by(filter_params)
-                     end
-        end
+        raw_data = resource.data.dup
+        resource.records = resource_data_modifications(resource)
+
+        filter_count = set_filter_metadata(resource.data, raw_data)
+        resource = apply_filters(resource) if params[:filter].present?
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
+        resource.records = sort_prescriptions_with_pd_at_top(resource.data)
         is_using_pagination = params[:page].present? || params[:per_page].present?
-        resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
+        resource.records = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = resource.paginate(**pagination_params) if is_using_pagination
         options = { meta: resource.metadata.merge(filter_count) }
         options[:links] = pagination_links(resource) if is_using_pagination
-        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
+        render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.records, options)
       end
 
       def show
@@ -56,7 +53,7 @@ module MyHealth
       end
 
       def filter_renewals(resource)
-        resource.data = resource.data.select(&method(:renewable))
+        resource.records = resource.data.select(&method(:renewable))
         resource.metadata = resource.metadata.merge({
                                                       'filter' => {
                                                         'disp_status' => {
@@ -83,7 +80,7 @@ module MyHealth
 
       def list_refillable_prescriptions
         resource = collection_resource
-        resource.data = filter_data_by_refill_and_renew(resource.data)
+        resource.records = filter_data_by_refill_and_renew(resource.data)
 
         options = { meta: resource.metadata }
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
@@ -102,13 +99,13 @@ module MyHealth
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
-          cmop_ndc_number = get_cmop_value(item)
+          cmop_ndc_number = item.cmop_ndc_value
           if cmop_ndc_number.present?
             image_uri = get_image_uri(cmop_ndc_number)
             threads << Thread.new(item) do |thread_item|
-              thread_item[:prescription_image] = fetch_image(image_uri)
+              thread_item.prescription_image = fetch_image(image_uri)
             rescue => e
-              puts "Error fetching image for NDC #{thread_item[:cmop_ndc_number]}: #{e.message}"
+              puts "Error fetching image for NDC #{thread_item.cmop_ndc_number}: #{e.message}"
             end
           end
         end
@@ -130,18 +127,6 @@ module MyHealth
         end
       end
 
-      def get_cmop_value(item)
-        cmop_ndc_number = nil
-        if item[:rx_rf_records].present? || item[:cmop_ndc_number].present?
-          cmop_ndc_number = if item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.key?(:cmop_ndc_number)
-                              item[:rx_rf_records][0][1][0][:cmop_ndc_number]
-                            elsif item[:cmop_ndc_number].present?
-                              item[:cmop_ndc_number]
-                            end
-        end
-        cmop_ndc_number
-      end
-
       def get_image_uri(cmop_ndc_number)
         folder_names = %w[1 2 3 4 5 6 7 8 9]
         folder_name = cmop_ndc_number ? cmop_ndc_number.gsub(/^0+(?!$)/, '')[0] : ''
@@ -153,11 +138,27 @@ module MyHealth
 
       def filter_params
         @filter_params ||= begin
-          valid_filter_params = params.require(:filter).permit(PrescriptionDetails.filterable_attributes)
+          valid_filter_params = params.require(:filter).permit(PrescriptionDetails.filterable_params)
           raise Common::Exceptions::FilterNotAllowed, params[:filter] if valid_filter_params.empty?
 
           valid_filter_params
         end
+      end
+
+      def apply_filters(resource)
+        resource.metadata[:filter] = {}
+        disp_status = filter_params[:disp_status]
+
+        if disp_status.present?
+          if disp_status[:eq]&.downcase == 'active,expired'.downcase
+            filter_renewals(resource)
+          else
+            filters = disp_status[:eq].split(',').map(&:strip).map(&:downcase)
+            resource.records = resource.data.select { |item| filters.include?(item.disp_status.downcase) }
+            resource.metadata[:filter][:dispStatus] = { eq: disp_status[:eq] }
+          end
+        end
+        resource
       end
 
       def collection_resource
@@ -173,20 +174,20 @@ module MyHealth
         display_grouping = Flipper.enabled?(:mhv_medications_display_grouping, current_user)
         display_pending_meds = Flipper.enabled?(:mhv_medications_display_pending_meds, current_user)
         # according to business logic filter for all medications is the only list that should contain PD meds
-        resource.data = if params[:filter].blank? && display_pending_meds
-                          resource.data.reject { |item| item.prescription_source.equal? 'PF' }
-                        else
-                          # TODO: remove this line when PF and PD are allowed on va.gov
-                          resource.data = remove_pf_pd(resource.data)
-                        end
-        resource.data = group_prescriptions(resource.data) if display_grouping
-        resource.data = filter_non_va_meds(resource.data)
+        resource.records = if params[:filter].blank? && display_pending_meds
+                             resource.data.reject { |item| item.prescription_source.equal? 'PF' }
+                           else
+                             # TODO: remove this line when PF and PD are allowed on va.gov
+                             resource.records = remove_pf_pd(resource.data)
+                           end
+        resource.records = group_prescriptions(resource.data) if display_grouping
+        resource.records = filter_non_va_meds(resource.data)
       end
 
-      def set_filter_metadata(list)
+      def set_filter_metadata(list, non_modified_collection)
         {
           filter_count: {
-            all_medications: list.length,
+            all_medications: group_prescriptions(non_modified_collection).length,
             active: count_active_medications(list),
             recently_requested: count_recently_requested_medications(list),
             renewal: list.select(&method(:renewable)).length,
@@ -217,6 +218,18 @@ module MyHealth
       def remove_pf_pd(data)
         sources_to_remove_from_data = %w[PF PD]
         data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
+      end
+
+      def sort_prescriptions_with_pd_at_top(prescriptions)
+        prescriptions.sort do |a, b|
+          if a.prescription_source == 'PD' && b.prescription_source != 'PD'
+            -1
+          elsif a.prescription_source != 'PD' && b.prescription_source == 'PD'
+            1
+          else
+            0
+          end
+        end
       end
     end
   end

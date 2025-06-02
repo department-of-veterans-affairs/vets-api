@@ -9,7 +9,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
   it_behaves_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
-    let(:loa3_user) { build(:disabilities_compensation_user, uuid: SecureRandom.uuid) }
+    let(:loa3_user) { build(:disabilities_compensation_user, :with_terms_of_use_agreement, uuid: SecureRandom.uuid) }
     let(:loa1_user) { build(:user, :loa1) }
 
     describe '#show' do
@@ -152,16 +152,45 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       describe '#update' do
         let(:update_user) { loa3_user }
-        let(:new_form) { build(:in_progress_form) }
+        let(:new_form) { build(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID) }
+        let(:flipper0781) { :disability_compensation_sync_modern0781_flow_metadata }
+
+        before do
+          sign_in_as(update_user)
+        end
 
         it 'inserts the form', run_at: '2017-01-01' do
-          sign_in_as(update_user)
           expect do
             put v0_disability_compensation_in_progress_form_url(new_form.form_id), params: {
               formData: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
           end.to change(InProgressForm, :count).by(1)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'adds 0781 metadata if flipper enabled' do
+          allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(true)
+          put v0_in_progress_form_url(new_form.form_id),
+              params: {
+                form_data: { greeting: 'Hello!' },
+                metadata: new_form.metadata
+              }.to_json,
+              headers: { 'CONTENT_TYPE' => 'application/json' }
+          # Checking key present, it will be false regardless due to prefill not running
+          expect(JSON.parse(response.body)['data']['attributes']['metadata'].key?('sync_modern0781_flow')).to be(true)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'does not add 0781 metadata if form and flipper disabled' do
+          allow(Flipper).to receive(:enabled?).with(flipper0781).and_return(false)
+          put v0_in_progress_form_url(new_form.form_id),
+              params: {
+                form_data: { greeting: 'Hello!' },
+                metadata: new_form.metadata
+              }.to_json,
+              headers: { 'CONTENT_TYPE' => 'application/json' }
+          expect(JSON.parse(response.body)['data']['attributes']['metadata'].key?('sync_modern0781_flow')).to be(false)
           expect(response).to have_http_status(:ok)
         end
       end

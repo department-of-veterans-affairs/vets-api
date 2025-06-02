@@ -35,6 +35,17 @@
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents"
+      :file_path: "/travel_pay/claims/show/docs"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*"
+      :file_path: "/travel_pay/claims/show/default"
+      :response_delay: 0.3
+    - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1.2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
@@ -52,6 +63,13 @@
     - :method: :post
       :path: "/veis/api/btsss/travelclaim/api/v1.2/expenses/mileage"
       :file_path: "/travel_pay/expenses/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/documents/*"
+      :file_path: "/travel_pay/documents"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents\/(.+)'
       :response_delay: 0.3
 
 #CRM Token post
@@ -89,6 +107,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+      :optional_code_locator: '"countOnly":(true|false)'
   - :method: :post
     :path: "/api/v1/digital-services/financial-status-report/formtopdf"
     :file_path: "debt_management_center/financial_status_reports/create"
@@ -451,16 +470,6 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
 
-  # VSO Search
-  - :method: :post
-    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/#{Settings.evss.versions.common}/getCurrentInfo" %>
-    :file_path: "evss/vso_search/get_current_info"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-      :uid_location: header
-      :uid_locator: 'ssn'
-
 # EVSS Container
 - :name: 'EVSS Container'
   :base_uri: <%= "#{URI(Settings.evss.dvp.url).host}:#{URI(Settings.evss.dvp.url).port}" %>
@@ -652,14 +661,6 @@
         :uid_location: body
         :uid_locator: 'phone_number":"(.*?)"'
 
-#MAP_APPOINTMENT_SERVICE
-- :name: "MAP_APPOINTMENT_SERVICE"
-  :base_uri: <%= "#{URI(Settings.hqva_mobile.url).host}" %>
-  :endpoints:
-  - :method: :get
-    :path: "/appointments/v1/patients/*/appointments/*"
-    :file_path: "hqva_mobile/appointments/default"
-
 #VAOS Appointments Service
 - :name: "VAOS Appointments"
   :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>
@@ -692,6 +693,22 @@
       :cache_multiple_responses:
         :uid_location: 'url'
         :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
+    
+    # Get referral list
+    - :method: :get
+      :path: "/vaos/v1/patients/*/referrals"
+      :file_path: "vaos/referrals/referral_list"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/vaos\/v1\/patients\/(.+)\/referrals'
+
+    # Get referral details
+    - :method: :get
+      :path: "/vaos/v1/patients/*/referrals/*"
+      :file_path: "vaos/referrals/get_referral"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/vaos\/v1\/patients\/(?:.+)\/referrals\/(.+)'
 
 #LoROTA (CheckIn)
 - :name: "LoROTA"
@@ -895,26 +912,57 @@
         :uid_location: query
         :uid_locator: patient
 
-# CCRA Referral Service
-- :name: "CCRA Referral Service"
-  :base_uri: <%= "#{URI(Settings.vaos.ccra.api_url).host}:#{URI(Settings.vaos.ccra.api_url).port}" %>
+# EPS (Enhanced Patient Services) API
+- :name: "EPS API"
+  :base_uri: <%= "#{URI(Settings.vaos.eps.api_url).host}:#{URI(Settings.vaos.eps.api_url).port}" %>
   :endpoints:
-   
-    # Get referral list (POST)
-    - :method: :post
-      :path: "/csp/healthshare/ccraint/rest/VAOS/patients/ReferralList"
-      :file_path: "vaos/ccra/referrals/referral_list"
+    # Get a provider's service details
+    - :method: :get
+      :path: "/care-navigation/v1/provider-services"
+      :file_path: "vaos/eps/providers/get_provider_services/default"
+    - :method: :get
+      :path: "/care-navigation/v1/provider-services/*"
+      :file_path: "vaos/eps/providers/get_provider_services"
       :cache_multiple_responses:
-        :uid_location: body
-        :uid_locator: 'icn":"([^"]*)"'
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)'
         
-    # Get referral details (POST)
+    # Get list of appointments
+    - :method: :get
+      :path: "/care-navigation/v1/appointments"
+      :file_path: "vaos/eps/appointments/get_appointments/default"
+        
+    # Get appointment details
+    - :method: :get
+      :path: "/care-navigation/v1/appointments/*"
+      :file_path: "vaos/eps/appointments/get_appointment"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)'
+        
+    # Get provider service slots
+    - :method: :get
+      :path: "/care-navigation/v1/provider-services/*/slots"
+      :file_path: "vaos/eps/providers/get_provider_slots"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)\/slots'
+    
+    # Create draft appointment
     - :method: :post
-      :path: "/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"
-      :file_path: "vaos/ccra/referrals/get_referral"
+      :path: "/care-navigation/v1/appointments"
+      :file_path: "vaos/eps/appointments/create_draft_appointment"
       :cache_multiple_responses:
         :uid_location: body
-        :uid_locator: 'id":"([^"]*)"'
+        :uid_locator: 'referralNumber":"(\w+)"'
+    
+    # Submit appointment
+    - :method: :post
+      :path: "/care-navigation/v1/appointments/*/submit"
+      :file_path: "vaos/eps/appointments/submit_appointment"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)\/submit'
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"

@@ -53,7 +53,8 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           end
         end
 
-        it 'responds with a 404 if the API endpoint is not found' do
+        # Should respond with a 404 but for now a 400
+        it 'responds with a 400 if the API endpoint is not found' do
           VCR.use_cassette('travel_pay/404_claims', match_requests_on: %i[method path]) do
             get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
             expect(response).to have_http_status(:bad_request)
@@ -67,6 +68,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     before do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
     end
 
     it 'returns expanded claim details on success' do
@@ -76,26 +78,43 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
         actual_claim_num = JSON.parse(response.body)['claimNumber']
+        documents_array = JSON.parse(response.body)['documents']
 
         expect(response).to have_http_status(:ok)
+        expect(documents_array).to be_empty
         expect(actual_claim_num).to eq(expected_claim_num)
       end
     end
 
-    it 'returns a Bad Request response if claim ID valid but claim not found' do
+    # Should be a 404 but for now a 400
+    it 'returns a Not Found response if claim ID valid but claim not found' do
       VCR.use_cassette('travel_pay/404_claim_details', match_requests_on: %i[method path]) do
         claim_id = 'aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e'
 
         get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
-
-        # TODO: This doesn't seem quite right, but it's what the other 404 test returns
         expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    it 'appends document information if claims management flipper is on' do
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(true)
+
+      VCR.use_cassette('travel_pay/show/success_details', match_requests_on: %i[method path]) do
+        claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+
+        get "/travel_pay/v0/claims/#{claim_id}", headers: { 'Authorization' => 'Bearer vagov_token' }
+        documents_array = JSON.parse(response.body)['documents']
+        expect(response).to have_http_status(:ok)
+        expect(documents_array).not_to be_empty
       end
     end
 
     it 'returns a ServiceUnavailable response if feature flag turned off' do
       allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:travel_pay_power_switch, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:travel_pay_claims_management, instance_of(User)).and_return(false)
 
       get '/travel_pay/v0/claims/123', headers: { 'Authorization' => 'Bearer vagov_token' }
       expect(response).to have_http_status(:service_unavailable)
@@ -126,7 +145,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
 
         post('/travel_pay/v0/claims', headers:, params:)
         expect(response).to have_http_status(:created)
@@ -139,27 +161,14 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => 'My birthday, 4 years ago' }
+        params = { 'appointment_date_time' => 'My birthday, 4 years ago',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
 
         post('/travel_pay/v0/claims', headers:, params:)
 
         expect(response).to have_http_status(:bad_request)
-      end
-    end
-
-    it 'returns a NotFound response if an appointment is not found' do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
-        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
-
-      VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
-        headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => '1970-01-01T00:00:00.000Z' }
-
-        post('/travel_pay/v0/claims', headers:, params:)
-
-        error_detail = JSON.parse(response.body)['errors'][0]['detail']
-        expect(response).to have_http_status(:not_found)
-        expect(error_detail).to match(/appointment/)
       end
     end
 
@@ -172,7 +181,10 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       # The cassette doesn't matter here as I'm mocking the submit_claim method
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
-        params = { 'appointment_datetime' => '2024-01-01T16:45:34.465Z' }
+        params = { 'appointment_date_time' => '2024-01-01T16:45:34.465Z',
+                   'facility_station_number' => '123',
+                   'appointment_type' => 'Other',
+                   'is_complete' => false }
 
         post('/travel_pay/v0/claims', headers:, params:)
 

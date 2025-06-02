@@ -9,14 +9,14 @@ module AccreditedRepresentativePortal
 
       module Page
         module Size
-          MIN = 10
+          MIN = 1
           MAX = 100
           DEFAULT = 10
         end
       end
 
       module Sort
-        ALLOWED_FIELDS = %w[created_at].freeze
+        ALLOWED_FIELDS = %w[created_at resolved_at].freeze
         ALLOWED_ORDERS = %w[asc desc].freeze
         DEFAULT_ORDER = 'desc'
       end

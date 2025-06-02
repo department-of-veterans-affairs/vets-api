@@ -25,7 +25,7 @@ module BGS
 
     # rubocop:disable Metrics/MethodLength
     def report_deaths
-      @dependents_application['deaths'].each do |death_info|
+      @dependents_application['deaths']&.each do |death_info|
         death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
 
@@ -48,7 +48,8 @@ module BGS
           {
             type: 'death',
             dep_has_income_ind: formatted_info['dependent_income'],
-            end_date: formatted_info['death_date']
+            end_date: formatted_info['death_date'],
+            marriage_termination_type_code: formatted_info['marriage_termination_type_code']
           }
         )
       end

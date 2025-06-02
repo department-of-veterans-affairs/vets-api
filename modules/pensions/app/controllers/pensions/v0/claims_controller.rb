@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require 'kafka/kafka'
-require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'kafka/concerns/kafka'
+require 'pensions/benefits_intake/submit_claim_job'
 require 'pensions/monitor'
+require 'bpds/sidekiq/submit_to_bpds_job'
 
 module Pensions
   module V0
@@ -57,6 +58,9 @@ module Pensions
 
         submit_traceability_to_event_bus(claim) if Flipper.enabled?(:pension_kafka_event_bus_submission_enabled)
 
+        # Submit to BPDS if the feature is enabled
+        process_and_upload_to_bpds(claim)
+
         process_and_upload_to_lighthouse(in_progress_form, claim)
 
         monitor.track_create_success(in_progress_form, claim, current_user)
@@ -89,10 +93,25 @@ module Pensions
       def process_and_upload_to_lighthouse(in_progress_form, claim)
         claim.process_attachments!
 
-        Pensions::PensionBenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
+        Pensions::BenefitsIntake::SubmitClaimJob.perform_async(claim.id, current_user&.user_account_uuid)
       rescue => e
         monitor.track_process_attachment_error(in_progress_form, claim, current_user)
         raise e
+      end
+
+      # Processes the given claim and uploads it to the BPDS (Benefits Processing and Delivery System)
+      # if the BPDS service feature is enabled via Flipper.
+      #
+      # @param claim [Claim] The saved claim object to be processed and uploaded.
+      # @return [nil] Returns nil if the BPDS service feature is disabled.
+      #
+      # @note This method triggers a Sidekiq job to handle the submission asynchronously.
+      def process_and_upload_to_bpds(claim)
+        return nil unless Flipper.enabled?(:bpds_service_enabled)
+
+        # Submit to BPDS
+        BPDS::Monitor.new.track_submit_begun(claim.id)
+        BPDS::Sidekiq::SubmitToBPDSJob.perform_async(claim.id)
       end
 
       # Filters out the parameters to form access.

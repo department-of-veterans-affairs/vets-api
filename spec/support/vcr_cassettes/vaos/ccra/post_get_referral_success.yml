@@ -1,11 +1,8 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: "<VAOS_CCRA_API_URL>/csp/healthshare/ccraint/rest/ReferralUtil/GetReferral"
-    body:
-      encoding: UTF-8
-      string: '{"Id":"984_646372","Mode":"2"}'
+    method: get
+    uri: "<VAOS_CCRA_API_URL>/vaos/v1/patients/1012845331V153043/referrals/984_646372"
     headers:
       Accept:
       - application/json
@@ -16,6 +13,8 @@ http_interactions:
       code: 200
       message: OK
     headers:
+      Content-Type:
+      - application/json
       CACHE-CONTROL:
       - no-cache
       CONTENT-ENCODING:
@@ -30,6 +29,6 @@ http_interactions:
       - Tue, 26 Nov 2024 17:06:42 GMT
     body:
       encoding: UTF-8
-      string: '{"Referral":{"APPTYesNo1":"Y","AffilitationCode":"CCN2","AffilitationDesc":"CCN2","AppointmentDate":"2024-06-01","CategoryOfCare":"CARDIOLOGY","ClinicallyIndicatedDate":"2024-03-28","EpisodeID":"5682","ReferralNumber":"VA0000005681","Status":"First Appointment Made"}}'
-    http_version: 
-  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT 
+      string: '{"categoryOfCare":"CARDIOLOGY","referralNumber":"VA0000005681","status":"First Appointment Made","appointmentDate":"2024-06-01","clinicallyIndicatedDate":"2024-03-28","episodeId":"5682","appointments":[{"appointmentDate":"2024-06-01","appointmentStatus":"A"}]}'
+    http_version:
+  recorded_at: Tue, 26 Nov 2024 17:06:42 GMT

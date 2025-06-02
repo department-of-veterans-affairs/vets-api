@@ -8,7 +8,7 @@ require 'disability_compensation/factories/api_provider_factory'
 RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
   include SchemaMatchers
 
-  let(:user) { build(:disabilities_compensation_user) }
+  let(:user) { build(:disabilities_compensation_user, :with_terms_of_use_agreement) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
@@ -289,7 +289,10 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
 
       context 'with an `bdd` claim' do
         let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
-        let(:user) { build(:disabilities_compensation_user, icn: '1012666073V986297') }
+        let(:user) do
+          build(:disabilities_compensation_user, :with_terms_of_use_agreement, icn: '1012666073V986297',
+                                                                               idme_uuid: SecureRandom.uuid)
+        end
 
         before do
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')

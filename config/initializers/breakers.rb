@@ -14,7 +14,6 @@ require 'dgi/submission/configuration'
 require 'dgi/letters/configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
-require 'evss/dependents/configuration'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
@@ -45,6 +44,8 @@ require 'va_profile/military_personnel/configuration'
 require 'va_profile/veteran_status/configuration'
 require 'iam_ssoe_oauth/configuration'
 require 'vetext/service'
+require 'veteran_enrollment_system/associations/configuration'
+require 'veteran_enrollment_system/base_configuration'
 require 'unified_health_data/configuration'
 
 Rails.application.reloader.to_prepare do
@@ -63,7 +64,6 @@ Rails.application.reloader.to_prepare do
     EVSS::DocumentsService.breakers_service,
     EVSS::Letters::Configuration.instance.breakers_service,
     EVSS::PCIUAddress::Configuration.instance.breakers_service,
-    EVSS::Dependents::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
@@ -72,6 +72,8 @@ Rails.application.reloader.to_prepare do
     Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
+    VeteranEnrollmentSystem::Associations::Configuration.instance.breakers_service,
+    VeteranEnrollmentSystem::BaseConfiguration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
