@@ -91,9 +91,7 @@ module TravelPay
         logger.filter = lambda do |log|
           if log.name =~ /TravelPay/
             # Safely scrub :params
-            if log.payload[:params].is_a?(Hash)
-              log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
-            end
+            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID' if log.payload[:params].is_a?(Hash)
 
             # Safely scrub :path
             if log.payload[:path].is_a?(String)
