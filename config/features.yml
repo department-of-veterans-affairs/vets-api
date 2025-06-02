@@ -99,10 +99,6 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
-  benefits_education_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to retrieve GI Bill Statement of benefits
-    enable_in_development: true
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
