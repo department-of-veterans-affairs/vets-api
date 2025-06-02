@@ -19,7 +19,7 @@ module BGS
     sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _error|
-      user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
+      user_uuid, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
 
       monitor = ::Dependents::Monitor.new(saved_claim_id)
