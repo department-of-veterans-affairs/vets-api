@@ -14,6 +14,7 @@ set -euo pipefail
         unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA
         cd ECA_CA/certificates_pkcs7_v5_12_eca/
         openssl pkcs7 -inform DER -in ./certificates_pkcs7_v5_12_eca_ECA_Root_CA_5_der.p7b -print_certs | awk '/BEGIN/{i++} {print > ("eca_cert" i ".pem")}'
+        rm eca_cert.pem # first one is always invalid because of how awk is breaking it up
         cp *.pem ../../
     )
 
