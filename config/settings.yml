@@ -897,12 +897,12 @@ mhv:
   uhd:
     app_id: <%= ENV['mhv__uhd__app_id'] %>
     app_token: <%= ENV['mhv__uhd__app_token']&.dump %>
-    x_api_key: <%= ENV['mhv__uhd__x_api_key'] %>
     host: <%= ENV['mhv__uhd__host'] %>
     mock: false
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
+    x_api_key: <%= ENV['mhv__uhd__x_api_key'] %>
 mhv_mobile:
   rx:
     app_token: <%= ENV['mhv_mobile__rx__app_token'] %>
