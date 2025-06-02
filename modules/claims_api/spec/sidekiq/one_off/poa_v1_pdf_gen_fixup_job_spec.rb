@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
   let(:log_tag) { described_class::LOG_TAG }
 
   before do
-    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
     Sidekiq::Job.clear_all
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
       .to receive(:get_auth_token).and_return('some-value-here')
@@ -90,7 +90,7 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
     end
 
     it 'skips running if flipper is disabled. Logs the skip.' do
-      Flipper.disable(:claims_api_poa_v1_pdf_gen_fixup_job)
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_v1_pdf_gen_fixup_job).and_return false
       expect(ClaimsApi::Logger).to receive(:log).with(
         described_class::LOG_TAG,
         detail: "Skipping pdf re-upload of POA #{power_of_attorney.id}. Flipper disabled."
@@ -149,8 +149,8 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
     let(:doc_type) { 'L075' }
 
     it 'calls the benefits document API upload instead of VBMS' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      Flipper.disable(:claims_api_poa_uploads_bd_refactor)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
@@ -158,8 +158,8 @@ RSpec.describe ClaimsApi::OneOff::PoaV1PdfGenFixupJob, type: :job, vcr: 'bgs/per
     end
 
     it 'calls the benefits document API upload_document instead of upload' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      Flipper.enable(:claims_api_poa_uploads_bd_refactor)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
