@@ -35,11 +35,12 @@ RSpec.describe BGS::DependentService do
     allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:dependents_claims_evidence_api_upload).and_return(false)
   end
-  
+
   context 'with va_dependents_v2 disabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2, instance_of(User)).and_return(false)
     end
+
     describe '#submit_686c_form' do
       before do
         allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true)
@@ -328,6 +329,7 @@ RSpec.describe BGS::DependentService do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_dependents_v2, instance_of(User)).and_return(true)
     end
+
     describe '#submit_686c_form' do
       before do
         allow(claim).to receive_messages(submittable_686?: true, submittable_674?: true)

@@ -50,8 +50,7 @@ module BGS
       submit_pdf_job(claim:, encrypted_vet_info:)
 
       if claim.submittable_686? || claim.submittable_674?
-        submit_form_job_id = @v2 ? submit_to_standard_service_v2(claim:, encrypted_vet_info:) : 
-                                   submit_to_standard_service(claim:, encrypted_vet_info:)
+        submit_form_job_id = @v2 ? submit_to_standard_service_v2(claim:, encrypted_vet_info:) : submit_to_standard_service(claim:, encrypted_vet_info:) # rubocop:disable Layout/LineLength
         Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
 
@@ -71,6 +70,7 @@ module BGS
       @service ||= BGS::Services.new(external_uid: icn, external_key:)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def submit_pdf_job(claim:, encrypted_vet_info:)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
         # TODO: implement upload using the claims_evidence_api module
@@ -104,6 +104,7 @@ module BGS
 
       raise e
     end
+    # rubocop:enable Metrics/MethodLength
 
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
