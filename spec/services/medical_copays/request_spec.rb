@@ -67,7 +67,6 @@ RSpec.describe MedicalCopays::Request do
 
     context 'with debt_copay_logging Flipper enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(true)
         allow(Rails.env).to receive(:development?).and_return(false)
       end
@@ -94,7 +93,6 @@ RSpec.describe MedicalCopays::Request do
 
     context 'with debt_copay_logging Flipper not enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(false)
         allow(Rails.env).to receive(:development?).and_return(false)
       end
