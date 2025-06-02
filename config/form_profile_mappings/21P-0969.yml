@@ -1,2 +1,2 @@
 veteranFullName: [identity_information, full_name]
-veteran_social_security_number: [identity_information, ssn]
+veteranSocialSecurityNumber: [identity_information, ssn]

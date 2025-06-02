@@ -146,8 +146,6 @@ class FormProfile
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-686C' => ::FormProfiles::VA21686c,
-    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-0969' => IncomeAndAssets::FormProfiles::VA21p0969,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
