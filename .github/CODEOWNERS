@@ -180,7 +180,6 @@ app/models/claims_api @department-of-veterans-affairs/backend-review-group
 app/models/claims_api/claim_submission.rb @department-of-veterans-affairs/backend-review-group
 app/models/concerns/async_request.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/concerns/authorization.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/octo-identity
-app/models/concerns/form_validation.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/concerns/form526_claim_fast_tracking_concern.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/concerns/form526_rapid_ready_for_decision_concern.rb @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/concerns/kms_encrypted_model_patch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1547,7 +1546,6 @@ spec/models/bgs_dependents_v2 @department-of-veterans-affairs/benefits-dependent
 spec/models/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 spec/models/category_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/chatbot @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/backend-review-group
-spec/models/concerns/form_validation_spec.rb @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/decision_review_notification_audit_log_spec.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
 spec/models/dependents_application_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/deprecated_user_account_spec.rb @department-of-veterans-affairs/octo-identity
