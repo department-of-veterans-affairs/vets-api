@@ -44,7 +44,7 @@ module Lighthouse
         vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
         user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
         monitor(saved_claim_id).track_event('info', 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!',
-                                            "#{STATSD_KEY_PREFIX}.begin", { icn: user_struct['icn'] })
+                                            "#{STATSD_KEY_PREFIX}.begin")
         # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
         # have to re-find the claim and add the relevant veteran info
         @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
@@ -56,7 +56,7 @@ module Lighthouse
       rescue => e
         # if we fail, update the associated central mail record to failed and send the user the failure email
         @monitor.track_event('warn', 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob failed!',
-                             "#{STATSD_KEY_PREFIX}.failure", { icn: user_struct['icn'], error: e.message })
+                             "#{STATSD_KEY_PREFIX}.failure", { error: e.message })
 
         update_submission('failed')
         raise
@@ -135,7 +135,7 @@ module Lighthouse
       def check_success(response, saved_claim_id, user_struct)
         if response.success?
           Rails.logger.info('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob succeeded!',
-                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
+                            { user_uuid: user_struct['uuid'], saved_claim_id: })
           update_submission('success')
           send_confirmation_email(OpenStruct.new(user_struct))
         else

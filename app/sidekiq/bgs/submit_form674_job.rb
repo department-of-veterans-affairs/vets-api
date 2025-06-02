@@ -24,26 +24,26 @@ module BGS
       monitor = ::Dependents::Monitor.new(saved_claim_id)
       monitor.track_event('error',
                           "BGS::SubmitForm674Job failed, retries exhausted! Last error: #{msg['error_message']}",
-                          'worker.submit_674_bgs.exhaustion', { icn: })
+                          'worker.submit_674_bgs.exhaustion')
 
       BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
-      monitor(saved_claim_id).track_event('info', 'BGS::SubmitForm674Job running!', "#{STATS_KEY}.begin", { icn: })
+      monitor(saved_claim_id).track_event('info', 'BGS::SubmitForm674Job running!', "#{STATS_KEY}.begin")
       instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
 
       submit_form
 
       send_confirmation_email
-      @monitor.track_event('info', 'BGS::SubmitForm674Job succeeded!', "#{STATS_KEY}.success", { icn: })
+      @monitor.track_event('info', 'BGS::SubmitForm674Job succeeded!', "#{STATS_KEY}.success")
 
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       handle_filtered_errors!(e:, encrypted_user_struct_hash:, encrypted_vet_info:)
 
       @monitor.track_event('warn', 'BGS::SubmitForm674Job received error, retrying...', "#{STATS_KEY}.failure",
-                           { icn:, error: e.message, nested_error: e.cause&.message })
+                           { error: e.message, nested_error: e.cause&.message })
       raise
     end
 
@@ -52,7 +52,7 @@ module BGS
       return unless filter
 
       @monitor.track_event('warn', 'BGS::SubmitForm674Job received error, skipping retries...',
-                           "#{STATS_KEY}.skip_retries", { icn:, error: e.message, nested_error: e.cause&.message })
+                           "#{STATS_KEY}.skip_retries", { error: e.message, nested_error: e.cause&.message })
 
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       self.class.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)

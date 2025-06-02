@@ -41,7 +41,7 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      monitor(claim&.id).track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start", { icn: })
+      monitor(claim&.id).track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
 
@@ -50,7 +50,7 @@ module BGS
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
-        @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success", { icn: })
+        @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
       end
 
       {
@@ -58,7 +58,7 @@ module BGS
       }
     rescue => e
       @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { icn:, error: e.message })
+                           "#{STATS_KEY}.failure", { error: e.message })
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
@@ -91,7 +91,7 @@ module BGS
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
       @monitor.track_event('warn',
                            'DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { icn:, error: e })
+                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
       submit_to_central_service(claim:)
 
       raise e
