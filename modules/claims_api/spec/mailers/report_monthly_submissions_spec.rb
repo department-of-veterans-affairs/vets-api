@@ -28,14 +28,13 @@ RSpec.describe ClaimsApi::SubmissionReportMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to eq(
         %w[
+          afreemer@technatomy.com
           drew.fisher@adhocteam.us
-          emily.goodrich@oddball.io
-          jennica.stiehl@oddball.io
-          kayla.watanabe@adhocteam.us
-          matthew.christianson@adhocteam.us
-          rockwell.rice@oddball.io
-          tyler.coleman@oddball.io
           Janet.Coutinho@va.gov
+          jayson.perkins@adhocteam.us
+          jgreene@technatomy.com
+          kayla.watanabe@adhocteam.us
+          mchristianson@technatomy.com
           Michael.Harlow@va.gov
         ]
       )
