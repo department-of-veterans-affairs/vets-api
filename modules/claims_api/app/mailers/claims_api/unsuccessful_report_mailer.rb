@@ -10,8 +10,8 @@ module ClaimsApi
       jayson.perkins@adhocteam.us
       jgreene@technatomy.com
       kayla.watanabe@adhocteam.us
-      michael.harlow@va.gov
       mchristianson@technatomy.com
+      michael.harlow@va.gov
       robert.perea-martinez@adhocteam.us
       stone_christopher@bah.com
       zachary.goldfine@va.gov
