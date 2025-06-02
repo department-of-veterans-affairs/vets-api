@@ -9,6 +9,7 @@ module BenefitsDiscovery
 
     def get_eligible_benefits(params = {})
       response = perform(:post, 'benefits-discovery-service/v0/recommendations', permitted_params(params), headers)
+      response.body
     end
 
     private
