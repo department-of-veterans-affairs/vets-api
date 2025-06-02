@@ -660,7 +660,7 @@ lighthouse:
     host: https://sandbox-api.va.gov
     use_mocks: false
   benefits_discovery:
-    host: ~
+    host: 'https://sandbox.lighthouse.va.gov'
     x_api_key: ~
     x_app_id: ~
   benefits_documents:
