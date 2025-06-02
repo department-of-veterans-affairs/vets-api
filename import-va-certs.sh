@@ -12,9 +12,9 @@ set -euo pipefail
     (
         curl -LO https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip
         unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA
-        cd ECA_CA
+        cd ECA_CA/certificates_pkcs7_v5_12_eca/
         openssl pkcs7 -inform DER -in ./certificates_pkcs7_v5_12_eca_ECA_Root_CA_5_der.p7b -print_certs | awk '/BEGIN/{i++} {print > ("eca_cert" i ".pem")}'
-        cp *.pem ../
+        cp *.pem ../../
     )
 
     wget \
