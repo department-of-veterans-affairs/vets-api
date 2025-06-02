@@ -155,7 +155,7 @@ module DebtsApi
       parsed_metadata = JSON.parse(metadata)
       copays = parsed_metadata['copays'] || []
 
-      copays.pluck('id').compact
+      copays.map { |copay| copay['id'] }.compact # rubocop:disable Rails/Pluck
     rescue JSON::ParserError
       []
     end
