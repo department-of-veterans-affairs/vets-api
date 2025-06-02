@@ -25,6 +25,12 @@ module HCA
 
       tag_text = va_profile_email&.downcase == form_email.downcase ? 'same' : 'different'
 
+      record_email_diff(tag_text, user_uuid, user_account_id, in_progress_form_id)
+    end
+
+    private
+
+    def record_email_diff(tag_text, user_uuid, user_account_id, in_progress_form_id)
       email_diff_log = FormEmailMatchesProfileLog.find_or_create_by(
         user_uuid:,
         user_account_id:,
