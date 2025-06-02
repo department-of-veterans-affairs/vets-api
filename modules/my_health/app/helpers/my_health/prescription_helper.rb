@@ -172,7 +172,7 @@ module MyHealth
         null_dispensed_dates = resource.records.select { |med| med.sorted_dispensed_date.nil? }
         non_null_dispensed_dates = resource.records.reject { |med| med.sorted_dispensed_date.nil? }
 
-        #Sort non-null dispensed dates
+        # Sort non-null dispensed dates
         non_null_dispensed_dates.sort_by! do |first_med, second_med|
           first_med_priority = get_medication_priority(first_med)
           second_med_priority = get_medication_priority(second_med)
