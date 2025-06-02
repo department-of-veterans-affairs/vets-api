@@ -3,7 +3,7 @@
 module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
-			afreemer@technatomy.com
+      afreemer@technatomy.com
       david.mazik@va.gov
       drew.fisher@adhocteam.us
       janet.coutinho@va.gov
