@@ -336,7 +336,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         objects.reject! { |obj| obj['sorted_dispensed_date'] == Date.new(0).to_s }
         dates = objects.map { |obj| Date.parse(obj['sorted_dispensed_date']) }
         is_descending = dates.each_cons(2).all? { |a, b| a >= b }
-        expect(is_descending)
+        expect(is_descending).to be true
       end
 
       it 'responds to GET #index with disp_status as primary sort parameter' do
