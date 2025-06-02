@@ -1710,15 +1710,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
-  create_table "veteran_accreditation_totals", force: :cascade do |t|
-    t.integer "attorneys"
-    t.integer "claims_agents"
-    t.integer "vso_representatives"
-    t.integer "vso_organizations"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "veteran_device_records", force: :cascade do |t|
     t.bigint "device_id", null: false
     t.boolean "active", default: true, null: false
