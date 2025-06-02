@@ -2,7 +2,6 @@
 
 module BenefitsDiscovery
   class Configuration < Common::Client::Configuration::REST
-
     # all lower environments are currently configured to point to sandbox
     # for newest changes to service, switch AWS params to point to dev
     def base_path
