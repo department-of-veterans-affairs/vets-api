@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 71b49c2d04ab2edd8b5a582c03ab309bfc5500d2
+  revision: ebbcfc5d318132c70dc48419573dc934a3b0855c
   branch: master
   specs:
-    vets_json_schema (24.14.3)
+    vets_json_schema (24.15.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -128,7 +128,6 @@ PATH
       aws-sdk-s3 (~> 1)
       sidekiq
     veteran (0.0.1)
-    veteran_confirmation (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
 
@@ -202,7 +201,7 @@ GEM
       activemodel (= 7.2.2.1)
       activesupport (= 7.2.2.1)
       timeout (>= 0.4.0)
-    activerecord-import (2.1.0)
+    activerecord-import (2.2.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (10.0.1)
       activerecord (~> 7.2.0)
@@ -244,8 +243,8 @@ GEM
     aws-msk-iam-sasl-signer (0.1.1)
       aws-sdk-kafka
       thor
-    aws-partitions (1.1103.0)
-    aws-sdk-core (3.224.0)
+    aws-partitions (1.1108.0)
+    aws-sdk-core (3.224.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -258,8 +257,8 @@ GEM
     aws-sdk-kms (1.101.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.186.1)
-      aws-sdk-core (~> 3, >= 3.216.0)
+    aws-sdk-s3 (1.188.0)
+      aws-sdk-core (~> 3, >= 3.224.1)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sdk-sns (1.99.0)
@@ -271,18 +270,18 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
-    base64 (0.2.0)
+    base64 (0.3.0)
     bcp47 (0.3.3)
       i18n
     benchmark (0.4.0)
-    bigdecimal (3.1.9)
-    bigdecimal (3.1.9-java)
+    bigdecimal (3.2.0)
+    bigdecimal (3.2.0-java)
     bindex (0.8.1)
     blind_index (2.7.0)
       activesupport (>= 7.1)
       argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
-    bootsnap (1.18.5)
+    bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
@@ -344,7 +343,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.4)
+    csv (3.3.5)
     danger (9.5.1)
       base64 (~> 0.2)
       claide (~> 1.0)
@@ -391,7 +390,7 @@ GEM
     domain_name (0.6.20240107)
     down (5.4.2)
       addressable (~> 2.8)
-    drb (2.2.1)
+    drb (2.2.3)
     dry-configurable (1.3.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
@@ -523,7 +522,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.17.0)
+    google-apis-core (0.18.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.3, < 3.a)
@@ -531,9 +530,9 @@ GEM
       mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-    google-apis-discovery_v1 (0.19.0)
+    google-apis-discovery_v1 (0.20.0)
       google-apis-core (>= 0.15.0, < 2.a)
-    google-apis-generator (0.17.0)
+    google-apis-generator (0.18.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (>= 0.15.0, < 2.a)
@@ -543,21 +542,21 @@ GEM
       base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.2.0)
-    google-protobuf (4.31.0)
+    google-protobuf (4.31.1)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.0-aarch64-linux-gnu)
+    google-protobuf (4.31.1-aarch64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.0-java)
+    google-protobuf (4.31.1-java)
       bigdecimal
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    google-protobuf (4.31.0-x86-mingw32)
+    google-protobuf (4.31.1-x86-mingw32)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.31.0-x86_64-linux-gnu)
+    google-protobuf (4.31.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
     googleauth (1.14.0)
@@ -630,8 +629,8 @@ GEM
     jar-dependencies (0.5.5)
     jmespath (1.6.2)
     jruby-openssl (0.15.3-java)
-    json (2.11.3)
-    json (2.11.3-java)
+    json (2.12.0)
+    json (2.12.0-java)
     json-schema (5.1.1)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
@@ -648,10 +647,10 @@ GEM
       base64
     jwt (2.10.1)
       base64
-    karafka-core (2.4.11)
-      karafka-rdkafka (>= 0.17.6, < 0.20.0)
+    karafka-core (2.5.1)
+      karafka-rdkafka (>= 0.19.2, < 0.21.0)
       logger (>= 1.6.0)
-    karafka-rdkafka (0.19.1)
+    karafka-rdkafka (0.19.4)
       ffi (~> 1.15)
       mini_portile2 (~> 2.6)
       rake (> 12)
@@ -662,7 +661,7 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    language_server-protocol (3.17.0.4)
+    language_server-protocol (3.17.0.5)
     libdatadog (16.0.1.1.0)
     libdatadog (16.0.1.1.0-aarch64-linux)
     libdatadog (16.0.1.1.0-x86_64-linux)
@@ -710,9 +709,9 @@ GEM
       benchmark
       logger
     mini_mime (1.1.5)
-    mini_portile2 (2.8.8)
+    mini_portile2 (2.8.9)
     minitest (5.25.5)
-    mock_redis (0.49.0)
+    mock_redis (0.50.0)
       redis (~> 5)
     msgpack (1.8.0)
     msgpack (1.8.0-java)
@@ -782,10 +781,10 @@ GEM
     optimist (3.2.0)
     os (1.1.4)
     ostruct (0.6.1)
-    ox (2.14.22)
+    ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
-    parallel_tests (5.2.0)
+    parallel_tests (5.3.0)
       parallel
     parser (3.3.8.0)
       ast (~> 2.4.1)
@@ -853,7 +852,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.14)
+    rack (2.2.16)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -907,7 +906,7 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
-    rake (13.2.1)
+    rake (13.3.0)
     ransack (4.3.0)
       activerecord (>= 6.1.5)
       activesupport (>= 6.1.5)
@@ -998,7 +997,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.4)
-    rubocop (1.75.5)
+    rubocop (1.75.6)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -1159,9 +1158,9 @@ GEM
       addressable
       faraday (>= 1.9, < 3)
       nokogiri (>= 1.13.9)
-    waterdrop (2.8.3)
+    waterdrop (2.8.4)
       karafka-core (>= 2.4.9, < 3.0.0)
-      karafka-rdkafka (>= 0.19.1)
+      karafka-rdkafka (>= 0.19.2)
       zeitwerk (~> 2.3)
     web-console (4.2.1)
       actionview (>= 6.0.0)
@@ -1179,7 +1178,7 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (4.0.1)
-    with_advisory_lock (5.1.0)
+    with_advisory_lock (5.3.0)
       activerecord (>= 6.1)
       zeitwerk (>= 2.6)
     xmldsig (0.3.2)
@@ -1192,7 +1191,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.37)
-    zeitwerk (2.7.2)
+    zeitwerk (2.7.3)
 
 PLATFORMS
   aarch64-linux
@@ -1336,7 +1335,7 @@ DEPENDENCIES
   pry-byebug
   puma
   pundit
-  rack (~> 2.2.14)
+  rack (~> 2.2.16)
   rack-attack
   rack-cors
   rack-test (= 2.2.0)
@@ -1403,7 +1402,6 @@ DEPENDENCIES
   vba_documents!
   vcr
   veteran!
-  veteran_confirmation!
   vets_json_schema!
   virtus
   vre!

@@ -3,99 +3,230 @@ on:
   pull_request_review:
     types: [submitted]
     branches: master
-
+permissions:
+  id-token: write
+  contents: read
 jobs:
-  require-backend-approval:
-    name: Require Backend Approval
+  get-pr-data:
+    name: Get PR Data
     permissions: write-all
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      pr_draft: ${{ steps.approval_permissions.outputs.pr_draft }}
+      pr_branch: ${{ steps.approval_permissions.outputs.pr_branch }}
+      pr_number: ${{ steps.approval_permissions.outputs.pr_number }}
+      require_be_approval: ${{ steps.approval_permissions.outputs.require_be_approval }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Draft Pull Request Check
-        if: github.event.pull_request.draft == true
-        run: exit 1
-
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
         run: |
-          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
-          echo "Labels on PR: $LABELS"
+          # Pull recent data
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
 
-          if ! echo "$LABELS" | grep -q "require-backend-approval"; then
-            echo "require_be_approval=false" >> $GITHUB_OUTPUT
+          # Fetch PR details from GitHub API
+          PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
+            draft: .draft,
+            labels: [.labels[].name],
+            head_ref: .head.ref
+          }')
+
+          PR_DRAFT=$(echo "$PR_INFO" | jq -r '.draft')
+          PR_LABELS=$(echo "$PR_INFO" | jq -c '.labels')
+          PR_BRANCH=$(echo "$PR_INFO" | jq -r '.head_ref')
+
+          echo "pr_draft=${PR_DRAFT}" >> "$GITHUB_OUTPUT"
+          echo "pr_labels=${PR_LABELS}" >> "$GITHUB_OUTPUT"
+          echo "pr_branch=${PR_BRANCH}" >> "$GITHUB_OUTPUT"
+
+          if ! echo "$PR_LABELS" | grep -q "require-backend-approval"; then
+            echo "require_be_approval=false" >> "$GITHUB_OUTPUT"
             echo "Label 'require-backend-approval' not found. Exiting successfully."
           else
-            echo "require_be_approval=true" >> $GITHUB_OUTPUT
+            echo "require_be_approval=true" >> "$GITHUB_OUTPUT"
             echo "Label 'require-backend-approval' found. Approval required."
           fi
+
+
+  # This workflow should fail when backend approval is required and required workflows are not complete.
+  check-workflow-status:
+    name: Check Workflow Statuses
+    needs: [get-pr-data]
+    if: needs.get-pr-data.outputs.pr_draft == 'false'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+      require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
+    outputs:
+      failures_detected: ${{ steps.check_workflow_status.outputs.failures_detected }}
+    steps:
+      - name: Check if workflows have completed successfully
+        id: check_workflow_status
+        run: |
+          failures=false
+
+          GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
+          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
+          echo "Pull request bracnch: ${pr_branch}"
+
+          for WORKFLOW in "${WORKFLOWS[@]}"; do
+            # Check if there's any in-progress run for this workflow
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event,headSha -q \
+              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1)
+
+            if [ -n "$IN_PROGRESS" ]; then
+              echo "$WORKFLOW is still in progress."
+              failures=true
+            else
+              # Check if the latest completed run was successful
+              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
+                ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
+              if [ -z "$SUCCESSFUL" ]; then
+                echo "$WORKFLOW did not complete successfully."
+                failures=true
+                # break
+              else
+                echo "$WORKFLOW completed successfully."
+              fi
+            fi
+          done
+
+          echo "failures_detected=$failures" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Exit for non backend approvals
-        if: steps.approval_permissions.outputs.require_be_approval == 'false'
-        run: exit 0
+
+  # Fetch approvals when required workflows are successful.
+  fetch-pr-reviews:
+    name: Succeed if backend approval is confirmed
+    needs: [get-pr-data, check-workflow-status]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_draft: ${{ needs.get-pr-data.outputs.pr_draft }}
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_branch: ${{ needs.get-pr-data.outputs.pr_branch }}
+      require_be_approval: ${{ needs.get-pr-data.outputs.require_be_approval }}
+      failures_detected: ${{ needs.check-workflow-status.outputs.failures_detected }}
+    outputs:
+      author_is_backend: ${{ steps.verify_approval.outputs.author_is_backend }}
+      team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
+      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
 
-
       - name: Get bot token from Parameter Store
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
         uses: marvinpinto/action-inject-ssm-secrets@latest
         with:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - name: Get backend-review-group members
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
-        id: get_team_members
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /orgs/department-of-veterans-affairs/teams/backend-review-group/members
+      - name: Verify backend-review-group approval
+        id: verify_approval
+        run: |
+          approval_status=required
+          team_approval_status=required
+          author_is_backend=false
+
+          BACKEND_REVIEWERS=$(gh api /orgs/department-of-veterans-affairs/teams/backend-review-group/members --jq '.[].login')
+          BACKEND_REVIEWERS=$(echo "$BACKEND_REVIEWERS" | tr '\n' '|' | sed 's/|$//')
+          echo "Backend reviewers regex: $BACKEND_REVIEWERS"
+
+          # Get PR author
+          PR_AUTHOR=$(gh pr view ${{ env.pr_number }} --json author -q '.author.login')
+          if echo "$PR_AUTHOR" | grep -qiE "^($BACKEND_REVIEWERS)$"; then
+            echo "PR author '$PR_AUTHOR' is a backend-review-group member."
+            echo "author_is_backend=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          APPROVED=$(gh api /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews --jq '
+            [ .[]
+            | select(.state == "APPROVED" and (.dismissed_at == null))
+            ]
+            | sort_by(.submitted_at)
+            | reverse
+            | unique_by(.user.login)
+            | .[].user.login
+          ' || true)
+
+          echo "$APPROVED"
+
+          TEAM_APPROVALS=$(echo "$APPROVED" | grep -viE "^($BACKEND_REVIEWERS)$" || true)
+          echo "Team Approvals: $TEAM_APPROVALS"
+          if [ -z "$TEAM_APPROVALS" ]; then
+            echo "TEAM APPROVAL REQUIRED"
+            team_approval_status=required
+          else
+            echo "TEAM APPROVAL CONFIRMED"
+            team_approval_status=confirmed
+          fi
+
+          BE_APPROVALS=$(echo "$APPROVED" | grep -iE "^($BACKEND_REVIEWERS)$" || true)
+          echo "Backend Approvals: $BE_APPROVALS"
+          if [ -z "$BE_APPROVALS" ]; then
+            echo "BE APPROVAL REQUIRED"
+            approval_status=required
+          else
+            echo "BE APPROVAL CONFIRMED"
+            approval_status=confirmed
+          fi
+
+          echo "author_is_backend=$author_is_backend" >> "$GITHUB_OUTPUT"
+          echo "team_approval_status=$team_approval_status" >> "$GITHUB_OUTPUT"
+          echo "approval_status=$approval_status" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
-      - name: Get PR reviews
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
-        id: get_pr_reviews
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}/reviews
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify backend-review-group approval
-        if: steps.approval_permissions.outputs.require_be_approval == 'true'
-        id: verify_approval
-        run: |
-          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
-          ${{ steps.get_team_members.outputs.data }}
-          EOF
-          )
-
-          APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
-          ${{ steps.get_pr_reviews.outputs.data }}
-          EOF
-          )
-
-          echo "Number of backend-review-group approvals: $APPROVALS"
-          if [ "$APPROVALS" -eq 0 ]; then
-            echo "approval_status=required" >> $GITHUB_OUTPUT
-            exit 1
-          else
-            echo "approval_status=confirmed" >> $GITHUB_OUTPUT
-          fi
-
       - name: Remove ready-for-review label
-        if: success() && steps.approval_permissions.outputs.require_be_approval == 'true' && steps.verify_approval.outputs.approval_status == 'confirmed' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+        if: steps.verify_approval.outputs.team_approval_status == 'confirmed'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ github.event.pull_request.number }}
+          number: ${{ env.pr_number }}
+          labels: ready-for-review
+
+      - name: Exit for non backend approvals
+        if: needs.get-pr-data.outputs.require_be_approval == 'false'
+        run: exit 0
+
+      - name: Fail if draft or failures
+        if: needs.get-pr-data.outputs.pr_draft == 'true' || needs.check-workflow-status.outputs.failures_detected == 'true' || steps.verify_approval.outputs.approval_status == 'required'
+        run: exit 1
+
+      - name: Remove ready-for-backend-review label
+        if: steps.verify_approval.outputs.approval_status == 'confirmed'
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ env.pr_number }}
           labels: ready-for-backend-review
+
+      - name: Add ready-for-backend-review label
+        if: |
+          steps.verify_approval.outputs.approval_status == 'required' &&
+          (
+            steps.verify_approval.outputs.team_approval_status == 'confirmed' ||
+            steps.verify_approval.author_is_backend == 'true'
+          )
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review
+
+
+      - name: Backend Approval Confirmed
+        if: steps.verify_approval.outputs.approval_status == 'confirmed'
+        run: exit 0

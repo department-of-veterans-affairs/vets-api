@@ -128,20 +128,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: <%= ENV['check_in__travel_reimbursement_api__auth_url_v2'] %>
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: <%= ENV['check_in__travel_reimbursement_api__claims_url'] %>
-    claims_url_v2: <%= ENV['check_in__travel_reimbursement_api__claims_url_v2'] %>
-    client_id: <%= ENV['check_in__travel_reimbursement_api__client_id'] %>
-    client_number: <%= ENV['check_in__travel_reimbursement_api__client_number'] %>
-    client_secret: <%= ENV['check_in__travel_reimbursement_api__client_secret'] %>
-    redis_token_expiry: 3540
-    scope: <%= ENV['check_in__travel_reimbursement_api__scope'] %>
-    service_name: BTSSS-API
-    subscription_key: <%= ENV['check_in__travel_reimbursement_api__subscription_key'] %>
-    tenant_id: <%= ENV['check_in__travel_reimbursement_api__tenant_id'] %>
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: <%= ENV['check_in__travel_reimbursement_api_v2__auth_url_v2'] %>
@@ -224,6 +210,9 @@ claims_api:
         api_key: <%= ENV['claims_api__vanotify__services__lighthouse__api_key'] %>
         notification_client_secret: <%= ENV['claims_api__vanotify__services__lighthouse__notification_client_secret'] %>
         notify_service_id: <%= ENV['claims_api__vanotify__services__lighthouse__notify_service_id'] %>
+claims_evidence_api:
+  base_url: <%= ENV['claims_evidence_api__base_url'] %>
+  jwt_secret: <%= ENV['claims_evidence_api__jwt_secret'] %>
 clamav:
   host: clamav
   mock: <%= ENV['clamav__mock'] %>
@@ -378,7 +367,6 @@ edu:
       - noah.stern@va.gov
       - gregg.puhala@va.gov
       - kara.ciprich@va.gov
-      - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
@@ -821,7 +809,7 @@ maintenance:
     staging_mdot: PGT74RC
     tc: <%= ENV['maintenance__services__tc'] %>
     tims: <%= ENV['maintenance__services__tims'] %>
-    travel_pay: PO9X8XN
+    travel_pay: <%= ENV['maintenance__services__travel_pay'] %>
     vaos: <%= ENV['maintenance__services__vaos'] %>
     vaosWarning: <%= ENV['maintenance__services__vaoswarning'] %>
     vaoswarning: <%= ENV['maintenance__services__vaoswarning'] %>
@@ -1259,6 +1247,7 @@ va_forms:
 va_mobile:
   key_path: <%= ENV['va_mobile__key_path'] %>
   mock: <%= ENV['va_mobile__mock'] %>
+  patients_path: /vaos/v1/patients
   ppms_base_url: <%= ENV['va_mobile__ppms_base_url'] %>
   timeout: <%= ENV['va_mobile__timeout'] %>
   url: <%= ENV['va_mobile__url'] %>
@@ -1544,6 +1533,7 @@ vaos:
     api_url: <%= ENV['va_mobile__url'] %>
     base_path: vaos/v1/patients
     mock: <%= ENV['vaos__ccra__mock'] %>
+    redis_referral_expiry: 3600
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1553,9 +1543,8 @@ vaos:
     client_id: <%= ENV['vaos__eps__client_id'] %>
     grant_type: client_credentials
     key_path: <%= ENV['vaos__eps__key_path'] %>
-    kid: fake_kid
+    kid: <%= ENV['vaos__eps__client_kid'] %>
     mock: <%= ENV['vaos__eps__mock'] %>
-    redis_token_expiry: 3500
     scopes: care-nav
   referral:
     encryption:

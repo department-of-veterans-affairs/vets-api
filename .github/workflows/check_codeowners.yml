@@ -8,7 +8,9 @@ on:
       - opened
       - synchronize
       - reopened
-
+permissions:
+  id-token: write
+  contents: read
 jobs:
   check-additions:
     name: Check Codeowners Additions
@@ -23,8 +25,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
-        aws-access-key-id: ${{ secrets.aws_access_key_id }}
-        aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+        role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
         aws-region: "us-gov-west-1"
 
     - name: Get GitHub Bot Token
@@ -44,7 +45,7 @@ jobs:
       uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
       with:
         message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. Please update the .github/CODEOWNERS file and add the entry for the Offending file: ${{ env.offending_file }}'
-        GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+        github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
     - name: Add Failure label
       uses: actions-ecosystem/action-add-labels@v1
@@ -75,8 +76,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
-        aws-access-key-id: ${{ secrets.aws_access_key_id }}
-        aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+        role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
         aws-region: "us-gov-west-1"
 
     - name: Get GitHub Bot Token
@@ -96,7 +96,7 @@ jobs:
       uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
       with:
         message: 'Error: A file (or its parent directories) was deleted but its reference still exists in CODEOWNERS. Please update the .github/CODEOWNERS file and delete the entry for the Offending file: ${{ env.offending_file }}'
-        GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+        github-token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
     - name: Add Failure label
       uses: actions-ecosystem/action-add-labels@v1

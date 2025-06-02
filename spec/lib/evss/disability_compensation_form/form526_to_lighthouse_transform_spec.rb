@@ -763,6 +763,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                                        'endDate' => ''
                                                      }
                                                    })
+
       result = transformer.send(:transform_other_exposures, all_options_nil_and_other_blank['otherExposures'],
                                 all_options_nil_and_other_blank['specifyOtherExposures'])
       expect(result).to be_nil
@@ -789,6 +790,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                           })
       result = transformer.send(:transform_other_exposures, none_option_with_other['otherExposures'],
                                 none_option_with_other['specifyOtherExposures'])
+
       expect(result.additional_exposures.length).to eq(1)
       expect(result.additional_exposures[0]).to eq('OTHER')
 

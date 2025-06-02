@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 require 'rx/client'
-require 'rx/configuration'
 require 'vets/collection'
+require 'rx/configuration'
 
 # Mock upstream request to return source app for Rx client
 class UpstreamRequest
