@@ -26,7 +26,7 @@ module Eps
         conn.request :camelcase
         conn.request :json
 
-        # Enable debug logging in development by default
+        # Enable debug logging in development by default, but without response bodies to prevent PII exposure
         if (ENV['VAOS_EPS_DEBUG'] || Rails.env.development?) && !Rails.env.production?
           conn.request(:curl, ::Logger.new($stdout), :warn)
           conn.response(:logger, ::Logger.new($stdout), bodies: true)
