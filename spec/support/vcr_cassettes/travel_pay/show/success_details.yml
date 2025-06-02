@@ -89,7 +89,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v1.2/claims/3fa85f64-5717-4562-b3fc-2c963f66afa6
+    uri: https://btsss.gov/api/v2/claims/3fa85f64-5717-4562-b3fc-2c963f66afa6
     body:
       encoding: US-ASCII
       string: ''
@@ -396,7 +396,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: post
-    uri:  https://btsss.gov/api/v1.2/Auth/access-token
+    uri:  https://btsss.gov/api/v2/Auth/access-token
     body:
       encoding: US-ASCII
       string: ''
