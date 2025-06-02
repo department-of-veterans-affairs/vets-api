@@ -8,6 +8,8 @@ module AccreditedRepresentativePortal
     class RepresentativeFormUploadController < ApplicationController
       include AccreditedRepresentativePortal::V0::RepresentativeFormUploadConcern
 
+      VALID_FORM_NUMBERS = %w[21-686c].freeze
+
       def submit
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
@@ -37,9 +39,15 @@ module AccreditedRepresentativePortal
       end
 
       def form
-        @form ||= "SimpleFormsApi::VBA#{form_data[:formNumber].gsub(/-/, '').upcase}".constantize.new(
-          form_number: form_data[:formNumber]
-        )
+        @form ||= form_class.new(form_number: form_data[:formNumber])
+      end
+
+      def form_class
+        unless VALID_FORM_NUMBERS.include? form_data[:formNumber]
+          raise Common::Exceptions::BadRequest.new(detail: "Invalid form number #{form_data[:formNumber]}")
+        end
+
+        "SimpleFormsApi::VBA#{form_data[:formNumber].gsub(/-/, '').upcase}".constantize
       end
 
       def upload_response
