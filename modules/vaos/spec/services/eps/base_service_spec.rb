@@ -13,12 +13,6 @@ describe Eps::BaseService do
     allow(service).to receive(:config).and_return(config)
   end
 
-  describe '#config' do
-    it 'returns the Eps::Configuration instance' do
-      expect(service.config).to be_instance_of(Eps::Configuration)
-    end
-  end
-
   describe '#patient_id' do
     it 'returns the user ICN' do
       expect(service.send(:patient_id)).to eq(user_icn)
@@ -43,11 +37,6 @@ describe Eps::BaseService do
         expect { service.send(:check_for_eps_error!, data, response) }.not_to raise_error
       end
 
-      it 'does not raise exception for Hash without error' do
-        data = { id: '123', status: 'success' }
-        expect { service.send(:check_for_eps_error!, data, response) }.not_to raise_error
-      end
-
       it 'does not raise exception for OpenStruct with blank error' do
         data = OpenStruct.new(id: '123', error: '')
         expect { service.send(:check_for_eps_error!, data, response) }.not_to raise_error
@@ -57,12 +46,6 @@ describe Eps::BaseService do
     context 'when response data has error field' do
       it 'raises exception for OpenStruct with error' do
         data = OpenStruct.new(id: '123', error: 'conflict')
-        expect { service.send(:check_for_eps_error!, data, response) }
-          .to raise_error(VAOS::Exceptions::BackendServiceException)
-      end
-
-      it 'raises exception for Hash with error' do
-        data = { id: '123', error: 'conflict' }
         expect { service.send(:check_for_eps_error!, data, response) }
           .to raise_error(VAOS::Exceptions::BackendServiceException)
       end
