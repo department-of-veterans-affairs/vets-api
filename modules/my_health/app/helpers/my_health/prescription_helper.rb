@@ -183,8 +183,9 @@ module MyHealth
           case first_med_priority
           when 0 # Filled medications
             # Compare by fill date - newest first
-            date_comparison = (second_med.sorted_dispensed_date || Date.new(0)) <=> (first_med.sorted_dispensed_date || Date.new(0))
+            date_comparison = compare_dispensed_dates(first_med.sorted_dispensed_date, second_med.sorted_dispensed_date)
             next date_comparison if date_comparison != 0
+
             # If same date, sort by name
             (first_med.prescription_name || '') <=> (second_med.prescription_name || '')
           when 1, 2 # Not-yet-filled and Non-VA medications
@@ -213,6 +214,10 @@ module MyHealth
         resource
       end
 
+      def compare_dispensed_dates(first_date, second_date)
+        (second_date || Date.new(0)) <=> (first_date || Date.new(0))
+      end
+
       def get_medication_name(med)
         if med.disp_status == 'Active: Non-VA' && med.prescription_name.nil?
           med.orderable_item || ''
@@ -222,7 +227,7 @@ module MyHealth
       end
 
       def get_medication_priority(med)
-        return 1 if med.nil? #Handle nil medication object
+        return 1 if med.nil? # Handle nil medication object
 
         return 0 if med.sorted_dispensed_date.present?
         return 2 if med.prescription_source == 'NV'
