@@ -13,17 +13,17 @@ module VAOS
         referral_details = appointment_data[:referral]
 
         @id = appointment_data[:id]&.to_s
-        @status = determine_status(appointment_details[:status])
+        @status = determine_status(appointment_details&.dig(:status))
         @patient_icn = appointment_data[:patient_id]
-        @created = appointment_details[:last_retrieved]
+        @created = appointment_details&.dig(:last_retrieved)
         @location_id = appointment_data[:network_id]
         @clinic = appointment_data[:provider_service_id]
-        @start = appointment_data.dig(:appointment_details, :start)
-        @is_latest = appointment_data.dig(:appointment_details, :is_latest)
-        @last_retrieved = appointment_data.dig(:appointment_details, :last_retrieved)
+        @start = appointment_details&.dig(:start)
+        @is_latest = appointment_details&.dig(:is_latest)
+        @last_retrieved = appointment_details&.dig(:last_retrieved)
         @contact = appointment_data[:contact]
-        @referral_id = referral_details[:referral_number]
-        @referral = { referral_number: referral_details[:referral_number]&.to_s }
+        @referral_id = referral_details&.dig(:referral_number)
+        @referral = { referral_number: referral_details&.dig(:referral_number)&.to_s }
         @provider_service_id = appointment_data[:provider_service_id]
         @provider_name = appointment_data.dig(:provider, :name).presence || 'unknown'
         @provider = provider
@@ -32,7 +32,7 @@ module VAOS
       def serializable_hash
         {
           id: @id,
-          status: determine_status(@status),
+          status: @status,
           patient_icn: @patient_icn,
           created: @created,
           location_id: @location_id,
