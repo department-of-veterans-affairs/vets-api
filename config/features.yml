@@ -31,6 +31,12 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_form_21a:
+    actor_type: user
+    description: >
+      When enabled, shows form 21a in the accredited representative portal.
+      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -1780,6 +1786,9 @@ features:
   vet_status_stage_1:
     actor_type: user
     description: Enables the stage 1 features of the veteran status card
+  vre_cutover_notice:
+    actor_type: user
+    description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
