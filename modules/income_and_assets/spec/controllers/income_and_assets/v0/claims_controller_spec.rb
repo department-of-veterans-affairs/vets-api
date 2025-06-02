@@ -13,7 +13,8 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
     sign_in_as(user)
     allow(IncomeAndAssets::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
-                                       track_create_error: nil, track_create_success: nil)
+                                       track_create_error: nil, track_create_success: nil,
+                                       track_create_validation_error: nil)
   end
 
   describe '#create' do
@@ -27,6 +28,7 @@ RSpec.describe IncomeAndAssets::V0::ClaimsController, type: :request do
 
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_error).once
+      expect(monitor).to receive(:track_create_validation_error).once
       expect(IncomeAndAssets::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       post '/income_and_assets/v0/claims', params: { param_name => { form: claim.form } }
