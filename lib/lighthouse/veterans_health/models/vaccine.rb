@@ -1,0 +1,42 @@
+# frozen_string_literal: true
+
+require 'vets/model'
+
+module Lighthouse
+  module VeteransHealth
+    module Models
+      class VaccineAttributes
+        include Vets::Model
+
+        attribute :cvx_code, Integer
+        attribute :date, DateTime
+        attribute :dose_number, Integer
+        attribute :dose_series, Integer
+        attribute :group_name, String
+        attribute :manufacturer, String
+        attribute :note, String
+        attribute :reaction, String
+        attribute :short_description, String
+      end
+
+      class Vaccine
+        include Vets::Model
+
+        attribute :id, String
+        attribute :type, String, default: 'immunization'
+        attribute :attributes, VaccineAttributes
+        attribute :relationships, Hash
+        
+        # Custom JSON serialization 
+        def as_json(options = {})
+          {
+            id: id,
+            type: type,
+            attributes: attributes,
+            relationships: relationships
+          }.compact
+        end
+      end
+    end
+  end
+end

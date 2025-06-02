@@ -906,6 +906,12 @@
         :uid_location: url
         :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
     - :method: :get
+      :path: "/services/fhir/v0/r4/Immunization"
+      :file_path: "/lighthouse/veterans_health/Immunization/index"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
+    - :method: :get
       :path: "/services/fhir/v0/r4/AllergyIntolerance"
       :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"
       :cache_multiple_responses:
