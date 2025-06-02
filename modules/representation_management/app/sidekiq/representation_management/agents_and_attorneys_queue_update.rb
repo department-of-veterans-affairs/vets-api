@@ -7,15 +7,21 @@ module RepresentationManagement
     include Sidekiq::Job
 
     SLICE_SIZE = 30
+    TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
 
-    def perform
+    def perform(force_update_types = [])
       @agent_responses = []
       @attorney_responses = []
       @agent_ids = []
       @attorney_ids = []
       @agent_json_for_address_validation = []
       @attorney_json_for_address_validation = []
+      @current_api_counts = {}
 
+      get_counts_from_api
+
+      process_agents
+      process_attorneys
       update_agents
       update_attorneys
       validate_agent_addresses
@@ -26,6 +32,16 @@ module RepresentationManagement
     end
 
     private
+
+    def client
+      RepresentationManagement::GCLAWS::Client
+    end
+
+    def current_db_counts
+      # TODO
+      # Get the latest 10 counts from the database
+      # Starting with the latest, get the last actual value across those 10 values for all four counts
+    end
 
     def data_transform_for_agent(agent)
       {
@@ -76,6 +92,14 @@ module RepresentationManagement
       end
     end
 
+    def get_counts_from_api
+      TYPES.each do |type|
+        @current_api_counts[type] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
+      rescue => e
+        log_error("Error fetching count for #{type}: #{e.message}")
+      end
+    end
+
     def individual_agent_json(record, agent)
       agent_raw_address = raw_address_for_agent(agent)
       {
@@ -109,6 +133,9 @@ module RepresentationManagement
       }
     end
 
+    def process_agents
+    end
+
     def raw_address_for_agent(agent)
       {
         address_line1: agent['workAddress1'],
@@ -133,7 +160,7 @@ module RepresentationManagement
     def update_agents
       page = 1
       loop do
-        response = RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'agents', page:)
+        response = client.get_accredited_entities(type: 'agents', page:)
         agents = response.body['items']
         break if agents.empty?
 
@@ -155,7 +182,7 @@ module RepresentationManagement
     def update_attorneys
       page = 1
       loop do
-        response = RepresentationManagement::GCLAWS::Client.get_accredited_entities(type: 'attorneys', page:)
+        response = client.get_accredited_entities(type: 'attorneys', page:)
         attorneys = response.body['items']
         break if attorneys.empty?
 
