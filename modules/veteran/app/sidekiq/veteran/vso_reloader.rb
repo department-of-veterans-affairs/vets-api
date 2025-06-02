@@ -111,7 +111,7 @@ module Veteran
         end
       else
         # Return existing IDs to prevent deletion
-        Veteran::Service::Representative.where("'#{user_type}' = ANY(user_types)").pluck(:representative_id)
+        Veteran::Service::Representative.where('? = ANY(user_types)', user_type).pluck(:representative_id)
       end
     end
 
