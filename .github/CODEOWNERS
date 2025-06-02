@@ -1060,7 +1060,6 @@ modules/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-af
 modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/veteran @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/accredited-representatives-admin
-modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vre @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
 modules/vye @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 postman/Dockerfile @department-of-veterans-affairs/backend-review-group
@@ -1353,6 +1352,7 @@ spec/fixtures/supplemental_claims @department-of-veterans-affairs/benefits-decis
 spec/fixtures/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/vbms @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/fixtures/veteran_enrollment_system @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/apps @department-of-veterans-affairs/lighthouse-pivot
 spec/lib/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/benefits_intake_service @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management

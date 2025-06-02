@@ -128,7 +128,6 @@ PATH
       aws-sdk-s3 (~> 1)
       sidekiq
     veteran (0.0.1)
-    veteran_confirmation (0.0.1)
     vre (0.1.0)
     vye (0.1.0)
 
@@ -344,7 +343,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.4)
+    csv (3.3.5)
     danger (9.5.1)
       base64 (~> 0.2)
       claide (~> 1.0)
@@ -785,7 +784,7 @@ GEM
     ox (2.14.23)
       bigdecimal (>= 3.0)
     parallel (1.27.0)
-    parallel_tests (5.2.0)
+    parallel_tests (5.3.0)
       parallel
     parser (3.3.8.0)
       ast (~> 2.4.1)
@@ -1403,7 +1402,6 @@ DEPENDENCIES
   vba_documents!
   vcr
   veteran!
-  veteran_confirmation!
   vets_json_schema!
   virtus
   vre!
