@@ -77,7 +77,7 @@ module CheckIn
     # @return [void]
     def self.handle_failure_metrics(metadata)
       template_id = metadata['template_id']
-      facility_type = determine_facility_type_from_template(template_id)
+      facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
 
       TravelClaimNotificationUtilities.increment_silent_failure_metrics(template_id, facility_type)
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
@@ -93,7 +93,7 @@ module CheckIn
     # @return [void]
     def self.log_notification(notification, metadata, message, level)
       template_id = metadata['template_id']
-      facility_type = determine_facility_type_from_template(template_id)
+      facility_type = TravelClaimNotificationUtilities.determine_facility_type_from_template(template_id)
 
       log_data = {
         message:,
@@ -119,21 +119,6 @@ module CheckIn
     # @return [String] last four digits of phone number
     def self.phone_last_four_from_notification(notification)
       TravelClaimNotificationUtilities.phone_last_four(notification.to)
-    end
-
-    ##
-    # Determines facility type based on template ID
-    #
-    # @param template_id [String] The template ID
-    # @return [String] 'oh' or 'cie'
-    def self.determine_facility_type_from_template(template_id)
-      if template_id == 'cie-failure-template-id' ||
-         [Constants::CIE_FAILURE_TEMPLATE_ID, Constants::CIE_ERROR_TEMPLATE_ID,
-          Constants::CIE_TIMEOUT_TEMPLATE_ID].include?(template_id)
-        'cie'
-      else
-        'oh'
-      end
     end
   end
 end
