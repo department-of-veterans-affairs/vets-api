@@ -537,7 +537,7 @@ class AppealsApi::RswagConfig
                   },
                   activeReview: {
                     type: 'boolean',
-                    description: 'Indicates that a contestable issue is already part of an active Decision Review that is being processed by VA. Submitting an issue with activeReview = TRUE will result in the creation of a duplicate Decision Review.',
+                    description: 'Indicates whether a contestable issue is already part of an active Decision Review that is being processed by VA. Submitting an issue with an activeReview of true will result in the creation of a duplicate Decision Review.',
                     example: false
                   },
                   latestIssuesInChain: {
