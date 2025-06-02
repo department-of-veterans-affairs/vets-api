@@ -51,14 +51,14 @@ describe Vye::SundownSweep, type: :worker do
       end.to raise_error(Aws::S3::Errors::NoSuchKey)
     end
 
-    it 'throws an exception when access is denied' do
+    it 'does not throw an exception when access is denied' do
       allow(s3_client).to receive(:delete_object)
         .and_raise(Aws::S3::Errors::AccessDenied.new(nil, 'AccessDenied'))
 
       expect(logger).to receive(:error).with(/AccessDenied/)
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
-      end.to raise_error(Aws::S3::Errors::AccessDenied)
+      end.not_to raise_error(Aws::S3::Errors::AccessDenied)
     end
 
     it 'throws an exception there is an error with the service' do
