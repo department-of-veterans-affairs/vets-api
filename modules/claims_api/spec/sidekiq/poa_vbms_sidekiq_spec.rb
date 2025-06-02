@@ -36,11 +36,11 @@ RSpec.describe ClaimsApi::PoaVbmsSidekiq, vcr: 'bgs/person_web_service/find_by_s
     end
 
     context 'error occurs while retrieving Veteran file number from BGS' do
-      it "raises a 'FailedDependency' exception and logs to Sentry" do
+      it "raises a 'FailedDependency' exception and logs" do
         allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_raise(
           BGS::ShareError.new('HelloWorld')
         )
-        expect(dummy_class).to receive(:log_exception_to_sentry)
+        expect(ClaimsApi::Logger).to receive(:log)
 
         expect { dummy_class.upload_to_vbms(power_of_attorney, '/some/random/path') }.to raise_error(
           Common::Exceptions::FailedDependency

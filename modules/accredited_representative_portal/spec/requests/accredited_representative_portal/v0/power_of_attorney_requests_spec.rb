@@ -496,11 +496,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
-      it 'returns 400 if page size is less than 10' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?page[size]=5')
+      it 'returns 400 if page size is less than 1' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?page[size]=0')
 
         expect(response).to have_http_status(:bad_request)
-        expect(parsed_response['errors'].join).to match(/Invalid parameters.*must be greater than or equal to 10/)
+        expect(parsed_response['errors'].join).to match(/Invalid parameters.*must be greater than or equal to 1/)
       end
 
       it 'returns an empty array for a page beyond the total pages' do
