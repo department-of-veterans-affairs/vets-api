@@ -31,6 +31,20 @@ module AccreditedRepresentativePortal
       end
 
       def form_params
+        @form_params ||= begin
+          ##
+          # TODO: Remove. This is for temporary debugging into different behavior
+          # observed between localhost and staging.
+          #
+          log_value = params.to_unsafe_h
+          Rails.logger.error(log_value.deep_transform_values do |v|
+            { class: v.class, size: v.try(:size) }
+          end)
+          form_params_list
+        end
+      end
+
+      def form_params_list
         params.require(:representative_form_upload).permit(
           :confirmationCode,
           :location,
