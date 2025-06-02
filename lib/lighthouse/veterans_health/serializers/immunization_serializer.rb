@@ -104,13 +104,13 @@ module Lighthouse
           return nil if immunization_text.nil?
           
           # Common immunization group names
-          if vaccine_text.include?('COVID')
+          if immunization_text.include?('COVID')
             'COVID-19'
-          elsif vaccine_text.include?('Influenza') || vaccine_text.include?('Flu')
+          elsif immunization_text.include?('Influenza') || immunization_text.include?('Flu')
             'Influenza'
-          elsif vaccine_text.include?('Tetanus') || vaccine_text.include?('DTaP')
+          elsif immunization_text.include?('Tetanus') || immunization_text.include?('DTaP')
             'Tetanus'
-          elsif vaccine_text.include?('Hepatitis')
+          elsif immunization_text.include?('Hepatitis')
             'Hepatitis'
           else
             'Other'
