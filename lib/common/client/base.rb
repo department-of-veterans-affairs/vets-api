@@ -115,14 +115,20 @@ module Common
           options.each { |option, value| request.options.send("#{option}=", value) }
         end.env
       rescue Common::Exceptions::BackendServiceException => e
-        # Tell Breakers this counts as a failure
-        client_error = Common::Client::Errors::ClientError.new(
-          e.message,
-          e.original_status,
-          e.original_body,
-          headers: { 'x-code' => e.key } # optional
-        )
-        raise client_error
+        # Raise a Breakers-trackable error first (ClientError)
+        begin
+          raise Common::Client::Errors::ClientError.new(
+            e.message,
+            e.original_status,
+            e.original_body,
+            headers: { 'x-code' => e.key } # optional
+          )
+        rescue Common::Client::Errors::ClientError
+          # Immediately re-raise the original service-specific exception
+          raise config.service_exception.new(
+            e.key, e.response_values, e.original_status, e.original_body
+          )
+        end
       rescue Timeout::Error, Faraday::TimeoutError => e
         Sentry.set_extras(service_name:, url: path)
         raise Common::Exceptions::GatewayTimeout, e.class.name
