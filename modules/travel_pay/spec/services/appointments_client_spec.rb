@@ -93,7 +93,7 @@ describe TravelPay::AppointmentsClient do
     expected_log_tag = ['travel_pay:get_all']
 
     it 'returns a response only with appointments with no claims' do
-      @stubs.get('/api/v1.2/appointments?excludeWithClaims=true') do
+      @stubs.get('/api/v2/appointments?excludeWithClaims=true') do
         [
           200,
           {},
@@ -117,7 +117,7 @@ describe TravelPay::AppointmentsClient do
     end
 
     it 'returns a response with all appointments' do
-      @stubs.get('/api/v1.2/appointments') do
+      @stubs.get('/api/v2/appointments') do
         [
           200,
           {},
