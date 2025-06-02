@@ -132,11 +132,11 @@ module MyHealth
 
         sort_metadata = case sort_param
                         when 'last-fill-date'
-                          { 'dispensedDate' => 'DESC', 'prescriptionName' => 'ASC' }
+                          { 'dispensed_date' => 'DESC', 'prescription_name' => 'ASC' }
                         when 'alphabetical'
-                          { 'prescriptionName' => 'ASC', 'dispensedDate' => 'DESC' }
+                          { 'prescription_name' => 'ASC', 'dispensed_date' => 'DESC' }
                         else
-                          { 'dispStatus' => 'ASC', 'prescriptionName' => 'ASC', 'dispensedDate' => 'DESC' }
+                          { 'disp_status' => 'ASC', 'prescription_name' => 'ASC', 'dispensed_date' => 'DESC' }
                         end
 
         (sorted_resource.metadata[:sort] ||= {}).merge!(sort_metadata)
@@ -169,23 +169,22 @@ module MyHealth
       end
 
       def last_fill_date_sort(resource)
-        resource.records = resource.records.sort do |first_med, second_med|
-          # Determine priority level for each medication
+        null_dispensed_dates = resource.records.select { |med| med.sorted_dispensed_date.nil? }
+        non_null_dispensed_dates = resource.records.reject { |med| med.sorted_dispensed_date.nil? }
+
+        #Sort non-null dispensed dates
+        non_null_dispensed_dates.sort_by! do |first_med, second_med|
           first_med_priority = get_medication_priority(first_med)
           second_med_priority = get_medication_priority(second_med)
 
-          # Compare priorities first
           priority_comparison = first_med_priority <=> second_med_priority
           next priority_comparison if priority_comparison != 0
 
           case first_med_priority
           when 0 # Filled medications
             # Compare by fill date - newest first
-            first_fill_date = first_med.sorted_dispensed_date || Date.new(0)
-            second_fill_date = second_med.sorted_dispensed_date || Date.new(0)
-            date_comparison = second_fill_date <=> first_fill_date
+            date_comparison = (second_med.sorted_dispensed_date || Date.new(0)) <=> (first_med.sorted_dispensed_date || Date.new(0))
             next date_comparison if date_comparison != 0
-
             # If same date, sort by name
             (first_med.prescription_name || '') <=> (second_med.prescription_name || '')
           when 1, 2 # Not-yet-filled and Non-VA medications
@@ -193,6 +192,8 @@ module MyHealth
             (first_med.prescription_name || '') <=> (second_med.prescription_name || '')
           end
         end
+
+        resource.records = null_dispensed_dates + non_null_dispensed_dates
         resource
       end
 
@@ -221,10 +222,12 @@ module MyHealth
       end
 
       def get_medication_priority(med)
-        return 0 if med.sorted_dispensed_date.present? # Filled meds get top priority
-        return 2 if med.prescription_source == 'NV'    # Non-VA meds get lowest priority
+        return 1 if med.nil? #Handle nil medication object
 
-        1 # Not-yet-filled meds in middle
+        return 0 if med.sorted_dispensed_date.present?
+        return 2 if med.prescription_source == 'NV'
+
+        1
       end
 
       module_function :apply_sorting

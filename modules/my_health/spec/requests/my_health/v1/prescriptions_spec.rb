@@ -86,7 +86,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
-        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq(
+          'disp_status' => 'ASC',
+          'prescription_name' => 'ASC',
+          'dispensed_date' => 'DESC'
+        )
       end
 
       it 'responds to GET #index with no parameters when camel-inflected' do
@@ -97,7 +101,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
-        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq(
+          'dispStatus' => 'ASC',
+          'prescriptionName' => 'ASC',
+          'dispensedDate' => 'DESC'
+        )
       end
 
       it 'responds to GET #index with images' do
@@ -310,9 +318,9 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(objects).to eq(objects.sort_by { |object| [object['prescription_name'], object['sorted_dispensed_date']] })
       end
 
-      it 'responds to GET #index with dispensed_date as primary sort parameter' do
-        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_prescription_name') do
-          get '/my_health/v1/prescriptions?page=1&per_page=20&sort[]=dispensed_date&sort[]=prescription_name'
+      it 'responds to GET #index with custom sort parameter last-fill-date' do
+        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_last_fill_date') do
+          get '/my_health/v1/prescriptions?page=1&per_page=20&sort=last-fill-date'
         end
 
         expect(response).to be_successful
@@ -325,7 +333,10 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
             'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s
           }
         end
-        expect(objects).to eq(objects.sort_by { |object| [object['sorted_dispensed_date'], object['prescription_name']] })
+        objects.reject! { |obj| obj['sorted_dispensed_date'] == Date.new(0).to_s }
+        dates = objects.map { |obj| Date.parse(obj['sorted_dispensed_date']) }
+        is_descending = dates.each_cons(2).all? { |a, b| a >= b }
+        expect(is_descending)
       end
 
       it 'responds to GET #index with disp_status as primary sort parameter' do
@@ -354,7 +365,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
-        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq(
+          'disp_status' => 'ASC',
+          'prescription_name' => 'ASC',
+          'dispensed_date' => 'DESC'
+        )
       end
 
       it 'responds to GET #index with refill_status=active when camel-inflected' do
@@ -365,7 +380,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
-        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq(
+          'dispStatus' => 'ASC',
+          'prescriptionName' => 'ASC',
+          'dispensedDate' => 'DESC'
+        )
       end
 
       it 'responds to GET #index with filter' do
