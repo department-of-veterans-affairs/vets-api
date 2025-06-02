@@ -9,19 +9,21 @@ describe TravelPay::SmocService do
 
     let(:appointment_data) do
       {
-        'id' => '73611905-71bf-46ed-b1ec-e790593b8565',
-        'appointmentSource' => 'API',
-        'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
-        'appointmentName' => 'string',
-        'appointmentType' => 'EnvironmentalHealth',
-        'facilityName' => 'Cheyenne VA Medical Center',
-        'serviceConnectedDisability' => 30,
-        'currentStatus' => 'string',
-        'appointmentStatus' => 'Completed',
-        'externalAppointmentId' => '12345678-0000-0000-0000-000000000001',
-        'associatedClaimId' => nil,
-        'associatedClaimNumber' => nil,
-        'isCompleted' => true
+        data: {
+          'id' => '73611905-71bf-46ed-b1ec-e790593b8565',
+          'appointmentSource' => 'API',
+          'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+          'appointmentName' => 'string',
+          'appointmentType' => 'EnvironmentalHealth',
+          'facilityName' => 'Cheyenne VA Medical Center',
+          'serviceConnectedDisability' => 30,
+          'currentStatus' => 'string',
+          'appointmentStatus' => 'Completed',
+          'externalAppointmentId' => '12345678-0000-0000-0000-000000000001',
+          'associatedClaimId' => nil,
+          'associatedClaimNumber' => nil,
+          'isCompleted' => true
+        }
       }
     end
 
@@ -53,74 +55,96 @@ describe TravelPay::SmocService do
                   'facility_station_number' => '123',
                   'appointment_type' => 'Other',
                   'is_complete' => false }
+    end
 
+    it 'returns a claim ID and claim submitted status when submit is successful' do
       allow_any_instance_of(TravelPay::AppointmentsService)
         .to receive(:find_or_create_appointment)
-        .with(@params)
         .and_return(appointment_data)
       allow_any_instance_of(TravelPay::ClaimsService)
         .to receive(:create_new_claim)
         .and_return(new_claim_data)
       allow_any_instance_of(TravelPay::ExpensesService)
         .to receive(:add_expense)
-        .with({ 'claim_id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                'appt_date' => '2024-01-01T16:45:34' })
         .and_return(add_expense_data)
       allow_any_instance_of(TravelPay::ClaimsService)
         .to receive(:submit_claim)
         .and_return(submit_claim_data)
-    end
 
-    it 'returns a claim ID and claim submitted status when submit is successful' do
       actual_claim_response = @smoc_service.submit_mileage_expense(@params)
       expect(actual_claim_response).to eq({ 'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
                                             'status' => 'Claim submitted' })
     end
 
-    it 'returns a claim ID and incomplete status when add expense fails' do
+    it 'returns a claim ID and saved status when submit fails' do
+      allow_any_instance_of(TravelPay::AppointmentsService)
+        .to receive(:find_or_create_appointment)
+        .and_return(appointment_data)
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:create_new_claim)
+        .and_return(new_claim_data)
       allow_any_instance_of(TravelPay::ExpensesService)
         .to receive(:add_expense)
-        .with({ 'claim_id' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                'appt_date' => '2024-01-01T16:45:34' })
-        .and_raise(StandardError, message: 'Internal server error')
-
-      actual_claim_response = @smoc_service.submit_mileage_expense(@params)
-      expect(actual_claim_response).to eq({ 'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                                            'status' => 'Incomplete' })
-    end
-
-    it 'returns a claim ID and saved status when add expense fails' do
+        .and_return(add_expense_data)
       allow_any_instance_of(TravelPay::ClaimsService)
         .to receive(:submit_claim)
-        .and_raise(StandardError, message: 'Internal server error')
+        .and_return(nil)
 
       actual_claim_response = @smoc_service.submit_mileage_expense(@params)
       expect(actual_claim_response).to eq({ 'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
                                             'status' => 'Saved' })
     end
 
-    # TODO: fix this
-    #
-    # it 'raises an exception if it fails to create the claim' do
-    #   allow_any_instance_of(TravelPay::ClaimsService)
-    #     .to receive(:create_new_claim)
-    #     .and_return(nil)
-
-    #   expect do
-    #     @smoc_service.submit_mileage_expense(@params)
-    #   end.to raise_error(Common::Exceptions::InternalServerError,
-    #                      /Internal server error/)
-    # end
-
-    it 'raises an exception if it fails to find or create the appointment' do
+    it 'returns a claim ID and incomplete status when add expense fails' do
       allow_any_instance_of(TravelPay::AppointmentsService)
         .to receive(:find_or_create_appointment)
-        .with(@params)
-        .and_raise(ArgumentError, message: 'Invalid appointment time')
+        .and_return(appointment_data)
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:create_new_claim)
+        .and_return(new_claim_data)
+      allow_any_instance_of(TravelPay::ExpensesService)
+        .to receive(:add_expense)
+        .and_return(nil)
+
+      actual_claim_response = @smoc_service.submit_mileage_expense(@params)
+      expect(actual_claim_response).to eq({ 'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                                            'status' => 'Incomplete' })
+    end
+
+    it 'raises an exception if it fails to create the claim' do
+      allow_any_instance_of(TravelPay::AppointmentsService)
+        .to receive(:find_or_create_appointment)
+        .and_return(appointment_data)
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:create_new_claim)
+        .and_return(nil)
 
       expect do
         @smoc_service.submit_mileage_expense(@params)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
+    end
+
+    it 'raises an exception if given an invalid appointment date' do
+      allow_any_instance_of(TravelPay::AppointmentsService)
+        .to receive(:find_or_create_appointment)
+        .and_raise(ArgumentError, message: 'Invalid appointment time')
+
+      expect do
+        @smoc_service.submit_mileage_expense({ 'appointment_date_time' => 'not a real date',
+                                               'facility_station_number' => '123',
+                                               'appointment_type' => 'Other',
+                                               'is_complete' => false })
       end.to raise_error(Common::Exceptions::BadRequest, 'Bad request')
+    end
+
+    it('raises an exception if it fails to create the appointment') do
+      allow_any_instance_of(TravelPay::AppointmentsService)
+        .to receive(:find_or_create_appointment)
+        .and_return(nil)
+
+      expect do
+        @smoc_service.submit_mileage_expense(@params)
+      end.to raise_error(Common::Exceptions::BackendServiceException)
     end
   end
 end
