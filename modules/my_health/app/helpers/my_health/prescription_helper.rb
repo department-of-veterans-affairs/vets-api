@@ -53,7 +53,6 @@ module MyHealth
       module_function :collection_resource,
                       :filter_data_by_refill_and_renew,
                       :filter_non_va_meds,
-                      :sort_by,
                       :renewable
     end
 
