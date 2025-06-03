@@ -32,8 +32,8 @@ module BenefitsDiscovery
 
     def headers
       {
-        'x-api-key' => Settings.lighthouse.benefits_discover.x_api_key,
-        'x-app-id' => Settings.lighthouse.benefits_discover.x_app_id
+        'x-api-key' => Settings.lighthouse.benefits_discovery.x_api_key,
+        'x-app-id' => Settings.lighthouse.benefits_discovery.x_app_id
       }
     end
   end
