@@ -23,9 +23,9 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.info(message: 'Correlation ID', correlation_id:)
       query_path = if params.empty?
-                     'api/v1.2/appointments'
+                     'api/v2/appointments'
                    else
-                     "api/v1.2/appointments?#{params.to_query}"
+                     "api/v2/appointments?#{params.to_query}"
                    end
       log_to_statsd('appointments', 'get_all') do
         connection(server_url: btsss_url).get(query_path) do |req|
