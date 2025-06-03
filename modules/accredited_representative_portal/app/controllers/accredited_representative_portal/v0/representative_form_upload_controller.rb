@@ -18,34 +18,47 @@ module AccreditedRepresentativePortal
 
       def upload_scanned_form
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = PersistentAttachments::VAForm.new(form_id: params[:form_id])
-        attachment.file = params['file']
-        file_path = params['file'].tempfile.path
-        return if validate_document(file_path) == :error
-        
-        validate_attachment(attachment)
-        render json: serialized(attachment)
+        attachment = create_form(PersistentAttachments::VAForm)
+        validate(attachment)
       end
 
-      def submit_supporting_documents
+      def upload_supporting_documents
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = PersistentAttachments::VAFormDocumentation.new(form_id: params[:form_id])
-        attachment.file = params['file']
-        file_path = params['file'].tempfile.path
-        return if validate_document(file_path) == :error
-
-        validate_document(file_path)
-        validate_attachment(attachment)
-        render json: serialized(attachment)
+        attachment = create_form(PersistentAttachments::VAFormDocumentation)
+        validate(attachment)
       end
 
       private
+
+      def create_form(form_type)
+        attachment = form_type.new(form_id: params[:form_id])
+        attachment.file = params['file']
+        attachment
+      end
+
+      def validate(attachment = nil)
+        file_path = params['file'].tempfile.path
+        return if validate_document(file_path) == :error
+
+        validate_record!(attachment)
+        validate_attachment(attachment)
+        render json: serialized(attachment)
+      end
 
       def serialized(attachment)
         PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
           key.camelize(:lower)
         end
       end
+
+      def validate_record!(attachment)
+        attachment.validate!
+      rescue ActiveRecord::RecordInvalid => e
+        e.record.errors.details.keys == [:file] and
+          raise InvalidFileError
+        raise
+      end
+
 
       def validate_document(file_path)
         begin

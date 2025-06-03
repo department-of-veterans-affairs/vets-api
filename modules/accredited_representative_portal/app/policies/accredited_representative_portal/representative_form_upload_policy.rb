@@ -14,7 +14,7 @@ module AccreditedRepresentativePortal
       @user.user_account.active_power_of_attorney_holders.size.positive?
     end
 
-    def submit_supporting_documents?
+    def upload_supporting_documents?
       @user.user_account.active_power_of_attorney_holders.size.positive?
     end
   end

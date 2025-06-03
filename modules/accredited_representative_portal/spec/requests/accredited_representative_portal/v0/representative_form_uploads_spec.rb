@@ -217,7 +217,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     end
   end
 
-  describe '#submit_supporting_documents' do
+  describe '#upload_supporting_documents' do
     it 'renders the attachment as json' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
@@ -228,7 +228,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       allow_any_instance_of(BenefitsIntake::Service).to receive(:valid_document?).and_return(pdf_path)
 
       expect do
-        post '/accredited_representative_portal/v0/submit_supporting_documents', params:
+        post '/accredited_representative_portal/v0/upload_supporting_documents', params:
       end.to change(PersistentAttachments::VAFormDocumentation, :count).by(1)
       attachment = PersistentAttachment.last
 
@@ -260,7 +260,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         .and_raise(BenefitsIntake::Service::InvalidDocumentError.new('Invalid form'))
     
       expect do
-        post '/accredited_representative_portal/v0/submit_supporting_documents', params:
+        post '/accredited_representative_portal/v0/upload_supporting_documents', params:
       end.not_to change(PersistentAttachments::VAFormDocumentation, :count)
     
       expect(response).to have_http_status(:unprocessable_entity)
