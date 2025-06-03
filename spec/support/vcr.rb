@@ -25,7 +25,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BASE_URL>') { Settings.lighthouse.benefits_documents.host }
   c.filter_sensitive_data('<VETERAN_ICN>') do |interaction|
-    interaction.request.uri[%r{\d+V\d+}]
+    interaction.request.uri[/\d+V\d+/]
   end
   c.filter_sensitive_data('<LIGHTHOUSE_CLAIMS_API_PATH>') do |interaction|
     host = Settings.lighthouse.benefits_claims.host
