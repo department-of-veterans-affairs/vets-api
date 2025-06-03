@@ -2325,3 +2325,9 @@ features:
   is_dgib_call_only:
     actor_type: user
     description: If enabled, the DGIB endpoint will only be called for MGIB VYE application
+  ar_poa_request_failure_notification_email_for_claimant:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_notification_email_for_rep:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
