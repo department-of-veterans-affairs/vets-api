@@ -1,0 +1,26 @@
+{
+  "vaFileNumber": "796126859",
+  "veteranSocialSecurityNumber": "796126859",
+  "veteranFullName": {
+    "first": "Hector",
+    "middle": "Nick",
+    "last": "Allen"
+  },
+  "veteranDateOfBirth": "1932-02-05",
+  "veteranAddress": {
+    "addressLine1": "123 Mailing Address St.",
+    "addressLine2": "Apt 1",
+    "city": "Fulton",
+    "stateCode": "NY",
+    "countryCodeISO2": "US",
+    "zipCode5": "97063",
+    "street": "123 Mailing Address St.",
+    "street2": "Apt 1",
+    "state": "NY",
+    "country": "USA",
+    "postalCode": "97063"
+  },
+  "email": "myemail72585885@unattended.com",
+  "veteranPhone": "6195551234",
+  "signatureDate": "2025-05-20"
+}
