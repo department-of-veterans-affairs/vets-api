@@ -52,6 +52,7 @@ module AccreditedRepresentativePortal
       poa_form_submission_id = job['args'].first
       poa_form_submission = PowerOfAttorneyFormSubmission.find(poa_form_submission_id)
       poa_form_submission.update(status: :failed, status_updated_at: DateTime.current)
+      send_failure_notification_email(poa_form_submission.power_of_attorney_request, recipient_type: 'submission')
 
       Monitoring.new.track_duration(
         'ar.poa.submission.duration',
@@ -113,6 +114,15 @@ module AccreditedRepresentativePortal
 
     def poa_form_submission
       @poa_form_submission ||= PowerOfAttorneyFormSubmission.find(@id)
+    end
+
+    def self.send_failure_notification_email(poa_request, recipient_type:)
+      return unless Flipper.enabled?(:ar_poa_request_failure_notification_email)
+
+      notification = poa_request.notifications.create!(type: "submission_failed_#{recipient_type}")
+      PowerOfAttorneyRequestEmailJob.perform_async(
+        notification.id
+      )
     end
   end
 end

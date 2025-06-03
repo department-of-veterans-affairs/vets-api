@@ -78,24 +78,29 @@ module AccreditedRepresentativePortal
       end
 
       def handle_resource_not_found(error)
+        send_failure_notification_email(@poa_request)
         raise Error.new(error.detail || error.message, :not_found)
       end
 
       def handle_record_invalid(error)
+        send_failure_notification_email(@poa_request)
         raise Error.new(error.message, :bad_request)
       end
 
       def handle_transient_error(error)
+        send_failure_notification_email(@poa_request)
         raise Error.new(error.message, :gateway_timeout)
       end
 
       def handle_fatal_error(error)
+        send_failure_notification_email(@poa_request)
         error_message = error.respond_to?(:detail) ? error.detail : error.message
         create_error_form_submission(error_message, {})
         raise Error.new(error_message, :not_found)
       end
 
       def handle_unexpected_error(error)
+        send_failure_notification_email(@poa_request)
         Rails.logger.error("Unexpected error in Accept#call: #{error.class} - #{error.message}")
         Rails.logger.error(error.backtrace.join("\n")) if error.backtrace
         create_error_form_submission(error.message, {})
@@ -185,6 +190,15 @@ module AccreditedRepresentativePortal
               address_json['zipCodeSuffix']
           end
         end
+      end
+
+      def send_failure_notification_email(poa_request, recipient_type:)
+        return unless Flipper.enabled?(:ar_poa_request_failure_notification_email)
+
+        notification = poa_request.notifications.create!(type: "enqueue_failed_#{recipient_type}")
+        PowerOfAttorneyRequestEmailJob.perform_async(
+          notification.id
+        )
       end
     end
   end

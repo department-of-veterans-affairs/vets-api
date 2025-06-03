@@ -8,8 +8,11 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
 
   describe 'validations' do
     it {
-      expect(subject).to validate_inclusion_of(:type).in_array(%w[requested declined expiring
-                                                                  expired])
+      expected_enum_values = described_class::PERMITTED_TYPES.index_with { |v| v }
+
+      expect(subject).to define_enum_for(:type)
+        .with_values(expected_enum_values)
+        .backed_by_column_of_type(:string)
     }
   end
 
@@ -39,29 +42,81 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
     let!(:expired_notification) do
       create(:power_of_attorney_request_notification, type: 'expired')
     end
+    let!(:enqueue_failed_for_claimant_notification) do
+      create(:power_of_attorney_request_notification, type: 'enqueue_failed_claimant')
+    end
+    let!(:enqueue_failed_for_rep_notification) do
+      create(:power_of_attorney_request_notification, type: 'enqueue_failed_rep')
+    end
+    let!(:submission_failed_for_claimant_notification) do
+      create(:power_of_attorney_request_notification, type: 'submission_failed_claimant')
+    end
+    let!(:submission_failed_for_rep_notification) do
+      create(:power_of_attorney_request_notification, type: 'submission_failed_rep')
+    end
 
     it 'returns requested notifications' do
       expect(described_class.requested).to include(requested_notification)
       expect(described_class.requested).not_to include(declined_notification, expiring_notification,
-                                                       expired_notification)
+                                                       expired_notification, enqueue_failed_for_claimant_notification,
+                                                       enqueue_failed_for_rep_notification, submission_failed_for_claimant_notification,
+                                                       submission_failed_for_rep_notification)
     end
 
     it 'returns declined notifications' do
       expect(described_class.declined).to include(declined_notification)
       expect(described_class.declined).not_to include(requested_notification, expiring_notification,
-                                                      expired_notification)
+                                                      expired_notification, enqueue_failed_for_claimant_notification,
+                                                      enqueue_failed_for_rep_notification, submission_failed_for_claimant_notification,
+                                                      submission_failed_for_rep_notification)
     end
 
     it 'returns expiring notifications' do
       expect(described_class.expiring).to include(expiring_notification)
       expect(described_class.expiring).not_to include(requested_notification, declined_notification,
-                                                      expired_notification)
+                                                      expired_notification, enqueue_failed_for_claimant_notification,
+                                                      enqueue_failed_for_rep_notification, submission_failed_for_claimant_notification,
+                                                      submission_failed_for_rep_notification)
     end
 
     it 'returns expired notifications' do
       expect(described_class.expired).to include(expired_notification)
       expect(described_class.expired).not_to include(requested_notification, declined_notification,
-                                                     expiring_notification)
+                                                     expiring_notification, enqueue_failed_for_claimant_notification,
+                                                     enqueue_failed_for_rep_notification, submission_failed_for_claimant_notification,
+                                                     submission_failed_for_rep_notification)
+    end
+
+    it 'returns "enqueue failed" notifications meant for claimant' do
+      expect(described_class.enqueue_failed_claimant).to include(enqueue_failed_for_claimant_notification)
+      expect(described_class.enqueue_failed_claimant).not_to include(requested_notification, declined_notification,
+                                                    expiring_notification, expired_notification,
+                                                    enqueue_failed_for_rep_notification, submission_failed_for_claimant_notification,
+                                                    submission_failed_for_rep_notification)
+    end
+
+    it 'returns "enqueue failed" notifications meant for rep' do
+      expect(described_class.enqueue_failed_rep).to include(enqueue_failed_for_rep_notification)
+      expect(described_class.enqueue_failed_rep).not_to include(requested_notification, declined_notification,
+                                                    expiring_notification, expired_notification,
+                                                    enqueue_failed_for_claimant_notification, submission_failed_for_rep_notification,
+                                                    submission_failed_for_rep_notification)
+    end
+
+    it 'returns "enqueue failed" notifications meant for claimant' do
+      expect(described_class.enqueue_failed_claimant).to include(enqueue_failed_for_claimant_notification)
+      expect(described_class.enqueue_failed_claimant).not_to include(requested_notification, declined_notification,
+                                                    expiring_notification, expired_notification,
+                                                    enqueue_failed_for_rep_notification, submission_failed_for_claimant_notification,
+                                                    submission_failed_for_rep_notification)
+    end
+
+    it 'returns "enqueue failed" notifications meant for rep' do
+      expect(described_class.enqueue_failed_rep).to include(enqueue_failed_for_rep_notification)
+      expect(described_class.enqueue_failed_rep).not_to include(requested_notification, declined_notification,
+                                                    expiring_notification, expired_notification,
+                                                    enqueue_failed_for_claimant_notification, submission_failed_for_rep_notification,
+                                                    submission_failed_for_rep_notification)
     end
   end
 
