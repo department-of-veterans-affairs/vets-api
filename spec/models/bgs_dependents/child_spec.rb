@@ -68,10 +68,6 @@ RSpec.describe BGSDependents::Child do
   end
 
   context 'with va_dependents_v2 off' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
-    end
-
     describe '#format_info' do
       let(:format_info_output) do
         {
@@ -93,7 +89,7 @@ RSpec.describe BGSDependents::Child do
       end
 
       it 'formats relationship params for submission' do
-        formatted_info = described_class.new(child_info).format_info
+        formatted_info = described_class.new(child_info, is_v2: false).format_info
 
         expect(formatted_info).to eq(format_info_output)
       end
@@ -101,7 +97,7 @@ RSpec.describe BGSDependents::Child do
 
     describe '#address' do
       it 'formats address' do
-        address = described_class.new(child_info).address(all_flows_payload['dependents_application'])
+        address = described_class.new(child_info, is_v2: false).address(all_flows_payload['dependents_application'])
 
         expect(address).to eq(address_result)
       end
@@ -109,10 +105,6 @@ RSpec.describe BGSDependents::Child do
   end
 
   context 'with va_dependents_v2 on' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
-    end
-
     describe '#format_info' do
       let(:format_info_output) do
         {
@@ -134,7 +126,7 @@ RSpec.describe BGSDependents::Child do
       end
 
       it 'formats relationship params for submission' do
-        formatted_info = described_class.new(child_info_v2).format_info
+        formatted_info = described_class.new(child_info_v2, is_v2: true).format_info
 
         expect(formatted_info).to eq(format_info_output)
       end
@@ -142,7 +134,8 @@ RSpec.describe BGSDependents::Child do
 
     describe '#address' do
       it 'formats address' do
-        address = described_class.new(child_info_v2).address(all_flows_payload_v2['dependents_application'])
+        address = described_class.new(child_info_v2,
+                                      is_v2: true).address(all_flows_payload_v2['dependents_application'])
 
         expect(address).to eq(address_result_v2)
       end

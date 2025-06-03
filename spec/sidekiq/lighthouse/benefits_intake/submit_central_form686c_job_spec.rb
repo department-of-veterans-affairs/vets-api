@@ -45,10 +45,28 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       participant_id: vet_info['veteran_information']['participant_id'],
       icn: vet_info['veteran_information']['icn'],
       uuid: vet_info['veteran_information']['uuid'],
-      common_name: vet_info['veteran_information']['common_name']
+      common_name: vet_info['veteran_information']['common_name'],
+      v2: false
+    )
+  end
+
+  let(:user_struct_v2) do
+    OpenStruct.new(
+      first_name: vet_info['veteran_information']['full_name']['first'],
+      last_name: vet_info['veteran_information']['full_name']['last'],
+      middle_name: vet_info['veteran_information']['full_name']['middle'],
+      ssn: vet_info['veteran_information']['ssn'],
+      email: vet_info['veteran_information']['email'],
+      va_profile_email: vet_info['veteran_information']['va_profile_email'],
+      participant_id: vet_info['veteran_information']['participant_id'],
+      icn: vet_info['veteran_information']['icn'],
+      uuid: vet_info['veteran_information']['uuid'],
+      common_name: vet_info['veteran_information']['common_name'],
+      v2: true
     )
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
+  let(:encrypted_user_struct_v2) { KmsEncrypted::Box.new.encrypt(user_struct_v2.to_h.to_json) }
 
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
@@ -63,7 +81,6 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
   context 'with va_dependents_v2 disabled' do
     before do
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(false)
     end
 
     describe '#perform' do
@@ -210,7 +227,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     end
 
     describe '#generate_metadata' do
-      subject { job.generate_metadata }
+      subject { job.generate_metadata(user_struct) }
 
       before do
         job.instance_variable_set('@claim', claim)
@@ -269,7 +286,6 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     before do
       allow(Flipper).to receive(:enabled?).with(anything).and_call_original
       allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(true)
-      allow(Flipper).to receive(:enabled?).with(:va_dependents_v2).and_return(true)
     end
 
     describe '#perform' do
@@ -337,7 +353,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
           allow(mailer_double).to receive(:deliver_now)
           expect(claim_v2).to receive(:submittable_686?).and_return(true).exactly(:twice)
           expect(claim_v2).to receive(:submittable_674?).and_return(false)
-          expect { subject.perform(claim_v2.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::BenefitsIntakeResponseError) # rubocop:disable Layout/LineLength
+          expect { subject.perform(claim_v2.id, encrypted_vet_info, encrypted_user_struct_v2) }.to raise_error(Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::BenefitsIntakeResponseError) # rubocop:disable Layout/LineLength
 
           expect(central_mail_submission_v2.reload.state).to eq('failed')
         end
@@ -345,7 +361,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
       it 'submits the saved claim and updates submission to success' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
-          user_struct.va_profile_email,
+          user_struct_v2.va_profile_email,
           'fake_received686',
           { 'confirmation_number' => claim_v2.confirmation_number,
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
@@ -360,13 +376,13 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
         )
         expect(claim_v2).to receive(:submittable_686?).and_return(true).exactly(4).times
         expect(claim_v2).to receive(:submittable_674?).and_return(false).at_least(:once)
-        subject.perform(claim_v2.id, encrypted_vet_info, encrypted_user_struct)
+        subject.perform(claim_v2.id, encrypted_vet_info, encrypted_user_struct_v2)
         expect(central_mail_submission_v2.reload.state).to eq('success')
       end
     end
 
     describe 'get files from claim' do
-      subject { job.get_files_from_claim }
+      subject { job.get_files_from_claim(user_struct_v2) }
 
       it 'compiles 686 and 674 files and returns attachments array with the generated 674' do
         job.instance_variable_set('@claim', claim_v2)
@@ -426,7 +442,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
     end
 
     describe '#generate_metadata' do
-      subject { job.generate_metadata }
+      subject { job.generate_metadata(user_struct_v2) }
 
       before do
         job.instance_variable_set('@claim', claim_v2)
@@ -507,10 +523,10 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
 
       it 'logs the error to zsf and sends an email with the 686C template' do
         Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
-          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+          { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct_v2] }
         ) do
-          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
-          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct.va_profile_email)
+          exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct_v2]
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, user_struct_v2.va_profile_email)
           expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
           claim.parsed_form['view:selectable686_options']['report674'] = false
           expect(VANotify::EmailJob).to receive(:perform_async).with(
