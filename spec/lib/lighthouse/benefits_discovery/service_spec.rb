@@ -52,8 +52,8 @@ RSpec.describe BenefitsDiscovery::Service do
         purpleHeartRecipientDates: nil
       }
 
-      expect(subject).to receive(:perform).with(
-        :post, 'benefits-discovery-service/v0/recommendations', '{}', { 'x-api-key' => nil, 'x-app-id' => nil }
+      expect_any_instance_of(Faraday::Connection).to receive(:post).with(
+        'benefits-discovery-service/v0/recommendations', '{}'
       ).and_call_original
       VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params') do
         subject.get_eligible_benefits(params)
@@ -93,9 +93,9 @@ RSpec.describe BenefitsDiscovery::Service do
   context 'with invalid param values' do
     it 'returns 400' do
       VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_invalid_params') do
-        expect {
-          subject.get_eligible_benefits({branch_of_service: 'A-Team'})
-        }.to raise_error(Common::Client::Errors::ClientError)
+        expect do
+          subject.get_eligible_benefits({ branch_of_service: 'A-Team' })
+        end.to raise_error(Common::Client::Errors::ClientError)
       end
     end
   end
