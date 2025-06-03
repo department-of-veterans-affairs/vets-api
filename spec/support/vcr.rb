@@ -20,17 +20,11 @@ VCR.configure do |c|
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.decision_review.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
+  c.filter_sensitive_data('<LIGHTHOUSE_CLAIMS_API_HOST>') { Settings.lighthouse.benefits_claims.host }
   c.filter_sensitive_data('<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>') { Settings.lighthouse.direct_deposit.host }
   c.filter_sensitive_data('<LIGHTHOUSE_BRD_API_KEY>') { Settings.brd.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BASE_URL>') { Settings.lighthouse.benefits_documents.host }
-  c.filter_sensitive_data('<VETERAN_ICN>') do |interaction|
-    interaction.request.uri[/\d+V\d+/]
-  end
-  c.filter_sensitive_data('<LIGHTHOUSE_CLAIMS_API_PATH>') do |interaction|
-    host = Settings.lighthouse.benefits_claims.host
-    interaction.request.uri[%r{#{Regexp.escape(host)}/services/claims/v2/veterans/\d+V\d+/claims}]
-  end
   c.filter_sensitive_data('<MDOT_KEY>') { Settings.mdot.api_key }
   c.filter_sensitive_data('<MDOT_URL>') { Settings.mdot.url }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }

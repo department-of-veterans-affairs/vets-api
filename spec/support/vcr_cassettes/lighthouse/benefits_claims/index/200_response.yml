@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <LIGHTHOUSE_CLAIMS_API_PATH>/services/claims/v2/veterans/<VETERAN_ICN>/claims
+    uri: <LIGHTHOUSE_CLAIMS_API_HOST>/services/claims/v2/veterans/123498767V234859/claims
     body:
       encoding: US-ASCII
       string: ''
