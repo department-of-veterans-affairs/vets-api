@@ -46,13 +46,26 @@ module TravelPay
           Rails.logger.error(message:)
           raise Common::Exceptions::ServiceUnavailable, message:
         end
-        submitted_claim = smoc_service.submit_mileage_expense(params)
+        begin
+          Rails.logger.info(message: 'SMOC transaction START')
+
+          appt_id = get_appt_or_raise(params)
+          claim_id = get_claim_id(appt_id)
+
+          Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim_id.slice(0, 8)}")
+          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointment_date_time'] })
+
+          Rails.logger.info(message: "SMOC transaction: Submit claim #{claim_id.slice(0, 8)}")
+          submitted_claim = claims_service.submit_claim(claim_id)
+
+          Rails.logger.info(message: 'SMOC transaction END')
+        rescue ArgumentError => e
+          raise Common::Exceptions::BadRequest, detail: e.message
+        rescue Faraday::ClientError, Faraday::ServerError => e
+          raise Common::Exceptions::InternalServerError, exception: e
+        end
+
         render json: submitted_claim, status: :created
-        # TODO: Error handling in SMOC service now, do we need this?
-        # rescue ArgumentError => e
-        #   raise Common::Exceptions::BadRequest, detail: e.message
-        # rescue Faraday::ClientError, Faraday::ServerError => e
-        #   raise Common::Exceptions::InternalServerError, exception: e
       end
 
       private
@@ -65,8 +78,12 @@ module TravelPay
         @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
       end
 
-      def smoc_service
-        @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user)
+      def appts_service
+        @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
+      end
+
+      def expense_service
+        @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
       end
 
       def scrub_logs
@@ -85,25 +102,25 @@ module TravelPay
         end
       end
 
-      # def get_appt_or_raise(params = {})
-      #   appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
-      #   Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
-      #   appt = appts_service.find_or_create_appointment(params)
+      def get_appt_or_raise(params = {})
+        appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
+        Rails.logger.info(message: "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
+        appt = appts_service.find_or_create_appointment(params)
 
-      #   if appt[:data].nil?
-      #     Rails.logger.error(message: appt_not_found_msg)
-      #     raise Common::Exceptions::ResourceNotFound, detail: appt_not_found_msg
-      #   end
+        if appt[:data].nil?
+          Rails.logger.error(message: appt_not_found_msg)
+          raise Common::Exceptions::ResourceNotFound, detail: appt_not_found_msg
+        end
 
-      #   appt[:data]['id']
-      # end
+        appt[:data]['id']
+      end
 
-      # def get_claim_id(appt_id)
-      #   Rails.logger.info(message: 'SMOC transaction: Create claim')
-      #   claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
+      def get_claim_id(appt_id)
+        Rails.logger.info(message: 'SMOC transaction: Create claim')
+        claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
 
-      #   claim['claimId']
-      # end
+        claim['claimId']
+      end
 
       def handle_resource_not_found_error(message, cid)
         Rails.logger.error("Resource not found: #{message}")
