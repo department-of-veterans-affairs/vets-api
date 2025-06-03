@@ -1,0 +1,21 @@
+---
+http_interactions:
+- request:
+    method: patch
+    uri: https://btsss.gov/api/v1.2/claims/3fa85f64-5717-4562-b3fc-2c963f66afa6/submit
+  response:
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: ASCII-8BIT
+      string: '
+        { "data": 
+          {
+            "claimId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          }
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT

@@ -1,0 +1,33 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://btsss.gov/api/v1.2/claims
+    body:
+      encoding: US-ASCII
+      string: '
+        { "data": {
+              "appointmentId": "aa0f63e0-5fa7-4d74-a17a-a6f510dbf69e"
+            }
+        }'
+  response:
+    headers:
+      Content-Type:
+      - application/json
+    status:
+      code: 500
+      message: 'An unexpected error occurred while processing your request.'
+    body:
+      encoding: ASCII-8BIT
+      string: '
+        { "errors": [
+          {
+            "error": {
+              "code": "500",
+              "message": "Internal Server Error",
+              "details": "An unexpected error occurred while processing your request."
+            }
+          }
+        ]
+      }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
