@@ -28,7 +28,7 @@ module AccreditedRepresentativePortal
     ARP_PATH_INFO_PREFIX = '/accredited_representative_portal'
 
     def exclude_arp_route?(env)
-      unless Settings.vsp_environment.in?(['production', 'test'])
+      unless Settings.vsp_environment.in?(%w[production test])
         req = Rack::Request.new(env)
         exclude =
           req.path.starts_with?(
