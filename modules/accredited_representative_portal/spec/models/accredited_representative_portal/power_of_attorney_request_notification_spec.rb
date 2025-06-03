@@ -55,6 +55,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
       create(:power_of_attorney_request_notification, type: 'submission_failed_for_representative')
     end
 
+    # rubocop:disable RSpec/RepeatedDescription, RSpec/RepeatedExample
     it 'returns requested notifications' do
       expect(described_class.requested).to include(requested_notification)
       expect(described_class.requested).not_to include(declined_notification, expiring_notification,
@@ -134,6 +135,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestNotificatio
                         submission_failed_for_rep_notification,
                         submission_failed_for_rep_notification)
     end
+    # rubocop:enable RSpec/RepeatedDescription, RSpec/RepeatedExample
   end
 
   describe '#status' do
