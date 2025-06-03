@@ -134,7 +134,7 @@ module Pensions
         Rails.logger.info('Pensions::V0::ClaimsController: user association lookup for BPDS')
 
         # user is LOA3 so we can use their ICN
-        if current_user.loa3?
+        if current_user&.loa3?
           StatsD.increment("#{STATSD_KEY_PREFIX}.get_participant_id", tags: ['user_type:loa3'])
 
           response = MPI::Service.new.find_profile_by_identifier(identifier: current_user.icn,
@@ -146,7 +146,7 @@ module Pensions
         end
 
         # user is LOA1
-        if current_user.loa&.dig(:current).try(:to_i) == LOA::ONE
+        if current_user&.loa&.dig(:current).try(:to_i) == LOA::ONE
           StatsD.increment("#{STATSD_KEY_PREFIX}.get_participant_id", tags: ['user_type:loa1'])
           return get_participant_id_or_file_number_from_bgs
         end
@@ -160,6 +160,8 @@ module Pensions
       #
       # @return [Hash, nil] Returns a hash containing the participant id or file number, or nil
       def get_participant_id_or_file_number_from_bgs
+        return nil if current_user.nil?
+
         response = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
         log_bgs_result(response.participant_id)
 
