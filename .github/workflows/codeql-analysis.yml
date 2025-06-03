@@ -25,14 +25,6 @@ jobs:
       matrix:
         language: [ruby, javascript]
     steps:
-      - name: Checkout PR HEAD ref
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
       - name: Run Code Scanning
         uses: department-of-veterans-affairs/codeql-tools/codeql-analysis@main
         with:
