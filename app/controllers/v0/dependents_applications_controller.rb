@@ -64,11 +64,11 @@ module V0
     end
 
     def dependent_service
-      if Flipper.enabled?(:va_dependents_v2, current_user)
-        @dependent_service ||= BGS::DependentV2Service.new(current_user)
-      else
-        @dependent_service ||= BGS::DependentService.new(current_user)
-      end
+      @dependent_service ||= if Flipper.enabled?(:va_dependents_v2, current_user)
+                               BGS::DependentV2Service.new(current_user)
+                             else
+                               BGS::DependentService.new(current_user)
+                             end
     end
 
     def dependency_verification_service
