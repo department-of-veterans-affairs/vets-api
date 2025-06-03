@@ -74,7 +74,6 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
   c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
-  c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>') do
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
   end
