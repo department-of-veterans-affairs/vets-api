@@ -89,15 +89,20 @@ module TravelPay
       def scrub_logs
         logger.filter = lambda do |log|
           if log.name =~ /TravelPay/
-            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
-            log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+            # Safely scrub :params
+            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID' if log.payload[:params].is_a?(Hash)
 
-            # Conditional because no referer if directly using the API
-            if log.named_tags.key? :referer
+            # Safely scrub :path
+            if log.payload[:path].is_a?(String)
+              log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+            end
+
+            # Safely scrub :referer if present
+            if log.named_tags&.key?(:referer) && log.named_tags[:referer].is_a?(String)
               log.named_tags[:referer] = log.named_tags[:referer].gsub(%r{(.+claims/)(.+)(.+)}, '\1SCRUBBED_CLAIM_ID')
             end
           end
-          # After the log has been scrubbed, make sure it is logged:
+
           true
         end
       end

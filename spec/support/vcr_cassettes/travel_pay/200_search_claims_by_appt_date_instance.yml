@@ -71,7 +71,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v1.2/claims/search-by-appointment-date
+    uri: https://btsss.gov/api/v2/claims/search-by-appointment-date
     body:
       encoding: US-ASCII
       string: ''
@@ -202,7 +202,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: post
-    uri:  https://btsss.gov/api/v1.2/Auth/access-token
+    uri:  https://btsss.gov/api/v2/Auth/access-token
     body:
       encoding: US-ASCII
       string: ''
