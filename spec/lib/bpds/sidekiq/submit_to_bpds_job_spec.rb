@@ -9,6 +9,10 @@ require 'bpds/sidekiq/submit_to_bpds_job'
 
 RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
   let(:claim) { create(:pensions_saved_claim) }
+  let(:participant_id) { '600061742' }
+  let(:file_number) { '123123123' }
+  let(:encrypted_payload) { KmsEncrypted::Box.new.encrypt({ 'participant_id' => participant_id }.to_json) }
+  let(:encrypted_payload_file_number) { KmsEncrypted::Box.new.encrypt({ 'file_number' => file_number }.to_json) }
   let(:bpds_submission) { create(:bpds_submission, saved_claim: claim) }
   let(:bpds_submission_attempt) { double(BPDS::SubmissionAttempt) }
   let(:monitor) { double(BPDS::Monitor) }
@@ -36,7 +40,7 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
       end
 
       it 'does not perform the job' do
-        expect(described_class.new.perform(claim.id)).to be_nil
+        expect(described_class.new.perform(claim.id, encrypted_payload)).to be_nil
         expect(service).not_to have_received(:submit_json)
       end
     end
@@ -46,16 +50,32 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
         allow(service).to receive(:submit_json).with(claim).and_return(response)
       end
 
-      it 'submits the BPDS submission and creates a successful attempt' do
-        described_class.new.perform(claim.id)
+      context 'and participant_id is provided' do
+        it 'submits the BPDS submission and creates a successful attempt' do
+          described_class.new.perform(claim.id, encrypted_payload)
 
-        expect(service).to have_received(:submit_json).with(claim)
-        expect(bpds_submission.submission_attempts).to have_received(:create).with(
-          status: 'submitted',
-          response: response.to_json,
-          bpds_id: response['uuid']
-        )
-        expect(monitor).to have_received(:track_submit_success).with(claim.id)
+          expect(service).to have_received(:submit_json).with(claim, participant_id, nil)
+          expect(bpds_submission.submission_attempts).to have_received(:create).with(
+            status: 'submitted',
+            response: response.to_json,
+            bpds_id: response['uuid']
+          )
+          expect(monitor).to have_received(:track_submit_success).with(claim.id)
+        end
+      end
+
+      context 'and file_number is provided' do
+        it 'submits the BPDS submission and creates a successful attempt' do
+          described_class.new.perform(claim.id, encrypted_payload_file_number)
+
+          expect(service).to have_received(:submit_json).with(claim, nil, file_number)
+          expect(bpds_submission.submission_attempts).to have_received(:create).with(
+            status: 'submitted',
+            response: response.to_json,
+            bpds_id: response['uuid']
+          )
+          expect(monitor).to have_received(:track_submit_success).with(claim.id)
+        end
       end
     end
 
@@ -68,7 +88,7 @@ RSpec.describe BPDS::Sidekiq::SubmitToBPDSJob, type: :job do
 
       it 'creates a failure attempt and raises the error' do
         expect do
-          described_class.new.perform(claim.id)
+          described_class.new.perform(claim.id, encrypted_payload)
         end.to raise_error(StandardError, 'Submission failed')
 
         expect(bpds_submission.submission_attempts).to have_received(:create).with(

@@ -25,17 +25,19 @@ module BPDS
     # Submits a JSON payload for a given claim.
     #
     # This method tracks the submission process, including success and failure events.
-    # It constructs a payload from the claim, optionally includes a participant ID,
+    # It constructs a payload from the claim, optionally includes a participant ID or file number,
     # and performs a POST request with the payload. If an error occurs, it tracks the failure
     # and re-raises the exception.
     #
     # @param claim [SavedClaim] The claim object to be submitted.
     # @param participant_id [String, nil] The participant ID to be included in the payload (optional).
+    # @param file_number [String, nil] The file number to be included in the payload (optional).
     # @return [String] The response body from the submission
     # @raise [StandardError] If an error occurs during submission.
-    def submit_json(claim, participant_id = nil)
+    def submit_json(claim, participant_id = nil, file_number = nil)
       payload = default_payload(claim)
       payload.merge({ 'participantId' => participant_id }) if participant_id.present?
+      payload.merge({ 'fileNumber' => file_number }) if file_number.present?
       response = perform(:post, '', payload.to_json, config.base_request_headers)
 
       # TODO: store the bpds_uuid in the future

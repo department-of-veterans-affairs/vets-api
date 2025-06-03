@@ -114,6 +114,10 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     let(:bpds_submission) { double('BPDS::Submission', id: '12345') }
     let(:bpds_monitor) { double('BPDS::Monitor') }
     let(:current_user) { create(:user) }
+    let(:participant_id) { mpi_profile.participant_id }
+    let(:encrypted_payload) { KmsEncrypted::Box.new.encrypt({ participant_id: }.to_json) }
+    let(:mpi_profile) { build(:mpi_profile) }
+    let(:mpi_response) { build(:find_profile_response, profile: mpi_profile) }
 
     before do
       allow(BPDS::Monitor).to receive(:new).and_return(bpds_monitor)
@@ -122,11 +126,20 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       allow(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async)
     end
 
-    it 'tracks the submission and enqueues the job' do
-      expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
-      expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id).once
+    context 'when the user is LOA3' do
+      let!(:user) { create(:user, :loa3) }
 
-      subject.send(:process_and_upload_to_bpds, claim)
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
+          .with(identifier: current_user.icn, identifier_type: MPI::Constants::ICN)
+          .and_return(mpi_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
     end
   end
 
