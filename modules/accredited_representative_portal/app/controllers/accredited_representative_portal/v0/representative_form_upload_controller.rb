@@ -117,22 +117,6 @@ module AccreditedRepresentativePortal
       end
 
       def get_icn
-        ##
-        # TODO: Remove. This is for temporary debugging into different behavior
-        # observed between localhost and staging.
-        #
-        if Settings.vsp_environment != 'production'
-          log_value = { ssn:, first_name:, last_name:, birth_date: }
-          log_value = log_value.deep_transform_values do |v|
-            { class: v.class, size: v.try(:size) }
-          end
-
-          Rails.logger.error(
-            'arp_olive_branch_debugging',
-            log_value
-          )
-        end
-
         mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
 
         if mpi.profile&.icn
