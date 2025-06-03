@@ -21,7 +21,8 @@ describe PdfFill::Forms::Va2141422024 do
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink')).merge_fields.to_json)).to eq(
+      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
+      .merge_fields.to_json)).to eq(
         JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
       )
     end
@@ -114,10 +115,14 @@ describe PdfFill::Forms::Va2141422024 do
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
-          'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555', 'phone_last_four_numbers' => '1234' },
-          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555', 'phone_last_four_numbers' => '1234' },
-          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555', 'phone_last_four_numbers' => '1234' },
-          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555', 'phone_last_four_numbers' => '1234' }
+          'veteranPhone' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                              'phone_last_four_numbers' => '1234' },
+          'veteranPhone1' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                               'phone_last_four_numbers' => '1234' },
+          'veteranPhone2' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                               'phone_last_four_numbers' => '1234' },
+          'veteranPhone3' => { 'phone_area_code' => '619', 'phone_first_three_numbers' => '555',
+                               'phone_last_four_numbers' => '1234' }
         )
       end
     end
@@ -144,13 +149,13 @@ describe PdfFill::Forms::Va2141422024 do
             'first' => 'Hector',
             'middle' => 'Nick',
             'last' => 'Allen',
-            "middleInitial" => "N"
+            'middleInitial' => 'N'
           },
           'veteranFullName1' => {
             'first' => 'Hector',
             'middle' => 'Nick',
             'last' => 'Allen',
-            "middleInitial" => "N"
+            'middleInitial' => 'N'
           }
         )
       end

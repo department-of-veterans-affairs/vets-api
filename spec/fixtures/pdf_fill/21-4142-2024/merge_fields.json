@@ -118,6 +118,12 @@
         "to": "2011-01-01"
       }
     ],
+    "completeProviderInfo": [
+      {
+        "value": "",
+        "extras_value": "Provider or Facility Name: OVERFLOW TEST: Provider Name That Exceeds The Allowed 100 Characters To Test Name Overflow In PDF Fields\n\nAddress: OVERFLOW TEST: Provider Name That Exceeds The Allowed 100 Characters To Test Name Overflow In PDF Fields\n123 Main St\nApt A\nBaltimore, MD, 21201\nUSA\n\nConditions Treated: Hypertension\n\nTreatment Date Ranges: from: 2010-01-01 to: 2011-01-01"
+      }
+    ],
     "address": [
       {
         "street": "123 Main St",
@@ -159,6 +165,7 @@
         "to": "2012-01-01"
       }
     ],
+    "addressOverflows": true,
     "address": [
       {
         "street": "OVERFLOW TEST: 456 Street Address for Testing",
@@ -169,8 +176,7 @@
         "postalCode": {
           "firstFive": "60601",
           "lastFour": ""
-        },
-        "completeAddress": "Normal Provider Name\nOVERFLOW TEST: 456 Street Address for Testing\nApt 101\nChicago, IL, 60601\nUSA"
+        }
       }
     ],
     "dateRangeStart": {
@@ -182,7 +188,13 @@
       "month": "01",
       "day": "01",
       "year": "2012"
-    }
+    },
+    "completeProviderInfo": [
+      {
+        "value": "",
+        "extras_value": "Provider or Facility Name: Normal Provider Name\n\nAddress: Normal Provider Name\nOVERFLOW TEST: 456 Street Address for Testing\nApt 101\nChicago, IL, 60601\nUSA\n\nConditions Treated: Diabetes Type 2\n\nTreatment Date Ranges: from: 2011-01-01 to: 2012-01-01"
+      }
+    ]
   },
   "provider3": {
     "providerFacilityName": "Third Normal Provider",
@@ -201,6 +213,7 @@
         "to": "2013-01-01"
       }
     ],
+    "addressOverflows": true,
     "address": [
       {
         "street": "789 Pine Avenue",
@@ -211,9 +224,7 @@
         "postalCode": {
           "firstFive": "10001",
           "lastFour": ""
-        },
-        "completeAddress": "Third Normal Provider\n789 Pine Avenue\nOVERFLOW TEST: 456 Street Address for Testing\nNew York, NY, 10001\nUSA"
-      }
+        }      }
     ],
     "dateRangeStart": {
       "month": "01",
@@ -224,7 +235,13 @@
       "month": "01",
       "day": "01",
       "year": "2013"
-    }
+    },
+    "completeProviderInfo": [
+      {
+        "value": "",
+        "extras_value": "Provider or Facility Name: Third Normal Provider\n\nAddress: Third Normal Provider\n789 Pine Avenue\nOVERFLOW TEST: 456 Street Address for Testing\nNew York, NY, 10001\nUSA\n\nConditions Treated: Right Knee Injury\n\nTreatment Date Ranges: from: 2012-01-01 to: 2013-01-01"
+      }
+    ]
   },
   "provider4": {
     "providerFacilityName": "Fourth Normal Provider",
@@ -243,6 +260,7 @@
         "to": "2014-01-01"
       }
     ],
+    "addressOverflows": true,
     "address": [
       {
         "street": "101 Oak Street",
@@ -253,9 +271,7 @@
         "postalCode": {
           "firstFive": "72201",
           "lastFour": ""
-        },
-        "completeAddress": "Fourth Normal Provider\n101 Oak Street\nFloor 3\nOVERFLOW TEST: 456 city for Testing, AR, 72201\nUSA"
-      }
+        }      }
     ],
     "dateRangeStart": {
       "month": "01",
@@ -266,7 +282,13 @@
       "month": "01",
       "day": "01",
       "year": "2014"
-    }
+    },
+    "completeProviderInfo": [
+      {
+        "value": "",
+        "extras_value": "Provider or Facility Name: Fourth Normal Provider\n\nAddress: Fourth Normal Provider\n101 Oak Street\nFloor 3\nOVERFLOW TEST: 456 city for Testing, AR, 72201\nUSA\n\nConditions Treated: PTSD\n\nTreatment Date Ranges: from: 2013-01-01 to: 2014-01-01"
+      }
+    ]
   },
   "provider5": {
     "providerFacilityName": "Fifth Normal Provider",
@@ -285,6 +307,7 @@
         "to": "2015-01-01"
       }
     ],
+    "addressOverflows": true,
     "address": [
       {
         "street": "505 Maple Avenue",
@@ -295,9 +318,7 @@
         "postalCode": {
           "firstFive": "94102",
           "lastFour": ""
-        },
-        "completeAddress": "Fifth Normal Provider\n505 Maple Avenue\nUnit B\nSan Francisco, CA, 94102\nUSA"
-      }
+        }      }
     ],
     "dateRangeStart": {
       "month": "01",
@@ -308,6 +329,12 @@
       "month": "01",
       "day": "01",
       "year": "2015"
-    }
+    },
+    "completeProviderInfo": [
+      {
+        "value": "",
+        "extras_value": "Provider or Facility Name: Fifth Normal Provider\n\nAddress: Fifth Normal Provider\n505 Maple Avenue\nUnit B\nSan Francisco, CA, 94102\nUSA\n\nConditions Treated: OVERFLOW TEST: Extremely Detailed And Long Medical Condition Description That Exceeds The Limit Of The PDF Field\n\nTreatment Date Ranges: from: 2014-01-01 to: 2015-01-01"
+      }
+    ]
   }
 }

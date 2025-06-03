@@ -22,41 +22,13 @@ describe DecisionReviewV1::Processor::Form4142Processor do
            form_json:,
            submitted_claim_id: 1)
   end
-  let(:processor) { described_class.new(form_data: submission.form['form4142'], submission_id: submission.id) }
+  let(:processor) do
+    described_class.new(form_data: submission.form['form4142'], submission_id: submission.id, validate: true)
+  end
   let(:received_date) do
     submission.created_at.in_time_zone(described_class::TIMEZONE).strftime(described_class::SIGNATURE_TIMESTAMP_FORMAT)
   end
   let(:form4142) { JSON.parse(form_json)['form4142'].merge({ 'signatureDate' => received_date }) }
-
-  describe 'PDF version selection via feature flag' do
-    let(:flag_key) { :form4142_use_2024_template }
-    let(:legacy_id) { Processors::BaseForm4142Processor::LEGACY_FORM_CLASS_ID }
-    let(:new_id)    { Processors::BaseForm4142Processor::FORM_CLASS_ID_2024 }
-
-    context 'when the 2024 feature flag is OFF' do
-      before { allow(Flipper).to receive(:enabled?).with(flag_key).and_return(false) }
-
-      it 'uses the legacy form ID' do
-        expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-          .with(form4142, anything, legacy_id)
-          .and_call_original
-
-        processor
-      end
-    end
-
-    context 'when the 2024 feature flag is ON' do
-      before { allow(Flipper).to receive(:enabled?).with(flag_key).and_return(true) }
-
-      it 'uses the 2024 form ID' do
-        expect(PdfFill::Filler).to receive(:fill_ancillary_form)
-          .with(form4142, anything, new_id)
-          .and_call_original
-
-        processor
-      end
-    end
-  end
 
   describe '#initialize' do
     context 'when schema validation is not enabled' do
@@ -79,6 +51,7 @@ describe DecisionReviewV1::Processor::Form4142Processor do
     context 'when schema validation flag is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:decision_review_form4142_use_2024_template).and_return(false)
       end
 
       context 'with valid form data' do
@@ -226,6 +199,78 @@ describe DecisionReviewV1::Processor::Form4142Processor do
           expect { described_class.new(form_data: invalid_form_data, submission_id: submission.id, validate: true) }
             .not_to raise_error
         end
+      end
+    end
+  end
+
+  describe 'PDF version selection via feature flag' do
+    let(:template_flag) { :decision_review_form4142_use_2024_template }
+    let(:validation_flag) { :form4142_validate_schema }
+
+    before do
+      # Isolate template testing from validation
+      allow(Flipper).to receive(:enabled?).with(validation_flag).and_return(false)
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_call_original
+    end
+
+    describe 'template selection logic' do
+      context 'with legacy template (flag disabled)' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(false)
+        end
+
+        it 'selects 2018 legacy form class ID' do
+          expect(processor.send(:generate_2024_version?)).to be false
+          expect(processor.send(:selected_form_class_id)).to eq('21-4142')
+        end
+
+        it 'calls PDF filler with 2018 legacy form ID' do
+          expect(PdfFill::Filler).to receive(:fill_ancillary_form)
+            .with(hash_including('veteranFullName' => anything), anything, '21-4142')
+
+          processor
+        end
+
+        it 'does not require signature stamping' do
+          expect(processor.send(:needs_signature_stamp?)).to be false
+        end
+      end
+
+      context 'with 2024 template (flag enabled)' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
+        end
+
+        it 'selects 2024 form class ID' do
+          expect(processor.send(:generate_2024_version?)).to be true
+          expect(processor.send(:selected_form_class_id)).to eq('21-4142-2024')
+        end
+
+        it 'calls PDF filler with 2024 form ID' do
+          expect(PdfFill::Filler).to receive(:fill_ancillary_form)
+            .with(hash_including('veteranFullName' => anything), anything, '21-4142-2024')
+
+          processor
+        end
+
+        it 'requires signature stamping when signature is present' do
+          # Assuming the test data includes signature information
+          expect(processor.send(:needs_signature_stamp?)).to be true
+        end
+      end
+    end
+
+    describe 'feature flag integration' do
+      it 'correctly reads the team-specific template flag' do
+        expect(Flipper).to receive(:enabled?).with(template_flag).and_return(true)
+
+        processor.send(:generate_2024_version?)
+      end
+
+      it 'defaults to legacy when flag is not set' do
+        allow(Flipper).to receive(:enabled?).with(template_flag).and_return(false)
+
+        expect(processor.send(:generate_2024_version?)).to be false
       end
     end
   end
