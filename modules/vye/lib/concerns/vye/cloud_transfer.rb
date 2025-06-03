@@ -91,7 +91,7 @@ module Vye
     end
 
     def clear_from(bucket_sym: :internal, path: 'processed')
-      Rail.logger.info "Vye::SundownSweep::DeleteProcessedS3Files#clear_from(#{bucket_sym}, #{path})"
+      Rails.logger.info "Vye::SundownSweep::DeleteProcessedS3Files#clear_from(#{bucket_sym}, #{path})"
       bucket = { internal: self.bucket, external: external_bucket }[bucket_sym]
       prefix = "#{path}/"
       check_s3_location!(bucket:, path:)
