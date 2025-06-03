@@ -7,7 +7,7 @@ RSpec.describe BenefitsDiscovery::Service do
   subject { BenefitsDiscovery::Service.new }
 
   context 'with params' do
-    it 'returns 200 with recommendations' do
+    it 'returns recommendations' do
       params = {
         date_of_birth: '2000-06-15',
         discharge_status: 'HONORABLE_DISCHARGE',
@@ -60,7 +60,7 @@ RSpec.describe BenefitsDiscovery::Service do
       end
     end
 
-    it 'returns 200 with recommendations' do
+    it 'returns recommendations' do
       params = {
         date_of_birth: nil,
         discharge_status: nil,
@@ -74,25 +74,27 @@ RSpec.describe BenefitsDiscovery::Service do
       VCR.use_cassette('lighthouse/benefits_discovery/200_response_without_params') do
         response = subject.get_eligible_benefits(params)
         expect(response).to eq({
-                                 'data' => { 'recommended' => [],
-                                             'undetermined' => [
-                                               {
-                                                 'benefit_name' => 'Health',
-                                                 'benefit_url' => 'https://www.va.gov/health-care/'
-                                               }
-                                             ],
-                                             'not_recommended' => [{
-                                               'benefit_name' => 'Life Insurance (VALife)',
-                                               'benefit_url' => 'https://www.va.gov/life-insurance/'
-                                             }] }
+                                 'data' => {
+                                   'undetermined' => [
+                                     {
+                                       'benefit_name' => 'Health',
+                                       'benefit_url' => 'https://www.va.gov/health-care/'
+                                     }
+                                   ],
+                                   'recommended' => [],
+                                   'not_recommended' => [{
+                                     'benefit_name' => 'Life Insurance (VALife)',
+                                     'benefit_url' => 'https://www.va.gov/life-insurance/'
+                                   }]
+                                 }
                                })
       end
     end
   end
 
   context 'with invalid param values' do
-    it 'returns 400' do
-      VCR.use_cassette('lighthouse/benefits_discovery/200_response_with_invalid_params') do
+    it 'raises client error' do
+      VCR.use_cassette('lighthouse/benefits_discovery/400_response_with_invalid_params') do
         expect do
           subject.get_eligible_benefits({ branch_of_service: 'A-Team' })
         end.to raise_error(Common::Client::Errors::ClientError)
