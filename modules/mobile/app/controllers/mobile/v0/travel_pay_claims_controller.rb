@@ -31,6 +31,7 @@ module Mobile
 
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
+        # TODO: error handling is now happening in SMOC service now, do we need this?
         # rescue ArgumentError => e
         #   raise Common::Exceptions::BadRequest, detail: e.message
         # rescue Faraday::ClientError, Faraday::ServerError => e
@@ -54,38 +55,6 @@ module Mobile
         @validated_params ||= Mobile::V0::Contracts::TravelPaySmoc.new.call(smoc_params)
       end
 
-      # def get_appt_or_raise
-      #   appt_params = {
-      #     'appointment_date_time' => validated_params[:appointment_date_time],
-      #     'facility_station_number' => validated_params[:facility_station_number],
-      #     'appointment_type' => validated_params[:appointment_type],
-      #     'is_complete' => validated_params[:is_complete]
-      #   }
-      #   if validated_params[:appointment_name].present?
-      #     appt_params['appointment_name'] =
-      #       validated_params[:appointment_name]
-      #   end
-      #   appt_not_found_msg = "[VAHB] No appointment found for #{appt_params['appointment_date_time']}"
-      #   Rails.logger.info(message:
-      #                     "[VAHB] SMOC transaction: Get appt by date time: #{appt_params['appointment_date_time']}")
-      #   appt = appts_service.find_or_create_appointment(appt_params)
-
-      #   if appt[:data].nil?
-      #     Rails.logger.error(message: appt_not_found_msg)
-      #     raise Common::Exceptions::ResourceNotFound, detail: appt_not_found_msg
-      #   end
-
-      #   appt[:data]['id']
-      # end
-
-      # def get_claim_id
-      #   appt_id = get_appt_or_raise
-      #   Rails.logger.info(message: '[VAHB] SMOC transaction: Create claim')
-      #   claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
-
-      #   claim['claimId']
-      # end
-
       def normalize_submission_response(submitted_claim)
         Mobile::V0::TravelPayClaimSummary.new({
                                                 id: submitted_claim['claimId'],
@@ -105,21 +74,9 @@ module Mobile
         @auth_manager ||= TravelPay::AuthManager.new(Settings.travel_pay.mobile_client_number, @current_user)
       end
 
-      def claims_service
-        @claims_service ||= TravelPay::ClaimsService.new(auth_manager, @current_user)
-      end
-
       def smoc_service
         @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user)
       end
-
-      # def appts_service
-      #   @appts_service ||= TravelPay::AppointmentsService.new(auth_manager)
-      # end
-
-      # def expense_service
-      #   @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
-      # end
 
       def clear_appointments_cache
         Mobile::V0::Appointment.clear_cache(@current_user)
