@@ -127,20 +127,6 @@ check_in:
   map_api:
     service_name: MAP-API
     url: https://veteran.apps-staging.va.gov
-  travel_reimbursement_api:
-    auth_url: https://login.microsoftonline.us
-    auth_url_v2: ~
-    claims_base_path: EC/ClaimIngestSvc
-    claims_url: https://dev.integration.d365.va.gov
-    claims_url_v2: ~
-    client_id: ~
-    client_number: ~
-    client_secret: ~
-    redis_token_expiry: 3540
-    scope: ~
-    service_name: BTSSS-API
-    subscription_key: ~
-    tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
   travel_reimbursement_api_v2:
     auth_url: https://login.microsoftonline.us
     auth_url_v2: https://login.microsoftonline.us
@@ -223,6 +209,9 @@ claims_api:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
         notification_client_secret: xxxxxxxx-zzzz-xxxx-yyyy-vvvvvvvvvvvv
         notify_service_id: xxxxxxxx-aaaa-bbbb-cccc-dddddddddddd
+claims_evidence_api:
+  base_url: 'https://claimevidence-api-fake.fake.bip.va.gov/api/v1/rest/'
+  jwt_secret: 'fake_api_key'
 clamav:
   host: 0.0.0.0
   mock: true
@@ -377,7 +366,6 @@ edu:
       - noah.stern@va.gov
       - gregg.puhala@va.gov
       - kara.ciprich@va.gov
-      - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
       - donna.saunders@va.gov
       - ariana.adili@govcio.com
@@ -598,7 +586,7 @@ ivc_champva:
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
-  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
 ivc_forms:
@@ -874,13 +862,13 @@ mhv:
     mock: false
   api_gateway:
     hosts:
-      bluebutton: http://example.org
-      fhir: http://example.org
-      pharmacy: http://example.org
-      phrmgr: http://example.org
-      security: http://example.org
-      sm_patient: http://example.org
-      usermgmt: http://example.org
+      bluebutton: http://mhv-api.example.com
+      fhir: http://mhv-api.example.com
+      pharmacy: http://mhv-api.example.com
+      phrmgr: http://mhv-api.example.com
+      security: http://mhv-api.example.com
+      sm_patient: http://mhv-api.example.com
+      usermgmt: http://mhv-api.example.com
   bb:
     collection_caching_enabled: true
     mock: true
@@ -899,7 +887,7 @@ mhv:
   medical_records:
     app_id: 103
     app_token: xyz
-    host: http://example.org
+    host: http://mhv-api.example.com
     mhv_x_api_key: ~
     x_api_key: fake-x-api-key
     x_api_key_v2: fake-x-api-key-v2
@@ -1277,6 +1265,7 @@ va_forms:
 va_mobile:
   key_path: "/fake/client/key/path"
   mock: false
+  patients_path: /vaos/v1/patients
   ppms_base_url: https://staff.apps.va.gov
   timeout: 25
   url: https://veteran.apps.va.gov
@@ -1562,6 +1551,7 @@ vaos:
     api_url: https://api.ccra.placeholder.va.local
     base_path: vaos/v1/patients
     mock: false
+    redis_referral_expiry: 3600
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1573,7 +1563,6 @@ vaos:
     key_path: modules/vaos/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
-    redis_token_expiry: 3500
     scopes: care-nav
   referral:
     encryption:

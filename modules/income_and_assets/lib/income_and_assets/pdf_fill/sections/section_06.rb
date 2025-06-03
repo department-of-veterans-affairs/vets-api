@@ -14,6 +14,8 @@ module IncomeAndAssets
         },
         # 6b-c (only space for two on form)
         'royaltiesAndOtherProperties' => {
+          # Label for each list item (e.g., 'Royalty/Property 1')
+          item_label: 'Royalty/Property',
           limit: 2,
           first_key: 'otherRecipientRelationshipType',
           # Q1
@@ -23,13 +25,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 6,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship6[#{ITERATOR}]",
             question_num: 6,
             question_suffix: '(1)',
-            question_text: 'RELATIONSHIP TYPE OTHER'
+            question_text: 'RELATIONSHIP TYPE OTHER',
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -38,7 +42,8 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(2)',
             question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Name'
           },
           # Q3
           'incomeGenerationMethod' => {
@@ -47,14 +52,16 @@ module IncomeAndAssets
           'incomeGenerationMethodOverflow' => {
             question_num: 6,
             question_suffix: '(3)',
-            question_text: 'SPECIFY HOW INCOME IS GENERATED'
+            question_text: 'SPECIFY HOW INCOME IS GENERATED',
+            question_label: 'Income Generation Method'
           },
           'otherIncomeType' => {
             limit: 73,
             question_num: 6,
             question_suffix: '(3)',
             question_text: 'INCOME TYPE OTHER',
-            key: "F[0].OtherIncomeGenerationMethod6[#{ITERATOR}]"
+            key: "F[0].OtherIncomeGenerationMethod6[#{ITERATOR}]",
+            question_label: 'Income Type'
           },
           # Q4
           'grossMonthlyIncome' => {
@@ -69,9 +76,11 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 6,
             question_suffix: '(4)',
-            question_text: 'GROSS MONTHLY INCOME'
+            question_text: 'GROSS MONTHLY INCOME',
+            question_label: 'Gross Monthly Income'
           },
           # Q5
           'fairMarketValue' => {
@@ -89,9 +98,11 @@ module IncomeAndAssets
             }
           },
           'fairMarketValueOverflow' => {
+            dollar: true,
             question_num: 6,
             question_suffix: '(5)',
-            question_text: 'SPECIFY FAIR MARKET VALUE OF THIS ASSET'
+            question_text: 'SPECIFY FAIR MARKET VALUE OF THIS ASSET',
+            question_label: 'Fair Market Value'
           },
           # Q6
           'canBeSold' => {
@@ -100,7 +111,8 @@ module IncomeAndAssets
           'canBeSoldOverflow' => {
             question_num: 6,
             question_suffix: '(6)',
-            question_text: 'CAN THIS ASSET BE SOLD?'
+            question_text: 'CAN THIS ASSET BE SOLD?',
+            question_label: 'Can Be Sold'
           },
           # Q7
           'mitigatingCircumstances' => {
@@ -108,7 +120,8 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(7)',
             question_text: 'EXPLAIN ANY MITIGATING CIRCUMSTANCES THAT PREVENT THE SALE OF THIS ASSET',
-            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]"
+            key: "F[0].MitigatingCircumstances6[#{ITERATOR}]",
+            question_label: 'Mitigating Circumstances'
           }
         }
       }.freeze
@@ -150,9 +163,9 @@ module IncomeAndAssets
           'incomeGenerationMethod' => IncomeAndAssets::Constants::INCOME_GENERATION_TYPES[income_type],
           'incomeGenerationMethodOverflow' => income_type,
           'grossMonthlyIncome' => split_currency_amount_sm(gross_monthly_income),
-          'grossMonthlyIncomeOverflow' => number_to_currency(gross_monthly_income),
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
           'fairMarketValue' => split_currency_amount_lg(fair_market_value),
-          'fairMarketValueOverflow' => number_to_currency(fair_market_value),
+          'fairMarketValueOverflow' => fair_market_value,
           'canBeSold' => item['canBeSold'] ? 0 : 1,
           'canBeSoldOverflow' => item['canBeSold']
         }

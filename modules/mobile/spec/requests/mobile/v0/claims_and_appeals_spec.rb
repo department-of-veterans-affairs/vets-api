@@ -5,6 +5,7 @@ require_relative '../../../support/helpers/committee_helper'
 
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
+require 'lighthouse/benefits_documents/service'
 
 RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   include CommitteeHelper
@@ -515,6 +516,193 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
             end.to change(claim, :updated_at)
           end
         end
+      end
+    end
+  end
+
+  describe 'GET /v0/claim-letter/documents' do
+    let!(:user) { sis_user }
+
+    describe 'with working upstream service with' do
+      context 'and a user with documents' do
+        let!(:response_body) do
+          {
+            data: {
+              documents: [
+                {
+                  docTypeId: '702',
+                  subject: 'foo',
+                  documentUuid: '73CD7B28-F695-4337-BBC1-2443A913ACF6',
+                  originalFileName: 'SupportingDocument.pdf',
+                  documentTypeLabel: 'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
+                  trackedItemId: 600_000_001,
+                  uploadedDateTime: '2024-09-13T17:51:56Z'
+                }, {
+                  docTypeId: '45',
+                  subject: 'bar ',
+                  documentUuid: 'EF7BF420-7E49-4FA9-B14C-CE5F6225F615',
+                  originalFileName: 'SupportingDocument.pdf',
+                  documentTypeLabel: 'Military Personnel Record',
+                  trackedItemId: 600_000_002,
+                  uploadedDateTime: '2024-09-13T178:32:24Z'
+                }
+              ]
+            }
+          }
+        end
+
+        let!(:claim_letter_doc_response) do
+          { 'data' => [{ 'id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'type' => 'claim_letter_document',
+                         'attributes' => { 'docType' => '702',
+                                           'typeDescription' =>
+                                             'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
+                                           'receivedAt' => '2024-09-13T17:51:56Z' } },
+                       { 'id' => '{EF7BF420-7E49-4FA9-B14C-CE5F6225F615}', 'type' => 'claim_letter_document',
+                         'attributes' => { 'docType' => '45',
+                                           'typeDescription' => 'Military Personnel Record',
+                                           'receivedAt' => '2024-09-13T178:32:24Z' } }] }
+        end
+
+        before do
+          benefits_document_service_double = double
+          expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
+          expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(
+            Faraday::Response.new(
+              status: 200, body: response_body.as_json
+            )
+          )
+        end
+
+        it 'and a result that matches our schema is successfully returned with the 200 status' do
+          get '/mobile/v0/claim-letter/documents', headers: sis_headers
+          assert_schema_conform(200)
+          expect(response.parsed_body).to eq(claim_letter_doc_response)
+        end
+      end
+
+      context 'and a user without documents' do
+        let!(:response_body) do
+          { data: {} }
+        end
+
+        let!(:claim_letter_doc_response) do
+          { 'data' => [] }
+        end
+
+        before do
+          benefits_document_service_double = double
+          expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
+          expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(
+            Faraday::Response.new(
+              status: 200, body: response_body.as_json
+            )
+          )
+        end
+
+        it 'and a result that matches our schema is successfully returned with the 200 status' do
+          get '/mobile/v0/claim-letter/documents', headers: sis_headers
+          assert_schema_conform(200)
+          expect(response.parsed_body).to eq(claim_letter_doc_response)
+        end
+      end
+    end
+
+    context 'with an error from upstream' do
+      let(:bad_request_error) do
+        Faraday::BadRequestError.new(
+          status: 400,
+          headers: {
+            'content-type' => 'application/json'
+          },
+          body: {
+            'errors' => [{
+              'status' => 400,
+              'title' => 'Invalid field value',
+              'detail' => 'Code must match \"^[A-Z]{2}$\"'
+            }]
+          }
+        )
+      end
+
+      before do
+        allow_any_instance_of(BenefitsDocuments::Configuration)
+          .to receive(:claim_letters_search).and_raise(bad_request_error)
+      end
+
+      it 'returns expected error' do
+        get '/mobile/v0/claim-letter/documents', headers: sis_headers
+
+        assert_schema_conform(400)
+        expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Invalid field value',
+                                                            'detail' => 'Code must match \"^[A-Z]{2}$\"',
+                                                            'code' => '400',
+                                                            'status' => '400' }] })
+      end
+    end
+  end
+
+  describe 'POST /v0/claim-letter/documents/:document_id/download' do
+    let!(:user) { sis_user }
+
+    context 'with working upstream service' do
+      let(:document_uuid) { '93631483-E9F9-44AA-BB55-3552376400D8' }
+      let(:content) { File.read('spec/fixtures/files/error_message.txt') }
+
+      before do
+        benefits_document_service_double = double
+        expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
+        expect(benefits_document_service_double)
+          .to receive(:claim_letter_download).with(
+            document_uuid:,
+            participant_id: user.participant_id
+          ).and_return(
+            Faraday::Response.new(
+              status: 200, body: content
+            )
+          )
+      end
+
+      it 'returns expected document' do
+        post "/mobile/v0/claim-letter/documents/#{CGI.escape("{#{document_uuid}}")}/download",
+             params: { file_name: 'test' },
+             headers: sis_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to eq(content)
+        expect(response.headers['Content-Disposition']).to eq("attachment; filename=\"test\"; filename*=UTF-8''test")
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+    end
+
+    context 'with an error from upstream' do
+      let(:bad_request_error) do
+        Faraday::BadRequestError.new(
+          status: 400,
+          headers: {
+            'content-type' => 'application/json'
+          },
+          body: {
+            'errors' => [{
+              'status' => 400,
+              'title' => 'Invalid field value',
+              'detail' => 'Code must match \"^[A-Z]{2}$\"'
+            }]
+          }
+        )
+      end
+
+      before do
+        allow_any_instance_of(BenefitsDocuments::Configuration)
+          .to receive(:claim_letter_download).and_raise(bad_request_error)
+      end
+
+      it 'returns expected error' do
+        post '/mobile/v0/claim-letter/documents/123/download', params: { file_name: 'test' }, headers: sis_headers
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Invalid field value',
+                                                            'detail' => 'Code must match \"^[A-Z]{2}$\"',
+                                                            'code' => '400',
+                                                            'status' => '400' }] })
       end
     end
   end

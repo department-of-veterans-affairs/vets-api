@@ -52,7 +52,7 @@
   "cohabitedLastYear": true,
   "spouseDateOfBirth": "1970-04-21",
   "spouseSocialSecurityNumber": "666112121",
-  "veteranContacts": [
+  "nextOfKins": [
     {
       "fullName": {
         "first": "MARY",
@@ -72,6 +72,25 @@
       "relationship": "DAUGHTER",
       "contactType": "Other Next of Kin"
     },
+    {
+      "fullName": {
+        "first": "JANE",
+        "last": "BISHOP"
+      },
+      "primaryPhone": "2023946688",
+      "address": {
+        "street": "823 SE 2ND ST",
+        "street2": "BLDG 2",
+        "street3": "UNIT 163",
+        "city": "GUADALAJARA",
+        "country": "MEX",
+        "postalCode": "44100"
+      },
+      "relationship": "MOTHER",
+      "contactType": "Primary Next of Kin"
+    }
+  ],
+  "emergencyContacts": [
     {
       "fullName": {
         "first": "DEBORAH",
@@ -105,23 +124,6 @@
       },
       "relationship": "BROTHER",
       "contactType": "Emergency Contact"
-    },
-    {
-      "fullName": {
-        "first": "JANE",
-        "last": "BISHOP"
-      },
-      "primaryPhone": "2023946688",
-      "address": {
-        "street": "823 SE 2ND ST",
-        "street2": "BLDG 2",
-        "street3": "UNIT 163",
-        "city": "GUADALAJARA",
-        "country": "MEX",
-        "postalCode": "44100"
-      },
-      "relationship": "MOTHER",
-      "contactType": "Primary Next of Kin"
     }
   ],
   "nonPrefill": {

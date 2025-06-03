@@ -12,7 +12,6 @@ describe Eps::ProviderService do
   before do
     allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow(service).to receive_messages(config:, headers:)
-    allow(service).to receive(:log_response)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)
@@ -354,47 +353,10 @@ describe Eps::ProviderService do
             .and_return(response)
         end
 
-        it 'returns an OpenStruct with the matching provider' do
+        it 'returns an OpenStruct with the first provider' do
           result = service.search_provider_services(npi:)
           expect(result).to be_a(OpenStruct)
           expect(result.id).to eq('53mL4LAZ')
-        end
-      end
-
-      context 'when no provider with matching NPI exists' do
-        let(:response_body) do
-          {
-            count: 1,
-            providerServices: [
-              {
-                id: '53mL4LAZ',
-                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
-                isActive: true,
-                individualProviders: [
-                  {
-                    name: 'Dr. Monty Graciano',
-                    npi: '1234567890' # Different NPI
-                  }
-                ]
-              }
-            ]
-          }
-        end
-
-        let(:response) do
-          double('Response', status: 200, body: response_body,
-                             response_headers: { 'Content-Type' => 'application/json' })
-        end
-
-        before do
-          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
-            .and_return(response)
-        end
-
-        it 'returns nil' do
-          result = service.search_provider_services(npi:)
-          expect(result).to be_nil
         end
       end
 
@@ -402,7 +364,7 @@ describe Eps::ProviderService do
         let(:response_body) do
           {
             count: 0,
-            providerServices: []
+            provider_services: []
           }
         end
 

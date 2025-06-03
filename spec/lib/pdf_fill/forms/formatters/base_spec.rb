@@ -39,4 +39,32 @@ describe PdfFill::Forms::Formatters::Base do
       end
     end
   end
+
+  describe '#format_facility_label' do
+    subject(:format_facility_label) do
+      described_class.format_facility_label(value)
+    end
+
+    before do
+      create(:health_facility, name: 'VA Facility Name',
+                               station_number: '100',
+                               postal_name: 'OH')
+    end
+
+    context 'value is not in health_facilities table' do
+      let(:value) { '99' }
+
+      it 'returns the value' do
+        expect(format_facility_label).to eq '99'
+      end
+    end
+
+    context 'value is in health_facilities table' do
+      let(:value) { '100' }
+
+      it 'returns facility id and facility name' do
+        expect(format_facility_label).to eq '100 - VA Facility Name'
+      end
+    end
+  end
 end
