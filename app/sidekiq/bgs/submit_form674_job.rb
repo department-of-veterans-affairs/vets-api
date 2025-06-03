@@ -30,7 +30,8 @@ module BGS
     end
 
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
-      monitor(saved_claim_id).track_event('info', 'BGS::SubmitForm674Job running!', "#{STATS_KEY}.begin")
+      @monitor = init_monitor(saved_claim_id)
+      @monitor.track_event('info', 'BGS::SubmitForm674Job running!', "#{STATS_KEY}.begin")
       instance_params(encrypted_vet_info, icn, encrypted_user_struct_hash, user_uuid, saved_claim_id)
 
       submit_form
@@ -131,7 +132,7 @@ module BGS
       )
     end
 
-    def monitor(saved_claim_id)
+    def init_monitor(saved_claim_id)
       @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
     end
   end

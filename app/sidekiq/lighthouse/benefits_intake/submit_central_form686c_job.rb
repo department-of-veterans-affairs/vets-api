@@ -43,8 +43,9 @@ module Lighthouse
       def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
         vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
         user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
-        monitor(saved_claim_id).track_event('info', 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!',
-                                            "#{STATSD_KEY_PREFIX}.begin")
+        @monitor = init_monitor(saved_claim_id)
+        @monitor.track_event('info', 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!',
+                             "#{STATSD_KEY_PREFIX}.begin")
         # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
         # have to re-find the claim and add the relevant veteran info
         @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
@@ -315,7 +316,7 @@ module Lighthouse
         { file: path, file_name: path.split('/').last }
       end
 
-      def monitor(saved_claim_id)
+      def init_monitor(saved_claim_id)
         @monitor ||= Dependents::Monitor.new(saved_claim_id)
       end
     end

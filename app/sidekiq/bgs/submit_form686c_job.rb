@@ -32,7 +32,8 @@ module BGS
 
     # method length lint disabled because this will be cut in half when flipper is removed
     def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info) # rubocop:disable Metrics/MethodLength
-      monitor(saved_claim_id).track_event('info', 'BGS::SubmitForm686cJob running!', "#{STATS_KEY}.begin")
+      @monitor = init_monitor(saved_claim_id)
+      @monitor.track_event('info', 'BGS::SubmitForm686cJob running!', "#{STATS_KEY}.begin")
       instance_params(encrypted_vet_info, icn, user_uuid, saved_claim_id)
 
       if Flipper.enabled?(:dependents_separate_confirmation_email)
@@ -160,7 +161,7 @@ module BGS
       )
     end
 
-    def monitor(saved_claim_id)
+    def init_monitor(saved_claim_id)
       @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
     end
   end

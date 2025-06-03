@@ -41,7 +41,8 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      monitor(claim&.id).track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
+      @monitor = init_monitor(claim&.id)
+      @monitor.track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
 
@@ -71,7 +72,7 @@ module BGS
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
-      monitor(claim&.id)
+      @monitor = init_monitor(claim&.id)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
         # TODO: implement upload using the claims_evidence_api module
         @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
@@ -170,7 +171,7 @@ module BGS
       }
     end
 
-    def monitor(saved_claim_id)
+    def init_monitor(saved_claim_id)
       @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
     end
   end
