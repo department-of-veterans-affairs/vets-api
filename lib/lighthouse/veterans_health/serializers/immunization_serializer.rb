@@ -13,39 +13,58 @@ module Lighthouse
         def self.from_fhir(resource)
           return nil if resource.nil?
 
+          immunization = create_base_immunization(resource)
+          immunization.attributes = build_immunization_attributes(resource)
+          immunization.relationships = build_relationships(resource)
+
+          immunization
+        end
+
+        # Creates a basic Immunization object with id and type
+        #
+        # @param resource [Hash] the FHIR Immunization resource
+        # @return [Lighthouse::VeteransHealth::Models::Immunization] the base immunization object
+        def self.create_base_immunization(resource)
           immunization = Lighthouse::VeteransHealth::Models::Immunization.new
           immunization.id = resource['id']
           immunization.type = 'immunization'
+          immunization
+        end
 
-          # Create attributes object
-          immunization_attributes = Lighthouse::VeteransHealth::Models::ImmunizationAttributes.new
-          immunization_attributes.cvx_code = extract_cvx_code(resource.dig('vaccineCode', 'coding'))
-          immunization_attributes.date = parse_datetime(resource['occurrenceDateTime'])
-          immunization_attributes.dose_number = extract_dose_number(resource['protocolApplied'])
-          immunization_attributes.dose_series = extract_dose_series(resource['protocolApplied'])
-          immunization_attributes.group_name = extract_group_name(resource.dig('vaccineCode', 'text'))
-          immunization_attributes.manufacturer = resource.dig('manufacturer', 'display')
-          immunization_attributes.note = parse_notes(resource['note'])
-          immunization_attributes.reaction = parse_reaction(resource['reaction'])
-          immunization_attributes.short_description = resource.dig('vaccineCode', 'text')
+        # Builds the attributes object for an immunization
+        #
+        # @param resource [Hash] the FHIR Immunization resource
+        # @return [Lighthouse::VeteransHealth::Models::ImmunizationAttributes] the populated attributes
+        def self.build_immunization_attributes(resource)
+          attrs = Lighthouse::VeteransHealth::Models::ImmunizationAttributes.new
+          attrs.cvx_code = extract_cvx_code(resource.dig('vaccineCode', 'coding'))
+          attrs.date = parse_datetime(resource['occurrenceDateTime'])
+          attrs.dose_number = extract_dose_number(resource['protocolApplied'])
+          attrs.dose_series = extract_dose_series(resource['protocolApplied'])
+          attrs.group_name = extract_group_name(resource.dig('vaccineCode', 'text'))
+          attrs.manufacturer = resource.dig('manufacturer', 'display')
+          attrs.note = parse_notes(resource['note'])
+          attrs.reaction = parse_reaction(resource['reaction'])
+          attrs.short_description = resource.dig('vaccineCode', 'text')
+          attrs
+        end
 
-          # Set attributes to immunization
-          immunization.attributes = immunization_attributes
-
-          # Create relationships hash for location
+        # Builds the relationships hash for an immunization
+        #
+        # @param resource [Hash] the FHIR Immunization resource
+        # @return [Hash, nil] the relationships hash or nil if no relationships
+        def self.build_relationships(resource)
           location_id = extract_location_id(resource['location'])
-          if location_id
-            immunization.relationships = {
-              location: {
-                data: {
-                  id: location_id,
-                  type: 'location'
-                }
+          return nil unless location_id
+
+          {
+            location: {
+              data: {
+                id: location_id,
+                type: 'location'
               }
             }
-          end
-
-          immunization
+          }
         end
 
         # Processes an array of FHIR Immunization resources
@@ -73,14 +92,14 @@ module Lighthouse
         end
 
         def self.extract_cvx_code(codings)
-          return nil if codings.nil? || codings.empty?
+          return nil if codings.blank?
 
           cvx_coding = codings.find { |coding| coding['system'] == 'http://hl7.org/fhir/sid/cvx' }
           cvx_coding&.dig('code')&.to_i
         end
 
         def self.extract_dose_number(protocol_applied)
-          return nil if protocol_applied.nil? || protocol_applied.empty?
+          return nil if protocol_applied.blank? || protocol_applied.empty?
 
           dose_string = protocol_applied.first&.dig('doseNumberString')
           return nil unless dose_string
@@ -90,7 +109,7 @@ module Lighthouse
         end
 
         def self.extract_dose_series(protocol_applied)
-          return nil if protocol_applied.nil? || protocol_applied.empty?
+          return nil if protocol_applied.blank?
 
           dose_string = protocol_applied.first&.dig('doseNumberString')
           return nil unless dose_string
@@ -117,7 +136,7 @@ module Lighthouse
         end
 
         def self.parse_reaction(reactions)
-          return nil if reactions.nil? || reactions.empty?
+          return nil if reactions.blank?
 
           reactions.map do |reaction|
             reaction.dig('detail', 'display')
@@ -125,9 +144,9 @@ module Lighthouse
         end
 
         def self.parse_notes(notes)
-          return nil if notes.nil? || notes.empty?
+          return nil if notes.blank?
 
-          notes.map { |note| note['text'] }.compact.join('. ')
+          notes.pluck('text').compact.join('. ')
         end
 
         def self.extract_location_id(location)
