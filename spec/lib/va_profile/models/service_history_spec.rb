@@ -15,8 +15,10 @@ describe VAProfile::Models::ServiceHistory do
     }'
   end
 
+  let(:user) { build(:user) }
+
   before do
-    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+    allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(false) # rubocop:disable Naming/VariableNumber
   end
 
   context 'when service history json is present' do
@@ -53,15 +55,11 @@ describe VAProfile::Models::ServiceHistory do
   describe '#determing_eligibility' do
     context 'when vet_status_stage_1 is enabled' do
       before do
-        Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-      end
-
-      after do
-        Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+        allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
       end
 
       it 'returns not eligible with service history missing characterOfDischargeCode' do
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED,
@@ -78,7 +76,7 @@ describe VAProfile::Models::ServiceHistory do
           "period_of_service_type_text": "National Guard member",
           "character_of_discharge_code":"D"
         }'
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED,
@@ -95,13 +93,13 @@ describe VAProfile::Models::ServiceHistory do
           "period_of_service_type_text": "National Guard member",
           "character_of_discharge_code":"A"
         }'
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: true, message: [], title: '', status: '' })
       end
 
       it 'returns problem message with no service history' do
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([], user)
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED,
                                     title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
@@ -117,7 +115,7 @@ describe VAProfile::Models::ServiceHistory do
           "period_of_service_type_text": "National Guard member",
           "character_of_discharge_code":"Z"
         }'
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED,
@@ -128,7 +126,7 @@ describe VAProfile::Models::ServiceHistory do
 
     context 'when vet_status_stage_1 is disabled' do
       it 'returns not eligible with service history missing characterOfDischargeCode' do
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
@@ -145,7 +143,7 @@ describe VAProfile::Models::ServiceHistory do
           "period_of_service_type_text": "National Guard member",
           "character_of_discharge_code":"D"
         }'
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
@@ -162,13 +160,13 @@ describe VAProfile::Models::ServiceHistory do
           "period_of_service_type_text": "National Guard member",
           "character_of_discharge_code":"A"
         }'
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: true, message: [], title: '', status: '' })
       end
 
       it 'returns problem message with no service history' do
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([], user)
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
                                     title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
@@ -184,7 +182,7 @@ describe VAProfile::Models::ServiceHistory do
           "period_of_service_type_text": "National Guard member",
           "character_of_discharge_code":"Z"
         }'
-        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)], user)
 
         expect(eligibility).to eq({ confirmed: false,
                                     message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,

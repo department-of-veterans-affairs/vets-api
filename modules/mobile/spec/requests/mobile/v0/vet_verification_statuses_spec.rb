@@ -9,7 +9,7 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
   before do
     sign_in_as(user)
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
-    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+    allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(false) # rubocop:disable Naming/VariableNumber
   end
 
   describe '#show' do
@@ -69,11 +69,7 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
 
       context 'when vet_status_stage_1 is enabled' do
         before do
-          Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
-        end
-
-        after do
-          Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+          allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(true) # rubocop:disable Naming/VariableNumber
         end
 
         it 'returns a person_not_found reason' do
@@ -91,6 +87,10 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
       end
 
       context 'when vet_status_stage_1 is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(false) # rubocop:disable Naming/VariableNumber
+        end
+
         it 'returns a person_not_found reason' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
             get '/mobile/v0/vet_verification_status', headers: sis_headers

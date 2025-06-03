@@ -14,7 +14,9 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
 
     before do
       sign_in(user)
-      Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+      allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(false) # rubocop:disable Naming/VariableNumber
+      # Flipper.disable(:vet_status_stage_1, user)
+      # Flipper.disable(:vet_status_stage_1)
     end
 
     # The following provides a description of the different termination reason codes:
@@ -24,6 +26,11 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
     # •	"W" Not Applicable
 
     context 'when successful' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(false) # rubocop:disable Naming/VariableNumber
+        # Flipper.disable(:vet_status_stage_1, user)
+      end
+
       it 'matches the service history schema' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           get '/v0/profile/service_history'
