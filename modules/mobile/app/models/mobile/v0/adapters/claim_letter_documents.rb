@@ -5,7 +5,8 @@ module Mobile
     module Adapters
       class ClaimLetterDocuments
         def self.parse(documents_response)
-          return [] unless documents_response
+          # Benefits Documents Service will pass back an empty data object if no documents are present
+          return [] if documents_response['data'].empty?
 
           documents = documents_response.dig('data', 'documents')
 

@@ -170,4 +170,266 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
   end
+
+  describe 'validation logic' do
+    let(:reloader) { Veteran::VSOReloader.new }
+
+    before do
+      # Create existing representatives and organizations with unique IDs
+      100.times { |i| create(:veteran_representative, representative_id: "ATT#{i}", user_types: ['attorney']) }
+      50.times { |i| create(:veteran_representative, representative_id: "CA#{i}", user_types: ['claim_agents']) }
+      75.times do |i|
+        create(:veteran_representative, representative_id: "VSO#{i}", user_types: ['veteran_service_officer'])
+      end
+      create_list(:organization, 20)
+
+      # Create previous accreditation total
+      Veteran::AccreditationTotal.create!(
+        attorneys: 100,
+        claims_agents: 50,
+        vso_representatives: 75,
+        vso_organizations: 20,
+        created_at: 1.day.ago
+      )
+    end
+
+    describe '#valid_count?' do
+      before { reloader.send(:ensure_initial_counts) }
+
+      it 'allows updates when count increases' do
+        expect(reloader.send(:valid_count?, :attorneys, 110)).to be true
+      end
+
+      it 'allows updates when count stays the same' do
+        expect(reloader.send(:valid_count?, :attorneys, 100)).to be true
+      end
+
+      it 'blocks updates when decrease exceeds threshold' do
+        # 75 attorneys is a 25% decrease, which exceeds 20% threshold
+        expect(SlackNotify::Client).to receive(:new).with(
+          hash_including(channel: '#benefits-representation-management-notifications')
+        ).and_return(double(notify: true))
+        expect(reloader.send(:valid_count?, :attorneys, 75)).to be false
+      end
+
+      it 'allows updates when decrease is within threshold' do
+        # 85 attorneys is a 15% decrease, which is within 20% threshold
+        expect(reloader.send(:valid_count?, :attorneys, 85)).to be true
+      end
+
+      context 'with no previous count' do
+        before do
+          Veteran::AccreditationTotal.destroy_all
+        end
+
+        it 'allows any count when no history exists' do
+          # Create a fresh reloader instance with mocked initial counts
+          fresh_reloader = Veteran::VSOReloader.new
+          allow(fresh_reloader).to receive(:fetch_initial_counts).and_return({
+                                                                               attorneys: 0,
+                                                                               claims_agents: 0,
+                                                                               vso_representatives: 0,
+                                                                               vso_organizations: 0
+                                                                             })
+          fresh_reloader.send(:ensure_initial_counts)
+
+          allow_any_instance_of(SlackNotify::Client).to receive(:notify)
+          expect(fresh_reloader.send(:valid_count?, :attorneys, 50)).to be true
+        end
+      end
+
+      context 'with no stored count for a type' do
+        before do
+          # Create a record with no attorney count (simulating first run or after reset)
+          Veteran::AccreditationTotal.create!(
+            attorneys: nil,
+            claims_agents: 50,
+            vso_representatives: 75,
+            vso_organizations: 20,
+            created_at: 1.hour.ago
+          )
+        end
+
+        it 'uses the current count from the database when no previous value exists' do
+          # Should use the initial count from the database since the latest record has nil
+          initial_counts = reloader.instance_variable_get(:@initial_counts)
+          expect(reloader.send(:get_previous_count, :attorneys)).to eq initial_counts[:attorneys]
+        end
+      end
+    end
+
+    describe '#notify_threshold_exceeded' do
+      before { reloader.send(:ensure_initial_counts) }
+
+      it 'sends notification to the correct Slack channel' do
+        expect(SlackNotify::Client).to receive(:new).with(
+          hash_including(
+            webhook_url: Settings.claims_api.slack.webhook_url,
+            channel: '#benefits-representation-management-notifications',
+            username: 'VSOReloader'
+          )
+        ).and_return(double(notify: true))
+
+        reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.20)
+      end
+
+      it 'logs to Sentry' do
+        expect(SlackNotify::Client).to receive(:new).with(
+          hash_including(channel: '#benefits-representation-management-notifications')
+        ).and_return(double(notify: true))
+
+        expect(reloader).to receive(:log_message_to_sentry).with(
+          'VSO Reloader threshold exceeded for attorneys',
+          :warn,
+          hash_including(previous_count: 100, new_count: 70, decrease_percentage: 0.30)
+        )
+        reloader.send(:notify_threshold_exceeded, :attorneys, 100, 70, 0.30, 0.20)
+      end
+    end
+
+    describe '#save_accreditation_totals' do
+      before do
+        reloader.send(:ensure_initial_counts)
+        reloader.instance_variable_set(:@validation_results, {
+                                         attorneys: 95,
+                                         claims_agents: nil, # This one failed validation
+                                         vso_representatives: 70,
+                                         vso_organizations: 19
+                                       })
+      end
+
+      it 'creates a new AccreditationTotal record with validation results' do
+        expect { reloader.send(:save_accreditation_totals) }.to change(Veteran::AccreditationTotal, :count).by(1)
+
+        total = Veteran::AccreditationTotal.last
+        expect(total.attorneys).to eq 95
+        expect(total.claims_agents).to be_nil
+        expect(total.vso_representatives).to eq 70
+        expect(total.vso_organizations).to eq 19
+      end
+    end
+
+    describe 'full perform cycle with validation' do
+      before { reloader.send(:ensure_initial_counts) }
+
+      context 'when all counts pass validation' do
+        it 'updates all representative types' do
+          VCR.use_cassette('veteran/ogc_poa_data') do
+            # Mock validation to always pass and set the validation results
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
+              instance.instance_variable_get(:@validation_results)[rep_type] = new_count
+              true
+            end
+
+            expect { reloader.perform }.to change(Veteran::AccreditationTotal, :count).by(1)
+
+            total = Veteran::AccreditationTotal.last
+            expect(total.attorneys).to be_present
+            expect(total.claims_agents).to be_present
+            expect(total.vso_representatives).to be_present
+            expect(total.vso_organizations).to be_present
+          end
+        end
+      end
+
+      context 'when some counts fail validation' do
+        it 'only updates types that pass validation' do
+          VCR.use_cassette('veteran/ogc_poa_data') do
+            # Mock validation with proper result setting
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
+              if rep_type == :attorneys
+                instance.instance_variable_get(:@validation_results)[rep_type] = nil
+                false
+              else
+                instance.instance_variable_get(:@validation_results)[rep_type] = new_count
+                true
+              end
+            end
+
+            # Don't expect the Slack notification since we're mocking valid_count? entirely
+
+            reloader.perform
+
+            total = Veteran::AccreditationTotal.last
+            expect(total.attorneys).to be_nil
+            expect(total.claims_agents).to be_present
+            expect(total.vso_representatives).to be_present
+            expect(total.vso_organizations).to be_present
+          end
+        end
+      end
+
+      context 'when VSO representative or organization count fails validation' do
+        it 'skips processing both VSO reps and orgs to maintain data integrity' do
+          VCR.use_cassette('veteran/ogc_poa_data') do
+            # Mock validation to fail for VSO organizations only
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
+              if rep_type == :vso_organizations
+                # Simulate organization count failing validation
+                instance.instance_variable_get(:@validation_results)[rep_type] = nil
+                false
+              else
+                # All other types pass validation (including VSO representatives)
+                instance.instance_variable_get(:@validation_results)[rep_type] = new_count
+                true
+              end
+            end
+
+            # Expect that VSO representatives are NOT deleted even though their count passed validation
+            # because the organization count failed
+            initial_vso_rep_count = Veteran::Service::Representative
+                                    .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
+                                    .count
+            initial_org_count = Veteran::Service::Organization.count
+
+            reloader.perform
+
+            # Both VSO reps and orgs should remain unchanged
+            expect(Veteran::Service::Representative
+                    .where("'#{Veteran::VSOReloader::USER_TYPE_VSO}' = ANY(user_types)")
+                    .count).to eq initial_vso_rep_count
+            expect(Veteran::Service::Organization.count).to eq initial_org_count
+
+            # Check the saved totals
+            total = Veteran::AccreditationTotal.last
+            expect(total.vso_representatives).to be_present
+            expect(total.vso_organizations).to be_nil
+          end
+        end
+      end
+
+      context 'when manual reprocessing occurs' do
+        it 'saves all counts in AccreditationTotal, not just manually processed types' do
+          VCR.use_cassette('veteran/ogc_poa_data') do
+            # Simulate manual reprocessing of only attorneys (like the rake task does)
+            # by having validation pass only for attorneys
+            allow_any_instance_of(Veteran::VSOReloader).to receive(:valid_count?) do |instance, rep_type, new_count|
+              if rep_type == :attorneys
+                instance.instance_variable_get(:@validation_results)[rep_type] = new_count
+                true
+              else
+                # Don't add other types to validation_results at all
+                # This simulates them not being processed
+                false
+              end
+            end
+
+            # Override reload methods to simulate only attorneys being processed
+            allow(reloader).to receive_messages(reload_claim_agents: [], reload_vso_reps: [])
+
+            reloader.perform
+
+            # Check that the saved total has all counts, not just attorneys
+            total = Veteran::AccreditationTotal.last
+            expect(total.attorneys).to be_present
+            # These should have current counts from the database, not nil
+            initial_counts = reloader.instance_variable_get(:@initial_counts)
+            expect(total.claims_agents).to eq(initial_counts[:claims_agents])
+            expect(total.vso_representatives).to eq(initial_counts[:vso_representatives])
+            expect(total.vso_organizations).to eq(initial_counts[:vso_organizations])
+          end
+        end
+      end
+    end
+  end
 end
