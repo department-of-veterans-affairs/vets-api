@@ -172,7 +172,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     let(:notification) do
       create(
         :power_of_attorney_request_notification,
-        type: 'enqueue_failed_claimant',
+        type: 'enqueue_failed_for_claimant',
         power_of_attorney_request: poa_request
       )
     end
@@ -205,7 +205,6 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     end
   end
 
-
   describe 'FailedRep subclass' do
     let(:organization) { create(:organization, name: 'Org Name') }
     let(:individual) { create(:representative) }
@@ -227,7 +226,7 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
     let(:notification) do
       create(
         :power_of_attorney_request_notification,
-        type: 'enqueue_failed_rep',
+        type: 'enqueue_failed_for_representative',
         power_of_attorney_request: poa_request
       )
     end

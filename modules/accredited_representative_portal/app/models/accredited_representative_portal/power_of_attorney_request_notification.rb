@@ -3,8 +3,9 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestNotification < ApplicationRecord
     self.inheritance_column = nil
-    PERMITTED_TYPES = %w[requested declined expiring expired enqueue_failed_claimant enqueue_failed_rep
-                         submission_failed_claimant submission_failed_rep].freeze
+    PERMITTED_TYPES = %w[requested declined expiring expired enqueue_failed_for_claimant
+                         enqueue_failed_for_representative submission_failed_for_claimant
+                         submission_failed_for_representative].freeze
 
     belongs_to :power_of_attorney_request, class_name: 'PowerOfAttorneyRequest'
     belongs_to :va_notify_notification,
@@ -28,7 +29,7 @@ module AccreditedRepresentativePortal
     end
 
     def accredited_individual_email_address
-      if accredited_individual.present? && accredited_individual&.email.present?
+      if accredited_individual&.email.present?
         accredited_individual&.email
       else
         raise Common::Exceptions::InternalServerError, 'No representative email address found'
@@ -49,10 +50,10 @@ module AccreditedRepresentativePortal
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_warning_email
       when 'expired'
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_confirmation_email
-      when 'enqueue_failed_claimant' || 'submission_failed_claimant'
+      when 'enqueue_failed_for_claimant' || 'submission_failed_for_claimant'
         Settings.vanotify.services.va_gov.template_id
                 .accredited_representative_portal_poa_request_failure_claimant_email
-      when 'enqueue_failed_rep' || 'submission_failed_rep'
+      when 'enqueue_failed_for_representative' || 'submission_failed_for_representative'
         Settings.vanotify.services.va_gov.template_id
                 .accredited_representative_portal_poa_request_failure_rep_email
       end
