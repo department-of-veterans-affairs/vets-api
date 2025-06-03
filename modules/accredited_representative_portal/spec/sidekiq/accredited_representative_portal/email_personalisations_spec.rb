@@ -37,10 +37,10 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
                                                 }, power_of_attorney_request: poa_request)
 
         form = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyForm)
-        allow(form).to receive(:parsed_data).and_return({
-                                                          'veteran' => { 'name' => { 'first' => 'John',
-                                                                                     'last' => 'Doe' } }
-                                                        })
+        allow(form).to receive(:data).and_return({
+                                                   'veteran' => { 'name' => { 'first' => 'John',
+                                                                              'last' => 'Doe' } }
+                                                 })
 
         resolution = instance_double(AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution)
         allow(poa_request).to receive_messages(power_of_attorney_form: form, resolution:)
@@ -148,6 +148,115 @@ RSpec.describe AccreditedRepresentativePortal::EmailPersonalisations do
       accredited_organization_name = notification.accredited_organization.name.strip
       expected_name = "#{accredited_individual_name} accredited with #{accredited_organization_name}"
       expect(personalisation.send(:representative_name)).to eq(expected_name)
+    end
+  end
+
+  describe 'FailedClaimant subclass' do
+    let(:organization) { create(:organization, name: 'Org Name') }
+    let(:individual) { create(:representative) }
+
+    let(:poa_request) do
+      create(
+        :power_of_attorney_request,
+        id: 123,
+        accredited_organization: organization,
+        accredited_individual: individual,
+        power_of_attorney_holder_poa_code: organization.poa
+      )
+    end
+
+    let(:poa_form) do
+      poa_request.power_of_attorney_form
+    end
+
+    let(:notification) do
+      create(
+        :power_of_attorney_request_notification,
+        type: 'enqueue_failed_claimant',
+        power_of_attorney_request: poa_request
+      )
+    end
+
+    let(:personalisation) { described_class::FailedClaimant.new(notification) }
+
+    before do
+      allow(poa_form).to receive(:parsed_data).and_return({
+                                                            'veteran' => {
+                                                              'name' => { 'first' => 'Jane', 'last' => 'Doe' },
+                                                              'email' => 'jane@example.com'
+                                                            }
+                                                          })
+
+      AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
+    end
+
+    it 'returns the correct URL' do
+      result = personalisation.generate
+      expected_url = AccreditedRepresentativePortal::Engine
+                     .routes
+                     .url_helpers
+                     .v0_power_of_attorney_request_url(poa_request)
+      expect(result['poa_request_url']).to eq(expected_url)
+    end
+
+    it 'returns the first name' do
+      result = personalisation.generate
+      expect(result['first_name']).to eq('Jane')
+    end
+  end
+
+
+  describe 'FailedRep subclass' do
+    let(:organization) { create(:organization, name: 'Org Name') }
+    let(:individual) { create(:representative) }
+
+    let(:poa_request) do
+      create(
+        :power_of_attorney_request,
+        id: 123,
+        accredited_organization: organization,
+        accredited_individual: individual,
+        power_of_attorney_holder_poa_code: organization.poa
+      )
+    end
+
+    let(:poa_form) do
+      poa_request.power_of_attorney_form
+    end
+
+    let(:notification) do
+      create(
+        :power_of_attorney_request_notification,
+        type: 'enqueue_failed_rep',
+        power_of_attorney_request: poa_request
+      )
+    end
+
+    let(:personalisation) { described_class::FailedRep.new(notification) }
+
+    before do
+      allow(poa_form).to receive(:parsed_data).and_return({
+                                                            'veteran' => {
+                                                              'name' => { 'first' => 'Jane', 'last' => 'Doe' },
+                                                              'email' => 'jane@example.com'
+                                                            }
+                                                          })
+
+      AccreditedRepresentativePortal::Engine.routes.default_url_options[:host] = 'http://test.host'
+    end
+
+    it 'returns the correct URL' do
+      result = personalisation.generate
+      expected_url = AccreditedRepresentativePortal::Engine
+                     .routes
+                     .url_helpers
+                     .v0_power_of_attorney_request_url(poa_request)
+      expect(result['poa_request_url']).to eq(expected_url)
+    end
+
+    it 'returns the first name' do
+      result = personalisation.generate
+      expect(result['first_name']).to eq('Bob')
     end
   end
 end
