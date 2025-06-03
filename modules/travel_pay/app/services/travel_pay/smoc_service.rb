@@ -7,6 +7,24 @@ module TravelPay
       @user = user
     end
 
+    ##
+    # Submits a mileage-only claim to the Travel Pay API.
+    # @params:
+    #  {
+    #   appointment_date_time: datetime string ('2024-01-01T12:45:34.465Z'),
+    #   facility_station_number: string (i.e. facilityId),
+    #   appointment_name: string, **Optional - but will fail if passed an empty string
+    #   appointment_type: string, 'CompensationAndPensionExamination' || 'Other'
+    #   is_complete: boolean,
+    #  }
+    #
+    # @returns the claim ID and status
+    # {
+    #   'claimId' => string (UUID),
+    #   'status' => string ('Claim submitted' || 'Saved' || 'Incomplete'),
+    # }
+    #
+    #
     def submit_mileage_expense(params) # rubocop:disable Metrics/MethodLength
       Rails.logger.info(message: 'SMOC transaction START')
       claim = get_claim_id(params)
