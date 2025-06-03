@@ -9,7 +9,9 @@ module Accountable
 
     login_type = SAML::User::MHV_MAPPED_CSID if login_type == SAML::User::MHV_ORIGINAL_CSID
 
-    account_login_stats.update!("#{login_type}_at" => Time.zone.now, current_verification: verification_level)
+    account_login_stats.update!({ "#{login_type}_at" => Time.zone.now,
+                                  current_verification: verification_level,
+                                  user_account_id: @current_user.user_account_uuid })
   rescue => e
     log_error(e, account_login_stats: 'update_failed')
   end
