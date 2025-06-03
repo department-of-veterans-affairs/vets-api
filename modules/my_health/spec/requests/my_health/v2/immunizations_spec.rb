@@ -14,6 +14,11 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
 
   before do
     sign_in_as(current_user)
+    # Enable the feature toggle by default for most tests
+    allow(Flipper).to receive(:enabled?).with(
+      'mhv_medical_records_immunizations_v2_enabled', 
+      current_user
+    ).and_return(true)
   end
 
   describe 'GET /my_health/v2/medical_records/immunizations' do
@@ -122,6 +127,32 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           json_response = JSON.parse(response.body)
           expect(json_response['data']).to eq([])
         end
+      end
+      
+     
+    end
+
+    context 'when feature toggle is disabled' do
+      before do
+        # Override the default and disable the feature toggle
+        allow(Flipper).to receive(:enabled?).with(
+          'mhv_medical_records_immunizations_v2_enabled'
+        ).and_return(false)
+        
+        get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+      end
+        
+      it 'returns forbidden status' do
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'returns appropriate error message' do
+        json_response = JSON.parse(response.body)
+        expect(json_response).to have_key('errors')
+        expect(json_response['errors'].first).to include(
+          'title' => 'Feature Disabled',
+          'detail' => 'The immunizations feature is currently disabled'
+        )
       end
     end
   end

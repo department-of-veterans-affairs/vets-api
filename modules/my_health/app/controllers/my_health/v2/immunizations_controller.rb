@@ -12,6 +12,9 @@ module MyHealth
       service_tag 'mhv-medical-records'
 
       STATSD_KEY_PREFIX = 'api.my_health.immunizations'
+      FEATURE_TOGGLE = 'mhv_medical_records_immunizations_v2_enabled'
+
+      before_action :check_feature_toggle
 
       def index
         start_date = params[:start_date]
@@ -54,6 +57,18 @@ module MyHealth
 
        def client
         @client ||= Lighthouse::VeteransHealth::Client.new(current_user.icn) 
+      end
+      
+      def check_feature_toggle
+        unless Flipper.enabled?(FEATURE_TOGGLE)
+          error = {
+            title: 'Feature Disabled',
+            detail: 'The immunizations feature is currently disabled',
+            code: '403',
+            status: 403
+          }
+          render json: { errors: [error] }, status: :forbidden
+        end
       end
     end
   end
