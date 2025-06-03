@@ -16,9 +16,6 @@ module Pensions
 
       service_tag 'pension-application'
 
-      # StatsD prefix
-      STATSD_KEY_PREFIX = 'api.pension_claim.controller'
-
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
       def short_name
         'pension_claim'
@@ -114,7 +111,7 @@ module Pensions
 
         # Get an identifier associated with the user
         payload = get_user_identifier_for_bpds
-        if payload.nil?
+        if payload.nil? || (payload[:participant_id].blank? && payload[:file_number].blank?)
           Rails.logger.info('Pensions::V0::ClaimsController: No participant id/file number, skipping BPDS job')
           return
         end
@@ -132,68 +129,50 @@ module Pensions
       #
       # @return [Hash, nil] Returns a hash containing the participant id or file number, or nil
       def get_user_identifier_for_bpds
-        Rails.logger.info('Pensions::V0::ClaimsController: user association lookup for BPDS')
-
-        # user is LOA3 so we can use their ICN
+        # user is LOA3 so we can use MPI service to get the user's MPI profile
         if current_user&.loa3?
-          StatsD.increment("#{STATSD_KEY_PREFIX}.get_participant_id", tags: ['user_type:loa3'])
+          BPDS::Monitor.new.track_get_user_identifier('loa3')
 
+          # Get profile participant_id from MPI service
           response = MPI::Service.new.find_profile_by_identifier(identifier: current_user.icn,
                                                                  identifier_type: MPI::Constants::ICN)
           participant_id = response.profile&.participant_id
-          log_mpi_result(participant_id)
+          BPDS::Monitor.new.track_get_user_identifier_result('mpi', participant_id.present?)
 
           return { participant_id: }
         end
 
-        # user is LOA1
+        # user is LOA1 so we need to use BGS
         if current_user&.loa&.dig(:current).try(:to_i) == LOA::ONE
-          StatsD.increment("#{STATSD_KEY_PREFIX}.get_participant_id", tags: ['user_type:loa1'])
+          BPDS::Monitor.new.track_get_user_identifier('loa1')
           return get_participant_id_or_file_number_from_bgs
         end
 
-        # user is unauthenticated
-        StatsD.increment("#{STATSD_KEY_PREFIX}.get_participant_id", tags: ['user_type:unauthenticated'])
+        # user is unauthenticated so we need to use BGS
+        BPDS::Monitor.new.track_get_user_identifier('unauthenticated')
         get_participant_id_or_file_number_from_bgs
       end
 
       # Retrieves an identifier of the current user for association with a BDPS submission.
+      # This uses the BGS service to get the participant id or file number.
       #
       # @return [Hash, nil] Returns a hash containing the participant id or file number, or nil
       def get_participant_id_or_file_number_from_bgs
         return nil if current_user.nil?
 
+        # Get profile participant_id from BGS service
         response = BGS::People::Request.new.find_person_by_participant_id(user: current_user)
-        log_bgs_result(response.participant_id)
+        BPDS::Monitor.new.track_get_user_identifier_result('bgs', response.participant_id.present?)
 
         return { participant_id: response.participant_id } if response.participant_id.present?
 
+        # Get file_number as participant_id is not present
         file_number = response.file_number
-
-        Rails.logger.info('Pensions::V0::ClaimsController: Participant id not found in BGS response',
-                          has_file_number: file_number.present?)
+        BPDS::Monitor.new.track_get_user_identifier_file_number_result(file_number.present?)
 
         return { file_number: } if file_number.present?
 
         nil
-      end
-
-      # Logs and increments metrics to track MPI service response
-      #
-      # @param participant_id [String]
-      def log_mpi_result(participant_id)
-        Rails.logger.info('Pensions::V0::ClaimsController: Called MPI service for user to get participant_id',
-                          pid_present: participant_id.present?)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.result", tags: ["pid_present:#{participant_id.present?}"])
-      end
-
-      # Logs and increments metrics to track BGS service response
-      #
-      # @param participant_id [String]
-      def log_bgs_result(participant_id)
-        Rails.logger.info('Pensions::V0::ClaimsController: Called BGS service for user to get participant_id',
-                          pid_present: participant_id.present?)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.bgs.result", tags: ["pid_present:#{participant_id.present?}"])
       end
 
       # Filters out the parameters to form access.

@@ -104,5 +104,48 @@ module BPDS
         **additional_context
       )
     end
+
+    # track user type for user identifier lookup for BPDS
+    #
+    # @param user_type [String] the user type of the user
+    def track_get_user_identifier(user_type)
+      additional_context = { tags: ["user_type:#{user_type}"] }
+      track_request(
+        'info',
+        "Pensions::V0::ClaimsController: #{user_type} user identifier lookup for BPDS",
+        "#{STATSD_KEY_PREFIX}.get_participant_id",
+        call_location: caller_locations.first,
+        **additional_context
+      )
+    end
+
+    # track result of user identifier lookup for BPDS when checking for participant id
+    #
+    # @param service_name [String] the service name
+    # @param is_pid_present [Boolean] if the participant id is present in the response
+    def track_get_user_identifier_result(service_name, is_pid_present)
+      additional_context = { service_name:, tags: ["pid_present:#{is_pid_present}"] }
+      track_request(
+        'info',
+        "Pensions::V0::ClaimsController: #{service_name} service participant_id lookup result: #{is_pid_present}",
+        "#{STATSD_KEY_PREFIX}.get_participant_id.#{service_name}.result",
+        call_location: caller_locations.first,
+        **additional_context
+      )
+    end
+
+    # track result of user identifier lookup for BPDS when checking for file number
+    #
+    # @param is_file_number_present [Boolean] if the file number is present in the response
+    def track_get_user_identifier_file_number_result(is_file_number_present)
+      additional_context = { tags: ["file_number_present:#{is_file_number_present}"] }
+      track_request(
+        'info',
+        "Pensions::V0::ClaimsController: BGS service file_number lookup result: #{is_file_number_present}",
+        "#{STATSD_KEY_PREFIX}.get_file_number.bgs.result",
+        call_location: caller_locations.first,
+        **additional_context
+      )
+    end
   end
 end

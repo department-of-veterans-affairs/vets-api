@@ -122,6 +122,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     before do
       allow(BPDS::Monitor).to receive(:new).and_return(bpds_monitor)
       allow(bpds_monitor).to receive(:track_submit_begun)
+      allow(bpds_monitor).to receive(:track_get_user_identifier)
       allow(BPDS::Submission).to receive(:create).and_return(bpds_submission)
       allow(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async)
     end
@@ -132,10 +133,9 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       it 'tracks the submission and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
-                                                   tags: ['user_type:loa3'])
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.mpi.result',
-                                                   tags: ['pid_present:true'])
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa3').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('mpi', true).once
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_file_number_result)
         expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
           .with(identifier: current_user.icn, identifier_type: MPI::Constants::ICN)
@@ -154,10 +154,9 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       it 'tracks the submission and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
-                                                   tags: ['user_type:loa1'])
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.bgs.result',
-                                                   tags: ['pid_present:true'])
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('bgs', true).once
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_file_number_result)
         expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
         expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
                                                                                                .and_return(bgs_response)
@@ -175,10 +174,9 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       it 'tracks the submission and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
-                                                   tags: ['user_type:loa1'])
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.bgs.result',
-                                                   tags: ['pid_present:false'])
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('loa1').once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_result).with('bgs', false).once
+        expect(bpds_monitor).to receive(:track_get_user_identifier_file_number_result).with(true).once
         expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
         expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
                                                                                                .and_return(bgs_response)
@@ -189,11 +187,12 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
 
     context 'when the user is not authenticated and no identifier is available' do
-      it 'tracks the submission and enqueues the job' do
+      it 'tracks the submission and does not enqueue the job' do
         allow(subject).to receive(:current_user).and_return(nil) # rubocop:disable RSpec/SubjectStub
 
-        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
-                                                   tags: ['user_type:unauthenticated'])
+        expect(bpds_monitor).to receive(:track_get_user_identifier).with('unauthenticated').once
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_result)
+        expect(bpds_monitor).not_to receive(:track_get_user_identifier_result_file_number)
         expect(bpds_monitor).not_to receive(:track_submit_begun)
         expect_any_instance_of(BGS::People::Request).not_to receive(:find_person_by_participant_id)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
