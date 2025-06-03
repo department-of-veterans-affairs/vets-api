@@ -127,6 +127,10 @@ features:
   caregiver_use_rails_logging_over_sentry:
     actor_type: user
     description: Use Rails for logging instead of Sentry
+  decision_review_form4142_use_2024_template:
+    actor_type: user
+    description: Enables the use of the 2024 template for form 4142 in decision review applications
+    enable_in_development: true
   document_upload_validation_enabled:
     actor_type: user
     description: Enables stamped PDF validation on document upload
