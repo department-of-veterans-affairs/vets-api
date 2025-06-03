@@ -8,6 +8,8 @@ module VAOS
       before_action :authorize_with_facilities
 
       PARTIAL_RESPONSE_METRIC = 'api.vaos.va_mobile.response.partial'
+      APPT_DRAFT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_draft_creation.success'
+      APPT_DRAFT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_draft_creation.failure'
       APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
       APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
