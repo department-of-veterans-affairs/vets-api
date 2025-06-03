@@ -132,11 +132,71 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       it 'tracks the submission and enqueues the job' do
         allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
 
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
+                                                   tags: ['user_type:loa3'])
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.mpi.result',
+                                                   tags: ['pid_present:true'])
         expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
           .with(identifier: current_user.icn, identifier_type: MPI::Constants::ICN)
           .and_return(mpi_response)
         expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
+    end
+
+    context 'when the user is LOA1 and participant_id is present' do
+      let!(:user) { create(:user, :loa1) }
+      let(:encrypted_payload_bgs) { KmsEncrypted::Box.new.encrypt({ participant_id: '1234567890' }.to_json) }
+      let(:bgs_response) { BGS::People::Response.new({ ptcpnt_id: '1234567890' }) }
+
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
+                                                   tags: ['user_type:loa1'])
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.bgs.result',
+                                                   tags: ['pid_present:true'])
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+        expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
+                                                                                               .and_return(bgs_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload_bgs).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
+    end
+
+    context 'when the user is LOA1 and participant_id is not present but file number is present' do
+      let!(:user) { create(:user, :loa1) }
+      let(:encrypted_payload_bgs) { KmsEncrypted::Box.new.encrypt({ file_number: '1234567890' }.to_json) }
+      let(:bgs_response) { BGS::People::Response.new({ file_nbr: '1234567890' }) }
+
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(user) # rubocop:disable RSpec/SubjectStub
+
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
+                                                   tags: ['user_type:loa1'])
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.bgs.result',
+                                                   tags: ['pid_present:false'])
+        expect(bpds_monitor).to receive(:track_submit_begun).with(claim.id).once
+        expect_any_instance_of(BGS::People::Request).to receive(:find_person_by_participant_id).with(user:)
+                                                                                               .and_return(bgs_response)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async).with(claim.id, encrypted_payload_bgs).once
+
+        subject.send(:process_and_upload_to_bpds, claim)
+      end
+    end
+
+    context 'when the user is not authenticated and no identifier is available' do
+      it 'tracks the submission and enqueues the job' do
+        allow(subject).to receive(:current_user).and_return(nil) # rubocop:disable RSpec/SubjectStub
+
+        expect(StatsD).to receive(:increment).with('api.pension_claim.controller.get_participant_id',
+                                                   tags: ['user_type:unauthenticated'])
+        expect(bpds_monitor).not_to receive(:track_submit_begun)
+        expect_any_instance_of(BGS::People::Request).not_to receive(:find_person_by_participant_id)
+        expect(BPDS::Sidekiq::SubmitToBPDSJob).not_to receive(:perform_async)
 
         subject.send(:process_and_upload_to_bpds, claim)
       end
