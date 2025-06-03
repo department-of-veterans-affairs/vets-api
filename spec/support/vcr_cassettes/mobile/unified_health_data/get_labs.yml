@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://security.example.myhealth.va.gov/mhvapi/security/v1/login
+    uri: https://mhv-api.example.com/mhvapi/security/v1/login
     body:
       encoding: UTF-8
       string: '{"appId":1000,"appToken":"example token","subject":"VA.gov SCDF Proxy Client","userType":"SYSTEM"}'
@@ -57,7 +57,7 @@ http_interactions:
   recorded_at: Mon, 02 Jun 2025 15:11:24 GMT
 - request:
     method: get
-    uri: https://example.myhealth.va.gov/v1/medicalrecords/labs?endDate=2025-05-31&patientId=1000123456V123456&startDate=2024-01-01
+    uri: https://mhv-api.example.com/v1/medicalrecords/labs?endDate=2025-05-31&patientId=1000123456V123456&startDate=2024-01-01
     body:
       encoding: US-ASCII
       string: ''

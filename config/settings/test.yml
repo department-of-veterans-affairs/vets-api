@@ -910,9 +910,9 @@ mhv:
   uhd:
     app_id: 1000
     app_token: faketoken
-    host: https://example.myhealth.va.gov
+    host: https://mhv-api.example.com
     mock: false
-    security_host: https://security.example.myhealth.va.gov
+    security_host: https://mhv-api.example.com
     subject: "Proxy Client"
     user_type: usertype
     x_api_key: fake-x-api-key
