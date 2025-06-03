@@ -2342,5 +2342,11 @@ features:
     actor_type: user
     description: Enables redaction for the Accredited Representative Portal POA requests
   calculator_constants_versioning:
-    actor_type: 
+    actor_type:
     description: (gibct-data-service) If enabled, updates GIDS UI and includes calculator constants in GIDS version generation
+  ar_poa_request_failure_claimant_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to claimants
+  ar_poa_request_failure_rep_notification:
+    actor_type: user
+    description: Enables sending POA failure notifications to representatives
