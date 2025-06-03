@@ -8,7 +8,6 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
     include AppealsApi::OpenidAuth
     include AppealsApi::Schemas
     include AppealsApi::StatusSimulation
-    include SentryLogging
 
     class EvidenceSubmissionRequestValidatorError < StandardError; end
 
@@ -45,7 +44,10 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
       ).call
 
       unless status == :ok
-        log_exception_to_sentry(EvidenceSubmissionRequestValidatorError.new(error), {}, {}, :warn)
+        req_validator_error = EvidenceSubmissionRequestValidatorError.new(error)
+        Rails.logger.warn("#{req_validator_error.message}.")
+        Rails.logger.warn(req_validator_error.backtrace.join("\n")) unless req_validator_error.backtrace.nil?
+
         return render json: { errors: [error] }, status: error[:title].to_sym
       end
 
