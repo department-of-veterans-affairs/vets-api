@@ -25,33 +25,38 @@ jobs:
       matrix:
         language: [ruby, javascript]
     steps:
+      - name: Checkout PR HEAD ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
       - name: Run Code Scanning
         uses: department-of-veterans-affairs/codeql-tools/codeql-analysis@main
         with:
           language: ${{ matrix.language }}
           config-file: ./.github/codeql/config.yml
 
-  assign-failure-label:
-    if: github.event_name == 'pull_request' && failure()
-    needs: [analyze]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR HEAD ref
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Add Failure label
+        if: ${{ failure() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: codeql-failure
 
-  remove-failure-label:
-    if: github.event_name == 'pull_request' && success()
-    needs: [analyze]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Remove Failure label
+        if: ${{ success() && github.event_name == 'pull_request' }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
