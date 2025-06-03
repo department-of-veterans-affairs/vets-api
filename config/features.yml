@@ -150,9 +150,6 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_json_schemer_validation:
-    actor_type: user
-    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
@@ -1126,6 +1123,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
     enable_in_development: true
+  mhv_secure_messaging_policy_va_patient:
+    actor_type: user
+    description: Disables/Enables Secure Messaging policy check for VA patient
   mhv_secure_messaging_custom_folders_redesign:
     actor_type: user
     description: Disables/Enables Secure Messaging Custom Folders Redesign
