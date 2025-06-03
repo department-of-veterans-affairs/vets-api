@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
+
 require 'date'
 
 module PdfFill
@@ -151,3 +153,5 @@ module PdfFill
     end
   end
 end
+
+# rubocop:enable Metrics/ModuleLength

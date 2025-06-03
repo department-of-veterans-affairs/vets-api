@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
+
 require 'pdf_fill/hash_converter'
 require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
@@ -8,6 +10,10 @@ module PdfFill
   module Forms
     class Va2141422024 < FormBase
       include FormHelper
+
+      # rubocop:disable Metrics/BlockLength
+
+      # rubocop:disable Layout/LineLength
 
       # The 2024 keys for the provider fields can no longer use the straightforward ITERATOR
       # provided by HashConverter, so we do it ourselves here to map them correctly
@@ -28,14 +34,16 @@ module PdfFill
             key: "F[0].#subform[#{subform_num}].Provider_Or_Facility_Name[#{provider_index}]",
             question_num:,
             question_suffix: 'A',
-            question_text: 'Provider or Facility Name'
+            question_text: 'Provider or Facility Name',
+            hide_from_overflow: true
           },
           'conditionsTreated' => {
             limit: 100,
             key: "F[0].#subform[#{subform_num}].Conditions_You_Are_Being_Treated_For[#{provider_index}]",
             question_num:,
             question_suffix: 'B',
-            question_text: 'Conditions Being Treated For'
+            question_text: 'Conditions Being Treated For',
+            hide_from_overflow: true
           },
           'dateRangeStart' => {
             'month' => {
@@ -118,46 +126,37 @@ module PdfFill
                 question_text: 'Postal Code: Last 4',
                 hide_from_overflow: true
               }
-            },
-            'completeAddress' => {
-              key: 'DUMMY_KEY_TO_ALLOW_OVERFLOW',
-              limit: 1,
-              question_text: 'Name and Address of Provider or Facility',
-              question_num:,
-              question_suffix: 'D',
-              skip_index: true
             }
+          },
+          'completeProviderInfo' => {
+            key: 'DUMMY_KEY_TO_ALLOW_OVERFLOW',
+            limit: 1,
+            always_overflow: true,
+            question_text: 'Provider or Facility and Treatment Info',
+            question_num:,
+            question_suffix: 'A-D',
+            skip_index: true
           }
         }
       end.freeze
 
-      # Used when there are >5 providers, so we can format them nicely on the overflow pages
+      # rubocop:enable Metrics/BlockLength
+
+      # rubocop:enable Layout/LineLength
+
+      # Used when there are > 5 providers, so we can format them nicely on the overflow pages
       ADDITIONAL_PROVIDER_KEYS = (6..50).each_with_object({}) do |provider_num, keys|
         # Starts at 14 since the last provider on the PDF is question 13
         question_num = provider_num + 8
         keys["additionalProvider#{provider_num}"] = {
-          always_overflow: true,
-          first_key: 'nameAndAddressOfProvider',
-          'nameAndAddressOfProvider' => {
-            key: "DUMMY_ADDITIONAL_PROVIDER_#{provider_num}_NAME",
-            limit: 0,
-            question_text: 'Provider/Facility Street Address',
+          'completeProviderInfo' => {
+            key: 'DUMMY_KEY_TO_ALLOW_OVERFLOW',
+            limit: 1,
+            always_overflow: true,
+            question_text: 'Provider or Facility and Treatment Info',
             question_num:,
-            question_suffix: 'A'
-          },
-          'conditionsTreated' => {
-            key: "DUMMY_ADDITIONAL_PROVIDER_#{provider_num}_CONDITIONS",
-            limit: 0,
-            question_text: 'Conditions You Are Being Treated For',
-            question_num:,
-            question_suffix: 'B'
-          },
-          'combinedTreatmentDates' => {
-            key: "DUMMY_ADDITIONAL_PROVIDER_#{provider_num}_DATES",
-            question_text: ' Date(s) Of Treatment',
-            question_num:,
-            question_suffix: 'C',
-            limit: 0
+            question_suffix: 'A-D',
+            skip_index: true
           }
         }
       end.freeze
@@ -250,7 +249,6 @@ module PdfFill
             }
           }
         },
-        # TODO: 2018 form had one field for phone number, the 2024 form has 3 fields. Need to create a object similar to social security.
         'veteranPhone' => {
           'phone_area_code' => {
             key: 'F[0].Page_1[0].TelephoneNumber_AreaCode[0]'
@@ -262,7 +260,6 @@ module PdfFill
             key: 'F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]'
           }
         },
-        # TODO
         'internationalPhoneNumber' => {
           key: 'F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]'
         },
@@ -273,7 +270,6 @@ module PdfFill
           question_num: 8
         },
         'email1' => {
-          # The email address field is split into two keys in the 2024 form
           key: 'F[0].Page_1[0].E_Mail_Address[1]'
         },
         'veteranSocialSecurityNumber1' => {
@@ -293,11 +289,9 @@ module PdfFill
           question_text: 'Limited Consent',
           key: 'F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]'
         },
-        # NOTE: Signature field is not populating F[0].#subform[1].SignatureField11[0]
         'signature' => {
           key: 'F[0].#subform[1].SignatureField11[0]'
         },
-        # TODO: 2018 form had one field for signature date, the 2024 form has 3 fields. Need to create a object similar to social security.
         'signatureDate' => {
           'month' => {
             key: 'F[0].#subform[1].Date_Signed_Month[0]'
@@ -309,7 +303,6 @@ module PdfFill
             key: 'F[0].#subform[1].Date_Signed_Year[0]'
           }
         },
-        # TODO: 2018 form had one field for printed name, the 2024 form has 3 fields. Need to create a object similar to social security.
         'printedName' => {
           'first' => {
             key: 'F[0].#subform[1].Printed_Name_Of_Person_Signing_First[0]',
@@ -366,7 +359,6 @@ module PdfFill
             key: 'F[0].#subform[15].SSN3[1]'
           }
         },
-        # NOTE: This is field is not populating F[0].#subform[14].VAFileNumber[0] is the new field in the 2024 form
         'vaFileNumber1' => {
           key: 'F[0].#subform[14].VAFileNumber[0]'
         },
@@ -450,7 +442,6 @@ module PdfFill
         end
       end
 
-      # TODO: refactor Date.strptime
       def expand_signature_date
         veteran_signature_date = Date.strptime(@form_data['signatureDate'], '%Y-%m-%d').to_s
         return if veteran_signature_date.blank?
@@ -480,7 +471,6 @@ module PdfFill
             )
           end
 
-          #provider.except!('treatmentDateRange')
           provider.merge!(date_ranges)
         end
       end
@@ -498,8 +488,7 @@ module PdfFill
 
           # only fill out the completeAddress key (for the overflow page) if any of address fields are too long
           if address['street'].size > 30 || address['street2'].size > 5 || address['city'].size > 18
-            address['completeAddress'] =
-              combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
+            provider['addressOverflows'] = true
           end
 
           # We need to put the address in an array to take advantage of hashConverter's
@@ -508,16 +497,41 @@ module PdfFill
         end
       end
 
-      def format_additional_provider(provider)
-        name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
-        dates_extras = combine_date_ranges(provider['treatmentDateRange'])
+      def handle_provider_overflow(providers)
+        first_four_no_overflow = true
 
-        {
-          'conditionsTreated' => provider['conditionsTreated'],
-          'nameAndAddressOfProvider' => PdfFill::FormValue.new('', name_address_extras),
-          'combinedTreatmentDates' => PdfFill::FormValue.new('', dates_extras)
-        }
+        providers.each_with_index do |provider, index|
+          if provider['addressOverflows'] ||
+             (provider['providerFacilityName']&.size || 0) > 100 ||
+             (provider['conditionsTreated']&.size || 0) > 100
+            generate_overflow_provider_info(provider)
+          end
+
+          if index == 4 && first_four_no_overflow && providers.count > 5
+            # Force the fifth provider to overflow, to cue the user to see the overflow page
+            generate_overflow_provider_info(provider)
+            provider['providerFacilityName'] = "See add'l info page"
+          end
+
+          # If we have more than 5 providers, we need to generate the overflow info
+          generate_overflow_provider_info(provider) if index >= 5
+        end
       end
+
+      # rubocop:disable Layout/LineLength
+
+      def generate_overflow_provider_info(provider)
+        # Combine the provider name, address, and treatment dates into a single string for the overflow page
+        address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
+        dates = combine_date_ranges(provider['treatmentDateRange'])
+
+        provider['completeProviderInfo'] = [PdfFill::FormValue.new(
+          '',
+          "Provider or Facility Name: #{provider['providerFacilityName']}\n\nAddress: #{address}\n\nConditions Treated: #{provider['conditionsTreated']}\n\nTreatment Date Ranges: #{dates}"
+        )]
+      end
+
+      # rubocop:enable Layout/LineLength
 
       def expand_providers
         providers = @form_data['providerFacility']
@@ -525,8 +539,9 @@ module PdfFill
 
         expand_provider_address(providers)
         expand_provider_date_range(providers)
+        handle_provider_overflow(providers)
 
-        # First 5 providers are mapped to the provider1-5 keys
+        # First 5 providers are mapped to the provider 1-5 keys
         # Any provider beyond 5, up to 50, goes to overflow pages, mapped to the additionalProvider6-50
         providers.each_with_index do |provider, index|
           if index < 5
@@ -535,7 +550,7 @@ module PdfFill
             additional_provider_number = index + 1
             # Similar to address, we put the provider info in an array to take advantage of
             # hashConverter's configuration options for formatting the overflow pages
-            @form_data["additionalProvider#{additional_provider_number}"] = [format_additional_provider(provider)]
+            @form_data["additionalProvider#{additional_provider_number}"] = provider
           end
         end
 
@@ -572,291 +587,4 @@ module PdfFill
   end
 end
 
-# Source of truth: pdftk output fields
-# F[0].Page_1[0].VeteranFirstName[0]
-# F[0].Page_1[0].VeteranMiddleInitial1[0]
-# F[0].Page_1[0].VeteranLastName[0]
-# F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]
-# F[0].Page_1[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]
-# F[0].Page_1[0].VeteransSocialSecurityNumber_LastFourNumbers[0]
-# F[0].Page_1[0].VAFileNumber[0]
-# F[0].Page_1[0].DOBmonth[0]
-# F[0].Page_1[0].DOBday[0]
-# F[0].Page_1[0].DOByear[0]
-# F[0].Page_1[0].VeteransServiceNumber_If_Applicable[0]
-# F[0].Page_1[0].MailingAddress_NumberAndStreet[0]
-# F[0].Page_1[0].MailingAddress_ApartmentOrUnitNumber[0]
-# F[0].Page_1[0].MailingAddress_City[0]
-# F[0].Page_1[0].MailingAddress_StateOrProvince[0]
-# F[0].Page_1[0].MailingAddress_Country[0]
-# F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]
-# F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]
-# F[0].Page_1[0].TelephoneNumber_AreaCode[0]
-# F[0].Page_1[0].TelephoneNumber_SecondThreeNumbers[0]
-# F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]
-# F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]
-# F[0].Page_1[0].CheckBox1[0]
-# F[0].Page_1[0].E_Mail_Address[0]
-# F[0].Page_1[0].E_Mail_Address[1]
-# F[0].Page_1[0].Patients_FirstName[0]
-# F[0].Page_1[0].Patients_MiddleInitial1[0]
-# F[0].Page_1[0].Patients_LastName[0]
-# F[0].Page_1[0].Patient_SocialSecurityNumber_FirstThreeNumbers[0]
-# F[0].Page_1[0].Patient_SocialSecurityNumber_SecondTwoNumbers[0]
-# F[0].Page_1[0].Patient_SocialSecurityNumber_LastFourNumbers[0]
-# F[0].Page_1[0].Patients_VAFileNumber_If_Applicable[0]
-# F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]
-# F[0].#subform[1].VeteransSocialSecurityNumber_SecondTwoNumbers[0]
-# F[0].#subform[1].VeteransSocialSecurityNumber_LastFourNumbers[0]
-# F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]
-# F[0].#subform[1].SignatureField11[0]
-# F[0].#subform[1].Date_Signed_Month[0]
-# F[0].#subform[1].Date_Signed_Day[0]
-# F[0].#subform[1].Date_Signed_Year[0]
-# F[0].#subform[1].Printed_Name_Of_Person_Signing_First[0]
-# F[0].#subform[1].Printed_Name_Of_Person_Signing_Middle_Initial[0]
-# F[0].#subform[1].Printed_Name_Of_Person_Signing_Last[0]
-# F[0].#subform[1].Relationship_To_Veteran_Claimant[0]
-# F[0].#subform[14].VeteranFirstName[0]
-# F[0].#subform[14].VeteranMiddleInitial1[0]
-# F[0].#subform[14].VeteranLastName[0]
-# F[0].#subform[14].SSN1[0]
-# F[0].#subform[14].SSN2[0]
-# F[0].#subform[14].SSN3[0]
-# F[0].#subform[14].VAFileNumber[0]
-# F[0].#subform[14].Month[0]
-# F[0].#subform[14].Day[0]
-# F[0].#subform[14].Year[0]
-# F[0].#subform[14].VeteransServiceNumber_If_Applicable[0]
-# F[0].#subform[14].Patients_FirstName[0]
-# F[0].#subform[14].PatientMiddleInitial1[0]
-# F[0].#subform[14].Patients_LastName[0]
-# F[0].#subform[14].FirstThreeNumbers[0]
-# F[0].#subform[14].SecondTwoNumbers[0]
-# F[0].#subform[14].LastFourNumbers[0]
-# F[0].#subform[14].VAFileNumber[1]
-#
-# F[0].#subform[14].Provider_Or_Facility_Name[0]
-# F[0].#subform[14].Conditions_You_Are_Being_Treated_For[0]
-# F[0].#subform[14].Month[1]
-# F[0].#subform[14].Day[1]
-# F[0].#subform[14].Year[1]
-# F[0].#subform[14].Month[2]
-# F[0].#subform[14].Day[2]
-# F[0].#subform[14].Year[2]
-# F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[0]
-# F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[0]
-# F[0].#subform[14].Provider_Facility_Address_City[0]
-# F[0].#subform[14].Provider_Facility_Address_StateOrProvince[0]
-# F[0].#subform[14].Provider_Facility_Address_Country[0]
-# F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]
-# F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]
-#
-# F[0].#subform[14].Provider_Or_Facility_Name[1]
-# F[0].#subform[14].Conditions_You_Are_Being_Treated_For[1]
-# F[0].#subform[14].Month[3]
-# F[0].#subform[14].Day[3]
-# F[0].#subform[14].Year[3]
-# F[0].#subform[14].Month[4]
-# F[0].#subform[14].Day[4]
-# F[0].#subform[14].Year[4]
-# F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[1]
-# F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[1]
-# F[0].#subform[14].Provider_Facility_Address_City[1]
-# F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]
-# F[0].#subform[14].Provider_Facility_Address_Country[1]
-# F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]
-# F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]
-# F[0].#subform[15].SSN1[1]
-# F[0].#subform[15].SSN2[1]
-# F[0].#subform[15].SSN3[1]
-#
-# F[0].#subform[15].Provider_Or_Facility_Name[2]
-# F[0].#subform[15].Conditions_You_Are_Being_Treated_For[2]
-# F[0].#subform[15].Month[5]
-# F[0].#subform[15].Day[5]
-# F[0].#subform[15].Year[5]
-# F[0].#subform[15].Month[6]
-# F[0].#subform[15].Day[6]
-# F[0].#subform[15].Year[6]
-# F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[2]
-# F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[2]
-# F[0].#subform[15].Provider_Facility_Address_City[2]
-# F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]
-# F[0].#subform[15].Provider_Facility_Address_Country[2]
-# F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]
-# F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]
-#
-# F[0].#subform[15].Provider_Or_Facility_Name[3]
-# F[0].#subform[15].Conditions_You_Are_Being_Treated_For[3]
-# F[0].#subform[15].Month[7]
-# F[0].#subform[15].Day[7]
-# F[0].#subform[15].Year[7]
-# F[0].#subform[15].Month[8]
-# F[0].#subform[15].Day[8]
-# F[0].#subform[15].Year[8]
-# F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[3]
-# F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[3]
-# F[0].#subform[15].Provider_Facility_Address_City[3]
-# F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]
-# F[0].#subform[15].Provider_Facility_Address_Country[3]
-# F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]
-# F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]
-#
-# F[0].#subform[15].Provider_Or_Facility_Name[4]
-# F[0].#subform[15].Conditions_You_Are_Being_Treated_For[4]
-# F[0].#subform[15].Month[9]
-# F[0].#subform[15].Day[9]
-# F[0].#subform[15].Year[9]
-# F[0].#subform[15].Month[10]
-# F[0].#subform[15].Day[10]
-# F[0].#subform[15].Year[10]
-# F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[4]
-# F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[4]
-# F[0].#subform[15].Provider_Facility_Address_City[4]
-# F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]
-# F[0].#subform[15].Provider_Facility_Address_Country[4]
-# F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]
-# F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]
-
-# 4142 standalone hash being passed to pdftk to populate the form fields
-
-# "F[0].Page_1[0].VeteranFirstName[0]"=>"Hector",
-# "F[0].Page_1[0].VeteranMiddleInitial1[0]"=>"J ",
-# "F[0].Page_1[0].VeteranLastName[0]"=>"Allen",
-# "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]"=>"123",
-# "F[0].Page_1[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]"=>"49",
-# "F[0].Page_1[0].VeteransSocialSecurityNumber_LastFourNumbers[0]"=>"8762",
-# "F[0].Page_1[0].VAFileNumber[0]"=>"",
-# "F[0].Page_1[0].DOByear[0]"=>"1996",
-# "F[0].Page_1[0].DOBmonth[0]"=>"04",
-# "F[0].Page_1[0].DOBday[0]"=>"13",
-# "F[0].Page_1[0].VeteransServiceNumber_If_Applicable[0]"=>"",
-# "F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]"=>"90806",
-# "F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]"=>"",
-# "F[0].Page_1[0].MailingAddress_Country[0]"=>"USA",
-# "F[0].Page_1[0].MailingAddress_StateOrProvince[0]"=>"CA",
-# "F[0].Page_1[0].MailingAddress_City[0]"=>"Los Angeles",
-# "F[0].Page_1[0].MailingAddress_ApartmentOrUnitNumber[0]"=>"",
-# "F[0].Page_1[0].MailingAddress_NumberAndStreet[0]"=>"1234 Fake st ",
-# "F[0].Page_1[0].TelephoneNumber_AreaCode[0]"=>"123",
-# "F[0].Page_1[0].TelephoneNumber_SecondThreeNumbers[0]"=>"876",
-# "F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]"=>"2315",
-# "F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]"=>"",
-# "F[0].Page_1[0].CheckBox1[0]"=>"1",
-# "F[0].Page_1[0].E_Mail_Address[0]"=>"Fake@email.com",
-# "F[0].Page_1[0].E_Mail_Address[1]"=>"",
-# "F[0].Page_1[0].Patients_FirstName[0]"=>"Hector",
-# "F[0].Page_1[0].Patients_MiddleInitial1[0]"=>"J",
-# "F[0].Page_1[0].Patients_LastName[0]"=>"Allen",
-# "F[0].Page_1[0].Patient_SocialSecurityNumber_FirstThreeNumbers[0]"=>"897",
-# "F[0].Page_1[0].Patient_SocialSecurityNumber_SecondTwoNumbers[0]"=>"12",
-# "F[0].Page_1[0].Patient_SocialSecurityNumber_LastFourNumbers[0]"=>"3645",
-# "F[0].Page_1[0].Patients_VAFileNumber_If_Applicable[0]"=>"",
-# "F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]"=>"123",
-# "F[0].#subform[1].VeteransSocialSecurityNumber_SecondTwoNumbers[0]"=>"49",
-# "F[0].#subform[1].VeteransSocialSecurityNumber_LastFourNumbers[0]"=>"8762",
-# "F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]"=>"",
-# "F[0].#subform[1].SignatureField11[0]"=>"Hector J  Allen",
-# "F[0].#subform[1].Date_Signed_Year[0]"=>"2025",
-# "F[0].#subform[1].Date_Signed_Month[0]"=>"05",
-# "F[0].#subform[1].Date_Signed_Day[0]"=>"13",
-# "F[0].#subform[1].Printed_Name_Of_Person_Signing_First[0]"=>"",
-# "F[0].#subform[1].Printed_Name_Of_Person_Signing_Middle_Initial[0]"=>"",
-# "F[0].#subform[1].Printed_Name_Of_Person_Signing_Last[0]"=>"",
-# "F[0].#subform[1].Relationship_To_Veteran_Claimant[0]"=>"I am the Veteran           ",
-# "F[0].#subform[14].VeteranFirstName[0]"=>"Hector",
-# "F[0].#subform[14].VeteranMiddleInitial1[0]"=>"J ",
-# "F[0].#subform[14].VeteranLastName[0]"=>"Allen",
-# "F[0].#subform[14].SSN1[0]"=>"123",
-# "F[0].#subform[14].SSN2[0]"=>"49",
-# "F[0].#subform[14].SSN3[0]"=>"8762",
-# "F[0].#subform[14].VAFileNumber[0]"=>"",
-# "F[0].#subform[14].Year[0]"=>"1996",
-# "F[0].#subform[14].Month[0]"=>"04",
-# "F[0].#subform[14].Day[0]"=>"13",
-# "F[0].#subform[14].VeteransServiceNumber_If_Applicable[0]"=>"",
-# "F[0].#subform[14].Patients_FirstName[0]"=>"Hector",
-# "F[0].#subform[14].PatientMiddleInitial1[0]"=>"J",
-# "F[0].#subform[14].Patients_LastName[0]"=>"Allen",
-# "F[0].#subform[14].FirstThreeNumbers[0]"=>"897",
-# "F[0].#subform[14].SecondTwoNumbers[0]"=>"12",
-# "F[0].#subform[14].LastFourNumbers[0]"=>"3645",
-# "F[0].#subform[14].VAFileNumber[1]"=>"",
-# "F[0].#subform[14].Provider_Or_Facility_Name[0]"=>"VA",
-# "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[0]"=>"PTSD",
-# "F[0].#subform[14].Year[1]"=>"2020",
-# "F[0].#subform[14].Month[1]"=>"06",
-# "F[0].#subform[14].Day[1]"=>"12",
-# "F[0].#subform[14].Year[2]"=>"2020",
-# "F[0].#subform[14].Month[2]"=>"12",
-# "F[0].#subform[14].Day[2]"=>"15",
-# "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[0]"=>"1234 Fake St",
-# "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]"=>"90806",
-# "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]"=>"",
-# "F[0].#subform[14].Provider_Facility_Address_Country[0]"=>"USA",
-# "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[0]"=>"CA",
-# "F[0].#subform[14].Provider_Facility_Address_City[0]"=>"Long Beach",
-# "F[0].#subform[14].Provider_Or_Facility_Name[1]"=>"",
-# "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[1]"=>"",
-# "F[0].#subform[14].Year[3]"=>"",
-# "F[0].#subform[14].Month[3]"=>"",
-# "F[0].#subform[14].Day[3]"=>"",
-# "F[0].#subform[14].Year[4]"=>"",
-# "F[0].#subform[14].Month[4]"=>"",
-# "F[0].#subform[14].Day[4]"=>"",
-# "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[1]"=>"",
-# "F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[1]"=>"",
-# "F[0].#subform[14].Provider_Facility_Address_City[1]"=>"",
-# "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]"=>"",
-# "F[0].#subform[14].Provider_Facility_Address_Country[1]"=>"",
-# "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]"=>"",
-# "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]"=>"",
-# "F[0].#subform[15].SSN1[1]"=>"123",
-# "F[0].#subform[15].SSN2[1]"=>"49",
-# "F[0].#subform[15].SSN3[1]"=>"8762",
-# "F[0].#subform[15].Provider_Or_Facility_Name[2]"=>"",
-# "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[2]"=>"",
-# "F[0].#subform[15].Year[5]"=>"",
-# "F[0].#subform[15].Month[5]"=>"",
-# "F[0].#subform[15].Day[5]"=>"",
-# "F[0].#subform[15].Year[6]"=>"",
-# "F[0].#subform[15].Month[6]"=>"",
-# "F[0].#subform[15].Day[6]"=>"",
-# "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[2]"=>"",
-# "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[2]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_City[2]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_Country[2]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]"=>"",
-# "F[0].#subform[15].Provider_Or_Facility_Name[3]"=>"",
-# "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[3]"=>"",
-# "F[0].#subform[15].Year[7]"=>"",
-# "F[0].#subform[15].Month[7]"=>"",
-# "F[0].#subform[15].Day[7]"=>"",
-# "F[0].#subform[15].Year[8]"=>"",
-# "F[0].#subform[15].Month[8]"=>"",
-# "F[0].#subform[15].Day[8]"=>"",
-# "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[3]"=>"",
-# "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[3]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_City[3]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_Country[3]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]"=>"",
-# "F[0].#subform[15].Provider_Or_Facility_Name[4]"=>"",
-# "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[4]"=>"",
-# "F[0].#subform[15].Year[9]"=>"",
-# "F[0].#subform[15].Month[9]"=>"",
-# "F[0].#subform[15].Day[9]"=>"",
-# "F[0].#subform[15].Year[10]"=>"",
-# "F[0].#subform[15].Month[10]"=>"",
-# "F[0].#subform[15].Day[10]"=>"",
-# "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[4]"=>"",
-# "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[4]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_City[4]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_Country[4]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]"=>"",
-# "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]"=>""}
+# rubocop:enable Metrics/ClassLength
