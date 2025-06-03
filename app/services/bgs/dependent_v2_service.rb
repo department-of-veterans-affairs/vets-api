@@ -53,7 +53,7 @@ module BGS
         submit_form_job_id:
       }
     rescue => e
-      Rails.logger.warn('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
+      Rails.logger.warn('BGS::DependentV2Service#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
@@ -68,12 +68,12 @@ module BGS
     def submit_pdf_job(claim:, encrypted_vet_info:)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
         # TODO: implement upload using the claims_evidence_api module
-        Rails.logger.debug('BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
+        Rails.logger.debug('BGS::DependentV2Service#submit_pdf_job Claims Evidence Upload not implemented!',
                            { claim_id: claim.id })
         return
       end
 
-      Rails.logger.debug('BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+      Rails.logger.debug('BGS::DependentV2Service#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
                          { claim_id: claim.id })
       VBMS::SubmitDependentsPdfV2Job.perform_sync(
         claim.id,
@@ -84,7 +84,7 @@ module BGS
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
-      Rails.logger.warn('DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, icn:, error: e }) # rubocop:disable Layout/LineLength
+      Rails.logger.warn('DependentV2Service#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, icn:, error: e }) # rubocop:disable Layout/LineLength
       submit_to_central_service(claim:)
 
       raise e
