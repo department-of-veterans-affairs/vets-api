@@ -105,13 +105,13 @@ module Lighthouse
         params = {
           patient: @icn,
           _count: 100,
-          start_date: start_date,
-          end_date: end_date
+          start_date:,
+          end_date:
         }
         first_response = perform_get('services/fhir/v0/r4/Immunization', **params.compact)
         get_list(first_response)
-      end 
-      
+      end
+
       private
 
       # @return Faraday::Env response with all the pages of data
@@ -178,8 +178,7 @@ module Lighthouse
       end
 
       def authenticate_as_system(json_web_token)
-        token = authenticate(payload(json_web_token)).body['access_token']
-        token
+        authenticate(payload(json_web_token)).body['access_token']
       end
 
       def payload(json_web_token)

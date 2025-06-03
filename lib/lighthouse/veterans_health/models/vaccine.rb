@@ -26,14 +26,14 @@ module Lighthouse
         attribute :type, String, default: 'immunization'
         attribute :attributes, VaccineAttributes
         attribute :relationships, Hash
-        
-        # Custom JSON serialization 
-        def as_json(options = {})
+
+        # Custom JSON serialization
+        def as_json(_options = {})
           {
-            id: id,
-            type: type,
-            attributes: attributes,
-            relationships: relationships
+            id:,
+            type:,
+            attributes:,
+            relationships:
           }.compact
         end
       end

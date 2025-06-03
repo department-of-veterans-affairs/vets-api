@@ -19,29 +19,29 @@ module MyHealth
       def index
         start_date = params[:start_date]
         end_date = params[:end_date]
-        
+
         begin
           response = client.get_immunizations(start_date:, end_date:)
           # log the request for debugging
           immunizations = Lighthouse::VeteransHealth::Serializers::ImmunizationSerializer.from_fhir_bundle(response.body)
-          
+
           # Track the number of immunizations returned to the client
           StatsD.gauge("#{STATSD_KEY_PREFIX}.count", immunizations.length)
-          
+
           render json: { data: immunizations }
         rescue Common::Client::Errors::ClientError => e
           Rails.logger.error("Immunizations FHIR API error: #{e.message}")
-          error = { 
+          error = {
             title: 'FHIR API Error',
             detail: e.message,
-            code: e.status, 
+            code: e.status,
             status: e.status
           }
           render json: { errors: [error] }, status: :bad_gateway
         rescue Common::Exceptions::BackendServiceException => e
           Rails.logger.error("Backend service exception: #{e.errors.first&.detail}")
           render json: { errors: e.errors }, status: :bad_gateway
-        rescue StandardError => e
+        rescue => e
           Rails.logger.error("Unexpected error in immunizations controller: #{e.message}")
           error = {
             title: 'Internal Server Error',
@@ -55,10 +55,10 @@ module MyHealth
 
       private
 
-       def client
-        @client ||= Lighthouse::VeteransHealth::Client.new(current_user.icn) 
+      def client
+        @client ||= Lighthouse::VeteransHealth::Client.new(current_user.icn)
       end
-      
+
       def check_feature_toggle
         unless Flipper.enabled?(FEATURE_TOGGLE)
           error = {

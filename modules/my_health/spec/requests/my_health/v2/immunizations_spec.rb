@@ -10,20 +10,19 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
   let(:path) { '/my_health/v2/medical_records/immunizations' }
   let(:immunizations_cassette) { 'lighthouse/veterans_health/get_immunizations' }
   let(:current_user) { build(:user, :mhv) }
-  
 
   before do
     sign_in_as(current_user)
     # Enable the feature toggle by default for most tests
     allow(Flipper).to receive(:enabled?).with(
-      'mhv_medical_records_immunizations_v2_enabled', 
+      'mhv_medical_records_immunizations_v2_enabled',
       current_user
     ).and_return(true)
   end
 
   describe 'GET /my_health/v2/medical_records/immunizations' do
     context 'happy path' do
-      before do          
+      before do
         VCR.use_cassette(immunizations_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
@@ -38,43 +37,43 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         VCR.use_cassette(immunizations_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
-        
+
         # Get the actual count of immunizations returned
         json_response = JSON.parse(response.body)
         actual_count = json_response['data'].length
-        
+
         # Now test that StatsD receives that exact count
         expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', actual_count)
-        
+
         # Make the request again with the mock in place
         VCR.use_cassette(immunizations_cassette) do
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
       end
     end
-    
+
     context 'error cases' do
       let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
-      
+
       before do
         allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
       end
-      
+
       context 'with client error' do
         before do
           allow(mock_client).to receive(:get_immunizations)
             .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
-            
+
           # Expect logger to receive error
           expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
-            
+
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
-        
+
         it 'returns bad_gateway status code' do
           expect(response).to have_http_status(:bad_gateway)
         end
-        
+
         it 'returns formatted error details' do
           json_response = JSON.parse(response.body)
           expect(json_response).to have_key('errors')
@@ -85,51 +84,49 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
           )
         end
       end
-      
+
       context 'with backend service exception' do
         before do
           allow(mock_client).to receive(:get_immunizations)
             .and_raise(Common::Exceptions::BackendServiceException.new('VA900', detail: 'Backend Service Unavailable'))
-            
+
           # Expect logger to receive error
           expect(Rails.logger).to receive(:error).with(/Backend service exception/)
-            
+
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
-        
+
         it 'returns bad_gateway status code' do
           expect(response).to have_http_status(:bad_gateway)
         end
-        
+
         it 'includes error details in the response' do
           json_response = JSON.parse(response.body)
           expect(json_response).to have_key('errors')
         end
       end
-      
+
       context 'when response has no entries' do
         before do
           empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
           allow(mock_client).to receive(:get_immunizations)
             .and_return(OpenStruct.new(body: empty_response))
-            
+
           # Expect StatsD to receive count of 0
           expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
-            
+
           get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
         end
-        
+
         it 'returns a successful response' do
           expect(response).to be_successful
         end
-        
+
         it 'returns an empty data array' do
           json_response = JSON.parse(response.body)
           expect(json_response['data']).to eq([])
         end
       end
-      
-     
     end
 
     context 'when feature toggle is disabled' do
@@ -138,10 +135,10 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
         allow(Flipper).to receive(:enabled?).with(
           'mhv_medical_records_immunizations_v2_enabled'
         ).and_return(false)
-        
+
         get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
       end
-        
+
       it 'returns forbidden status' do
         expect(response).to have_http_status(:forbidden)
       end
