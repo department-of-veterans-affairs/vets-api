@@ -19,8 +19,13 @@ jobs:
       pr_number: ${{ steps.approval_permissions.outputs.pr_number }}
       require_be_approval: ${{ steps.approval_permissions.outputs.require_be_approval }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Check for 'require-backend-approval' label
         id: approval_permissions
