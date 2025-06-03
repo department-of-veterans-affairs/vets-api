@@ -97,7 +97,7 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
             ) do
               subject
 
-              expect(response).to have_http_status(404)
+              expect(response).to have_http_status(:not_found)
               expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
                 'No record found for a person with the specified ICN'
               )
