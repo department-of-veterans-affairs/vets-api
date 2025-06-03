@@ -8,6 +8,16 @@ set -euo pipefail
     curl -LO https://cacerts.digicert.com/DigiCertTLSRSASHA2562020CA1-1.crt.pem
     curl -LO https://digicert.tbs-certificats.com/DigiCertGlobalG2TLSRSASHA2562020CA1.crt
 
+    # DoD ECA
+    (
+        curl -LO https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/zip/unclass-certificates_pkcs7_ECA.zip
+        unzip ./unclass-certificates_pkcs7_ECA.zip -d ECA_CA
+        cd ECA_CA/certificates_pkcs7_v5_12_eca/
+        openssl pkcs7 -inform DER -in ./certificates_pkcs7_v5_12_eca_ECA_Root_CA_5_der.p7b -print_certs | awk '/BEGIN/{i++} {print > ("eca_cert" i ".pem")}'
+        rm eca_cert.pem # first one is always invalid because of how awk is breaking it up
+        cp *.pem ../../
+    )
+
     wget \
         --level=1 \
         --quiet \
