@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sentry_logging'
 require 'claims_api/claim_logger'
 
 module ClaimsApi
   class UpdaterService
     extend ActiveSupport::Concern
     include Sidekiq::Job
-    include SentryLogging
 
     sidekiq_retries_exhausted do |message|
       ClaimsApi::Logger.log(

@@ -145,9 +145,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Log when a client or service account config contains an expired, expiring, or self-signed certificate
   mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
 
-  # Updates Cypress files in vets-website with data from Google Analytics.
-  mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
-
   # Weekly logs of maintenance windows
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
 
@@ -176,7 +173,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
   mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
-  # mgr.register('0 2 * * *', 'Veteran::VSOReloader') # Disabled until upstream data issue resolved - 2025-05-08
+  mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
   mgr.register('* * * * *', 'ExportBreakerStatus')

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/benefits_intake/benefit_intake_job'
+require 'income_and_assets/benefits_intake/submit_claim_job'
 
 module IncomeAndAssets
   ##

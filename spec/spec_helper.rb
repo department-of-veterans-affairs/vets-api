@@ -61,6 +61,7 @@ unless ENV['NOCOVERAGE']
     add_group 'Burials', 'modules/burials/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
@@ -194,7 +195,7 @@ RSpec.configure do |config|
   lighthouse_dirs = %r{
     modules/
     (appeals_api|apps_api|claims_api|openid_auth|vba_documents|
-      veteran|veteran_confirmation|veteran_verification)/
+      veteran)/
   }x
   config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|
     metadata[:enable_csrf_protection] = true

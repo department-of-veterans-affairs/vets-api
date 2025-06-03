@@ -1362,7 +1362,7 @@ RSpec.describe FormProfile, type: :model do
           let(:v10_10_ezr_expected) do
             JSON.parse(
               File.read('spec/fixtures/form1010_ezr/veteran_data.json')
-            ).merge(ezr_prefilled_data_without_ee_data).except('veteranContacts')
+            ).merge(ezr_prefilled_data_without_ee_data).except('nextOfKins', 'emergencyContacts')
           end
 
           it 'returns a prefilled 10-10EZR form', run_at: 'Thu, 27 Feb 2025 01:10:06 GMT' do
@@ -1408,7 +1408,12 @@ RSpec.describe FormProfile, type: :model do
           let(:v10_10_ezr_expected) do
             JSON.parse(
               File.read('spec/fixtures/form1010_ezr/veteran_data.json')
-            ).merge(ezr_prefilled_data_without_ee_data).except('providers', 'dependents', 'veteranContacts')
+            ).merge(ezr_prefilled_data_without_ee_data).except(
+              'providers',
+              'dependents',
+              'nextOfKins',
+              'emergencyContacts'
+            )
           end
 
           it 'returns a prefilled 10-10EZR form that does not include providers, dependents, or contacts',
