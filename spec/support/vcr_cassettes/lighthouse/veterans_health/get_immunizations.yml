@@ -50,7 +50,7 @@ http_interactions:
       - "*"
     body:
       encoding: ASCII-8BIT
-      string: '{"access_token":"eyJraWQiOiJZV19IOWY5V2tnUlpkaWVHZ2dvWEMxbmFHRkd1RzZNNHFFQzdrR3NSSWxNIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnJnOHY0aXM1M3dHbDdwYzhjS3VpRWtod09kTTFaT3NVYS1BUnNGc0JGcnciLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE3NDg4OTYzNjcsImV4cCI6MTc0ODg5NjY2NywiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9JbW11bml6YXRpb24ucmVhZCIsInBhdGllbnQvUGF0aWVudC5yZWFkIiwicGF0aWVudC9QcmFjdGl0aW9uZXIucmVhZCIsInBhdGllbnQvQWxsZXJneUludG9sZXJhbmNlLnJlYWQiLCJwYXRpZW50L09ic2VydmF0aW9uLnJlYWQiLCJwYXRpZW50L0NvbmRpdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwicGF0aWVudC9EaWFnbm9zdGljUmVwb3J0LnJlYWQiLCJzeXN0ZW0vUGF0aWVudC5yZWFkIl0sInN1YiI6IjBvYWF4a3AwYWVYRUprTUZ3MnA3IiwibGFiZWwiOiIxOEZBbGxlbi0yMDIxLTA0LTI5VDAwOjAwOjAwLjAwMFoifQ.u0_Pk84VWm46aMlQB8tYeQXg8bP5DA5a9VBxshPoKoUPH_QNi1x3oZoE-8ML9ZzJ3iJdPPAsCnEETwjGMXxOQ1AGTYUi-1_F0vgkPyZ_S5I6CW60SZqcXPxx3viinXrFUUEY120I_ld1GjjxVLB20DgTpZ0NbDY0apASqqCUILBBPIQy6TyS79ErSipo-T3Aji3MOFtWKkX82tNnuct8cr0KsXtQ2-3KvMq3LOfEJ10dQbsCbuOXaSZppPmzCBHSuEZ-NUOcOoXHrNqzLgab57VCU1sZ5eO7hheYwuuPR2zOxRKHHXaO8VEIff8kIVmqKqBemaDfw6XVHJcDYHLlEQ","token_type":"Bearer","scope":"launch
+      string: '{"access_token":"fake-token","token_type":"Bearer","scope":"launch
         patient/Immunization.read patient/Patient.read patient/Practitioner.read patient/AllergyIntolerance.read
         patient/Observation.read patient/Condition.read patient/MedicationRequest.read
         patient/DiagnosticReport.read system/Patient.read","expires_in":300,"state":null,"patient":"1000123456V123456"}'
