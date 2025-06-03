@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_03_213206) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -37,12 +37,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.datetime "updated_at", null: false
     t.string "current_verification"
     t.datetime "logingov_at"
+    t.uuid "user_account_id"
     t.index ["account_id"], name: "index_account_login_stats_on_account_id", unique: true
     t.index ["current_verification"], name: "index_account_login_stats_on_current_verification"
     t.index ["dslogon_at"], name: "index_account_login_stats_on_dslogon_at"
     t.index ["idme_at"], name: "index_account_login_stats_on_idme_at"
     t.index ["logingov_at"], name: "index_account_login_stats_on_logingov_at"
     t.index ["myhealthevet_at"], name: "index_account_login_stats_on_myhealthevet_at"
+    t.index ["user_account_id"], name: "index_account_login_stats_on_user_account_id"
   end
 
   create_table "accounts", id: :serial, force: :cascade do |t|
@@ -2003,6 +2005,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
   end
 
   add_foreign_key "account_login_stats", "accounts"
+  add_foreign_key "account_login_stats", "user_accounts"
   add_foreign_key "accreditations", "accredited_individuals"
   add_foreign_key "accreditations", "accredited_organizations"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
