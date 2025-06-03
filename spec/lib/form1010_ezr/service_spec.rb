@@ -283,7 +283,11 @@ RSpec.describe Form1010Ezr::Service do
             before do
               allow_any_instance_of(
                 Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
-              ).to receive(:get_associations).and_raise(Common::Exceptions::ResourceNotFound)
+              ).to receive(:get_associations).and_raise(
+                Common::Exceptions::ResourceNotFound.new(
+                  detail: 'associations[0].relationType: Relation type is required'
+                )
+              )
             end
 
             it 'increments statsD, logs the error to sentry, and raises the error',
@@ -305,7 +309,9 @@ RSpec.describe Form1010Ezr::Service do
                   },
                   ezr: :failure
                 )
-                expect { submit_form(form) }.to raise_error(Common::Exceptions::ResourceNotFound)
+                expect { submit_form(form) }.to raise_error(Common::Exceptions::ResourceNotFound).and(
+                  having_attributes(detail: 'associations[0].relationType: Relation type is required')
+                )
               end
             end
           end

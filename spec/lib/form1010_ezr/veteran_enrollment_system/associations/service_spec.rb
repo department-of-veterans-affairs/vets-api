@@ -264,7 +264,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
             expect do
               described_class.new(current_user).update_associations(associations_with_missing_required_fields)
             end.to raise_error(
-              an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(errors: failure_message))
+              an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(detail: failure_message))
             )
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
