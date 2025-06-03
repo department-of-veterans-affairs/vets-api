@@ -27,8 +27,9 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v4
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
@@ -81,8 +82,9 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
       COMPOSE_BASH_CMD: docker compose -f docker-compose.test.yml run web bash -c
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR
         if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v4
 
       - name: Checkout PR HEAD ref
         if: ${{ github.event_name == 'pull_request' }}
