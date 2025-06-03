@@ -16,6 +16,7 @@ module Pensions
 
       service_tag 'pension-application'
 
+      # StatsD prefix
       STATSD_KEY_PREFIX = 'api.pension_claim.controller'
 
       # an identifier that matches the parameter that the form will be set as in the JSON submission.
