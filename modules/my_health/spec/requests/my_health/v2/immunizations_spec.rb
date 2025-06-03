@@ -27,7 +27,102 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
       it 'returns a successful response' do
         expect(response).to be_successful
       end
-   
+
+      it 'tracks metrics in StatsD with exact immunization count' do
+        # First make a request to get the actual JSON response
+        VCR.use_cassette(immunizations_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+        
+        # Get the actual count of immunizations returned
+        json_response = JSON.parse(response.body)
+        actual_count = json_response['data'].length
+        
+        # Now test that StatsD receives that exact count
+        expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', actual_count)
+        
+        # Make the request again with the mock in place
+        VCR.use_cassette(immunizations_cassette) do
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+      end
+    end
+    
+    context 'error cases' do
+      let(:mock_client) { instance_double(Lighthouse::VeteransHealth::Client) }
+      
+      before do
+        allow_any_instance_of(MyHealth::V2::ImmunizationsController).to receive(:client).and_return(mock_client)
+      end
+      
+      context 'with client error' do
+        before do
+          allow(mock_client).to receive(:get_immunizations)
+            .and_raise(Common::Client::Errors::ClientError.new('FHIR API Error', 500))
+            
+          # Expect logger to receive error
+          expect(Rails.logger).to receive(:error).with(/Immunizations FHIR API error/)
+            
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+        
+        it 'returns bad_gateway status code' do
+          expect(response).to have_http_status(:bad_gateway)
+        end
+        
+        it 'returns formatted error details' do
+          json_response = JSON.parse(response.body)
+          expect(json_response).to have_key('errors')
+          expect(json_response['errors']).to be_an(Array)
+          expect(json_response['errors'].first).to include(
+            'title' => 'FHIR API Error',
+            'detail' => 'FHIR API Error'
+          )
+        end
+      end
+      
+      context 'with backend service exception' do
+        before do
+          allow(mock_client).to receive(:get_immunizations)
+            .and_raise(Common::Exceptions::BackendServiceException.new('VA900', detail: 'Backend Service Unavailable'))
+            
+          # Expect logger to receive error
+          expect(Rails.logger).to receive(:error).with(/Backend service exception/)
+            
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+        
+        it 'returns bad_gateway status code' do
+          expect(response).to have_http_status(:bad_gateway)
+        end
+        
+        it 'includes error details in the response' do
+          json_response = JSON.parse(response.body)
+          expect(json_response).to have_key('errors')
+        end
+      end
+      
+      context 'when response has no entries' do
+        before do
+          empty_response = { 'resourceType' => 'Bundle', 'entry' => [] }
+          allow(mock_client).to receive(:get_immunizations)
+            .and_return(OpenStruct.new(body: empty_response))
+            
+          # Expect StatsD to receive count of 0
+          expect(StatsD).to receive(:gauge).with('api.my_health.immunizations.count', 0)
+            
+          get path, headers: { 'X-Key-Inflection' => 'camel' }, params: default_params
+        end
+        
+        it 'returns a successful response' do
+          expect(response).to be_successful
+        end
+        
+        it 'returns an empty data array' do
+          json_response = JSON.parse(response.body)
+          expect(json_response['data']).to eq([])
+        end
+      end
     end
   end
 end
