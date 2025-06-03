@@ -94,6 +94,8 @@ module Form1010Ezr
       @unprocessed_user_dob = parsed_form['veteranDateOfBirth'].clone
       parsed_form = configure_and_validate_form(parsed_form)
 
+      handle_associations(parsed_form) if Flipper.enabled?(:ezr_associations_api_enabled)
+
       submit_async(parsed_form)
     rescue => e
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
@@ -196,6 +198,23 @@ module Form1010Ezr
         submission_id:,
         veteran_initials:
       )
+    end
+
+    def handle_associations(parsed_form)
+      form_associations = (parsed_form['nextOfKins'] || []) + (parsed_form['emergencyContacts'] || [])
+      return parsed_form if form_associations.empty?
+
+      associations_service = Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user)
+      ves_associations = associations_service.get_associations(FORM_ID)
+      ves_formatted_associations = associations_service.reconcile_associations(ves_associations, form_associations)
+
+      associations_service.update_associations(ves_formatted_associations)
+      # Since we are using the Associations API to update the associations, we'll remove the
+      # 'nextOfKins' and 'emergencyContacts' from the parsed_form to prevent redundancy
+      parsed_form.delete('nextOfKins')
+      parsed_form.delete('emergencyContacts')
+
+      parsed_form
     end
   end
 end

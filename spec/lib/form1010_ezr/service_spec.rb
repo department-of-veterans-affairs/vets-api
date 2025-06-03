@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'form1010_ezr/service'
+require 'form1010_ezr/veteran_enrollment_system/associations/service'
 
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
@@ -267,6 +268,44 @@ RSpec.describe Form1010Ezr::Service do
                 expect(personal_information_log.present?).to be(true)
                 expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
                 expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+              end
+            end
+          end
+        end
+
+        context "when the 'ezr_associations_api_enabled' flipper is enabled" do
+          before do
+            allow(Flipper).to receive(:enabled?).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
+          end
+
+          context 'when an error occurs in the associations service' do
+            before do
+              allow_any_instance_of(
+                Form1010Ezr::VeteranEnrollmentSystem::Associations::Service
+              ).to receive(:get_associations).and_raise(Common::Exceptions::ResourceNotFound)
+            end
+
+            it 'increments statsD, logs the error to sentry, and raises the error',
+               run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+              VCR.use_cassette(
+                'form1010_ezr/authorized_submit',
+                { match_requests_on: %i[method uri body], erb: true }
+              ) do
+                allow(StatsD).to receive(:increment)
+
+                expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+                expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+                  '1010EZR failure',
+                  :error,
+                  {
+                    first_initial: 'F',
+                    middle_initial: 'M',
+                    last_initial: 'Z'
+                  },
+                  ezr: :failure
+                )
+                expect { submit_form(form) }.to raise_error(Common::Exceptions::ResourceNotFound)
               end
             end
           end
