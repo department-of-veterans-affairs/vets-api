@@ -64,6 +64,7 @@ jobs:
             exit 1
           fi
 
+
   check-workflow-status:
     name: Check Workflow Statuses
     needs: [get-pr-data]
@@ -78,29 +79,43 @@ jobs:
       - name: Check if workflows have completed successfully
         id: check_workflow_status
         run: |
-          failures=false
           GITHUB_REPOSITORY="department-of-veterans-affairs/vets-api"
-          WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
+          REQUIRED_WORKFLOWS=("Code Checks" "Check CODEOWNERS Entries" "Audit Service Tags" "CodeQL")
+          failures=false
 
-          for WORKFLOW in "${WORKFLOWS[@]}"; do
-            # Check if there's any in-progress run for this workflow
-            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event -q \
-              '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request")')
+          echo "Checking workflow statuses for branch: ${pr_branch}"
+
+          for WORKFLOW in "${REQUIRED_WORKFLOWS[@]}"; do
+            echo "Evaluating workflow: $WORKFLOW"
+
+            # Check if the workflow has any run on this branch
+            EXISTS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --json headBranch,event -q \
+              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\")" | head -n 1)
+
+            if [ -z "$EXISTS" ]; then
+              echo "No runs found for '$WORKFLOW' on this branch. Skipping."
+              continue
+            fi
+
+            # Check if any run is in progress
+            IN_PROGRESS=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=in_progress --json headBranch,event,headSha -q \
+              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | .headSha" | head -n 1)
 
             if [ -n "$IN_PROGRESS" ]; then
-              echo "$WORKFLOW is still in progress."
+              echo "'$WORKFLOW' is still in progress."
+              failures=true
+              continue
+            fi
+
+            # Check if a successful completed run exists
+            SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion,headSha -q \
+              ".[] | select(.headBranch == \"${pr_branch}\" and .event == \"pull_request\") | select(.conclusion == \"success\") | .headSha" | head -n 1)
+
+            if [ -z "$SUCCESSFUL" ]; then
+              echo "'$WORKFLOW' did not complete successfully."
               failures=true
             else
-              # Check if the latest completed run was successful
-              SUCCESSFUL=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow="$WORKFLOW" --status=completed --json headBranch,event,conclusion -q \
-                '.[] | select(.headBranch == "${{ env.pr_branch }}" and .event == "pull_request") | select(.conclusion == "success")' | head -n 1)
-              if [ -z "$SUCCESSFUL" ]; then
-                echo "$WORKFLOW did not complete successfully."
-                failures=true
-                # break
-              else
-                echo "$WORKFLOW completed successfully."
-              fi
+              echo "'$WORKFLOW' completed successfully."
             fi
           done
 
