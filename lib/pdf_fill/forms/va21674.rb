@@ -555,7 +555,13 @@ module PdfFill
 
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
+
+        unless @form_data['veteran_information']
+          @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
+        end
+
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
+
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
 
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
@@ -669,11 +675,14 @@ module PdfFill
           'did_attend_no' => select_checkbox(!did_attend)
         }
 
-        is_school_accredited = dependents_application['current_term_dates']['is_school_accredited']
-        dependents_application['current_term_dates']['is_school_accredited'] = {
-          'is_school_accredited_yes' => select_radio_button(is_school_accredited),
-          'is_school_accredited_no' => select_radio_button(!is_school_accredited)
-        }
+        current_term_dates = dependents_application['current_term_dates']
+        if current_term_dates.present?
+          is_school_accredited = current_term_dates['is_school_accredited']
+          dependents_application['current_term_dates']['is_school_accredited'] = {
+            'is_school_accredited_yes' => select_radio_button(is_school_accredited),
+            'is_school_accredited_no' => select_radio_button(!is_school_accredited)
+          }
+        end
       end
       # rubocop:enable Metrics/MethodLength
     end
