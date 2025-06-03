@@ -18,19 +18,48 @@ module AccreditedRepresentativePortal
 
       def upload_scanned_form
         authorize(nil, policy_class: RepresentativeFormUploadPolicy)
-        attachment = PersistentAttachments::VAForm.new
-        attachment.form_id = params['form_id']
+        attachment = PersistentAttachments::VAForm.new(form_id: params[:form_id])
         attachment.file = params['file']
-        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        file_path = params['file'].tempfile.path
+        return if validate_document(file_path) == :error
+        
+        validate_attachment(attachment)
+        render json: serialized(attachment)
+      end
 
-        attachment.save
-        serialized = PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
-          key.camelize(:lower)
-        end
-        render json: serialized
+      def submit_supporting_documents
+        authorize(nil, policy_class: RepresentativeFormUploadPolicy)
+        attachment = PersistentAttachments::VAFormDocumentation.new(form_id: params[:form_id])
+        attachment.file = params['file']
+        file_path = params['file'].tempfile.path
+        return if validate_document(file_path) == :error
+
+        validate_document(file_path)
+        validate_attachment(attachment)
+        render json: serialized(attachment)
       end
 
       private
+
+      def serialized(attachment)
+        PersistentAttachmentVAFormSerializer.new(attachment).as_json.deep_transform_keys do |key|
+          key.camelize(:lower)
+        end
+      end
+
+      def validate_document(file_path)
+        begin
+          lighthouse_service.valid_document?(document: file_path)
+        rescue BenefitsIntake::Service::InvalidDocumentError => e
+          render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+          :error
+        end
+      end
+
+      def validate_attachment(attachment)
+        raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        attachment.save
+      end
 
       def lighthouse_service
         @lighthouse_service ||= BenefitsIntake::Service.new
