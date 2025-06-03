@@ -68,7 +68,7 @@ module AccreditedRepresentativePortal
 
         if representatives.empty?
           raise Common::Exceptions::Forbidden, detail: 'No representatives found for this user.'
-        elsif representatives.group_by(&:user_type).any? { |_, group| group.size > 1 }
+        elsif representatives.group_by(&:user_type).any? { |_, group| group.many? }
           raise Common::Exceptions::Forbidden, detail: 'Multiple representatives of the same type found for this user.'
         end
 

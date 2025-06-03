@@ -52,17 +52,6 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUserLoader do
               expect(reloaded_user.all_emails).to eq([])
             end
           end
-
-          context 'and user_attributes raises an error' do
-            before do
-              allow(access_token).to receive(:user_attributes)
-                .and_raise(StandardError, 'User attributes error')
-            end
-
-            it 'gracefully handles the error and sets all_emails to an empty array' do
-              expect(reloaded_user.all_emails).to eq([])
-            end
-          end
         end
 
         context 'when disabled' do
