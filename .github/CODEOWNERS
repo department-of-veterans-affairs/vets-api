@@ -2163,7 +2163,7 @@ spec/support/vcr_cassettes/lighthouse/facilities/v1/200_facilities.yml @departme
 spec/support/vcr_cassettes/lighthouse/facilities/v1/200_facilities_757_358.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/lighthouse/facilities/v1/200_facilities_no_ids.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/mobile-api-team
 spec/support/vcr_cassettes/lighthouse/veteran_verification @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
-spec/support/vcr_cassettes/lighthouse/veterans_health @department-of-veterans-affairs/va-cto-health-products department-of-veterans-affairs/backend-review-group 
+spec/support/vcr_cassettes/lighthouse/veterans_health @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group 
 spec/support/vcr_cassettes/mail_automation @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/map @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/mdot @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
