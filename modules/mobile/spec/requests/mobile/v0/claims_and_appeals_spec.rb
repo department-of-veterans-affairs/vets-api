@@ -523,59 +523,87 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
   describe 'GET /v0/claim-letter/documents' do
     let!(:user) { sis_user }
 
-    context 'with working upstream service' do
-      let!(:response_body) do
-        {
-          data: {
-            documents: [
-              {
-                docTypeId: '702',
-                subject: 'foo',
-                documentUuid: '73CD7B28-F695-4337-BBC1-2443A913ACF6',
-                originalFileName: 'SupportingDocument.pdf',
-                documentTypeLabel: 'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
-                trackedItemId: 600_000_001,
-                uploadedDateTime: '2024-09-13T17:51:56Z'
-              }, {
-                docTypeId: '45',
-                subject: 'bar ',
-                documentUuid: 'EF7BF420-7E49-4FA9-B14C-CE5F6225F615',
-                originalFileName: 'SupportingDocument.pdf',
-                documentTypeLabel: 'Military Personnel Record',
-                trackedItemId: 600_000_002,
-                uploadedDateTime: '2024-09-13T178:32:24Z'
-              }
-            ]
+    describe 'with working upstream service with' do
+      context 'and a user with documents' do
+        let!(:response_body) do
+          {
+            data: {
+              documents: [
+                {
+                  docTypeId: '702',
+                  subject: 'foo',
+                  documentUuid: '73CD7B28-F695-4337-BBC1-2443A913ACF6',
+                  originalFileName: 'SupportingDocument.pdf',
+                  documentTypeLabel: 'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
+                  trackedItemId: 600_000_001,
+                  uploadedDateTime: '2024-09-13T17:51:56Z'
+                }, {
+                  docTypeId: '45',
+                  subject: 'bar ',
+                  documentUuid: 'EF7BF420-7E49-4FA9-B14C-CE5F6225F615',
+                  originalFileName: 'SupportingDocument.pdf',
+                  documentTypeLabel: 'Military Personnel Record',
+                  trackedItemId: 600_000_002,
+                  uploadedDateTime: '2024-09-13T178:32:24Z'
+                }
+              ]
+            }
           }
-        }
-      end
+        end
 
-      let!(:claim_letter_doc_response) do
-        { 'data' => [{ 'id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'type' => 'claim_letter_document',
-                       'attributes' => { 'docType' => '702',
-                                         'typeDescription' =>
-                                           'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
-                                         'receivedAt' => '2024-09-13T17:51:56Z' } },
-                     { 'id' => '{EF7BF420-7E49-4FA9-B14C-CE5F6225F615}', 'type' => 'claim_letter_document',
-                       'attributes' => { 'docType' => '45',
-                                         'typeDescription' => 'Military Personnel Record',
-                                         'receivedAt' => '2024-09-13T178:32:24Z' } }] }
-      end
+        let!(:claim_letter_doc_response) do
+          { 'data' => [{ 'id' => '{73CD7B28-F695-4337-BBC1-2443A913ACF6}', 'type' => 'claim_letter_document',
+                         'attributes' => { 'docType' => '702',
+                                           'typeDescription' =>
+                                             'Disability Benefits Questionnaire (DBQ) - Veteran Provided',
+                                           'receivedAt' => '2024-09-13T17:51:56Z' } },
+                       { 'id' => '{EF7BF420-7E49-4FA9-B14C-CE5F6225F615}', 'type' => 'claim_letter_document',
+                         'attributes' => { 'docType' => '45',
+                                           'typeDescription' => 'Military Personnel Record',
+                                           'receivedAt' => '2024-09-13T178:32:24Z' } }] }
+        end
 
-      before do
-        benefits_document_service_double = double
-        expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
-        expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(
-          Faraday::Response.new(
-            status: 200, body: response_body.as_json
+        before do
+          benefits_document_service_double = double
+          expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
+          expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(
+            Faraday::Response.new(
+              status: 200, body: response_body.as_json
+            )
           )
-        )
+        end
+
+        it 'and a result that matches our schema is successfully returned with the 200 status' do
+          get '/mobile/v0/claim-letter/documents', headers: sis_headers
+          assert_schema_conform(200)
+          expect(response.parsed_body).to eq(claim_letter_doc_response)
+        end
       end
 
-      it 'and a result that matches our schema is successfully returned with the 200 status' do
-        get '/mobile/v0/claim-letter/documents', headers: sis_headers
-        assert_schema_conform(200)
-        expect(response.parsed_body).to eq(claim_letter_doc_response)
+      context 'and a user without documents' do
+        let!(:response_body) do
+          { data: {} }
+        end
+
+        let!(:claim_letter_doc_response) do
+          { 'data' => [] }
+        end
+
+        before do
+          benefits_document_service_double = double
+          expect(BenefitsDocuments::Service).to receive(:new).and_return(benefits_document_service_double)
+          expect(benefits_document_service_double).to receive(:claim_letters_search).and_return(
+            Faraday::Response.new(
+              status: 200, body: response_body.as_json
+            )
+          )
+        end
+
+        it 'and a result that matches our schema is successfully returned with the 200 status' do
+          get '/mobile/v0/claim-letter/documents', headers: sis_headers
+          assert_schema_conform(200)
+          expect(response.parsed_body).to eq(claim_letter_doc_response)
+        end
       end
     end
 
