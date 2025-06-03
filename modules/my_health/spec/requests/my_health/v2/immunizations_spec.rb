@@ -15,8 +15,7 @@ RSpec.describe 'MyHealth::V2::ImmunizationsController', :skip_json_api_validatio
     sign_in_as(current_user)
     # Enable the feature toggle by default for most tests
     allow(Flipper).to receive(:enabled?).with(
-      'mhv_medical_records_immunizations_v2_enabled',
-      current_user
+      'mhv_medical_records_immunizations_v2_enabled'
     ).and_return(true)
   end
 
