@@ -34,9 +34,9 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
-            verify_user!
+            verify_vet360_id!
 
-            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}")
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vet360_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
@@ -64,17 +64,12 @@ module VAProfile
         end
 
         def update_address(address)
-          Rails.logger.info("ContactInformationV2 UPDATE ADDRESS POU: #{address.address_pou}") if log_transaction_id?
-
           address_type =
             if address.address_pou == VAProfile::Models::V3::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'
             end
-
-          Rails.logger.info("ContactInformationV2 UPDATE ADDRESS TYPE: #{address_type}") if log_transaction_id?
-
           update_model(address, "#{address_type}_address", 'address')
         end
 
@@ -107,8 +102,6 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around
         #   an transaction object
         def post_address(address)
-          Rails.logger.info("ContactInformationV2 POST ADDRESS POU: #{address.address_pou}") if log_transaction_id?
-
           post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
         end
 
@@ -116,8 +109,6 @@ module VAProfile
         # @param address [VAProfile::Models::Address] the address to update
         # @return [VAProfile::V2::ContactInformation::AddressTransactionResponse] wrapper around a transaction object
         def put_address(address)
-          Rails.logger.info("ContactInformationV2 PUT ADDRESS POU: #{address.address_pou}") if log_transaction_id?
-
           post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
         end
 
@@ -128,11 +119,8 @@ module VAProfile
           route = "addresses/status/#{transaction_id}"
           Rails.logger.info("ContactInformationV2 Address Transaction_ID: #{transaction_id}") if log_transaction_id?
           transaction_status = get_transaction_status(route, AddressTransactionResponse)
-
           changes = transaction_status.changed_field
-          if log_transaction_id?
-            Rails.logger.info("ContactInformationV2 Address Transaction Status changes: #{changes}")
-          end
+
           send_contact_change_notification(transaction_status, changes)
 
           transaction_status
@@ -229,14 +217,25 @@ module VAProfile
 
         private
 
+        def verify_vet360_id!
+          raise 'ContactInformationV2 - Missing User VAProfile_ID' if @user&.vet360_id.blank?
+        end
+
         def verify_user!
           unless @user&.vet360_id.present? || @user&.icn.present?
             raise 'ContactInformationV2 - Missing User ICN and VAProfile_ID'
           end
+
+          Rails.logger.info("ContactInformationV2 User MVI Verified? : #{@user&.icn.present?},
+            VAProfile Verified? #{@user&.vet360_id.present?}")
+        end
+
+        def vet360_aaid
+          "#{@user.vet360_id}^PI^200VETS^USDVA"
         end
 
         def vaprofile_aaid
-          return "#{@user.vet360_id}^PI^200VETS^USDVA" if @user.vet360_id.present?
+          return vet360_aaid if @user.vet360_id.present?
 
           "#{@user.icn}^NI^200M^USVHA" # AAID for VAProfile Requests ONLY
         end
@@ -249,8 +248,12 @@ module VAProfile
 
         def update_model(model, attr, method_name)
           contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
+          if log_transaction_id?
+            Rails.logger.info("ContactInformationV2 UPDATE MODEL VAProfileRedis Contact Info : #{contact_info}")
+          end
           model.id = contact_info.public_send(attr)&.id
           verb = model.id.present? ? 'put' : 'post'
+
           public_send("#{verb}_#{method_name}", model)
         end
 
@@ -304,15 +307,11 @@ module VAProfile
           with_monitoring do
             request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(vaprofile_aaid)}" + "/#{path}"
             # in_json_v2 method should replace in_json after Contact Information V1 has depreciated
-            if path == 'addresses' && log_transaction_id?
-              Rails.logger.info("ContactInformationV2 METHOD: #{method}, POST OR PUT JSON: #{model.in_json_v2},
-                ADDRESS POU: #{model.address_pou}, REQUEST PATH: #{request_path},
-                CREATED AT: #{model.created_at}, UPDATED AT: #{model.updated_at}")
+            if log_transaction_id?
+              Rails.logger.info("ContactInformationV2 METHOD: #{method}, JSON: #{model.in_json_v2}")
             end
             raw_response = perform(method, request_path, model.in_json_v2)
-            if path == 'addresses' && log_transaction_id?
-              Rails.logger.info("ContactInformation RAW RESPONSE: #{raw_response}")
-            end
+            Rails.logger.info("ContactInformation RAW RESPONSE: #{raw_response}") if log_transaction_id?
             response_class.from(raw_response)
           end
         rescue => e

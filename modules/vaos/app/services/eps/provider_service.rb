@@ -9,8 +9,8 @@ module Eps
     #
     def get_provider_services
       response = perform(:get, "/#{config.base_path}/provider-services",
-                         {}, headers)
-      log_response(response, 'EPS Get Provider Services')
+                         {}, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -21,16 +21,16 @@ module Eps
     #
     def get_provider_service(provider_id:)
       response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
-                         {}, headers)
-      log_response(response, 'EPS Get Provider Service')
+                         {}, request_headers)
+
       OpenStruct.new(response.body)
     end
 
     def get_provider_services_by_ids(provider_ids:)
       query_object_array = provider_ids.map { |id| "id=#{id}" }
       response = perform(:get, "/#{config.base_path}/provider-services",
-                         query_object_array, headers)
-      log_response(response, 'EPS Get Provider Services by IDs')
+                         query_object_array, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -40,8 +40,8 @@ module Eps
     # @return OpenStruct response from EPS networks endpoint
     #
     def get_networks
-      response = perform(:get, "/#{config.base_path}/networks", {}, headers)
-      log_response(response, 'EPS Get Networks')
+      response = perform(:get, "/#{config.base_path}/networks", {}, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -58,8 +58,8 @@ module Eps
         origin:
       }
 
-      response = perform(:post, "/#{config.base_path}/drive-times", payload, headers)
-      log_response(response, 'EPS Get Drive Times')
+      response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -95,8 +95,8 @@ module Eps
                  opts
                end
 
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, headers)
-      log_response(response, 'EPS Get Provider Slots')
+      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -110,36 +110,13 @@ module Eps
     #
     def search_provider_services(npi:)
       query_params = { npi: }
-      response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
-      log_response(response, 'EPS Search Provider Services')
+      response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
 
-      # NOTE: faraday converts keys to symbols
-      matching_provider = response.body[:provider_services]&.find do |provider|
-        provider[:individual_providers]&.any? { |individual| individual[:npi] == npi }
-      end
-
-      matching_provider ? OpenStruct.new(matching_provider) : nil
+      # NPIs are unique, so we expect either an empty array or an array with exactly one matching provider
+      response.body[:provider_services]&.first&.then { |provider| OpenStruct.new(provider) }
     end
 
     private
-
-    ##
-    # Log API response details for debugging
-    #
-    # @param response [Faraday::Response] The API response
-    # @param description [String] Description of the API call
-    # @return [void]
-    def log_response(response, description)
-      status = response.status
-      response_body = response.body.is_a?(String) ? response.body : response.body.inspect
-
-      log_level = status >= 400 ? :error : :info
-      Rails.logger.public_send(
-        log_level,
-        "#{description} - Status: #{status}, Content-Type: #{response.response_headers['Content-Type']}, " \
-        "Body Class: #{response.body.class}, Body: #{response_body[0..500]}..."
-      )
-    end
 
     def build_search_params(params)
       {

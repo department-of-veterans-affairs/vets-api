@@ -12,7 +12,7 @@ require 'kafka/sidekiq/event_bus_submission_job'
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
   include VA1010Forms::Utils
-  include FormValidation
+  include RetriableConcern
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
@@ -83,7 +83,11 @@ class HealthCareApplication < ApplicationRecord
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue Common::Client::Errors::ClientError => e
-      log_exception_to_sentry(e)
+      if Flipper.enabled?(:hca_disable_sentry_logs)
+        Rails.logger.error('[10-10EZ] - Error synchronously submitting form', { exception: e, user_loa: user&.loa })
+      else
+        log_exception_to_sentry(e)
+      end
 
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
@@ -227,7 +231,7 @@ class HealthCareApplication < ApplicationRecord
 
     begin
       user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
-    rescue Common::Exceptions::ValidationErrors
+    rescue
       # if certain user attributes are missing, we can't get an ICN
       user_icn = nil
     end
@@ -292,7 +296,7 @@ class HealthCareApplication < ApplicationRecord
     log_submission_failure_details
   end
 
-  def log_submission_failure_details
+  def log_submission_failure_details # rubocop:disable Metrics/MethodLength
     return if parsed_form.blank?
 
     send_event_bus_event('error')
@@ -302,16 +306,27 @@ class HealthCareApplication < ApplicationRecord
       error_class: 'HealthCareApplication FailedWontRetry'
     )
 
-    log_message_to_sentry(
-      'HCA total failure',
-      :error,
-      {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
-        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
-        last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
-      },
-      hca: :total_failure
-    )
+    if Flipper.enabled?(:hca_disable_sentry_logs)
+      Rails.logger.info(
+        '[10-10EZ] - HCA total failure',
+        {
+          first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+          middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+          last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+        }
+      )
+    else
+      log_message_to_sentry(
+        'HCA total failure',
+        :error,
+        {
+          first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+          middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+          last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+        },
+        hca: :total_failure
+      )
+    end
   end
 
   def send_failure_email
@@ -332,16 +347,25 @@ class HealthCareApplication < ApplicationRecord
     VANotify::EmailJob.perform_async(email, template_id, { 'salutation' => salutation }, api_key, metadata)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
-    log_exception_to_sentry(e)
+    if Flipper.enabled?(:hca_disable_sentry_logs)
+      Rails.logger.error('[10-10EZ] - Failure sending Submission Failure Email', { exception: e })
+    else
+      log_exception_to_sentry(e)
+    end
   end
 
   def form_matches_schema
-    if form.present?
-      schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-      validation_errors = validate_form_with_retries(schema, parsed_form)
-      validation_errors.each do |v|
-        errors.add(:form, v.to_s)
-      end
+    return if form.blank?
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+
+    validation_errors = with_retries('10-10EZ Form Validation') do
+      JSONSchemer.schema(schema).validate(parsed_form).to_a
+    end
+
+    validation_errors.each do |error|
+      e = error.symbolize_keys
+      errors.add(:form, e[:error].to_s)
     end
   end
 end

@@ -3,7 +3,7 @@
 module MyHealth
   module V1
     module MedicalRecords
-      class ImagingController < MrController
+      class ImagingController < MRController
         include ActionController::Live
 
         before_action :set_study_id, only: %i[request_download images image dicom]

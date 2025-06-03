@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -25,7 +25,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "bpds_submission_status", ["pending", "submitted", "failure"]
   create_enum "itf_remediation_status", ["unprocessed"]
-  create_enum "lighthouse_submission_status", ["pending", "submitted"]
+  create_enum "lighthouse_submission_status", ["pending", "submitted", "failure", "vbms", "manually"]
   create_enum "user_action_status", ["initial", "success", "error"]
 
   create_table "account_login_stats", force: :cascade do |t|
@@ -319,6 +319,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "type", null: false
     t.uuid "creator_id", null: false
+    t.integer "declination_reason"
     t.index ["creator_id"], name: "index_ar_power_of_attorney_request_decisions_on_creator_id"
   end
 
@@ -362,7 +363,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.string "power_of_attorney_holder_type", null: false
     t.string "accredited_individual_registration_number"
     t.string "power_of_attorney_holder_poa_code"
+    t.datetime "redacted_at"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["redacted_at"], name: "index_ar_power_of_attorney_requests_on_redacted_at"
   end
 
   create_table "ar_user_account_accredited_individuals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -419,7 +422,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "path"
-    t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["entity_id"], name: "index_banners_on_entity_id", unique: true
     t.index ["path"], name: "index_banners_on_path"
   end
 
@@ -461,7 +464,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.datetime "bpds_updated_at", comment: "timestamp of the last update from bpds"
     t.string "bpds_id", comment: "ID of the submission in BPDS"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
+    t.boolean "needs_kms_rotation", default: false, null: false
     t.index ["bpds_submission_id"], name: "index_bpds_submission_attempts_on_bpds_submission_id"
+    t.index ["needs_kms_rotation"], name: "index_bpds_submission_attempts_on_needs_kms_rotation"
   end
 
   create_table "bpds_submissions", force: :cascade do |t|
@@ -473,6 +478,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.string "va_claim_id", comment: "claim ID in VA (non-vets-api) systems"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.index ["needs_kms_rotation"], name: "index_bpds_submissions_on_needs_kms_rotation"
   end
 
   create_table "central_mail_submissions", id: :serial, force: :cascade do |t|
@@ -1012,7 +1019,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.text "ssn_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
+    t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi", unique: true
     t.index ["needs_kms_rotation"], name: "index_gibs_not_found_users_on_needs_kms_rotation"
   end
 
@@ -1110,7 +1117,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.string "edipi", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi"
+    t.index ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi", unique: true
   end
 
   create_table "ivc_champva_forms", force: :cascade do |t|
@@ -1158,24 +1165,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
     t.datetime "lighthouse_updated_at", comment: "timestamp of the last update from lighthouse"
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
+    t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
 
   create_table "lighthouse_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
+    t.boolean "needs_kms_rotation", default: false, null: false
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
+    t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
@@ -1697,6 +1708,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_04_30_165555) do
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "veteran_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "veteran_device_records", force: :cascade do |t|

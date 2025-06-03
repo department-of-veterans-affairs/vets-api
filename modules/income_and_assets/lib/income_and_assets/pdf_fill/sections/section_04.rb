@@ -14,8 +14,10 @@ module IncomeAndAssets
         },
         # 4b - 4f (only space for five on form)
         'associatedIncomes' => {
+          # Label for each income entry (e.g., 'Income 1')
+          item_label: 'Income',
           limit: 5,
-          first_key: 'recipientRelationship',
+          first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
             key: "F[0].IncomeRecipients4[#{ITERATOR}]"
@@ -23,13 +25,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 4,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -37,14 +41,16 @@ module IncomeAndAssets
             question_num: 4,
             question_suffix: '(2)',
             question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Name'
           },
           # Q3
           'payer' => {
             key: "F[0].IncomePayer4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(3)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',
+            question_label: 'Payer'
           },
           # Q4
           'incomeType' => {
@@ -53,13 +59,15 @@ module IncomeAndAssets
           'incomeTypeOverflow' => {
             question_num: 4,
             question_suffix: '(4)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
+            question_text: 'SPECIFY THE TYPE OF INCOME',
+            question_label: 'Income Type'
           },
           'otherIncomeType' => {
             key: "F[0].OtherIncomeType4[#{ITERATOR}]",
             question_num: 4,
             question_suffix: '(4)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
+            question_text: 'SPECIFY THE TYPE OF INCOME',
+            question_label: 'Other Income Type'
           },
           # Q5
           'grossMonthlyIncome' => {
@@ -74,9 +82,11 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 4,
             question_suffix: '(5)',
-            question_text: 'GROSS MONTHLY INCOME'
+            question_text: 'GROSS MONTHLY INCOME',
+            question_label: 'Gross Monthly Income'
           },
           # Q6
           'accountValue' => {
@@ -94,9 +104,11 @@ module IncomeAndAssets
             }
           },
           'accountValueOverflow' => {
+            dollar: true,
             question_num: 4,
             question_suffix: '(6)',
-            question_text: 'VALUE OF ACCOUNT'
+            question_text: 'VALUE OF ACCOUNT',
+            question_label: 'Account Value'
           }
         }
       }.freeze

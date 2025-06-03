@@ -7,6 +7,7 @@ module VAOS
     class ReferralsController < VAOS::BaseController
       # GET /v2/referrals
       # Fetches a list of referrals for the current user
+      # Filters out expired referrals and adds encrypted UUIDs for security
       def index
         response = referral_service.get_vaos_referral_list(
           current_user.icn,
@@ -15,7 +16,6 @@ module VAOS
 
         # Filter out expired referrals
         response = filter_expired_referrals(response)
-
         # Add encrypted UUIDs to the referrals for URL usage
         add_referral_uuids(response)
 
@@ -24,6 +24,7 @@ module VAOS
 
       # GET /v2/referrals/:uuid
       # Fetches a specific referral by its encrypted UUID
+      # Decrypts the UUID to retrieve the referral consult ID
       def show
         # Decrypt the referral UUID from the request parameters
         decrypted_id = VAOS::ReferralEncryptionService.decrypt(referral_uuid)
@@ -50,7 +51,7 @@ module VAOS
 
         referrals.each do |referral|
           # Add encrypted UUID from the referral number
-          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_number)
+          referral.uuid = VAOS::ReferralEncryptionService.encrypt(referral.referral_consult_id)
         end
       end
 
@@ -60,28 +61,21 @@ module VAOS
         params.require(:id)
       end
 
-      # The referral mode parameter (defaults to 'C' if not provided)
-      # @return [String] the referral mode
-      def referral_mode_param
-        # TODO: Need to verify what modes we can allow. API spec is not clear.
-        params.fetch(:mode, 'C')
-      end
-
       # CCRA Referral Status Codes:
-      # S  - Suspend: Referral temporarily paused/on hold
+      # X  - Cancelled
       # BP - EOC Complete: Episode of Care is completed
       # AP - Approved: Referral approved/authorized for care
       # A  - First Appointment Made: Initial appointment scheduled
-      #
-      # TODO:
-      # I  - Unknown - Possibly means Initial: Referral initiated/in progress
-      # AC - Unknown - Possibly means Appointment Canceled
+      # D  - Initial care
+      # RJ - Referral Rejected
+      # C  - Sent to Care Team
+      # AC - Accepted: Referral accepted/authorized for care
       #
       # The referral status parameter for filtering referrals
       # @return [String] the referral status
       def referral_status_param
         # Default to only show referrals that a veteran can make appointments for.
-        params.fetch(:status, "'AP','AC','I'")
+        params.fetch(:status, "'AP', 'C'")
       end
 
       # Filters out referrals that have expired (expiration date before today)
