@@ -9,7 +9,7 @@ module DecisionReviewV1
       def initialize(form_data:, submission_id: nil, validate: true)
         @submission = Form526Submission.find_by(id: submission_id)
         @form = set_signature_date(form_data)
-        super(validate: validate) # Pass validate flag to parent
+        super(validate:) # Pass validate flag to parent
       end
 
       protected
@@ -34,13 +34,15 @@ module DecisionReviewV1
         end
       end
 
-      def country_code_for_us_validation
-        'US'
+      # Flip this on (via Flipper) to use the 2024 template
+      def generate_2024_version?
+        Flipper.enabled?(:decision_review_form4142_use_2024_template)
       end
 
-       # Flip this on (via Flipper) to use the 2024 template
-      def generate_2024_version?
-        Flipper.enabled?(:form4142_use_2024_template)
+      private
+
+      def uuid
+        @uuid ||= SecureRandom.uuid
       end
     end
   end

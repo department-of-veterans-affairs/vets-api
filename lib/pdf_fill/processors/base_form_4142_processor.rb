@@ -21,13 +21,15 @@ module Processors
     SIGNATURE_DATE_KEY = 'signatureDate'
     SIGNATURE_TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
     TIMEZONE = 'Central Time (US & Canada)'
+    US_COUNTRY_CODES = %w[US USA].freeze
     FORM_SCHEMA_ID = '21-4142'
     LEGACY_FORM_CLASS_ID = '21-4142'
     FORM_CLASS_ID_2024 = '21-4142-2024'
 
+    attr_reader :pdf_path, :request_body
+
     # @return [Pathname] the generated PDF path
     # @return [Hash] the generated request body
-    attr_reader :pdf_path, :request_body
 
     def initialize(validate: true)
       validate_form4142 if validate
@@ -38,55 +40,20 @@ module Processors
       }
     end
 
-    # Single entry point: choose the right form_class_id, then fill & stamp.
     def generate_stamp_pdf
-      selected_form_class_id = generate_2024_version? ? FORM_CLASS_ID_2024 : LEGACY_FORM_CLASS_ID
-
-      pdf = PdfFill::Filler.fill_ancillary_form(
-        form_data,
-        pdf_identifier,
-        selected_form_class_id
-      )
-
-      # Handle signature stamping for 2024 version
-      if signature.present? && selected_form_class_id == FORM_CLASS_ID_2024
-        pdf = PDFUtilities::DatestampPdf.new(pdf).run(
-          text: signature,
-          x: 50,
-          y: 560,
-          text_only: true,
-          size: 10,
-          page_number: 1,
-          template: pdf,
-          multistamp: true,
-          timestamp_required: false
-        )
-      end
-
-      # Add VA.gov timestamp
-      stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(
-        text: 'VA.gov',
-        x: 5,
-        y: 5,
-        timestamp: submission_date
-      )
-
-      # Add VA.gov Submission text
-      stamped_path = PDFUtilities::DatestampPdf.new(stamped_path).run(
-        text: 'VA.gov Submission',
-        x: 510,
-        y: 775,
-        text_only: true
-      )
+      base_pdf = fill_form_template
+      signed_pdf = add_signature_stamp(base_pdf)
+      timestamped_pdf = add_vagov_timestamp(signed_pdf)
+      add_vagov_submission_label(timestamped_pdf)
     end
 
     protected
 
-    # Default: use legacy form
+    # Template method - subclasses can override to use 2024 version
     def generate_2024_version?
       false
     end
-    # Abstract methods to be implemented by subclasses
+
     def form_data
       raise NotImplementedError, 'Subclasses must implement form_data method'
     end
@@ -103,14 +70,58 @@ module Processors
       raise NotImplementedError, 'Subclasses must implement submission_date method'
     end
 
-    def country_code_for_us_validation
-      'US' # Default implementation, can be overridden
-    end
-
     private
 
-    def uuid
-      @uuid ||= SecureRandom.uuid
+    def fill_form_template
+      PdfFill::Filler.fill_ancillary_form(
+        form_data,
+        pdf_identifier,
+        selected_form_class_id
+      )
+    end
+
+    def add_signature_stamp(pdf)
+      return pdf unless needs_signature_stamp?
+
+      # NOTE: 2024 form signature field can't be filled programmatically,
+      # so we stamp the signature instead (same approach as standalone 4142)
+      PDFUtilities::DatestampPdf.new(pdf).run(
+        text: signature,
+        x: 50,
+        y: 560,
+        text_only: true,
+        size: 10,
+        page_number: 1,
+        template: pdf,
+        multistamp: true,
+        timestamp: ''
+      )
+    end
+
+    def add_vagov_timestamp(pdf)
+      PDFUtilities::DatestampPdf.new(pdf).run(
+        text: 'VA.gov',
+        x: 5,
+        y: 5,
+        timestamp: submission_date
+      )
+    end
+
+    def add_vagov_submission_label(pdf)
+      PDFUtilities::DatestampPdf.new(pdf).run(
+        text: 'VA.gov Submission',
+        x: 510,
+        y: 775,
+        text_only: true
+      )
+    end
+
+    def needs_signature_stamp?
+      signature.present? && selected_form_class_id == FORM_CLASS_ID_2024
+    end
+
+    def selected_form_class_id
+      generate_2024_version? ? FORM_CLASS_ID_2024 : LEGACY_FORM_CLASS_ID
     end
 
     def to_faraday_upload
@@ -122,7 +133,6 @@ module Processors
 
     def generate_metadata
       address = form_data['veteranAddress']
-      country_is_us = address['country'] == country_code_for_us_validation
       veteran_full_name = form_data['veteranFullName']
 
       metadata = {
@@ -140,24 +150,29 @@ module Processors
       }
 
       SimpleFormsApiSubmission::MetadataValidator.validate(
-        metadata, zip_code_is_us_based: country_is_us
+        metadata, zip_code_is_us_based: us_country_code?(address['country'])
       ).to_json
     end
 
-    def received_date
-      submission_date.strftime(SIGNATURE_TIMESTAMP_FORMAT)
+    def signature
+      return unless form_data['signatureDate'].present? && form_data['veteranFullName'].present?
+
+      full_name = form_data['veteranFullName']
+
+      name = [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
+      "/es/ #{name}"
     end
 
     def set_signature_date(incoming_data)
       incoming_data.merge({ SIGNATURE_DATE_KEY => received_date })
     end
 
-    def signature
-      full_name = form_data.dig('veteranFullName')
-      return unless form_data['signatureDate'].present? && full_name
+    def received_date
+      submission_date.strftime(SIGNATURE_TIMESTAMP_FORMAT)
+    end
 
-      name = [full_name['first'], full_name['middle'], full_name['last']].compact.join(' ')
-      "/es #{name}"
+    def us_country_code?(country_code)
+      US_COUNTRY_CODES.include?(country_code.to_s.upcase)
     end
 
     def validate_form4142
