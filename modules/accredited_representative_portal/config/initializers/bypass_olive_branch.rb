@@ -28,6 +28,26 @@ module AccreditedRepresentativePortal
     ARP_PATH_INFO_PREFIX = '/accredited_representative_portal'
 
     def exclude_arp_route?(env)
+      if Settings.vsp_environment != 'production'
+        req = Rack::Request.new(env)
+        exclude =
+          req.path.starts_with?(
+            ARP_PATH_INFO_PREFIX
+          )
+
+        log_value = {
+          PATH_INFO: env['PATH_INFO'],
+          SCRIPT_NAME: env['SCRIPT_NAME'],
+          path: req.path,
+          exclude:
+        }
+
+        Rails.logger.error(
+          'arp_olive_branch_debugging',
+          log_value
+        )
+      end
+
       env['PATH_INFO'].to_s.start_with?(ARP_PATH_INFO_PREFIX)
     end
   end
