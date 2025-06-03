@@ -24,6 +24,13 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_BRD_API_KEY>') { Settings.brd.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BASE_URL>') { Settings.lighthouse.benefits_documents.host }
+  c.filter_sensitive_data('<VETERAN_ICN>') do |interaction|
+    interaction.request.uri[%r{\d+V\d+}]
+  end
+  c.filter_sensitive_data('<LIGHTHOUSE_CLAIMS_API_PATH>') do |interaction|
+    host = Settings.lighthouse.benefits_claims.host
+    interaction.request.uri[%r{#{Regexp.escape(host)}/services/claims/v2/veterans/\d+V\d+/claims}]
+  end
   c.filter_sensitive_data('<MDOT_KEY>') { Settings.mdot.api_key }
   c.filter_sensitive_data('<MDOT_URL>') { Settings.mdot.url }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
@@ -66,6 +73,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VAOS_CCRA_API_URL>') { Settings.vaos.ccra.api_url }
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
+  c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
   c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
   c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>') do
     "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
