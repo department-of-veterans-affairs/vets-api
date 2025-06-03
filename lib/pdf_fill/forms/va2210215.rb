@@ -24,14 +24,14 @@ module PdfFill
             question_text: 'FACILITY CODE'
           },
           'termStartDate' => {
-            key: 'termStartDate',
+            key: 'startDate',
             limit: 10,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'TERM START DATE'
           },
           'dateOfCalculations' => {
-            key: 'institutionDateOfCalculations',
+            key: 'calculationDate',
             limit: 10,
             question_num: 4,
             question_suffix: 'A',
@@ -40,14 +40,14 @@ module PdfFill
         },
         'certifyingOfficial' => {
           'fullName' => {
-            key: 'fullName',
+            key: 'scoName',
             limit: 50,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'CERTIFYING OFFICIAL NAME'
           },
           'title' => {
-            key: 'title',
+            key: 'scoTitle',
             limit: 30,
             question_num: 6,
             question_suffix: 'A',
@@ -58,44 +58,60 @@ module PdfFill
           limit: 16,
           first_key: 'programName',
           'programName' => {
-            key: 'programName[%iterator%]',
+            key: 'programName%iterator%',
             limit: 50,
             question_num: 7,
             question_suffix: 'A',
             question_text: 'PROGRAM NAME'
           },
+          'studentsEnrolled' => {
+            key: 'totalEnrolled%iterator%',
+            limit: 10,
+            question_num: 7,
+            question_suffix: 'B',
+            question_text: 'TOTAL NUMBER OF STUDENTS ENROLLED'
+          },
+          'supportedStudents' => {
+            key: 'supportedEnrolled%iterator%',
+            limit: 10,
+            question_num: 7,
+            question_suffix: 'B',
+            question_text: 'SUPPORTED STUDENTS'
+          },
           'fte' => {
             'supported' => {
-              key: 'supportedStudents[%iterator%]',
+              key: 'numSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'SUPPORTED STUDENTS'
             },
             'nonSupported' => {
-              key: 'nonSupportedStudents[%iterator%]',
+              key: 'numNonSupported%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'C',
               question_text: 'NON-SUPPORTED STUDENTS'
             },
             'totalFTE' => {
-              key: 'totalFTE[%iterator%]',
+              key: 'enrolledFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'D',
-              question_text: 'TOTAL FTE'
+              question_text: 'TOTAL FTE',
+              transform: ->(value) { "#{value}%" }
             },
             'supportedPercentageFTE' => {
-              key: 'supportedPercentageFTE[%iterator%]',
+              key: 'supportedFTE%iterator%',
               limit: 10,
               question_num: 7,
               question_suffix: 'E',
-              question_text: 'SUPPORTED PERCENTAGE FTE'
+              question_text: 'SUPPORTED PERCENTAGE FTE',
+              transform: ->(value) { "#{value}%" }
             }
           },
           'programDateOfCalculation' => {
-            key: 'dateOfCalculation[%iterator%]',
+            key: 'calculationDate%iterator%',
             limit: 10,
             question_num: 7,
             question_suffix: 'F',
@@ -103,14 +119,14 @@ module PdfFill
           }
         },
         'statementOfTruthSignature' => {
-          key: 'statementOfTruthSignature',
+          key: 'signature',
           limit: 50,
           question_num: 8,
           question_suffix: 'A',
           question_text: 'STATEMENT OF TRUTH SIGNATURE'
         },
         'dateSigned' => {
-          key: 'dateSigned',
+          key: 'signedDate',
           limit: 10,
           question_num: 9,
           question_suffix: 'A',
@@ -135,6 +151,10 @@ module PdfFill
           form_data['programs'].each do |program|
             # Add programDateOfCalculation to each valid program entry
             program['programDateOfCalculation'] = calculation_date
+
+            if program['fte'] && program['fte']['supportedPercentageFTE'].present?
+              program['fte']['supportedPercentageFTE'] = "#{program['fte']['supportedPercentageFTE']}%"
+            end
           end
         end
 

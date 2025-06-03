@@ -31,6 +31,12 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_form_21a:
+    actor_type: user
+    description: >
+      When enabled, shows form 21a in the accredited representative portal.
+      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -141,9 +147,6 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_json_schemer_validation:
-    actor_type: user
-    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
@@ -237,9 +240,6 @@ features:
   champva_retry_logic_refactor:
     actor_type: user
     description: Enables refactored retry logic for IVC CHAMPVA form submissions
-  champva_pega_applicant_metadata_enabled:
-    actor_type: user
-    description: Enables including applicant data in the S3 metadata sent to PEGA
   champva_fmp_single_file_upload:
     actor_type: user
     description: Enables the ability to upload a single merged PDF file for FMP claims
@@ -707,9 +707,6 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
-  filter_saved_claim_logs:
-    actor_type: user
-    description: Enabled filtering out attributes in saved claim validation logs
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
@@ -1042,10 +1039,6 @@ features:
     actor_type: user
     description: This will filter to only show medical copays within the last 6 months
     enable_in_development: true
-  medical_copays_api_key_change:
-    actor_type: user
-    description: This will use new API key name when available
-    enable_in_development: true
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
@@ -1126,6 +1119,13 @@ features:
   mhv_secure_messaging_milestone_2_aal:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
+    enable_in_development: true
+  mhv_secure_messaging_policy_va_patient:
+    actor_type: user
+    description: Disables/Enables Secure Messaging policy check for VA patient
+  mhv_secure_messaging_custom_folders_redesign:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Custom Folders Redesign
     enable_in_development: true
   mhv_bypass_downtime_notification:
     actor_type: user
@@ -1367,12 +1367,6 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
-  profile_show_payments_notification_setting:
-    actor_type: user
-    description: Show/Hide the payments section of notifications in profile
-  profile_show_new_benefit_overpayment_debt_notification_setting:
-    actor_type: user
-    description: Show/Hide the Benefit overpayment debt notification item of notifications in profile
   profile_show_new_health_care_copay_bill_notification_setting:
     actor_type: user
     description: Show/Hide the Health care copay bill section of notifications in profile
@@ -1765,6 +1759,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for adopting MHV route guards for the appointment tool.
+  va_online_scheduling_convert_slots_to_utc:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for for converting the start & end times in slots fetch to UTC.
   va_online_scheduling_direct_schedule_appointment_conflict:
     actor_type: user
     enable_in_development: true
@@ -1788,6 +1786,9 @@ features:
   vet_status_stage_1:
     actor_type: user
     description: Enables the stage 1 features of the veteran status card
+  vre_cutover_notice:
+    actor_type: user
+    description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion

@@ -65,7 +65,6 @@ module ClaimsApi
 
         log_job_progress(claim_id,
                          "526EZ PDF generator faraday error #{e.class}: #{error_status} #{auto_claim&.evss_response}")
-        log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
@@ -75,8 +74,6 @@ module ClaimsApi
 
         log_job_progress(claim_id,
                          "526EZ PDF generator errored #{e.class}: #{error_status} #{auto_claim&.evss_response}")
-        log_exception_to_sentry(e)
-
         raise e
       rescue => e
         set_errored_state_on_claim(auto_claim)
@@ -84,8 +81,6 @@ module ClaimsApi
 
         log_job_progress(claim_id,
                          "526EZ PDF generator errored #{e.class}: #{e}")
-        log_exception_to_sentry(e)
-
         raise e
       end
 
