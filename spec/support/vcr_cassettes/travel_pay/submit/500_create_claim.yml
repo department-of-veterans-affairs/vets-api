@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://btsss.gov/api/v1.2/claims
+    uri: https://btsss.gov/api/v2/claims
     body:
       encoding: US-ASCII
       string: '

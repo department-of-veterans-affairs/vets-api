@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://btsss.gov/api/v1.2/expenses/mileage
+    uri: https://btsss.gov/api/v2/expenses/mileage
     body:
       encoding: US-ASCII
       string: '
