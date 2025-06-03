@@ -3,6 +3,7 @@
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
 require 'pdf_fill/forms/va214142'
+require 'pdf_fill/forms/va2141422024'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va210781v2'
@@ -54,6 +55,7 @@ module PdfFill
     # Registers form classes for various form IDs.
     {
       '21-4142' => PdfFill::Forms::Va214142,
+      '21-4142-2024' => PdfFill::Forms::Va2141422024,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-0781V2' => PdfFill::Forms::Va210781v2,
