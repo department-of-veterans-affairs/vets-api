@@ -36,15 +36,23 @@ module AccreditedRepresentativePortal
           # TODO: Remove. This is for temporary debugging into different behavior
           # observed between localhost and staging.
           #
-          log_value = params.to_unsafe_h
-          Rails.logger.error(log_value.deep_transform_values do |v|
-            { class: v.class, size: v.try(:size) }
-          end)
-          form_params_list
+          if Settings.vsp_environment != 'production'
+            log_value = params.to_unsafe_h
+            log_value = log_value.deep_transform_values do |v|
+              { class: v.class, size: v.try(:size) }
+            end
+
+            Rails.logger.error(
+              'arp_olive_branch_debugging',
+              log_value
+            )
+          end
+
+          get_form_params
         end
       end
 
-      def form_params_list
+      def get_form_params
         params.require(:representative_form_upload).permit(
           :confirmationCode,
           :location,
