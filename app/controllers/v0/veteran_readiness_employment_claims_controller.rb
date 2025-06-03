@@ -27,7 +27,11 @@ module V0
     private
 
     def filtered_params
-      params.require(:veteran_readiness_employment_claim).permit(:form)
+      if params[:veteran_readiness_employment_claim]
+        params.require(:veteran_readiness_employment_claim).permit(:form)
+      else
+        params.permit(:form)
+      end
     end
 
     def short_name

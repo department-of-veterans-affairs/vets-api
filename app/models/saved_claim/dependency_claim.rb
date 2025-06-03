@@ -56,6 +56,31 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                    end
   end
 
+  def pdf_overflow_tracking
+    track_each_pdf_overflow(use_v2 ? '686C-674-V2' : '686C-674') if submittable_686?
+    track_each_pdf_overflow(use_v2 ? '21-674-V2' : '21-674') if submittable_674?
+  rescue => e
+    monitor.track_pdf_overflow_tracking_failure(e)
+  end
+
+  def track_each_pdf_overflow(subform_id)
+    filenames = []
+    if subform_id == '21-674-V2'
+      parsed_form['dependents_application']['student_information']&.each do |student|
+        filenames << to_pdf(form_id: subform_id, student:)
+      end
+    else
+      filenames << to_pdf(form_id: subform_id)
+    end
+    filenames.each do |filename|
+      monitor.track_pdf_overflow(subform_id) if filename.end_with?('_final.pdf')
+    end
+  ensure
+    filenames.each do |filename|
+      Common::FileHelpers.delete_file_if_exists(filename)
+    end
+  end
+
   def upload_pdf(form_id, doc_type: '148')
     uploaded_forms ||= []
     return if uploaded_forms.include? form_id
@@ -172,6 +197,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     original_form_id = self.form_id
     self.form_id = form_id
     PdfFill::Filler.fill_form(self, nil, { created_at:, student: })
+  rescue => e
+    monitor.track_to_pdf_failure(e, form_id)
+    raise e
   ensure
     self.form_id = original_form_id
   end
@@ -216,7 +244,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
     FORM674 if submittable_674?
   rescue => e
-    Dependents::Monitor.new.track_unknown_claim_type(id, e)
+    monitor.track_unknown_claim_type(e)
     nil
   end
 
@@ -224,7 +252,6 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # VANotify job to send Submitted/in-Progress email to veteran
   #
   def send_submitted_email(user = nil)
-    @monitor = Dependents::Monitor.new
     type = claim_form_type
     if type == FORM686
       Dependents::NotificationEmail.new(id, user).deliver(:submitted686)
@@ -234,16 +261,15 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       # Combo or unknown form types use combo email
       Dependents::NotificationEmail.new(id, user).deliver(:submitted686c674)
     end
-    @monitor.track_send_submitted_email_success(id, user&.user_account_uuid)
+    monitor.track_send_submitted_email_success(user&.user_account_uuid)
   rescue => e
-    @monitor.track_send_submitted_email_failure(id, e, user&.user_account_uuid)
+    monitor.track_send_submitted_email_failure(e, user&.user_account_uuid)
   end
 
   ##
   # VANotify job to send Received/Confirmation email to veteran
   #
   def send_received_email(user = nil)
-    @monitor = Dependents::Monitor.new
     type = claim_form_type
     if type == FORM686
       Dependents::NotificationEmail.new(id, user).deliver(:received686)
@@ -253,9 +279,13 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       # Combo or unknown form types use combo email
       Dependents::NotificationEmail.new(id, user).deliver(:received686c674)
     end
-    @monitor.track_send_received_email_success(id, user&.user_account_uuid)
+    monitor.track_send_received_email_success(user&.user_account_uuid)
   rescue => e
-    @monitor.track_send_received_email_failure(id, e, user&.user_account_uuid)
+    monitor.track_send_received_email_failure(e, user&.user_account_uuid)
+  end
+
+  def monitor
+    @monitor ||= Dependents::Monitor.new(id)
   end
 
   private

@@ -31,6 +31,12 @@ features:
     actor_type: user
     description: Enables the people search of the accredited representative portal
     enable_in_development: true
+  accredited_representative_portal_form_21a:
+    actor_type: user
+    description: >
+      When enabled, shows form 21a in the accredited representative portal.
+      NOTE: content-build is using "vagovprod: false" to also hide the form 21a in producion.
+    enable_in_development: true
   aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
@@ -141,9 +147,6 @@ features:
     actor_type: user
     description: Enables the the upgraded insurance section of the Health Care Application
     enable_in_development: true
-  hca_json_schemer_validation:
-    actor_type: user
-    description: Enables using JSONSchemer instead of JSONSchema for form validation
   hca_download_completed_pdf:
     actor_type: user
     description: Enables downloading a filled out 10-10EZ Form Pdf upon submission
@@ -237,9 +240,6 @@ features:
   champva_retry_logic_refactor:
     actor_type: user
     description: Enables refactored retry logic for IVC CHAMPVA form submissions
-  champva_pega_applicant_metadata_enabled:
-    actor_type: user
-    description: Enables including applicant data in the S3 metadata sent to PEGA
   champva_fmp_single_file_upload:
     actor_type: user
     description: Enables the ability to upload a single merged PDF file for FMP claims
@@ -710,9 +710,6 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
-  filter_saved_claim_logs:
-    actor_type: user
-    description: Enabled filtering out attributes in saved claim validation logs
   fsr_5655_server_side_transform:
     actor_type: user
     description: Update to use BE for business transform logic for Financial Status Report (FSR - 5655) form
@@ -1045,10 +1042,6 @@ features:
     actor_type: user
     description: This will filter to only show medical copays within the last 6 months
     enable_in_development: true
-  medical_copays_api_key_change:
-    actor_type: user
-    description: This will use new API key name when available
-    enable_in_development: true
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
@@ -1129,6 +1122,17 @@ features:
   mhv_secure_messaging_milestone_2_aal:
     actor_type: user
     description: Disables/Enables Secure Messaging AAL Milestone 2
+    enable_in_development: true
+  mhv_secure_messaging_policy_va_patient:
+    actor_type: user
+    description: Disables/Enables Secure Messaging policy check for VA patient
+  mhv_secure_messaging_custom_folders_redesign:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Custom Folders Redesign
+    enable_in_development: true
+  mhv_bypass_downtime_notification:
+    actor_type: user
+    description: When enabled, bypass the MHV downtime notification; intended for smoke testing in production
     enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
@@ -1366,12 +1370,6 @@ features:
   profile_show_credential_retirement_messaging:
     actor_type: user
     description: Show/hide MHV and DS Logon credential retirement messaging in profile
-  profile_show_payments_notification_setting:
-    actor_type: user
-    description: Show/Hide the payments section of notifications in profile
-  profile_show_new_benefit_overpayment_debt_notification_setting:
-    actor_type: user
-    description: Show/Hide the Benefit overpayment debt notification item of notifications in profile
   profile_show_new_health_care_copay_bill_notification_setting:
     actor_type: user
     description: Show/Hide the Health care copay bill section of notifications in profile
@@ -1689,6 +1687,9 @@ features:
     actor_type: user
     enable_in_development: false
     description: Toggle for the vaos module to use an alternate vaos-service route
+  va_dependents_verification:
+    actor_type: user
+    description: Toggles new features for the dependents verification form
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
@@ -1761,6 +1762,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for adopting MHV route guards for the appointment tool.
+  va_online_scheduling_convert_slots_to_utc:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for for converting the start & end times in slots fetch to UTC.
   va_online_scheduling_direct_schedule_appointment_conflict:
     actor_type: user
     enable_in_development: true
@@ -1784,12 +1789,12 @@ features:
   vet_status_stage_1:
     actor_type: user
     description: Enables the stage 1 features of the veteran status card
+  vre_cutover_notice:
+    actor_type: user
+    description: Enables the cutover notice for VR&E users, indicating the timeframe for new form version
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
-  vre_enable_vbms_exception_logging:
-    actor_type: user
-    description: Enables exception logging for failures in upload_to_vbms method
   vre_modular_api:
     actor_type: user
     description: Enables calls to the modularized VRE API
@@ -1878,9 +1883,6 @@ features:
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
-  mobile_lighthouse_direct_deposit:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our direct deposit interactions
   mobile_lighthouse_claims:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
@@ -1890,9 +1892,6 @@ features:
   mobile_lighthouse_document_upload:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our document uploads
-  mobile_lighthouse_disability_ratings:
-    actor_type: user
-    description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
   mobile_military_indicator_logger:
     actor_type: user
     description: For mobile app, enables logging of military discharge codes
@@ -2053,11 +2052,6 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
-  vye_request_allowed:
-    actor_type: user
-    description: >-
-      Master toggle for the VYE (Verify Your Enrollment) project.
-      If enabled, requests will be allowed to reach the controllers, otherwise a 400 (Bad Request) will be returned.
   sob_updated_design:
     actor_type: user
     description: >-
@@ -2206,6 +2200,15 @@ features:
   form_10282_sftp_upload:
     actor_type: user
     description: If enabled, run daily job to process 10282 form submissions and upload resulting data to SFTP
+  disable_bdn_processing:
+    actor_type: user
+    description: If enabled, skip all BDN-related processing for VYE
   debt_deduction_code_filtering:
     actor_type: user
-    description:  Enables filtering of debts based on approved deduction codes and current amounts > 0.
+    description: Enables filtering of debts based on approved deduction codes and current amounts > 0.
+  my_va_auth_exp_redesign_enabled:
+    actor_type: user
+    description: When enabled, a user will see the redesigned experience of MyVA.
+  gi_ct_mapbox_mitigation:
+    actor_type: user
+    description: If enabled, hides search by location feature affected by MapBox loss
