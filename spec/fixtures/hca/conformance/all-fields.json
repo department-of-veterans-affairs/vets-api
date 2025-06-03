@@ -13,7 +13,7 @@
 	"veteranDateOfBirth": "1985-03-07",
 	"maritalStatus": "Married",
 	"vaCompensationType": "highDisability",
-	"isEssentialAcaCoverage": true,
+	"isEssentialAcaCoverage": false,
 	"facilityState": "MA",
 	"vaMedicalFacility": "523",
 	"wantsInitialVaContact": true,

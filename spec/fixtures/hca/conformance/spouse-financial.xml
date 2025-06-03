@@ -63,7 +63,7 @@
           <eeSummary:race>2076-8</eeSummary:race>
           <eeSummary:race>2106-3</eeSummary:race>
         </eeSummary:races>
-        <eeSummary:acaIndicator>true</eeSummary:acaIndicator>
+        <eeSummary:acaIndicator>false</eeSummary:acaIndicator>
       </eeSummary:demographics>
       <eeSummary:enrollmentDeterminationInfo xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas">
         <eeSummary:eligibleForMedicaid>true</eeSummary:eligibleForMedicaid>
