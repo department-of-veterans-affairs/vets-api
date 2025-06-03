@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/submission_handler/saved_claim'
-require 'income_and_assets/submissions/monitor'
+require 'income_and_assets/monitor'
 require 'income_and_assets/notification_email'
 
 module IncomeAndAssets
@@ -17,7 +17,7 @@ module IncomeAndAssets
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#monitor
       def monitor
-        @monitor ||= IncomeAndAssets::Submissions::Monitor.new
+        @monitor ||= IncomeAndAssets::Monitor.new
       end
 
       # BenefitsIntake::SubmissionHandler::SavedClaim#notification_email

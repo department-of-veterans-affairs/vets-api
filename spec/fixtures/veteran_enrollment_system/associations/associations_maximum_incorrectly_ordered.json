@@ -1,0 +1,81 @@
+[
+  {
+    "role": "PRIMARY_NEXT_OF_KIN",
+    "relationType": "SON",
+    "name": {
+      "givenName": "FIRSTNOKA",
+      "middleName": "MIDDLENOKA",
+      "familyName": "LASTNOKA",
+      "suffix": "JR."
+    },
+    "address": {
+      "line1": "476 Test Ave",
+      "city": "Dulles",
+      "state": "VA",
+      "zipCode": "20101",
+      "zipPlus4": "0101",
+      "country": "USA"
+    },
+    "primaryPhone": "1239131234",
+    "alternatePhone": "7254551234",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  },
+  {
+    "role": "OTHER_NEXT_OF_KIN",
+    "relationType": "DAUGHTER",
+    "name": {
+      "givenName": "FIRSTNOKB",
+      "middleName": "MIDDLENOKB",
+      "familyName": "LASTNOKB"
+    },
+    "address": {
+      "line1": "834 NE 36th St",
+      "city": "Ontario",
+      "provinceCode": "ON",
+      "postalCode": "21534",
+      "country": "CAN"
+    },
+    "primaryPhone": "1239183546",
+    "alternatePhone": "2658351234",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  },
+  {
+    "role": "EMERGENCY_CONTACT",
+    "relationType": "BROTHER",
+    "name": {
+      "givenName": "FIRSTECA",
+      "middleName": "MIDDLEECA",
+      "familyName": "LASTECA"
+    },
+    "address": {
+      "line1": "28 NW 78th St",
+      "city": "Dulles",
+      "state": "VA",
+      "zipCode": "20101",
+      "zipPlus4": "0101",
+      "country": "USA"
+    },
+    "primaryPhone": "7452743546",
+    "alternatePhone": "2699352134",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  },
+  {
+    "role": "OTHER_EMERGENCY_CONTACT",
+    "relationType": "UNRELATED_FRIEND",
+    "name": {
+      "givenName": "FIRSTECB",
+      "middleName": "MIDDLEECB",
+      "familyName": "LASTECB"
+    },
+    "address": {
+      "line1": "823 SE 2nd St",
+      "city": "Blacksburg",
+      "state": "VA",
+      "zipCode": "24060",
+      "country": "USA"
+    },
+    "primaryPhone": "9564738265",
+    "alternatePhone": "9563740017",
+    "lastUpdateDate": "2025-04-24T17:08:31"
+  }
+]

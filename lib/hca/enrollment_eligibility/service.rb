@@ -72,10 +72,7 @@ module HCA
           ezr_data.merge!(spouse)
         end
 
-        if Flipper.enabled?(:ezr_prefill_contacts)
-          contacts = parse_contacts(response)
-          ezr_data.merge!({ veteranContacts: contacts }) if contacts.present?
-        end
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_prefill_contacts)
 
         OpenStruct.new(ezr_data)
       end
@@ -420,7 +417,7 @@ module HCA
 
         Date.parse(date_str).to_s
       rescue Date::Error => e
-        Rails.logger.error('[HCA] - DateError', { exception: e, date_str: })
+        Rails.logger.error('[HCA] - DateError', { exception: e })
 
         PersonalInformationLog.create!(
           data: date_str,
@@ -491,6 +488,20 @@ module HCA
         )
 
         income_year == (DateTime.now.utc.year - 1).to_s
+      end
+
+      def add_contacts_to_ezr_data(ezr_data, response)
+        contacts = {
+          nextOfKins: ['Primary Next of Kin', 'Other Next of Kin'],
+          emergencyContacts: ['Emergency Contact', 'Other emergency contact']
+        }
+
+        contacts.each do |key, types|
+          selected = parse_contacts(response).select { |c| types.include?(c[:contactType]) }
+          ezr_data[key] = selected if selected.present?
+        end
+
+        ezr_data
       end
       # rubocop:enable Metrics/MethodLength
     end

@@ -11,7 +11,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
   let(:bad_b64_image) { File.read('modules/claims_api/spec/fixtures/signature_b64_prefix_bad.txt') }
 
   before do
-    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
+
     Sidekiq::Job.clear_all
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
       .to receive(:get_auth_token).and_return('some-value-here')
@@ -180,8 +181,8 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
     let(:doc_type) { 'L075' }
 
     it 'calls the benefits document API upload instead of VBMS' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      Flipper.disable(:claims_api_poa_uploads_bd_refactor)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
 
@@ -189,8 +190,9 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
     end
 
     it 'calls the benefits document API upload_document instead of upload' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-      Flipper.enable(:claims_api_poa_uploads_bd_refactor)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
+
       expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
       expect_any_instance_of(ClaimsApi::BD).not_to receive(:upload)
       expect_any_instance_of(ClaimsApi::BD).to receive(:upload_document)
@@ -199,7 +201,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_we
     end
 
     it 'rescues errors from BD and sets the status to errored' do
-      Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
 
       VCR.use_cassette('claims_api/bd/upload_error') do
         allow(ClaimsApi::BD.new).to receive(:upload).with(claim: power_of_attorney, pdf_path:, doc_type:)

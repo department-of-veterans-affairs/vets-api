@@ -221,10 +221,10 @@ module ClaimsApi
         def nullable_icn
           current_user.icn
         rescue => e
-          log_message_to_sentry('Failed to retrieve icn for consumer',
-                                :warning,
-                                body: e.message)
-
+          ClaimsApi::Logger.log 'POABaseController',
+                                level: :warn,
+                                detail: 'Failed to retrieve icn for consumer',
+                                error_message: e.message
           nil
         end
 

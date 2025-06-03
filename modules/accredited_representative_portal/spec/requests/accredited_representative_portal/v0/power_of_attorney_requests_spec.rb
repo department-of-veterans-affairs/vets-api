@@ -495,11 +495,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response['meta']['page']['totalPages']).to eq(3)
       end
 
-      it 'returns 400 if page size is less than 10' do
-        get('/accredited_representative_portal/v0/power_of_attorney_requests?page[size]=5')
+      it 'returns 400 if page size is less than 1' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?page[size]=0')
 
         expect(response).to have_http_status(:bad_request)
-        expect(parsed_response['errors'].join).to match(/Invalid parameters.*must be greater than or equal to 10/)
+        expect(parsed_response['errors'].join).to match(/Invalid parameters.*must be greater than or equal to 1/)
       end
 
       it 'returns an empty array for a page beyond the total pages' do
@@ -525,6 +525,34 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       end
     end
 
+    context 'with redacted POA requests' do
+      let!(:fully_redacted_poa_request) do
+        create(:power_of_attorney_request, :with_veteran_claimant, :fully_redacted, poa_code:)
+      end
+      let!(:another_unredacted_request) do
+        create(:power_of_attorney_request, :with_dependent_claimant, poa_code:, created_at: time)
+      end
+
+      it 'excludes fully redacted POA requests from the list' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+        expect(response).to have_http_status(:ok)
+        poa_ids = parsed_response['data'].map { |p| p['id'] }
+
+        expect(poa_ids).to include(poa_request.id)
+        expect(poa_ids).to include(another_unredacted_request.id)
+        expect(poa_ids).not_to include(fully_redacted_poa_request.id)
+      end
+
+      it 'returns the correct total count excluding redacted requests in metadata' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
+        expect(response).to have_http_status(:ok)
+        # Should count the 2 unredacted requests
+        expect(parsed_response['meta']['page']['total']).to eq(2)
+      end
+    end
+
     describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
       context 'when user is authorized' do
         it 'returns the details of the POA request' do
@@ -538,6 +566,13 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       context 'when user is unauthorized (trying to access another VSO\'s POA request)' do
         it 'returns 404 Not Found' do
           get("/accredited_representative_portal/v0/power_of_attorney_requests/#{other_poa_request.id}")
+
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'returns 404 Not Found for a fully redacted POA request' do
+          fully_redacted_poa = create(:power_of_attorney_request, :with_veteran_claimant, :fully_redacted, poa_code:)
+          get("/accredited_representative_portal/v0/power_of_attorney_requests/#{fully_redacted_poa.id}")
 
           expect(response).to have_http_status(:not_found)
         end

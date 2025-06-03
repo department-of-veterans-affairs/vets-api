@@ -480,24 +480,27 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'schema validation error' do
       let(:health_care_application) { build(:health_care_application) }
       let(:schema) { 'schema_content' }
+      let(:schemer_errors) do
+        [{
+          data_pointer: 'data_pointer',
+          error: 'some error',
+          details: { detail: 'thing' },
+          schema: { detail: 'schema' },
+          root_schema: { detail: 'root_schema' },
+          data: { key: 'this could be pii' }
+        }]
+      end
 
       before do
         allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
+        allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                 validate: schemer_errors))
       end
 
-      it 'calls the validate_form_with_retries method and sets errors' do
-        expect(health_care_application).to receive(:validate_form_with_retries)
-          .with(schema,
-                health_care_application.parsed_form)
-          .and_return([
-                        "maritalStatus can't be null"
-                      ])
-
+      it 'sets errors' do
         health_care_application.valid?
 
-        expect(health_care_application.errors[:form]).to eq [
-          "maritalStatus can't be null"
-        ]
+        expect(health_care_application.errors[:form]).to eq ['some error']
       end
     end
   end

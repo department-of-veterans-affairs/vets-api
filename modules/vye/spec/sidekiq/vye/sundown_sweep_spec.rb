@@ -6,6 +6,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 describe Vye::SundownSweep, type: :worker do
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(false)
   end
 
   it 'enqueues child jobs' do
@@ -68,6 +69,19 @@ describe Vye::SundownSweep, type: :worker do
       expect do
         Vye::SundownSweep::DeleteProcessedS3Files.new.perform
       end.to raise_error(Aws::S3::Errors::ServiceError)
+    end
+  end
+
+  context 'with disabled flipper set' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:disable_bdn_processing).and_return(true)
+    end
+
+    it 'does not do any processing' do
+      expect(Vye::SundownSweep::ClearDeactivatedBdns).not_to receive(:perform_async)
+      expect(Vye::SundownSweep::DeleteProcessedS3Files).not_to receive(:perform_async)
+      expect(Vye::SundownSweep::PurgeStaleVerifications).not_to receive(:perform_async)
+      described_class.new.perform
     end
   end
 end

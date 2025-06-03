@@ -154,7 +154,9 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
         provider = response_data['data']['attributes']['provider']
         expect(provider).to be_a(Hash)
         expect(provider).to have_key('name')
-        expect(provider).to have_key('location')
+        expect(provider).to have_key('npi')
+        expect(provider).to have_key('phone')
+        # Address may or may not be present depending on the data
 
         # Check referring facility attributes
         if response_data['data']['attributes'].key?('referringFacility')
