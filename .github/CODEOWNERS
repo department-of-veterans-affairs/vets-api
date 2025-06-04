@@ -1037,6 +1037,7 @@ modules/claims_api @department-of-veterans-affairs/lighthouse-dash
 modules/claims_evidence_api @department-of-veterans-affairs/benefits-lifestage @department-of-veterans-affairs/backend-review-group
 modules/debts_api @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 modules/decision_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-admin
+modules/dependents_verification @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/dhp_connected_devices @department-of-veterans-affairs/digital-health-platform @department-of-veterans-affairs/backend-review-group
 modules/facilities_api @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/income_and_assets @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
