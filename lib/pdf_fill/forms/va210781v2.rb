@@ -758,8 +758,20 @@ module PdfFill
       def process_unlisted_reports(unlisted_reports, extras_redesign)
         return if unlisted_reports.empty?
 
-        @form_data['reportsDetails']['other'] = unlisted_reports.join('; ')
-        @form_data['reportsDetails']['otherOverflow'] = unlisted_reports if extras_redesign
+        joined = unlisted_reports.join('; ')
+        @form_data['reportsDetails']['other'] = joined
+
+        limit = KEY['reportsDetails']['other'][:limit] || 0
+
+        if extras_redesign && (joined.length > limit || police_report_overflowing?)
+          @form_data['reportsDetails']['otherOverflow'] = unlisted_reports
+        end
+      end
+
+      def police_report_overflowing?
+        police = @form_data.dig('reportsDetails', 'police')
+        limit = KEY['reportsDetails']['police'][:limit] || 0
+        police && police.length > limit
       end
 
       def process_treatment_dates

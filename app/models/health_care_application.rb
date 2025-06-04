@@ -12,7 +12,6 @@ require 'kafka/sidekiq/event_bus_submission_job'
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
   include VA1010Forms::Utils
-  include FormValidation
   include RetriableConcern
 
   FORM_ID = '10-10EZ'
@@ -360,20 +359,13 @@ class HealthCareApplication < ApplicationRecord
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
 
-    if Flipper.enabled?(:hca_json_schemer_validation)
-      validation_errors = with_retries('10-10EZ Form Validation') do
-        JSONSchemer.schema(schema).validate(parsed_form).to_a
-      end
+    validation_errors = with_retries('10-10EZ Form Validation') do
+      JSONSchemer.schema(schema).validate(parsed_form).to_a
+    end
 
-      validation_errors.each do |error|
-        e = error.symbolize_keys
-        errors.add(:form, e[:error].to_s)
-      end
-    else
-      validation_errors = validate_form_with_retries(schema, parsed_form)
-      validation_errors.each do |v|
-        errors.add(:form, v.to_s)
-      end
+    validation_errors.each do |error|
+      e = error.symbolize_keys
+      errors.add(:form, e[:error].to_s)
     end
   end
 end
