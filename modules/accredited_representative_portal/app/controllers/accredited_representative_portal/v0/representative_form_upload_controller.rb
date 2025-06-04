@@ -121,11 +121,16 @@ module AccreditedRepresentativePortal
         # TODO: Remove. This is for temporary debugging into different behavior
         # observed between localhost and staging.
         #
-        if Settings.vsp_environment != 'eks-prod'
+        if Settings.vsp_environment != 'production'
           log_value = { ssn:, first_name:, last_name:, birth_date: }
-          Rails.logger.error(log_value.deep_transform_values do |v|
+          log_value = log_value.deep_transform_values do |v|
             { class: v.class, size: v.try(:size) }
-          end)
+          end
+
+          Rails.logger.error(
+            'arp_olive_branch_debugging',
+            log_value
+          )
         end
 
         mpi = MPI::Service.new.find_profile_by_attributes(ssn:, first_name:, last_name:, birth_date:)
