@@ -547,15 +547,36 @@ module VAOS
       def check_referral_usage(referral_id)
         check = appointments_service.referral_appointment_already_exists?(referral_id)
 
-        if check[:error]
-          { success: false, json: { errors: [{ title: 'Appointment creation failed', detail: "Error checking existing appointments: #{check[:failures]}" }] },
-            status: :bad_gateway }
-        elsif check[:exists]
-          { success: false, json: { errors: [{ title: 'Appointment creation failed', detail: 'No new appointment created: referral is already used' }] },
-            status: :unprocessable_entity }
-        else
-          { success: true }
-        end
+        return referral_check_error_response(check[:failures]) if check[:error]
+        return referral_already_used_response if check[:exists]
+
+        { success: true }
+      end
+
+      def referral_check_error_response(failures)
+        {
+          success: false,
+          json: {
+            errors: [{
+              title: 'Appointment creation failed',
+              detail: "Error checking existing appointments: #{failures}"
+            }]
+          },
+          status: :bad_gateway
+        }
+      end
+
+      def referral_already_used_response
+        {
+          success: false,
+          json: {
+            errors: [{
+              title: 'Appointment creation failed',
+              detail: 'No new appointment created: referral is already used'
+            }]
+          },
+          status: :unprocessable_entity
+        }
       end
 
       ##

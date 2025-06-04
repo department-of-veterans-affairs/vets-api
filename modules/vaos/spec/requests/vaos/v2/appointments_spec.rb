@@ -1127,7 +1127,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment_400',
                              match_requests_on: %i[method path]) do
               expect_metric_increment(described_class::APPT_CREATION_FAILURE_METRIC) do
-                post '/vaos/v2/appointments/submit', params: { ** params, phone_number: nil }, headers: inflection_header
+                post '/vaos/v2/appointments/submit', params: { ** params, phone_number: nil },
+                                                     headers: inflection_header
               end
 
               response_obj = JSON.parse(response.body)
@@ -1148,7 +1149,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment_500',
                              match_requests_on: %i[method path]) do
-
               expect_metric_increment(described_class::APPT_CREATION_FAILURE_METRIC) do
                 post '/vaos/v2/appointments/submit', params:, headers: inflection_header
               end
@@ -1378,9 +1378,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path]) do
               VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
                 VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
-                  VCR.use_cassette 'vaos/eps/draft_appointment/500_internal_server_error', match_requests_on: %i[method path] do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/500_internal_server_error',
+                                   match_requests_on: %i[method path] do
                     VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-
                       allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
                         .and_return(OpenStruct.new(data: []))
 
@@ -1639,7 +1639,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           response_obj = JSON.parse(response.body)
           expect(response).to have_http_status(:bad_gateway)
           expect(response_obj['errors'].first['title']).to eq('Appointment creation failed')
-          expect(response_obj['errors'].first['detail']).to eq('Error checking existing appointments: Missing ICN message')
+          expect(response_obj['errors'].first['detail']).to eq(
+            'Error checking existing appointments: Missing ICN message'
+          )
         end
 
         it 'handles partial error as 500' do
@@ -1650,7 +1652,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                                'endDate=2121-09-02T00:00:00Z"}]'
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_partial_errors',
                            match_requests_on: %i[method path query]) do
-
             expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
               post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
             end
@@ -1672,7 +1673,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   VCR.use_cassette 'vaos/eps/get_provider_service/200', match_requests_on: %i[method path] do
                     VCR.use_cassette 'vaos/eps/draft_appointment/200', match_requests_on: %i[method path] do
                       VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
-
                         expect_metric_increment(described_class::APPT_DRAFT_CREATION_FAILURE_METRIC) do
                           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
                         end
