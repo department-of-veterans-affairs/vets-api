@@ -23,10 +23,6 @@
   },
 
   "features": {
-    "ghcr.io/devcontainers/features/ruby:1": {
-      "version": "3.3.6",
-      "installRbenv": true
-    },
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
       "version": "15"
     },
