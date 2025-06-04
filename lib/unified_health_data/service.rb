@@ -65,31 +65,39 @@ module UnifiedHealthData
     end
 
     def fetch_combined_records(body)
+      return [] if body.nil?
+      
       vista_records = body.dig('vista', 'entry') || []
       oracle_health_records = body.dig('oracle-health', 'entry') || []
       vista_records + oracle_health_records
     end
 
     def parse_labs(records)
-      records = records.select { |record| record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
+      return [] if records.nil? || records.empty?
+      
+      records = records.select { |record| record['resource'] && record['resource']['resourceType'] == 'DiagnosticReport' }.map do |record|
         parse_single_record(record)
       end
       records.compact
     end
 
     def parse_single_record(record)
+      return nil if record.nil? || record['resource'].nil?
+      
       location = fetch_location(record)
       code = fetch_code(record)
       encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
-      sample_tested = fetch_sample_tested(record['resource'], record['resource']['contained'])
-      body_site = fetch_body_site(record['resource'], record['resource']['contained'])
+      
+      contained = record['resource']['contained']
+      sample_tested = fetch_sample_tested(record['resource'], contained)
+      body_site = fetch_body_site(record['resource'], contained)
       observations = fetch_observations(record)
       ordered_by = fetch_ordered_by(record)
 
       return nil unless code && (encoded_data || observations)
 
       attributes = UnifiedHealthData::Attributes.new(
-        display: record['resource']['code']['text'],
+        display: record['resource']['code'] ? record['resource']['code']['text'] : '',
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
         sample_tested:, encoded_data:, location:, ordered_by:, observations:, body_site:
@@ -112,10 +120,10 @@ module UnifiedHealthData
     end
 
     def fetch_code(record)
-      return if record['resource']['category'].empty?
+      return nil if record['resource']['category'].nil? || record['resource']['category'].empty?
 
       coding = record['resource']['category'].find do |category|
-        category['coding'].count && category['coding'][0]['code'] != 'LAB'
+        category['coding'] && !category['coding'].empty? && category['coding'][0]['code'] != 'LAB'
       end
       coding ? coding['coding'][0]['code'] : nil
     end
@@ -124,6 +132,7 @@ module UnifiedHealthData
       body_sites = []
 
       return '' unless resource['basedOn']
+      return '' if contained.nil?
 
       service_request_references = resource['basedOn'].pluck('reference')
       service_request_references.each do |reference|
@@ -148,6 +157,7 @@ module UnifiedHealthData
 
     def fetch_sample_tested(record, contained)
       return '' unless record['specimen']
+      return '' if contained.nil?
 
       specimen_references = if record['specimen'].is_a?(Hash)
                               [extract_reference_id(record['specimen']['reference'])]
@@ -167,6 +177,8 @@ module UnifiedHealthData
     end
 
     def fetch_observations(record)
+      return [] if record['resource']['contained'].nil?
+      
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
         sample_tested = fetch_sample_tested(obs, record['resource']['contained'])
         body_site = fetch_body_site(obs, record['resource']['contained'])
@@ -189,6 +201,8 @@ module UnifiedHealthData
     end
 
     def fetch_observation_value(obs)
+      return { text: nil, type: nil } if obs.nil?
+      
       type, text = if obs['valueQuantity']
                      ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
                    elsif obs['valueCodeableConcept']
