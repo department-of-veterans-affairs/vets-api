@@ -41,7 +41,11 @@ module PdfFill
             question_num: 1,
             question_suffix: 'A',
             question_label: 'First',
-            question_text: 'VETERAN/SERVICE MEMBER\'S NAME. First Name'
+            question_text: 'VETERAN/SERVICE MEMBER\'S NAME. First Name',
+            page: 0,
+            x: 42,
+            y: 575,
+            width: 190
           },
           'middleInitial' => {
             key: 'F[0].#subform[2].VeteransMiddleInitial1[0]',
@@ -57,7 +61,11 @@ module PdfFill
             question_num: 1,
             question_suffix: 'C',
             question_label: 'Last',
-            question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Last Name'
+            question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Last Name',
+            page: 0,
+            x: 260,
+            y: 575,
+            width: 250
           }
         },
         'veteranSocialSecurityNumber' => { # question_num: 2
@@ -140,7 +148,11 @@ module PdfFill
           key: 'F[0].#subform[2].E_Mail_Address_Optional[0]',
           limit: 75, # TODO: This is a guess.  Need to confirm.
           question_num: 7,
-          question_text: 'E-Mail Address (Optional).'
+          question_text: 'E-Mail Address (Optional).',
+          page: 0,
+          x: 40,
+          y: 470,
+          width: 190
         },
         'emailOverflow' => {
           key: '',
@@ -172,27 +184,40 @@ module PdfFill
             question_num: 9,
             question_suffix: 'A',
             question_text: 'Description',
-            limit: 105
+            limit: 105,
+            page: 0,
+            x: 60,
+            y: 130,
+            width: 75
           },
           'location' => {
             key: "F[0].#subform[2].Location_Of_The_Traumatic_Events[#{ITERATOR}]",
             question_num: 9,
             question_suffix: 'B',
             question_text: 'Location',
-            limit: 84
+            limit: 84,
+            page: 0,
+            x: 45,
+            y: 146,
+            width: 50
           },
           'timing' => {
             key: "F[0].#subform[2].Dates_The_Traumatic_Events_Occured[#{ITERATOR}]",
             question_num: 9,
             question_suffix: 'C',
             question_text: 'Date',
-            limit: 75
+            limit: 75,
+            page: 0,
+            x: 45,
+            y: 146,
+            width: 50
           },
           'eventOverflow' => {
             key: '',
             question_text: 'TRAUMATIC EVENT(S) INFORMATION',
             question_num: 9,
             question_suffix: 'A'
+
           }
         },
         'behaviors' => { # question_num: 10A
@@ -274,7 +299,11 @@ module PdfFill
             question_num: 10,
             question_suffix: 'B',
             question_text: 'Additional Information about Behavioral Changes',
-            question_label: 'Additional Information'
+            question_label: 'Additional Information',
+            page: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2],
+            x: [270] * 14,
+            y: [480, 430, 390, 345, 300, 255, 210, 165, 125, 82, 740, 700, 650, 610],
+            width: 190
           }
         },
         'additionalBehaviorsDetails' => { # question_num: 10C
@@ -283,7 +312,11 @@ module PdfFill
           question_num: 10.0, # This is needed to distinguish from the 10B overflow
           question_suffix: 'C',
           question_text: 'Additional Behavioral Changes',
-          show_suffix: true
+          show_suffix: true,
+          page: 2,
+          x: 40,
+          y: 535,
+          width: 190
         },
         'reportFiled' => { # question_num: 11
           key: 'F[0].#subform[4].Report_Yes[0]'
@@ -328,7 +361,11 @@ module PdfFill
             limit: 68,
             question_num: 11,
             question_suffix: 'A',
-            question_text: 'Police Report Location'
+            question_text: 'Police Report Location',
+            page: 2,
+            x: 200,
+            y: 360,
+            width: 190
           },
           'policeOverflow' => {
             key: '',
@@ -342,7 +379,11 @@ module PdfFill
             question_num: 11,
             question_suffix: 'B',
             question_label: 'Other',
-            question_text: 'Other Report'
+            question_text: 'Other Report',
+            page: 2,
+            x: 40,
+            y: 325,
+            width: 190
           },
           'otherOverflow' => {
             key: '',
@@ -466,7 +507,11 @@ module PdfFill
             question_num: 12,
             question_label: 'Other',
             question_type: 'checklist_group',
-            question_text: 'OTHER'
+            question_text: 'OTHER',
+            page: 2,
+            x: 295,
+            y: 180,
+            width: 190
           },
           'otherDetailsOverflow' => {
             key: '',
@@ -514,7 +559,11 @@ module PdfFill
             question_num: 13,
             question_suffix: 'C',
             question_text: 'Facility name',
-            limit: 100
+            limit: 100,
+            page: 3,
+            x: 45,
+            y: 685,
+            width: 190
           },
           'treatmentMonth' => {
             key: "F[0].#subform[5].Date_Of_Treatment_Month[#{ITERATOR}]",
@@ -544,7 +593,11 @@ module PdfFill
           limit: 1940,
           question_num: 14,
           question_text: 'REMARKS',
-          question_type: 'free_text'
+          question_type: 'free_text',
+          page: 3,
+          x: 40,
+          y: 525,
+          width: 190
         },
         'additionalInformationOverflow' => {
           key: '',
@@ -570,7 +623,11 @@ module PdfFill
           limit: 50, # TODO: This is a guess.  Need to confirm.
           question_num: 16,
           question_suffix: 'A',
-          question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE'
+          question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE',
+          page: 3,
+          x: 40,
+          y: 25,
+          width: 190
         },
         'signatureDate' => {
           'month' => {

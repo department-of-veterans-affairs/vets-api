@@ -585,12 +585,13 @@ module PdfFill
         )
       end
 
-      store_section_coordinates(pdf, section_index, box_position)
+      store_section_coordinates(pdf, section_index, return_section_label, box_position)
     end
 
-    def store_section_coordinates(pdf, section_index, box_position)
+    def store_section_coordinates(pdf, section_index, return_section_label, box_position)
       (@section_coordinates ||= []) << {
         section: section_index,
+        section_label: return_section_label,
         page: pdf.page_count,
         x: box_position[:x] + 35,
         y: box_position[:y] + 35,

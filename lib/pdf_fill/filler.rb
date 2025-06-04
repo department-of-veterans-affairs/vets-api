@@ -83,7 +83,7 @@ module PdfFill
     #
     # @return [String] The path to the final combined PDF.
     #
-    def combine_extras(old_file_path, extras_generator)
+    def combine_extras(old_file_path, extras_generator, hash_converter = nil)
       require 'hexapdf'
       if extras_generator.text?
         file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
@@ -93,7 +93,7 @@ module PdfFill
         original_page_count = main_reader.page_count
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
-        add_annotations(file_path, extras_generator, original_page_count)
+        add_annotations(file_path, extras_generator, original_page_count, hash_converter)
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -104,30 +104,59 @@ module PdfFill
       end
     end
 
-    def add_annotations(doc_path, extras_generator, original_page_count)
+    def add_annotations(doc_path, extras_generator, original_page_count, hash_converter = nil)
       doc = HexaPDF::Document.open(doc_path)
-      add_destinations(doc)
+      main_form_destinations = prepare_destinations_to_main_form(doc)
+      overflow_form_destinations = prepare_destinations_to_overflow_form(doc, extras_generator, original_page_count)
+      all_destinations = main_form_destinations + overflow_form_destinations
+      add_all_destinations(doc, all_destinations)
       add_links(doc, extras_generator, original_page_count)
+
+      # Add placeholder links if hash_converter is provided
+      add_links_for_overflow_content(doc, hash_converter) if hash_converter
 
       doc.write(doc_path)
       doc_path
     end
 
-    def add_destinations(doc)
+    def add_all_destinations(doc, destination_array)
+      doc.catalog[:Names] ||= doc.wrap({})
+      doc.catalog[:Names][:Dests] = doc.add({ Names: destination_array })
+    end
+
+    def prepare_destinations_to_main_form(doc)
       form_class = PdfFill::Forms::Va210781v2
 
-      names_array = []
+      main_form_destinations = []
       form_class::SECTIONS.each do |section|
         page = section[:page] - 1
         x = 0
         y = section[:dest_y_coord]
         dest_name = section[:dest_name]
         dest = doc.wrap([doc.pages[page], :XYZ, x, y, nil]) # doc.pages[page] is 0-based index
-        names_array << dest_name
-        names_array << dest
+        main_form_destinations << dest_name
+        main_form_destinations << dest
       end
-      doc.catalog[:Names] ||= doc.wrap({})
-      doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })
+      # doc.catalog[:Names] ||= doc.wrap({})
+      # doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })
+      main_form_destinations
+    end
+
+    def prepare_destinations_to_overflow_form(doc, extras_generator, original_page_count)
+      dest_padding = 20
+      if extras_generator.respond_to?(:section_coordinates)
+        overflow_form_destinations = []
+        extras_generator.section_coordinates.each do |coord|
+          page = coord[:page] + original_page_count - 1
+          dest_name = "overflow_section_#{coord[:section_label]}"
+          dest = doc.wrap([doc.pages[page], :XYZ, coord[:x] + dest_padding, coord[:y] + dest_padding, nil])
+          overflow_form_destinations << dest_name
+          overflow_form_destinations << dest
+        end
+        # doc.catalog[:Names] ||= doc.wrap({})
+        # doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })
+        overflow_form_destinations
+      end
     end
 
     def prepare_link(coord, doc, original_page_count)
@@ -159,6 +188,53 @@ module PdfFill
           page[:Annots] << create_link(doc, coord)
         end
       end
+    end
+
+    def create_placeholder_link(doc, field_coords, dest_name)
+      doc.add({
+                Type: :Annot,
+                Subtype: :Link,
+                Rect: [
+                  field_coords[:x],
+                  field_coords[:y],
+                  field_coords[:x] + field_coords[:width],
+                  field_coords[:y] + field_coords[:height]
+                ],
+                Border: [0, 0, 1], # No border
+                C: [1, 0, 0], # Blue color
+                A: {
+                  Type: :Action,
+                  S: :GoTo,
+                  D: dest_name
+                }
+              })
+    end
+
+    def add_links_for_overflow_content(doc, hash_converter)
+      return unless hash_converter.respond_to?(:placeholder_links)
+
+      hash_converter.placeholder_links.each do |link_info|
+        field_coords = get_field_coordinates(doc, link_info)
+        next unless field_coords
+
+        page = doc.pages[field_coords[:page]]
+        next unless page
+
+        page[:Annots] ||= []
+
+        # Add the clickable link
+        page[:Annots] << create_placeholder_link(doc, field_coords, link_info[:dest_name])
+      end
+    end
+
+    def get_field_coordinates(_doc, link_info)
+      {
+        page: link_info[:page], # Assuming first page for demo
+        x: link_info[:x], # These would need to be real coordinates
+        y: link_info[:y],
+        width: link_info[:width],
+        height: 20
+      }
     end
 
     ##
@@ -216,7 +292,6 @@ module PdfFill
 
       hash_converter = make_hash_converter(form_id, form_class, submit_date, fill_options)
       new_hash = hash_converter.transform_data(form_data: merged_form_data, pdftk_keys: form_class::KEY)
-
       has_template = form_class.const_defined?(:TEMPLATE)
       template_path = has_template ? form_class::TEMPLATE : "lib/pdf_fill/forms/pdfs/#{form_id}.pdf"
       unicode_pdf_form_list = [SavedClaim::CaregiversAssistanceClaim::FORM,
@@ -231,7 +306,7 @@ module PdfFill
       if fill_options.fetch(:extras_redesign, false) && submit_date.present?
         file_path = stamp_form(file_path, submit_date)
       end
-      output = combine_extras(file_path, hash_converter.extras_generator)
+      output = combine_extras(file_path, hash_converter.extras_generator, hash_converter)
       Rails.logger.info('PdfFill done', fill_options.merge(form_id:, file_name_extension:, extras: output != file_path))
       output
     end
