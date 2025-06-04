@@ -9,7 +9,8 @@ module AccreditedRepresentativePortal
                class_name: 'VANotify::Notification',
                foreign_key: 'notification_id',
                primary_key: 'notification_id',
-               optional: true
+               optional: true,
+               inverse_of: :power_of_attorney_request_notifications
 
     delegate :accredited_individual, :accredited_organization, to: :power_of_attorney_request
 
