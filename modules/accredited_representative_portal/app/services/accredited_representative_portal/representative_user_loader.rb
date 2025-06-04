@@ -78,7 +78,7 @@ module AccreditedRepresentativePortal
       user.last_signed_in = session.created_at
       user.sign_in = sign_in
       if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
-        user.all_emails = access_token.user_attributes&.fetch('all_emails', [])
+        Array(user.all_emails = access_token.user_attributes&.fetch('all_emails', []))
       end
       user.save
       @current_user = user
