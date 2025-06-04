@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'dependents/monitor'
-
 module BGS
-  class DependentService
+  class DependentV2Service
     include SentryLogging
 
     attr_reader :first_name,
@@ -17,8 +15,6 @@ module BGS
                 :participant_id,
                 :uuid,
                 :file_number
-
-    STATS_KEY = 'bgs.dependent_service'
 
     def initialize(user)
       @first_name = user.first_name
@@ -41,26 +37,24 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      @monitor = init_monitor(claim&.id)
-      @monitor.track_event('info', 'BGS::DependentService running!', "#{STATS_KEY}.start")
+      Rails.logger.info('BGS::DependentV2Service running!', { user_uuid: uuid, saved_claim_id: claim.id })
 
-      InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
+      InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
       encrypted_vet_info = KmsEncrypted::Box.new.encrypt(get_form_hash_686c.to_json)
       submit_pdf_job(claim:, encrypted_vet_info:)
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
-        @monitor.track_event('info', 'BGS::DependentService succeeded!', "#{STATS_KEY}.success")
+        Rails.logger.info('BGS::DependentV2Service succeeded!', { user_uuid: uuid, saved_claim_id: claim.id })
       end
 
       {
         submit_form_job_id:
       }
     rescue => e
-      @monitor.track_event('warn', 'BGS::DependentService#submit_686c_form method failed!',
-                           "#{STATS_KEY}.failure", { error: e.message })
-      log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      Rails.logger.warn('BGS::DependentV2Service#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, error: e.message }) # rubocop:disable Layout/LineLength
+      log_exception_to_sentry(e, { uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
     end
@@ -72,16 +66,16 @@ module BGS
     end
 
     def submit_pdf_job(claim:, encrypted_vet_info:)
-      @monitor = init_monitor(claim&.id)
       if Flipper.enabled?(:dependents_claims_evidence_api_upload)
         # TODO: implement upload using the claims_evidence_api module
-        @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job Claims Evidence Upload not implemented!',
-                             "#{STATS_KEY}.claim_evidence.failure")
+        Rails.logger.debug('BGS::DependentV2Service#submit_pdf_job Claims Evidence Upload not implemented!',
+                           { claim_id: claim.id })
         return
       end
-      @monitor.track_event('debug', 'BGS::DependentService#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
-                           "#{STATS_KEY}.submit_pdf.begin")
-      VBMS::SubmitDependentsPdfJob.perform_sync(
+
+      Rails.logger.debug('BGS::DependentV2Service#submit_pdf_job called to begin VBMS::SubmitDependentsPdfJob',
+                         { claim_id: claim.id })
+      VBMS::SubmitDependentsPdfV2Job.perform_sync(
         claim.id,
         encrypted_vet_info,
         claim.submittable_686?,
@@ -90,9 +84,7 @@ module BGS
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
-      @monitor.track_event('warn',
-                           'DependentService#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake',
-                           "#{STATS_KEY}.submit_pdf.failure", { error: e })
+      Rails.logger.warn('DependentV2Service#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, error: e }) # rubocop:disable Layout/LineLength
       submit_to_central_service(claim:)
 
       raise e
@@ -100,11 +92,11 @@ module BGS
 
     def submit_to_standard_service(claim:, encrypted_vet_info:)
       if claim.submittable_686?
-        BGS::SubmitForm686cJob.perform_async(
+        BGS::SubmitForm686cV2Job.perform_async(
           uuid, icn, claim.id, encrypted_vet_info
         )
       else
-        BGS::SubmitForm674Job.perform_async(
+        BGS::SubmitForm674V2Job.perform_async(
           uuid, icn, claim.id, encrypted_vet_info
         )
       end
@@ -114,8 +106,8 @@ module BGS
       vet_info = JSON.parse(claim.form)['dependents_application']
       vet_info.merge!(get_form_hash_686c) unless vet_info['veteran_information']
 
-      user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
-      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
+      user = BGS::SubmitForm686cV2Job.generate_user_struct(vet_info)
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job.perform_async(
         claim.id,
         KmsEncrypted::Box.new.encrypt(vet_info.to_json),
         KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
@@ -169,10 +161,6 @@ module BGS
           'icn' => icn
         }
       }
-    end
-
-    def init_monitor(saved_claim_id)
-      @monitor ||= ::Dependents::Monitor.new(saved_claim_id)
     end
   end
 end

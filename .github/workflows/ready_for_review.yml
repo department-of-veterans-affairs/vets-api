@@ -24,6 +24,14 @@ jobs:
       pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       pr_branch:  ${{ steps.get_pr_data.outputs.pr_branch }}
     steps:
+      - name: Checkout PR HEAD ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
       - name: Get pull_request data
         id: get_pr_data
         run: |
@@ -173,8 +181,13 @@ jobs:
       team_approval_status: ${{ steps.verify_approval.outputs.team_approval_status }}
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout PR HEAD ref
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
