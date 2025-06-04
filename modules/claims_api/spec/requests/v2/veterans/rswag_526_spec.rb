@@ -367,7 +367,7 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
           schema SwaggerSharedComponents::V2.schemas[:sync_disability_compensation]
 
           def make_request(example)
-            Flipper.disable :claims_load_testing
+            allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
 
             with_settings(Settings.claims_api.benefits_documents, use_mocks: true) do
               VCR.use_cassette('claims_api/disability_comp') do

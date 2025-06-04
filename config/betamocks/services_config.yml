@@ -23,15 +23,15 @@
       :response_delay: 0.3
     ## Travel Pay
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
+      :path: "/veis/api/btsss/travelclaim/api/v2/Auth/access-token"
       :file_path: "/travel_pay/btsss_token/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/search-by-appointment-date"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/search-by-appointment-date"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/index/default"
       :response_delay: 0.3
     - :method: :get
@@ -42,26 +42,26 @@
         :uid_location: url
         :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/documents'
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*"
       :file_path: "/travel_pay/claims/show/default"
       :response_delay: 0.3
     - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/appointments"
+      :path: "/veis/api/btsss/travelclaim/api/v2/appointments"
       :file_path: "/travel_pay/appointments/default"
       :response_delay: 0.3
     - :method: :patch
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*/submit"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims/*/submit"
       :file_path: "/travel_pay/claims/submit"
       :response_delay: 0.3
       :cache_multiple_responses:
         :uid_location: url
-        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v1\.2\/claims\/(.+)\/submit'
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v2\/claims\/(.+)\/submit'
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :path: "/veis/api/btsss/travelclaim/api/v2/claims"
       :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
     - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1.2/expenses/mileage"
+      :path: "/veis/api/btsss/travelclaim/api/v2/expenses/mileage"
       :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
     - :method: :get
@@ -918,6 +918,9 @@
   :endpoints:
     # Get a provider's service details
     - :method: :get
+      :path: "/care-navigation/v1/provider-services"
+      :file_path: "vaos/eps/providers/get_provider_services/default"
+    - :method: :get
       :path: "/care-navigation/v1/provider-services/*"
       :file_path: "vaos/eps/providers/get_provider_services"
       :cache_multiple_responses:
@@ -944,6 +947,22 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/care-navigation\/v1\/provider-services\/(.+)\/slots'
+    
+    # Create draft appointment
+    - :method: :post
+      :path: "/care-navigation/v1/appointments"
+      :file_path: "vaos/eps/appointments/create_draft_appointment"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'referralNumber":"(\w+)"'
+    
+    # Submit appointment
+    - :method: :post
+      :path: "/care-navigation/v1/appointments/*/submit"
+      :file_path: "vaos/eps/appointments/submit_appointment"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/care-navigation\/v1\/appointments\/(.+)\/submit'
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"

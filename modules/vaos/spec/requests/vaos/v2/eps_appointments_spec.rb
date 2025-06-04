@@ -21,11 +21,6 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
     Rails.cache.write(Eps::BaseService::REDIS_TOKEN_KEY, access_token)
 
     Settings.vaos ||= OpenStruct.new
-    Settings.vaos.ccra ||= OpenStruct.new
-    Settings.vaos.ccra.tap do |ccra|
-      ccra.api_url = 'http://ccra.api.example.com'
-      ccra.base_path = 'vaos/v1/patients'
-    end
     Settings.vaos.eps ||= OpenStruct.new
     Settings.vaos.eps.tap do |eps|
       eps.api_url = 'https://api.wellhive.com'
@@ -40,30 +35,24 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
         {
           'data' => {
             'id' => 'qdm61cJ5',
-            'type' => 'eps_appointment',
+            'type' => 'epsAppointment',
             'attributes' => {
               'id' => 'qdm61cJ5',
               'status' => 'booked',
               'start' => '2024-11-21T18:00:00Z',
-              'typeOfCare' => nil,
               'isLatest' => true,
               'lastRetrieved' => '2025-02-10T14:35:44Z',
               'modality' => 'OV',
               'provider' => {
                 'id' => 'test-provider-id',
-                'name' => 'Timothy Bob',
-                'isActive' => true,
-                'organization' => { 'name' => 'test-provider-org-name' },
                 'location' => {
                   'name' => 'Test Medical Complex',
                   'address' => '207 Davishill Ln',
                   'latitude' => 33.058736,
                   'longitude' => -80.032819,
                   'timezone' => 'America/New_York'
-                },
-                'networkIds' => ['sandbox-network-test']
-              },
-              'referringFacility' => {}
+                }
+              }
             }
           }
         }
@@ -114,56 +103,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
             VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path]) do
               get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
-              expect(response).to have_http_status(:not_found)
-            end
-          end
-        end
-      end
-
-      context 'with referral detail data' do
-        let(:provider_phone) { '555-123-4567' }
-        let(:referring_facility_phone) { '555-123-0000' }
-        let(:referring_facility_name) { 'Test Referring Facility' }
-
-        it 'includes referral detail data in response when available' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
-            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
-              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
-                VCR.use_cassette('vaos/ccra/post_get_referral_with_phone', match_requests_on: %i[method path]) do
-                  get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
-
-                  expect(response).to have_http_status(:success)
-
-                  # Check that the phone number is in the response
-                  body = JSON.parse(response.body)
-
-                  expect(body['data']['attributes']['provider']['phoneNumber']).to eq(provider_phone)
-                  expect(body['data']['attributes']['referringFacility']['phoneNumber']).to eq(referring_facility_phone)
-                  expect(body['data']['attributes']['referringFacility']['name']).to eq(referring_facility_name)
-                end
-              end
-            end
-          end
-        end
-
-        it 'handles errors from referral service gracefully' do
-          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
-            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
-              VCR.use_cassette('vaos/eps/providers/data_Aq7wgAux_200', match_requests_on: %i[method path]) do
-                VCR.use_cassette('vaos/ccra/post_get_referral_error', match_requests_on: %i[method path]) do
-                  # We still need to verify logging is happening
-                  allow(Rails.logger).to receive(:error)
-                  expect(Rails.logger).to receive(:error).with(/Failed to retrieve referral details/)
-
-                  get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
-
-                  expect(response).to have_http_status(:success)
-
-                  # Check that the response doesn't have the phone number
-                  body = JSON.parse(response.body)
-                  expect(body['data']['attributes']['provider']).not_to have_key('phoneNumber')
-                end
-              end
+              expect(response).to have_http_status(:success)
+              expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('proposed')
             end
           end
         end

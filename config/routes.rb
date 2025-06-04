@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   namespace :sign_in do
     get '/openid_connect/certs', to: 'openid_connect_certificates#index'
 
+    namespace :webhooks do
+      post 'logingov/risc', to: 'logingov#risc'
+    end
+
     unless Settings.vsp_environment == 'production'
       resources :client_configs, param: :client_id
       resources :service_account_configs, param: :service_account_id
@@ -180,8 +184,16 @@ Rails.application.routes.draw do
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
 
-    get 'intent_to_file', to: 'intent_to_files#index'
-    post 'intent_to_file/:type', to: 'intent_to_files#submit'
+    namespace :chatbot do
+      get 'claims', to: 'claim_status#index'
+      get 'claims/:id', to: 'claim_status#show'
+      get 'user', to: 'users#show'
+      post 'speech_token', to: 'speech_token#create'
+      post 'token', to: 'token#create'
+    end
+
+    get 'intent_to_file(/:itf_type)', to: 'intent_to_files#index'
+    post 'intent_to_file/:itf_type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
@@ -383,7 +395,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
   # Modules
@@ -392,6 +403,7 @@ Rails.application.routes.draw do
   mount Avs::Engine, at: '/avs'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
+  mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

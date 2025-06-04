@@ -15,7 +15,7 @@ module EVSS
     #   @return [Array[EVSS::PPIU::PaymentInformation]] An array of payment information objects
     #
     class PaymentInformationResponse < EVSS::Response
-      attribute :responses, Array[EVSS::PPIU::PaymentInformation]
+      attribute :responses, EVSS::PPIU::PaymentInformation, array: true, default: []
 
       def initialize(status, response = nil)
         super(status, response.body) if response

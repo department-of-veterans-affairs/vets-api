@@ -7,7 +7,6 @@ require 'evss/error_middleware'
 
 module ClaimsApi
   class UnsynchronizedEVSSClaimService
-    include SentryLogging
     EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
     delegate :power_of_attorney, to: :veteran
 

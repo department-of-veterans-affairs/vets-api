@@ -22,16 +22,6 @@ module VeteranEnrollmentSystem
 
       STATSD_KEY_PREFIX = 'api.veteran_enrollment_system.associations'
 
-      # Associations API field names that are not nested
-      FLAT_FIELDS = %w[
-        alternatePhone
-        deleteIndicator
-        lastUpdateDate
-        primaryPhone
-        relationType
-        role
-      ].freeze
-
       UPDATED_STATUSES = %w[
         DELETED
         INSERTED
@@ -46,10 +36,10 @@ module VeteranEnrollmentSystem
       # We need to sort the associations in order to comply with the business logic
       # of the Associations API mentioned at the top of this file
       VES_ROLE_ORDER = {
-        'Other Next of Kin' => 0,
-        'Other emergency contact' => 1,
-        'Primary Next of Kin' => 2,
-        'Emergency Contact' => 3
+        'OTHER_NEXT_OF_KIN' => 0,
+        'OTHER_EMERGENCY_CONTACT' => 1,
+        'PRIMARY_NEXT_OF_KIN' => 2,
+        'EMERGENCY_CONTACT' => 3
       }.freeze
 
       ERROR_MAP = {
@@ -59,28 +49,45 @@ module VeteranEnrollmentSystem
         504 => Common::Exceptions::GatewayTimeout
       }.freeze
 
-      def initialize(current_user, parsed_form)
+      def initialize(current_user)
         super()
         @current_user = current_user
-        @parsed_form = parsed_form
       end
 
-      def update_associations(form_id)
-        reordered_associations = reorder_associations(@parsed_form['veteranContacts'])
-        transformed_associations = { 'associations' => transform_associations(reordered_associations) }
+      def get_associations(form_id)
+        with_monitoring do
+          response = perform(:get, "#{config.base_path}#{@current_user.icn}", nil)
+
+          if response.status == 200
+            response.body['data']['associations']
+          else
+            raise_error(response)
+          end
+        end
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.get_associations.failed")
+        Rails.logger.error("#{form_id} retrieve associations failed: #{e.errors}")
+
+        raise e
+      end
+
+      # @param [Array] associations: the associations to be updated
+      # @param [String] form_id: the ID of the form that the associations are being updated for (e.g. '10-10EZR')
+      def update_associations(associations, form_id)
+        reordered_associations = reorder_associations(associations)
 
         with_monitoring do
           response = perform(
             :put,
             "#{config.base_path}#{@current_user.icn}",
-            transformed_associations
+            { 'associations' => reordered_associations }
           )
 
           handle_ves_update_response(response, form_id)
         end
       rescue => e
-        Rails.logger.error("#{form_id} update associations failed: #{e.errors}")
         StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.failed")
+        Rails.logger.error("#{form_id} update associations failed: #{e.errors}")
 
         raise e
       end
@@ -90,42 +97,7 @@ module VeteranEnrollmentSystem
       # We need to sort the associations in order to comply with the business logic
       # of the Associations API mentioned at the top of this file
       def reorder_associations(associations)
-        associations.sort_by { |assoc| VES_ROLE_ORDER[assoc['contactType']] }
-      end
-
-      def transform_association(association)
-        transformed_association = {}
-        # Format the address to match the Associations schema
-        transformed_association['address'] = format_address(association['address']).compact_blank
-        # Format the name to match the Associations schema
-        transformed_association['name'] = convert_full_name_alt(association['fullName']).compact_blank
-
-        transform_flat_fields(association, transformed_association)
-        # This is a required field in the Associations API for insert/update
-        transformed_association['lastUpdateDate'] = Time.current.iso8601
-
-        transformed_association
-      end
-
-      def transform_associations(associations)
-        associations.map { |association| transform_association(association) }
-      end
-
-      # Transform non-nested fields to match the Associations API schema
-      def transform_flat_fields(association, transformed_association)
-        FLAT_FIELDS.each do |field|
-          if field == 'role'
-            transformed_association[field] = association['contactType'].to_s.upcase.gsub(/\s+/, '_')
-          elsif field == 'relationType'
-            transformed_association[field] =
-              association['relationship'].to_s
-                                         .gsub(/-/, '') # Remove hyphens
-                                         .gsub(/\s+/, '_') # Replace spaces with underscores
-                                         .gsub(%r{/}, '_') # Replace forward slashes with underscores
-          elsif association[field].present?
-            transformed_association[field] = association[field]
-          end
-        end
+        associations.sort_by { |assoc| VES_ROLE_ORDER[assoc['role']] }
       end
 
       def updated_associations(response)
@@ -137,8 +109,8 @@ module VeteranEnrollmentSystem
       end
 
       def set_response(
-        status: 'success',
-        message: 'All associations were updated successfully',
+        status:,
+        message:,
         **optional_fields
       )
         {
@@ -170,7 +142,7 @@ module VeteranEnrollmentSystem
           StatsD.increment("#{STATSD_KEY_PREFIX}.update_associations.success")
           Rails.logger.info("#{form_id} associations updated successfully")
 
-          set_response
+          set_response(status: 'success', message: 'All associations were updated successfully')
         end
       end
 

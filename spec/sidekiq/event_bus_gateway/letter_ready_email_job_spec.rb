@@ -8,7 +8,6 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
 
   let(:participant_id) { '1234' }
   let(:template_id) { '5678' }
-  let(:personalisation) { {} }
 
   let(:notification_id) { SecureRandom.uuid }
   let(:va_notify_service) do
@@ -23,8 +22,15 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
   context 'when an error does not occur' do
     it 'sends an email using VA Notify' do
       allow(VaNotify::Service).to receive(:new).and_return(va_notify_service)
-      expect(va_notify_service).to receive(:send_email)
-      subject.new.perform(participant_id, template_id, personalisation)
+      expect_any_instance_of(BGS::PersonWebService)
+        .to receive(:find_person_by_ptcpnt_id).and_return({ first_nm: 'Joe' })
+      expected_args = {
+        recipient_identifier: { id_value: participant_id, id_type: 'PID' },
+        template_id:,
+        personalisation: { host: Settings.hostname, first_name: 'Joe' }
+      }
+      expect(va_notify_service).to receive(:send_email).with(expected_args)
+      subject.new.perform(participant_id, template_id)
     end
   end
 
@@ -44,7 +50,7 @@ RSpec.describe EventBusGateway::LetterReadyEmailJob, type: :job do
         .to receive(:error)
         .with(error_message, { message: 'StandardError' })
       expect(StatsD).to receive(:increment).with('event_bus_gateway', tags:)
-      subject.new.perform(participant_id, template_id, personalisation)
+      subject.new.perform(participant_id, template_id)
     end
   end
 end

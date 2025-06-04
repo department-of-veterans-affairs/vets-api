@@ -29,7 +29,8 @@
       "city": "Dalworthington Gardens",
       "state": "TX",
       "township": "",
-      "country": "USA"
+      "country": "USA",
+      "unlistedReport": "incident report"
     },
     {
       "details": "Mugged",
@@ -76,20 +77,19 @@
     }
   ],
   "behaviors": {
-    "reassignment": true,
-    "performance": false,
-    "episodes": false,
-    "selfMedication": true,
-    "appetite": true,
-    "screenings": false,
     "relationships": true,
+    "misconduct": true,
+    "substances": true,
+    "reassignment": true,
+    "consultations": true,
     "unlisted": true
   },
   "behaviorsDetails": {
-    "reassignment": "Following the incident, I sought medical and psychological treatment, which included therapy sessions with a licensed psychologist and regular consultations with my healthcare provider. These professionals have indicated that due to trauma, I am no longer able to perform at my previous work capacity. In particular, I struggle with brain fog, concentration, and fatigue, which were not issues prior to the event.",
-    "appetite": "",
-    "unlisted": "Really long lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Really long lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    "selfMedication": "Short enough to not overflow."
+    "misconduct": "",
+    "substances": null,
+    "reassignment": "Reassignment not long enough to overflow",
+    "consultations": "Consultations long enough to overflow the limit of 217 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed loremsd.",
+    "unlisted": "Unlisted string 268 characters long enough to overflow the limit of 784 characters. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed loremsd. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed loremsd. This is the end."
   },
   "evidence": {
     "crisis": true,

@@ -8,6 +8,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
+    # Configure EPS settings
+    allow(Settings.vaos.eps).to receive_messages(
+      access_token_url: 'https://login.wellhive.com/oauth2/default/v1/token',
+      api_url: 'https://api.wellhive.com',
+      base_path: 'care-navigation/v1'
+    )
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -1082,6 +1088,20 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
+        it 'submits referral appointment with conflict error' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment_conflict',
+                             match_requests_on: %i[method path body]) do
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:conflict)
+              expect(response_obj.dig('errors', 0, 'code')).to eql('conflict')
+            end
+          end
+        end
+
         it 'records success metric when submitting referral appointment' do
           VCR.use_cassette('vaos/v2/eps/post_access_token',
                            match_requests_on: %i[method path]) do
@@ -1140,18 +1160,42 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
   context 'for eps referrals' do
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
-    let(:draft_params) { { referral_id: 'ref-123' } }
-
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
     let(:npi) { '7894563210' }
     let(:appointment_type_id) { 'ov' }
     let(:start_date) { '2025-01-01T00:00:00Z' }
     let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:referral_data) do
+      {
+        referral_number: 'ref-123',
+        referral_consult_id: '123-123456',
+        npi:,
+        appointment_type_id:,
+        start_date:,
+        end_date:
+      }
+    end
+
+    let(:draft_params) do
+      {
+        referral_number: referral_data[:referral_number],
+        referral_consult_id: referral_data[:referral_consult_id]
+      }
+    end
+
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      referral_number: 'ref-123',
+                      appointment_type_id:,
+                      expiration_date: end_date,
+                      provider_npi: npi,
+                      referral_date: start_date)
+    end
     let(:referral_identifiers) do
       {
         data: {
-          id: draft_params[:referral_id],
+          id: draft_params[:referral_number],
           type: :referral_identifier,
           attributes: { npi:, appointment_type_id:, start_date:, end_date: }
         }
@@ -1166,13 +1210,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       allow(Rails).to receive(:cache).and_return(memory_store)
       Rails.cache.clear
-
-      Rails.cache.write(
-        "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
-        referral_identifiers,
-        namespace: 'eps-access-token',
-        expires_in: redis_token_expiry
-      )
+      # Set up mocks for CCRA service to return the referral detail
+      allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+        .with(referral_data[:referral_consult_id], current_user.icn)
+        .and_return(referral_detail)
     end
 
     describe 'POST create_draft' do
@@ -1364,12 +1405,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       end
 
       context 'when drive time coords are invalid' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123'
-          }
-        end
-
         it 'handles invalid_range response' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
             VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords', match_requests_on: %i[method path] do
@@ -1398,14 +1433,14 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           updated_referral_identifiers = {
             data: {
-              id: draft_params[:referral_id],
+              id: draft_params[:referral_number],
               type: :referral_identifier,
               attributes: { npi: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
             }
           }.to_json
 
           Rails.cache.write(
-            "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+            "vaos_eps_referral_identifier_#{draft_params[:referral_number]}",
             updated_referral_identifiers,
             namespace: 'eps-access-token',
             expires_in: redis_token_expiry
@@ -1454,21 +1489,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         it 'fails if a vaos appointment with the given referral id already exists' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-            updated_referral_identifiers = {
-              data: {
-                id: 'ref-124',
-                type: :referral_identifier,
-                attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-              }
-            }.to_json
+            referral_data = {
+              referral_number: 'ref-124',
+              npi:,
+              appointment_type_id:,
+              start_date:,
+              end_date:
+            }
 
-            Rails.cache.write(
-              'vaos_eps_referral_identifier_ref-124',
-              updated_referral_identifiers,
-              namespace: 'eps-access-token',
-              expires_in: redis_token_expiry
-            )
-            draft_params[:referral_id] = 'ref-124'
+            # Set up the test referral for this test case
+            specific_referral_detail = instance_double(Ccra::ReferralDetail,
+                                                       referral_number: referral_data[:referral_number],
+                                                       appointment_type_id: referral_data[:appointment_type_id],
+                                                       expiration_date: referral_data[:end_date],
+                                                       provider_npi: referral_data[:npi],
+                                                       referral_date: referral_data[:start_date])
+
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+              .with(referral_data[:referral_consult_id], current_user.icn)
+              .and_return(specific_referral_detail)
+
+            draft_params[:referral_number] = 'ref-124'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
             response_obj = JSON.parse(response.body)
@@ -1509,22 +1550,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           )
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
 
-          updated_referral_identifiers = {
-            data: {
-              id: 'ref-126',
-              type: :referral_identifier,
-              attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-            }
-          }.to_json
+          referral_data = {
+            referral_number: 'ref-126',
+            npi:,
+            appointment_type_id:,
+            start_date:,
+            end_date:
+          }
 
-          Rails.cache.write(
-            'vaos_eps_referral_identifier_ref-126',
-            updated_referral_identifiers,
-            namespace: 'eps-access-token',
-            expires_in: redis_token_expiry
-          )
+          # Set up the test referral for this test case
+          ref126_detail = instance_double(Ccra::ReferralDetail,
+                                          referral_number: referral_data[:referral_number],
+                                          appointment_type_id: referral_data[:appointment_type_id],
+                                          expiration_date: referral_data[:end_date],
+                                          provider_npi: referral_data[:npi],
+                                          referral_date: referral_data[:start_date])
 
-          draft_params[:referral_id] = 'ref-126'
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+            .with(referral_data[:referral_consult_id], current_user.icn)
+            .and_return(ref126_detail)
+
+          draft_params[:referral_number] = 'ref-126'
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
           response_obj = JSON.parse(response.body)
@@ -1601,11 +1647,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when Redis connection fails' do
         it 'returns a bad_gateway status and appropriate error message' do
-          # Mock the Redis client to raise a connection error
-          redis_client = instance_double(Eps::RedisClient)
-          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
-                                                                               'Redis connection refused')
+          # Mock the RedisClient to raise a Redis connection error
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+            .and_raise(Redis::BaseError, 'Redis connection refused')
 
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
