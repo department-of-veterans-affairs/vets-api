@@ -6,26 +6,24 @@ module RepresentationManagement
   class AgentsAndAttorneysQueueUpdate
     include Sidekiq::Job
 
+    # The total number of representatives and organizations parsed from the GCLAWS API
+    # must not decrease by more than this percentage from the previous count
+    DECREASE_THRESHOLD = 0.20 # 20% maximum decrease allowed
     SLICE_SIZE = 30
     TYPES = RepresentationManagement::GCLAWS::Client::ALLOWED_TYPES
 
     def perform(force_update_types = [])
+      @force_update_types = force_update_types
       @agent_responses = []
       @attorney_responses = []
       @agent_ids = []
       @attorney_ids = []
       @agent_json_for_address_validation = []
       @attorney_json_for_address_validation = []
-      @current_api_counts = {}
 
-      get_counts_from_api
-
+      save_api_counts
       process_agents
       process_attorneys
-      update_agents
-      update_attorneys
-      validate_agent_addresses
-      validate_attorney_addresses
       delete_old_accredited_individuals
     rescue => e
       log_error("Error in AgentsAndAttorneysQueueUpdate: #{e.message}")
@@ -37,10 +35,15 @@ module RepresentationManagement
       RepresentationManagement::GCLAWS::Client
     end
 
-    def current_db_counts
-      # TODO
-      # Get the latest 10 counts from the database
-      # Starting with the latest, get the last actual value across those 10 values for all four counts
+    def get_counts_from_db
+      raise
+      # TODO: This needs to fetch the latest count record, not just count records in the db
+      {
+        agents: AccreditedIndividual.where(individual_type: 'claims_agent').count,
+        attorneys: AccreditedIndividual.where(individual_type: 'attorney').count,
+        representatives: AccreditedIndividual.where(individual_type: 'representative').count,
+        veteran_service_organizations: AccreditedOrganization.count
+      }
     end
 
     def data_transform_for_agent(agent)
@@ -93,11 +96,21 @@ module RepresentationManagement
     end
 
     def get_counts_from_api
+      counts = {}
       TYPES.each do |type|
-        @current_api_counts[type] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
+        counts[type] = client.get_accredited_entities(type:, page: 1, page_size: 1).body['totalRecords']
       rescue => e
         log_error("Error fetching count for #{type}: #{e.message}")
       end
+      counts
+    end
+
+    def current_api_counts
+      @current_api_counts ||= get_counts_from_api
+    end
+
+    def current_db_counts
+      @current_db_counts ||= get_counts_from_db
     end
 
     def individual_agent_json(record, agent)
@@ -134,6 +147,21 @@ module RepresentationManagement
     end
 
     def process_agents
+      if valid_count?(:agents) || @force_update_types.include?('claims_agent')
+        update_agents
+        validate_agent_addresses
+      else
+        log_error("Agents count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+      end
+    end
+
+    def process_attorneys
+      if valid_count?(:attorneys) || @force_update_types.include?('attorney')
+        update_attorneys
+        validate_attorney_addresses
+      else
+        log_error("Attorneys count decreased by more than #{DECREASE_THRESHOLD * 100}% - skipping update")
+      end
     end
 
     def raw_address_for_agent(agent)
@@ -155,6 +183,10 @@ module RepresentationManagement
         state_code: attorney['workState'],
         zip_code: attorney['workZip']
       }.transform_keys(&:to_s)
+    end
+
+    def save_api_counts
+      # Do this after fixing the db counts
     end
 
     def update_agents
@@ -198,6 +230,28 @@ module RepresentationManagement
           @attorney_ids << record.id
         end
         page += 1
+      end
+    end
+
+    def valid_count?(type)
+      previous_count = current_db_counts[type]
+      new_count = current_api_counts[type]
+
+      # If no previous count exists, allow the update
+      return true if previous_count.nil? || previous_count.zero?
+
+      # If new count is greater or equal, allow the update
+      return true if new_count >= previous_count
+
+      # Calculate decrease percentage
+      decrease_percentage = (previous_count - new_count).to_f / previous_count
+
+      if decrease_percentage > DECREASE_THRESHOLD
+        # Log to Slack and don't update
+        notify_threshold_exceeded(type, previous_count, new_count, decrease_percentage, DECREASE_THRESHOLD)
+        false
+      else
+        true
       end
     end
 
