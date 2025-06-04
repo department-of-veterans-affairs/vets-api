@@ -21,6 +21,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.decision_review.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_DISCOVERY_URL>') { Settings.lighthouse.benefits_discovery.host }
+  c.filter_sensitive_data('<LIGHTHOUSE_CLAIMS_API_HOST>') { Settings.lighthouse.benefits_claims.host }
   c.filter_sensitive_data('<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>') { Settings.lighthouse.direct_deposit.host }
   c.filter_sensitive_data('<LIGHTHOUSE_BRD_API_KEY>') { Settings.brd.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
@@ -28,6 +29,8 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MDOT_KEY>') { Settings.mdot.api_key }
   c.filter_sensitive_data('<MDOT_URL>') { Settings.mdot.url }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
+  c.filter_sensitive_data('<MHV_UHD_HOST>') { Settings.mhv.uhd.host }
+  c.filter_sensitive_data('<MHV_UHD_SECURITY_HOST>') { Settings.mhv.uhd.security_host }
   c.filter_sensitive_data('<MHV_MR_HOST>') { Settings.mhv.medical_records.host }
   c.filter_sensitive_data('<MHV_MR_X_AUTH_KEY>') { Settings.mhv.medical_records.x_auth_key }
   c.filter_sensitive_data('<MHV_MR_APP_TOKEN>') { Settings.mhv.medical_records.app_token }

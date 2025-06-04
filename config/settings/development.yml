@@ -506,6 +506,8 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    icn:
+      url: http://localhost:5000/api/v2/accreditations/icn
     origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
@@ -920,6 +922,7 @@ mhv:
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
