@@ -695,14 +695,12 @@ module VAOS
       # standardized error responses.
       #
       # @param e [Exception] The exception that was raised
-      # @param status [String, Integer, nil] Optional status override for error mapping
-      # @param title [String, nil] Optional custom title for the error response
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
-      def handle_appointment_error(e, status: nil, title: nil)
-        original_status = e.respond_to?(:original_status) ? e.original_status : status
+      def handle_appointment_error(e)
+        original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
-        render(json: appt_creation_failed_error(error: e, status: original_status, title:), status: status_code)
+        render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
       end
 
       ##
@@ -711,20 +709,19 @@ module VAOS
       # error structure with metadata for debugging and monitoring.
       #
       # @param error [Exception, nil] The exception that caused the failure
-      # @param kwargs [Hash] Additional options for customizing the error response
-      # @option kwargs [String] :title Custom error title (defaults to 'Appointment creation failed')
-      # @option kwargs [String] :detail Custom error detail (defaults to 'Could not create appointment')
-      # @option kwargs [String, Integer] :status Status code for error metadata
+      # @param title [String, nil] Custom error title (defaults to 'Appointment creation failed')
+      # @param detail [String, nil] Custom error detail (defaults to 'Could not create appointment')
+      # @param status [String, Integer, nil] Status code for error metadata
       # @return [Hash] Formatted error response with title, detail, and metadata
       #
-      def appt_creation_failed_error(error: nil, **kwargs)
+      def appt_creation_failed_error(error: nil, title: nil, detail: nil, status: nil)
         default_title = 'Appointment creation failed'
         default_detail = 'Could not create appointment'
-        status_code = error.respond_to?(:original_status) ? error.original_status : kwargs[:status]
+        status_code = error.respond_to?(:original_status) ? error.original_status : status
         {
           errors: [{
-            title: kwargs[:title] || default_title,
-            detail: kwargs[:detail] || default_detail,
+            title: title || default_title,
+            detail: detail || default_detail,
             meta: {
               original_detail: error.try(:response_values)&.dig(:detail),
               original_error: error.try(:message) || 'Unknown error',
