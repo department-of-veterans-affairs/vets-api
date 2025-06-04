@@ -1,0 +1,48 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/v1/usermgmt/notification/bbmi"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Token: "<SESSION_TOKEN>"
+        X-Api-Key:
+          - "<MHV_MR_X_API_KEY>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Tue, 25 Mar 2025 14:22:51 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "14"
+        X-Amzn-Requestid:
+          - 45c2cc22-41b1-4e25-b1a2-c284c7bbf479
+        X-Amzn-Remapped-Content-Length:
+          - "14"
+        X-Amzn-Remapped-Connection:
+          - keep-alive
+        X-Amz-Apigw-Id:
+          - H_JZbF65PHMFYZA=
+        X-Amzn-Remapped-Date:
+          - Tue, 25 Mar 2025 14:22:51 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string: '{"flag":true}'
+    recorded_at: Tue, 25 Mar 2025 14:22:51 GMT
+recorded_with: VCR 6.3.1

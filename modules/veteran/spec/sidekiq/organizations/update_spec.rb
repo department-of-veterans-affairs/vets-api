@@ -136,7 +136,7 @@ RSpec.describe Organizations::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          "Organizations::Update: Error processing job: unexpected token at 'invalid json'"
+          "Organizations::Update: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
         )
 
         subject.perform(invalid_json_data)
@@ -540,7 +540,7 @@ RSpec.describe Organizations::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            "Organizations::Update: Error processing job: unexpected token at 'invalid json'"
+            "Organizations::Update: Error processing job: unexpected character: 'invalid json' at line 1 column 1"
           )
 
           subject.perform(invalid_json_data)

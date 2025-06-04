@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            required: true # for now
+            required: true
 
     # TODO: Enforce this in the DB.
     has_one :power_of_attorney_form_submission
@@ -87,10 +87,16 @@ module AccreditedRepresentativePortal
       )
     end
 
-    def mark_declined!(creator, reason)
+    def mark_declined!(creator, declination_reason)
       PowerOfAttorneyRequestDecision.create_declination!(
-        creator:, power_of_attorney_request: self, reason:
+        creator:,
+        power_of_attorney_request: self,
+        declination_reason:
       )
+    rescue => e
+      Rails.logger.error("Error creating declination: #{e.class} - #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
+      raise
     end
 
     def mark_replaced!(superseding_power_of_attorney_request)
@@ -100,15 +106,37 @@ module AccreditedRepresentativePortal
       )
     end
 
+    # We're using just the timestamp for convenience and speed. Direct queries
+    # against the redacted fields will always be authoritative
+    scope :unredacted, -> { where(redacted_at: nil) }
+    scope :redacted, -> { where.not(redacted_at: nil) }
+
     scope :unresolved, -> { where.missing(:resolution) }
     scope :resolved, -> { joins(:resolution) }
 
     scope :decisioned, lambda {
-      where(
-        resolution: {
-          resolving_type: PowerOfAttorneyRequestDecision.to_s
-        }
-      )
+      joins(:resolution)
+        .where(
+          resolution: {
+            resolving_type: PowerOfAttorneyRequestDecision.to_s
+          }
+        )
+    }
+
+    scope :sorted_by, lambda { |sort_column, direction|
+      direction = direction&.to_s&.downcase
+      normalized_order = %w[asc desc].include?(direction) ? direction : 'asc'
+      null_treatment = normalized_order == 'asc' ? 'NULLS LAST' : 'NULLS FIRST'
+
+      case sort_column&.to_s
+      when 'created_at'
+        order(created_at: normalized_order)
+      when 'resolved_at'
+        left_outer_joins(:resolution)
+          .order(Arel.sql("resolution.created_at #{normalized_order} #{null_treatment}"))
+      else
+        raise ArgumentError, "Invalid sort column: #{sort_column}"
+      end
     }
 
     concerning :ProcessedScopes do

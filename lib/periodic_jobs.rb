@@ -84,6 +84,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Log a snapshot of everything in a full failure type state
   mgr.register('5 * * * *', 'Form526FailureStateSnapshotJob')
 
+  # Send metrics to datadog related to 526 submission 0781 in-progress forms and submission
+  mgr.register('0 3 * * *', 'Form0781StateSnapshotJob')
+
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
 
@@ -142,9 +145,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Log when a client or service account config contains an expired, expiring, or self-signed certificate
   mgr.register('0 4 * * *', 'SignIn::CertificateCheckerJob')
 
-  # Updates Cypress files in vets-website with data from Google Analytics.
-  mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
-
   # Weekly logs of maintenance windows
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
 
@@ -172,7 +172,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
   # mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
   mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
-  mgr.register('*/10 0-5 * * *', 'Form1095::DeleteOld1095BsJob')
+  mgr.register('0 4 * * *', 'Form1095::DeleteOld1095BsJob')
   mgr.register('0 2 * * *', 'Veteran::VSOReloader')
   mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
   mgr.register('* * * * *', 'ExternalServicesStatusJob')
@@ -211,11 +211,18 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
-  mgr.register('10 1 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+  mgr.register('50 1 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+  # Updates veteran organizations address attributes (including lat, long, location, address fields)
   mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
+
+  # Sends emails to power of attorney claimants whose request will expire in 30 days
+  mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpirationReminderEmailJob')
+
+  # Sends emails to power of attorney claimants whose request has expired
+  mgr.register('0 8 * * *', 'PowerOfAttorneyRequests::SendExpiredEmailJob')
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')
@@ -225,6 +232,12 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
+
+  # Every hour job that retries failed VES submissions
+  mgr.register('0 * * * *', 'IvcChampva::VesRetryFailuresJob')
+
+  # Daily job to clean up IvcChampvaForm records older than 60 days
+  mgr.register('0 3 * * *', 'IvcChampva::OldRecordsCleanupJob')
 
   # Every 15min job that syncs ARP's allowlist
   mgr.register('*/15 * * * *', 'AccreditedRepresentativePortal::AllowListSyncJob')

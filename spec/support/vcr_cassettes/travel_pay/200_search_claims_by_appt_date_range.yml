@@ -71,7 +71,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v1.2/claims/search-by-appointment-date
+    uri: https://btsss.gov/api/v2/claims/search-by-appointment-date
     body:
       encoding: US-ASCII
       string: ''
@@ -107,7 +107,10 @@ http_interactions:
             "claimNumber": "TC0928098230498",
             "claimStatus": "InProcess",
             "appointmentDateTime": "2021-09-02T10:00:00Z",
+            "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "facilityName": "Cheyenne VA Medical Center",
+            "totalCostRequested": 4.52,
+            "reimbursementAmount": 0,
             "createdOn": "2024-04-22T21:22:34.465Z",
             "modifiedOn": "2024-04-23T16:44:34.465Z"
           },
@@ -116,7 +119,10 @@ http_interactions:
             "claimNumber": "TC0928098228366",
             "claimStatus": "Incomplete",
             "appointmentDateTime": "2024-04-09T20:15:34.465Z",
+            "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "facilityName": "Cheyenne VA Medical Center",
+            "totalCostRequested": 10,
+            "reimbursementAmount": 0,
             "createdOn": "2024-04-09T14:13:22.465Z",
             "modifiedOn": "2024-04-09T20:29:34.465Z"
           },
@@ -125,7 +131,10 @@ http_interactions:
             "claimNumber": "TC092809828275",
             "claimStatus": "InManualReview",
             "appointmentDateTime": "2024-04-13T20:30:34.465Z",
+            "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "facilityName": "Cheyenne VA Medical Center",
+            "totalCostRequested": 5.16,
+            "reimbursementAmount": 0,
             "createdOn": "2024-04-13T15:55:57.465Z",
             "modifiedOn": "2024-04-14T18:40:34.465Z"
           }
@@ -220,7 +229,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: post
-    uri:  https://btsss.gov/api/v1.2/Auth/access-token
+    uri:  https://btsss.gov/api/v2/Auth/access-token
     body:
       encoding: US-ASCII
       string: ''

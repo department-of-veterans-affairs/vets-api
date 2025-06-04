@@ -50,7 +50,7 @@ mvi:
   pii_logging: false
   processing_code: T
   timeout: 30
-  url: http://www.example.com
+  url: http://www.example.com/psim_webservice/dev/IdMWebService
 
 saml_ssoe:
   callback_url: http://localhost:3000/v1/sessions/callback
@@ -84,6 +84,7 @@ sign_in:
     key_path: spec/fixtures/sign_in/sts_client.pem
   user_info_clients:
     - okta_test
+  usip_uri: http://localhost:3001/sign-in
   vaweb_client_id: vaweb
   vamobile_client_id: vamobile
   web_origins:

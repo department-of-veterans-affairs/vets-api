@@ -1,0 +1,69 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 13 May 2025 19:26:37 GMT
+      Content-Type:
+      - application/pdf; qs=0.001
+      Content-Length:
+      - '13264'
+      Connection:
+      - keep-alive
+      Last-Modified:
+      - Mon, 27 Aug 2007 17:15:36 GMT
+      Etag:
+      - '"33d0-438b181451e00"'
+      Cache-Control:
+      - public, max-age=604800, s-maxage=604800
+      Expires:
+      - Tue, 13 May 2025 21:19:22 GMT
+      X-Robots-Tag:
+      - noindex
+      X-Backend:
+      - www-mirrors
+      X-Request-Id:
+      - 93f3223e782af282
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubdomains; preload
+      Content-Security-Policy:
+      - frame-ancestors 'self' https://cms.w3.org/ https://cms-dev.w3.org/; upgrade-insecure-requests
+      Cf-Cache-Status:
+      - HIT
+      Age:
+      - '13970'
+      Accept-Ranges:
+      - bytes
+      Set-Cookie:
+      - __cf_bm=97KK9NKZY2puC9AIfgqRIhc6Urtxvyno5BkBIB8SIHM-1747164397-1.0.1.1-ZgNFC00HjLapLjTKOrHQ1A6VbJlhkXCpGj0ZjRo3pMHE0Agcy4.ovye8G_vC5t.spJUJOqh1WSoELqkr596c0zPgojXtdC.uadXkiYbGRTk;
+        path=/; expires=Tue, 13-May-25 19:56:37 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 93f48c696e78ae3f-MIA
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Tue, 13 May 2025 19:26:37 GMT
+recorded_with: VCR 6.3.1

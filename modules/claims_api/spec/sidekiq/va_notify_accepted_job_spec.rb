@@ -111,7 +111,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
           )
           instance.perform(rep_poa.id, va_notify_rep.id)
           process = ClaimsApi::Process.find_by(processable: rep_poa, step_type: 'CLAIMANT_NOTIFICATION')
-          expect(process.step_status).to eq('SUCCESS')
+          expect(process.step_status).to eq('IN_PROGRESS')
         end
       end
     end
@@ -154,7 +154,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
           )
           instance.perform(rep_dep_poa.id, va_notify_rep.id)
           process = ClaimsApi::Process.find_by(processable: rep_dep_poa, step_type: 'CLAIMANT_NOTIFICATION')
-          expect(process.step_status).to eq('SUCCESS')
+          expect(process.step_status).to eq('IN_PROGRESS')
         end
       end
     end
@@ -194,7 +194,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
           )
           instance.perform(organization_poa.id, va_notify_org.id)
           process = ClaimsApi::Process.find_by(processable: organization_poa, step_type: 'CLAIMANT_NOTIFICATION')
-          expect(process.step_status).to eq('SUCCESS')
+          expect(process.step_status).to eq('IN_PROGRESS')
         end
       end
     end

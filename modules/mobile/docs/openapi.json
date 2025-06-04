@@ -379,7 +379,7 @@
             }
           },
           {
-            "description": "Field to include pending appointments. Currently only supports value `pending`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
+            "description": "Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
             "example": "pending",
             "in": "query",
             "name": "include[]",
@@ -391,7 +391,7 @@
             }
           },
           {
-            "description": "Field to include pending appointments. Currently only supports value `pending`. Redundant with field `include[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
+            "description": "Field to include pending appointments or to append Travel Pay claims. Supports value `pending` or `travel_pay_claims`. Redundant with field `included[]` for backwards compatibility but `include` is the correct one to use when following conventions.",
             "example": "pending",
             "in": "query",
             "name": "included[]",
@@ -459,7 +459,26 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": 4.52,
+                                "reimbursementAmount": 4.52,
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
                           }
                         }
                       ],
@@ -517,7 +536,26 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": 4.52,
+                                "reimbursementAmount": 4.52,
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
                           }
                         }
                       ],
@@ -575,7 +613,26 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              },
+                              "claim": {
+                                "id": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53",
+                                "claimNumber": "TC0000000001",
+                                "claimStatus": "In process",
+                                "appointmentDateTime": "2023-02-23T22:22:52.549Z",
+                                "facilityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                "facilityName": "Tomah VA Medical Center",
+                                "totalCostRequested": 4.52,
+                                "reimbursementAmount": 4.52,
+                                "createdOn": "2023-02-24T22:22:52.549Z",
+                                "modifiedOn": "2023-02-26T22:22:52.549Z"
+                              }
+                            }
                           }
                         }
                       ],
@@ -624,7 +681,14 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 200,
+                                "success": true,
+                                "message": "Data retrieved successfully"
+                              }
+                            }
                           }
                         }
                       ],
@@ -845,7 +909,14 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null
+                            "friendly_location_name": null,
+                            "travelPayClaim": {
+                              "metadata": {
+                                "status": 500,
+                                "success": false,
+                                "message": "Something went wrong"
+                              }
+                            }
                           }
                         }
                       ],
@@ -3437,6 +3508,139 @@
           }
         ],
         "summary": "/v0/efolder/documents/{documentId}/download"
+      }
+    },
+    "/v0/claim-letter/documents": {
+      "get": {
+        "description": "Returns the user's list of documents from lighthouse",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimLetterDocuments"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/401"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/claim-letter/documents"
+      }
+    },
+    "/v0/claim-letter/documents/{document_id}/download": {
+      "post": {
+        "description": "returns requested document",
+        "parameters": [
+          {
+            "description": "File name of the document to be returned.",
+            "in": "query",
+            "name": "file_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ID of the document to be returned.",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "{93631483-E9F9-44AA-BB55-3552376400D8}"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/claim-letter/documents/{documentId}/download"
       }
     },
     "/v0/enrollment-status": {
@@ -6031,6 +6235,67 @@
         "summary": "/v0/messaging/health/recipients"
       }
     },
+    "/v0/messaging/health/allrecipients": {
+      "get": {
+        "description": "List available recipients to which messages may be sent with advanced attributes",
+        "parameters": [
+          {
+            "description": "Whether or not to use this API's cache or fetch records from the upstream service. Defaults to true.",
+            "example": true,
+            "in": "query",
+            "name": "useCache",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureMessagingAllRecipients"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/messaging/health/allrecipients"
+      }
+    },
     "/v0/military-service-history": {
       "get": {
         "description": "Returns user's service history",
@@ -6672,6 +6937,72 @@
           }
         },
         "summary": "/v0/translations/download"
+      }
+    },
+    "/v0/travel-pay/claims": {
+      "post": {
+        "description": "Submit a mileage-only travel claim.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TravelPaySubmitMileageOnlyClaim"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPayClaimSummary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/travel-pay/claims"
       }
     },
     "/v0/user": {
@@ -9348,6 +9679,112 @@
                 "type": "string",
                 "nullable": true,
                 "example": "COMPENSATION & PENSION"
+              },
+              "travelPayClaim": {
+                "type": "object",
+                "nullable": true,
+                "description": "This is the travel pay claim object.",
+                "additionalProperties": false,
+                "properties": {
+                  "metadata": {
+                    "type": "object",
+                    "nullable": false,
+                    "description": "Metadata about the claim call success",
+                    "additionalProperties": false,
+                    "required": [
+                      "status",
+                      "success",
+                      "message"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "integer",
+                        "nullable": false,
+                        "example": 200
+                      },
+                      "success": {
+                        "type": "boolean",
+                        "nullable": false,
+                        "example": true
+                      },
+                      "message": {
+                        "type": "string",
+                        "nullable": true,
+                        "example": "Data retrieved successfully"
+                      }
+                    }
+                  },
+                  "claim": {
+                    "type": "object",
+                    "nullable": true,
+                    "description": "The claim object - only appended if there is an existing claim for the appointment",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "claimNumber",
+                      "claimStatus",
+                      "appointmentDateTime",
+                      "facilityId",
+                      "facilityName",
+                      "totalCostRequested",
+                      "reimbursementAmount",
+                      "createdOn",
+                      "modifiedOn"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53"
+                      },
+                      "claimNumber": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "TC00000000001"
+                      },
+                      "claimStatus": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "In process"
+                      },
+                      "appointmentDateTime": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "2023-02-23T22:22:52.549Z"
+                      },
+                      "facilityId": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                      },
+                      "facilityName": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "Tomah VA Medical Center"
+                      },
+                      "totalCostRequested": {
+                        "type": "float",
+                        "nullable": false,
+                        "example": 4.52
+                      },
+                      "reimbursementAmount": {
+                        "type": "float",
+                        "nullable": false,
+                        "example": 0
+                      },
+                      "createdOn": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "2023-02-24T22:22:52.549Z"
+                      },
+                      "modifiedOn": {
+                        "type": "string",
+                        "nullable": false,
+                        "example": "2023-02-26T22:22:52.549Z"
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -18389,6 +18826,61 @@
           }
         }
       },
+      "ClaimLetterDocuments": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "type",
+                "attributes"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
+                  "description": "document id"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "claim_letter_document"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "docType",
+                    "typeDescription",
+                    "receivedAt"
+                  ],
+                  "properties": {
+                    "docType": {
+                      "type": "string",
+                      "example": 1215
+                    },
+                    "typeDescription": {
+                      "type": "string",
+                      "example": "DMC - Debt Increase Letter"
+                    },
+                    "receivedAt": {
+                      "type": "datetime",
+                      "example": "2024-09-13T178:32:24Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "EnrollmentStatus": {
         "type": "object",
         "additionalProperties": false,
@@ -19506,7 +19998,8 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "prescriptionStatusCount"
+              "prescriptionStatusCount",
+              "hasNonVaMeds"
             ],
             "properties": {
               "prescriptionStatusCount": {
@@ -19526,6 +20019,10 @@
                   "unknown": 2,
                   "total": 14
                 }
+              },
+              "hasNonVaMeds": {
+                "type": "boolean",
+                "description": "Notifies if user has any prescriptions that are Non-VA (NV). This boolean will be set regardless of\nthe set of data returned in the \"data\" section of the response (ie. this will still be set to \"true\"\nif the user has Non-VA meds but the current page of the response does not show any).\n"
               }
             }
           }
@@ -21650,6 +22147,117 @@
           }
         }
       },
+      "SecureMessagingAllRecipients": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "type",
+                "attributes"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": 855912
+                },
+                "type": {
+                  "type": "string",
+                  "example": "all_triage_teams"
+                },
+                "attributes": {
+                  "type": "object",
+                  "required": [
+                    "triageTeamId",
+                    "name",
+                    "stationNumber",
+                    "relationType",
+                    "locationName",
+                    "suggestedNameDisplay",
+                    "healthCareSystemName"
+                  ],
+                  "properties": {
+                    "triageTeamId": {
+                      "type": "integer",
+                      "example": 855912
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "RADIOLOGY_TRIAGE_GROUP_1"
+                    },
+                    "stationNumber": {
+                      "type": "string",
+                      "example": 989
+                    },
+                    "relationType": {
+                      "type": "string",
+                      "enum": [
+                        "PATIENT"
+                      ],
+                      "example": "PATIENT"
+                    },
+                    "locationName": {
+                      "type": "string",
+                      "example": "Main Hospital"
+                    },
+                    "suggestedNameDisplay": {
+                      "type": "string",
+                      "example": "Radiology Triage Group 1"
+                    },
+                    "healthCareSystemName": {
+                      "type": "string",
+                      "example": "VA Health Care System"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "required": [
+              "sort"
+            ],
+            "properties": {
+              "sort": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "enum": [
+                      "ASC",
+                      "DESC"
+                    ],
+                    "example": "ASC"
+                  }
+                }
+              },
+              "associatedTriageGroups": {
+                "type": "integer",
+                "example": 38
+              },
+              "associatedBlockedTriageGroups": {
+                "type": "integer",
+                "example": 1
+              },
+              "friendlyTriageTeamPilotFacilities": {
+                "type": "string",
+                "example": "979,989"
+              }
+            }
+          }
+        }
+      },
       "ServiceHistory": {
         "type": "object",
         "additionalProperties": false,
@@ -22316,6 +22924,112 @@
           "debug": {
             "type": "boolean",
             "description": "Flag to switch between sandbox and non-sandbox app sid. *Lower envs only*"
+          }
+        }
+      },
+      "TravelPaySubmitMileageOnlyClaim": {
+        "description": "Submit a mileage only claim for travel pay reimbursement.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appointmentDateTime",
+          "facilityStationNumber",
+          "appointmentType",
+          "isComplete"
+        ],
+        "properties": {
+          "appointmentDateTime": {
+            "type": "string",
+            "description": "The date and time of the appointment in ISO 8601 format.",
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityStationNumber": {
+            "type": "string",
+            "description": "The station number of the VA facility where the appointment is registered.",
+            "example": "983GC"
+          },
+          "appointmentType": {
+            "type": "string",
+            "description": "The type of appointment.",
+            "enum": [
+              "CompensationAndPension",
+              "Other"
+            ],
+            "example": "CompensationAndPension"
+          },
+          "isComplete": {
+            "type": "boolean",
+            "description": "Indicates whether the appointment is complete.",
+            "example": true
+          },
+          "appointmentName": {
+            "type": "string",
+            "description": "The name of the appointment. Optional, but if provided cannot be an empty string.",
+            "example": "Primary care appointment with Dr. Smith"
+          }
+        }
+      },
+      "TravelPayClaimSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "claimStatus",
+          "appointmentDateTime",
+          "facilityId",
+          "createdOn",
+          "modifiedOn"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": false,
+            "example": "16cbc3d0-56de-4d86-abf3-ed0f6908ee53"
+          },
+          "claimNumber": {
+            "type": "string",
+            "nullable": true,
+            "example": "TC00000000001"
+          },
+          "claimStatus": {
+            "type": "string",
+            "nullable": false,
+            "example": "In process"
+          },
+          "appointmentDateTime": {
+            "type": "string",
+            "nullable": false,
+            "example": "2023-02-23T22:22:52.549Z"
+          },
+          "facilityId": {
+            "type": "string",
+            "nullable": true,
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "facilityName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Tomah VA Medical Center"
+          },
+          "totalCostRequested": {
+            "type": "float",
+            "nullable": true,
+            "example": 4.52
+          },
+          "reimbursementAmount": {
+            "type": "float",
+            "nullable": true,
+            "example": 0
+          },
+          "createdOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2023-02-24T22:22:52.549Z"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "nullable": false,
+            "example": "2023-02-26T22:22:52.549Z"
           }
         }
       },

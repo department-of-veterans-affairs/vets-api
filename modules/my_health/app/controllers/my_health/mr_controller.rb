@@ -6,18 +6,35 @@ require 'medical_records/phr_mgr/client'
 require 'medical_records/lighthouse_client'
 
 module MyHealth
-  class MrController < ApplicationController
+  class MRController < ApplicationController
     include MyHealth::MHVControllerConcerns
+    include JsonApiPaginationLinks
     service_tag 'mhv-medical-records'
 
     # skip_before_action :authenticate
     before_action :authenticate_bb_client
 
-    rescue_from ::MedicalRecords::PatientNotFound do |_exception|
-      render body: nil, status: :accepted
+    protected
+
+    ##
+    # Renders 202 Accepted if the upstream client returns :patient_not_found, otherwise yields
+    # the real resource to the block.
+    #
+    def with_patient_resource(resource)
+      if resource == :patient_not_found
+        render plain: '', status: :accepted
+      else
+        yield resource
+      end
     end
 
-    protected
+    def render_resource(resource)
+      if resource == :patient_not_found
+        render plain: '', status: :accepted
+      else
+        render json: resource.to_json
+      end
+    end
 
     def client
       use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_enabled, @current_user) &&

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox-api.va.gov/services/vba_documents/v1/uploads/report
+    uri: <LIGHTHOUSE_BASE_URL>/services/vba_documents/v1/uploads/report
     body:
       encoding: UTF-8
       string: '{"ids":["4b846069-e496-4f83-8587-42b570f24483","d0c6cea6-9885-4e2f-8e0c-708d5933833a","d772f671-fbca-4392-ab55-b0e4115dee47"]}'

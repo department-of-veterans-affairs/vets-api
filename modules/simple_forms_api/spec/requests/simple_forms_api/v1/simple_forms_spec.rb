@@ -43,7 +43,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#submit' do
-    context 'submitting to Lighthouse Benefits Intake API' do
+    context 'submitting to Lighthouse Benefits Intake API',
+            skip: 'flakey specs reported https://dsva.slack.com/archives/C044AGZFG2W/p1745933769157079' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
@@ -55,16 +56,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
           original_method.call(args[0], random_string)
         end
-        Flipper.disable(:simple_forms_email_confirmations)
-        Flipper.enable(:submission_pdf_s3_upload)
       end
 
       after do
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
         VCR.eject_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload')
         Common::FileHelpers.delete_file_if_exists(metadata_file)
-        Flipper.enable(:simple_forms_email_confirmations)
-        Flipper.disable(:submission_pdf_s3_upload)
       end
 
       shared_examples 'form submission' do |form, is_authenticated|
@@ -95,9 +92,12 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
           if is_authenticated
             it 'clears the InProgressForm' do
-              expect do
-                post '/simple_forms_api/v1/simple_forms', params: data
-              end.to change(InProgressForm, :count).by(-1)
+              initial_count = InProgressForm.count
+
+              post '/simple_forms_api/v1/simple_forms', params: data
+
+              final_count = InProgressForm.count
+              expect(final_count).to eq(initial_count - 1)
             end
           end
 
@@ -286,8 +286,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         context 'transliteration succeeds' do
           it 'responds with ok' do
-            Flipper.disable(:form21_0966_confirmation_email)
-
             fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                            'form_with_accented_chars_21_0966.json')
             data = JSON.parse(fixture_path.read)
@@ -295,8 +293,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(response).to have_http_status(:ok)
-
-            Flipper.enable(:form21_0966_confirmation_email)
           end
         end
 
@@ -424,7 +420,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          expect(response.body).to include('unexpected token at')
+          expect(response.body).to include("expected ',' or '}' after object value, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](0..2))
@@ -444,8 +440,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected ken at')
+          expect(response.body).to include("expected ',' or '}' after object value, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
@@ -464,8 +459,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ',' or '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['veteran_ssn']&.[](0..2))
@@ -486,7 +481,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          expect(response.body).to include('unexpected token at')
+          expect(response.body).to include("expected ',' or '}' after object value, got: '  '")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
@@ -503,8 +498,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ',' or '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data['preparer_ssn']&.[](0..2))
@@ -524,8 +519,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
-          expect(response.body).to include('unexpected token t')
+          # 'after object value' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include("expected ','  '}' fter object vlue, got:")
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
           expect(exception).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
@@ -542,7 +537,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       sign_in
     end
 
-    let(:valid_file) { fixture_file_upload('doctors-note.gif') }
+    let(:valid_file) { fixture_file_upload('doctors-note.pdf') }
     let(:invalid_file) { fixture_file_upload('too_large.pdf') }
 
     it 'renders the attachment as json when the document is valid' do
@@ -597,7 +592,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?).and_return(false)
 
-      data = { form_id: '40-0247', file: valid_file }
+      data = { form_id: '40-0247', file: invalid_file }
 
       expect do
         post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data

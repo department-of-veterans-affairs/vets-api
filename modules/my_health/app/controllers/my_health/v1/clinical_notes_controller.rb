@@ -2,16 +2,14 @@
 
 module MyHealth
   module V1
-    class ClinicalNotesController < MrController
+    class ClinicalNotesController < MRController
       def index
-        resource = client.list_clinical_notes
-        render json: resource.to_json
+        render_resource client.list_clinical_notes
       end
 
       def show
         note_id = params[:id].try(:to_i)
-        resource = client.get_clinical_note(note_id)
-        render json: resource.to_json
+        render_resource client.get_clinical_note(note_id)
       end
     end
   end
