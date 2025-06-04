@@ -11,6 +11,7 @@ module IncomeAndAssets
       # NOTE: `key` fields should follow the format:
       #   `<key_prefix><subprefix>.<key>`
       # Example: 'Section1A.VeteranName.First'
+      #
       KEY = {
         # 1A
         'veteranFullName' => {
