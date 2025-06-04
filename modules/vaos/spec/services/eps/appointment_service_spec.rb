@@ -93,12 +93,12 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error detected',
-          hash_including(
+          'EPS appointment error',
+          {
             error_type: 'conflict',
             method: 'get_appointment',
             status: 200
-          )
+          }
         )
 
         expect { service.get_appointment(appointment_id:) }
@@ -166,12 +166,12 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error detected',
-          hash_including(
+          'EPS appointment error',
+          {
             error_type: 'conflict',
             method: 'get_appointments',
             status: 200
-          )
+          }
         )
 
         expect { service.get_appointments }
@@ -243,12 +243,12 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error detected',
-          hash_including(
+          'EPS appointment error',
+          {
             error_type: 'conflict',
             method: 'create_draft_appointment',
             status: 200
-          )
+          }
         )
 
         expect { service.create_draft_appointment(referral_id:) }
@@ -388,12 +388,12 @@ describe Eps::AppointmentService do
 
       it 'logs the error without PII' do
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error detected',
-          hash_including(
+          'EPS appointment error',
+          {
             error_type: 'conflict',
             method: 'submit_appointment',
             status: 200
-          )
+          }
         )
 
         expect { service.submit_appointment(appointment_id, valid_params) }

@@ -53,7 +53,7 @@ describe Eps::BaseService do
       it 'logs the error without PII' do
         data = OpenStruct.new(id: '123', error: 'conflict')
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error detected',
+          'EPS appointment error',
           hash_including(
             error_type: 'conflict',
             status: 200
@@ -67,7 +67,7 @@ describe Eps::BaseService do
       it 'uses provided method name in logging' do
         data = OpenStruct.new(error: 'conflict')
         expect(Rails.logger).to receive(:warn).with(
-          'EPS appointment error detected',
+          'EPS appointment error',
           hash_including(
             error_type: 'conflict',
             method: 'test_method',
