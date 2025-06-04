@@ -87,7 +87,7 @@ module VAOS
           handle_redis_error(e)
         rescue => e
           StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
-          handle_appointment_error(e)
+          handle_appointment_creation_error(e)
         end
       end
 
@@ -131,7 +131,7 @@ module VAOS
         render json: { data: { id: appointment.id } }, status: :created
       rescue => e
         StatsD.increment(APPT_CREATION_FAILURE_METRIC)
-        handle_appointment_error(e)
+        handle_appointment_creation_error(e)
       end
 
       private
@@ -697,7 +697,7 @@ module VAOS
       # @param e [Exception] The exception that was raised
       # @return [void] Renders JSON error response with appropriate HTTP status
       #
-      def handle_appointment_error(e)
+      def handle_appointment_creation_error(e)
         original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
         render(json: appt_creation_failed_error(error: e, status: original_status), status: status_code)
