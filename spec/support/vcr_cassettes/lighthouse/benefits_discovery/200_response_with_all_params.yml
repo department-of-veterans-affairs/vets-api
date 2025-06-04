@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox.lighthouse.va.gov/benefits-discovery-service/v0/recommendations
+    uri: <LIGHTHOUSE_BENEFITS_DISCOVERY_URL>/benefits-discovery-service/v0/recommendations
     body:
       encoding: US-ASCII
       string: '"{\"dateOfBirth\":\"2000-06-15\",\"dischargeStatus\":\"HONORABLE_DISCHARGE\",\"branchOfService\":\"NAVY\",\"disabilityRating\":60,\"serviceDates\":[{\"startDate\":\"2018-01-01\",\"endDate\":\"2022-01-01\"}]}"'

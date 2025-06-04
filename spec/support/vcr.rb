@@ -20,6 +20,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.decision_review.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
+  c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_DISCOVERY_URL>') { Settings.lighthouse.benefits_discovery.host }
   c.filter_sensitive_data('<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>') { Settings.lighthouse.direct_deposit.host }
   c.filter_sensitive_data('<LIGHTHOUSE_BRD_API_KEY>') { Settings.brd.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
