@@ -10,8 +10,6 @@ module AppealsApi
     skip_before_action(:authenticate)
     before_action :set_default_headers
 
-    WARNING_EMOJI = ':warning:'
-
     def decision_reviews
       render json: {
         meta: {
@@ -49,16 +47,8 @@ module AppealsApi
       http_status_code = 200
       s3_heathy = s3_is_healthy?
       unless s3_heathy
-        begin
-          http_status_code = 503
-          slack_details = {
-            class: self.class.name,
-            warning: "#{WARNING_EMOJI} Appeals API healthcheck failed: unable to connect to AWS S3 bucket."
-          }
-          AppealsApi::Slack::Messager.new(slack_details).notify!
-        rescue => e
-          Rails.logger.error("Appeals API S3 failed Healthcheck slack notification failed: #{e.message}", e)
-        end
+        http_status_code = 503
+        Rails.logger.error('Appeals API S3 healthcheck failed')
       end
       render json: {
         description: 'Appeals API health check',

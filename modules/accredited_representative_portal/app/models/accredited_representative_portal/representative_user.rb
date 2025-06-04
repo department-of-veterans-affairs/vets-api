@@ -17,6 +17,7 @@ module AccreditedRepresentativePortal
     attribute :last_signed_in, Common::UTCTime
     attribute :loa, String
     attribute :logingov_uuid, String
+    attribute :all_emails, Array
     attribute :sign_in, Hash
     attribute :user_account_uuid, String
     attribute :uuid, String
@@ -33,6 +34,7 @@ module AccreditedRepresentativePortal
       @user_account ||=
         RepresentativeUserAccount.find(user_account_uuid).tap do |account|
           account.set_email(email)
+          account.set_all_emails(all_emails) if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
         end
     end
 
