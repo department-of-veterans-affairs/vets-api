@@ -10,7 +10,7 @@ describe UnifiedHealthData::Service, type: :service do
   let(:service) { described_class.new(user) }
   let(:sample_response) do
     JSON.parse(Rails.root.join(
-      'spec', 'support', 'fixtures', 'unified_health_data', 'sample_response.json'
+      'spec', 'fixtures', 'unified_health_data', 'sample_response.json'
     ).read)
   end
 
