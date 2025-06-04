@@ -82,6 +82,18 @@ describe UnifiedHealthData::Service, type: :service do
     end
   end
 
+  describe '#fetch_observations' do
+    context 'when contained is nil' do
+      it 'returns an empty array' do
+        record = { 'resource' => { 'contained' => nil } }
+        
+        result = service.send(:fetch_observations, record)
+        
+        expect(result).to eq([])
+      end
+    end
+  end
+  
   describe '#fetch_code' do
     context 'when category is nil' do
       it 'returns nil' do
@@ -100,16 +112,6 @@ describe UnifiedHealthData::Service, type: :service do
         result = service.send(:fetch_code, record)
         
         expect(result).to be_nil
-      end
-    end
-  end
-  
-  describe '#fetch_observation_value' do
-    context 'when observation is nil' do
-      it 'returns nil text and type' do
-        result = service.send(:fetch_observation_value, nil)
-        
-        expect(result).to eq({ text: nil, type: nil })
       end
     end
   end
