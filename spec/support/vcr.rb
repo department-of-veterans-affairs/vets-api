@@ -20,6 +20,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.decision_review.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
+  c.filter_sensitive_data('<LIGHTHOUSE_CLAIMS_API_HOST>') { Settings.lighthouse.benefits_claims.host }
   c.filter_sensitive_data('<LIGHTHOUSE_DIRECT_DEPOSIT_HOST>') { Settings.lighthouse.direct_deposit.host }
   c.filter_sensitive_data('<LIGHTHOUSE_BRD_API_KEY>') { Settings.brd.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_TV_API_KEY>') { Settings.claims_api.token_validation.api_key }
@@ -67,6 +68,9 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VAOS_EPS_TOKEN_URL>') { Settings.vaos.eps.access_token_url }
   c.filter_sensitive_data('<VAOS_EPS_API_URL>') { Settings.vaos.eps.api_url }
   c.filter_sensitive_data('<VAOS_EPS_API_PATH>') { Settings.vaos.eps.base_path }
+  c.filter_sensitive_data('<VETERAN_ENROLLMENT_SYSTEM_BASE_URI>') do
+    "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}"
+  end
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
