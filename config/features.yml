@@ -414,6 +414,9 @@ features:
     actor_type: user
     description: When enabled, CST overrides tracked items' display names and descriptions to be more human-readable
     enable_in_development: true
+  cst_filter_ep_codes:
+    actor_type: user
+    description: When enabled, benefits_claims/get_claims service filters certain ep codes based on issue 90936 research from the response
   letters_hide_service_verification_letter:
     actor_type: user
     description: When enabled, CST does not include Service Verification in the list of letters on vets-website
