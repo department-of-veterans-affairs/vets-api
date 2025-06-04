@@ -551,8 +551,8 @@ module PdfFill
     def calculate_text_box_position(pdf, section_label, start_y)
       {
         width: pdf.width_of("Back to #{section_label}"),
-        x: pdf.bounds.left + BOUNDING_BOX_X_OFFSET,
-        y: start_y - BOUNDING_BOX_Y_OFFSET
+        x: section_label == 'Section III' ? pdf.bounds.left : pdf.bounds.left + BOUNDING_BOX_X_OFFSET,
+        y: section_label == 'Section III' ? start_y + 10 : start_y - BOUNDING_BOX_Y_OFFSET
       }
     end
 
@@ -567,8 +567,8 @@ module PdfFill
 
     def render_back_to_section_text(pdf, section_index, start_y)
       return_section_label = @sections[section_index][:label].split(':')[0]
-      return_text = "Back to #{return_section_label}"
 
+      return_text = "Back to #{return_section_label}"
       box_position = calculate_text_box_position(pdf, return_section_label, start_y)
 
       pdf.bounding_box(
@@ -605,6 +605,8 @@ module PdfFill
 
       start_y = pdf.cursor # gets the starting position to align the return text with the section header
       pdf.markup("<h2>#{@sections[section_index][:label]}</h2>")
+      start_y = pdf.cursor if section_index == 2
+
       render_back_to_section_text(pdf, section_index, start_y)
     end
 
