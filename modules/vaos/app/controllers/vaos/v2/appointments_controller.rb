@@ -25,8 +25,6 @@ module VAOS
       COMMENT = 'comment'
       CACHE_ERROR_MSG = 'Error fetching referral data from cache'
 
-      rescue_from Redis::BaseError, with: :handle_redis_error
-
       def index
         appointments[:data].each do |appt|
           set_facility_error_msg(appt) if include_index_params[:facilities]
@@ -74,35 +72,26 @@ module VAOS
         referral_id = draft_params[:referral_number]
         referral_consult_id = draft_params[:referral_consult_id]
 
-        # Get referral data from the CCRA service which will use the cache if available
-        referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
-
-        validation = check_referral_data_validation(referral)
-        return render(json: validation[:json], status: validation[:status]) unless validation[:success]
-
-        usage = check_referral_usage(referral_id)
-        return render(json: usage[:json], status: usage[:status]) unless usage[:success]
-
-        provider = find_provider(npi: referral.provider_npi)
-        return render(json: provider_not_found_error, status: :not_found) unless provider&.id
-
-        slots = fetch_provider_slots(referral, provider.id)
-        draft = eps_appointment_service.create_draft_appointment(referral_id:)
-
-        unless draft&.id
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
-          return render(json: appt_creation_failed_error, status: :unprocessable_entity)
+        begin
+          response_data = process_draft_appointment(referral_id, referral_consult_id)
+          if response_data[:success]
+            StatsD.increment(APPT_DRAFT_CREATION_SUCCESS_METRIC)
+            ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
+            render json: Eps::DraftAppointmentSerializer.new(response_data[:data]), status: :created
+          else
+            StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+            render json: response_data[:json], status: response_data[:status]
+          end
+        rescue => e
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          handle_draft_appointment_error(e)
         end
+      end
 
-        drive_time = fetch_drive_times(provider)
-
-        response_data = build_draft_response(draft, provider, slots, drive_time)
-        StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
-
-        # Clear the referral data from the cache, so it does not become stale
-        ccra_referral_service.clear_referral_cache(referral_id, current_user.icn)
-
-        render json: Eps::DraftAppointmentSerializer.new(response_data), status: :created
+      def handle_draft_appointment_error(e)
+        original_status = e.respond_to?(:original_status) ? e.original_status : 500
+        status_code = appointment_error_status(original_status)
+        render(json: appt_creation_failed_error(e), status: status_code)
       end
 
       def update
@@ -125,9 +114,11 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        # Handle error cases
-        error_response = handle_appointment_errors(appointment)
-        return error_response if error_response
+        error_response = handle_submission_errors(appointment)
+        if error_response
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: error_response[:tags])
+          return render json: error_response[:json], status: error_response[:status]
+        end
 
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
@@ -552,10 +543,10 @@ module VAOS
         check = appointments_service.referral_appointment_already_exists?(referral_id)
 
         if check[:error]
-          { success: false, json: { message: "Error checking appointments: #{check[:failures]}" },
+          { success: false, json: { errors: [{ title: 'Appointment creation failed', detail: "Error checking existing appointments: #{check[:failures]}" }] },
             status: :bad_gateway }
         elsif check[:exists]
-          { success: false, json: { message: 'No new appointment created: referral is already used' },
+          { success: false, json: { errors: [{ title: 'Appointment creation failed', detail: 'No new appointment created: referral is already used' }] },
             status: :unprocessable_entity }
         else
           { success: true }
@@ -631,12 +622,10 @@ module VAOS
       # @return [Hash] Error object with title and detail for JSON rendering
       #
       def provider_not_found_error
-        {
-          errors: [{
-            title: 'Provider not found',
-            detail: 'Unable to find provider with given details'
-          }]
-        }
+        appt_creation_failed_error(
+          title: 'Appointment creation failed',
+          detail: 'Provider not found'
+        )
       end
 
       ##
@@ -644,11 +633,20 @@ module VAOS
       #
       # @return [Hash] Error object with title and detail for JSON rendering
       #
-      def appt_creation_failed_error
+      def appt_creation_failed_error(error = nil, **kwargs)
+        default_title = 'Appointment creation failed'
+        default_detail = 'Could not create appointment'
+
         {
           errors: [{
-            title: 'Appointment creation failed',
-            detail: 'Could not create appointment'
+            title: kwargs[:title] || default_title,
+            detail: kwargs[:detail] || default_detail,
+            meta: {
+              original_detail: error.respond_to?(:response_values) ? error.response_values[:detail] : nil,
+              original_error: error.respond_to?(:message) ? error.message : 'Unknown error',
+              status: error.respond_to?(:original_status) ? error.original_status : nil,
+              backend_response: error.respond_to?(:original_body) ? error.original_body : nil
+            }
           }]
         }
       end
@@ -663,18 +661,21 @@ module VAOS
 
       ##
       # Maps appointment error codes to appropriate HTTP status codes
+      # This method handles string error codes from appointment responses
       #
       # @param error_code [String] The error code from the appointment response
       # @return [Symbol] The corresponding HTTP status code symbol
       #
       def appointment_error_status(error_code)
         case error_code
-        when 'conflict'
+        when 'not-found', 404
+          :not_found # 404
+        when 'conflict', 409
           :conflict # 409
-        when 'bad-request'
+        when 'bad-request', 400
           :bad_request # 400
-        when 'internal-error'
-          :internal_server_error # 500
+        when 'internal-error', 500
+          :bad_gateway # 502
         else
           # too-far-in-the-future, already-canceled, too-late-to-cancel, etc.
           :unprocessable_entity # 422
@@ -701,21 +702,45 @@ module VAOS
       # Handles error conditions for appointments and returns appropriate responses
       #
       # @param appointment [Object] The appointment object to check for errors
-      # @return [Object, nil] The render result if there's an error, nil otherwise
+      # @return [Hash, nil] Error response hash if there's an error, nil otherwise
       #
-      def handle_appointment_errors(appointment)
+      def handle_submission_errors(appointment)
         unless appointment&.id
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC)
-          return render json: appt_creation_failed_error, status: :unprocessable_entity
+          return {
+            json: appt_creation_failed_error,
+            status: :unprocessable_entity,
+            tags: []
+          }
         end
 
         if appointment[:error].present?
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
-          return render json: appointment_error_response(appointment[:error]),
-                        status: appointment_error_status(appointment[:error])
+          return {
+            json: appointment_error_response(appointment[:error]),
+            status: appointment_error_status(appointment[:error]),
+            tags: ["error_type:#{appointment[:error]}"]
+          }
         end
 
         nil
+      end
+
+      def process_draft_appointment(referral_id, referral_consult_id)
+        referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
+
+        validation = check_referral_data_validation(referral)
+        return validation unless validation[:success]
+
+        usage = check_referral_usage(referral_id)
+        return usage unless usage[:success]
+
+        provider = find_provider(npi: referral.provider_npi)
+        return { success: false, json: provider_not_found_error, status: :not_found } unless provider&.id
+
+        slots = fetch_provider_slots(referral, provider.id)
+        draft = eps_appointment_service.create_draft_appointment(referral_id:)
+        drive_time = fetch_drive_times(provider)
+
+        { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
       end
     end
   end
