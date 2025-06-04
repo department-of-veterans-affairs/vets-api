@@ -2,9 +2,10 @@
 
 module TravelPay
   class SmocService
-    def initialize(auth_manager, user)
+    def initialize(auth_manager, user, client)
       @auth_manager = auth_manager
       @user = user
+      @client = client
     end
 
     ##
@@ -26,14 +27,14 @@ module TravelPay
     #
     #
     def submit_mileage_expense(params) # rubocop:disable Metrics/MethodLength
-      Rails.logger.info(message: 'SMOC transaction START')
+      Rails.logger.info(message: "#{@client} SMOC transaction START")
       claim = get_claim_id(params)
 
-      Rails.logger.info(message: "SMOC transaction: Add expense to claim #{claim['claimId'].slice(0, 8)}")
+      Rails.logger.info(message: "#{@client} SMOC transaction: Add expense to claim #{claim['claimId'].slice(0, 8)}")
       expense = expenses_service.add_expense({ 'claim_id' => claim['claimId'],
                                                'appt_date' => params['appointment_date_time'] })
 
-      Rails.logger.info(message: "SMOC transaction: Submit claim #{claim['claimId'].slice(0, 8)}")
+      Rails.logger.info(message: "#{@client} SMOC transaction: Submit claim #{claim['claimId'].slice(0, 8)}")
       submitted_claim = claims_service.submit_claim(claim['claimId'])
       submitted_claim['status'] = 'Claim submitted'
 
@@ -42,17 +43,17 @@ module TravelPay
       raise Common::Exceptions::BadRequest, detail: e.message
     rescue => e
       if claim.nil? ## error occurred on claim creation step
-        Rails.logger.error(message: 'SMOC transaction: Failed to create claim')
+        Rails.logger.error(message: "#{@client} SMOC transaction: Failed to create claim")
         raise Common::Exceptions::BackendServiceException.new(nil, {}, detail: 'Failed to create claim')
       elsif expense.nil? && claim['claimId'].present? ## error occurred on expense step, but claim was created
-        Rails.logger.error(message: "SMOC transaction: Failed to add expense, #{e}")
+        Rails.logger.error(message: "#{@client} SMOC transaction: Failed to add expense, #{e}")
         {
           'claimId' => claim['claimId'],
           'status' => 'Incomplete'
         }
       else
         expense['expenseId'].present? ## error occurred on submit step, but claim was created and expense was added
-        Rails.logger.error(message: "SMOC transaction: Failed to submit claim #{claim['claimId'].slice(
+        Rails.logger.error(message: "#{@client} SMOC transaction: Failed to submit claim #{claim['claimId'].slice(
           0, 8
         )}")
         {
@@ -67,7 +68,7 @@ module TravelPay
     def get_appt_or_raise(params)
       appt_not_found_msg = "No appointment found for #{params['appointment_date_time']}"
       Rails.logger.info(message:
-                        "SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
+                        "#{@client} SMOC transaction: Get appt by date time: #{params['appointment_date_time']}")
       appt = appts_service.find_or_create_appointment(params)
 
       if appt[:data].nil?
@@ -80,7 +81,7 @@ module TravelPay
 
     def get_claim_id(params)
       appt_id = get_appt_or_raise(params)
-      Rails.logger.info(message: 'SMOC transaction: Create claim')
+      Rails.logger.info(message: "#{@client} SMOC transaction: Create claim")
       claims_service.create_new_claim({ 'btsss_appt_id' => appt_id })
     end
 

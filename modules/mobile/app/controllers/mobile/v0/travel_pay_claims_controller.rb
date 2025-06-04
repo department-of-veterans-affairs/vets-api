@@ -75,7 +75,7 @@ module Mobile
       end
 
       def smoc_service
-        @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user)
+        @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user, '[VAHB]')
       end
 
       def clear_appointments_cache
