@@ -7,12 +7,17 @@ module IncomeAndAssets
     # Section III: Unassociated Incomes
     class Section3 < Section
       # Section configuration hash
+      #
+      # NOTE: `key` fields should follow the format:
+      #   `<key_prefix><subprefix>.<key>`
+      # Example: 'Section3A.DependentsReceivingIncome'
+      #
       KEY = {
         # 3A
         'unassociatedIncome' => {
           key: generate_key('3A', 'DependentsReceivingIncome')
         },
-        # 3b - 3f (only space for five on form)
+        # 3B-F (only space for five on form)
         'unassociatedIncomes' => {
           # Label for each income entry (e.g., 'Income 1')
           item_label: 'Income',
