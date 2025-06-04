@@ -21,7 +21,7 @@ describe 'VeteranEnrollmentSystem::BaseConfiguration' do
 
   describe '#service_name' do
     it 'overrides service_name with a unique name' do
-      expect(subject.service_name).to eq('VeteranEnrollmentSystem')
+      expect(subject.service_name).to eq('VeteranEnrollmentSystem/BaseConfiguration')
     end
   end
 

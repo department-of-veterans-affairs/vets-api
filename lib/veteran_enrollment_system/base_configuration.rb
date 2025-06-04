@@ -12,7 +12,7 @@ module VeteranEnrollmentSystem
     end
 
     def service_name
-      'VeteranEnrollmentSystem'
+      'VeteranEnrollmentSystem/BaseConfiguration'
     end
 
     # The base request headers required for any VES API call
