@@ -82,16 +82,19 @@ module VAOS
             StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
             render json: response_data[:json], status: response_data[:status]
           end
+        rescue Redis::BaseError => e
+          StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
+          handle_redis_error(e)
         rescue => e
           StatsD.increment(APPT_DRAFT_CREATION_FAILURE_METRIC)
-          handle_draft_appointment_error(e)
+          handle_appointment_error(e)
         end
       end
 
-      def handle_draft_appointment_error(e)
-        original_status = e.respond_to?(:original_status) ? e.original_status : 500
+      def handle_appointment_error(e)
+        original_status = e.respond_to?(:original_status) ? e.original_status : nil
         status_code = appointment_error_status(original_status)
-        render(json: appt_creation_failed_error(e), status: status_code)
+        render(json: appt_creation_failed_error(error: e), status: status_code)
       end
 
       def update
@@ -114,14 +117,16 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        error_response = handle_submission_errors(appointment)
-        if error_response
-          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: error_response[:tags])
-          return render json: error_response[:json], status: error_response[:status]
+        if appointment[:error]
+          StatsD.increment(APPT_CREATION_FAILURE_METRIC, tags: ["error_type:#{appointment[:error]}"])
+          return render(json: submission_error_response(appointment[:error]), status: :conflict)
         end
 
         StatsD.increment(APPT_CREATION_SUCCESS_METRIC)
         render json: { data: { id: appointment.id } }, status: :created
+      rescue => e
+        StatsD.increment(APPT_CREATION_FAILURE_METRIC)
+        handle_appointment_error(e)
       end
 
       private
@@ -562,8 +567,7 @@ module VAOS
       # @see Redis::BaseError
       def handle_redis_error(error)
         Rails.logger.error("Redis error: #{error.message}")
-        StatsD.increment("#{PARTIAL_RESPONSE_METRIC}.redis_error")
-        render json: { errors: [{ title: CACHE_ERROR_MSG, detail: 'Unable to connect to cache service' }] },
+        render json: { errors: [{ title: 'Appointment creation failed', detail: 'Redis connection error' }] },
                status: :bad_gateway
       end
 
@@ -633,10 +637,10 @@ module VAOS
       #
       # @return [Hash] Error object with title and detail for JSON rendering
       #
-      def appt_creation_failed_error(error = nil, **kwargs)
+      def appt_creation_failed_error(error: nil, **kwargs)
         default_title = 'Appointment creation failed'
         default_detail = 'Could not create appointment'
-
+        status_code = error.respond_to?(:original_status) ? error.original_status : kwargs[:status]
         {
           errors: [{
             title: kwargs[:title] || default_title,
@@ -644,7 +648,7 @@ module VAOS
             meta: {
               original_detail: error.respond_to?(:response_values) ? error.response_values[:detail] : nil,
               original_error: error.respond_to?(:message) ? error.message : 'Unknown error',
-              status: error.respond_to?(:original_status) ? error.original_status : nil,
+              code: status_code,
               backend_response: error.respond_to?(:original_body) ? error.original_body : nil
             }
           }]
@@ -688,7 +692,7 @@ module VAOS
       # @param error_code [String] The error code from the appointment response
       # @return [Hash] Formatted error response with title and detail
       #
-      def appointment_error_response(error_code)
+      def submission_error_response(error_code)
         {
           errors: [{
             title: 'Appointment submission failed',
@@ -696,32 +700,6 @@ module VAOS
             code: error_code
           }]
         }
-      end
-
-      ##
-      # Handles error conditions for appointments and returns appropriate responses
-      #
-      # @param appointment [Object] The appointment object to check for errors
-      # @return [Hash, nil] Error response hash if there's an error, nil otherwise
-      #
-      def handle_submission_errors(appointment)
-        unless appointment&.id
-          return {
-            json: appt_creation_failed_error,
-            status: :unprocessable_entity,
-            tags: []
-          }
-        end
-
-        if appointment[:error].present?
-          return {
-            json: appointment_error_response(appointment[:error]),
-            status: appointment_error_status(appointment[:error]),
-            tags: ["error_type:#{appointment[:error]}"]
-          }
-        end
-
-        nil
       end
 
       def process_draft_appointment(referral_id, referral_consult_id)
