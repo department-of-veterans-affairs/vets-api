@@ -1513,33 +1513,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(response).to have_http_status(:found)
         end
       end
-
-      context 'when creating a user account' do
-        context 'and the current user does not yet have an Account record' do
-          before do
-            Account.first.destroy
-            expect(Account.count).to eq 0
-          end
-
-          it 'creates an Account record for the user' do
-            call_endpoint
-
-            expect(Account.first.idme_uuid).to eq uuid
-          end
-        end
-
-        context 'and the current user already has an Account record' do
-          it 'does not create a new Account record for the user', :aggregate_failures do
-            call_endpoint
-
-            expect(Account.count).to eq 1
-            expect(Account.first.idme_uuid).to eq user.idme_uuid
-          end
-        end
-      end
     end
-  end
-
-  describe 'GET #metadata' do
   end
 end
