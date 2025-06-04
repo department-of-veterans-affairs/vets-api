@@ -37,7 +37,7 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      Rails.logger.info('BGS::DependentV2Service running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+      Rails.logger.info('BGS::DependentV2Service running!', { user_uuid: uuid, saved_claim_id: claim.id })
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cV2Job::FORM_ID, user_uuid: uuid)&.submission_processing!
 
@@ -46,15 +46,15 @@ module BGS
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
-        Rails.logger.info('BGS::DependentV2Service succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+        Rails.logger.info('BGS::DependentV2Service succeeded!', { user_uuid: uuid, saved_claim_id: claim.id })
       end
 
       {
         submit_form_job_id:
       }
     rescue => e
-      Rails.logger.warn('BGS::DependentV2Service#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
-      log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      Rails.logger.warn('BGS::DependentV2Service#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, error: e.message }) # rubocop:disable Layout/LineLength
+      log_exception_to_sentry(e, { uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
     end
@@ -84,7 +84,7 @@ module BGS
       # This is now set to perform sync to catch errors and proceed to CentralForm submission in case of failure
     rescue => e
       # This indicated the method failed in this job method call, so we submit to Lighthouse Benefits Intake
-      Rails.logger.warn('DependentV2Service#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, icn:, error: e }) # rubocop:disable Layout/LineLength
+      Rails.logger.warn('DependentV2Service#submit_pdf_job method failed, submitting to Lighthouse Benefits Intake', { saved_claim_id: claim.id, error: e }) # rubocop:disable Layout/LineLength
       submit_to_central_service(claim:)
 
       raise e
