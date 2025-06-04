@@ -10,6 +10,7 @@ RSpec.describe V0::EventBusGatewayController, type: :request do
         template_id: '5678'
       }
     end
+
     context 'when :event_bus_gateway_emails_enabled is enabled' do
       before do
         allow(Flipper).to receive(:enabled?).and_call_original
