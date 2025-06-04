@@ -35,7 +35,7 @@ module MHV
 
         account = MHVUserAccount.new(mhv_account_creation_response)
         account.validate!
-        MPIData.find(icn)&.destroy
+        MPIData.find(icn)&.destroy unless from_cache_only
         account
       end
 
