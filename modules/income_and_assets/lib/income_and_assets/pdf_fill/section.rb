@@ -40,20 +40,20 @@ module IncomeAndAssets
     end
 
     ##
-    # Generates a key for the formfield based on the subsection and key
+    # Generates a key for the form field based on the subprefix and key
     #
-    # @param subsection [String] the subsection identifier
+    # @param subprefix [String] the subprefix identifier
     # @param key [String] the specific key within the subsection
     # @return [String] the generated key for the form field
     #
-    def self.generate_key(subsection, key)
-      "#{section_prefix}#{subsection}.#{key}"
+    def self.generate_key(subprefix, key)
+      "#{key_prefix}#{subprefix}.#{key}"
     end
 
     ##
-    # Section prefix for keys - can be redefined by subclasses if needed
+    # Prefix for form field keys - can be redefined by subclasses as needed
     #
-    def self.section_prefix
+    def self.key_prefix
       name.split('::').last
     end
   end
