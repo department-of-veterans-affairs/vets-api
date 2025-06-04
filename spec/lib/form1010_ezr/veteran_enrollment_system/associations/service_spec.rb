@@ -261,11 +261,11 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
               'associations[2].relationType: Relation type is required, associations[1].relationType: Relation ' \
               'type is required'
 
-            expect do
-              described_class.new(current_user).update_associations(associations_with_missing_required_fields)
-            end.to raise_error(
-              an_instance_of(Common::Exceptions::BadRequest).and(having_attributes(detail: failure_message))
-            )
+            expect { described_class.new(current_user).update_associations(associations_with_missing_required_fields) }
+              .to raise_error do |e|
+                expect(e).to be_an_instance_of(Common::Exceptions::BadRequest)
+                expect(e.errors[0].detail).to eq(failure_message)
+              end
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
             )
