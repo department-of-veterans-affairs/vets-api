@@ -100,6 +100,17 @@ module VAOS
         render json: { data: serialized }
       end
 
+      ##
+      # Submits a referral appointment to the EPS service for final scheduling.
+      # Validates the appointment response and handles various error conditions.
+      #
+      # The method processes appointment submission parameters, calls the EPS service,
+      # and performs validation on the returned appointment data.
+      #
+      # @return [void] Renders JSON response with appointment ID on success,
+      #   or error response on failure
+      # @raise [StandardError] For any unexpected errors during submission
+      #
       def submit_referral_appointment
         params = submit_params
         appointment = eps_appointment_service.submit_appointment(
@@ -648,29 +659,6 @@ module VAOS
       end
 
       ##
-      # Formats a standardized error response when appointment creation fails
-      #
-      # @return [Hash] Error object with title and detail for JSON rendering
-      #
-      def appt_creation_failed_error(error: nil, **kwargs)
-        default_title = 'Appointment creation failed'
-        default_detail = 'Could not create appointment'
-        status_code = error.respond_to?(:original_status) ? error.original_status : kwargs[:status]
-        {
-          errors: [{
-            title: kwargs[:title] || default_title,
-            detail: kwargs[:detail] || default_detail,
-            meta: {
-              original_detail: error.try(:response_values)&.dig(:detail),
-              original_error: error.try(:message) || 'Unknown error',
-              code: status_code,
-              backend_response: error.try(:original_body)
-            }
-          }]
-        }
-      end
-
-      ##
       # Gets a CCRA referral service instance
       #
       # @return [Ccra::ReferralService] The CCRA referral service
@@ -702,10 +690,59 @@ module VAOS
       end
 
       ##
-      # Builds a standardized error response for appointment errors
+      # Handles appointment-related errors throughout the controller.
+      # Maps error codes to appropriate HTTP status codes and renders
+      # standardized error responses.
       #
-      # @param error_code [String] The error code from the appointment response
-      # @return [Hash] Formatted error response with title and detail
+      # @param e [Exception] The exception that was raised
+      # @param status [String, Integer, nil] Optional status override for error mapping
+      # @param title [String, nil] Optional custom title for the error response
+      # @return [void] Renders JSON error response with appropriate HTTP status
+      #
+      def handle_appointment_error(e, status: nil, title: nil)
+        original_status = e.respond_to?(:original_status) ? e.original_status : status
+        status_code = appointment_error_status(original_status)
+        render(json: appt_creation_failed_error(error: e, status: original_status, title:), status: status_code)
+      end
+
+      ##
+      # Formats a standardized error response for appointment creation failures.
+      # Extracts error details from exception objects and builds a consistent
+      # error structure with metadata for debugging and monitoring.
+      #
+      # @param error [Exception, nil] The exception that caused the failure
+      # @param kwargs [Hash] Additional options for customizing the error response
+      # @option kwargs [String] :title Custom error title (defaults to 'Appointment creation failed')
+      # @option kwargs [String] :detail Custom error detail (defaults to 'Could not create appointment')
+      # @option kwargs [String, Integer] :status Status code for error metadata
+      # @return [Hash] Formatted error response with title, detail, and metadata
+      #
+      def appt_creation_failed_error(error: nil, **kwargs)
+        default_title = 'Appointment creation failed'
+        default_detail = 'Could not create appointment'
+        status_code = error.respond_to?(:original_status) ? error.original_status : kwargs[:status]
+        {
+          errors: [{
+            title: kwargs[:title] || default_title,
+            detail: kwargs[:detail] || default_detail,
+            meta: {
+              original_detail: error.try(:response_values)&.dig(:detail),
+              original_error: error.try(:message) || 'Unknown error',
+              code: status_code,
+              backend_response: error.try(:original_body)
+            }
+          }]
+        }
+      end
+
+      ##
+      # Builds a standardized error response for appointment submission errors.
+      # Used specifically for EPS appointment errors that contain error codes
+      # in the appointment response data.
+      #
+      # @param error_code [String] The error code from the appointment response,
+      #   defaults to 'unknown EPS error' if nil
+      # @return [Hash] Formatted error response with title, detail, and error code
       #
       def submission_error_response(error_code)
         {
@@ -717,6 +754,17 @@ module VAOS
         }
       end
 
+      ##
+      # Processes the creation of a draft appointment by orchestrating multiple service calls.
+      # Validates referral data, checks for existing appointments, finds providers, and builds
+      # the complete draft appointment response with associated data.
+      #
+      # @param referral_id [String] The referral number to process
+      # @param referral_consult_id [String] The referral consult ID for data retrieval
+      # @return [Hash] Result hash with success status and data or error information
+      #   - If successful: { success: true, data: draft_response_object }
+      #   - If failed: { success: false, json: error_response, status: http_status }
+      #
       def process_draft_appointment(referral_id, referral_consult_id)
         referral = ccra_referral_service.get_referral(referral_consult_id, current_user.icn)
 
@@ -734,12 +782,6 @@ module VAOS
         drive_time = fetch_drive_times(provider)
 
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
-      end
-
-      def handle_appointment_error(e)
-        original_status = e.respond_to?(:original_status) ? e.original_status : nil
-        status_code = appointment_error_status(original_status)
-        render(json: appt_creation_failed_error(error: e), status: status_code)
       end
     end
   end
