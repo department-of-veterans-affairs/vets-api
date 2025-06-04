@@ -37,7 +37,7 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id })
+      Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
 
       InProgressForm.find_by(form_id: BGS::SubmitForm686cJob::FORM_ID, user_uuid: uuid)&.submission_processing!
 
@@ -46,15 +46,15 @@ module BGS
 
       if claim.submittable_686? || claim.submittable_674?
         submit_form_job_id = submit_to_standard_service(claim:, encrypted_vet_info:)
-        Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id })
+        Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
 
       {
         submit_form_job_id:
       }
     rescue => e
-      Rails.logger.warn('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, error: e.message }) # rubocop:disable Layout/LineLength
-      log_exception_to_sentry(e, { uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      Rails.logger.warn('BGS::DependentService#submit_686c_form method failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
+      log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
 
       raise e
     end
