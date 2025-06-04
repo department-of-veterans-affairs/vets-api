@@ -522,7 +522,7 @@ module PdfFill
 
       def generate_overflow_provider_info(provider)
         # Combine the provider name, address, and treatment dates into a single string for the overflow page
-        address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
+        address = combine_full_address_extras(provider['providerFacilityAddress'])
         dates = combine_date_ranges(provider['treatmentDateRange'])
 
         provider['completeProviderInfo'] = [PdfFill::FormValue.new(
