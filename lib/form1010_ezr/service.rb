@@ -201,7 +201,7 @@ module Form1010Ezr
     end
 
     def handle_associations(parsed_form)
-      form_associations = (parsed_form['nextOfKins'] || []) + (parsed_form['emergencyContacts'] || [])
+      form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
       return parsed_form if form_associations.empty?
 
       associations_service = Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user)
