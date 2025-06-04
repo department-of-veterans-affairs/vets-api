@@ -201,8 +201,6 @@ module UnifiedHealthData
     end
 
     def fetch_observation_value(obs)
-      return { text: nil, type: nil } if obs.nil?
-      
       type, text = if obs['valueQuantity']
                      ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
                    elsif obs['valueCodeableConcept']
