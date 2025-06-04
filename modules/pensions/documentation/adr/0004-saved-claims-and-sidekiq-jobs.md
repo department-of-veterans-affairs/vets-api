@@ -10,9 +10,9 @@ Accepted
 
 If we are to adapt the `SubmitBenefitsIntakeClaim` job then we must include our own `saved_claim` class that points to the new job. The code for this override can be found in `modules/pensions/app/models/pensions/saved_claim.rb`. This presents an issue with the `inheritance_column` possibly changing since our underlying model is technically a different class.
 
-Similarly in the `SavedClaim::Pension` class under the `modules/pensions/app/models/pensions/saved_claim/pension.rb`, if we are to adapt the `PensionBenefitIntakeJob` code to the module we must change this job type. Since we are inheriting off of the new `SavedClaim` from the module, we must also be somewhat concerned about how the `inheritance_column` would change any SQL queries when selecting 'types'.
+Similarly in the `SavedClaim::Pension` class under the `modules/pensions/app/models/pensions/saved_claim/pension.rb`, if we are to adapt the `Pensions::BenefitsIntake::SubmitClaimJob` code to the module we must change this job type. Since we are inheriting off of the new `SavedClaim` from the module, we must also be somewhat concerned about how the `inheritance_column` would change any SQL queries when selecting 'types'.
 
-The `PensionBenefitIntakeJob` brings along some service and metadata classes as direct dependencies. We are currently proxying these classes.
+The `Pensions::BenefitsIntake::SubmitClaimJob` brings along some service and metadata classes as direct dependencies. We are currently proxying these classes.
 
 It also references the claim class, which we are swapping in the module. It uses the monitoring classes `Pension21p527ez::Monitor` which we are copying into our module folder.
 

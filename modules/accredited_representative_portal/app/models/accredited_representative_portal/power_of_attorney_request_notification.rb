@@ -38,10 +38,10 @@ module AccreditedRepresentativePortal
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_submit_confirmation_email
       when 'declined'
         Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_submit_decline_email
-        # when 'expiring'
-        #   Settings.vanotify.services.va_gov.template_id.EXPIRING_TEMPLATE_ID
-        # when 'expired'
-        #   Settings.vanotify.services.va_gov.template_id.EXPIRED_TEMPLATE_ID
+      when 'expiring'
+        Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_warning_email
+      when 'expired'
+        Settings.vanotify.services.va_gov.template_id.appoint_a_representative_digital_expiration_confirmation_email
       end
     end
 

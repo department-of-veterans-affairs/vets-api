@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'sidekiq/monitored_worker'
 require 'sidekiq/retry_monitoring'
 
 module Sidekiq

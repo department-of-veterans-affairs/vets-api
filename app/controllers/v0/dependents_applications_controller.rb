@@ -36,14 +36,11 @@ module V0
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      claim.send_submitted_email(current_user) if Flipper.enabled?(:dependents_submitted_email)
+
       # clear_saved_form(claim.form_id) # We do not want to destroy the InProgressForm for this submission
 
       render json: SavedClaimSerializer.new(claim)
-    end
-
-    def disability_rating
-      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
-      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
     end
 
     private

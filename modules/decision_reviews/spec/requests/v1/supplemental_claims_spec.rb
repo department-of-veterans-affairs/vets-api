@@ -4,7 +4,7 @@ require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/spec/support/vcr_helper'
 
 RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:success_log_args) do
     {
@@ -139,6 +139,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
         allow(Rails.logger).to receive(:error)
         allow(StatsD).to receive(:increment)
@@ -171,6 +172,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
 
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(true)
       end
 
@@ -208,7 +210,8 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
                 },
                 'veteranDateOfBirth' => '1809-02-12',
                 'veteranAddress' => { 'addressLine1' => '123  Main St', 'city' => 'New York', 'countryCodeISO2' => 'US',
-                                      'zipCode5' => '30012', 'country' => 'US', 'postalCode' => '30012' },
+                                      'zipCode5' => '30012', 'country' => 'USA', 'postalCode' => '30012',
+                                      'street' => '123  Main St', 'street2' => nil, 'state' => nil },
                 'email' => 'josie@example.com',
                 'veteranPhone' => '5558001111'
               }
@@ -227,6 +230,7 @@ RSpec.describe 'DecisionReviews::V1::SupplementalClaims', type: :request do
     context 'when tracking 4142 is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:decision_review_track_4142_submissions).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_call_original
         allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)
       end
 

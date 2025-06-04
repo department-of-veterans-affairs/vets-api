@@ -24,7 +24,7 @@ RUN groupadd --gid $USER_ID nonroot \
 WORKDIR /app
 
 RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget ca-certificates-java file \
+RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget unzip ca-certificates-java file \
   imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*

@@ -18,13 +18,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                               anything).and_return(false)
   end
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+  let(:user_account) { user.user_account }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { create(:va526ez) }
   # contains 0781 and 0781a
+  let(:saved_claim_with_0781v2) { create(:va526ez_0781v2) }
+  # contains 0781V2
   let(:form0781) do
     File.read 'spec/support/disability_compensation_form/submissions/with_0781.json'
   end
@@ -50,6 +53,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     context 'when a submission has both 0781 and 0781a' do
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781,
@@ -99,8 +103,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     context 'when a submission has 0781v2' do
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
+                                 saved_claim_id: saved_claim_with_0781v2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
       end
@@ -148,7 +153,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
   context 'catastrophic failure state' do
     describe 'when all retries are exhausted' do
-      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_submission) { create(:form526_submission, user_account:) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
 
       it 'updates a StatsD counter and updates the status on an exhaustion event' do
@@ -184,7 +189,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               timestamp: instance_of(Time),
               form526_submission_id: form526_submission.id
             },
-            nil,
+            user_account.id,
             call_location: instance_of(Logging::CallLocation)
           )
 
@@ -307,6 +312,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
                                  saved_claim_id: saved_claim.id,
                                  form_json: form0781, # contains 0781 and 0781a
@@ -701,8 +707,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       let(:submission) do
         Form526Submission.create(user_uuid: user.uuid,
+                                 user_account:,
                                  auth_headers_json: auth_headers.to_json,
-                                 saved_claim_id: saved_claim.id,
+                                 saved_claim_id: saved_claim_with_0781v2.id,
                                  form_json: form0781v2,
                                  submitted_claim_id: evss_claim_id)
       end

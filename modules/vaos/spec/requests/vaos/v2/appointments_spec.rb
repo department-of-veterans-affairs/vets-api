@@ -8,6 +8,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
     allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:appointments_consolidation, instance_of(User)).and_return(true)
+    # Configure EPS settings
+    allow(Settings.vaos.eps).to receive_messages(
+      access_token_url: 'https://login.wellhive.com/oauth2/default/v1/token',
+      api_url: 'https://api.wellhive.com',
+      base_path: 'care-navigation/v1'
+    )
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -428,7 +434,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(data.size).to eq(16)
               expect(data[0]['attributes']['serviceName']).to eq('service_name')
               expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
-              expect(data[0]['attributes']['friendlyName']).to eq('service_name')
               expect(data[0]['attributes']['location']).to eq(expected_facility)
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -810,7 +815,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
-        it 'updates the service name, physical location, friendly name, and location' do
+        it 'updates the service name, physical location, and location' do
           stub_facilities
           allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
             .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
@@ -823,7 +828,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             data = json_body_for(response)['attributes']
             expect(data['serviceName']).to eq('Service Name')
             expect(data['physicalLocation']).to eq('Physical Location')
-            expect(data['friendlyName']).to eq('Service Name')
             expect(data['location']).to eq(expected_facility)
             expect(Rails.logger).to have_received(:info).with(
               'VAOS::V2::AppointmentsController appointment creation time: 2021-12-13T14:03:02Z',
@@ -899,6 +903,25 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             Timecop.unfreeze
           end
         end
+
+        it 'returns an eps appointment' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/booked_200', match_requests_on: %i[method path]) do
+              get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
+
+              expect(response).to have_http_status(:success)
+              body = JSON.parse(response.body)
+
+              expect(body).to include('data')
+              expect(body['data']).to include('id', 'type', 'attributes')
+              expect(body['data']['attributes']).to include(
+                'id', 'state', 'patientId', 'referral',
+                'providerServiceId', 'networkId', 'slotIds',
+                'appointmentDetails'
+              )
+            end
+          end
+        end
       end
 
       context 'when the VAOS service errors on retrieving an appointment' do
@@ -913,9 +936,31 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                        'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d/appointments/00000'
             get '/vaos/v2/appointments/00000'
             body = JSON.parse(response.body)
+
             expect(response).to have_http_status(:bad_gateway)
             expect(body.dig('errors', 0, 'code')).to eq('VAOS_502')
             expect(body.dig('errors', 0, 'source', 'vamf_url')).to eq(vamf_url)
+          end
+        end
+      end
+
+      context 'when the EPS service errors on retrieving an appointment' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_use_vpg, instance_of(User)).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_vaos_alternate_route).and_return(false)
+        end
+
+        it 'returns a 502 status code' do
+          VCR.use_cassette('vaos/eps/token/token_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_appointment/500', match_requests_on: %i[method path]) do
+              vamf_url = 'https://api.wellhive.com/care-navigation/v1/appointments/qdm61cJ5?retrieveLatestDetails=true'
+              get '/vaos/v2/appointments/qdm61cJ5?_include=eps', headers: inflection_header
+              expect(response).to have_http_status(:bad_gateway)
+              body = JSON.parse(response.body)
+
+              expect(body.dig('errors', 0, 'code')).to eq('VAOS_502')
+              expect(body.dig('errors', 0, 'source', 'vamfUrl')).to eq(vamf_url)
+            end
           end
         end
       end
@@ -946,7 +991,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         context 'when clinic and location_id are present' do
-          it 'updates the service name, physical location, friendly name, and location' do
+          it 'updates the service name, physical location, and location' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_clinic)
               .and_return(service_name: 'Service Name', physical_location: 'Physical Location')
             stub_facilities
@@ -957,7 +1002,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               data = json_body_for(response)['attributes']
               expect(data['serviceName']).to eq('Service Name')
               expect(data['physicalLocation']).to eq('Physical Location')
-              expect(data['friendlyName']).to eq('Service Name')
               expect(data['location']).to eq(expected_facility)
             end
           end
@@ -1044,6 +1088,37 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           end
         end
 
+        it 'submits referral appointment with conflict error' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment_conflict',
+                             match_requests_on: %i[method path body]) do
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              response_obj = JSON.parse(response.body)
+              expect(response).to have_http_status(:conflict)
+              expect(response_obj.dig('errors', 0, 'code')).to eql('conflict')
+            end
+          end
+        end
+
+        it 'records success metric when submitting referral appointment' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/eps/post_submit_appointment',
+                             match_requests_on: %i[method path body]) do
+              # Allow any StatsD calls and check for our specific metric
+              allow(StatsD).to receive(:increment).with(any_args)
+              expect(StatsD).to receive(:increment)
+                .with(described_class::APPT_CREATION_SUCCESS_METRIC)
+
+              post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+              expect(response).to have_http_status(:created)
+            end
+          end
+        end
+
         it 'handles EPS error response' do
           VCR.use_cassette('vaos/v2/eps/post_access_token',
                            match_requests_on: %i[method path]) do
@@ -1058,24 +1133,69 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             end
           end
         end
+
+        it 'records failure metric when appointment submission fails' do
+          VCR.use_cassette('vaos/v2/eps/post_access_token',
+                           match_requests_on: %i[method path]) do
+            # Mock a failed appointment submission (nil id)
+            allow_any_instance_of(Eps::AppointmentService).to receive(:submit_appointment)
+              .and_return(OpenStruct.new(id: nil))
+
+            # Allow any StatsD calls and check for our specific metric
+            allow(StatsD).to receive(:increment).with(any_args)
+            expect(StatsD).to receive(:increment)
+              .with(described_class::APPT_CREATION_FAILURE_METRIC)
+
+            post '/vaos/v2/appointments/submit', params:, headers: inflection_header
+
+            expect(response).to have_http_status(:unprocessable_entity)
+            response_obj = JSON.parse(response.body)
+            expect(response_obj['errors']).to be_an(Array)
+            expect(response_obj['errors'][0]['title']).to eq('Appointment creation failed')
+          end
+        end
       end
     end
   end
 
   context 'for eps referrals' do
     let(:current_user) { build(:user, :vaos, icn: 'care-nav-patient-casey') }
-    let(:draft_params) { { referral_id: 'ref-123' } }
-
     let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
     let(:redis_token_expiry) { 59.minutes }
     let(:npi) { '7894563210' }
     let(:appointment_type_id) { 'ov' }
     let(:start_date) { '2025-01-01T00:00:00Z' }
     let(:end_date) { '2025-01-03T00:00:00Z' }
+    let(:referral_data) do
+      {
+        referral_number: 'ref-123',
+        referral_consult_id: '123-123456',
+        npi:,
+        appointment_type_id:,
+        start_date:,
+        end_date:
+      }
+    end
+
+    let(:draft_params) do
+      {
+        referral_number: referral_data[:referral_number],
+        referral_consult_id: referral_data[:referral_consult_id]
+      }
+    end
+
+    let(:referral_detail) do
+      instance_double(Ccra::ReferralDetail,
+                      referral_number: 'ref-123',
+                      appointment_type_id:,
+                      expiration_date: end_date,
+                      provider_npi: npi,
+                      referral_date: start_date)
+    end
     let(:referral_identifiers) do
       {
         data: {
-          id: draft_params[:referral_id],
+          id: draft_params[:referral_number],
           type: :referral_identifier,
           attributes: { npi:, appointment_type_id:, start_date:, end_date: }
         }
@@ -1090,13 +1210,10 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       allow(Rails).to receive(:cache).and_return(memory_store)
       Rails.cache.clear
-
-      Rails.cache.write(
-        "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
-        referral_identifiers,
-        namespace: 'vaos-eps-cache',
-        expires_in: redis_token_expiry
-      )
+      # Set up mocks for CCRA service to return the referral detail
+      allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+        .with(referral_data[:referral_consult_id], current_user.icn)
+        .and_return(referral_detail)
     end
 
     describe 'POST create_draft' do
@@ -1211,12 +1328,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         end
 
         it 'returns a successful response when all calls succeed' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
-            VCR.use_cassette('vaos/eps/get_drive_times/200') do
-              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
-                VCR.use_cassette('vaos/eps/search_provider_services/200') do
-                  VCR.use_cassette 'vaos/eps/draft_appointment/200' do
-                    VCR.use_cassette 'vaos/eps/token/token_200' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path]) do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
+                VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200', match_requests_on: %i[method path] do
+                    VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                       allow_any_instance_of(Eps::AppointmentService)
                         .to receive(:get_appointments)
                         .and_return(OpenStruct.new(data: []))
@@ -1232,23 +1349,69 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             end
           end
         end
+
+        it 'records success metric when draft appointment is created successfully' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path]) do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
+                VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200', match_requests_on: %i[method path] do
+                    VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
+                      allow_any_instance_of(Eps::AppointmentService)
+                        .to receive(:get_appointments)
+                        .and_return(OpenStruct.new(data: []))
+
+                      # Allow any StatsD calls and check for our specific metric
+                      allow(StatsD).to receive(:increment).with(any_args)
+                      expect(StatsD).to receive(:increment)
+                        .with(described_class::APPT_CREATION_SUCCESS_METRIC)
+
+                      post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                      expect(response).to have_http_status(:created)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when appointment creation fails' do
+        it 'returns appropriate error response when draft appointment creation fails' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path]) do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
+                VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
+                  # Create a nil draft response to trigger the failure case
+                  allow_any_instance_of(Eps::AppointmentService).to receive(:create_draft_appointment)
+                    .and_return(nil)
+
+                  allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments)
+                    .and_return(OpenStruct.new(data: []))
+
+                  post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
+
+                  expect(response).to have_http_status(:internal_server_error)
+                  response_obj = JSON.parse(response.body)
+                  expect(response_obj['errors']).to be_an(Array)
+                  expect(response_obj['errors'][0]['title']).to eq('Internal server error')
+                end
+              end
+            end
+          end
+        end
       end
 
       context 'when drive time coords are invalid' do
-        let(:draft_params) do
-          {
-            referral_id: 'ref-123'
-          }
-        end
-
         it 'handles invalid_range response' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path body]) do
-            VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords' do
-              VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
-                VCR.use_cassette 'vaos/eps/search_provider_services/200' do
-                  VCR.use_cassette 'vaos/eps/draft_appointment/200' do
-                    VCR.use_cassette 'vaos/eps/token/token_200' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette 'vaos/eps/get_drive_times/400_invalid_coords', match_requests_on: %i[method path] do
+              VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
+                VCR.use_cassette 'vaos/eps/search_provider_services/200', match_requests_on: %i[method path] do
+                  VCR.use_cassette 'vaos/eps/draft_appointment/200', match_requests_on: %i[method path] do
+                    VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                       allow_any_instance_of(Eps::AppointmentService)
                         .to receive(:get_appointments)
                         .and_return(OpenStruct.new(data: []))
@@ -1270,25 +1433,24 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         before do
           updated_referral_identifiers = {
             data: {
-              id: draft_params[:referral_id],
+              id: draft_params[:referral_number],
               type: :referral_identifier,
               attributes: { npi: invalid_provider_id, appointment_type_id:, start_date:, end_date: }
             }
           }.to_json
 
           Rails.cache.write(
-            "vaos_eps_referral_identifier_#{draft_params[:referral_id]}",
+            "vaos_eps_referral_identifier_#{draft_params[:referral_number]}",
             updated_referral_identifiers,
-            namespace: 'vaos-eps-cache',
+            namespace: 'eps-access-token',
             expires_in: redis_token_expiry
           )
         end
 
         it 'returns correct error status for provider not found' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
-                           match_requests_on: %i[method path body]) do
-            VCR.use_cassette 'vaos/eps/search_provider_services/empty_200' do
-              VCR.use_cassette 'vaos/eps/token/token_200' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette 'vaos/eps/search_provider_services/empty_200', match_requests_on: %i[method path] do
+              VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                 allow_any_instance_of(Eps::AppointmentService)
                   .to receive(:get_appointments)
                   .and_return(OpenStruct.new(data: []))
@@ -1303,11 +1465,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when patient id is invalid' do
         it 'handles invalid patientId response as 400' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
-            VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
-              VCR.use_cassette('vaos/eps/search_provider_services/200') do
-                VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid' do
-                  VCR.use_cassette 'vaos/eps/token/token_200' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+            VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
+              VCR.use_cassette('vaos/eps/search_provider_services/200', match_requests_on: %i[method path]) do
+                VCR.use_cassette 'vaos/eps/draft_appointment/400_invalid_patientid',
+                                 match_requests_on: %i[method path] do
+                  VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                     allow_any_instance_of(Eps::AppointmentService)
                       .to receive(:get_appointments)
                       .and_return(OpenStruct.new(data: []))
@@ -1326,21 +1489,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         it 'fails if a vaos appointment with the given referral id already exists' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200',
                            match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
-            updated_referral_identifiers = {
-              data: {
-                id: 'ref-124',
-                type: :referral_identifier,
-                attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-              }
-            }.to_json
+            referral_data = {
+              referral_number: 'ref-124',
+              npi:,
+              appointment_type_id:,
+              start_date:,
+              end_date:
+            }
 
-            Rails.cache.write(
-              'vaos_eps_referral_identifier_ref-124',
-              updated_referral_identifiers,
-              namespace: 'vaos-eps-cache',
-              expires_in: redis_token_expiry
-            )
-            draft_params[:referral_id] = 'ref-124'
+            # Set up the test referral for this test case
+            specific_referral_detail = instance_double(Ccra::ReferralDetail,
+                                                       referral_number: referral_data[:referral_number],
+                                                       appointment_type_id: referral_data[:appointment_type_id],
+                                                       expiration_date: referral_data[:end_date],
+                                                       provider_npi: referral_data[:npi],
+                                                       referral_date: referral_data[:start_date])
+
+            allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+              .with(referral_data[:referral_consult_id], current_user.icn)
+              .and_return(specific_referral_detail)
+
+            draft_params[:referral_number] = 'ref-124'
             post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
             response_obj = JSON.parse(response.body)
@@ -1381,22 +1550,27 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           )
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
 
-          updated_referral_identifiers = {
-            data: {
-              id: 'ref-126',
-              type: :referral_identifier,
-              attributes: { npi:, appointment_type_id:, start_date:, end_date: }
-            }
-          }.to_json
+          referral_data = {
+            referral_number: 'ref-126',
+            npi:,
+            appointment_type_id:,
+            start_date:,
+            end_date:
+          }
 
-          Rails.cache.write(
-            'vaos_eps_referral_identifier_ref-126',
-            updated_referral_identifiers,
-            namespace: 'vaos-eps-cache',
-            expires_in: redis_token_expiry
-          )
+          # Set up the test referral for this test case
+          ref126_detail = instance_double(Ccra::ReferralDetail,
+                                          referral_number: referral_data[:referral_number],
+                                          appointment_type_id: referral_data[:appointment_type_id],
+                                          expiration_date: referral_data[:end_date],
+                                          provider_npi: referral_data[:npi],
+                                          referral_date: referral_data[:start_date])
 
-          draft_params[:referral_id] = 'ref-126'
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+            .with(referral_data[:referral_consult_id], current_user.icn)
+            .and_return(ref126_detail)
+
+          draft_params[:referral_number] = 'ref-126'
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
           response_obj = JSON.parse(response.body)
@@ -1435,13 +1609,13 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when the upstream service returns a 500 error' do
         it 'returns a bad_gateway status and appropriate error message' do
-          VCR.use_cassette('vaos/eps/get_appointments/500_error') do
-            VCR.use_cassette('vaos/v2/appointments/get_appointments_200') do
-              VCR.use_cassette('vaos/eps/get_drive_times/200') do
-                VCR.use_cassette 'vaos/eps/get_provider_slots/200' do
-                  VCR.use_cassette 'vaos/eps/get_provider_service/200' do
-                    VCR.use_cassette 'vaos/eps/draft_appointment/200' do
-                      VCR.use_cassette 'vaos/eps/token/token_200' do
+          VCR.use_cassette('vaos/eps/get_appointments/500_error', match_requests_on: %i[method path]) do
+            VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path]) do
+              VCR.use_cassette('vaos/eps/get_drive_times/200', match_requests_on: %i[method path]) do
+                VCR.use_cassette 'vaos/eps/get_provider_slots/200', match_requests_on: %i[method path] do
+                  VCR.use_cassette 'vaos/eps/get_provider_service/200', match_requests_on: %i[method path] do
+                    VCR.use_cassette 'vaos/eps/draft_appointment/200', match_requests_on: %i[method path] do
+                      VCR.use_cassette 'vaos/eps/token/token_200', match_requests_on: %i[method path] do
                         post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 
                         expect(response).to have_http_status(:bad_gateway)
@@ -1473,11 +1647,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       context 'when Redis connection fails' do
         it 'returns a bad_gateway status and appropriate error message' do
-          # Mock the Redis client to raise a connection error
-          redis_client = instance_double(Eps::RedisClient)
-          allow(Eps::RedisClient).to receive(:new).and_return(redis_client)
-          allow(redis_client).to receive(:fetch_referral_attributes).and_raise(Redis::BaseError,
-                                                                               'Redis connection refused')
+          # Mock the RedisClient to raise a Redis connection error
+          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
+            .and_raise(Redis::BaseError, 'Redis connection refused')
 
           post '/vaos/v2/appointments/draft', params: draft_params, headers: inflection_header
 

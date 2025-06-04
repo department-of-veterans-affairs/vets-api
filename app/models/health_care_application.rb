@@ -7,11 +7,12 @@ require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
 require 'hca/overrides_parser'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
   include VA1010Forms::Utils
-  include FormValidation
+  include RetriableConcern
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
@@ -22,7 +23,7 @@ class HealthCareApplication < ApplicationRecord
   ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
-  attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
+  attr_accessor :user, :google_analytics_client_id, :form
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
@@ -82,19 +83,22 @@ class HealthCareApplication < ApplicationRecord
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue Common::Client::Errors::ClientError => e
-      log_exception_to_sentry(e)
+      if Flipper.enabled?(:hca_disable_sentry_logs)
+        Rails.logger.error('[10-10EZ] - Error synchronously submitting form', { exception: e, user_loa: user&.loa })
+      else
+        log_exception_to_sentry(e)
+      end
 
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
       )
     end
 
-    Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+    set_result_on_success!(result)
 
     result
   rescue
     log_sync_submission_failure
-
     raise
   end
 
@@ -115,9 +119,11 @@ class HealthCareApplication < ApplicationRecord
 
       raise(Common::Exceptions::ValidationErrors, self)
     end
+    save!
 
-    if email.present? || async_compatible
-      save!
+    send_event_bus_event('received')
+
+    if email.present?
       submit_async
     else
       submit_sync
@@ -208,6 +214,8 @@ class HealthCareApplication < ApplicationRecord
       form_submission_id_string: result[:formSubmissionId].to_s,
       timestamp: result[:timestamp]
     )
+
+    send_event_bus_event('sent', result[:formSubmissionId].to_s)
   end
 
   def form_submission_id
@@ -216,6 +224,25 @@ class HealthCareApplication < ApplicationRecord
 
   def parsed_form
     @parsed_form ||= form.present? ? JSON.parse(form) : nil
+  end
+
+  def send_event_bus_event(status, next_id = nil)
+    return unless Flipper.enabled?(:hca_ez_kafka_submission_enabled)
+
+    begin
+      user_icn = user&.icn || self.class.user_icn(self.class.user_attributes(parsed_form))
+    rescue
+      # if certain user attributes are missing, we can't get an ICN
+      user_icn = nil
+    end
+
+    Kafka.submit_event(
+      icn: user_icn,
+      current_id: id,
+      submission_name: 'F1010EZ',
+      state: status,
+      next_id:
+    )
   end
 
   private
@@ -245,10 +272,9 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async
-    submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
     @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
-    "HCA::#{submission_job}".constantize.perform_async(
+    HCA::SubmissionJob.perform_async(
       self.class.get_user_identifier(user),
       HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
       id,
@@ -270,24 +296,37 @@ class HealthCareApplication < ApplicationRecord
     log_submission_failure_details
   end
 
-  def log_submission_failure_details
+  def log_submission_failure_details # rubocop:disable Metrics/MethodLength
     return if parsed_form.blank?
+
+    send_event_bus_event('error')
 
     PersonalInformationLog.create!(
       data: parsed_form,
       error_class: 'HealthCareApplication FailedWontRetry'
     )
 
-    log_message_to_sentry(
-      'HCA total failure',
-      :error,
-      {
-        first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
-        middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
-        last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
-      },
-      hca: :total_failure
-    )
+    if Flipper.enabled?(:hca_disable_sentry_logs)
+      Rails.logger.info(
+        '[10-10EZ] - HCA total failure',
+        {
+          first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+          middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+          last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+        }
+      )
+    else
+      log_message_to_sentry(
+        'HCA total failure',
+        :error,
+        {
+          first_initial: parsed_form.dig('veteranFullName', 'first')&.[](0) || 'no initial provided',
+          middle_initial: parsed_form.dig('veteranFullName', 'middle')&.[](0) || 'no initial provided',
+          last_initial: parsed_form.dig('veteranFullName', 'last')&.[](0) || 'no initial provided'
+        },
+        hca: :total_failure
+      )
+    end
   end
 
   def send_failure_email
@@ -308,16 +347,25 @@ class HealthCareApplication < ApplicationRecord
     VANotify::EmailJob.perform_async(email, template_id, { 'salutation' => salutation }, api_key, metadata)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
-    log_exception_to_sentry(e)
+    if Flipper.enabled?(:hca_disable_sentry_logs)
+      Rails.logger.error('[10-10EZ] - Failure sending Submission Failure Email', { exception: e })
+    else
+      log_exception_to_sentry(e)
+    end
   end
 
   def form_matches_schema
-    if form.present?
-      schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-      validation_errors = validate_form_with_retries(schema, parsed_form)
-      validation_errors.each do |v|
-        errors.add(:form, v.to_s)
-      end
+    return if form.blank?
+
+    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
+
+    validation_errors = with_retries('10-10EZ Form Validation') do
+      JSONSchemer.schema(schema).validate(parsed_form).to_a
+    end
+
+    validation_errors.each do |error|
+      e = error.symbolize_keys
+      errors.add(:form, e[:error].to_s)
     end
   end
 end

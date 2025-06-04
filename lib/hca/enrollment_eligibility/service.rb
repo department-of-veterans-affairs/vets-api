@@ -6,6 +6,7 @@ require_relative 'configuration'
 
 module HCA
   module EnrollmentEligibility
+    # rubocop:disable Metrics/ClassLength
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
 
@@ -36,6 +37,21 @@ module HCA
         'Divorced'
       ].freeze
 
+      CONTACT_TYPES = [
+        'Primary Next of Kin',
+        'Other Next of Kin',
+        'Emergency Contact',
+        'Other emergency contact'
+      ].freeze
+
+      ADDRESS_MAPPINGS = [
+        %i[street line1],
+        %i[street2 line2],
+        %i[street3 line3],
+        %i[city city],
+        %i[country country]
+      ].freeze
+
       MEDICARE = 'Medicare'
 
       def get_ezr_data(icn)
@@ -48,17 +64,17 @@ module HCA
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
+        ezr_data = financial_info.merge(convert_insurance_hash(response, providers).except!(:providers)).merge(spouse)
+
         if Flipper.enabled?(:ezr_form_prefill_with_providers_and_dependents)
-          OpenStruct.new(
-            financial_info.merge(convert_insurance_hash(response, providers)).merge(
-              dependents.present? ? { dependents: } : {}
-            ).merge(spouse)
-          )
-        else
-          OpenStruct.new(
-            financial_info.merge(convert_insurance_hash(response, providers).except!(:providers)).merge(spouse)
-          )
+          ezr_data = financial_info.merge(convert_insurance_hash(response, providers))
+          ezr_data[:dependents] = dependents if dependents.present?
+          ezr_data.merge!(spouse)
         end
+
+        add_contacts_to_ezr_data(ezr_data, response) if Flipper.enabled?(:ezr_prefill_contacts)
+
+        OpenStruct.new(ezr_data)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -278,6 +294,25 @@ module HCA
         dependents
       end
 
+      def parse_contacts(response)
+        contacts = []
+        response.locate("#{XPATH_PREFIX}associations/association").each do |association|
+          contact_type = get_locate_value(association, 'contactType')
+          next unless contact_type.in?(CONTACT_TYPES)
+
+          contact = {
+            fullName: {},
+            relationship: get_locate_value(association, 'relationship'),
+            contactType: get_locate_value(association, 'contactType'),
+            primaryPhone: get_locate_value(association, 'primaryPhone').gsub(/[()\-]/, ''),
+            address: get_address_from_association(association)
+          }
+          fill_contact_full_name_from_association(contact, association)
+          contacts << Common::HashHelpers.deep_compact(contact)
+        end
+        contacts
+      end
+
       def get_locate_value_date(node, key)
         parse_es_date(get_locate_value(node, key))
       end
@@ -291,6 +326,53 @@ module HCA
         return if res.nil?
 
         res.nodes[0]
+      end
+
+      def get_address_from_association(association)
+        address = {}
+        fill_address_mappings_from_association(address, association)
+        fill_address_region_from_association(address, association)
+        address
+      end
+
+      def fill_address_mappings_from_association(address, association)
+        ADDRESS_MAPPINGS.each do |address_map|
+          address[address_map.first] = get_locate_value(association, "address/#{address_map.last}")
+        end
+      end
+
+      def fill_address_region_from_association(address, association)
+        case address[:country]
+        when 'MEX'
+          fill_mexico_address_from_association(address, association)
+        when 'USA'
+          fill_usa_address_from_association(address, association)
+        else
+          fill_other_address_from_association(address, association)
+        end
+      end
+
+      def fill_mexico_address_from_association(address, association)
+        address[:state] = HCA::OverridesParser::STATE_OVERRIDES['MEX'].invert[address[:state]]
+        address[:postalCode] = get_locate_value(association, 'address/postalCode')
+      end
+
+      def fill_usa_address_from_association(address, association)
+        address[:state] = get_locate_value(association, 'address/state')
+        zip_code = get_locate_value(association, 'address/zipCode')
+        zip_plus4 = get_locate_value(association, 'address/zipPlus4')
+        address[:postalCode] = zip_plus4.present? ? "#{zip_code}-#{zip_plus4}" : zip_code
+      end
+
+      def fill_other_address_from_association(address, association)
+        address[:state] = get_locate_value(association, 'address/provinceCode')
+        address[:postalCode] = get_locate_value(association, 'address/postalCode')
+      end
+
+      def fill_contact_full_name_from_association(contact, association)
+        NAME_MAPPINGS.each do |mapping|
+          contact[:fullName][mapping.first] = get_locate_value(association, mapping.last.to_s)
+        end
       end
 
       def parse_insurance_providers(response)
@@ -335,7 +417,12 @@ module HCA
 
         Date.parse(date_str).to_s
       rescue Date::Error => e
-        log_exception_to_sentry(e)
+        if Flipper.enabled?(:hca_disable_sentry_logs)
+          Rails.logger.error('[HCA] - DateError', { exception: e })
+        else
+          log_exception_to_sentry(e)
+        end
+
         PersonalInformationLog.create!(
           data: date_str,
           error_class: 'Form1010Ezr DateError'
@@ -406,7 +493,22 @@ module HCA
 
         income_year == (DateTime.now.utc.year - 1).to_s
       end
+
+      def add_contacts_to_ezr_data(ezr_data, response)
+        contacts = {
+          nextOfKins: ['Primary Next of Kin', 'Other Next of Kin'],
+          emergencyContacts: ['Emergency Contact', 'Other emergency contact']
+        }
+
+        contacts.each do |key, types|
+          selected = parse_contacts(response).select { |c| types.include?(c[:contactType]) }
+          ezr_data[key] = selected if selected.present?
+        end
+
+        ezr_data
+      end
       # rubocop:enable Metrics/MethodLength
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

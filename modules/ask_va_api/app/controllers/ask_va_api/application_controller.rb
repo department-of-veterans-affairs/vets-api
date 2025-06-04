@@ -5,17 +5,39 @@ module AskVAApi
     service_tag 'ask-va'
 
     around_action :handle_exceptions
+    # The before_action is global and applied to all actions in the controller,
+    before_action :check_maintenance_mode_in_prod
 
     private
 
+    def check_maintenance_mode_in_prod
+      maintenance_mode_enabled =
+        begin
+          Flipper.enabled?(:ask_va_api_maintenance_mode)
+        rescue => e
+          Rails.logger.error("Failed to read maintenance mode toggle: #{e.message}")
+          true # Fail safe: treat as maintenance mode ON
+        end
+
+      if maintenance_mode_enabled && Settings.vsp_environment == 'production'
+        render json: {
+                 error: 'The Ask VA service is temporarily unavailable due to scheduled maintenance. ' \
+                        'Please try again later.'
+               },
+               status: :service_unavailable
+      end
+    end
+
     def handle_exceptions
       yield
-    rescue ErrorHandler::ServiceError, Crm::ErrorHandler::ServiceError,
-           Common::Exceptions::ValidationErrors, Inquiries::InquiriesCreatorError => e
+    rescue Common::Exceptions::Unauthorized => e
+      log_and_render_error('unauthorized', e, :unauthorized)
+    rescue ErrorHandler::ServiceError,
+           Crm::ErrorHandler::ServiceError,
+           Common::Exceptions::ValidationErrors,
+           Inquiries::InquiriesCreatorError => e
 
-      status = :unprocessable_entity
-      status = :not_found if e.message.include?('No Inquiries found')
-
+      status = e.message.include?('No Inquiries found') ? :not_found : :unprocessable_entity
       log_and_render_error('service_error', e, status)
     rescue => e
       log_and_render_error('unexpected_error', e, :internal_server_error)

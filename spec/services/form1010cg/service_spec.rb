@@ -55,18 +55,20 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'raises error if claim is invalid' do
+      expected_errors = %w[primaryCaregiver secondaryCaregiverOne veteran].map do |field|
+        have_attributes(
+          title: include(" object at root is missing required properties: #{field}"),
+          detail: include(" - object at root is missing required properties: #{field}"),
+          status: '422',
+          code: '100'
+        )
+      end
+
       expect { described_class.new(SavedClaim::CaregiversAssistanceClaim.new(form: '{}')) }.to raise_error do |e|
         expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(4)
-        expect(e.errors[0].detail).to include("did not contain a required property of 'veteran'")
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[1].detail).to include("The property '#/' of type object did not match")
-        expect(e.errors[1].status).to eq('422')
-        expect(e.errors[1].code).to eq('100')
-        expect(e.errors[2].detail).to include("did not contain a required property of 'primaryCaregiver'")
-        expect(e.errors[2].status).to eq('422')
-        expect(e.errors[2].code).to eq('100')
+        expect(e.errors.size).to eq(3)
+
+        expect(e.errors).to match_array(expected_errors)
       end
     end
 
@@ -438,10 +440,28 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#assert_veteran_status' do
-    it "raises error if veteran's icn can not be found" do
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
-      expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
+    context 'with :caregiver_use_rails_logging_over_sentry enabled' do
+      it "raises error if veteran's icn can not be found" do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
+        expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+        # expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
+        expect(Rails.logger).to receive(:error).with(
+          '[10-10CG] - Error fetching Veteran ICN',
+          { error: instance_of(described_class::InvalidVeteranStatus) }
+        )
+
+        expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
+      end
+    end
+
+    context 'with :caregiver_use_rails_logging_over_sentry disabled' do
+      it "raises error if veteran's icn can not be found" do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
+        expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(described_class::InvalidVeteranStatus))
+
+        expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
+      end
     end
 
     it "does not raise error if veteran's icn is found" do
@@ -529,6 +549,15 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'submits to mulesoft' do
+        start_time = Time.current
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+        expected_arguments = { context: :process, event: :success, start_time: }
+        expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+          **expected_arguments
+        )
+
         subject
         expect(mule_soft_client).to have_received(:create_submission_v2).with(mule_soft_payload)
       end
@@ -559,14 +588,47 @@ RSpec.describe Form1010cg::Service do
         allow(mule_soft_client).to receive(:create_submission_v2).and_raise(exception)
       end
 
-      it 'logs claim_guid for any exceptions and raises error' do
-        expect(service).to receive(:log_exception_to_sentry)
-          .with(exception, {
-                  form: '10-10CG',
-                  claim_guid: claim_with_mpi_veteran.guid
-                })
+      context 'with :caregiver_use_rails_logging_over_sentry enabled' do
+        it 'logs claim_guid for any exceptions and raises error' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(true)
+          expect(Rails.logger).to receive(:error).with(
+            '[10-10CG] - Error processing Caregiver submission',
+            { form: '10-10CG', exception:, claim_guid: claim_with_mpi_veteran.guid }
+          )
 
-        expect { subject }.to raise_error(exception)
+          start_time = Time.current
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+          expected_arguments = { context: :process, event: :failure, start_time: }
+          expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+            **expected_arguments
+          )
+
+          expect { subject }.to raise_error(exception)
+        end
+      end
+
+      context 'with :caregiver_use_rails_logging_over_sentry disabled' do
+        it 'logs claim_guid for any exceptions and raises error' do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_rails_logging_over_sentry).and_return(false)
+          expect(service).to receive(:log_exception_to_sentry)
+            .with(exception, {
+                    form: '10-10CG',
+                    claim_guid: claim_with_mpi_veteran.guid
+                  })
+
+          start_time = Time.current
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC) { start_time }
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :float_millisecond)
+          allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_millisecond)
+          expected_arguments = { context: :process, event: :failure, start_time: }
+          expect(described_class::AUDITOR).to receive(:log_caregiver_request_duration).with(
+            **expected_arguments
+          )
+
+          expect { subject }.to raise_error(exception)
+        end
       end
     end
   end

@@ -44,6 +44,59 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
   end
 
+  # spec/support/shared_examples/loa3_protected.rb
+
+  shared_examples_for 'an endpoint requiring loa3' do |http_method, endpoint, request_options = {}|
+    let(:loa1_user) { build(:user) }
+
+    before do
+      sign_in(loa1_user)
+      send(http_method, endpoint, **request_options)
+    end
+
+    it 'returns unauthorized for LOA1 users' do
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'ask_va_api_maintenance_mode' do
+    # We test the maintenance mode using one representative action here.
+    # The before_action is global and applied to all actions in the controller,
+    # so one test is sufficient unless the before_action becomes scoped in the future.
+    let(:feature_toggle) { true }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:ask_va_api_maintenance_mode).and_return(feature_toggle)
+      allow(Settings).to receive(:vsp_environment).and_return('production')
+      sign_in(authorized_user)
+      get inquiry_path, params: { user_mock_data: true, page: 1, per_page: 10 }
+    end
+
+    context 'when true' do
+      it 'returns 503 Service Unavailable' do
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+
+    context 'when false' do
+      let(:feature_toggle) { false }
+
+      it 'returns 200' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when Flipper raises an error' do
+      before do
+        allow(Flipper).to receive(:enabled?).and_raise(StandardError.new('boom'))
+      end
+
+      it 'fails safe and returns 503 Service Unavailable' do
+        expect(response).to have_http_status(:service_unavailable)
+      end
+    end
+  end
+
   describe 'GET #index' do
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
@@ -129,6 +182,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
 
       it { expect(response).to have_http_status(:unauthorized) }
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/inquiries'
   end
 
   describe 'GET #show' do
@@ -285,44 +340,52 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                         'ID A-20240423-30709","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
       end
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/inquiries/A-1',
+                    { params: { user_mock_data: true } }
   end
 
   describe 'GET #download_attachment' do
     let(:id) { '1' }
 
-    before do
-      sign_in(authorized_user)
-    end
-
-    context 'when successful' do
+    context 'when a user is loa3' do
       before do
-        get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+        sign_in(authorized_user)
       end
 
-      it 'response with 200' do
-        expect(response).to have_http_status(:ok)
+      context 'when successful' do
+        before do
+          get '/ask_va_api/v0/download_attachment', params: { id:, mock: true }
+        end
+
+        it 'response with 200' do
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when Crm raise an error' do
+        let(:body) do
+          '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
+            '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
+            ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
+        end
+        let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
+        before do
+          allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
+          allow_any_instance_of(Crm::Service).to receive(:call)
+            .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
+          get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
+        end
+
+        it 'raise the error' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
       end
     end
 
-    context 'when Crm raise an error' do
-      let(:body) do
-        '{"Data":null,"Message":"Data Validation: Invalid GUID, Parsing Failed",' \
-          '"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: Invalid GUID,' \
-          ' Parsing Failed","MessageId":"c14c61c4-a3a8-4200-8c86-bdc09c261308"}'
-      end
-      let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
-      before do
-        allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-        allow_any_instance_of(Crm::Service).to receive(:call)
-          .with(endpoint: 'attachment', payload: { id: '1' }).and_return(failure)
-        get '/ask_va_api/v0/download_attachment', params: { id:, mock: nil }
-      end
-
-      it 'raise the error' do
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
-    end
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/download_attachment',
+                    { params: { id:, mock: true } }
   end
 
   describe 'GET #profile' do
@@ -367,6 +430,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                       ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: No Contact found ' \
                       '","MessageId":"ca5b990a-63fe-407d-a364-46caffce12c1"}'
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :get, '/ask_va_api/v0/profile', { params: { user_mock_data: true } }
   end
 
   describe 'GET #status' do
@@ -461,59 +526,63 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
     end
 
     context 'POST #create' do
-      context 'when successful' do
-        before do
-          allow_any_instance_of(Crm::Service).to receive(:call)
-            .and_return({
-                          Data: {
-                            Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
-                          },
-                          Message: '',
-                          ExceptionOccurred: false,
-                          ExceptionMessage: '',
-                          MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
-                        })
-          sign_in(authorized_user)
-          # inquiry_params is in include_context 'shared data'
-          post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
-        end
-
-        it { expect(response).to have_http_status(:created) }
-      end
-
-      context 'when crm api fail' do
-        context 'when the API call fails' do
-          let(:body) do
-            '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
-              ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
-              'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
-          end
-          let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
-
+      context 'when user is loa3' do
+        context 'when successful' do
           before do
             allow_any_instance_of(Crm::Service).to receive(:call)
-              .and_return(failure)
+              .and_return({
+                            Data: {
+                              Id: '530d56a8-affd-ee11-a1fe-001dd8094ff1'
+                            },
+                            Message: '',
+                            ExceptionOccurred: false,
+                            ExceptionMessage: '',
+                            MessageId: 'b8ebd8e7-3bbf-49c5-aff0-99503e50ee27'
+                          })
             sign_in(authorized_user)
+            # inquiry_params is in include_context 'shared data'
             post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
           end
 
-          it 'raise InquiriesCreatorError and set span safe_fields' do
-            expect(response).to have_http_status(:unprocessable_entity)
-            safe_fields.each do |field|
-              expect(span).to have_received(:set_tag).with(
-                "safe_field.#{field}",
-                inquiry_params[:inquiry][field]
-              )
-            end
-          end
+          it { expect(response).to have_http_status(:created) }
+        end
 
-          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'InquiriesCreatorError: {"Data":null,"Message":' \
-                          '"Data Validation: missing InquiryCategory"' \
-                          ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
-                          'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+        context 'when crm api fail' do
+          context 'when the API call fails' do
+            let(:body) do
+              '{"Data":null,"Message":"Data Validation: missing InquiryCategory"' \
+                ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+            end
+            let(:failure) { Faraday::Response.new(response_body: body, status: 400) }
+
+            before do
+              allow_any_instance_of(Crm::Service).to receive(:call)
+                .and_return(failure)
+              sign_in(authorized_user)
+              post '/ask_va_api/v0/inquiries/auth', params: inquiry_params
+            end
+
+            it 'raise InquiriesCreatorError and set span safe_fields' do
+              expect(response).to have_http_status(:unprocessable_entity)
+              safe_fields.each do |field|
+                expect(span).to have_received(:set_tag).with(
+                  "safe_field.#{field}",
+                  inquiry_params[:inquiry][field]
+                )
+              end
+            end
+
+            it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                            'InquiriesCreatorError: {"Data":null,"Message":' \
+                            '"Data Validation: missing InquiryCategory"' \
+                            ',"ExceptionOccurred":true,"ExceptionMessage":"Data Validation: missing' \
+                            'InquiryCategory","MessageId":"cb0dd954-ef25-4e56-b0d9-41925e5a190c"}'
+          end
         end
       end
+
+      it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/auth', { params: { inquiry: {} } }
     end
 
     context 'POST #unauth_create' do
@@ -601,7 +670,11 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload: { Reply: 'this is my reply', ListOfAttachments: nil }).and_return(failure)
+                  payload: {
+                    icn: authorized_user.icn,
+                    Reply: 'this is my reply',
+                    ListOfAttachments: nil
+                  }).and_return(failure)
           post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
         end
 
@@ -616,5 +689,8 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
                         'Missing Reply","MessageId":"e2cbe041-df91-41f4-8bd2-8b6d9dbb2e38"}'
       end
     end
+
+    it_behaves_like 'an endpoint requiring loa3', :post, '/ask_va_api/v0/inquiries/123/reply/new',
+                    { params: { reply: 'reply' } }
   end
 end

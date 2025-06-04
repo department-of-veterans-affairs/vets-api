@@ -10,8 +10,12 @@ describe Eps::ProviderService do
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
 
   before do
-    allow(config).to receive(:base_path).and_return('api/v1')
+    allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow(service).to receive_messages(config:, headers:)
+    allow(Rails.logger).to receive(:info)
+    allow(Rails.logger).to receive(:error)
+    allow(Rails.logger).to receive(:debug)
+    allow(Rails.logger).to receive(:public_send)
   end
 
   describe '#get_provider_services' do
@@ -21,7 +25,8 @@ describe Eps::ProviderService do
                                                 providerServices: [
                                                   { id: '1Awee9b5', name: 'Provider 1' },
                                                   { id: '2Awee9b5', name: 'Provider 2' }
-                                                ] })
+                                                ] },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -57,7 +62,8 @@ describe Eps::ProviderService do
 
     context 'when the request is successful' do
       let(:response) do
-        double('Response', status: 200, body: { id: provider_id, name: 'Provider 1' })
+        double('Response', status: 200, body: { id: provider_id, name: 'Provider 1' },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -96,7 +102,8 @@ describe Eps::ProviderService do
                                                 networks: [
                                                   { id: 'network-5vuTac8v', name: 'Care Navigation' },
                                                   { id: 'network-2Awee9b5', name: 'Take Care Navigation' }
-                                                ] })
+                                                ] },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -145,20 +152,21 @@ describe Eps::ProviderService do
     context 'when the request is successful' do
       let(:response) do
         double('Response', status: 200, body: {
-                 'destinations' => {
-                   '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
-                     'distanceInMiles' => '4',
-                     'driveTimeInSecondsWithTraffic' => '566',
-                     'driveTimeInSecondsWithoutTraffic' => '493',
-                     'latitude' => '-74.12870564772521',
-                     'longitude' => '-151.6240405624497'
-                   }
-                 },
-                 'origin' => {
-                   'latitude' => '4.627174468915552',
-                   'longitude' => '-88.72187894562788'
-                 }
-               })
+                                          'destinations' => {
+                                            '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
+                                              'distanceInMiles' => '4',
+                                              'driveTimeInSecondsWithTraffic' => '566',
+                                              'driveTimeInSecondsWithoutTraffic' => '493',
+                                              'latitude' => '-74.12870564772521',
+                                              'longitude' => '-151.6240405624497'
+                                            }
+                                          },
+                                          'origin' => {
+                                            'latitude' => '4.627174468915552',
+                                            'longitude' => '-88.72187894562788'
+                                          }
+                                        },
+                           response_headers: { 'Content-Type' => 'application/json' })
       end
 
       before do
@@ -204,7 +212,8 @@ describe Eps::ProviderService do
                                               slots: [
                                                 { id: 'slot1', providerServiceId: '9mN718pH' },
                                                 { id: 'slot2', providerServiceId: '9mN718pH' }
-                                              ] })
+                                              ] },
+                         response_headers: { 'Content-Type' => 'application/json' })
     end
 
     context 'when provider_id is invalid' do
@@ -230,9 +239,12 @@ describe Eps::ProviderService do
     context 'when nextToken is provided' do
       it 'makes request with nextToken parameter' do
         next_token = 'token123'
+        response = double('Response', status: 200, body: valid_response.body,
+                                      response_headers: { 'Content-Type' => 'application/json' })
+
         expect_any_instance_of(VAOS::SessionService).to receive(:perform)
           .with(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", { nextToken: next_token }, headers)
-          .and_return(OpenStruct.new(valid_response.body))
+          .and_return(response)
 
         service.get_provider_slots(provider_id, nextToken: next_token)
       end
@@ -330,7 +342,10 @@ describe Eps::ProviderService do
           }
         end
 
-        let(:response) { double('Response', status: 200, body: response_body) }
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform)
@@ -338,44 +353,10 @@ describe Eps::ProviderService do
             .and_return(response)
         end
 
-        it 'returns an OpenStruct with the matching provider' do
+        it 'returns an OpenStruct with the first provider' do
           result = service.search_provider_services(npi:)
           expect(result).to be_a(OpenStruct)
           expect(result.id).to eq('53mL4LAZ')
-        end
-      end
-
-      context 'when no provider with matching NPI exists' do
-        let(:response_body) do
-          {
-            count: 1,
-            providerServices: [
-              {
-                id: '53mL4LAZ',
-                name: 'Dr. Monty Graciano @ FHA Kissimmee Medical Campus',
-                isActive: true,
-                individualProviders: [
-                  {
-                    name: 'Dr. Monty Graciano',
-                    npi: '1234567890' # Different NPI
-                  }
-                ]
-              }
-            ]
-          }
-        end
-
-        let(:response) { double('Response', status: 200, body: response_body) }
-
-        before do
-          allow_any_instance_of(VAOS::SessionService).to receive(:perform)
-            .with(:get, "/#{config.base_path}/provider-services", { npi: }, headers)
-            .and_return(response)
-        end
-
-        it 'returns nil' do
-          result = service.search_provider_services(npi:)
-          expect(result).to be_nil
         end
       end
 
@@ -383,11 +364,14 @@ describe Eps::ProviderService do
         let(:response_body) do
           {
             count: 0,
-            providerServices: []
+            provider_services: []
           }
         end
 
-        let(:response) { double('Response', status: 200, body: response_body) }
+        let(:response) do
+          double('Response', status: 200, body: response_body,
+                             response_headers: { 'Content-Type' => 'application/json' })
+        end
 
         before do
           allow_any_instance_of(VAOS::SessionService).to receive(:perform)

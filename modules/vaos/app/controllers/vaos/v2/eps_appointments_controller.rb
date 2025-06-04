@@ -9,39 +9,26 @@ module VAOS
           retrieve_latest_details: true
         )
 
-        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
-
-        referral_detail = fetch_referral_detail(appointment)
-        provider = fetch_provider(appointment)
-        enriched_provider = Eps::EnrichedProvider.from_referral(provider, referral_detail)
-
-        response = OpenStruct.new(
-          id: appointment[:id],
-          appointment:,
-          provider: enriched_provider
-        )
-
-        render json: Eps::EpsAppointmentSerializer.new(response)
+        response_object = assemble_appt_response_object(appointment)
+        render json: response_object
       end
 
       private
 
       ##
-      # Retrieves referral details from CCRA service for the given appointment if a referral number is present.
+      # Assembles a structured response object for an EPS appointment by:
+      # 1. Fetching referral details if a referral number exists
+      # 2. Fetching provider information if a provider service ID exists
+      # 3. Creating a comprehensive EpsAppointment object with all related data
+      # 4. Serializing the appointment object
       #
-      # @param appointment [Hash] The appointment data containing referral information
-      # @return [Ccra::ReferralDetail, nil] The referral details if found, nil otherwise
-      def fetch_referral_detail(appointment)
-        referral_number = appointment.dig(:referral, :referral_number)
-        return nil if referral_number.blank?
+      # @param appointment_data [Hash] Raw appointment data from the EPS service
+      # @return [Eps::EpsAppointmentSerializer] Serialized appointment with referral and provider data
+      def assemble_appt_response_object(appointment)
+        provider = fetch_provider(appointment)
+        eps_appointment = VAOS::V2::EpsAppointment.new(appointment, provider)
 
-        begin
-          # TODO: Need correct mode parameter, this one is hard-coded based on examples
-          ccra_referral_service.get_referral(referral_number, '2')
-        rescue => e
-          Rails.logger.error "Failed to retrieve referral details: #{e.message}"
-          nil
-        end
+        Eps::EpsAppointmentSerializer.new(eps_appointment)
       end
 
       ##
@@ -70,10 +57,6 @@ module VAOS
 
       def appointment_service
         @appointment_service ||= Eps::AppointmentService.new(current_user)
-      end
-
-      def ccra_referral_service
-        @ccra_referral_service ||= Ccra::ReferralService.new(current_user)
       end
 
       def provider

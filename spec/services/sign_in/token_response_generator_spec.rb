@@ -5,13 +5,13 @@ require 'rails_helper'
 RSpec.describe SignIn::TokenResponseGenerator do
   subject(:generator) { described_class.new(params:, cookies:, request_attributes:) }
 
-  let(:remote_ip) { '127.0.0.1' }
-  let(:user_agent) { 'Mozilla/5.0' }
-  let(:request_attributes) { { remote_ip:, user_agent: } }
-  let(:request) { double('request', remote_ip:, user_agent:) }
-  let(:cookies) { double('cookies', request:) }
+  let(:request_attributes) { { remote_ip: } }
+  let(:remote_ip) { Faker::Internet.ip_v4_address }
+  let(:cookies) { double('cookies') }
 
-  before { allow(Rails.logger).to receive(:info) }
+  before do
+    allow(Rails.logger).to receive(:info)
+  end
 
   describe '#perform' do
     context 'when grant_type is AUTH_CODE_GRANT' do
@@ -32,9 +32,6 @@ RSpec.describe SignIn::TokenResponseGenerator do
       let(:session_container) { create(:session_container) }
       let(:code_validator) { instance_double(SignIn::CodeValidator, perform: validated_credential) }
       let(:session_creator) { instance_double(SignIn::SessionCreator, perform: session_container) }
-      let(:user_action_event_identifier) { 'sign_in' }
-      let(:user_action_event) { create(:user_action_event, identifier: user_action_event_identifier) }
-      let(:user_action) { create(:user_action, user_action_event:) }
       let(:token_serializer) { instance_double(SignIn::TokenSerializer, perform: expected_token_response) }
       let(:expected_token_response) do
         {
@@ -47,19 +44,10 @@ RSpec.describe SignIn::TokenResponseGenerator do
         }
       end
       let(:expected_log_message) { '[SignInService] [SignIn::TokenResponseGenerator] session created' }
-      let(:expected_audit_log) { 'User audit log created' }
-      let(:expected_audit_log_payload) do
-        { user_action_event: user_action_event.id,
-          user_action_event_details: user_action_event.details,
-          status: :success,
-          user_action: user_action.id }
-      end
 
       before do
         allow(SignIn::CodeValidator).to receive(:new).and_return(code_validator)
         allow(SignIn::SessionCreator).to receive(:new).and_return(session_creator)
-        allow(UserAction).to receive(:create!).and_return(user_action)
-        allow(UserAuditLogger).to receive(:new).and_call_original
         allow(SignIn::TokenSerializer).to receive(:new).and_return(token_serializer)
       end
 
@@ -72,14 +60,38 @@ RSpec.describe SignIn::TokenResponseGenerator do
         expect(Rails.logger).to have_received(:info).with(expected_log_message, access_token.to_s)
       end
 
-      it 'creates a user audit log' do
-        subject.perform
-        expect(UserAuditLogger).to have_received(:new).with(user_action_event_identifier:,
-                                                            subject_user_verification: user_verification,
-                                                            status: :success,
-                                                            acting_ip_address: remote_ip,
-                                                            acting_user_agent: user_agent)
-        expect(Rails.logger).to have_received(:info).with(expected_audit_log, expected_audit_log_payload).once
+      context 'when UserAudit logger is called' do
+        let(:event) { :sign_in }
+        let(:user_account) { user_verification.user_account }
+        let!(:user_action_event) { create(:user_action_event, identifier: event) }
+        let(:icn) { user_account.icn }
+        let(:user_agent) { Faker::Internet.user_agent }
+        let(:expected_log_payload) do
+          {
+            event: :sign_in,
+            user_verification_id: user_verification.id,
+            status: :success
+          }
+        end
+        let(:expected_log_tags) { { remote_ip:, user_agent: } }
+        let(:expected_audit_log_message) do
+          expected_log_payload.merge(acting_ip_address: remote_ip, acting_user_agent: user_agent).as_json
+        end
+
+        before do
+          allow(SemanticLogger).to receive(:named_tags).and_return(expected_log_tags)
+          allow(UserAudit.logger).to receive(:success).and_call_original
+        end
+
+        it 'creates a user audit log' do
+          expect { subject.perform }.to change(Audit::Log, :count).by(1)
+          expect(UserAudit.logger).to have_received(:success).with(event:, user_verification:)
+        end
+
+        it 'creates a user action' do
+          expect { subject.perform }.to change(UserAction, :count).by(1)
+          expect(UserAudit.logger).to have_received(:success).with(event: :sign_in, user_verification:)
+        end
       end
     end
 

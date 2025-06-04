@@ -33,6 +33,8 @@ module Lighthouse
 
       def perform(user_icn, document_hash, evidence_submission_id = nil)
         @user_icn = user_icn
+        document_hash.delete('file_obj')
+        document_hash.delete(:file_obj)
         @document_hash = document_hash
 
         initialize_upload_document
@@ -70,9 +72,6 @@ module Lighthouse
           }.to_json
         )
         add_log('FAILED', evidence_submission.claim_id, evidence_submission.id, msg['jid'])
-        message = "#{name} EvidenceSubmission updated"
-        StatsD.increment('silent_failure_avoided_no_confirmation',
-                         tags: ['service:claim-status', "function: #{message}"])
       rescue => e
         error_message = "#{name} failed to update EvidenceSubmission"
         ::Rails.logger.error(error_message, { message: e.message })
@@ -87,8 +86,6 @@ module Lighthouse
         Lighthouse::FailureNotification.perform_async(icn, create_personalisation(msg))
 
         ::Rails.logger.info("#{name} exhaustion handler email queued")
-        StatsD.increment('silent_failure_avoided_no_confirmation',
-                         tags: ['service:claim-status', 'function: evidence upload to Lighthouse'])
       rescue => e
         ::Rails.logger.error("#{name} exhaustion handler email error",
                              { message: e.message })

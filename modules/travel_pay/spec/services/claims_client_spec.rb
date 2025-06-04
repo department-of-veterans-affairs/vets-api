@@ -41,7 +41,7 @@ describe TravelPay::ClaimsClient do
     # GET
     it 'returns response from claims endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('/api/v1.2/claims') do
+      @stubs.get('/api/v2/claims') do
         [
           200,
           {},
@@ -94,7 +94,7 @@ describe TravelPay::ClaimsClient do
 
     it 'returns response from claims/:id endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('/api/v1.2/claims/uuid1') do
+      @stubs.get('/api/v2/claims/uuid1') do
         [
           200,
           {},
@@ -103,11 +103,12 @@ describe TravelPay::ClaimsClient do
               {
                 'claimId' => 'uuid1',
                 'claimNumber' => 'TC0000000000001',
+                'claimName' => 'Claim created for NOLLE BARAKAT',
                 'claimantFirstName' => 'Nolle',
                 'claimantMiddleName' => 'Polite',
                 'claimantLastName' => 'Barakat',
                 'claimStatus' => 'PreApprovedForPayment',
-                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                'appointmentDate' => '2024-01-01T16:45:34.465Z',
                 'facilityName' => 'Cheyenne VA Medical Center',
                 'totalCostRequested' => 20.00,
                 'reimbursementAmount' => 14.52,
@@ -160,7 +161,7 @@ describe TravelPay::ClaimsClient do
 
     it 'returns response from claims/search endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
-      @stubs.get('api/v1.2/claims/search-by-appointment-date') do
+      @stubs.get('api/v2/claims/search-by-appointment-date') do
         [
           200,
           {},
@@ -210,7 +211,7 @@ describe TravelPay::ClaimsClient do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
                'claimantType' => 'Veteran' }.to_json
-      @stubs.post('api/v1.2/claims') do
+      @stubs.post('api/v2/claims') do
         [
           200,
           {},
@@ -238,7 +239,7 @@ describe TravelPay::ClaimsClient do
     it 'returns a claim ID from the claims endpoint after submitting a claim' do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
 
-      expect_any_instance_of(Faraday::Connection).to receive(:patch).with("api/v1.2/claims/#{claim_id}/submit")
+      expect_any_instance_of(Faraday::Connection).to receive(:patch).with("api/v2/claims/#{claim_id}/submit")
 
       client = TravelPay::ClaimsClient.new
       client.submit_claim('veis_token', 'btsss_token', claim_id)

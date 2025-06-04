@@ -30,18 +30,20 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
   describe '#submit_financial_status_report' do
     let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:user_data) { build(:user_profile_attributes) }
 
-    context 'The flipper is turned on' do
+    context 'The :combined_financial_status_report flipper is turned on' do
       before do
-        Flipper.enable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:combined_financial_status_report).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
       it 'submits combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in)
             expect(service).to receive(:submit_combined_fsr)
             service.submit_financial_status_report(combined_form_data)
           end
@@ -49,15 +51,43 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    context 'The flipper is turned off' do
+    context 'The :combined_financial_status_report flipper is turned off' do
       before do
-        Flipper.disable(:combined_financial_status_report)
+        allow(Flipper).to receive(:enabled?).with(:combined_financial_status_report).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
       end
 
       it 'ignores flipper and uses combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).not_to receive(:perform_in)
+            expect(service).to receive(:submit_combined_fsr)
+            service.submit_financial_status_report(combined_form_data)
+          end
+        end
+      end
+    end
+
+    context 'The :fsr_zero_silent_errors_in_progress_email flipper is turned on' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:combined_financial_status_report).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
+      end
+
+      it 'fires the confirmation email' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            expect(DebtsApi::V0::Form5655::SendConfirmationEmailJob).to receive(:perform_in).with(
+              5.minutes,
+              {
+                'email' => user.email,
+                'first_name' => user.first_name,
+                'template_id' => 'fake_template_id',
+                'user_uuid' => user.uuid
+              }
+            )
             expect(service).to receive(:submit_combined_fsr)
             service.submit_financial_status_report(combined_form_data)
           end
@@ -68,7 +98,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
   describe '#get_pdf' do
     let(:filenet_id) { 'ABCD-1234' }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     context 'when FSR is missing from redis' do
       it 'raises an error' do
@@ -99,7 +129,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
   describe '#submit_vba_fsr' do
     let(:valid_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_submission') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:user_data) { build(:user_profile_attributes) }
     let(:malformed_form_data) do
       { 'bad' => 'data' }
@@ -107,6 +137,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:mock_success_response) { double('FaradayResponse', status: 201, success?: true, body: valid_form_data) }
 
     context 'with valid form data' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
+      end
+
       it 'accepts the submission' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
@@ -132,6 +166,18 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
               },
               { id_type: 'email' }
             )
+            service.submit_vba_fsr(valid_form_data)
+          end
+        end
+      end
+
+      it 'does not send a confirmation email' do
+        allow(Settings).to receive(:vsp_environment).and_return('production')
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user_data)
+            expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
             service.submit_vba_fsr(valid_form_data)
           end
         end
@@ -301,7 +347,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     context 'failure' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:debts_silent_failure_mailer).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging).and_return(false)
       end
 
@@ -318,7 +363,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         )
 
         Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
-          VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
             expect do
               service.submit_vha_fsr(form_submission)
             end.to raise_error(Common::Exceptions::BackendServiceException,
@@ -345,7 +390,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
           )
 
           Timecop.freeze(Time.new(2023, 8, 29, 16, 13, 22).utc) do
-            VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+            VCR.use_cassette('vha/sharepoint/upload_pdf_400_response', allow_playback_repeats: true) do
               expect { service.submit_vha_fsr(form_submission) }
                 .to raise_error(Common::Exceptions::BackendServiceException) do |e|
                 error_details = e.errors.first
@@ -378,7 +423,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
     let(:combined_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/combined_fsr_form') }
-    let!(:user) { build(:user, :loa3) }
+    let!(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
@@ -459,7 +504,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   describe '#create_vba_fsr' do
     let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:valid_vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     before do
       allow(User).to receive(:find).with(user.uuid).and_return(user)
@@ -481,7 +526,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   describe '#create_vha_fsr' do
     let(:valid_vba_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vba_fsr_form') }
     let(:valid_vha_form_data) { get_fixture_absolute('modules/debts_api/spec/fixtures/fsr_forms/vha_fsr_form') }
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
     before do
       mock_sharepoint_upload
@@ -513,23 +558,49 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
   end
 
   describe '#send_vha_confirmation_email' do
-    it 'creates a va notify job' do
-      email = 'foo@bar.com'
-      email_personalization_info = {
-        'name' => 'Joe',
-        'time' => '48 hours',
-        'date' => Time.zone.now.strftime('%m/%d/%Y')
-      }
-      service = described_class.new
-      expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
-        email,
-        described_class::VHA_CONFIRMATION_TEMPLATE,
-        email_personalization_info,
-        { id_type: 'email', failure_mailer: false }
-      )
-      service.send_vha_confirmation_email('ok',
-                                          { 'email' => email,
-                                            'email_personalization_info' => email_personalization_info })
+    context 'fsr_zero_silent_errors_in_progress_email is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(false)
+      end
+
+      it 'creates a va notify job' do
+        email = 'foo@bar.com'
+        email_personalization_info = {
+          'name' => 'Joe',
+          'time' => '48 hours',
+          'date' => Time.zone.now.strftime('%m/%d/%Y')
+        }
+        service = described_class.new
+        expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+          email,
+          described_class::VHA_CONFIRMATION_TEMPLATE,
+          email_personalization_info,
+          { id_type: 'email', failure_mailer: false }
+        )
+        service.send_vha_confirmation_email('ok',
+                                            { 'email' => email,
+                                              'email_personalization_info' => email_personalization_info })
+      end
+    end
+
+    context 'fsr_zero_silent_errors_in_progress_email is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:fsr_zero_silent_errors_in_progress_email).and_return(true)
+      end
+
+      it 'creates a va notify job' do
+        email = 'foo@bar.com'
+        email_personalization_info = {
+          'name' => 'Joe',
+          'time' => '48 hours',
+          'date' => Time.zone.now.strftime('%m/%d/%Y')
+        }
+        service = described_class.new
+        expect(DebtManagementCenter::VANotifyEmailJob).not_to receive(:perform_async)
+        service.send_vha_confirmation_email('ok',
+                                            { 'email' => email,
+                                              'email_personalization_info' => email_personalization_info })
+      end
     end
   end
 end

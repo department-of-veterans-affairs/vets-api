@@ -249,11 +249,10 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
       end
 
-      context 'when both friendly-language flippers are disabled' do
+      context 'when :cst_friendly_evidence_requests is disabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_third_party).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_first_party).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests).and_return(false)
         end
 
         it 'does not modify the claim data and leaves the less-readable data as-is' do
@@ -265,18 +264,19 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           expect(can_upload_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
           friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
           expect(friendly_name_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
-          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
-          expect(friendly_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
+          activity_description_values = tracked_items.map { |i| i['activityDescription'] }
+          expect(activity_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
+          short_description_values = tracked_items.map { |i| i['shortDescription'] }
+          expect(short_description_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }
           expect(support_alias_values).to eq([nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil])
         end
       end
 
-      context 'when both friendly-language flippers are enabled' do
+      context 'when :cst_friendly_evidence_requests is enabled' do
         before do
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_third_party).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_first_party).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests).and_return(true)
         end
 
         it 'modifies the claim data to include additional, human-readable fields' do
@@ -285,136 +285,52 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
           end
           tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
           can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-          expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, true, true,
+          expect(can_upload_values).to eq([true, true, true, true, true, true, false, true, true, true, false, false,
                                            true])
           friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
-          expect(friendly_name_values).to include('Authorization to Disclose Information')
-          expect(friendly_name_values).to include('Proof of Service')
+          expect(friendly_name_values).to include('Authorization to disclose information')
+          expect(friendly_name_values).to include('Proof of service')
           expect(friendly_name_values).to include('Employment information')
           expect(friendly_name_values).to include('Direct deposit information')
           expect(friendly_name_values).to include('Details about cause of PTSD')
           expect(friendly_name_values).to include('Reserve records')
-          expect(friendly_name_values).to include('Proof of Service')
           expect(friendly_name_values).to include('Non-VA medical records')
           expect(friendly_name_values).to include('Disability exam for hearing')
           expect(friendly_name_values).to include('Mental health exam')
-          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
-          expect(friendly_description_values).to include('We need your permission to request your personal' \
+          activity_description_values = tracked_items.map { |i| i['activityDescription'] }
+          expect(activity_description_values).to include('We need your permission to request your personal' \
                                                          ' information from a non-VA source, like a private' \
                                                          ' doctor or hospital.')
-          expect(friendly_description_values).to include('We need copies of your separation papers for all' \
-                                                         ' periods of service.')
-          expect(friendly_description_values).to include('We need employment information from your most' \
+          expect(activity_description_values).to include('We need employment information from your most' \
                                                          ' recent employer.')
-          expect(friendly_description_values).to include('We need your direct deposit information in' \
+          expect(activity_description_values).to include('We need your direct deposit information in' \
                                                          ' order to pay benefits, if awarded.')
-          expect(friendly_description_values).to include('We need information about the cause of' \
+          expect(activity_description_values).to include('We need information about the cause of' \
                                                          ' your posttraumatic stress disorder (PTSD).')
-          expect(friendly_description_values).to include('We\'ve requested your reserve records on' \
+          expect(activity_description_values).to include('We\'ve requested your reserve records on' \
                                                          ' your behalf. No action is needed.')
-          expect(friendly_description_values).to include('We\'ve requested your Proof of Service on' \
+          expect(activity_description_values).to include('We\'ve requested your proof of service on' \
                                                          ' your behalf. No action is needed.')
-          expect(friendly_description_values).to include('We\'ve requested your non-VA medical records on' \
+          expect(activity_description_values).to include('We\'ve requested your non-VA medical records on' \
                                                          ' your behalf. No action is needed.')
-          expect(friendly_description_values).to include('We\'ve requested a disability exam for your hearing.' \
+          expect(activity_description_values).to include('We\'ve requested a disability exam for your hearing.' \
                                                          ' The examiner\'s office will contact you to schedule' \
                                                          ' this appointment.')
-          expect(friendly_description_values).to include('We\'ve requested a mental health exam for you.' \
+          expect(activity_description_values).to include('We\'ve requested a mental health exam for you.' \
                                                          ' The examiner\'s office will contact you to schedule' \
                                                          ' this appointment.')
+          short_description_values = tracked_items.map { |i| i['shortDescription'] }
+          expect(short_description_values).to include('For your benefits claim, we\'ve requested your service' \
+                                                      ' records or treatment records from your reserve unit.')
+          expect(short_description_values).to include('For your benefits claim, we\'ve requested all your' \
+                                                      ' DD Form 214\'s or other separation papers for all' \
+                                                      ' your periods of military service.')
           support_alias_values = tracked_items.map { |i| i['supportAliases'] }
-          expect(support_alias_values).to include(['VA Form 21-4142'])
-          expect(support_alias_values).to include(['Form DD214'])
+          expect(support_alias_values).to include(['21-4142/21-4142a'])
           expect(support_alias_values).to include(['VA Form 21-4192'])
           expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
           expect(support_alias_values).to include(['VA Form 21-0781', 'PTSD - Need stressor details'])
           expect(support_alias_values).to include(['RV1 - Reserve Records Request'])
-          expect(support_alias_values).to include(['Proof of Service (DD214, etc.)'])
-          expect(support_alias_values).to include(['PMR Request', 'General Records Request (Medical)'])
-          expect(support_alias_values).to include(['General Records Request (Medical)', 'PMR Request'])
-          expect(support_alias_values).to include(['DBQ AUDIO Hearing Loss and Tinnitus'])
-          expect(support_alias_values).to include(['DBQ PSYCH Mental Disorders'])
-        end
-      end
-
-      context 'when only :cst_friendly_evidence_requests_first_party is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_third_party).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_first_party).and_return(true)
-        end
-
-        it 'modifies the claim data to include additional, human-readable fields' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
-          can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-          expect(can_upload_values).to eq([nil, true, true, true, true, true, false, true, nil, nil, nil, nil, nil])
-          friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
-          expect(friendly_name_values).to include('Authorization to Disclose Information')
-          expect(friendly_name_values).to include('Proof of Service')
-          expect(friendly_name_values).to include('Employment information')
-          expect(friendly_name_values).to include('Direct deposit information')
-          expect(friendly_name_values).to include('Details about cause of PTSD')
-          expect(friendly_name_values).to include('Reserve records')
-          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
-          expect(friendly_description_values).to include('We need your permission to request your personal' \
-                                                         ' information from a non-VA source, like a private' \
-                                                         ' doctor or hospital.')
-          expect(friendly_description_values).to include('We need copies of your separation papers for all' \
-                                                         ' periods of service.')
-          expect(friendly_description_values).to include('We need employment information from your most' \
-                                                         ' recent employer.')
-          expect(friendly_description_values).to include('We need your direct deposit information in' \
-                                                         ' order to pay benefits, if awarded.')
-          expect(friendly_description_values).to include('We need information about the cause of' \
-                                                         ' your posttraumatic stress disorder (PTSD).')
-          expect(friendly_description_values).to include('We\'ve requested your reserve records on' \
-                                                         ' your behalf. No action is needed.')
-          support_alias_values = tracked_items.map { |i| i['supportAliases'] }
-          expect(support_alias_values).to include(['VA Form 21-4142'])
-          expect(support_alias_values).to include(['Form DD214'])
-          expect(support_alias_values).to include(['VA Form 21-4192'])
-          expect(support_alias_values).to include(['EFT - Treasure Mandate Notification'])
-          expect(support_alias_values).to include(['VA Form 21-0781', 'PTSD - Need stressor details'])
-          expect(support_alias_values).to include(['RV1 - Reserve Records Request'])
-        end
-      end
-
-      context 'when only :cst_friendly_evidence_requests_third_party is enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_third_party).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:cst_friendly_evidence_requests_first_party).and_return(false)
-        end
-
-        it 'modifies the claim data to include additional, human-readable fields' do
-          VCR.use_cassette('lighthouse/benefits_claims/show/200_response') do
-            get(:show, params: { id: '600383363' })
-          end
-          tracked_items = JSON.parse(response.body)['data']['attributes']['trackedItems']
-          can_upload_values = tracked_items.map { |i| i['canUploadFile'] }
-          expect(can_upload_values).to eq([true, nil, nil, nil, nil, nil, nil, nil, true, true, true, true,
-                                           true])
-          friendly_name_values = tracked_items.map { |i| i['friendlyName'] }
-          expect(friendly_name_values).to include('Proof of Service')
-          expect(friendly_name_values).to include('Non-VA medical records')
-          expect(friendly_name_values).to include('Non-VA medical records')
-          expect(friendly_name_values).to include('Disability exam for hearing')
-          expect(friendly_name_values).to include('Mental health exam')
-          friendly_description_values = tracked_items.map { |i| i['friendlyDescription'] }
-          expect(friendly_description_values).to include('We\'ve requested your Proof of Service on' \
-                                                         ' your behalf. No action is needed.')
-          expect(friendly_description_values).to include('We\'ve requested your non-VA medical records on' \
-                                                         ' your behalf. No action is needed.')
-          expect(friendly_description_values).to include('We\'ve requested a disability exam for your hearing.' \
-                                                         ' The examiner\'s office will contact you to schedule' \
-                                                         ' this appointment.')
-          expect(friendly_description_values).to include('We\'ve requested a mental health exam for you.' \
-                                                         ' The examiner\'s office will contact you to schedule' \
-                                                         ' this appointment.')
-          support_alias_values = tracked_items.map { |i| i['supportAliases'] }
           expect(support_alias_values).to include(['Proof of Service (DD214, etc.)'])
           expect(support_alias_values).to include(['PMR Request', 'General Records Request (Medical)'])
           expect(support_alias_values).to include(['General Records Request (Medical)', 'PMR Request'])

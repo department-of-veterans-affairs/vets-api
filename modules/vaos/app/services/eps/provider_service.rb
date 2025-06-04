@@ -9,7 +9,8 @@ module Eps
     #
     def get_provider_services
       response = perform(:get, "/#{config.base_path}/provider-services",
-                         {}, headers)
+                         {}, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -20,14 +21,16 @@ module Eps
     #
     def get_provider_service(provider_id:)
       response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}",
-                         {}, headers)
+                         {}, request_headers)
+
       OpenStruct.new(response.body)
     end
 
     def get_provider_services_by_ids(provider_ids:)
       query_object_array = provider_ids.map { |id| "id=#{id}" }
       response = perform(:get, "/#{config.base_path}/provider-services",
-                         query_object_array, headers)
+                         query_object_array, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -37,7 +40,7 @@ module Eps
     # @return OpenStruct response from EPS networks endpoint
     #
     def get_networks
-      response = perform(:get, "/#{config.base_path}/networks", {}, headers)
+      response = perform(:get, "/#{config.base_path}/networks", {}, request_headers)
 
       OpenStruct.new(response.body)
     end
@@ -55,7 +58,8 @@ module Eps
         origin:
       }
 
-      response = perform(:post, "/#{config.base_path}/drive-times", payload, headers)
+      response = perform(:post, "/#{config.base_path}/drive-times", payload, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -91,7 +95,8 @@ module Eps
                  opts
                end
 
-      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, headers)
+      response = perform(:get, "/#{config.base_path}/provider-services/#{provider_id}/slots", params, request_headers)
+
       OpenStruct.new(response.body)
     end
 
@@ -105,14 +110,10 @@ module Eps
     #
     def search_provider_services(npi:)
       query_params = { npi: }
-      response = perform(:get, "/#{config.base_path}/provider-services", query_params, headers)
+      response = perform(:get, "/#{config.base_path}/provider-services", query_params, request_headers)
 
-      # NOTE: faraday converts keys to symbols
-      matching_provider = response.body[:provider_services]&.find do |provider|
-        provider[:individual_providers]&.any? { |individual| individual[:npi] == npi }
-      end
-
-      matching_provider ? OpenStruct.new(matching_provider) : nil
+      # NPIs are unique, so we expect either an empty array or an array with exactly one matching provider
+      response.body[:provider_services]&.first&.then { |provider| OpenStruct.new(provider) }
     end
 
     private

@@ -2,16 +2,16 @@ inherit_from:
   - .rubocop_explicit_enables.yml
   - .rubocop_todo.yml
 
-# in rakelib/lint.rake we require rubocop-thread_safety for the CI env only,
-# because codeclimate does not support rubocop-thread_safety
 require:
+  - './lib/rubocop/cops/ams_serializer.rb'
+
+plugins:
   - rubocop-rails
   - rubocop-rspec
   - rubocop-capybara
   - rubocop-factory_bot
   - rubocop-rspec_rails
   - rubocop-thread_safety
-  - './lib/rubocop/cops/ams_serializer.rb'
 
 
 AllCops:
@@ -312,7 +312,6 @@ RSpec/MultipleDescribes:
     - 'spec/sidekiq/evss/document_upload_spec.rb'
     - 'spec/sidekiq/evss/request_decision_spec.rb'
     - 'spec/requests/swagger_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/existing_github_file_spec.rb'
 
 # These instances seem to be false positives
 RSpec/RepeatedExample:
@@ -337,7 +336,6 @@ RSpec/ScatteredLet:
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
     - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/requests/health_care_applications_request_spec.rb'
-    - 'spec/requests/health_records_request_spec.rb'
     - 'spec/requests/http_method_not_allowed_spec.rb'
     - 'spec/requests/swagger_spec.rb'
 

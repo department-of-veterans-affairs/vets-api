@@ -14,9 +14,9 @@ module TravelPay
     def get_claims(veis_token, btsss_token)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       log_to_statsd('claims', 'get_all') do
-        connection(server_url: btsss_url).get('api/v1.2/claims') do |req|
+        connection(server_url: btsss_url).get('api/v2/claims') do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -38,9 +38,9 @@ module TravelPay
     def get_claim_by_id(veis_token, btsss_token, claim_id)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       log_to_statsd('claims', 'get_by_id') do
-        connection(server_url: btsss_url).get("api/v1.2/claims/#{claim_id}") do |req|
+        connection(server_url: btsss_url).get("api/v2/claims/#{claim_id}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -66,13 +66,13 @@ module TravelPay
     def get_claims_by_date(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
 
       url_params = params.transform_keys { |k| k.to_s.camelize(:lower) }
       log_to_statsd('claims', 'get_by_date') do
         connection(server_url: btsss_url)
           # URL subject to change once v1.2 is available (proposed endpoint: '/search')
-          .get("api/v1.2/claims/search-by-appointment-date?#{url_params.to_query}") do |req|
+          .get("api/v2/claims/search-by-appointment-date?#{url_params.to_query}") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -96,9 +96,9 @@ module TravelPay
     def create_claim(veis_token, btsss_token, params = {})
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       log_to_statsd('claims', 'create') do
-        connection(server_url: btsss_url).post('api/v1.2/claims') do |req|
+        connection(server_url: btsss_url).post('api/v2/claims') do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
@@ -125,9 +125,9 @@ module TravelPay
     def submit_claim(veis_token, btsss_token, claim_id)
       btsss_url = Settings.travel_pay.base_url
       correlation_id = SecureRandom.uuid
-      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+      Rails.logger.info(message: 'Correlation ID', correlation_id:)
       log_to_statsd('claims', 'submit') do
-        connection(server_url: btsss_url).patch("api/v1.2/claims/#{claim_id}/submit") do |req|
+        connection(server_url: btsss_url).patch("api/v2/claims/#{claim_id}/submit") do |req|
           req.headers['Authorization'] = "Bearer #{veis_token}"
           req.headers['BTSSS-Access-Token'] = btsss_token
           req.headers['X-Correlation-ID'] = correlation_id
