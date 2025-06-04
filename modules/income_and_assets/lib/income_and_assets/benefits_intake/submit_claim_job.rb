@@ -42,8 +42,15 @@ module IncomeAndAssets
 
         init(saved_claim_id, user_account_uuid)
 
+        extras_redesign = if user_account_uuid.nil?
+                            false
+                          else
+                            user = OpenStruct.new({ flipper_id: @user_account_uuid })
+                            Flipper.enabled?(:pension_income_and_assets_extras_redesign, user)
+                          end
+
         # generate and validate claim pdf documents
-        @form_path = process_document(@claim.to_pdf)
+        @form_path = process_document(@claim.to_pdf(@claim.id, { extras_redesign: }))
         @attachment_paths = @claim.persistent_attachments.map { |pa| process_document(pa.to_pdf) }
         @metadata = generate_metadata
 
