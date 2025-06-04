@@ -8,29 +8,29 @@ module IncomeAndAssets
     class Section1 < Section
       # Section configuration hash
       KEY = {
-        # 1a
+        # 1A
         'veteranFullName' => {
           # form allows up to 39 characters but validation limits to 30,
           # so no overflow is needed
           'first' => {
-            key: 'F[0].Page_4[0].VeteransName.First[0]'
+            key: generate_key('A', 'VeteranName.First')
           },
           'middle' => {
-            key: 'F[0].Page_4[0].VeteransName.MI[0]'
+            key: generate_key('A', 'VeteranName.MI')
           },
           # form allows up to 34 characters but validation limits to 30,
           # so no overflow is needed
           'last' => {
-            key: 'F[0].Page_4[0].VeteransName.Last[0]'
+            key: generate_key('A', 'VeteranName.Last')
           }
         },
-        # 1b
+        # 1B
         'veteranSocialSecurityNumber' => {
-          key: 'F[0].Page_4[0].VeteransSSN[0]'
+          key: generate_key('B', 'VeteranSSN')
         },
-        # 1c
+        # 1C
         'vaFileNumber' => {
-          key: 'F[0].Page_4[0].VeteransFileNumber[0]'
+          key: generate_key('C', 'VeteranFileNumber')
         }
       }.freeze
 
