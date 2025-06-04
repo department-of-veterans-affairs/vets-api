@@ -33,6 +33,7 @@ module V1
                        INTERSTITIAL_SIGNUP = 'interstitial_signup',
                        MHV_EXCEPTION = 'mhv_exception',
                        MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
+    CERNER_ELIGIBLE_COOKIE_NAME = 'CERNER_ELIGIBLE'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -165,6 +166,7 @@ module V1
       else
         redirect_to url_service.login_redirect_url
       end
+      UserAudit.logger.success(event: :sign_in, user_verification:)
       login_stats(:success)
     end
 
@@ -189,12 +191,14 @@ module V1
     end
 
     def render_login(type)
+      check_cerner_eligibility
       login_url, post_params = login_params(type)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
                                locals: { url: login_url, params: post_params },
                                format: :html
+
       render body: result, content_type: 'text/html'
       set_sso_saml_cookie!
       saml_request_stats
@@ -300,6 +304,14 @@ module V1
                               "client_id:#{tracker&.payload_attr(:application)}",
                               "context:#{saml_response.authn_context}",
                               VERSION_TAG])
+    end
+
+    def check_cerner_eligibility
+      value = ActiveModel::Type::Boolean.new.cast(cookies.signed[CERNER_ELIGIBLE_COOKIE_NAME])
+
+      Rails.logger.info('[SessionsController] Cerner Eligibility',
+                        eligible: value.nil? ? :unknown : value,
+                        cookie_action: value.nil? ? :not_found : :found)
     end
 
     def user_logout(saml_response)
@@ -410,7 +422,8 @@ module V1
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
-      set_api_cookie!
+      set_api_cookie
+      set_cerner_eligibility_cookie
     end
 
     def after_login_actions

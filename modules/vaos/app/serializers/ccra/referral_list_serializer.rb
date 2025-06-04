@@ -6,11 +6,17 @@ module Ccra
   class ReferralListSerializer
     include JSONAPI::Serializer
 
-    set_id :referral_id
+    set_key_transform :camel_lower
+    set_id :uuid
     set_type :referrals
 
-    attribute :type_of_care
+    attribute :category_of_care
+    attribute :referral_number
+    attribute :referral_consult_id
+    attribute :uuid
+    attribute :station_id
 
+    # Include the expiration date formatted as YYYY-MM-DD
     attribute :expiration_date do |referral|
       referral.expiration_date&.strftime('%Y-%m-%d')
     end

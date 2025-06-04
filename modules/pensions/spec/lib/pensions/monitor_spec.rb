@@ -7,26 +7,35 @@ RSpec.describe Pensions::Monitor do
   let(:monitor) { described_class.new }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }
-  let(:claim) { create(:pensions_module_pension_claim) }
+  let(:claim) { create(:pensions_saved_claim) }
   let(:ipf) { create(:in_progress_form) }
+
+  describe '#service_name' do
+    it 'returns expected name' do
+      expect(monitor.send(:service_name)).to eq('pension-application')
+    end
+  end
 
   context 'with all params supplied' do
     let(:current_user) { create(:user) }
     let(:monitor_error) { create(:monitor_error) }
     let(:lh_service) { OpenStruct.new(uuid: 'uuid') }
+    let(:message_prefix) { "#{described_class} #{Pensions::FORM_ID}" }
 
     describe '#track_show404' do
       it 'logs a not found error' do
-        log = '21P-527EZ submission not found'
+        log = "#{message_prefix} submission not found"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
+          claim_id: nil,
+          form_id: nil,
           message: monitor_error.message,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           claim_stats_key,
           call_location: anything,
@@ -39,16 +48,18 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_show_error' do
       it 'logs a submission failed error' do
-        log = '21P-527EZ fetching submission failed'
+        log = "#{message_prefix} fetching submission failed"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
+          claim_id: nil,
+          form_id: nil,
           message: monitor_error.message,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           claim_stats_key,
           call_location: anything,
@@ -61,15 +72,17 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_create_attempt' do
       it 'logs sidekiq started' do
-        log = '21P-527EZ submission to Sidekiq begun'
+        log = "#{message_prefix} submission to Sidekiq begun"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{claim_stats_key}.attempt",
           call_location: anything,
@@ -82,17 +95,19 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_create_validation_error' do
       it 'logs create failed' do
-        log = '21P-527EZ submission validation error'
+        log = "#{message_prefix} submission validation error"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [], # mock claim does not have `errors`
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{claim_stats_key}.validation_error",
           call_location: anything,
@@ -105,17 +120,19 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_process_attachment_error' do
       it 'logs process attachment failed' do
-        log = '21P-527EZ process attachment error'
+        log = "#{message_prefix} process attachment error"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [], # mock claim does not have `errors`
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{claim_stats_key}.process_attachment_error",
           call_location: anything,
@@ -128,18 +145,20 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_create_error' do
       it 'logs sidekiq failed' do
-        log = '21P-527EZ submission to Sidekiq failed'
+        log = "#{message_prefix} submission to Sidekiq failed"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           errors: [], # mock claim does not have `errors`
           message: monitor_error.message,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{claim_stats_key}.failure",
           call_location: anything,
@@ -152,17 +171,19 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_create_success' do
       it 'logs sidekiq success' do
-        log = '21P-527EZ submission to Sidekiq success'
+        log = "#{message_prefix} submission to Sidekiq success"
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           tags: monitor.tags
         }
         claim.form_start_date = Time.zone.now
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{claim_stats_key}.success",
           call_location: anything,
@@ -175,17 +196,18 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_submission_begun' do
       it 'logs sidekiq job started' do
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH begun'
+        log = "#{message_prefix} submission to LH begun"
         payload = {
-          claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{submission_stats_key}.begun",
           call_location: anything,
@@ -203,19 +225,20 @@ RSpec.describe Pensions::Monitor do
           attachments: %w[pdf-attachment1 pdf-attachment2]
         }
 
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH attempted'
+        log = "#{message_prefix} submission to LH attempted"
         payload = {
-          claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           file: upload[:file],
           attachments: upload[:attachments],
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{submission_stats_key}.attempt",
           call_location: anything,
@@ -228,17 +251,18 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_submission_success' do
       it 'logs sidekiq job successful' do
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH succeeded'
+        log = "#{message_prefix} submission to LH succeeded"
         payload = {
-          claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'info',
+          :info,
           log,
           "#{submission_stats_key}.success",
           call_location: anything,
@@ -251,18 +275,19 @@ RSpec.describe Pensions::Monitor do
 
     describe '#track_submission_retry' do
       it 'logs sidekiq job failure and retry' do
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH failed, retrying'
+        log = "#{message_prefix} submission to LH failed, retrying"
         payload = {
-          claim_id: claim.id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
+          claim_id: claim.id,
+          form_id: claim.form_id,
           message: monitor_error.message,
           tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
-          'warn',
+          :warn,
           log,
           "#{submission_stats_key}.failure",
           call_location: anything,
@@ -280,7 +305,7 @@ RSpec.describe Pensions::Monitor do
 
           msg = { 'args' => [claim.id, current_user.uuid] }
 
-          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          log = "#{message_prefix} submission to LH exhausted!"
           payload = {
             form_id: claim.form_id,
             claim_id: claim.id,
@@ -294,7 +319,7 @@ RSpec.describe Pensions::Monitor do
           expect(notification).to receive(:deliver).with(:error)
 
           expect(monitor).to receive(:track_request).with(
-            'error',
+            :error,
             log,
             "#{submission_stats_key}.exhausted",
             call_location: anything,
@@ -309,7 +334,7 @@ RSpec.describe Pensions::Monitor do
         it 'logs sidekiq job exhaustion' do
           msg = { 'args' => [claim.id, current_user.uuid] }
 
-          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          log = "#{message_prefix} submission to LH exhausted!"
           payload = {
             form_id: nil,
             claim_id: claim.id, # pulled from msg.args
@@ -320,10 +345,10 @@ RSpec.describe Pensions::Monitor do
           }
 
           expect(Pensions::NotificationEmail).not_to receive(:new)
-          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+          expect(monitor).to receive(:log_silent_failure).with(payload.compact, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
-            'error',
+            :error,
             log,
             "#{submission_stats_key}.exhausted",
             call_location: anything,
@@ -335,11 +360,12 @@ RSpec.describe Pensions::Monitor do
       end
     end
 
-    describe '#track_send_confirmation_email_failure' do
+    describe '#track_send_email_failure' do
       it 'logs sidekiq job send_confirmation_email error' do
-        log = 'Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed'
+        log = "#{message_prefix} send_confirmation_email failed"
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -348,22 +374,21 @@ RSpec.describe Pensions::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'warn',
+          :warn,
           log,
           "#{submission_stats_key}.send_confirmation_failed",
           call_location: anything,
           **payload
         )
 
-        monitor.track_send_confirmation_email_failure(claim, lh_service, current_user.uuid, monitor_error)
+        monitor.track_send_email_failure(claim, lh_service, current_user.uuid, 'confirmation', monitor_error)
       end
-    end
 
-    describe '#track_send_submitted_email_failure' do
       it 'logs sidekiq job send_submitted_email error' do
-        log = 'Lighthouse::PensionBenefitIntakeJob send_submitted_email failed'
+        log = "#{message_prefix} send_submitted_email failed"
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -372,22 +397,23 @@ RSpec.describe Pensions::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'warn',
+          :warn,
           log,
           "#{submission_stats_key}.send_submitted_failed",
           call_location: anything,
           **payload
         )
 
-        monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
+        monitor.track_send_email_failure(claim, lh_service, current_user.uuid, 'submitted', monitor_error)
       end
     end
 
     describe '#track_file_cleanup_error' do
       it 'logs sidekiq job ensure file cleanup error' do
-        log = 'Lighthouse::PensionBenefitIntakeJob cleanup failed'
+        log = "#{message_prefix} cleanup failed"
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -396,7 +422,7 @@ RSpec.describe Pensions::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
           "#{submission_stats_key}.cleanup_failed",
           call_location: anything,
@@ -408,10 +434,11 @@ RSpec.describe Pensions::Monitor do
     end
 
     describe '#track_claim_signature_error' do
-      it 'logs sidekiq job custom date failed' do
-        log = 'Lighthouse::PensionBenefitIntakeJob custom date failed'
+      it 'logs sidekiq job claim signature error' do
+        log = "#{message_prefix} claim signature error"
         payload = {
           claim_id: claim.id,
+          form_id: claim.form_id,
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
@@ -420,9 +447,9 @@ RSpec.describe Pensions::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          :error,
           log,
-          "#{submission_stats_key}.custom_date_failed",
+          "#{submission_stats_key}.claim_signature_error",
           call_location: anything,
           **payload
         )

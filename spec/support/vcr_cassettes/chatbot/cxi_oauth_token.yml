@@ -1,0 +1,140 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://fake.com/oauth2/v2.0/token
+    body:
+      encoding: UTF-8
+      string: grant_type=client_credentials&client_id=dummy_client_id&client_<DMC_TOKEN>=dummy_token&scope=https://dummy.com/.default
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - login.microsoftonline.com
+      Content-Type:
+      - application/x-www-form-urlencoded
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-store, no-cache
+      Pragma:
+      - no-cache
+      Content-Type:
+      - application/json; charset=utf-8
+      Expires:
+      - "-1"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      P3p:
+      - CP="DSP CUR OTPi IND OTRi ONL FIN"
+      X-Ms-Request-Id:
+      - 5581f64d-0570-4ee9-b16b-45e3c445b400
+      X-Ms-Ests-Server:
+      - 2.1.13777.6 - SCUS ProdSlices
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - fpc=Ag69GX6rzzxDsaJA0_gvi_1gw76iAQAAAMcy1toOAAAA; expires=Wed, 09-Nov-2022
+        15:35:35 GMT; path=/; secure; HttpOnly; SameSite=None
+      - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
+      - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
+      Date:
+      - Mon, 10 Oct 2022 15:35:35 GMT
+      Content-Length:
+      - '1341'
+    body:
+      encoding: UTF-8
+      string: '{"token_type":"Bearer","expires_in":3599,"ext_expires_in":3599,"access_token":"fake_token"}'
+  recorded_at: Mon, 10 Oct 2022 15:35:35 GMT
+- request:
+    method: post
+    uri: https://dummy.com/api/data/v9.2//cr352_claimsqueries
+    body:
+      encoding: UTF-8
+      string: '{"cr352_id":"conversationId - 2022-10-10 15:35:35 UTC","cr352_icn":"icn","cr352_conversationid":"conversationId","cr352_requestedtimestamp":"2022-10-10
+        15:35:35 UTC"}'
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      Odata-Maxversion:
+      - '4.0'
+      Odata-Version:
+      - '4.0'
+      If-None-Match:
+      - 'null'
+      Authorization:
+      - Bearer dummy
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - dummy.com
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Cache-Control:
+      - no-cache
+      Allow:
+      - OPTIONS,GET,HEAD,POST
+      Expires:
+      - "-1"
+      Location:
+      - https://dummy.com/api/data/v9.2/cr352_claimsqueries(5dd7522b-b148-ed11-bba0-001dd8027533)
+      X-Ms-Service-Request-Id:
+      - bfb9bf3e-41c6-4b37-9310-0040f988a254
+      - f227d935-3001-4eb0-9e65-dc902e43fd1f
+      Set-Cookie:
+      - ARRAffinity=661cca142a76f6f55f864a118129fcbba572af5e01957183632fd148f6ec05c0eb29bb4b19df1459d2ea781b605f33064b9fea1f144b525b9d7676625c4ffb5408DAAAD9447E3228945052715;
+        domain=dummy.com; path=/; secure; HttpOnly
+      - ARRAffinity=661cca142a76f6f55f864a118129fcbba572af5e01957183632fd148f6ec05c0eb29bb4b19df1459d2ea781b605f33064b9fea1f144b525b9d7676625c4ffb5408DAAAD9447E3228945052715;
+        domain=dummy.com; path=/; secure; HttpOnly
+      - ReqClientId=a61d284a-7692-402e-962d-cabf526d6169; expires=Mon, 10-Oct-2072
+        15:35:36 GMT; path=/; secure; HttpOnly
+      - last_commit_time=2022-10-10 15:35:36Z; expires=Mon, 10-Oct-2022 15:36:36 GMT;
+        path=/; secure; HttpOnly
+      - orgId=e7c82d66-29fe-4639-870d-907c9b9972c4; expires=Mon, 10-Oct-2072 15:35:36
+        GMT; path=/; secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      Req-Id:
+      - f227d935-3001-4eb0-9e65-dc902e43fd1f
+      Authactivityid:
+      - c279059c-6a06-4939-af5e-3769bf4950df
+      X-Ms-Dop-Hint:
+      - '8'
+      X-Ms-Ratelimit-Time-Remaining-Xrm-Requests:
+      - '1,200.00'
+      X-Ms-Ratelimit-Burst-Remaining-Xrm-Requests:
+      - '7999'
+      X-Ms-Utilization-Percent:
+      - '0'
+      Odata-Version:
+      - '4.0'
+      Odata-Entityid:
+      - https://dummy.com/api/data/v9.2/cr352_claimsqueries(5dd7522b-b148-ed11-bba0-001dd8027533)
+      X-Source:
+      - '26182147114226122169993352552770188218202302447174331582401102068148236382122052'
+      - '49127154226137311953417419416022510209238121224212181102911441551983614814170175139'
+      Public:
+      - OPTIONS,GET,HEAD,POST
+      Date:
+      - Mon, 10 Oct 2022 15:35:35 GMT
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Mon, 10 Oct 2022 15:35:36 GMT
+recorded_with: VCR 6.1.0

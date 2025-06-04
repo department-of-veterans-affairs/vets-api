@@ -40,7 +40,7 @@ module MPI
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
-        conn.use :breakers
+        conn.use(:breakers, service_name:)
         conn.request :soap_headers
 
         # Uncomment this if you want curl command equivalent or response output to log

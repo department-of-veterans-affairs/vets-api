@@ -39,7 +39,7 @@ In the following example, Betamocks will only record the raw response from the b
 ```ruby
 def connection
   Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-    conn.use :breakers
+    conn.use(:breakers, service_name:)
     conn.request :json
 
     conn.response :raise_custom_error, error_prefix: service_name

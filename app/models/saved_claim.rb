@@ -27,6 +27,8 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
+  has_many :bpds_submissions, class_name: 'BPDS::Submission', dependent: :nullify
+  has_many :lighthouse_submissions, class_name: 'Lighthouse::Submission', dependent: :nullify
   has_many :claim_va_notifications, dependent: :destroy
 
   belongs_to :user_account, optional: true
@@ -84,16 +86,14 @@ class SavedClaim < ApplicationRecord
     return unless form_is_string
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    clear_cache = false
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+      Rails.logger.error('SavedClaim schema failed validation.',
                          { form_id:, errors: schema_errors })
-      clear_cache = true
     end
 
-    validation_errors = validate_form(schema, clear_cache)
+    validation_errors = validate_form(schema)
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
       e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
@@ -163,7 +163,7 @@ class SavedClaim < ApplicationRecord
     reformatted_schemer_errors(errors)
   end
 
-  def validate_form(schema, _clear_cache)
+  def validate_form(schema)
     errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
     return [] if errors.empty?
 
@@ -173,13 +173,21 @@ class SavedClaim < ApplicationRecord
   # This method exists to change the json_schemer errors
   # to be formatted like json_schema errors, which keeps
   # the error logging smooth and identical for both options.
+  # This method also filters out the `data` key because it could
+  # potentially contain pii.
   def reformatted_schemer_errors(errors)
-    errors.map!(&:symbolize_keys)
-    errors.each do |error|
-      error[:fragment] = error[:data_pointer]
-      error[:message] = error[:error]
+    errors.map do |error|
+      symbolized = error.symbolize_keys
+      {
+        data_pointer: symbolized[:data_pointer],
+        error: symbolized[:error],
+        details: symbolized[:details],
+        schema: symbolized[:schema],
+        root_schema: symbolized[:root_schema],
+        message: symbolized[:error],
+        fragment: symbolized[:data_pointer]
+      }
     end
-    errors
   end
 
   def attachment_keys
@@ -193,9 +201,30 @@ class SavedClaim < ApplicationRecord
       claim_duration = created_at - form_start_date
       StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
     end
+
+    pdf_overflow_tracking if Flipper.enabled?(:saved_claim_pdf_overflow_tracking)
   end
 
   def after_destroy_metrics
     StatsD.increment('saved_claim.destroy', tags: ["form_id:#{form_id}"])
+  end
+
+  def pdf_overflow_tracking
+    tags = ["form_id:#{form_id}"]
+
+    form_class = PdfFill::Filler::FORM_CLASSES[form_id]
+    unless form_class
+      return Rails.logger.info("#{self.class} Skipping tracking PDF overflow", form_id:, saved_claim_id: id)
+    end
+
+    filename = to_pdf
+
+    # @see PdfFill::Filler
+    # https://github.com/department-of-veterans-affairs/vets-api/blob/96510bd1d17b9e5c95fb6c09d74e53f66b0a25be/lib/pdf_fill/filler.rb#L88
+    StatsD.increment('saved_claim.pdf.overflow', tags:) if filename.end_with?('_final.pdf')
+  rescue => e
+    Rails.logger.warn("#{self.class} Error tracking PDF overflow", form_id:, saved_claim_id: id, error: e)
+  ensure
+    Common::FileHelpers.delete_file_if_exists(filename)
   end
 end

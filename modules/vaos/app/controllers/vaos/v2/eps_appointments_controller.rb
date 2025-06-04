@@ -9,22 +9,39 @@ module VAOS
           retrieve_latest_details: true
         )
 
-        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
-
-        response = OpenStruct.new({
-                                    id: appointment[:id],
-                                    appointment:,
-                                    provider: unless appointment[:provider_service_id].nil?
-                                                provider_service.get_provider_service(
-                                                  provider_id: appointment[:provider_service_id]
-                                                )
-                                              end
-                                  })
-
-        render json: Eps::EpsAppointmentSerializer.new(response)
+        response_object = assemble_appt_response_object(appointment)
+        render json: response_object
       end
 
       private
+
+      ##
+      # Assembles a structured response object for an EPS appointment by:
+      # 1. Fetching referral details if a referral number exists
+      # 2. Fetching provider information if a provider service ID exists
+      # 3. Creating a comprehensive EpsAppointment object with all related data
+      # 4. Serializing the appointment object
+      #
+      # @param appointment_data [Hash] Raw appointment data from the EPS service
+      # @return [Eps::EpsAppointmentSerializer] Serialized appointment with referral and provider data
+      def assemble_appt_response_object(appointment)
+        provider = fetch_provider(appointment)
+        eps_appointment = VAOS::V2::EpsAppointment.new(appointment, provider)
+
+        Eps::EpsAppointmentSerializer.new(eps_appointment)
+      end
+
+      ##
+      # Fetches provider information for the given appointment.
+      #
+      # @param appointment [Hash] The appointment data containing provider service ID
+      # @return [Object, nil] Provider object or nil if no provider ID is found
+      def fetch_provider(appointment)
+        provider_id = appointment[:provider_service_id]
+        return nil if provider_id.nil?
+
+        provider_service.get_provider_service(provider_id:)
+      end
 
       def eps_appointment_id
         params.require(:id)

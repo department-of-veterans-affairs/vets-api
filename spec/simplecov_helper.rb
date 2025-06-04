@@ -52,7 +52,6 @@ class SimpleCovHelper
     add_filter 'lib/vet360/response.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
-    add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
   end
 
@@ -65,13 +64,14 @@ class SimpleCovHelper
     add_group 'Banners', 'modules/banners/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'IncomeAndAssets', 'modules/income_and_assets/'
     add_group 'IvcChampva', 'modules/ivc_champva/'
     add_group 'RepresentationManagement', 'modules/representation_management/'
     add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
-    add_group 'HealthQuest', 'modules/health_quest'
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'MyHealth', 'modules/my_health/'

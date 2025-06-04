@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/exceptions/not_implemented'
 require_relative 'configuration'
 require_relative 'models/lab_or_test'
 
@@ -20,7 +21,7 @@ module UnifiedHealthData
       with_monitoring do
         token = fetch_access_token
         patient_id = @user.icn
-        path = "#{config.base_path}labs?patient-id=#{patient_id}&start-date=#{start_date}&end-date=#{end_date}"
+        path = "#{config.base_path}labs?patientId=#{patient_id}&startDate=#{start_date}&endDate=#{end_date}"
         response = perform(:get, path, nil, { 'Authorization' => token })
         body = parse_response_body(response.body)
 
@@ -80,7 +81,8 @@ module UnifiedHealthData
       location = fetch_location(record)
       code = fetch_code(record)
       encoded_data = record['resource']['presentedForm'] ? record['resource']['presentedForm'].first['data'] : ''
-      sample_site = fetch_sample_site(record)
+      sample_tested = fetch_sample_tested(record['resource'], record['resource']['contained'])
+      body_site = fetch_body_site(record['resource'], record['resource']['contained'])
       observations = fetch_observations(record)
       ordered_by = fetch_ordered_by(record)
 
@@ -90,7 +92,7 @@ module UnifiedHealthData
         display: record['resource']['code']['text'],
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
-        sample_site:, encoded_data:, location:, ordered_by:, observations:
+        sample_tested:, encoded_data:, location:, ordered_by:, observations:, body_site:
       )
 
       UnifiedHealthData::LabOrTest.new(
@@ -118,20 +120,59 @@ module UnifiedHealthData
       coding ? coding['coding'][0]['code'] : nil
     end
 
-    def fetch_sample_site(record)
-      specimen = record['resource']['contained'].find { |resource| resource['resourceType'] == 'Specimen' }
-      specimen ? specimen['type']&.dig('text') : ''
+    def fetch_body_site(resource, contained)
+      body_sites = []
+
+      return '' unless resource['basedOn']
+
+      service_request_references = resource['basedOn'].pluck('reference')
+      service_request_references.each do |reference|
+        service_request_object = contained.find do |contained_resource|
+          contained_resource['resourceType'] == 'ServiceRequest' &&
+            contained_resource['id'] == extract_reference_id(reference)
+        end
+
+        next unless service_request_object && service_request_object['bodySite']
+
+        service_request_object['bodySite'].each do |body_site|
+          next unless body_site['coding'].is_a?(Array)
+
+          body_site['coding'].each do |coding|
+            body_sites << coding['display'] if coding['display']
+          end
+        end
+      end
+
+      body_sites.join(', ').strip
+    end
+
+    def fetch_sample_tested(record, contained)
+      return '' unless record['specimen']
+
+      specimen_references = if record['specimen'].is_a?(Hash)
+                              [extract_reference_id(record['specimen']['reference'])]
+                            elsif record['specimen'].is_a?(Array)
+                              record['specimen'].map { |specimen| extract_reference_id(specimen['reference']) }
+                            end
+
+      specimens =
+        specimen_references.map do |reference|
+          specimen_object = contained.find do |resource|
+            resource['resourceType'] == 'Specimen' && resource['id'] == reference
+          end
+          specimen_object['type']['text'] if specimen_object
+        end
+
+      specimens.compact.join(', ').strip
     end
 
     def fetch_observations(record)
       record['resource']['contained'].select { |resource| resource['resourceType'] == 'Observation' }.map do |obs|
+        sample_tested = fetch_sample_tested(obs, record['resource']['contained'])
+        body_site = fetch_body_site(obs, record['resource']['contained'])
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
-          value_quantity: if obs['valueQuantity']
-                            "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}".strip
-                          else
-                            ''
-                          end,
+          value: fetch_observation_value(obs),
           reference_range: if obs['referenceRange']
                              obs['referenceRange'].map do |range|
                                range['text']
@@ -140,9 +181,31 @@ module UnifiedHealthData
                              ''
                            end,
           status: obs['status'],
-          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || ''
+          comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
+          sample_tested:,
+          body_site:
         )
       end
+    end
+
+    def fetch_observation_value(obs)
+      type, text = if obs['valueQuantity']
+                     ['quantity', "#{obs['valueQuantity']['value']} #{obs['valueQuantity']['unit']}"]
+                   elsif obs['valueCodeableConcept']
+                     ['codeable-concept', obs['valueCodeableConcept']['text']]
+                   elsif obs['valueString']
+                     ['string', obs['valueString']]
+                   elsif obs['valueDateTime']
+                     ['date-time', obs['valueDateTime']]
+                   elsif obs['valueAttachment']
+                     Rails.logger.error(
+                       message: "Observation with ID #{obs['id']} has unsupported value type: Attachment"
+                     )
+                     raise Common::Exceptions::NotImplemented
+                   else
+                     [nil, nil]
+                   end
+      { text:, type: }
     end
 
     def fetch_ordered_by(record)
@@ -155,6 +218,10 @@ module UnifiedHealthData
           "#{name['given'].join(' ')} #{name['family']}"
         end
       end
+    end
+
+    def extract_reference_id(reference)
+      reference.split('/').last
     end
   end
 end

@@ -4,6 +4,10 @@ require 'rails_helper'
 require 'sign_in/idme/service'
 
 describe SignIn::Idme::Service do
+  subject { described_class.new(type:, optional_scopes:) }
+
+  let(:optional_scopes) { [] }
+  let(:type) { SignIn::Constants::Auth::IDME }
   let(:code) { '04e3f01f11764b50becb0cdcb618b804' }
   let(:scope) { 'http://idmanagement.gov/ns/assurance/loa/3' }
   let(:token) do
@@ -28,6 +32,7 @@ describe SignIn::Idme::Service do
         credential_ial_highest: 'classic_loa3',
         birth_date:,
         email:,
+        emails_confirmed:,
         street:,
         zip:,
         state: address_state,
@@ -37,32 +42,35 @@ describe SignIn::Idme::Service do
         social: ssn,
         lname: last_name,
         level_of_assurance: 3,
+        mname: middle_name,
         multifactor:,
         credential_aal: 2,
         credential_ial: 'classic_loa3',
         uuid: user_uuid
-      }
+      }.compact
     )
   end
 
-  let(:street) { '145 N Hayden Bay Dr Apt 2350' }
-  let(:zip) { '97217' }
-  let(:address_state) { 'OR' }
-  let(:city) { 'Portland' }
-  let(:expiration_time) { 1_666_827_002 }
-  let(:current_time) { 1_666_809_002 }
+  let(:street) { 'Sesame Street' }
+  let(:zip) { '60131' }
+  let(:address_state) { 'IL' }
+  let(:city) { 'Franklin Park' }
+  let(:expiration_time) { 1_746_577_019 }
+  let(:current_time) { 1_746_559_019 }
   let(:idme_originating_url) { 'https://api.idmelabs.com/oidc' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
   let(:idme_client_id) { 'ef7f1237ed3c396e4b4a2b04b608a7b1' }
-  let(:user_uuid) { '7e9bdcc2c79247fda1e4973e24c9dcaf' }
-  let(:birth_date) { '1970-10-10' }
-  let(:phone) { '12069827345' }
+  let(:user_uuid) { '88f572d491af46efa393cba6c351e252' }
+  let(:birth_date) { '1932-02-05' }
+  let(:phone) { '16088527135' }
   let(:multifactor) { true }
-  let(:first_name) { 'Gary' }
-  let(:last_name) { 'Twinkle' }
-  let(:ssn) { '666798234' }
-  let(:email) { 'tumults-vicious-0q@icloud.com' }
+  let(:first_name) { 'HECTOR' }
+  let(:last_name) { 'ALLEN' }
+  let(:middle_name) { 'J' }
+  let(:ssn) { '796126859' }
+  let(:email) { 'vets.gov.user+0@gmail.com' }
+  let(:emails_confirmed) { nil }
   let(:operation) { 'some-operation' }
 
   before do
@@ -110,6 +118,36 @@ describe SignIn::Idme::Service do
 
       it 'does not include op=signup param in rendered form' do
         expect(response).not_to include(expected_signup_param)
+      end
+    end
+
+    context 'when optional_scopes are provided' do
+      context 'and the scopes are valid' do
+        let(:optional_scopes) { ['all_emails'] }
+
+        context 'and acr is 3_force' do
+          let(:acr) { SignIn::Constants::Auth::IDME_LOA3_FORCE }
+
+          it 'includes the optional scopes in the request' do
+            expect(response).to include(CGI.escape('/all_emails'))
+          end
+        end
+
+        context 'and acr is not 3_force' do
+          let(:acr) { SignIn::Constants::Auth::IDME_LOA3 }
+
+          it 'does not include the optional scopes in the request' do
+            expect(response).not_to include(CGI.escape('/all_emails'))
+          end
+        end
+      end
+
+      context 'and the scopes are invalid' do
+        let(:optional_scopes) { ['invalid_scope'] }
+
+        it 'does not include the optional scopes in the request' do
+          expect(response).not_to include(CGI.escape('/invalid_scope'))
+        end
       end
     end
   end
@@ -163,6 +201,19 @@ describe SignIn::Idme::Service do
 
     it 'returns user attributes', vcr: { cassette_name: 'identity/idme_200_responses' } do
       expect(subject.user_info(token)).to eq(user_info)
+    end
+
+    context 'when a token has all_email scope' do
+      let(:emails_confirmed) { [email] }
+      let(:expiration_time) { 1_746_567_616 }
+      let(:current_time) { 1_746_549_616 }
+
+      it 'returns user attributes with emails_confirmed',
+         vcr: { cassette_name: 'identity/idme_200_all_emails_responses' } do
+        token_user_info = subject.user_info(token)
+        expect(token_user_info).to eq(user_info)
+        expect(token_user_info.emails_confirmed).to eq(emails_confirmed)
+      end
     end
 
     context 'when log_credential is enabled in idme configuration' do
@@ -312,8 +363,6 @@ describe SignIn::Idme::Service do
   end
 
   describe '#normalized_attributes' do
-    before { subject.type = type }
-
     let(:expected_standard_attributes) do
       {
         idme_uuid: user_uuid,
@@ -321,6 +370,7 @@ describe SignIn::Idme::Service do
         max_ial: SignIn::Constants::Auth::IAL_TWO,
         service_name:,
         csp_email: email,
+        all_csp_emails: emails_confirmed,
         multifactor:,
         authn_context:,
         auto_uplevel:
@@ -358,6 +408,7 @@ describe SignIn::Idme::Service do
             state: address_state,
             city:,
             level_of_assurance: 3,
+            mname: middle_name,
             multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',

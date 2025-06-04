@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'kafka/sidekiq/event_bus_submission_job'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
@@ -14,6 +15,10 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:statsd_key_prefix) { HCA::Service::STATSD_KEY_PREFIX }
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
   let(:form_id) { described_class::FORM_ID }
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(true)
+  end
 
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
@@ -274,6 +279,114 @@ RSpec.describe HealthCareApplication, type: :model do
     end
   end
 
+  describe '#send_event_bus_event' do
+    let(:health_care_application) { create(:health_care_application) }
+
+    let(:user_attributes) do
+      an_object_having_attributes(
+        first_name: 'FirstName',
+        middle_name: 'MiddleName',
+        last_name: 'ZZTEST',
+        birth_date: '1923-01-02',
+        ssn: '111111234'
+      )
+    end
+
+    context 'with a user' do
+      let(:user) { create(:user) }
+
+      before do
+        health_care_application.user = user
+      end
+
+      it 'calls Kafka.submit event with the right arguments' do
+        expect(Kafka).to receive(:submit_event).with(
+          icn: user.icn,
+          current_id: health_care_application.id,
+          submission_name: 'F1010EZ', state: 'received',
+          next_id: nil
+        )
+
+        health_care_application.send_event_bus_event('received')
+      end
+
+      context 'without an icn' do
+        before do
+          health_care_application.user = build(:user, icn: nil)
+        end
+
+        it 'falls back on looking up the user icn' do
+          allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
+
+          expect(Kafka).to receive(:submit_event).with(
+            icn: '123', current_id: health_care_application.id,
+            submission_name: 'F1010EZ', state: 'sent',
+            next_id: '456'
+          )
+
+          health_care_application.send_event_bus_event('sent', '456')
+        end
+      end
+    end
+
+    context 'without a user' do
+      it 'returns the right payload' do
+        allow(described_class).to receive(:user_icn).with(user_attributes).and_return('123')
+        expect(Kafka).to receive(:submit_event).with(
+          icn: '123', current_id: health_care_application.id,
+          submission_name: 'F1010EZ', state: 'received', next_id: nil
+        )
+
+        health_care_application.send_event_bus_event('received')
+      end
+
+      it 'returns the right payload with a next id' do
+        allow(described_class).to receive(:user_icn)
+          .with(user_attributes).and_return('123')
+
+        expect(Kafka).to receive(:submit_event).with(
+          icn: '123', current_id: health_care_application.id,
+          submission_name: 'F1010EZ', state: 'sent',
+          next_id: '456'
+        )
+
+        health_care_application.send_event_bus_event('sent', '456')
+      end
+
+      context 'and invalid user attributes' do
+        let(:invalid_user_attributes) { double(errors: ['error']) }
+
+        before do
+          allow(described_class).to receive(:user_attributes) \
+            .and_raise(
+              Common::Exceptions::ValidationErrors.new(invalid_user_attributes)
+            )
+        end
+
+        it 'returns a payload with no ICN' do
+          expect(Kafka).to receive(:submit_event).with(
+            icn: nil, current_id: health_care_application.id,
+            submission_name: 'F1010EZ', state: 'received', next_id: nil
+          )
+
+          health_care_application.send_event_bus_event('received')
+        end
+      end
+    end
+
+    context 'with the hca_ez_kafka_submission_enabled feature flag off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(false)
+      end
+
+      it 'does not call Kafka.submit_event' do
+        expect(Kafka).not_to receive(:submit_event)
+
+        health_care_application.send_event_bus_event('received')
+      end
+    end
+  end
+
   describe 'validations' do
     context 'long form validations' do
       let(:health_care_application) { build(:health_care_application) }
@@ -367,30 +480,41 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'schema validation error' do
       let(:health_care_application) { build(:health_care_application) }
       let(:schema) { 'schema_content' }
+      let(:schemer_errors) do
+        [{
+          data_pointer: 'data_pointer',
+          error: 'some error',
+          details: { detail: 'thing' },
+          schema: { detail: 'schema' },
+          root_schema: { detail: 'root_schema' },
+          data: { key: 'this could be pii' }
+        }]
+      end
 
       before do
         allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
+        allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                 validate: schemer_errors))
       end
 
-      it 'calls the validate_form_with_retries method and sets errors' do
-        expect(health_care_application).to receive(:validate_form_with_retries)
-          .with(schema,
-                health_care_application.parsed_form)
-          .and_return([
-                        "maritalStatus can't be null"
-                      ])
-
+      it 'sets errors' do
         health_care_application.valid?
 
-        expect(health_care_application.errors[:form]).to eq [
-          "maritalStatus can't be null"
-        ]
+        expect(health_care_application.errors[:form]).to eq ['some error']
       end
     end
   end
 
   describe '#process!' do
     let(:health_care_application) { build(:health_care_application) }
+
+    before do
+      allow_any_instance_of(MPI::Service).to receive(
+        :find_profile_by_attributes
+      ).and_return(
+        create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
+      )
+    end
 
     it 'calls prefill fields' do
       expect(health_care_application).to receive(:prefill_fields)
@@ -456,6 +580,14 @@ RSpec.describe HealthCareApplication, type: :model do
           end.to raise_error(Common::Exceptions::ValidationErrors)
         end.to trigger_statsd_increment("#{statsd_key_prefix}.validation_error")
       end
+
+      it 'does not send "received" event' do
+        allow(Kafka).to receive(:submit_event)
+        expect(Kafka).not_to have_received(:submit_event)
+        expect do
+          described_class.new(form: {}.to_json).process!
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+      end
     end
 
     def self.expect_job_submission(job)
@@ -469,7 +601,7 @@ RSpec.describe HealthCareApplication, type: :model do
             user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id
           |
           expect(user_identifier).to eq({ 'icn' => user.icn, 'edipi' => user.edipi })
-          expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
+          expect(HCA::SubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
           expect(health_care_application_id).to eq(1)
           expect(google_analytics_client_id).to be_nil
         end
@@ -480,83 +612,141 @@ RSpec.describe HealthCareApplication, type: :model do
 
     context 'with an email' do
       expect_job_submission(HCA::SubmissionJob)
+
+      it 'sends the "received" event' do
+        expect(Kafka).to receive(:submit_event).with(
+          hash_including(state: 'received')
+        )
+        health_care_application.process!
+      end
     end
 
     context 'with no email' do
+      let(:service_instance) { instance_double(HCA::Service) }
+      let(:parsed_form) { health_care_application.send(:parsed_form) }
+      let(:success_result) { { success: true, formSubmissionId: '123', timestamp: Time.now.getlocal.to_s } }
+
       before do
         new_form = JSON.parse(health_care_application.form)
         new_form.delete('email')
         health_care_application.form = new_form.to_json
         health_care_application.instance_variable_set(:@parsed_form, nil)
+        allow(HCA::Service).to receive(:new).and_return(service_instance)
       end
 
-      context 'with async_compatible not set' do
-        let(:service_instance) { instance_double(HCA::Service) }
-        let(:parsed_form) { health_care_application.send(:parsed_form) }
-        let(:success_result) { { formSubmissionId: '123' } }
+      context 'successful submission' do
+        before do
+          allow(service_instance).to receive(:submit_form)
+            .with(parsed_form)
+            .and_return(success_result)
+        end
+
+        it 'successfully submits synchronously' do
+          expect(health_care_application.process!).to eq(success_result)
+        end
+
+        it 'saves the HCA record' do
+          health_care_application.process!
+          health_care_application.reload
+          expect(health_care_application.id).not_to be_nil
+          expect(health_care_application.state).to eq('success')
+        end
+
+        it 'sends the "received", and "sent" event' do
+          expect(Kafka).to receive(:submit_event).with(
+            hash_including(
+              state: 'received',
+              current_id: satisfy { |v| !v.nil? }
+            )
+          )
+          expect(Kafka).to receive(:submit_event).with(
+            hash_including(
+              state: 'sent',
+              next_id: '123',
+              current_id: satisfy { |v| !v.nil? }
+            )
+          )
+          health_care_application.process!
+        end
+      end
+
+      context 'exception is raised in process!' do
+        let(:client_error) { Common::Client::Errors::ClientError.new('error message flerp') }
 
         before do
-          allow(HCA::Service).to receive(:new).and_return(service_instance)
+          allow(StatsD).to receive(:increment)
+          allow(service_instance).to receive(:submit_form)
+            .and_raise(client_error)
         end
 
-        context 'successful submission' do
+        context ':hca_disable_sentry_logs enabled' do
           before do
-            allow(service_instance).to receive(:submit_form)
-              .with(parsed_form)
-              .and_return(success_result)
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
           end
 
-          it 'successfully submits synchronously' do
-            expect(health_care_application.process!).to eq(success_result)
+          it 'logs exception and raises BackendServiceException' do
+            expect(Rails.logger).to receive(:error).with('[10-10EZ] - Error synchronously submitting form',
+                                                         { exception: client_error, user_loa: nil })
+            expect(Rails.logger).to receive(:info).with(
+              '[10-10EZ] - HCA total failure',
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              }
+            )
+
+            expect do
+              health_care_application.process!
+            end.to raise_error(Common::Exceptions::BackendServiceException)
           end
         end
 
-        context 'exception is raised in process!' do
-          let(:client_error) { Common::Client::Errors::ClientError.new('error message flerp') }
-
+        context ':hca_disable_sentry_logs disabled' do
           before do
-            allow(StatsD).to receive(:increment)
-            allow(service_instance).to receive(:submit_form)
-              .and_raise(client_error)
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
           end
 
           it 'logs exception to Sentry and raises BackendServiceException' do
             expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(client_error)
-            expect do
-              health_care_application.process!
-            end.to raise_error(Common::Exceptions::BackendServiceException)
-          end
-
-          it 'increments statsd' do
-            expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
 
             expect do
               health_care_application.process!
             end.to raise_error(Common::Exceptions::BackendServiceException)
-          end
-
-          context 'short form' do
-            before do
-              health_care_application.form = health_care_application_short_form.to_json
-              health_care_application.instance_variable_set(:@parsed_form, nil)
-            end
-
-            it 'increments statsd and short_form statsd' do
-              expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
-              expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed_short_form")
-
-              expect do
-                health_care_application.process!
-              end.to raise_error(Common::Exceptions::BackendServiceException)
-            end
           end
         end
-      end
 
-      context 'with async_compatible set' do
-        before { health_care_application.async_compatible = true }
+        it 'increments statsd' do
+          expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
 
-        expect_job_submission(HCA::AnonSubmissionJob)
+          expect do
+            health_care_application.process!
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        it 'sends an error event to the Event Bus' do
+          expect(Kafka).to receive(:submit_event).with(hash_including(state: 'received'))
+          expect(Kafka).to receive(:submit_event).with(hash_including(state: 'error'))
+          expect do
+            health_care_application.process!
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+
+        context 'short form' do
+          before do
+            health_care_application.form = health_care_application_short_form.to_json
+            health_care_application.instance_variable_set(:@parsed_form, nil)
+          end
+
+          it 'increments statsd and short_form statsd' do
+            expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
+            expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed_short_form")
+
+            expect do
+              health_care_application.process!
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+        end
       end
     end
   end
@@ -569,6 +759,11 @@ RSpec.describe HealthCareApplication, type: :model do
 
     before do
       allow(VANotify::EmailJob).to receive(:perform_async)
+      allow_any_instance_of(MPI::Service).to receive(
+        :find_profile_by_attributes
+      ).and_return(
+        create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
+      )
     end
 
     describe '#send_failure_email' do
@@ -606,10 +801,39 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params)
           end
 
-          it 'logs error to sentry if email job throws error' do
-            allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
-            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
-            expect { subject }.not_to raise_error
+          context ':hca_disable_sentry_logs enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+            end
+
+            it 'logs error if email job throws error' do
+              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+              expect(Rails.logger).to receive(:error).with(
+                '[10-10EZ] - Failure sending Submission Failure Email',
+                { exception: standard_error }
+              )
+              expect(Rails.logger).to receive(:info).with(
+                '[10-10EZ] - HCA total failure',
+                {
+                  first_initial: 'F',
+                  middle_initial: 'M',
+                  last_initial: 'Z'
+                }
+              )
+              expect { subject }.not_to raise_error
+            end
+          end
+
+          context ':hca_disable_sentry_logs disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+            end
+
+            it 'logs error to sentry if email job throws error' do
+              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+              expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+              expect { subject }.not_to raise_error
+            end
           end
 
           it 'increments statsd' do
@@ -641,10 +865,39 @@ RSpec.describe HealthCareApplication, type: :model do
               expect(VANotify::EmailJob).to have_received(:perform_async).with(*template_params_no_name)
             end
 
-            it 'logs error to sentry if email job throws error' do
-              allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
-              expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
-              expect { subject }.not_to raise_error
+            context ':hca_disable_sentry_logs enabled' do
+              before do
+                allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+              end
+
+              it 'logs error if email job throws error' do
+                allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+                expect(Rails.logger).to receive(:error).with(
+                  '[10-10EZ] - Failure sending Submission Failure Email',
+                  { exception: standard_error }
+                )
+                expect(Rails.logger).to receive(:info).with(
+                  '[10-10EZ] - HCA total failure',
+                  {
+                    first_initial: 'no initial provided',
+                    middle_initial: 'no initial provided',
+                    last_initial: 'no initial provided'
+                  }
+                )
+                expect { subject }.not_to raise_error
+              end
+            end
+
+            context ':hca_disable_sentry_logs disabled' do
+              before do
+                allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+              end
+
+              it 'logs error to sentry if email job throws error' do
+                allow(VANotify::EmailJob).to receive(:perform_async).and_raise(standard_error)
+                expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(standard_error)
+                expect { subject }.not_to raise_error
+              end
             end
           end
         end
@@ -714,17 +967,59 @@ RSpec.describe HealthCareApplication, type: :model do
           expect(pii_log.data).to eq(health_care_application.parsed_form)
         end
 
-        it 'logs message to sentry' do
-          expect(health_care_application).to receive(:log_message_to_sentry).with(
-            'HCA total failure',
-            :error,
-            {
-              first_initial: 'F',
-              middle_initial: 'M',
-              last_initial: 'Z'
-            },
-            hca: :total_failure
-          )
+        context ':hca_disable_sentry_logs enabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+          end
+
+          it 'logs message' do
+            expect(Rails.logger).to receive(:info).with(
+              '[10-10EZ] - HCA total failure',
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              }
+            )
+
+            subject
+          end
+        end
+
+        context ':hca_disable_sentry_logs disabled' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+          end
+
+          it 'logs message to sentry' do
+            expect(health_care_application).to receive(:log_message_to_sentry).with(
+              'HCA total failure',
+              :error,
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              },
+              hca: :total_failure
+            )
+
+            subject
+          end
+        end
+
+        it 'sends the "error" event to the Event Bus' do
+          expect(Kafka).to receive(:submit_event).with(hash_including(state: 'error'))
+          subject
+        end
+      end
+
+      context 'hca_ez_kafka_submission_enabled feature flag off' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(false)
+        end
+
+        it 'does not send the "error" event to the Event Bus' do
+          expect(Kafka).not_to receive(:submit_event).with(hash_including(state: 'error'))
           subject
         end
       end
@@ -744,9 +1039,26 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(PersonalInformationLog.count).to eq 0
           end
 
-          it 'does not log message to sentry' do
-            expect(health_care_application).not_to receive(:log_message_to_sentry)
-            subject
+          context ':hca_disable_sentry_logs enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+            end
+
+            it 'does not log message' do
+              expect(Rails.logger).not_to receive(:error)
+              subject
+            end
+          end
+
+          context ':hca_disable_sentry_logs disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+            end
+
+            it 'does not log message to sentry' do
+              expect(health_care_application).not_to receive(:log_message_to_sentry)
+              subject
+            end
           end
         end
 
@@ -762,18 +1074,42 @@ RSpec.describe HealthCareApplication, type: :model do
             expect(pii_log.data).to eq(health_care_application.parsed_form)
           end
 
-          it 'logs message to sentry' do
-            expect(health_care_application).to receive(:log_message_to_sentry).with(
-              'HCA total failure',
-              :error,
-              {
-                first_initial: 'no initial provided',
-                middle_initial: 'no initial provided',
-                last_initial: 'no initial provided'
-              },
-              hca: :total_failure
-            )
-            subject
+          context ':hca_disable_sentry_logs enabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(true)
+            end
+
+            it 'logs message' do
+              expect(Rails.logger).to receive(:info).with(
+                '[10-10EZ] - HCA total failure',
+                {
+                  first_initial: 'no initial provided',
+                  middle_initial: 'no initial provided',
+                  last_initial: 'no initial provided'
+                }
+              )
+              subject
+            end
+          end
+
+          context ':hca_disable_sentry_logs disabled' do
+            before do
+              allow(Flipper).to receive(:enabled?).with(:hca_disable_sentry_logs).and_return(false)
+            end
+
+            it 'logs message to sentry' do
+              expect(health_care_application).to receive(:log_message_to_sentry).with(
+                'HCA total failure',
+                :error,
+                {
+                  first_initial: 'no initial provided',
+                  middle_initial: 'no initial provided',
+                  last_initial: 'no initial provided'
+                },
+                hca: :total_failure
+              )
+              subject
+            end
           end
         end
       end
@@ -788,6 +1124,14 @@ RSpec.describe HealthCareApplication, type: :model do
       }
     end
 
+    before do
+      allow_any_instance_of(MPI::Service).to receive(
+        :find_profile_by_attributes
+      ).and_return(
+        create(:find_profile_response, profile: OpenStruct.new(icn: '123'))
+      )
+    end
+
     it 'sets the right fields and save the application' do
       health_care_application = build(:health_care_application)
       health_care_application.set_result_on_success!(result)
@@ -796,6 +1140,35 @@ RSpec.describe HealthCareApplication, type: :model do
       expect(health_care_application.success?).to be(true)
       expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
       expect(health_care_application.timestamp).to eq(result[:timestamp])
+    end
+
+    it 'sends the "sent" event to the Event Bus' do
+      health_care_application = build(:health_care_application)
+
+      expect(Kafka).to receive(:submit_event).with(
+        hash_including(
+          state: 'sent',
+          next_id: result[:formSubmissionId].to_s
+        )
+      )
+
+      health_care_application.set_result_on_success!(result)
+    end
+
+    context 'hca_ez_kafka_submission_enabled feature flag off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_ez_kafka_submission_enabled).and_return(false)
+      end
+
+      it 'does not send the "sent" event to the Event Bus' do
+        health_care_application = build(:health_care_application)
+
+        expect(Kafka).not_to receive(:submit_event).with(
+          hash_including(state: 'sent')
+        )
+
+        health_care_application.set_result_on_success!(result)
+      end
     end
   end
 

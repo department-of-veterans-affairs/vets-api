@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/v1/client'
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
+    include RetriableConcern
     service_tag 'caregiver-application'
 
     AUDITOR = ::Form1010cg::Auditor.new
@@ -28,7 +28,7 @@ module V0
         render json: ::Form1010cg::ClaimSerializer.new(@claim)
       else
         PersonalInformationLog.create!(data: { form: @claim.parsed_form }, error_class: '1010CGValidationError')
-        auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
+        auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.full_messages)
         raise(Common::Exceptions::ValidationErrors, @claim)
       end
     rescue => e
@@ -39,10 +39,11 @@ module V0
       raise e
     end
 
-    # If we were unable to submit the user's claim digitally, we allow them to the download
-    # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      source_file_path = @claim.to_pdf(SecureRandom.uuid, sign: false)
+      file_name = SecureRandom.uuid
+      source_file_path = with_retries('Generate 10-10CG PDF') do
+        @claim.to_pdf(file_name, sign: false)
+      end
 
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
@@ -62,7 +63,7 @@ module V0
     private
 
     def lighthouse_facilities_service
-      @lighthouse_facilities_service ||= Lighthouse::Facilities::V1::Client.new
+      @lighthouse_facilities_service ||= FacilitiesApi::V2::Lighthouse::Client.new
     end
 
     def lighthouse_facilities_params

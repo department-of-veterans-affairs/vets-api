@@ -13,12 +13,30 @@ module SimpleFormsApi
         received: template_root.form_upload_received_email
       }.freeze
       SUPPORTED_FORMS = %w[
+        21P-4185
+        21-651
+        21-0304
+        21-8960
+        21P-4706c
+        21-4140
+        21P-4718a
+        21-4193
+        21-0788
+        21-8951-2
+        21-674b
+        21-2680
         21-0779
         21-4192
         21-509
+        21-686c
         21-8940
         21P-0516-1
+        21P-0517-1
         21P-0518-1
+        21P-0519C-1
+        21P-0519S-1
+        21P-530a
+        21P-8049
       ].freeze
 
       def initialize(config, notification_type:)
@@ -56,8 +74,8 @@ module SimpleFormsApi
         all_keys = %i[form_data form_number date_submitted confirmation_number]
 
         missing_keys = all_keys.select { |key| config[key].blank? }
-        email = config.dig(:form_data, :email)
-        first_name = config.dig(:form_data, :full_name, :first)
+        email = config.dig(:form_data, 'email')
+        first_name = config.dig(:form_data, 'full_name', 'first')
         missing_keys << 'form_data: email' if email.blank?
         missing_keys << 'form_data: first_name' if first_name.blank?
 
@@ -76,7 +94,7 @@ module SimpleFormsApi
 
       def send_email_now
         VANotify::EmailJob.perform_async(
-          form_data[:email],
+          form_data['email'],
           template_id,
           get_personalization,
           *email_args
@@ -86,7 +104,7 @@ module SimpleFormsApi
       def enqueue_email(at)
         VANotify::EmailJob.perform_at(
           at,
-          form_data[:email],
+          form_data['email'],
           template_id,
           get_personalization,
           *email_args
@@ -102,9 +120,9 @@ module SimpleFormsApi
 
       def get_personalization
         {
-          'first_name' => form_data.dig(:full_name, :first)&.titleize,
+          'first_name' => form_data.dig('full_name', 'first')&.titleize,
           'form_number' => form_number,
-          'form_name' => form_data[:form_name],
+          'form_name' => form_data['form_name'],
           'date_submitted' => date_submitted,
           'confirmation_number' => confirmation_number
         }.tap do |personalization|

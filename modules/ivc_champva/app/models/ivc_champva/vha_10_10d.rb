@@ -37,7 +37,17 @@ module IvcChampva
         'primaryContactInfo' => @data['primary_contact_info'],
         'hasApplicantOver65' => @data['has_applicant_over65'].to_s,
         'primaryContactEmail' => @data.dig('primary_contact_info', 'email').to_s
-      }
+        # add individual properties for each applicant in the applicants array:
+      }.merge(add_applicant_properties)
+    end
+
+    def add_applicant_properties
+      applicants = @data['applicants']
+      return {} if applicants.blank?
+
+      applicants.each_with_index.with_object({}) do |(app, index), obj|
+        obj["applicant_#{index}"] = extract_applicant_properties(app).to_json
+      end
     end
 
     def desired_stamps
@@ -121,6 +131,10 @@ module IvcChampva
       end
 
       stamps
+    end
+
+    def extract_applicant_properties(app)
+      app.symbolize_keys.slice(:applicant_ssn, :applicant_name, :applicant_dob)
     end
   end
 end

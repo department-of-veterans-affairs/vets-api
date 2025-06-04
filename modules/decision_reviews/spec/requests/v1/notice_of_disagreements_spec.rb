@@ -7,6 +7,7 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
   let(:user) do
     build(:user,
           :loa3,
+          :with_terms_of_use_agreement,
           mhv_correlation_id: 'some-mhv_correlation_id',
           birls_id: 'some-birls_id',
           participant_id: 'some-participant_id',
@@ -120,7 +121,9 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
           message: "Exception occurred while submitting Notice Of Disagreement: #{extra_error_log_message}",
           backtrace: anything
         )
-        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+        expect(Rails.logger).to receive(:error) do |message|
+          expect(message).to include(extra_error_log_message)
+        end
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
         expect(personal_information_logs.count).to be 0

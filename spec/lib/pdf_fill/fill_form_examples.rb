@@ -20,7 +20,7 @@ require 'rails_helper'
 #
 # it_behaves_like 'a form filler', {
 #   form_id: described_class::FORM_ID,
-#   factory: :pensions_module_pension_claim,
+#   factory: :pensions_saved_claim,
 #   use_vets_json_schema: true,
 #   input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
 #   output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
@@ -55,6 +55,11 @@ RSpec.shared_examples 'a form filler' do |options|
             end
           end
 
+          before do
+            allow(Flipper).to receive(:enabled?).with(anything).and_call_original
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_pdf_overflow_tracking).and_return(false)
+          end
+
           it 'fills the form correctly' do
             if type == 'overflow'
               the_extras_generator = nil
@@ -72,19 +77,20 @@ RSpec.shared_examples 'a form filler' do |options|
                           described_class.fill_form(saved_claim)
                         end
 
+            fixture_pdf_base = "#{output_pdf_fixture_dir}/#{type}"
+            extras_redesign = options[:fill_options] && options[:fill_options][:extras_redesign]
+
             if type == 'overflow'
               extras_path = the_extras_generator.generate
 
-              expect(
-                FileUtils.compare_file(extras_path, "#{output_pdf_fixture_dir}/overflow_extras.pdf")
-              ).to be(true)
+              fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign_extras.pdf' : '_extras.pdf')
+              expect(extras_path).to match_file_exactly(fixture_pdf)
 
               File.delete(extras_path)
             end
 
-            expect(
-              pdfs_fields_match?(file_path, "#{output_pdf_fixture_dir}/#{type}.pdf")
-            ).to be(true)
+            fixture_pdf = fixture_pdf_base + (extras_redesign ? '_redesign.pdf' : '.pdf')
+            expect(file_path).to match_pdf_fields(fixture_pdf)
 
             File.delete(file_path)
           end

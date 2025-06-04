@@ -38,6 +38,8 @@ RSpec.describe BGS::PaymentService do
           beneficiary_ids = response[:payments][:payment].map { |pay| pay[:beneficiary_participant_id] }
           recipient_ids = response[:payments][:payment].map { |pay| pay[:recipient_participant_id] }
           expect(beneficiary_ids).to eq(recipient_ids)
+          payee_types = response[:payments][:payment].map { |pay| pay[:payee_type] }
+          expect(payee_types).not_to include('Third Party/Vendor')
         end
       end
     end
@@ -55,6 +57,8 @@ RSpec.describe BGS::PaymentService do
           beneficiary_ids = response[:payments][:payment].map { |pay| pay[:beneficiary_participant_id] }
           recipient_ids = response[:payments][:payment].map { |pay| pay[:recipient_participant_id] }
           expect(beneficiary_ids).not_to eq(recipient_ids)
+          payee_types = response[:payments][:payment].map { |pay| pay[:payee_type] }
+          expect(payee_types).to include('Third Party/Vendor')
         end
       end
     end

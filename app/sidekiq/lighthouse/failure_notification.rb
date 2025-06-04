@@ -15,11 +15,16 @@ class Lighthouse::FailureNotification
   end
 
   sidekiq_retries_exhausted do
-    ::Rails.logger.info('Lighthouse::FailureNotification email could not be sent')
+    message = 'Lighthouse::FailureNotification email could not be sent'
+    ::Rails.logger.info(message)
+    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{message}"])
   end
 
   def notify_client
-    VaNotify::Service.new(NOTIFY_SETTINGS.api_key, { callback_klass: 'BenefitsDocuments::VANotifyEmailStatusCallback' })
+    VaNotify::Service.new(
+      NOTIFY_SETTINGS.api_key,
+      { callback_klass: 'Lighthouse::EvidenceSubmissions::VANotifyEmailStatusCallback' }
+    )
   end
 
   def perform(icn, personalisation)

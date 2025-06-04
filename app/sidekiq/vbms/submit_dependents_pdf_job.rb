@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dependents/monitor'
+
 module VBMS
   class SubmitDependentsPdfJob
     class Invalid686cClaim < StandardError; end
@@ -11,6 +13,8 @@ module VBMS
     sidekiq_options retry: 16
     attr_reader :claim
 
+    STATSD_KEY = 'worker.submit_dependents_pdf'
+
     sidekiq_retries_exhausted do |msg, error|
       Rails.logger.error('VBMS::SubmitDependentsPdfJob failed, retries exhausted!',
                          { saved_claim_id: msg['args'][0], error: })
@@ -18,8 +22,9 @@ module VBMS
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, encrypted_vet_info, submittable_686_form, submittable_674_form)
+      monitor = Dependents::Monitor.new(saved_claim_id)
+      monitor.track_event('info', 'VBMS::SubmitDependentsPdfJob running!', "#{STATSD_KEY}.begin")
       va_file_number_with_payload = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.info('VBMS::SubmitDependentsPdfJob running!', { saved_claim_id: })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
 
@@ -28,9 +33,10 @@ module VBMS
       upload_attachments
 
       generate_pdf(submittable_686_form, submittable_674_form)
-      Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
+      monitor.track_event('info', 'VBMS::SubmitDependentsPdfJob succeeded!', "#{STATSD_KEY}.success")
     rescue => e
-      Rails.logger.warn('VBMS::SubmitDependentsPdfJob failed, retrying...', { saved_claim_id:, error: e.message })
+      monitor.track_event('error', 'VBMS::SubmitDependentsPdfJob failed!',
+                          "#{STATSD_KEY}.failure", { error: e.message })
       @saved_claim_id = saved_claim_id
       raise
     end
