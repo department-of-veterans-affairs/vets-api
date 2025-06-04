@@ -18,7 +18,8 @@ describe VAProfile::Models::ServiceHistory do
   let(:user) { build(:user) }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(false) # rubocop:disable Naming/VariableNumber
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+    Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
   end
 
   context 'when service history json is present' do
@@ -55,7 +56,7 @@ describe VAProfile::Models::ServiceHistory do
   describe '#determing_eligibility' do
     context 'when vet_status_stage_1 is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
+        Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
       end
 
       it 'returns not eligible with service history missing characterOfDischargeCode' do

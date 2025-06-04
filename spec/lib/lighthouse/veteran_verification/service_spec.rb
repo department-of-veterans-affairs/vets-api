@@ -10,6 +10,10 @@ RSpec.describe VeteranVerification::Service do
     @service = VeteranVerification::Service.new
   end
 
+  before do
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+  end
+
   describe 'making requests' do
     context 'valid requests' do
       before do
@@ -78,7 +82,7 @@ RSpec.describe VeteranVerification::Service do
           let(:service) { VeteranVerification::Service.new(user) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(false) # rubocop:disable Naming/VariableNumber
+            Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
           end
 
           it 'retrieves error status from the Lighthouse API' do
@@ -164,7 +168,7 @@ RSpec.describe VeteranVerification::Service do
           let(:service) { VeteranVerification::Service.new(user) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(false) # rubocop:disable Naming/VariableNumber
+            Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
           end
 
           it 'retrieves more research required status from the Lighthouse API' do
@@ -213,16 +217,12 @@ RSpec.describe VeteranVerification::Service do
       describe 'with titled alerts enabled' do
         let(:icn) { '1012667145V762142' }
 
-        before do
-          allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
-        end
-
         context 'on error' do
           let(:user) { build(:user, icn: '1012666182V20') }
           let(:service) { VeteranVerification::Service.new(user) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
+            Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
           end
 
           it 'retrieves error status from the Lighthouse API' do
@@ -252,7 +252,7 @@ RSpec.describe VeteranVerification::Service do
           let(:service) { VeteranVerification::Service.new(user) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
+            Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
           end
 
           it 'retrieves veteran not confirmed status from the Lighthouse API' do
@@ -280,7 +280,7 @@ RSpec.describe VeteranVerification::Service do
           let(:service) { VeteranVerification::Service.new(user) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
+            Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
           end
 
           it 'retrieves veteran not found status from the Lighthouse API' do
@@ -296,7 +296,7 @@ RSpec.describe VeteranVerification::Service do
               expect(response['data']['id']).to be_nil
               expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
               expect(response['data']['attributes']).to have_key('not_confirmed_reason')
-              expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
+              expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED)
               expect(response['data']['title']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE)
               expect(response['data']['status']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS)
             end
@@ -308,7 +308,7 @@ RSpec.describe VeteranVerification::Service do
           let(:service) { VeteranVerification::Service.new(user) }
 
           before do
-            allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, user).and_return(true) # rubocop:disable Naming/VariableNumber
+            Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
           end
 
           it 'retrieves more research required status from the Lighthouse API' do

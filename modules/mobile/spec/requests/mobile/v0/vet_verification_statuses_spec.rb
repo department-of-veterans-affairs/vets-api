@@ -9,7 +9,8 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
   before do
     sign_in_as(user)
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return('blahblech')
-    allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(false) # rubocop:disable Naming/VariableNumber
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+    Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
   end
 
   describe '#show' do
@@ -69,7 +70,7 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
 
       context 'when vet_status_stage_1 is enabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(true) # rubocop:disable Naming/VariableNumber
+          Flipper.enable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
         end
 
         it 'returns a person_not_found reason' do
@@ -88,7 +89,7 @@ RSpec.describe 'Mobile::V0::VetVerificationStatuses', type: :request do
 
       context 'when vet_status_stage_1 is disabled' do
         before do
-          allow(Flipper).to receive(:enabled?).with(:vet_status_stage_1, instance_of(User)).and_return(false) # rubocop:disable Naming/VariableNumber
+          Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
         end
 
         it 'returns a person_not_found reason' do
