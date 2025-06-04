@@ -133,13 +133,13 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
 
       before do
         allow(eps_appointment_service).to receive(:submit_appointment).and_raise(error)
-        allow(controller).to receive(:handle_appointment_error)
+        allow(controller).to receive(:handle_appointment_creation_error)
       end
 
-      it 'calls handle_appointment_error' do
+      it 'calls handle_appointment_creation_error' do
         controller.submit_referral_appointment
 
-        expect(controller).to have_received(:handle_appointment_error).with(error)
+        expect(controller).to have_received(:handle_appointment_creation_error).with(error)
         expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.failure')
       end
     end
