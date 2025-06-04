@@ -147,5 +147,16 @@ module BPDS
         **additional_context
       )
     end
+
+    def track_skip_bpds_job(saved_claim_id)
+      additional_context = { saved_claim_id: }
+      track_request(
+        'info',
+        "Pensions::V0::ClaimsController: No user identifier found, skipping BPDS job for saved_claim #{saved_claim_id}",
+        "#{STATSD_KEY_PREFIX}.job_skipped_missing_identifier",
+        call_location: caller_locations.first,
+        **additional_context
+      )
+    end
   end
 end

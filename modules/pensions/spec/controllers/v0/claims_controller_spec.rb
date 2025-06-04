@@ -123,6 +123,9 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       allow(BPDS::Monitor).to receive(:new).and_return(bpds_monitor)
       allow(bpds_monitor).to receive(:track_submit_begun)
       allow(bpds_monitor).to receive(:track_get_user_identifier)
+      allow(bpds_monitor).to receive(:track_get_user_identifier_result)
+      allow(bpds_monitor).to receive(:track_get_user_identifier_file_number_result)
+      allow(bpds_monitor).to receive(:track_skip_bpds_job)
       allow(BPDS::Submission).to receive(:create).and_return(bpds_submission)
       allow(BPDS::Sidekiq::SubmitToBPDSJob).to receive(:perform_async)
     end
@@ -191,6 +194,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
         allow(subject).to receive(:current_user).and_return(nil) # rubocop:disable RSpec/SubjectStub
 
         expect(bpds_monitor).to receive(:track_get_user_identifier).with('unauthenticated').once
+        expect(bpds_monitor).to receive(:track_skip_bpds_job).with(claim.id).once
         expect(bpds_monitor).not_to receive(:track_get_user_identifier_result)
         expect(bpds_monitor).not_to receive(:track_get_user_identifier_result_file_number)
         expect(bpds_monitor).not_to receive(:track_submit_begun)

@@ -132,4 +132,17 @@ RSpec.describe BPDS::Monitor do
       monitor.track_get_user_identifier_file_number_result(is_file_number_present)
     end
   end
+
+  describe '#track_skip_bpds_job' do
+    it 'tracks the skip_bpds_job event' do
+      expect(monitor).to receive(:track_request).with(
+        'info',
+        "Pensions::V0::ClaimsController: No user identifier found, skipping BPDS job for saved_claim #{saved_claim_id}",
+        'api.bpds_service.job_skipped_missing_identifier',
+        call_location: instance_of(Thread::Backtrace::Location),
+        saved_claim_id:
+      )
+      monitor.track_skip_bpds_job(saved_claim_id)
+    end
+  end
 end
