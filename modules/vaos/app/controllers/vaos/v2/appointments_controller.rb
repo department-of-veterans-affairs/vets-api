@@ -661,10 +661,10 @@ module VAOS
             title: kwargs[:title] || default_title,
             detail: kwargs[:detail] || default_detail,
             meta: {
-              original_detail: error.respond_to?(:response_values) ? error.response_values[:detail] : nil,
-              original_error: error.respond_to?(:message) ? error.message : 'Unknown error',
+              original_detail: error.try(:response_values)&.dig(:detail),
+              original_error: error.try(:message) || 'Unknown error',
               code: status_code,
-              backend_response: error.respond_to?(:original_body) ? error.original_body : nil
+              backend_response: error.try(:original_body)
             }
           }]
         }
