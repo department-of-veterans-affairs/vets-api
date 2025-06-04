@@ -7,6 +7,9 @@ module IncomeAndAssets
     # Section I: Veteran Informations
     class Section1 < Section
       # Section configuration hash
+      # NOTE: `key` fields should follow the format:
+      #   `<section_prefix>.<subsection>.<key>`
+      # Example: 'Section1A.VeteranName.First'
       KEY = {
         # 1A
         'veteranFullName' => {
