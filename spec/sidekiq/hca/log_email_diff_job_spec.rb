@@ -19,7 +19,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
       subject
 
-      expect(FormEmailMatchesProfileLog).not_to receive(:create).with(
+      expect(FormEmailMatchesProfileLog).not_to receive(:find_or_create_by).with(
         user_uuid: user.uuid, in_progress_form_id: in_progress_form.id, user_account_id: user.user_account_uuid
       )
     end
@@ -66,6 +66,23 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
           end
 
           expect_does_nothing
+        end
+
+        context 'when FormEmailMatchesProfileLog find_or_create_by returns model' do
+          before do
+            form_email_matches_profile_log = FormEmailMatchesProfileLog.new(
+              user_uuid: user.uuid,
+              in_progress_form_id: in_progress_form.id,
+              user_account_id: user.user_account_uuid
+            )
+            allow(FormEmailMatchesProfileLog).to receive(:find_or_create_by).and_return(form_email_matches_profile_log)
+          end
+
+          it 'does not increment statsd' do
+            expect(StatsD).not_to receive(:increment)
+
+            subject
+          end
         end
       end
 
