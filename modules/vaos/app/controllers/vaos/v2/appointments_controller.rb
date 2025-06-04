@@ -91,12 +91,6 @@ module VAOS
         end
       end
 
-      def handle_appointment_error(e)
-        original_status = e.respond_to?(:original_status) ? e.original_status : nil
-        status_code = appointment_error_status(original_status)
-        render(json: appt_creation_failed_error(error: e), status: status_code)
-      end
-
       def update
         updated_appointment
         set_facility_error_msg(updated_appointment)
@@ -740,6 +734,12 @@ module VAOS
         drive_time = fetch_drive_times(provider)
 
         { success: true, data: build_draft_response(draft, provider, slots, drive_time) }
+      end
+
+      def handle_appointment_error(e)
+        original_status = e.respond_to?(:original_status) ? e.original_status : nil
+        status_code = appointment_error_status(original_status)
+        render(json: appt_creation_failed_error(error: e), status: status_code)
       end
     end
   end
