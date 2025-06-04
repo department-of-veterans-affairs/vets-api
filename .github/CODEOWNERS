@@ -259,7 +259,7 @@ app/models/persistent_attachment.rb  @department-of-veterans-affairs/benefits-no
 app/models/persistent_attachments/dependency_claim.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments/lgy_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments/pension_burial.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/persistent_attachments/va_form_attachment.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/persistent_attachments/va_form_documentation.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments/va_form.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/personal_information_log.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/power_of_attorney.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
