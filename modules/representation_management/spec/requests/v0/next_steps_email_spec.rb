@@ -48,7 +48,15 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'representative type' => 'attorney',
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
-          }
+          },
+          { callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+            callback_metadata: {
+              form_number: 'Form Number',
+              statsd_tags: {
+                service: 'representation-management',
+                function: 'appoint_a_representative_confirmation_email'
+              }
+            } }
         )
         post(base_path, params:)
       end
