@@ -6,7 +6,9 @@ require 'common/file_helpers'
 
 RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadController, type: :request do
   let!(:poa_code) { '067' }
-  let(:representative_user) { create(:representative_user, email: 'test@va.gov', icn: '123498767V234859') }
+  let(:representative_user) do
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
+  end
   let!(:accredited_individual) do
     create(:user_account_accredited_individual,
            user_account_email: representative_user.email,
@@ -17,6 +19,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
   let!(:representative) do
     create(:representative,
            :vso,
+           email: representative_user.email,
            representative_id: accredited_individual.accredited_individual_registration_number,
            poa_codes: [poa_code])
   end
@@ -37,6 +40,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
                       'representative_form_upload_21_686c.json')
     end
     let(:veteran_params) { JSON.parse(representative_fixture_path.read) }
+    let(:invalid_form_fixture_path) do
+      Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
+                      'invalid_form_number.json')
+    end
+    let(:invalid_form_params) { JSON.parse(invalid_form_fixture_path.read) }
 
     let(:claimant_fixture_path) do
       Rails.root.join('modules', 'accredited_representative_portal', 'spec', 'fixtures', 'form_data',
@@ -53,6 +61,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
     end
     let(:pdf_stamper) { double(stamp_pdf: nil) }
     let(:confirmation_code) { '123456' }
+    let(:form) { instance_double(SimpleFormsApi::VBA21686C) }
     let(:attachment) { double }
 
     before do
@@ -61,8 +70,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
       allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
         original_method.call(args[0], random_string)
       end
-      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
-                                                              timestamp: anything).and_return(pdf_stamper)
+      allow(SimpleFormsApi::VBA21686C).to receive(:new).and_return form
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(form:, stamped_template_path: pdf_path.to_s,
+                                                              current_loa: 3, timestamp: anything).and_return(
+                                                                pdf_stamper
+                                                              )
       allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
     end
@@ -159,6 +171,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeFormUploadContr
         post('/accredited_representative_portal/v0/submit_representative_form', params: veteran_params)
 
         expect(response).to have_http_status(:ok)
+      end
+
+      context 'invalid form number' do
+        it 'causes a 400 error' do
+          expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
+          post('/accredited_representative_portal/v0/submit_representative_form', params: invalid_form_params)
+
+          expect(response).to have_http_status(:bad_request)
+        end
       end
     end
   end
