@@ -2,7 +2,7 @@
 
 module AccreditedRepresentativePortal
   module V0
-    module RepresentativeFormUploadConcern
+    module RepresentativeFormUploadConcern # rubocop:disable Metrics/ModuleLength
       extend ActiveSupport::Concern
 
       def validated_metadata
@@ -34,7 +34,7 @@ module AccreditedRepresentativePortal
         @form_params ||= get_form_params
       end
 
-      def get_form_params
+      def get_form_params # rubocop:disable Metrics/MethodLength
         unwrapped_params =
           params.require(:representative_form_upload)
 
