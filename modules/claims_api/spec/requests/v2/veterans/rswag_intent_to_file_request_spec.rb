@@ -335,6 +335,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
           end
         end
       end
+
       describe 'Getting 502 No BnftClaim found from BGS' do
         response '502', '0966 Response' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',

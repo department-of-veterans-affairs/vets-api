@@ -20,7 +20,6 @@ module ClaimsApi
       @fault_string = fault&.dig('faultstring')
       @fault_message = fault&.dig('detail', 'MessageException') || fault&.dig('detail', 'MessageFaultException')
 
-
       get_exception
     end
 
