@@ -19,7 +19,7 @@ module ClaimsApi
       @fault_code = fault&.dig('faultcode')&.split(':')&.dig(1)
       @fault_string = fault&.dig('faultstring')
       @fault_message = fault&.dig('detail', 'MessageException') || fault&.dig('detail', 'MessageFaultException')
-      return {} if @fault_string.include?('IntentToFileWebService') && @fault_string.include?('not found')
+
 
       get_exception
     end
@@ -41,6 +41,8 @@ module ClaimsApi
         )
       elsif record_not_found?
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Record not found.')
+      elsif veteran_not_found?
+        { status: '404', detail: 'Veteran ID not found' }
       else
         soap_logging('500')
         raise ::Common::Exceptions::ServiceError.new(detail: 'An external server is experiencing difficulty.')
@@ -81,6 +83,12 @@ module ClaimsApi
       has_error = @fault_string.include?('No Record Found')
       soap_logging('404') if has_error
 
+      has_error
+    end
+
+    def veteran_not_found?
+      has_error = @fault_string.include?('IntentToFileWebService') && @fault_string.include?('not found')
+      soap_logging('404') if has_error
       has_error
     end
 
