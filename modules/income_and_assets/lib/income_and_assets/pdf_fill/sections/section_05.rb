@@ -14,8 +14,10 @@ module IncomeAndAssets
         },
         # 5b - 5d (only space for three on form)
         'ownedAssets' => {
+          # Label for each asset entry (e.g., 'Asset 1')
+          item_label: 'Asset',
           limit: 3,
-          first_key: 'recipientRelationship',
+          first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
             key: "F[0].IncomeRecipients5[#{ITERATOR}]"
@@ -23,13 +25,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 5,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship5[#{ITERATOR}]",
             question_num: 5,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -37,7 +41,8 @@ module IncomeAndAssets
             question_num: 5,
             question_suffix: '(2)',
             question_text:
-                      'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+                      'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Name'
           },
           # Q3
           'assetType' => {
@@ -46,7 +51,8 @@ module IncomeAndAssets
           'assetTypeOverflow' => {
             question_num: 5,
             question_suffix: '(3)',
-            question_text: 'IDENTIFY THE TYPE OF ASSET AND SUBMIT THE REQUIRED FORM ASSOCIATED'
+            question_text: 'IDENTIFY THE TYPE OF ASSET AND SUBMIT THE REQUIRED FORM ASSOCIATED',
+            question_label: 'Asset Type'
           },
           # Q4
           'grossMonthlyIncome' => {
@@ -61,9 +67,11 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 5,
             question_suffix: '(4)',
-            question_text: 'GROSS MONTHLY INCOME'
+            question_text: 'GROSS MONTHLY INCOME',
+            question_label: 'Gross Monthly Income'
           },
           # Q5
           'ownedPortionValue' => {
@@ -81,9 +89,11 @@ module IncomeAndAssets
             }
           },
           'ownedPortionValueOverflow' => {
+            dollar: true,
             question_num: 5,
             question_suffix: '(5)',
-            question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY'
+            question_text: 'SPECIFY VALUE OF YOUR PORTION OF THE PROPERTY',
+            question_label: 'Owned Portion Value'
           }
         }
       }.freeze

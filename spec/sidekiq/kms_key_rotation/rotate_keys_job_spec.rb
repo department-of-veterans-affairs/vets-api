@@ -16,13 +16,6 @@ RSpec.describe KmsKeyRotation::RotateKeysJob, type: :job do
       expect(records).to all(receive(:rotate_kms_key!))
       job.perform(args)
     end
-
-    it 'skips and resets the callback' do
-      expect(HealthQuest::QuestionnaireResponse).to receive(:skip_callback).once
-      expect(HealthQuest::QuestionnaireResponse).to receive(:set_callback).once
-
-      job.perform(args)
-    end
   end
 
   describe '#rotate_kms_key' do

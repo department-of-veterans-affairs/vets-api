@@ -15,6 +15,10 @@ describe VAProfile::Models::ServiceHistory do
     }'
   end
 
+  before do
+    Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+  end
+
   context 'when service history json is present' do
     it 'returns a service_history model' do
       model = create_model(json)
@@ -47,74 +51,146 @@ describe VAProfile::Models::ServiceHistory do
   end
 
   describe '#determing_eligibility' do
-    let(:not_eligible_message) do
-      [
-        'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you must ' \
-        'have received an honorable discharge for at least one period of service.',
-        'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
-        '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-      ]
+    context 'when vet_status_stage_1 is enabled' do
+      before do
+        Flipper.enable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+      end
+
+      after do
+        Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+      end
+
+      it 'returns not eligible with service history missing characterOfDischargeCode' do
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
+      end
+
+      it 'returns not eligible with dishonorable service history' do
+        json = '{
+          "branch_of_service_text": "National Guard",
+          "period_of_service_begin_date": "2010-01-01",
+          "period_of_service_end_date": "2015-12-31",
+          "period_of_service_type_code": "N",
+          "period_of_service_type_text": "National Guard member",
+          "character_of_discharge_code":"D"
+        }'
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
+      end
+
+      it 'returns eligible with honorable service history' do
+        json = '{
+          "branch_of_service_text": "National Guard",
+          "period_of_service_begin_date": "2010-01-01",
+          "period_of_service_end_date": "2015-12-31",
+          "period_of_service_type_code": "N",
+          "period_of_service_type_text": "National Guard member",
+          "character_of_discharge_code":"A"
+        }'
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+        expect(eligibility).to eq({ confirmed: true, message: [], title: '', status: '' })
+      end
+
+      it 'returns problem message with no service history' do
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
+      end
+
+      it 'returns problem message with service history containing unknown discharge code' do
+        json = '{
+          "branch_of_service_text": "National Guard",
+          "period_of_service_begin_date": "2010-01-01",
+          "period_of_service_end_date": "2015-12-31",
+          "period_of_service_type_code": "N",
+          "period_of_service_type_text": "National Guard member",
+          "character_of_discharge_code":"Z"
+        }'
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE_UPDATED,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
+      end
     end
-    let(:problem_message) do
-      [
-        'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status card ' \
-        'for you right now.',
-        'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711). ' \
-        'They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
-      ]
-    end
 
-    it 'returns not eligible with service history missing characterOfDischargeCode' do
-      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+    context 'when vet_status_stage_1 is disabled' do
+      it 'returns not eligible with service history missing characterOfDischargeCode' do
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-      expect(eligibility).to eq({ confirmed: false, message: not_eligible_message })
-    end
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
+      end
 
-    it 'returns not eligible with dishonorable service history' do
-      json = '{
-        "branch_of_service_text": "National Guard",
-        "period_of_service_begin_date": "2010-01-01",
-        "period_of_service_end_date": "2015-12-31",
-        "period_of_service_type_code": "N",
-        "period_of_service_type_text": "National Guard member",
-        "character_of_discharge_code":"D"
-      }'
-      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+      it 'returns not eligible with dishonorable service history' do
+        json = '{
+          "branch_of_service_text": "National Guard",
+          "period_of_service_begin_date": "2010-01-01",
+          "period_of_service_end_date": "2015-12-31",
+          "period_of_service_type_code": "N",
+          "period_of_service_type_text": "National Guard member",
+          "character_of_discharge_code":"D"
+        }'
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-      expect(eligibility).to eq({ confirmed: false, message: not_eligible_message })
-    end
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE_STATUS })
+      end
 
-    it 'returns eligible with honorable service history' do
-      json = '{
-        "branch_of_service_text": "National Guard",
-        "period_of_service_begin_date": "2010-01-01",
-        "period_of_service_end_date": "2015-12-31",
-        "period_of_service_type_code": "N",
-        "period_of_service_type_text": "National Guard member",
-        "character_of_discharge_code":"A"
-      }'
-      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+      it 'returns eligible with honorable service history' do
+        json = '{
+          "branch_of_service_text": "National Guard",
+          "period_of_service_begin_date": "2010-01-01",
+          "period_of_service_end_date": "2015-12-31",
+          "period_of_service_type_code": "N",
+          "period_of_service_type_text": "National Guard member",
+          "character_of_discharge_code":"A"
+        }'
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-      expect(eligibility).to eq({ confirmed: true, message: [] })
-    end
+        expect(eligibility).to eq({ confirmed: true, message: [], title: '', status: '' })
+      end
 
-    it 'returns problem message with no service history' do
-      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
-      expect(eligibility).to eq({ confirmed: false, message: problem_message })
-    end
+      it 'returns problem message with no service history' do
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([])
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
+      end
 
-    it 'returns problem message with service history containing unknown discharge code' do
-      json = '{
-        "branch_of_service_text": "National Guard",
-        "period_of_service_begin_date": "2010-01-01",
-        "period_of_service_end_date": "2015-12-31",
-        "period_of_service_type_code": "N",
-        "period_of_service_type_text": "National Guard member",
-        "character_of_discharge_code":"Z"
-      }'
-      eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
+      it 'returns problem message with service history containing unknown discharge code' do
+        json = '{
+          "branch_of_service_text": "National Guard",
+          "period_of_service_begin_date": "2010-01-01",
+          "period_of_service_end_date": "2015-12-31",
+          "period_of_service_type_code": "N",
+          "period_of_service_type_text": "National Guard member",
+          "character_of_discharge_code":"Z"
+        }'
+        eligibility = VAProfile::Models::ServiceHistory.determine_eligibility([create_model(json)])
 
-      expect(eligibility).to eq({ confirmed: false, message: problem_message })
+        expect(eligibility).to eq({ confirmed: false,
+                                    message: VeteranVerification::Constants::NOT_FOUND_MESSAGE,
+                                    title: VeteranVerification::Constants::NOT_FOUND_MESSAGE_TITLE,
+                                    status: VeteranVerification::Constants::NOT_FOUND_MESSAGE_STATUS })
+      end
     end
   end
 

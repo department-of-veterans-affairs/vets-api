@@ -140,7 +140,7 @@ class FormProfiles::VA526ez < FormProfile
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
-      rated_disabilities: response.rated_disabilities.map(&:to_h)
+      rated_disabilities: response.rated_disabilities.map(&:attribute_values)
     )
   end
 

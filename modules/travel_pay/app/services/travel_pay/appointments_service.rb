@@ -45,7 +45,7 @@ module TravelPay
     #  {
     #   appointment_date_time: datetime string ('2024-01-01T12:45:34.465Z'),
     #   facility_station_number: string (i.e. facilityId),
-    #   appointment_name: string, **Optional
+    #   appointment_name: string, **Optional - but will fail if passed an empty string
     #   appointment_type: string, 'CompensationAndPensionExamination' || 'Other'
     #   is_complete: boolean,
     #  }

@@ -15,6 +15,12 @@ module Vye
       def create
         authorize user_info, policy_class: UserInfoPolicy
 
+        if Flipper.enabled?(:disable_bdn_processing)
+          Rails.logger.warn("DISABLE BDN PROCESSING: received unexpected call to VerificationsController, UserInfo ID: #{user_info&.id}") # rubocop:disable Layout/LineLength
+          render json: {}, status: :bad_request
+          return
+        end
+
         validate_award_ids!
 
         transact_date = pending_verifications.map { |pv| pv.act_end.to_date }.max

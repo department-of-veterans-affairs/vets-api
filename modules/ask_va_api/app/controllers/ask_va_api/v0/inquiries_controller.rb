@@ -13,10 +13,6 @@ module AskVAApi
       end
 
       def show
-        if Settings.vsp_environment == 'production'
-          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
-        end
-
         inq = retriever.fetch_by_id(id: params[:id])
         render json: Inquiries::Serializer.new(inq).serializable_hash, status: :ok
       end
@@ -30,10 +26,6 @@ module AskVAApi
       end
 
       def download_attachment
-        if Settings.vsp_environment == 'production'
-          render json: { error: 'This endpoint is not available in production.' }, status: :forbidden and return
-        end
-
         entity_class = Attachments::Entity
         att = Attachments::Retriever.new(
           icn: current_user.icn,
@@ -61,7 +53,13 @@ module AskVAApi
       end
 
       def create_reply
-        response = Correspondences::Creator.new(params: reply_params, inquiry_id: params[:id], service: nil).call
+        response = Correspondences::Creator.new(
+          icn: current_user&.icn,
+          params: reply_params,
+          inquiry_id: params[:id],
+          service: nil
+        ).call
+
         render json: response.to_json, status: :ok
       end
 

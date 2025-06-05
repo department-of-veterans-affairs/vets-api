@@ -19,5 +19,16 @@ module IncomeAndAssets
         ::PdfFill::Filler.register_form(IncomeAndAssets::FORM_ID, IncomeAndAssets::PdfFill::Va21p0969)
       end
     end
+
+    initializer 'income_and_assets.benefits_intake.register_handler' do |app|
+      app.config.to_prepare do
+        require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+        require 'income_and_assets/benefits_intake/submission_handler'
+
+        # Register the Benefits Intake Submission Handler
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(IncomeAndAssets::FORM_ID,
+                                                               IncomeAndAssets::BenefitsIntake::SubmissionHandler)
+      end
+    end
   end
 end

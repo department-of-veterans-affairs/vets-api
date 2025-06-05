@@ -1,0 +1,67 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: <VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035
+    body:
+      encoding: UTF-8
+      string: '{"associations":[{"address":{"city":"chihuahua","country":"MEX","line1":"SW
+        54th St","line2":"Apt 1","line3":"Unit 4","provinceCode":"chihuahua","postalCode":"54345"},"name":{"givenName":"UPDATEDFIRSTNOKA","middleName":"UPDATEDMIDDLENOKA","familyName":"UPDATEDLASTNOKA","suffix":"JR."},"role":"","relationType":"","primaryPhone":"4449131234","alternatePhone":"6544551234","lastUpdateDate":"2025-04-24T19:44:08Z"},{"address":{"city":"Clearwater","country":"USA","line1":"845
+        Glendale Ave","line2":"Unit 43","state":"FL","zipCode":"33754","zipPlus4":"8753"},"name":{"givenName":"UPDATEDFIRSTNOKB","middleName":"UPDATEDMIDDLENOKB","familyName":"UPDATEDLASTNOKB"},"role":"","relationType":"","primaryPhone":"1238835546","alternatePhone":"2658350023","lastUpdateDate":"2025-04-24T19:44:08Z"},{"address":{"city":"Los
+        Angeles","country":"USA","line1":"28 Parker St","state":"CA","zipCode":"90038","zipPlus4":"1234"},"name":{"givenName":"UPDATEDFIRSTECA","middleName":"UPDATEDMIDDLEECA","familyName":"UPDATEDLASTECA"},"role":"","relationType":"","primaryPhone":"3322743546","alternatePhone":"2694437134","lastUpdateDate":"2025-04-24T19:44:08Z"},{"address":{"city":"Wichita","country":"USA","line1":"875
+        West Blvd","line2":"Apt 3","line3":"Unit 6","state":"KS","zipCode":"67203","zipPlus4":"1234"},"name":{"givenName":"UPDATEDFIRSTECB","middleName":"UPDATEDMIDDLEECB","familyName":"UPDATEDLASTECB"},"role":"","relationType":"","primaryPhone":"9942738265","alternatePhone":"9563001117","lastUpdateDate":"2025-04-24T19:44:08Z"}]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Thu, 24 Apr 2025 19:44:12 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - envoy
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Envoy-Upstream-Service-Time:
+      - '9'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="2132325786"
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"description":"associations[0].relationType: Relation
+        type is required","code":"VES_109"},{"description":"associations[1].role:
+        Role is required","code":"VES_109"},{"description":"associations[0].role:
+        Role is required","code":"VES_109"},{"description":"associations[3].role:
+        Role is required","code":"VES_109"},{"description":"associations[2].role:
+        Role is required","code":"VES_109"},{"description":"associations[3].relationType:
+        Relation type is required","code":"VES_109"},{"description":"associations[2].relationType:
+        Relation type is required","code":"VES_109"},{"description":"associations[1].relationType:
+        Relation type is required","code":"VES_109"}],"retryable":false}'
+  recorded_at: Thu, 24 Apr 2025 19:44:12 GMT
+recorded_with: VCR 6.3.1

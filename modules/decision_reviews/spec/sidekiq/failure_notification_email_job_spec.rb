@@ -27,8 +27,12 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
     service
   end
 
-  let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
-  let(:user_uuid2) { create(:user, :loa3, uuid: SecureRandom.uuid, ssn: '412222112').uuid }
+  let(:user_verification) { create(:idme_user_verification) }
+  let(:user_account) { user_verification.user_account }
+  let(:user_uuid) { create(:user, :loa3, idme_uuid: user_verification.idme_uuid, ssn: '212222112').uuid }
+  let(:user_verification2) { create(:idme_user_verification) }
+  let(:user_account2) { user_verification2.user_account }
+  let(:user_uuid2) { create(:user, :loa3, idme_uuid: user_verification2.idme_uuid, ssn: '412222112').uuid }
 
   let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
   let(:mpi_profile2) { build(:mpi_profile, vet360_id: Faker::Number.number) }
@@ -36,9 +40,10 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
   let(:find_profile_response2) { create(:find_profile_response, profile: mpi_profile2) }
   let(:mpi_service) do
     service = instance_double(MPI::Service, find_profile_by_identifier: nil)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_account.icn, identifier_type: anything)
                                                           .and_return(find_profile_response)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid2, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_account2.icn,
+                                                                identifier_type: anything)
                                                           .and_return(find_profile_response2)
 
     service
@@ -109,10 +114,11 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           SavedClaim::SupplementalClaim.create(guid: guid2, form:, metadata: '{"status":"error"}')
           SavedClaim::SupplementalClaim.create(guid: guid3, form: form2, metadata: '{"status":"pending"}')
 
-          create(:appeal_submission, user_uuid:, type_of_appeal: 'SC', submitted_appeal_uuid: guid1, created_at:)
-          create(:appeal_submission, user_uuid:, type_of_appeal: 'SC', submitted_appeal_uuid: guid2,
+          create(:appeal_submission, user_account:, type_of_appeal: 'SC', submitted_appeal_uuid: guid1,
+                                     created_at:)
+          create(:appeal_submission, user_account:, type_of_appeal: 'SC', submitted_appeal_uuid: guid2,
                                      failure_notification_sent_at: DateTime.new(2023, 1, 2))
-          create(:appeal_submission, user_uuid:, type_of_appeal: 'SC', submitted_appeal_uuid: guid3)
+          create(:appeal_submission, user_account:, type_of_appeal: 'SC', submitted_appeal_uuid: guid3)
         end
 
         it 'sends email for form and sets notification date if email has not been sent' do
@@ -297,11 +303,12 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           SavedClaim::NoticeOfDisagreement.create(guid: guid4, form: '{}', metadata: nil)
 
           # 1 error no email, 1 vbms, 1 error already emailed
-          appeal_submission = create(:appeal_submission, user_uuid:, submitted_appeal_uuid: guid1, created_at:)
+          appeal_submission = create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1,
+                                                         created_at:)
           # 1 processing
           appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2, created_at:)
           # 1 error
-          appeal_submission3 = create(:appeal_submission, user_uuid: user_uuid2, submitted_appeal_uuid: guid3,
+          appeal_submission3 = create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid3,
                                                           created_at:)
           # no metadata
           create(:appeal_submission, submitted_appeal_uuid: guid4, created_at:)
@@ -369,9 +376,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               expect(upload5.failure_notification_sent_at).to eq frozen_time
 
               expect(mpi_service).to have_received(:find_profile_by_identifier)
-                .with(identifier: user_uuid, identifier_type: 'idme').once
+                .with(identifier: user_account.icn, identifier_type: 'ICN').once
               expect(mpi_service).to have_received(:find_profile_by_identifier)
-                .with(identifier: user_uuid2, identifier_type: 'idme').once
+                .with(identifier: user_account2.icn, identifier_type: 'ICN').once
 
               logger_params = [
                 'DecisionReviews::FailureNotificationEmailJob evidence email queued',
@@ -454,8 +461,12 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
             updateDate: 5.days.ago
           }.to_json
         end
-        let(:appeal_submission1) { create(:appeal_submission, submitted_appeal_uuid: guid1, type_of_appeal: 'SC') }
-        let(:appeal_submission2) { create(:appeal_submission, submitted_appeal_uuid: guid2, type_of_appeal: 'SC') }
+        let(:appeal_submission1) do
+          create(:appeal_submission, user_account:, submitted_appeal_uuid: guid1, type_of_appeal: 'SC')
+        end
+        let(:appeal_submission2) do
+          create(:appeal_submission, user_account: user_account2, submitted_appeal_uuid: guid2, type_of_appeal: 'SC')
+        end
         let!(:secondary_form1) do
           create(:secondary_appeal_form4142, appeal_submission: appeal_submission1, status: secondary_form_status_error)
         end

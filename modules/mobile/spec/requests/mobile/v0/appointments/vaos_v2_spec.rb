@@ -209,10 +209,21 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         let(:start_date) { Time.zone.parse('2021-01-01T00:00:00Z').iso8601 }
         let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
         let(:params) { { startDate: start_date, endDate: end_date, include: ['travel_pay_claims'] } }
+        let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+        before do
+          allow(TravelPay::AuthManager)
+            .to receive(:new)
+            .and_return(double('AuthManager', authorize: tokens))
+          allow(Settings.travel_pay).to receive_messages(client_number: '12345', mobile_client_number: '56789')
+        end
 
         it 'appends claim info when travel_pay_claims flag is passed' do
           # This needs to be enabled for the claims to be appended in the VAOS service
           allow(Flipper).to receive(:enabled?).with(:travel_pay_view_claim_details, instance_of(User)).and_return(true)
+
+          # Verify that the TravelPay::AuthManager is called with the correct client number
+          expect(TravelPay::AuthManager).to receive(:new).with('56789', instance_of(User))
 
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do

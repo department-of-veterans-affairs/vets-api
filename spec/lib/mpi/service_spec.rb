@@ -121,7 +121,8 @@ describe MPI::Service do
                                    icn:,
                                    edipi:,
                                    search_token:,
-                                   first_name:)
+                                   first_name:,
+                                   as_agent:)
     end
 
     let(:statsd_caller) { 'add_person_proxy' }
@@ -132,6 +133,7 @@ describe MPI::Service do
     let(:edipi) { 'some-edipi' }
     let(:search_token) { 'WSDOC2002071538432741110027956' }
     let(:icn) { '1013062086V794840' }
+    let(:as_agent) { false }
 
     context 'valid requests' do
       context 'when current user has neither birls_id or participant_id' do
@@ -149,6 +151,16 @@ describe MPI::Service do
         after { VCR.eject_cassette('mpi/add_person/add_person_success') }
 
         it_behaves_like 'add person success response'
+
+        context 'when as_agent is true' do
+          let(:as_agent) { true }
+
+          before { VCR.insert_cassette('mpi/add_person/add_person_as_agent_success') }
+
+          after { VCR.eject_cassette('mpi/add_person/add_person_as_agent_success') }
+
+          it_behaves_like 'add person success response'
+        end
       end
 
       context 'when user has both birls_id and participant_id' do
@@ -168,6 +180,16 @@ describe MPI::Service do
         after { VCR.eject_cassette('mpi/add_person/add_person_already_exists') }
 
         it_behaves_like 'add person success response'
+
+        context 'when as_agent is true' do
+          let(:as_agent) { true }
+
+          before { VCR.insert_cassette('mpi/add_person/add_person_as_agent_already_exists') }
+
+          after { VCR.eject_cassette('mpi/add_person/add_person_as_agent_already_exists') }
+
+          it_behaves_like 'add person success response'
+        end
       end
     end
 

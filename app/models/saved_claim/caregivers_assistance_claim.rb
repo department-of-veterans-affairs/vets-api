@@ -3,8 +3,6 @@
 require 'pdf_fill/filler'
 
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
-  include FormValidation
-
   FORM = '10-10CG'
 
   has_one :submission,
@@ -33,24 +31,6 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     PersonalInformationLog.create(data: { form: parsed_form, file_name: name },
                                   error_class: '1010CGPdfGenerationError')
     raise
-  end
-
-  def form_matches_schema
-    super unless Flipper.enabled?(:caregiver_retry_form_validation)
-
-    return unless form_is_string
-
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-    validation_errors = validate_form_with_retries(schema, parsed_form)
-
-    validation_errors.each do |e|
-      errors.add(e[:fragment], e[:message])
-      e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }
-    end
-
-    unless validation_errors.empty?
-      Rails.logger.error('SavedClaim form did not pass validation', { guid:, errors: validation_errors })
-    end
   end
 
   # SavedClaims require regional_office to be defined, CaregiversAssistanceClaim has no purpose for it.

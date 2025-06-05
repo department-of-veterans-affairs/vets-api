@@ -25,6 +25,10 @@ module Mobile
         def app_token
           Settings.mhv_mobile.sm.app_token
         end
+
+        def x_api_key
+          Settings.mhv_mobile.sm.x_api_key
+        end
       end
     end
   end

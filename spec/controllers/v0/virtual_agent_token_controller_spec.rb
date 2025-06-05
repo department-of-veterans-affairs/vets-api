@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::VirtualAgentTokenController, type: :controller do
+  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+
   describe '#create' do
     context 'when external service is healthy' do
       let(:api_session) do
@@ -37,6 +39,16 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
 
         res = JSON.parse(response.body)
         expect(res['token']).to eq(recorded_token)
+      end
+
+      it('does not return code') do
+        VCR.use_cassette('virtual_agent/webchat_token_success') do
+          post :create
+        end
+
+        res = JSON.parse(response.body)
+
+        expect(res).not_to have_key('code')
       end
 
       it('returns api_session') do
@@ -80,6 +92,24 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
 
         expect(response).to have_http_status(:service_unavailable)
       end
+    end
+  end
+
+  context 'when logged in' do
+    let(:test_user) { build(:user) }
+
+    before do
+      sign_in_as(user)
+    end
+
+    it('returns code') do
+      VCR.use_cassette('virtual_agent/webchat_token_success') do
+        post :create
+      end
+
+      res = JSON.parse(response.body)
+
+      expect(res['code']).to be_a(String)
     end
   end
 end

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/benefits_intake/benefit_intake_job'
+require 'income_and_assets/benefits_intake/submit_claim_job'
 
 module IncomeAndAssets
+  ##
   # IncomeAndAssets 21P-0969 Active::Record
   # @see app/model/saved_claim
+  #
   class SavedClaim < ::SavedClaim
     # Income and Assets Form ID
     FORM = IncomeAndAssets::FORM_ID
@@ -19,12 +21,19 @@ module IncomeAndAssets
        'Janesville, Wisconsin 53547-5365']
     end
 
-    # utility function to retrieve claimant email from form
+    ##
+    # Returns the business line associated with this process
+    #
+    # @return [String]
+    def business_line
+      'NCA'
+    end
+
+    # Utility function to retrieve claimant email from form
     #
     # @return [String] the claimant email
     def email
-      # parsed_form['email'] # TODO add email field to the form
-      'test@example.com'
+      parsed_form['email'] || 'test@example.com' # TODO: update this when we have a real email field
     end
 
     # Utility function to retrieve veteran first name from form
@@ -46,6 +55,26 @@ module IncomeAndAssets
     # @return [String]
     def claimant_first_name
       parsed_form.dig('claimantFullName', 'first')
+    end
+
+    ##
+    # claim attachment list
+    #
+    # @see PersistentAttachment
+    #
+    # @return [Array<String>] list of attachments
+    #
+    def attachment_keys
+      [:files].freeze
+    end
+
+    # Run after a claim is saved, this processes any files and workflows that are present
+    # and sends them to our internal partners for processing.
+    # Only removed Sidekiq call from super
+    def process_attachments!
+      refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+      files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+      files.find_each { |f| f.update(saved_claim_id: id) }
     end
   end
 end

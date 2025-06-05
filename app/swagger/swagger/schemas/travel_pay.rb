@@ -127,5 +127,9 @@ module Swagger::Schemas
       property :mimetype, type: :string, example: 'application/pdf'
       property :createdon, type: :string, example: '2024-06-13T13:57:07.291Z'
     end
+
+    swagger_schema :TravelPayDocumentBinary do
+      property :data, type: :string, example: 'VGhpcyBpcyBhIHN0cmluZw=='
+    end
   end
 end

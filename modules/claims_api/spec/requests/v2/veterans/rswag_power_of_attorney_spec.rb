@@ -7,6 +7,7 @@ require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 require 'bgs_service/claimant_web_service'
 require 'bgs_service/org_web_service'
+require 'bgs_service/manage_representative_service'
 
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
@@ -387,6 +388,16 @@ describe 'PowerOfAttorney',
       parameter(
         name: 'data', in: :body, required: true,
         schema: body_schema, example: body_example
+      )
+
+      parameter(
+        name: 'page[size]', in: :query, required: false,
+        example: '20', description: 'Number of results to return per page. Max value allowed is 100.'
+      )
+
+      parameter(
+        name: 'page[number]', in: :query, required: false,
+        example: '1', description: 'Number of pages of results to return. Max value allowed is 100.'
       )
 
       describe 'Getting a 200 response' do

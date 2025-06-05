@@ -48,9 +48,23 @@ module BenefitsDocuments
       FileUtils.rm_rf(@base_path) if @base_path
     end
 
+    # gets all claim letters from the lighthouse claims-letters/search endpoint
+    def claim_letters_search(doc_type_ids: nil, participant_id: nil, file_number: nil)
+      config.claim_letters_search(doc_type_ids:, participant_id:, file_number:)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/search')
+    end
+
+    # retrieves the octet-stream of a single claim letter from the lighthouse claims-letters/download endpoint
+    def claim_letter_download(document_uuid:, participant_id: nil, file_number: nil)
+      config.claim_letter_download(document_uuid:, participant_id:, file_number:)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, nil, 'services/benefits-documents/v1/claim-letters/download')
+    end
+
     private
 
-    def submit_document(file, file_params, lighthouse_client_id = nil)
+    def submit_document(file, file_params, lighthouse_client_id = nil) # rubocop:disable Metrics/MethodLength
       user_icn = @user.icn
       document_data = build_lh_doc(file, file_params)
       claim_id = file_params[:claimId] || file_params[:claim_id]
@@ -59,6 +73,11 @@ module BenefitsDocuments
         raise Common::Exceptions::InternalServerError,
               ArgumentError.new('Claim id is required')
       end
+
+      Rails.logger.info('file_name present?', file&.original_filename.present?)
+      Rails.logger.info('file extension', file&.original_filename&.split('.')&.last)
+      Rails.logger.info('file content type', file&.content_type)
+      Rails.logger.info('participant_id present?', @user.participant_id.present?)
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'income_and_assets/submissions/monitor'
+require 'income_and_assets/monitor'
 require 'veteran_facing_services/notification_callback/saved_claim'
 
 module IncomeAndAssets
@@ -9,9 +9,9 @@ module IncomeAndAssets
     private
 
     # the monitor to be used
-    # @see IncomeAndAssets::Submissions::Monitor
+    # @see IncomeAndAssets::Monitor
     def monitor
-      @monitor ||= IncomeAndAssets::Submissions::Monitor.new
+      @monitor ||= IncomeAndAssets::Monitor.new
     end
   end
 end

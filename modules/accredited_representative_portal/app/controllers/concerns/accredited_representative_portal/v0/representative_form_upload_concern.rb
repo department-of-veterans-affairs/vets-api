@@ -31,6 +31,10 @@ module AccreditedRepresentativePortal
       end
 
       def form_params
+        @form_params ||= get_form_params
+      end
+
+      def get_form_params
         params.require(:representative_form_upload).permit(
           :confirmationCode,
           :location,
@@ -88,19 +92,19 @@ module AccreditedRepresentativePortal
       end
 
       def ssn
-        claimant_ssn || veteran_ssn
+        claimant_ssn.presence || veteran_ssn
       end
 
       def first_name
-        claimant_first_name || veteran_first_name
+        claimant_first_name.presence || veteran_first_name
       end
 
       def last_name
-        claimant_last_name || veteran_last_name
+        claimant_last_name.presence || veteran_last_name
       end
 
       def birth_date
-        claimant_birth_date || veteran_birth_date
+        claimant_birth_date.presence || veteran_birth_date
       end
     end
   end

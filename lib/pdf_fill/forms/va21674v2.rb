@@ -484,6 +484,29 @@ module PdfFill
                   }
                 }
               },
+              'date_full_time_ended' => {
+                'month' => {
+                  key: 'form1[0].#subform[0].DateStoppedAttending.month[%iterator%]',
+                  limit: 2,
+                  question_num: 10,
+                  question_suffix: 'A',
+                  question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
+                },
+                'day' => {
+                  key: 'form1[0].#subform[0].DateStoppedAttending.day[%iterator%]',
+                  limit: 2,
+                  question_num: 10,
+                  question_suffix: 'A',
+                  question_text: 'School Attendance Information >Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
+                },
+                'year' => {
+                  key: 'form1[0].#subform[0].DateStoppedAttending.year[%iterator%]',
+                  limit: 4,
+                  question_num: 10,
+                  question_suffix: 'A',
+                  question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
+                }
+              },
               'current_term_dates' => {
                 'official_school_start_date' => {
                   'month' => {
@@ -730,57 +753,29 @@ module PdfFill
             }
           }, # end of student information
           'child_marriage' => {
-            limit: 4,
             first_key: 'month',
             'month' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.month[0]',
               limit: 2,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             },
             'day' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.day[0]',
               limit: 2,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             },
             'year' => {
-              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[%iterator%]',
+              key: 'form1[0].#subform[0].Student_Date_of_Marriage.year[0]',
               limit: 4,
               question_num: 7,
               question_suffix: 'B',
               question_text: 'DATE OF MARRIAGE'
             }
-          },
-          'child_stopped_attending_school' => {
-            limit: 4,
-            first_key: 'date_child_left_school',
-            'date_child_left_school' => {
-              'month' => {
-                key: 'form1[0].#subform[0].DateStoppedAttending.month[%iterator%]',
-                limit: 2,
-                question_num: 10,
-                question_suffix: 'A',
-                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
-              },
-              'day' => {
-                key: 'form1[0].#subform[0].DateStoppedAttending.day[%iterator%]',
-                limit: 2,
-                question_num: 10,
-                question_suffix: 'A',
-                question_text: 'School Attendance Information >Date student stopped attending continuously (MM-DD-YYYY)'
-              },
-              'year' => {
-                key: 'form1[0].#subform[0].DateStoppedAttending.year[%iterator%]',
-                limit: 4,
-                question_num: 10,
-                question_suffix: 'A',
-                question_text: 'School Attendance Information > Date student stopped attending continuously (MM-DD-YYYY)' # rubocop:disable Layout/LineLength
-              }
-            }
-          } # end of child_stopped_attending_school
+          }
         }, # end dependents_application
         'signature' => {
           key: 'form1[0].#subform[0].Signature_PrintName[0]',
@@ -817,7 +812,10 @@ module PdfFill
       def merge_fields(options = {})
         created_at = options[:created_at] if options[:created_at].present?
         student = options[:student]
-        @form_data['dependents_application']['student_information'] = [student]
+        @form_data['dependents_application']['student_information'] = [student.deep_dup]
+        unless @form_data['veteran_information']
+          @form_data['veteran_information'] = @form_data.dig('dependents_application', 'veteran_information')
+        end
         expand_signature(@form_data['veteran_information']['full_name'], created_at&.to_date || Time.zone.today)
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
@@ -839,6 +837,8 @@ module PdfFill
             last_term_school_information = school_information['last_term_school_information']
 
             student_information['birth_date'] = split_date(student_information['birth_date'])
+            marriage_date = student_information['marriage_date']
+            @form_data['dependents_application']['child_marriage'] = split_date(marriage_date)
 
             if last_term_school_information.present?
               last_term_school_information['term_begin'] = split_date(last_term_school_information['term_begin'])
@@ -859,23 +859,11 @@ module PdfFill
               benefit_payment_date = student_information['benefit_payment_date']
               student_information['benefit_payment_date'] = split_date(benefit_payment_date)
             end
-          end
-        end
 
-        child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
-        if child_stopped_attending_school.present?
-          child_stopped_attending_school.each do |child|
-            child['birth_date'] = split_date(child['birth_date'])
-            child['date_child_left_school'] =
-              split_date(child['date_child_left_school'])
-          end
-        end
-
-        child_marriages = @form_data['dependents_application']['child_marriage']
-        if child_marriages.present?
-          child_marriages.each do |child_marriage|
-            child_marriage['date_married'] =
-              split_date(child_marriage['date_married'])
+            if school_information['date_full_time_ended'].present?
+              date_full_time_ended = school_information['date_full_time_ended']
+              school_information['date_full_time_ended'] = split_date(date_full_time_ended)
+            end
           end
         end
       end
@@ -903,7 +891,8 @@ module PdfFill
             student_earnings = student_information['student_earnings_from_school_year']
             student_networth = student_information['student_networth_information']
             type_of_program_or_benefit = student_information['type_of_program_or_benefit']
-            get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            program_information = get_program(type_of_program_or_benefit) if type_of_program_or_benefit.present?
+            student_information['type_of_program_or_benefit'] = program_information if program_information.present?
             split_earnings(student_expected_earnings) if student_expected_earnings.present?
             split_earnings(student_earnings) if student_earnings.present?
             split_networth_information(student_networth) if student_networth.present?
@@ -919,8 +908,11 @@ module PdfFill
           'feca' => 'FECA',
           'other' => 'Other Benefit'
         }
-        selected_key = parent_object.find { |_, v| v }&.first
-        selected_key ? type_mapping[selected_key] : nil
+        # sanitize object of false values
+        parent_object.compact_blank!
+        return nil if parent_object.blank?
+
+        parent_object.map { |key, _value| type_mapping[key] }.join(', ')
       end
 
       # override from form_helper

@@ -163,6 +163,10 @@ module VAProfileRedis
       def dig_out(key, type, matcher)
         response_value = value_for(key)
 
+        if key == 'addresses' && Settings.vsp_environment == 'staging'
+          Rails.logger.info("ContactInformationV2 Redis Address POU: #{response_value}")
+        end
+
         return if response_value.blank?
 
         response_value.find do |contact_info|

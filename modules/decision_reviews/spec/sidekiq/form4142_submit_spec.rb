@@ -25,12 +25,14 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
     service
   end
 
-  let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
+  let(:user_verification) { create(:idme_user_verification) }
+  let(:user_account) { user_verification.user_account }
+  let(:user_uuid) { create(:user, :loa3, idme_uuid: user_verification.idme_uuid, ssn: '212222112').uuid }
   let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
   let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
   let(:mpi_service) do
     service = instance_double(MPI::Service, find_profile_by_identifier: nil)
-    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid, identifier_type: anything)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_account.icn, identifier_type: anything)
                                                           .and_return(find_profile_response)
     service
   end
@@ -48,7 +50,8 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
   describe 'perform' do
     let(:submitted_appeal_uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
     let(:appeal_submission) do
-      create(:appeal_submission_module, :with_one_upload_module, submitted_appeal_uuid:, type_of_appeal: 'SC')
+      create(:appeal_submission_module, :with_one_upload_module, user_account:, submitted_appeal_uuid:,
+                                                                 type_of_appeal: 'SC')
     end
     let(:user) { build(:user, :loa3) }
     let(:request_body) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }

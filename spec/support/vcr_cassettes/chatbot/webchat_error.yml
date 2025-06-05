@@ -1,0 +1,49 @@
+
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://directline.botframework.com/v3/directline/tokens/generate
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - directline.botframework.com
+      Authorization:
+      - Bearer fake_<DMC_TOKEN>
+  response:
+    status:
+      code: 403
+      message: Forbidden
+    headers:
+      Cache-Control:
+      - no-cache
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '93'
+      Content-Type:
+      - application/json; charset=utf-8
+      Expires:
+      - "-1"
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000
+      Date:
+      - Wed, 17 Mar 2021 16:50:13 GMT
+    body:
+      encoding: UTF-8
+      string: "{\r\n  \"error\": {\r\n    \"code\": \"BadArgument\",\r\n    \"message\":
+        \"Invalid token or <DMC_TOKEN>\"\r\n  }\r\n}"
+  recorded_at: Wed, 17 Mar 2021 16:50:13 GMT
+recorded_with: VCR 6.0.0

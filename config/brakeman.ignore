@@ -113,29 +113,6 @@
       "note": "We are using the cookie serialization default from Rails 4.x"
     },
     {
-      "warning_type": "Mass Assignment",
-      "warning_code": 70,
-      "fingerprint": "fa4f441df6d626d9c7a4c66e2a8029898d38a37f2cb554883203f8dad01c5ec5",
-      "check_name": "MassAssignment",
-      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
-      "file": "modules/health_quest/app/controllers/health_quest/v0/questionnaire_responses_controller.rb",
-      "line": 21,
-      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
-      "code": "params.require(:questionnaire_response).permit!",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "HealthQuest::V0::QuestionnaireResponsesController",
-        "method": "questionnaire_response_params"
-      },
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        915
-      ],
-      "note": "This warning will be addressed by this modules maintainers. TODO: remove this ignore once the warning as been addressed"
-    },
-    {
       "warning_type": "Cross-Site Scripting",
       "warning_code": 113,
       "fingerprint": "fea6a166c0704d9525d109c17d6ee95eda217dfb1ef56a4d4c91ec9bd384cbf8",

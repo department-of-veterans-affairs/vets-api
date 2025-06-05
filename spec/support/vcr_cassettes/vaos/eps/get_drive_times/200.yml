@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://api.wellhive.com/care-navigation/v1/drive-times
+    uri: <VAOS_EPS_API_URL>/care-navigation/v1/drive-times
     body:
       encoding: UTF-8
       string: '{"destinations":{"9mN718pH":{"latitude":28.08061,"longitude":-80.60322}},"origin":{"latitude":38.901,"longitude":-77.0347}}'

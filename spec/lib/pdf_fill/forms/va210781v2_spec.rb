@@ -61,6 +61,38 @@ describe PdfFill::Forms::Va210781v2 do
     end
   end
 
+  describe '#process_treatment_dates' do
+    subject do
+      new_form_class.instance_variable_set(:@form_data, { 'treatmentProvidersDetails' => details })
+      new_form_class.send(:process_treatment_dates)
+    end
+
+    context 'when no treatment provider data is available' do
+      let(:details) { nil }
+
+      it 'returns successfully' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when treatment provider data is populated' do
+      let(:details) do
+        [
+          { 'treatmentMonth' => '', 'treatmentYear' => '' },
+          { 'treatmentMonth' => '02', 'treatmentYear' => '' },
+          { 'treatmentMonth' => '', 'treatmentYear' => '2014' },
+          { 'treatmentMonth' => '02', 'treatmentYear' => '2014' }
+        ]
+      end
+
+      it 'sets the treatment dates accordingly and returns successfully' do
+        subject
+        result_details = new_form_class.instance_variable_get(:@form_data)['treatmentProvidersDetails']
+        expect(result_details.pluck('treatmentDate')).to eq(['no response', '02-????', '2014', '02-2014'])
+      end
+    end
+  end
+
   describe '#set_treatment_selection' do
     context 'when treatment providers are present' do
       it 'sets treatment to 0 and noTreatment to 0' do
@@ -168,6 +200,66 @@ describe PdfFill::Forms::Va210781v2 do
             'Local Police Department, Springfield, IL, USA'
           )
         end
+
+        context 'when police location details overflow the text field' do
+          let(:event_with_police_report) do
+            {
+              'events' => [
+                {
+                  'otherReports' => {
+                    'police' => true
+                  },
+                  'agency' => 'Local Police Department',
+                  'city' => 'Springfield',
+                  'state' => 'IL',
+                  'country' => 'USA'
+                },
+                {
+                  'otherReports' => {
+                    'police' => true
+                  },
+                  'agency' => 'Local Police Department',
+                  'township' => 'Lower Alloways Creek Township',
+                  'state' => 'NJ',
+                  'country' => 'USA'
+                }
+              ]
+            }
+          end
+
+          context 'when using the legacy overflow generator' do
+            it 'does not populate the police report overflow data structure' do
+              new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+              new_form_class.send(:process_reports)
+
+              expect(new_form_class.instance_variable_get(:@form_data)).not_to have_key('policeReportOverflow')
+            end
+          end
+
+          context 'when using the redesigned overflow generator' do
+            it 'fills in the police report overflow data structure correctly' do
+              new_form_class.instance_variable_set(:@form_data, event_with_police_report)
+              new_form_class.send(:process_reports, extras_redesign: true)
+
+              expect(new_form_class.instance_variable_get(:@form_data)['policeReportOverflow']).to eq(
+                [
+                  {
+                    'agency' => 'Local Police Department',
+                    'city' => 'Springfield',
+                    'state' => 'IL',
+                    'country' => 'USA'
+                  },
+                  {
+                    'agency' => 'Local Police Department',
+                    'township' => 'Lower Alloways Creek Township',
+                    'state' => 'NJ',
+                    'country' => 'USA'
+                  }
+                ]
+              )
+            end
+          end
+        end
       end
 
       context 'when an unlistedReport is provided' do
@@ -176,6 +268,80 @@ describe PdfFill::Forms::Va210781v2 do
           new_form_class.send(:process_reports)
 
           expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['other']).to eq('incident report')
+        end
+
+        context 'when testing OTHER field overflow behavior' do
+          let(:form_data) do
+            {
+              'events' => [
+                {
+                  'unlistedReport' => other_report,
+                  'otherReports' => other_reports
+                }
+              ]
+            }
+          end
+
+          def expect_other_overflow(expected_value)
+            form_data = new_form_class.instance_variable_get(:@form_data)
+            if expected_value.nil?
+              expect(form_data['reportsDetails']).not_to have_key('otherOverflow')
+            else
+              expect(form_data['reportsDetails']['otherOverflow']).to eq([expected_value])
+            end
+          end
+
+          before do
+            new_form_class.instance_variable_set(:@form_data, form_data)
+            new_form_class.send(:process_reports, extras_redesign: true)
+          end
+
+          context 'when OTHER field exceeds its limit' do
+            let(:other_report) { 'A' * 200 } # has 194 character limit
+            let(:other_reports) { {} }
+
+            it 'overflows regardless of other Q11 fields' do
+              expect_other_overflow(other_report)
+            end
+          end
+
+          context 'when OTHER field is under limit but police report overflows' do
+            let(:other_report) { 'Short report' }
+            let(:other_reports) do
+              {
+                'police' => true
+              }
+            end
+
+            before do
+              new_form_class.instance_variable_set(:@form_data, {
+                                                     'events' => [
+                                                       {
+                                                         'unlistedReport' => other_report,
+                                                         'otherReports' => other_reports,
+                                                         'agency' => 'A' * 100,
+                                                         'city' => 'B' * 100,
+                                                         'state' => 'C' * 100,
+                                                         'country' => 'D' * 100
+                                                       }
+                                                     ]
+                                                   })
+              new_form_class.send(:process_reports, extras_redesign: true)
+            end
+
+            it 'overflows due to other Q11 fields overflowing' do
+              expect_other_overflow(other_report)
+            end
+          end
+
+          context 'when OTHER field is under limit and no other Q11 fields overflow' do
+            let(:other_report) { 'Short report' }
+            let(:other_reports) { {} }
+
+            it 'does not overflow' do
+              expect_other_overflow(nil)
+            end
+          end
         end
       end
 
@@ -250,6 +416,211 @@ describe PdfFill::Forms::Va210781v2 do
         new_form_class.send(:set_report_types, reports, event_with_unlisted_reports)
 
         expect(new_form_class.instance_variable_get(:@form_data)['otherReport']).to eq(4)
+      end
+    end
+  end
+
+  describe '#process_behaviors_details' do
+    let(:behaviors) do
+      {
+        'behaviors' => {
+          'absences' => true,
+          'appetite' => false
+        },
+        'behaviorsDetails' => {
+          'absences' => 'absences lorem ipsum',
+          'appetite' => 'appetite lorem ipsum'
+        }
+      }
+    end
+
+    let(:additional_behaviors) do
+      {
+        'behaviors' => {
+          'unlisted' => true
+        },
+        'behaviorsDetails' => {
+          'unlisted' => 'unlisted lorem ipsum'
+        }
+      }
+    end
+
+    context 'when extras_redesign is false (legacy mode)' do
+      let(:extras_redesign) { false }
+
+      context 'with standard behaviors data' do
+        it 'transforms behaviors details into the expected format' do
+          new_form_class.instance_variable_set(:@form_data, behaviors)
+          new_form_class.send(:process_behaviors_details, extras_redesign)
+
+          expected = [
+            {
+              'additionalInfo' => 'absences lorem ipsum',
+              'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
+            },
+            {
+              'additionalInfo' => 'appetite lorem ipsum',
+              'description' => described_class::BEHAVIOR_DESCRIPTIONS['appetite']
+            }
+          ]
+
+          form_data = new_form_class.instance_variable_get(:@form_data)
+          expect(form_data['behaviorsDetails']).to include(*expected)
+          expect(form_data['behaviorsDetails'].select { |item| item['description'] }.size).to eq(2)
+        end
+      end
+
+      context 'with additional behaviors data' do
+        it 'transforms additional behaviors details into the expected format' do
+          new_form_class.instance_variable_set(:@form_data, additional_behaviors)
+          new_form_class.send(:process_behaviors_details, extras_redesign)
+
+          form_data = new_form_class.instance_variable_get(:@form_data)
+          expect(form_data['additionalBehaviorsDetails']).to eq('unlisted lorem ipsum')
+        end
+      end
+
+      [['nil', nil], ['blank', ''], ['missing', nil]].each do |test, value|
+        context "with #{test} entry in behaviorsDetails" do
+          before do
+            data = behaviors.dup
+            if test == 'missing'
+              data['behaviorsDetails'].delete('appetite')
+            else
+              data['behaviorsDetails']['appetite'] = value
+            end
+            new_form_class.instance_variable_set(:@form_data, data)
+          end
+
+          it 'processes the behaviors properly' do
+            new_form_class.send(:process_behaviors_details, extras_redesign)
+
+            expected = {
+              'additionalInfo' => 'absences lorem ipsum',
+              'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
+            }
+
+            form_data = new_form_class.instance_variable_get(:@form_data)
+            expect(form_data['behaviorsDetails']).to include(expected)
+            expect(form_data['behaviorsDetails'].select { |item| item['description'] }.size).to eq(1)
+          end
+        end
+      end
+    end
+
+    context 'when extras_redesign is true' do
+      let(:extras_redesign) { true }
+
+      context 'with standard behaviors data' do
+        before do
+          new_form_class.instance_variable_set(:@form_data, behaviors)
+          new_form_class.send(:process_behaviors_details, extras_redesign)
+        end
+
+        it 'transforms behaviors details into the expected format' do
+          expected = [
+            {
+              'additionalInfo' => 'absences lorem ipsum',
+              'checked' => true,
+              'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
+            },
+            {
+              'additionalInfo' => 'appetite lorem ipsum',
+              'checked' => false,
+              'description' => described_class::BEHAVIOR_DESCRIPTIONS['appetite']
+            }
+          ]
+
+          form_data = new_form_class.instance_variable_get(:@form_data)
+          expect(form_data['behaviorsDetails']).to include(*expected)
+          expect(form_data['behaviorsDetails'].select { |item| item['checked'] }.size).to eq(1)
+        end
+      end
+
+      context 'with additional behaviors data' do
+        it 'transforms additional behaviors details into the expected format' do
+          new_form_class.instance_variable_set(:@form_data, additional_behaviors)
+          new_form_class.send(:process_behaviors_details, extras_redesign)
+
+          form_data = new_form_class.instance_variable_get(:@form_data)
+          expect(form_data['additionalBehaviorsDetails']).to eq('unlisted lorem ipsum')
+        end
+      end
+
+      [['nil', nil], ['blank', ''], ['missing', nil]].each do |test, value|
+        context "with #{test} entry in behaviorsDetails" do
+          before do
+            data = behaviors.dup
+            if test == 'missing'
+              data['behaviorsDetails'].delete('appetite')
+            else
+              data['behaviorsDetails']['appetite'] = value
+            end
+            new_form_class.instance_variable_set(:@form_data, data)
+          end
+
+          it 'processes the behaviors properly' do
+            new_form_class.send(:process_behaviors_details, extras_redesign)
+            expected = [
+              {
+                'additionalInfo' => 'absences lorem ipsum',
+                'checked' => true,
+                'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences']
+              },
+              {
+                'additionalInfo' => value,
+                'checked' => false,
+                'description' => described_class::BEHAVIOR_DESCRIPTIONS['appetite']
+              }
+            ]
+
+            form_data = new_form_class.instance_variable_get(:@form_data)
+            expect(form_data['behaviorsDetails']).to include(*expected)
+            expect(form_data['behaviorsDetails'].select { |item| item['checked'] }.size).to eq(1)
+          end
+        end
+      end
+    end
+
+    [true, false].each do |extras_redesign|
+      context "when extras_redesign is #{extras_redesign}" do
+        context 'when no behaviors or behavior_details are provided' do
+          it 'returns nil and leaves the data unchanged' do
+            new_form_class.instance_variable_set(:@form_data, { 'behaviors' => nil,
+                                                                'behaviorsDetails' => nil,
+                                                                'additionalBehaviorsDetails' => nil })
+            new_form_class.send(:process_behaviors_details, extras_redesign)
+
+            expect(new_form_class.instance_variable_get(:@form_data)).to eq(
+              { 'behaviors' => nil, 'behaviorsDetails' => nil, 'additionalBehaviorsDetails' => nil }
+            )
+          end
+        end
+
+        context 'when behaviorsDetails is present but behaviors is missing' do
+          it 'still processes the behaviorsDetails and additionalBehaviorsDetails' do
+            new_form_class.instance_variable_set(:@form_data, { 'behaviors' => nil,
+                                                                'behaviorsDetails' => {
+                                                                  'absences' => 'absences lorem ipsum',
+                                                                  'unlisted' => 'unlisted lorem ipsum'
+                                                                } })
+            new_form_class.send(:process_behaviors_details, extras_redesign)
+
+            if extras_redesign
+              expected_behaviors = { 'additionalInfo' => 'absences lorem ipsum',
+                                     'checked' => false,
+                                     'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences'] }
+            else
+              expected_behaviors = { 'additionalInfo' => 'absences lorem ipsum',
+                                     'description' => described_class::BEHAVIOR_DESCRIPTIONS['absences'] }
+
+            end
+
+            form_data = new_form_class.instance_variable_get(:@form_data)
+            expect(form_data['behaviorsDetails']).to include(expected_behaviors)
+            expect(form_data['additionalBehaviorsDetails']).to eq('unlisted lorem ipsum')
+          end
+        end
       end
     end
   end

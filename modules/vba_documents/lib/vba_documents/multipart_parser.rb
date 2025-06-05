@@ -10,11 +10,19 @@ module VBADocuments
     BASE64_PREFIX = 'data:multipart/form-data;base64,'
 
     def self.parse(file_path)
-      file_path = decode_base64_file(file_path) if base64_encoded_file?(file_path)
+      if base64_encoded_file?(file_path)
+        tempfile = decode_base64_file(file_path) # Must hold reference to Tempfile; otherwise, will be garbage collected
+        file_path = tempfile.path
+      end
 
       validate_virus_free(file_path) if Flipper.enabled?(:vba_documents_virus_scan)
 
       parse_file(file_path)
+    ensure
+      if tempfile.present?
+        tempfile.close
+        tempfile.unlink
+      end
     end
 
     def self.parse_file(file_path)
@@ -48,10 +56,10 @@ module VBADocuments
       File.read(file_path).start_with?(BASE64_PREFIX)
     end
 
-    def self.decode_base64_file(original_file_path)
+    def self.decode_base64_file(file_path)
       Rails.logger.info("#{self} starting to decode Base64 submission contents")
 
-      contents = `sed -r 's/data:multipart\\/.{3,},//g' #{original_file_path.shellescape}`
+      contents = `sed -r 's/data:multipart\\/.{3,},//g' #{file_path.shellescape}`
       decoded_data = Base64.decode64(contents)
 
       Rails.logger.info("#{self} finished decoding Base64 submission contents")
@@ -62,13 +70,17 @@ module VBADocuments
 
       Rails.logger.info("#{self} finished writing Base64-decoded file")
 
-      decoded_file.path
+      decoded_file
     end
 
     def self.validate_virus_free(file_path)
-      temp_path = Common::FileHelpers.generate_clamav_temp_file(file_path)
+      Rails.logger.info("#{self} starting to run virus scan on submission contents")
+
+      temp_path = Common::FileHelpers.generate_clamav_temp_file(File.read(file_path))
       file_safe = Common::VirusScan.scan(temp_path)
       Common::FileHelpers.delete_file_if_exists(temp_path)
+
+      Rails.logger.info("#{self} finished running virus scan on submission contents")
 
       raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Virus detected in submission') unless file_safe
 

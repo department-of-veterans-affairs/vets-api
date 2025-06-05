@@ -12,12 +12,13 @@ module Identity
     COOKIE_EXPIRATION = 2.minutes
     COOKIE_DOMAIN = '.va.gov'
 
-    attr_reader :icn
+    attr_reader :icn, :source
 
     validates :icn, presence: true
 
-    def initialize(icn:)
+    def initialize(icn:, source: nil)
       @icn = icn
+      @source = source
 
       validate!
     rescue ActiveModel::ValidationError => e
@@ -29,13 +30,15 @@ module Identity
       response = update_provisioning
 
       if response[:agreement_signed].blank?
-        Rails.logger.error('[Identity] [CernerProvisioner] update_provisioning error', { icn:, response: })
+        Rails.logger.error('[Identity] [CernerProvisioner] update_provisioning error', { icn:, response:, source: })
         raise(Errors::CernerProvisionerError, 'Agreement not accepted')
       end
       if response[:cerner_provisioned].blank?
-        Rails.logger.error('[Identity] [CernerProvisioner] update_provisioning error', { icn:, response: })
+        Rails.logger.error('[Identity] [CernerProvisioner] update_provisioning error', { icn:, response:, source: })
         raise(Errors::CernerProvisionerError, 'Account not Provisioned')
       end
+
+      Rails.logger.info('[Identity] [CernerProvisioner] update_provisioning success', { icn:, source: })
     rescue Common::Client::Errors::ClientError => e
       log_provisioner_error(e)
       raise Errors::CernerProvisionerError, e.message
@@ -48,7 +51,7 @@ module Identity
     end
 
     def log_provisioner_error(error)
-      Rails.logger.error("[Identity] [CernerProvisioner] Error: #{error.message}", { icn: })
+      Rails.logger.error("[Identity] [CernerProvisioner] Error: #{error.message}", { icn:, source: })
     end
 
     def mpi_profile

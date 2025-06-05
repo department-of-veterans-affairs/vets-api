@@ -5,16 +5,26 @@ require 'erb'
 module V0
   class VirtualAgentTokenController < ApplicationController
     service_tag 'virtual-agent'
-    skip_before_action :authenticate, only: [:create]
+    skip_before_action :authenticate
+    before_action :load_user
 
     rescue_from 'V0::VirtualAgentTokenController::ServiceException', with: :service_exception_handler
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
       directline_response = fetch_connector_values
-      render json: { token: directline_response[:token],
-                     conversationId: directline_response[:conversationId],
-                     apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+      if current_user&.icn
+        code = SecureRandom.uuid
+        ::Chatbot::CodeContainer.new(code:, icn: current_user.icn).save!
+        render json: { token: directline_response[:token],
+                       conversationId: directline_response[:conversationId],
+                       apiSession: ERB::Util.url_encode(cookies[:api_session]),
+                       code: }
+      else
+        render json: { token: directline_response[:token],
+                       conversationId: directline_response[:conversationId],
+                       apiSession: ERB::Util.url_encode(cookies[:api_session]) }
+      end
     end
 
     private
@@ -26,7 +36,7 @@ module V0
 
     def request_connector_values
       req = Net::HTTP::Post.new(token_endpoint_uri)
-      req['Authorization'] = bearer_token
+      req['Authorization'] = chatbot_bearer_token
       Net::HTTP.start(token_endpoint_uri.hostname, token_endpoint_uri.port, use_ssl: true) do |http|
         http.request(req)
       end
@@ -48,15 +58,9 @@ module V0
       @token_uri = URI(token_endpoint)
     end
 
-    def bearer_token
-      secret = if Flipper.enabled?(:virtual_agent_enable_pva2_chatbot, current_user)
-                 Settings.virtual_agent.webchat_pva2_secret
-               elsif Flipper.enabled?(:virtual_agent_enable_root_bot, current_user)
-                 Settings.virtual_agent.webchat_root_bot_secret
-               else
-                 Settings.virtual_agent.webchat_secret
-               end
-      @bearer_token ||= "Bearer #{secret}"
+    def chatbot_bearer_token
+      secret = Settings.virtual_agent.webchat_root_bot_secret
+      @chatbot_bearer_token ||= "Bearer #{secret}"
     end
 
     def service_exception_handler(exception)

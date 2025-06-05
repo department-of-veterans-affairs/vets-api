@@ -9,7 +9,7 @@ module Lighthouse
     class FailureNotificationEmailJob
       include Sidekiq::Job
       include SentryLogging
-      # Job runs daily with 0 retiries
+      # Job runs daily with 0 retries
       sidekiq_options retry: 0
       NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
       MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
@@ -58,8 +58,6 @@ module Lighthouse
         upload.update(va_notify_id: response.id, va_notify_date: DateTime.current)
         message = "#{upload.job_class} va notify failure email queued"
         ::Rails.logger.info(message)
-        StatsD.increment('silent_failure_avoided_no_confirmation',
-                         tags: ['service:claim-status', "function: #{message}"])
       end
 
       def record_email_send_failure(upload, error)

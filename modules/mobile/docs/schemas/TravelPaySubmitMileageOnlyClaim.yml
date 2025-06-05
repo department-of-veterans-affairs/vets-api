@@ -1,0 +1,32 @@
+description: Submit a mileage only claim for travel pay reimbursement.
+type: object
+additionalProperties: false
+required:
+  - appointmentDateTime
+  - facilityStationNumber
+  - appointmentType
+  - isComplete
+properties:
+  appointmentDateTime:
+    type: string
+    description: The date and time of the appointment in ISO 8601 format.
+    example: '2023-02-23T22:22:52.549Z'
+  facilityStationNumber:
+    type: string
+    description: The station number of the VA facility where the appointment is registered.
+    example: '983GC'
+  appointmentType:
+    type: string
+    description: The type of appointment.
+    enum:
+      - CompensationAndPension
+      - Other 
+    example: 'CompensationAndPension'
+  isComplete:
+    type: boolean
+    description: Indicates whether the appointment is complete.
+    example: true
+  appointmentName:
+    type: string
+    description: The name of the appointment. Optional, but if provided cannot be an empty string.
+    example: 'Primary care appointment with Dr. Smith'

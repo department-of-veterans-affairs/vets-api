@@ -123,15 +123,15 @@ RSpec.describe Burials::SavedClaim do
     end
   end
 
-  describe '#claimaint_first_name' do
+  describe '#claimant_first_name' do
     it 'returns the first name of the claimant from parsed_form' do
       allow(instance).to receive(:parsed_form).and_return({ 'claimantFullName' => { 'first' => 'Derrick' } })
-      expect(instance.claimaint_first_name).to eq('Derrick')
+      expect(instance.claimant_first_name).to eq('Derrick')
     end
 
     it 'returns nil if the key does not exist' do
       allow(instance).to receive(:parsed_form).and_return({})
-      expect(instance.claimaint_first_name).to be_nil
+      expect(instance.claimant_first_name).to be_nil
     end
   end
 

@@ -4,7 +4,7 @@ require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/spec/support/vcr_helper'
 
 RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :with_terms_of_use_agreement, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:success_log_args) do
     {

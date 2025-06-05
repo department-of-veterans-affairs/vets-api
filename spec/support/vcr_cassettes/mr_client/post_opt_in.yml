@@ -1,0 +1,144 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/v1/usermgmt/auth/session"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - "<APP_TOKEN>"
+      Mhvcorrelationid:
+      - '19671728'
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 05 May 2025 14:39:13 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '0'
+      X-Amzn-Requestid:
+      - 6a4c7b91-6f66-4f5e-9333-1211209e29ee
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - KGUOxGpVvHMFtkw=
+      Expires:
+      - Mon, 05 May 2025 14:49:13 GMT+00:00
+      Token: "<SESSION_TOKEN>"
+      X-Amzn-Remapped-Date:
+      - Mon, 05 May 2025 14:39:13 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Mon, 05 May 2025 14:39:13 GMT
+- request:
+    method: post
+    uri: "<MHV_MR_HOST>/v1/bluebutton/external/optinout/optin"
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 05 May 2025 14:39:14 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '0'
+      X-Amzn-Requestid:
+      - 5e469554-0bf2-4fb3-bb39-d4d71d1067a3
+      X-Amzn-Remapped-Content-Length:
+      - '0'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - KGUO1E3hvHMFlrA=
+      X-Amzn-Remapped-Date:
+      - Mon, 05 May 2025 14:39:14 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Mon, 05 May 2025 14:39:14 GMT
+- request:
+    method: post
+    uri: "<MHV_MR_HOST>/v1/usermgmt/activity"
+    body:
+      encoding: UTF-8
+      string: '{"userProfileId":19671728,"activityType":"VA Health Record","action":"Opt
+        back into electronic sharing with community providers","completionTime":"Mon,
+        05 May 2025 14:39:14 GMT","performerType":"Self","detailValue":null,"status":1}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      X-Api-Key:
+      - "<MHV_MR_X_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Date:
+      - Mon, 05 May 2025 14:39:15 GMT
+      Content-Type:
+      - application/json
+      X-Amzn-Requestid:
+      - dcc091ec-37ef-4fb3-a21f-838596a2c1ec
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - KGUPCFFivHMFRbg=
+      X-Amzn-Remapped-Date:
+      - Mon, 05 May 2025 14:39:15 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Mon, 05 May 2025 14:39:15 GMT
+recorded_with: VCR 6.3.1

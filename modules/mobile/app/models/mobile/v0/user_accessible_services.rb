@@ -17,18 +17,15 @@ module Mobile
         service_auth_map.keys.sort
       end
 
-      # rubocop:disable Metrics/MethodLength
       def service_auth_map
         @service_auth_map ||= {
           appeals: access?(appeals: :access?),
           appointments: access?(vaos: :access?) && @user.icn.present? && access?(vaos: :facilities_access?),
           claims: flagged_access?(:mobile_lighthouse_claims, { lighthouse: :access? }, { evss: :access? }),
           decisionLetters: access?(bgs: :access?),
-          directDepositBenefits: flagged_access?(:mobile_lighthouse_direct_deposit, { lighthouse: :mobile_access? },
-                                                 { evss: :access?, ppiu: :access? }),
-          directDepositBenefitsUpdate: direct_deposit_update_access?,
-          disabilityRating: flagged_access?(:mobile_lighthouse_disability_ratings, { lighthouse: :access? },
-                                            { evss: :access? }),
+          directDepositBenefits: access?(lighthouse: :mobile_access?),
+          directDepositBenefitsUpdate: access?(lighthouse: :mobile_access?),
+          disabilityRating: access?(lighthouse: :access?),
           genderIdentity: access?(demographics: :access_update?) && access?(mpi: :queryable?),
           lettersAndDocuments: flagged_access?(:mobile_lighthouse_letters, { lighthouse: :access? },
                                                { evss: :access? }),
@@ -41,7 +38,6 @@ module Mobile
           userProfileUpdate: access?(va_profile: :access_to_v2?)
         }
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -61,14 +57,6 @@ module Mobile
             @user.authorize(policy_name, policy_rule)
           end
         end
-      end
-
-      # ppiu access_update? makes an upstream request. default to false when call fails
-      def direct_deposit_update_access?
-        flagged_access?(:mobile_lighthouse_direct_deposit, { lighthouse: :mobile_access? },
-                        { evss: :access?, ppiu: %i[access? access_update?] })
-      rescue
-        false
       end
     end
   end

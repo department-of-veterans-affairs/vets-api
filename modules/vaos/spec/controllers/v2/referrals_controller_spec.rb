@@ -5,16 +5,23 @@ require 'rails_helper'
 RSpec.describe VAOS::V2::ReferralsController, type: :request do
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   let(:referral_number) { '5682' }
-  let(:encrypted_uuid) { 'encrypted-5682' }
+  let(:referral_consult_id) { '984_646372' }
+  let(:encrypted_referral_consult_id) { 'encrypted-984_646372' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
-  let(:referral_statuses) { "'AP','AC','I'" }
+  let(:referral_statuses) { "'AP', 'C'" }
   let(:icn) { '1012845331V153043' }
 
   before do
     allow(Rails).to receive(:cache).and_return(memory_store)
     Rails.cache.clear
-    allow(VAOS::ReferralEncryptionService).to receive(:encrypt).with(referral_number).and_return(encrypted_uuid)
-    allow(VAOS::ReferralEncryptionService).to receive(:decrypt).with(encrypted_uuid).and_return(referral_number)
+    allow(VAOS::ReferralEncryptionService)
+      .to receive(:encrypt)
+      .with(referral_consult_id)
+      .and_return(encrypted_referral_consult_id)
+    allow(VAOS::ReferralEncryptionService)
+      .to receive(:decrypt)
+      .with(encrypted_referral_consult_id)
+      .and_return(referral_consult_id)
   end
 
   describe 'GET index' do
@@ -63,10 +70,11 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
         # Verify first referral entry structure
         first_referral = response_data['data'].first
-        expect(first_referral['id']).to eq('encrypted-5682')
+        expect(first_referral['id']).to eq(encrypted_referral_consult_id)
         expect(first_referral['type']).to eq('referrals')
         expect(first_referral['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(first_referral['attributes']['referralNumber']).to eq('5682')
+        expect(first_referral['attributes']['referralConsultId']).to eq(referral_consult_id)
         expect(first_referral['attributes']['expirationDate']).to eq((Date.current + 60.days).strftime('%Y-%m-%d'))
       end
 
@@ -166,7 +174,7 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
       end
 
       it 'throws unauthorized exception' do
-        get "/vaos/v2/referrals/#{encrypted_uuid}"
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
 
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)).to eq(resp)
@@ -175,45 +183,30 @@ RSpec.describe VAOS::V2::ReferralsController, type: :request do
 
     context 'when called with authorization' do
       let(:user) { build(:user, :vaos, :loa3, icn:) }
-      let(:referral_detail) { build(:ccra_referral_detail, referral_number:) }
+      let(:referral_detail) { build(:ccra_referral_detail, referral_consult_id:, referral_number:) }
 
       before do
         sign_in_as(user)
         allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-          .with(referral_number, icn)
+          .with(referral_consult_id, icn)
           .and_return(referral_detail)
       end
 
       it 'returns a referral detail in JSON:API format' do
-        get "/vaos/v2/referrals/#{encrypted_uuid}"
+        get "/vaos/v2/referrals/#{encrypted_referral_consult_id}"
 
         expect(response).to have_http_status(:ok)
 
         response_data = JSON.parse(response.body)
         expect(response_data).to have_key('data')
-        expect(response_data['data']['id']).to eq(encrypted_uuid)
+        expect(response_data['data']['id']).to eq(encrypted_referral_consult_id)
         expect(response_data['data']['type']).to eq('referrals')
         expect(response_data['data']['attributes']['categoryOfCare']).to eq('CARDIOLOGY')
         expect(response_data['data']['attributes']['provider']['name']).to eq('Dr. Smith')
         expect(response_data['data']['attributes']['referringFacility']['name']).to be_present
         expect(response_data['data']['attributes']['expirationDate']).to be_a(String)
         expect(response_data['data']['attributes']['referralNumber']).to eq(referral_number)
-      end
-
-      context 'with a custom mode parameter' do
-        let(:custom_mode) { 'A' }
-
-        before do
-          allow_any_instance_of(Ccra::ReferralService).to receive(:get_referral)
-            .with(referral_number, icn)
-            .and_return(referral_detail)
-        end
-
-        it 'passes the correct mode to the service' do
-          get "/vaos/v2/referrals/#{encrypted_uuid}", params: { mode: custom_mode }
-
-          expect(response).to have_http_status(:ok)
-        end
+        expect(response_data['data']['attributes']['referralConsultId']).to eq(referral_consult_id)
       end
     end
   end

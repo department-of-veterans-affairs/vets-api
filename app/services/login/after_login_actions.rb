@@ -22,6 +22,7 @@ module Login
       update_account_login_stats(login_type)
       id_mismatch_validations
       create_mhv_account
+      current_user.provision_cerner_async(source: :ssoe)
 
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)

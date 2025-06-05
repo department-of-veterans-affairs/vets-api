@@ -2,7 +2,7 @@
 
 module MyHealth
   module V1
-    class AllergiesController < MrController
+    class AllergiesController < MRController
       def index
         render_resource client.list_allergies
       end

@@ -15,6 +15,50 @@ describe PdfFill::ExtrasGeneratorV2 do
       question
     end
 
+    describe '#numbered_label_markup' do
+      context 'when show_suffix is true' do
+        it 'appends suffix to question number when there is a single subquestion' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5a. Test Question</h3>')
+        end
+
+        it 'does not append suffix when there are multiple subquestions' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value1', { question_suffix: 'A' })
+          question.add_text('Value2', { question_suffix: 'B' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+
+        it 'handles nil suffix gracefully' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: true })
+          question.add_text('Value', {})
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+      end
+
+      context 'when show_suffix is false' do
+        it 'does not append suffix to question number' do
+          question = described_class.new('Test Question', { question_num: 5, show_suffix: false })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>5. Test Question</h3>')
+        end
+      end
+
+      context 'when number is not an integer' do
+        it 'does not include a prefix' do
+          question = described_class.new('Test Question', { question_num: '5.2', show_suffix: true })
+          question.add_text('Value', { question_suffix: 'A' })
+
+          expect(question.numbered_label_markup).to eq('<h3>Test Question</h3>')
+        end
+      end
+    end
+
     describe '#format_value' do
       it 'applies formatting based on format options' do
         question = described_class.new('Test', { question_num: 1 })
@@ -65,6 +109,30 @@ describe PdfFill::ExtrasGeneratorV2 do
     end
 
     describe '#sorted_subquestions_markup' do
+      context 'when the question is a checklist group' do
+        let(:add_text_calls) do
+          [
+            [1, { question_label: 'Item 1', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 2', question_type: 'checklist_group', checked_values: ['1'] }],
+            [0, { question_label: 'Item 3', question_type: 'checklist_group', checked_values: ['0'] }],
+            [2, { question_label: 'None' }],
+            ['Miscellaneous details', { question_label: 'Other', question_type: 'checklist_group' }]
+          ]
+        end
+
+        it 'renders correctly' do
+          expect(subject.sorted_subquestions_markup).to eq(
+            [
+              '<tr><td><ul><li>Item 1</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Item 3</li></ul></td></tr>',
+              '',
+              '<tr><td><ul><li>Other: Miscellaneous details</li></ul></td></tr>'
+            ]
+          )
+        end
+      end
+
       context 'when there is only one subquestion' do
         let(:add_text_calls) do
           [
@@ -146,16 +214,31 @@ describe PdfFill::ExtrasGeneratorV2 do
       let(:add_text_calls) do
         [
           ["foo\nbar", { question_suffix: 'A', question_text: 'Name', question_type: 'free_text' }],
-          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }]
+          ['bar', { question_suffix: 'B', question_text: 'Email', question_type: 'free_text' }],
+          ['no response', { question_suffix: 'C', question_text: 'Other', question_type: 'free_text' }],
+          ['bold', {
+            question_suffix: 'D',
+            question_text: 'Bold',
+            question_type: 'free_text',
+            format_options: { bold_value: true }
+          }],
+          ['longer line that should generate two lines because it is too long', {
+            question_suffix: 'E',
+            question_text: 'Longer Line',
+            question_type: 'free_text',
+            format_options: { question_width: 150 }
+          }]
         ]
       end
 
       it 'renders correctly' do
-        expected_style = "width:#{PdfFill::ExtrasGeneratorV2::FREE_TEXT_QUESTION_WIDTH}"
         expect(subject.sorted_subquestions_markup).to eq(
           [
-            "<tr><td style='#{expected_style}'><p>foo</p><p>bar</p></td><td></td></tr>",
-            "<tr><td style='#{expected_style}'><p>bar</p></td><td></td></tr>"
+            ['foo', Prawn::Text::NBSP, 'bar'],
+            ['bar'],
+            ['<i>no response</i>'],
+            ['<b>bold</b>'],
+            ['longer line that should generate', 'two lines because it is too long']
           ]
         )
       end
@@ -212,15 +295,18 @@ describe PdfFill::ExtrasGeneratorV2 do
   describe '#add_page_numbers' do
     subject { described_class.new(start_page: 8) }
 
-    let(:pdf) { instance_double(Prawn::Document, bounds: double('Bounds', right: 400, bottom: 0)) }
+    let(:pdf) do
+      double('Prawn::Document',
+             bounds: double('Bounds', left: 0, bottom: 0, width: 500),
+             page_number: 1)
+    end
 
     it 'adds page numbers starting at @start_page' do
-      expect(pdf).to receive(:number_pages).with(
-        'Page <page>',
-        start_count_at: 8,
-        at: [400 - 50, 0],
-        align: :right,
-        size: 9
+      expect(pdf).to receive(:repeat).with(:all, dynamic: true).and_yield
+      expect(pdf).to receive(:bounding_box).and_yield
+      expect(pdf).to receive(:markup).with(
+        'Page 8',
+        text: { align: :right, valign: :bottom, size: described_class::FOOTER_FONT_SIZE }
       )
 
       subject.add_page_numbers(pdf)
@@ -307,7 +393,7 @@ describe PdfFill::ExtrasGeneratorV2 do
         expected_text = 'Signed electronically and submitted via VA.gov at 14:30 UTC 2020-12-25. ' \
                         'Signee signed with an identity-verified account.'
         expect(pdf).to have_received(:markup).with(
-          expected_text, text: { align: :left, size: footer_font_size }
+          expected_text, text: { align: :left, valign: :bottom, size: footer_font_size }
         )
       end
     end
@@ -739,6 +825,48 @@ describe PdfFill::ExtrasGeneratorV2 do
         added_value = item.instance_variable_get(:@subquestions).first
 
         expect(added_value[:metadata][:format_options]).to eq({ bold_value: true })
+      end
+    end
+
+    describe '#measure_actual_height' do
+      let(:item) do
+        instance_double(PdfFill::ExtrasGeneratorV2::Question)
+      end
+
+      before do
+        allow(pdf).to receive(:cursor).and_return(100, 50, 200, 100, 400, 200)
+        allow(pdf).to receive(:start_new_page)
+        allow(pdf).to receive(:markup)
+        allow(item).to receive(:should_render?).and_return(true)
+        allow(item).to receive(:render)
+      end
+
+      context 'when some items are nil' do
+        it 'returns the height measurements' do
+          items = [item, nil, item, nil]
+          subject.instance_variable_set(:@items, items)
+          heights = subject.measure_actual_height(pdf)
+
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights[:title]).to eq(50)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(2) # 2 items are not nil
+          expect(heights[:items][0]).to eq(100)  # mocked items index 0
+          expect(heights[:items][1]).to eq(200)  # mocked items index 2
+        end
+      end
+
+      context 'when item is nil' do
+        it 'returns nil' do
+          heights = subject.measure_actual_height(pdf)
+          expect(heights).to be_a(Hash)
+          expect(heights).to have_key(:title)
+          expect(heights).to have_key(:items)
+          expect(heights[:items]).to be_an(Array)
+          expect(heights[:items].length).to eq(0)
+        end
       end
     end
   end

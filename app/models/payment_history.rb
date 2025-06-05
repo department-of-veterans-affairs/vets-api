@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
-class PaymentHistory < Common::Base
-  attribute :payments, Array
-  attribute :return_payments, Array
+class PaymentHistory
+  include Vets::Model
+
+  attribute :payments, Hash, array: true
+  attribute :return_payments, Hash, array: true
 end

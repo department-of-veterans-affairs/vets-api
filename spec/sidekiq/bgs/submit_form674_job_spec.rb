@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/job_retry'
 
 RSpec.describe BGS::SubmitForm674Job, type: :job do
-  let(:user) { create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3, :with_terms_of_use_agreement) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:dependency_claim_674_only) { create(:dependency_claim_674_only) }
   let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
@@ -77,11 +77,17 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           .and_return(user_struct)
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user.va_profile_email,
-          '686c_674_confirmation_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
+          'fake_received686c674',
+          { 'confirmation_number' => dependency_claim.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'Dependents::NotificationCallback',
+            callback_metadata: { email_template_id: 'fake_received686c674',
+                                 email_type: :received686c674,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim.id,
+                                 service_name: 'dependents' } }
         )
 
         subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
@@ -111,7 +117,8 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
   context 'error with central submission' do
     before do
       allow(OpenStruct).to receive(:new).and_call_original
-      InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+      InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, user_account: user.user_account,
+                             form_data: all_flows_payload)
     end
 
     it 'raises error' do
@@ -150,11 +157,17 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
           .and_return(user_struct)
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           user.va_profile_email,
-          '674_confirmation_template_id',
-          {
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-            'first_name' => 'WESLEY'
-          }
+          'fake_received674',
+          { 'confirmation_number' => dependency_claim_674_only.confirmation_number,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'first_name' => 'WESLEY' },
+          'fake_secret',
+          { callback_klass: 'Dependents::NotificationCallback',
+            callback_metadata: { email_template_id: 'fake_received674',
+                                 email_type: :received674,
+                                 form_id: '686C-674',
+                                 saved_claim_id: dependency_claim_674_only.id,
+                                 service_name: 'dependents' } }
         )
 
         subject.perform(user.uuid, user.icn, dependency_claim_674_only.id, encrypted_vet_info, encrypted_user_struct)

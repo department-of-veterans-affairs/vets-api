@@ -16,7 +16,7 @@ module BGSDependents
         vet_ind: 'N',
         dependent_income: formatted_boolean(@is_v2 ? @death_info['deceased_dependent_income'] : @death_info['dependent_income']) # rubocop:disable Layout/LineLength
       }
-      info['marriage_termination_type_code'] = 'death' if dependent_type[:family] == 'Spouse'
+      info['marriage_termination_type_code'] = 'Death' if dependent_type[:family] == 'Spouse'
       info.merge(@death_info['full_name']).with_indifferent_access
     end
   end

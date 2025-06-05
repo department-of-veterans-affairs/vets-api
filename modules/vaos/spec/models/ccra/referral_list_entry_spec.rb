@@ -10,6 +10,7 @@ describe Ccra::ReferralListEntry do
       {
         category_of_care: 'CARDIOLOGY',
         referral_number: '5682',
+        referral_consult_id: '984_646372',
         referral_expiration_date: '2024-05-27',
         station_id: '528A6',
         status: 'AP',
@@ -64,6 +65,7 @@ describe Ccra::ReferralListEntry do
         {
           category_of_care: 'CARDIOLOGY',
           referral_number: '5682',
+          referral_consult_id: '984_646372',
           referral_expiration_date: '2024-05-27',
           station_id: '528A6',
           status: 'AP',
@@ -72,6 +74,7 @@ describe Ccra::ReferralListEntry do
         {
           category_of_care: 'PODIATRY',
           referral_number: '5683',
+          referral_consult_id: '984_646373',
           referral_expiration_date: '2024-08-15',
           station_id: '552',
           status: 'AP',
@@ -95,6 +98,7 @@ describe Ccra::ReferralListEntry do
       expect(result[0].expiration_date).to eq(Date.parse('2024-05-27'))
       expect(result[1].category_of_care).to eq('PODIATRY')
       expect(result[1].referral_number).to eq('5683')
+      expect(result[1].referral_consult_id).to eq('984_646373')
       expect(result[1].uuid).to be_nil
       expect(result[1].expiration_date).to eq(Date.parse('2024-08-15'))
     end

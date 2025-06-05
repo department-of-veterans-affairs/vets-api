@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
-require 'common/models/resource'
+require 'vets/model'
 
 module Mobile
   module V0
-    class Rating < Common::Resource
-      attribute :id, Types::String
-      attribute :combined_disability_rating, Types::Integer
-      attribute :individual_ratings, Types::Array.of(IndividualRating)
+    class Rating
+      include Vets::Model
+
+      attribute :id, String
+      attribute :combined_disability_rating, Integer
+      attribute :individual_ratings, Mobile::V0::IndividualRating, array: true, default: []
     end
   end
 end

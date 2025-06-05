@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'support/controller_spec_helper'
-require 'pensions/benefits_intake/pension_benefit_intake_job'
+require 'pensions/benefits_intake/submit_claim_job'
 require 'kafka/sidekiq/event_bus_submission_job'
 require 'bpds/sidekiq/submit_to_bpds_job'
 require 'bpds/monitor'
@@ -37,7 +37,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_attempt).once
       expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
-      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
+      expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
       expect(Kafka::EventBusSubmissionJob).not_to receive(:perform_async)
 
       response = post(:create, params: { param_name => { form: claim.form } })
@@ -100,7 +100,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     it 'raises an error' do
       allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
       expect(monitor).to receive(:track_process_attachment_error).once
-      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
+      expect(Pensions::BenefitsIntake::SubmitClaimJob).not_to receive(:perform_async)
 
       expect do
         subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)

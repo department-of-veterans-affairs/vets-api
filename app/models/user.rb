@@ -192,7 +192,6 @@ class User < Common::RedisStore
   delegate :cerner_facility_ids, to: :mpi
   delegate :edipis, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true
-  delegate :home_phone, to: :mpi
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :id_theft_flag, to: :mpi
@@ -479,6 +478,16 @@ class User < Common::RedisStore
     return unless can_create_mhv_account?
 
     MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def provision_cerner_async(source: nil)
+    return unless cerner_eligible?
+
+    Identity::CernerProvisionerJob.perform_async(icn, source)
+  end
+
+  def cerner_eligible?
+    loa3? && cerner_id.present?
   end
 
   def can_create_mhv_account?

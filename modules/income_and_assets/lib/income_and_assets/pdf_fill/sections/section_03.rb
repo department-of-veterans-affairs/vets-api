@@ -14,8 +14,10 @@ module IncomeAndAssets
         },
         # 3b - 3f (only space for five on form)
         'unassociatedIncomes' => {
+          # Label for each income entry (e.g., 'Income 1')
+          item_label: 'Income',
           limit: 5,
-          first_key: 'recipientRelationship',
+          first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
             key: "F[0].IncomeRecipients3[#{ITERATOR}]"
@@ -23,13 +25,15 @@ module IncomeAndAssets
           'recipientRelationshipOverflow' => {
             question_num: 3,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship3[#{ITERATOR}]",
             question_num: 3,
             question_suffix: '(1)',
-            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
+            question_label: 'Relationship Type'
           },
           # Q2
           'recipientName' => {
@@ -37,7 +41,8 @@ module IncomeAndAssets
             question_num: 3,
             question_suffix: '(2)',
             question_text:
-              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)',
+            question_label: 'Name'
           },
           # Q3
           'incomeType' => {
@@ -46,13 +51,15 @@ module IncomeAndAssets
           'incomeTypeOverflow' => {
             question_num: 3,
             question_suffix: '(3)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
+            question_text: 'SPECIFY THE TYPE OF INCOME',
+            question_label: 'Income Type'
           },
           'otherIncomeType' => {
             key: "F[0].OtherIncomeType3[#{ITERATOR}]",
             question_num: 3,
             question_suffix: '(3)',
-            question_text: 'SPECIFY THE TYPE OF INCOME'
+            question_text: 'SPECIFY THE TYPE OF INCOME',
+            question_label: 'Other Income Type'
           },
           # Q4
           'grossMonthlyIncome' => {
@@ -67,16 +74,19 @@ module IncomeAndAssets
             }
           },
           'grossMonthlyIncomeOverflow' => {
+            dollar: true,
             question_num: 3,
             question_suffix: '(4)',
-            question_text: 'GROSS MONTHLY INCOME'
+            question_text: 'GROSS MONTHLY INCOME',
+            question_label: 'Gross Monthly Income'
           },
           # Q5
           'payer' => {
             key: "F[0].IncomePayer3[#{ITERATOR}]",
             question_num: 3,
             question_suffix: '(5)',
-            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',
+            question_label: 'Payer'
           }
         }
       }.freeze
@@ -90,7 +100,7 @@ module IncomeAndAssets
       #
       def expand(form_data)
         incomes = form_data['unassociatedIncomes']
-        form_data['unassociatedIncome'] = incomes&.length ? 'YES' : 1
+        form_data['unassociatedIncome'] = incomes&.length ? 0 : 1
         form_data['unassociatedIncomes'] = incomes&.map do |item|
           expand_item(item)
         end
