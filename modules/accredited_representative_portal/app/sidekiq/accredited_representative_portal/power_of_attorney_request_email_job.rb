@@ -20,7 +20,7 @@ module AccreditedRepresentativePortal
     def perform(poa_request_notification_id,
                 personalisation = nil,
                 api_key = Settings.vanotify.services.va_gov.api_key)
-      notify_client = VaNotify::Service.new(api_key, {})
+      notify_client = VaNotify::Service.new(api_key, email_delivery_callback)
       poa_request_notification = PowerOfAttorneyRequestNotification.find(poa_request_notification_id)
       template_id = poa_request_notification.template_id
 
@@ -68,6 +68,18 @@ module AccreditedRepresentativePortal
       personalisation_klass.generate(
         notification
       )
+    end
+
+    def email_delivery_callback
+      {
+        callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+        callback_metadata: {
+          statsd_tags: {
+            service: 'accredited-representative-portal',
+            function: 'poa_request_submission'
+          }
+        }
+      }
     end
   end
 end
