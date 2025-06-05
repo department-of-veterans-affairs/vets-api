@@ -204,7 +204,7 @@ RSpec.describe VeteranEnrollmentSystem::Associations::Service do
     end
 
     # I wasn't sure if we really needed to test this, but I included it for the sake of ensuring that
-    # deleting associations works as expected
+    # creating associations works as expected
     it 'creates associations', run_at: 'Thu, 24 Apr 2025 18:22:00 GMT' do
       VCR.use_cassette(
         'veteran_enrollment_system/associations/create_associations_success',

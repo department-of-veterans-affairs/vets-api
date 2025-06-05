@@ -16,7 +16,6 @@ module VeteranEnrollmentSystem
   module Associations
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
-      include HCA::EnrollmentSystem
 
       configuration VeteranEnrollmentSystem::Associations::Configuration
 
@@ -149,7 +148,8 @@ module VeteranEnrollmentSystem
       def raise_error(response)
         message = response.body['messages']&.pluck('description')&.join(', ') || response.body
         # Just in case the status is not in the ERROR_MAP, raise a BackendServiceException
-        raise ERROR_MAP[response.status].new(detail: message) || Common::Exceptions::BackendServiceException.new(nil, detail: message)
+        raise ERROR_MAP[response.status].new(detail: message) ||
+              Common::Exceptions::BackendServiceException.new(nil, detail: message)
       end
 
       def handle_ves_update_response(response, form_id)
