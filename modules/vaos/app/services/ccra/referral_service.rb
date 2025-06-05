@@ -72,10 +72,14 @@ module Ccra
     # @param icn [String] The patient's ICN
     # @return [Boolean] True if the cache operation was successful
     def cache_referral_data(referral, id, icn)
+      referral_with_timing = referral.attributes.merge(
+        'booking_start_time' => Time.current.to_f
+      )
+
       referral_cache.save_referral_data(
         id:,
         icn:,
-        referral_data: referral
+        referral_data: referral_with_timing
       )
     end
 

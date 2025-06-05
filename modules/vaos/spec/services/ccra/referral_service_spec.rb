@@ -113,13 +113,21 @@ describe Ccra::ReferralService do
 
       it 'caches the referral data with the RedisClient' do
         VCR.use_cassette('vaos/ccra/post_get_referral_success') do
-          expect(referral_cache).to receive(:save_referral_data).with(
-            id:,
-            icn:,
-            referral_data: instance_of(Ccra::ReferralDetail)
-          ).and_return(true)
+          Timecop.freeze(Time.current) do
+            expected_start_time = Time.current.to_f
 
-          subject.get_referral(id, icn)
+            expect(referral_cache).to receive(:save_referral_data).with(
+              id:,
+              icn:,
+              referral_data: include(
+                'category_of_care' => 'CARDIOLOGY',
+                'referral_number' => 'VA0000005681',
+                'booking_start_time' => expected_start_time
+              )
+            ).and_return(true)
+
+            subject.get_referral(id, icn)
+          end
         end
       end
     end
