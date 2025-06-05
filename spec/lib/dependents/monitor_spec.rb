@@ -57,7 +57,12 @@ RSpec.describe Dependents::Monitor do
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim:,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:false'],
+          use_v2: false,
+          user_account_uuid: nil
         }
         tags = { tags: ['service:dependents-application', 'v2:false'] }
 
@@ -74,7 +79,12 @@ RSpec.describe Dependents::Monitor do
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim:,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:false'],
+          use_v2: false,
+          user_account_uuid: nil
         }
         tags = { tags: ['service:dependents-application', 'v2:false'] }
 
@@ -169,12 +179,17 @@ RSpec.describe Dependents::Monitor do
   context 'v2' do
     describe '#track_submission_exhaustion' do
       it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+        msg = { 'args' => [claim_v2.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim: claim_v2,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:true'],
+          use_v2: true,
+          user_account_uuid: nil
         }
 
         expect(monitor_v2).to receive(:log_silent_failure).with(payload, anything)
@@ -186,12 +201,17 @@ RSpec.describe Dependents::Monitor do
       end
 
       it 'logs sidekiq job exhaustion with failure avoided' do
-        msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+        msg = { 'args' => [claim_v2.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
         log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
               "last error: #{msg['error_message']}"
         payload = {
-          message: msg
+          claim: claim_v2,
+          message: msg,
+          service: 'dependents-application',
+          tags: ['service:dependents-application', 'v2:true'],
+          use_v2: true,
+          user_account_uuid: nil
         }
 
         expect(monitor_v2).to receive(:log_silent_failure_no_confirmation).with(payload, anything)
