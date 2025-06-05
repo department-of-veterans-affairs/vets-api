@@ -64,6 +64,7 @@ unless ENV['NOCOVERAGE']
     add_group 'ClaimsEvidenceApi', 'modules/claims_evidence_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
     add_group 'DebtsApi', 'modules/debts_api/'
+    add_group 'DependentsVerification', 'modules/dependents_verification/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
     add_group 'IncomeAndAssets', 'modules/income_and_assets/'

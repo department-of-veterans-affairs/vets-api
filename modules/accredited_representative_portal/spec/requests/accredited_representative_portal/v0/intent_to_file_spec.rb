@@ -6,7 +6,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   let(:poa_code) { '067' }
   let(:poa_check_vcr_response) { '200_response' }
   let!(:test_user) do
-    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859')
+    create(:representative_user, email: 'test@va.gov', icn: '123498767V234859', all_emails: ['test@va.gov'])
   end
   let!(:accredited_individual) do
     create(:user_account_accredited_individual,
@@ -20,6 +20,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::IntentToFileController, type:
   let!(:representative) do
     create(:representative,
            :vso,
+           email: test_user.email,
            representative_id: accredited_individual.accredited_individual_registration_number,
            poa_codes: [poa_code])
   end
