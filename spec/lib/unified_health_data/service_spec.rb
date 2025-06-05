@@ -290,6 +290,108 @@ describe UnifiedHealthData::Service, type: :service do
         expect(result.first.reference_range).to eq('8.5-10.5 mg/dL, Lab-specific: 9-11 mg/dL')
       end
 
+      it 'returns observations with low/high values in reference range' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'TSH' },
+                'valueQuantity' => { 'value' => 1.8, 'unit' => 'mIU/L' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 0.7,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 4.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Within normal limits' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L')
+      end
+
+      it 'returns observations with multiple low/high reference ranges joined' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Comprehensive Metabolic Panel' },
+                'valueQuantity' => { 'value' => 1.8, 'unit' => 'mIU/L' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 0.7,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 4.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  },
+                  {
+                    'low' => {
+                      'value' => 0.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 5.0,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'treatment',
+                          'display' => 'Treatment Range'
+                        }
+                      ],
+                      'text' => 'Treatment Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Multiple reference ranges' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L, Treatment Range: 0.5 mIU/L - 5.0 mIU/L')
+      end
+
       it 'returns empty string for reference range if not present' do
         record = {
           'resource' => {

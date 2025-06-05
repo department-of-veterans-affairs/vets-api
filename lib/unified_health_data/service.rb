@@ -197,7 +197,7 @@ module UnifiedHealthData
         UnifiedHealthData::Observation.new(
           test_code: obs['code']['text'],
           value: fetch_observation_value(obs),
-          reference_range: parse_reference_range(obs['referenceRange']),
+          reference_range: obs['referenceRange'] ? fetch_reference_range(obs['referenceRange']) : '',
           status: obs['status'],
           comments: obs['note']&.map { |note| note['text'] }&.join(', ') || '',
           sample_tested:,
@@ -206,9 +206,7 @@ module UnifiedHealthData
       end
     end
 
-    def parse_reference_range(reference_range)
-      return '' unless reference_range
-
+    def fetch_reference_range(reference_range)
       reference_range.map do |range|
         if range['text']
           range['text']
