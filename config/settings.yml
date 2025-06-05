@@ -507,6 +507,8 @@ gclaws:
     api_key: <%= ENV['gclaws__accreditation__api_key'] %>
     attorneys:
       url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    icn:
+      url: <%= ENV['gclaws__accreditation__icn__url'] %>
     origin: <%= ENV['gclaws__accreditation__origin'] %>
     representatives:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
@@ -902,6 +904,7 @@ mhv:
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
+    x_api_key: <%= ENV['mhv__uhd__x_api_key'] %>
 mhv_mobile:
   rx:
     app_token: <%= ENV['mhv_mobile__rx__app_token'] %>

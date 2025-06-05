@@ -705,6 +705,17 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           end
         end
       end
+
+      describe 'financial status report submissions' do
+        it 'supports getting financial status report submissions' do
+          expect(subject).to validate(
+            :get,
+            '/debts_api/v0/financial_status_reports/submissions',
+            200,
+            headers
+          )
+        end
+      end
     end
 
     context 'HCA tests' do
