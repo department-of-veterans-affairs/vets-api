@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_30_183256) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1166,6 +1165,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1173,7 +1173,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1182,11 +1181,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
@@ -1275,6 +1274,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.integer "doctype"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
     t.index ["needs_kms_rotation"], name: "index_persistent_attachments_on_needs_kms_rotation"
@@ -1709,6 +1709,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_23_210208) do
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
     t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
+  end
+
+  create_table "veteran_accreditation_totals", force: :cascade do |t|
+    t.integer "attorneys"
+    t.integer "claims_agents"
+    t.integer "vso_representatives"
+    t.integer "vso_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "veteran_device_records", force: :cascade do |t|

@@ -274,6 +274,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
+    Rails.logger.info('VRE Submit1900Job VBMS confirmation email sent.')
   end
 
   def send_lighthouse_confirmation_email(user)
@@ -291,6 +292,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'date' => Time.zone.today.strftime('%B %d, %Y')
       }
     )
+    Rails.logger.info('VRE Submit1900Job successful, lighthouse confirmation email sent to user.')
   end
 
   def process_attachments!
@@ -321,6 +323,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
           'confirmation_number' => confirmation_number
         }
       )
+      Rails.logger.info('VRE Submit1900Job retries exhausted, failure email sent to veteran.')
     else
       Rails.logger.warn('VRE claim failure email not sent: email not present.')
     end

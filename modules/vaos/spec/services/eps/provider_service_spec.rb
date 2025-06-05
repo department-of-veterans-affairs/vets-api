@@ -12,7 +12,6 @@ describe Eps::ProviderService do
   before do
     allow(config).to receive_messages(base_path: 'api/v1', mock_enabled?: false)
     allow(service).to receive_messages(config:, headers:)
-    allow(service).to receive(:log_response)
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
     allow(Rails.logger).to receive(:debug)

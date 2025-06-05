@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/CODEOWNERS'
 permissions:
+  id-token: write
   contents: read
   checks: write
 jobs:
@@ -17,8 +18,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE }}
           aws-region: "us-gov-west-1"
       - name: Checkout
         uses: actions/checkout@v4

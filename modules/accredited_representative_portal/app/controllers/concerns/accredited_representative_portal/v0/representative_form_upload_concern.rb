@@ -31,6 +31,10 @@ module AccreditedRepresentativePortal
       end
 
       def form_params
+        @form_params ||= get_form_params
+      end
+
+      def get_form_params
         params.require(:representative_form_upload).permit(
           :confirmationCode,
           :location,

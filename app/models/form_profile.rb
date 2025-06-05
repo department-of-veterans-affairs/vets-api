@@ -100,6 +100,18 @@ class FormProfile
     evss: ['21-526EZ'],
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     form_upload: %w[
+      21P-4185-UPLOAD
+      21-651-UPLOAD
+      21-0304-UPLOAD
+      21-8960-UPLOAD
+      21P-4706c-UPLOAD
+      21-4140-UPLOAD
+      21P-4718a-UPLOAD
+      21-4193-UPLOAD
+      21-0788-UPLOAD
+      21-8951-2-UPLOAD
+      21-674b-UPLOAD
+      21-2680-UPLOAD
       21-0779-UPLOAD
       21-4192-UPLOAD
       21-509-UPLOAD
@@ -130,23 +142,12 @@ class FormProfile
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,
-    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
     '21-0966' => ::FormProfiles::VA210966,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
-    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
-    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
-    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
     '21P-530EZ' => Burials::FormProfiles::VA21p530ez,
-    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
     '22-0993' => ::FormProfiles::VA0993,
     '22-0994' => ::FormProfiles::VA0994,
     '22-10203' => ::FormProfiles::VA10203,
@@ -171,7 +172,30 @@ class FormProfile
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
-    'MDOT' => ::FormProfiles::MDOT
+    'MDOT' => ::FormProfiles::MDOT,
+    '21P-0519S-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-509-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-530a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-651-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-674b-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0304-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0779-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-0788-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-2680-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4140-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4185-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4192-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-4193-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4706c-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-4718a-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-8049-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-8940-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-8960-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0516-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0517-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0518-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21P-0519C-1-UPLOAD' => ::FormProfiles::FormUpload,
+    '21-8951-2-UPLOAD' => ::FormProfiles::FormUpload
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

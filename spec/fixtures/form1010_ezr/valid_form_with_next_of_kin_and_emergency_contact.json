@@ -103,7 +103,7 @@
       "otherIncome": 71.9
     }
   ],
-  "veteranContacts": [
+  "nextOfKins": [
     {
       "fullName": {
         "first": "FirstNoKA",
@@ -145,7 +145,9 @@
       },
       "primaryPhone": "1239183546",
       "alternatePhone": "2658351234"
-    },
+    }
+  ],
+  "emergencyContacts": [
     {
       "fullName": {
         "first": "FirstECA",

@@ -505,6 +505,8 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    icn:
+      url: http://localhost:5000/api/v2/accreditations/icn
     origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
@@ -586,7 +588,7 @@ ivc_champva:
 ivc_champva_ves_api:
   api_key: fake_api_key
   app_id: ~
-  host: https://dev02.ves.va.gov/ves-vfmp-app-svc
+  host: https://fwdproxy-staging.vfs.va.gov:4429
   mock: false
   subject: "Proxy Client"
 ivc_forms:
@@ -910,11 +912,12 @@ mhv:
   uhd:
     app_id: 1000
     app_token: faketoken
-    host: https://example.myhealth.va.gov
+    host: https://mhv-api.example.com
     mock: false
-    security_host: https://security.example.myhealth.va.gov
+    security_host: https://mhv-api.example.com
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
@@ -1551,6 +1554,7 @@ vaos:
     api_url: https://api.ccra.placeholder.va.local
     base_path: vaos/v1/patients
     mock: false
+    redis_referral_expiry: 3600
   eps:
     access_token_url: https://login.wellhive.com/oauth2/default/v1/token
     api_url: https://api.wellhive.com
@@ -1562,7 +1566,6 @@ vaos:
     key_path: modules/vaos/config/rsa/sandbox_rsa
     kid: fake_kid
     mock: false
-    redis_token_expiry: 3500
     scopes: care-nav
   referral:
     encryption:

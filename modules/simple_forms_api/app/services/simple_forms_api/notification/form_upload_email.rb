@@ -13,6 +13,18 @@ module SimpleFormsApi
         received: template_root.form_upload_received_email
       }.freeze
       SUPPORTED_FORMS = %w[
+        21P-4185
+        21-651
+        21-0304
+        21-8960
+        21P-4706c
+        21-4140
+        21P-4718a
+        21-4193
+        21-0788
+        21-8951-2
+        21-674b
+        21-2680
         21-0779
         21-4192
         21-509

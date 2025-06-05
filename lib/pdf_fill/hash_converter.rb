@@ -52,6 +52,12 @@ module PdfFill
       end
     end
 
+    def format_currency(v)
+      v = v.to_s.gsub('$', '').gsub(',', '')
+
+      ActiveSupport::NumberHelper.number_to_currency(v)
+    end
+
     def overflow?(key_data, value, from_array_overflow = false)
       return false if value.blank? || from_array_overflow
 
@@ -68,7 +74,7 @@ module PdfFill
       return if key_data[:hide_from_overflow]
 
       i = nil if key_data[:skip_index]
-      v = "$#{v}" if key_data[:dollar]
+      v = format_currency(v) if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
       item_label = array_key_data.try(:[], :item_label)
       question_type = array_key_data&.dig(:question_type) || key_data&.dig(:question_type)
@@ -101,13 +107,9 @@ module PdfFill
 
     def set_value(v, key_data, i, from_array_overflow = false)
       k = key_data[:key]
-      return if k.blank?
-
-      k = k.gsub(ITERATOR, i.to_s) unless i.nil?
-
       new_value = convert_value(v, key_data)
 
-      if overflow?(key_data, new_value, from_array_overflow)
+      if k.present? && overflow?(key_data, new_value, from_array_overflow)
         add_to_extras(key_data, new_value, i)
 
         new_value = placeholder_text
@@ -115,6 +117,9 @@ module PdfFill
         add_to_extras(key_data, new_value, i, overflow: false)
       end
 
+      return if k.blank?
+
+      k = k.gsub(ITERATOR, i.to_s) unless i.nil?
       @pdftk_form[k] = new_value
     end
 
