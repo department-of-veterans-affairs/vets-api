@@ -58,7 +58,7 @@ module ClaimsApi
 
           if bgs_response.empty?
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
-            raise ::Common::Exceptions::BadGateway.new(detail: 'Empty Upstream Response')
+            raise ::Common::Exceptions::BadGateway
           elsif bgs_response[:detail] == 'Veteran ID not found'
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
