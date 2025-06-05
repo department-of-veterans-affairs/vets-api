@@ -15,6 +15,9 @@ RSpec.describe Form1010Ezr::Service do
       'vaMedicalFacility' => '988'
     }
   end
+  let(:form_with_associations) do
+    get_fixture('form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact').merge!(ves_fields)
+  end
   let(:form_with_ves_fields) { form.merge!(ves_fields) }
   let(:current_user) do
     create(
@@ -279,6 +282,18 @@ RSpec.describe Form1010Ezr::Service do
             allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
           end
 
+          context 'when the associations service returns a 200 response' do
+            it 'removes the associations from the form and returns a success object' do
+              VCR.use_cassette('example', :record => :once) do
+                submit = service.submit_sync(form_with_associations)
+
+                debugger
+
+                expect(submit).to be_a(Object)
+              end
+            end
+          end
+
           context 'when an error occurs in the associations service' do
             before do
               allow_any_instance_of(
@@ -309,9 +324,10 @@ RSpec.describe Form1010Ezr::Service do
                   },
                   ezr: :failure
                 )
-                expect { submit_form(form) }.to raise_error(Common::Exceptions::ResourceNotFound).and(
-                  having_attributes(detail: 'associations[0].relationType: Relation type is required')
-                )
+                expect { submit_form(form_with_associations) }.to raise_error do |e|
+                  expect(e).to be_a(Common::Exceptions::ResourceNotFound)
+                  expect(e.errors.first.detail).to eq('associations[0].relationType: Relation type is required')
+                end
               end
             end
           end
@@ -446,18 +462,12 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'when the form includes next of kin and/or emergency contact info' do
-          let(:form) do
-            get_fixture(
-              'form1010_ezr/valid_form_with_next_of_kin_and_emergency_contact'
-            ).merge!(ves_fields)
-          end
-
           it 'returns a success object', run_at: 'Thu, 30 Nov 2023 15:52:36 GMT' do
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_next_of_kin_and_emergency_contact',
               { match_requests_on: %i[method uri body], erb: true }
             ) do
-              expect(service.submit_sync(form)).to eq(
+              expect(service.submit_sync(form_with_associations)).to eq(
                 {
                   success: true,
                   formSubmissionId: 436_462_887,

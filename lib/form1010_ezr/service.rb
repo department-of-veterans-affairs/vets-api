@@ -204,15 +204,15 @@ module Form1010Ezr
       form_associations = parsed_form.fetch('nextOfKins', []) + parsed_form.fetch('emergencyContacts', [])
       return parsed_form if form_associations.empty?
 
-      associations_service = Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user)
-      ves_associations = associations_service.get_associations(FORM_ID)
-      ves_formatted_associations = associations_service.reconcile_associations(ves_associations, form_associations)
-
-      associations_service.update_associations(ves_formatted_associations)
+      Form1010Ezr::VeteranEnrollmentSystem::Associations::Service.new(@user).reconcile_and_update_associations(
+        form_associations
+      )
       # Since we are using the Associations API to update the associations, we'll remove the
       # 'nextOfKins' and 'emergencyContacts' from the parsed_form to prevent redundancy
       parsed_form.delete('nextOfKins')
       parsed_form.delete('emergencyContacts')
+
+      debugger
 
       parsed_form
     end
