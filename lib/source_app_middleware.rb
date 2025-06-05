@@ -25,6 +25,7 @@ class SourceAppMiddleware
     0994-edu-benefits
     0996-higher-level-review
     10-10D
+    10-10d-extended
     1010cg-application-caregiver-assistance
     10182-board-appeal
     10203-edu-benefits
@@ -93,6 +94,7 @@ class SourceAppMiddleware
     gi
     hca
     health-care-supply-reordering
+    income-and-asset-statement
     income-limits
     letters
     login-page
@@ -110,6 +112,7 @@ class SourceAppMiddleware
     mock-simple-forms-patterns
     mock-sip-form
     my-documents
+    new-28-1900-chapter-31
     notification-center
     office-directory
     order-form-2346
@@ -125,6 +128,7 @@ class SourceAppMiddleware
     rated-disabilities
     representative
     representative-21a
+    representative-form-upload
     request-debt-help-form-5655
     resources-and-support
     sahg
