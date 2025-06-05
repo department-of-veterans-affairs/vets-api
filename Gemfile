@@ -18,6 +18,7 @@ path 'modules' do
   gem 'claims_evidence_api'
   gem 'debts_api'
   gem 'decision_reviews'
+  gem 'dependents_verification'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'income_and_assets'
