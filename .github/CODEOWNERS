@@ -143,7 +143,6 @@ app/mailers/views/stem_applicant_denial.html.erb @department-of-veterans-affairs
 app/mailers/views/stem_applicant_sco.html.erb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/govcio-vfep-codereviewers
 app/mailers/views/veteran_readiness_employment_cmp.html.erb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/mailers/views/veteran_readiness_employment.html.erb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/models/account_login_stat.rb @department-of-veterans-affairs/octo-identity
 app/models/account.rb @department-of-veterans-affairs/octo-identity
 app/models/accreditation.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
 app/models/accredited_individual.rb @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-accredited-rep-facing-engineers @department-of-veterans-affairs/accredited-representatives-admin
@@ -428,7 +427,6 @@ app/services/terms_of_use @department-of-veterans-affairs/octo-identity
 app/services/user_audit.rb @department-of-veterans-affairs/octo-identity
 app/services/user_audit/ @department-of-veterans-affairs/octo-identity
 app/services/users @department-of-veterans-affairs/octo-identity
-app/sidekiq/account_login_statistics_job.rb @department-of-veterans-affairs/octo-identity
 app/sidekiq/benefits_intake_remediation_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/benefits_intake_status_job.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/bgs @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1775,7 +1773,6 @@ spec/services/terms_of_use @department-of-veterans-affairs/octo-identity
 spec/services/user_audit_spec.rb @department-of-veterans-affairs/octo-identity
 spec/services/user_audit/ @department-of-veterans-affairs/octo-identity
 spec/services/users @department-of-veterans-affairs/octo-identity
-spec/sidekiq/account_login_statistics_job_spec.rb @department-of-veterans-affairs/octo-identity
 spec/sidekiq/benefits_intake_status_job_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/disability-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/bgs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-dependents-management
 spec/sidekiq/bpds @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
