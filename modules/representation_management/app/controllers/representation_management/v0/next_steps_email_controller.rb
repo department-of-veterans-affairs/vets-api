@@ -17,7 +17,7 @@ module RepresentationManagement
         if data.valid?
           VANotify::EmailJob.perform_async(
             data.email_address,
-            Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email,
+            template_id,
             {
               # The first_name is the only key here that has an underscore.
               # That is intentional.  All the keys here match the keys in the
@@ -28,7 +28,8 @@ module RepresentationManagement
               'representative type' => data.entity_display_type,
               'representative name' => data.entity_name,
               'representative address' => data.entity_address
-            }
+            },
+            email_delivery_callback(data)
           )
           render json: { message: 'Email enqueued' }, status: :ok
         else
@@ -40,6 +41,19 @@ module RepresentationManagement
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
+      end
+
+      def email_delivery_callback(data)
+        {
+          callback_klass: 'VANotify::EmailDeliveryStatusCallback',
+          callback_metadata: {
+            form_number: data.form_number,
+            statsd_tags: {
+              service: 'representation-management',
+              function: 'appoint_a_representative_confirmation_email'
+            }
+          }
+        }
       end
 
       # Strong parameters method for sanitizing input data for the next steps email.
@@ -54,6 +68,10 @@ module RepresentationManagement
           :entity_type,
           :entity_id
         )
+      end
+
+      def template_id
+        Settings.vanotify.services.va_gov.template_id.appoint_a_representative_confirmation_email
       end
     end
   end
