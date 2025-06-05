@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1012592963V937803%5ENI%5E200M%5EUSVHA
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.13.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1570547608", dtSInfo;desc="0"
+      - dtRpid;desc="712815789", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - be8375cc-d074-49c2-851a-9089fe1a0e2c
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 04 Jun 2025 14:18:36 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The ContactInformationBio
+        for id/criteria 2.16.840.1.113883.4.349/1012592963V937803^NI^200M^USVHA could
+        not be found. Please correct your request and try again!","severity":"ERROR"}],"txAuditId":"be8375cc-d074-49c2-851a-9089fe1a0e2c","status":"COMPLETED_FAILURE"}'
+  recorded_at: Wed, 04 Jun 2025 14:18:36 GMT
+recorded_with: VCR 6.3.1
