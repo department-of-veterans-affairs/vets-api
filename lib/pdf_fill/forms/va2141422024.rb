@@ -496,9 +496,29 @@ module PdfFill
         end
       end
 
-      def handle_provider_overflow(providers)
-        first_four_no_overflow = true
+      # def handle_provider_overflow(providers)
+      #   first_four_no_overflow = true
 
+      #   providers.each_with_index do |provider, index|
+      #     if provider['addressOverflows'] ||
+      #        (provider['providerFacilityName']&.size || 0) > 100 ||
+      #        (provider['conditionsTreated']&.size || 0) > 100
+      #       generate_overflow_provider_info(provider)
+
+      #       # if index < 4
+      #       #   first_four_no_overflow = false
+      #       # end
+      #     end
+
+      #     if index == 4 && first_four_no_overflow && providers.count > 5
+      #       # Force the fifth provider to overflow, to cue the user to see the overflow page
+      #       generate_overflow_provider_info(provider)
+      #       provider['providerFacilityName'] = "See add'l info page"
+      #     end
+      #   end
+      # end
+
+      def handle_provider_overflow(providers)
         providers.each_with_index do |provider, index|
           if provider['addressOverflows'] ||
              (provider['providerFacilityName']&.size || 0) > 100 ||
@@ -506,11 +526,16 @@ module PdfFill
             generate_overflow_provider_info(provider)
           end
 
-          if index == 4 && first_four_no_overflow && providers.count > 5
-            # Force the fifth provider to overflow, to cue the user to see the overflow page
+          # Always force provider 5 to show continuation when there are 6+ providers
+          if index == 4 && providers.count > 5
             generate_overflow_provider_info(provider)
             provider['providerFacilityName'] = "See add'l info page"
           end
+
+          # If we have more than 5 providers, we need to generate the overflow info
+          # if index >= 5
+          #   generate_overflow_provider_info(provider)
+          # end
         end
       end
 
@@ -549,7 +574,9 @@ module PdfFill
             additional_provider_number = index + 1
             # Similar to address, we put the provider info in an array to take advantage of
             # hashConverter's configuration options for formatting the overflow pages
-            @form_data["additionalProvider#{additional_provider_number}"] = generate_overflow_provider_info(provider)
+            generate_overflow_provider_info(provider)
+
+            @form_data["additionalProvider#{additional_provider_number}"] = provider
           end
         end
 
