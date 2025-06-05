@@ -648,6 +648,10 @@ lighthouse:
       use_mocks: false
     host: https://sandbox-api.va.gov
     use_mocks: false
+  benefits_discovery:
+    host: 'https://sandbox.lighthouse.va.gov'
+    x_api_key: ~
+    x_app_id: ~
   benefits_documents:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -912,11 +916,12 @@ mhv:
   uhd:
     app_id: 1000
     app_token: faketoken
-    host: https://example.myhealth.va.gov
+    host: https://mhv-api.example.com
     mock: false
-    security_host: https://security.example.myhealth.va.gov
+    security_host: https://mhv-api.example.com
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
