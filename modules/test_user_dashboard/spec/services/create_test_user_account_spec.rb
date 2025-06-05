@@ -9,12 +9,12 @@ describe TestUserDashboard::CreateTestUserAccount do
   let(:users) { CSV.read(file_path, headers: true) }
 
   describe '#call' do
-    it 'sets the account_id and services' do
+    it 'sets the user_account_id and services' do
       user = users[0]
       TestUserDashboard::CreateTestUserAccount.new(user).call
       tud_account = TestUserDashboard::TudAccount.find_by(email: user.to_hash['email'])
 
-      expect(tud_account.account_uuid).not_to be_nil
+      expect(tud_account.user_account_id).not_to be_nil
       expect(tud_account.services).to eq %w[facilities hca edu_benefits form-save-in-progress
                                             form-prefill user-profile appeals-status
                                             identity-proofed vet360 claim_increase]

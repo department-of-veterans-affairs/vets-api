@@ -11,7 +11,7 @@ module TestUserDashboard
     def call
       return unless row['idme_uuid'] || row['logingov_uuid']
 
-      account_details = row.merge(account_uuid: id_uuid,
+      account_details = row.merge(user_account_id:,
                                   id_types:,
                                   birth_date:,
                                   services:).compact

@@ -4,8 +4,8 @@ require 'rails_helper'
 
 describe TestUserDashboard::AccountMetrics do
   describe '#initialize' do
-    let!(:user) { create(:user) }
-    let!(:tud_account) { create(:tud_account, account_uuid: user.account_uuid) }
+    let!(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+    let!(:tud_account) { create(:tud_account, user_account_id: user.user_account_id) }
     let!(:availability_log) { nil }
 
     before do
@@ -47,8 +47,8 @@ describe TestUserDashboard::AccountMetrics do
 
     context 'TUD account does exist' do
       let!(:user) { create(:user) }
-      let(:tud_account) { create(:tud_account, account_uuid: user.account_uuid) }
-      let(:availability_log) { create(:tud_account_availability_log, account_uuid: user.account_uuid) }
+      let(:tud_account) { create(:tud_account, user_account_id: user.user_account_id) }
+      let(:availability_log) { create(:tud_account_availability_log, user_account_id: user.user_account_id) }
 
       before do
         allow(TestUserDashboard::TudAccount).to receive(:find_by).and_return(tud_account)
@@ -86,8 +86,8 @@ describe TestUserDashboard::AccountMetrics do
 
     context 'TUD account does exist' do
       let!(:user) { create(:user) }
-      let(:tud_account) { create(:tud_account, account_uuid: user.account_uuid) }
-      let(:availability_log) { create(:tud_account_availability_log, account_uuid: user.account_uuid) }
+      let(:tud_account) { create(:tud_account, user_account_id: user.user_account_id) }
+      let(:availability_log) { create(:tud_account_availability_log, user_account_id: user.user_account_id) }
 
       before do
         allow(TestUserDashboard::TudAccount).to receive(:find_by).and_return(tud_account)
