@@ -130,12 +130,10 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
 
       context 'with a client error' do
-        # Disable schema validation to test CentralMail error handling with invalid data
-        before do
-          Flipper.disable(:form4142_validate_schema)
-        end
-
         it 'raises a central mail response error' do
+           # Disable schema validation to test CentralMail error handling with invalid data
+          allow(Flipper).to receive(:enabled?).with(:form4142_validate_schema).and_return(false)
+
           VCR.use_cassette('central_mail/submit_4142_400') do
             subject.perform_async(submission.id)
             expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
