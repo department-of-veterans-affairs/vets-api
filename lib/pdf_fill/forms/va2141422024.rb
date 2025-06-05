@@ -10,9 +10,9 @@ module PdfFill
   module Forms
     class Va2141422024 < FormBase
       include FormHelper
+      include FormHelper::PhoneNumberFormatting
 
       # rubocop:disable Metrics/BlockLength
-
       # rubocop:disable Layout/LineLength
 
       # The 2024 keys for the provider fields can no longer use the straightforward ITERATOR
@@ -141,7 +141,6 @@ module PdfFill
       end.freeze
 
       # rubocop:enable Metrics/BlockLength
-
       # rubocop:enable Layout/LineLength
 
       # Used when there are > 5 providers, so we can format them nicely on the overflow pages
@@ -396,12 +395,12 @@ module PdfFill
         end
       end
 
-      def expand_phone_number
+      def expand_phone_number_field
         phone = @form_data['veteranPhone']
         return if phone.blank?
 
         ['', '1', '2', '3'].each do |suffix|
-          @form_data["veteranPhone#{suffix}"] = split_phone_number(phone)
+          @form_data["veteranPhone#{suffix}"] = expand_phone_number(phone)
         end
       end
 
@@ -512,26 +511,26 @@ module PdfFill
             generate_overflow_provider_info(provider)
             provider['providerFacilityName'] = "See add'l info page"
           end
-
-          # If we have more than 5 providers, we need to generate the overflow info
-          generate_overflow_provider_info(provider) if index >= 5
         end
       end
-
-      # rubocop:disable Layout/LineLength
 
       def generate_overflow_provider_info(provider)
         # Combine the provider name, address, and treatment dates into a single string for the overflow page
         address = combine_full_address_extras(provider['providerFacilityAddress'])
         dates = combine_date_ranges(provider['treatmentDateRange'])
 
-        provider['completeProviderInfo'] = [PdfFill::FormValue.new(
-          '',
-          "Provider or Facility Name: #{provider['providerFacilityName']}\n\nAddress: #{address}\n\nConditions Treated: #{provider['conditionsTreated']}\n\nTreatment Date Ranges: #{dates}"
-        )]
-      end
+        provider_info_text = <<~TEXT.chomp
+          Provider or Facility Name: #{provider['providerFacilityName']}
 
-      # rubocop:enable Layout/LineLength
+          Address: #{address}
+
+          Conditions Treated: #{provider['conditionsTreated']}
+
+          Treatment Date Ranges: #{dates}
+        TEXT
+
+        provider['completeProviderInfo'] = [PdfFill::FormValue.new('', provider_info_text)]
+      end
 
       def expand_providers
         providers = @form_data['providerFacility']
@@ -550,7 +549,7 @@ module PdfFill
             additional_provider_number = index + 1
             # Similar to address, we put the provider info in an array to take advantage of
             # hashConverter's configuration options for formatting the overflow pages
-            @form_data["additionalProvider#{additional_provider_number}"] = provider
+            @form_data["additionalProvider#{additional_provider_number}"] = generate_overflow_provider_info(provider)
           end
         end
 
@@ -563,7 +562,7 @@ module PdfFill
         expand_email_address
 
         expand_ssn
-        expand_phone_number
+        expand_phone_number_field
 
         expand_veteran_full_name
         expand_printed_full_name
@@ -586,5 +585,4 @@ module PdfFill
     end
   end
 end
-
 # rubocop:enable Metrics/ClassLength

@@ -20,7 +20,7 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#merge_fields' do
-    it 'merges the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+    it 'transforms form data into PDF-compatible format', run_at: '2016-12-31 00:00:00 EDT' do
       expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-4142-2024/kitchen_sink'))
       .merge_fields.to_json)).to eq(
         JSON.parse(get_fixture('pdf_fill/21-4142-2024/merge_fields').to_json)
@@ -62,19 +62,73 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#expand_email_address' do
-    context 'email address is not blank' do
+    context 'when email is exactly 15 characters' do
       let(:form_data) do
         {
-          'email' => 'myemail72585885@gmail.com'
+          'email' => 'test1@gmail.com'
         }
       end
 
-      it 'expands the email address correctly' do
-        new_form_class.expand_va_file_number
+      it 'does not split the email' do
+        new_form_class.expand_email_address
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
-          'email' => 'myemail72585885@gmail.com'
+          'email' => 'test1@gmail.com'
+        )
+      end
+    end
+
+    context 'when email is exactly 16 characters' do
+      let(:form_data) do
+        {
+          'email' => 'test12@gmail.com'
+        }
+      end
+
+      it 'splits the email correctly' do
+        new_form_class.expand_email_address
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'email' => 'test12@gmail.co',
+          'email1' => 'm'
+        )
+      end
+    end
+
+    context 'when email is between 16 and 30 characters' do
+      let(:form_data) do
+        {
+          'email' => 'verylongemail@example.com'
+        }
+      end
+
+      it 'splits the email at character 15' do
+        new_form_class.expand_email_address
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'email' => 'verylongemail@e',
+          'email1' => 'xample.com'
+        )
+      end
+    end
+
+    context 'when email is exactly 30 characters' do
+      let(:form_data) do
+        {
+          'email' => 'superlongusername@exampl.com'
+        }
+      end
+
+      it 'splits the email correctly' do
+        new_form_class.expand_email_address
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'email' => 'superlonguserna',
+          'email1' => 'me@exampl.com'
         )
       end
     end
@@ -111,7 +165,7 @@ describe PdfFill::Forms::Va2141422024 do
       end
 
       it 'expands the phone number correctly' do
-        new_form_class.expand_phone_number
+        new_form_class.expand_phone_number_field
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -277,12 +331,8 @@ describe PdfFill::Forms::Va2141422024 do
           'providerFacilityName' => 'provider 1',
           'treatmentDateRange' => [
             {
-              'from' => '1980-1-1',
-              'to' => '1985-1-1'
-            },
-            {
-              'from' => '1986-1-1',
-              'to' => '1987-1-1'
+              'from' => '1980-01-01',
+              'to' => '1985-01-01'
             }
           ]
         },
@@ -290,12 +340,8 @@ describe PdfFill::Forms::Va2141422024 do
           'providerFacilityName' => 'provider 2',
           'treatmentDateRange' => [
             {
-              'from' => '1980-2-1',
-              'to' => '1985-2-1'
-            },
-            {
-              'from' => '1986-2-1',
-              'to' => '1987-2-1'
+              'from' => '1980-02-01',
+              'to' => '1985-02-01'
             }
           ]
         }
@@ -308,31 +354,39 @@ describe PdfFill::Forms::Va2141422024 do
             'providerFacilityName' => 'provider 1',
             'treatmentDateRange' => [
               {
-                'from' => '1980-1-1',
-                'to' => '1985-1-1'
-              },
-              {
-                'from' => '1986-1-1',
-                'to' => '1987-1-1'
+                'from' => '1980-01-01',
+                'to' => '1985-01-01'
               }
             ],
-            'dateRangeStart' => nil,
-            'dateRangeEnd' => nil
+            'dateRangeStart' => {
+              'month' => '01',
+              'day' => '01',
+              'year' => '1980'
+            },
+            'dateRangeEnd' => {
+              'month' => '01',
+              'day' => '01',
+              'year' => '1985'
+            }
           },
           {
             'providerFacilityName' => 'provider 2',
             'treatmentDateRange' => [
               {
-                'from' => '1980-2-1',
-                'to' => '1985-2-1'
-              },
-              {
-                'from' => '1986-2-1',
-                'to' => '1987-2-1'
+                'from' => '1980-02-01',
+                'to' => '1985-02-01'
               }
             ],
-            'dateRangeStart' => nil,
-            'dateRangeEnd' => nil
+            'dateRangeStart' => {
+              'month' => '02',
+              'day' => '01',
+              'year' => '1980'
+            },
+            'dateRangeEnd' => {
+              'month' => '02',
+              'day' => '01',
+              'year' => '1985'
+            }
           }
         ]
       )
@@ -384,6 +438,211 @@ describe PdfFill::Forms::Va2141422024 do
           }
         ]
       )
+    end
+  end
+
+  describe '#expand_providers' do
+    context 'with 5 normal non-overflowing providers' do
+      let(:form_data) { get_fixture('pdf_fill/21-4142-2024/kitchen_sink') }
+
+      it 'expands all 5 providers to provider1-provider5 keys and removes providerFacility' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        expect(form_data_result).not_to have_key('providerFacility')
+        expect(form_data_result).to have_key('provider1')
+        expect(form_data_result).to have_key('provider2')
+        expect(form_data_result).to have_key('provider3')
+        expect(form_data_result).to have_key('provider4')
+        expect(form_data_result).to have_key('provider5')
+
+        # Verify provider1 structure and data transformations
+        provider1 = form_data_result['provider1']
+        expect(provider1['providerFacilityName']).to eq('Provider 1')
+        expect(provider1['conditionsTreated']).to eq('Hypertension')
+
+        # Verify address expansion
+        expect(provider1['address']).to be_an(Array)
+        expect(provider1['address'][0]['street']).to eq('123 Main St')
+        expect(provider1['address'][0]['city']).to eq('Baltimore')
+        expect(provider1['address'][0]['country']).to eq('US') # Should be converted from 'USA'
+        expect(provider1['address'][0]['postalCode']).to have_key('firstFive')
+        expect(provider1['address'][0]['postalCode']).to have_key('lastFour')
+
+        # Verify date range expansion
+        expect(provider1['dateRangeStart']).to have_key('month')
+        expect(provider1['dateRangeStart']).to have_key('day')
+        expect(provider1['dateRangeStart']).to have_key('year')
+        expect(provider1['dateRangeStart']['year']).to eq('2010')
+
+        expect(provider1['dateRangeEnd']).to have_key('month')
+        expect(provider1['dateRangeEnd']).to have_key('day')
+        expect(provider1['dateRangeEnd']).to have_key('year')
+        expect(provider1['dateRangeEnd']['year']).to eq('2011')
+
+        # Verify no overflow for normal providers
+        expect(provider1).not_to have_key('completeProviderInfo')
+      end
+    end
+
+    context 'with mixed overflow and normal providers (1-5)' do
+      let(:form_data) { get_fixture('pdf_fill/21-4142-2024/providers_mixed_overflow') }
+
+      it 'generates overflow info for providers exceeding field limits' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        # Provider 1: Long facility name (>100 chars) should overflow
+        expect(form_data_result['provider1']['completeProviderInfo']).to be_present
+        overflow_obj1 = form_data_result['provider1']['completeProviderInfo'][0]
+        overflow_text1 = overflow_obj1['extras_value']
+        expected_overflow_string1 = <<~TEXT.chomp
+          Provider or Facility Name: OVERFLOW TEST: Provider Name That Exceeds The Allowed 100 Characters To Test Name Overflow In PDF Fields
+
+          Address: 123 Main St
+          Apt A
+          Baltimore, MD, 21201
+          USA
+
+          Conditions Treated: Hypertension
+
+          Treatment Date Ranges: from: 2010-01-01 to: 2011-01-01
+        TEXT
+
+        expect(overflow_text1).to include('Provider or Facility Name:')
+        expect(overflow_text1).to include(expected_overflow_string1)
+        expect(overflow_text1).to include('Address:')
+        expect(overflow_text1).to include('Conditions Treated: Hypertension')
+        expect(overflow_text1).to include('Treatment Date Ranges:')
+        expect(overflow_text1).to include('from: 2010-01-01 to: 2011-01-01')
+
+        # Provider 2: Long address should overflow
+        expect(form_data_result['provider2']['completeProviderInfo']).to be_present
+        overflow_obj2 = form_data_result['provider2']['completeProviderInfo'][0]
+        overflow_text2 = overflow_obj2['extras_value']
+        expected_overflow_string2 = <<~TEXT.chomp
+          Provider or Facility Name: Normal Provider Name
+
+          Address: OVERFLOW TEST: 456 Street Address for Testing
+          Apt 101
+          Chicago, IL, 60601
+          USA
+
+          Conditions Treated: Diabetes Type 2
+
+          Treatment Date Ranges: from: 2011-01-01 to: 2012-01-01
+        TEXT
+
+        expect(overflow_text2).to include('Conditions Treated:')
+        expect(overflow_text2).to include(expected_overflow_string2)
+
+        # Provider 3: Long street address (>30 chars) should overflow
+        expect(form_data_result['provider3']['completeProviderInfo']).to be_present
+        expect(form_data_result['provider3']['addressOverflows']).to be true
+
+        # Provider 4: Long street2 (>5 chars) should overflow
+        expect(form_data_result['provider4']['completeProviderInfo']).to be_present
+        expect(form_data_result['provider4']['addressOverflows']).to be true
+
+        # Provider 5: Long city (>18 chars) should overflow
+        expect(form_data_result['provider5']['completeProviderInfo']).to be_present
+        expect(form_data_result['provider5']['addressOverflows']).to be true
+      end
+    end
+
+    context 'with providers exceeding 5 (additionalProvider6-50)' do
+      let(:form_data) { get_fixture('pdf_fill/21-4142-2024/overflow') }
+
+      it 'maps first 5 providers to provider1-5 and remaining to additionalProvider6+' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        # First 5 providers should be mapped to provider1-5, the fifth provider will have name "See add'l info page"
+        # because our test data has more than 5 providers
+        (1..4).each do |i|
+          expect(form_data_result).to have_key("provider#{i}")
+          expect(form_data_result["provider#{i}"]['providerFacilityName']).to include("Provider #{i}")
+        end
+
+        # Additional providers should be mapped to additionalProvider6+
+        expect(form_data_result).to have_key('additionalProvider6')
+        expect(form_data_result).to have_key('additionalProvider7')
+        expect(form_data_result).to have_key('additionalProvider8')
+
+        # Provider 5 should be forced to overflow with continuation message in name input field
+        expect(form_data_result['provider5']['providerFacilityName']).to eq("See add'l info page")
+        expect(form_data_result['provider5']['completeProviderInfo']).to be_present
+
+        # Verify additional providers contain complete provider info
+        expect(form_data_result['additionalProvider6']).to be_present
+        expect(form_data_result['additionalProvider7']).to be_present
+        expect(form_data_result['additionalProvider8']).to be_present
+
+        # Original providerFacility should be removed
+        expect(form_data_result).not_to have_key('providerFacility')
+      end
+    end
+
+    context 'when forcing provider 5 overflow for 6+ providers' do
+      let(:form_data) { get_fixture('pdf_fill/21-4142-2024/overflow') }
+
+      it 'forces provider5 to overflow and shows continuation message when there are 6+ providers' do
+        new_form_class.expand_providers
+        form_data_result = JSON.parse(class_form_data.to_json)
+
+        # Provider 5 should have its name changed to indicate additional info page
+        expect(form_data_result['provider5']['providerFacilityName']).to eq("See add'l info page")
+
+        # Provider 5 should have completeProviderInfo generated with original data
+        expect(form_data_result['provider5']['completeProviderInfo']).to be_present
+        overflow_obj = form_data_result['provider5']['completeProviderInfo'][0]
+        overflow_text = overflow_obj['extras_value']
+        expect(overflow_text).to include('Provider or Facility Name: Provider 5')
+        expect(overflow_text).to include('Conditions Treated: PTSD')
+        expect(overflow_text).to include('Address:')
+        expect(overflow_text).to include('Treatment Date Ranges:')
+
+        # Sixth provider should be in additionalProvider6
+        expect(form_data_result['additionalProvider6']).to be_present
+
+        # Providers 1-4 should remain normal (no forced overflow)
+        (1..4).each do |i|
+          expect(form_data_result["provider#{i}"]['providerFacilityName']).to eq("Provider #{i}")
+          expect(form_data_result["provider#{i}"]).not_to have_key('completeProviderInfo')
+        end
+      end
+    end
+
+    context 'when providerFacility array is empty or nil' do
+      context 'with empty array' do
+        let(:form_data) { { 'providerFacility' => [] } }
+
+        it 'returns early and leaves empty providerFacility key unchanged' do
+          new_form_class.expand_providers
+          form_data_result = JSON.parse(class_form_data.to_json)
+
+          # The method returns early for empty arrays, so the key remains
+          expect(form_data_result).to have_key('providerFacility')
+          expect(form_data_result['providerFacility']).to eq([])
+
+          # No provider keys should be created
+          expect(form_data_result).not_to have_key('provider1')
+          expect(form_data_result).not_to have_key('provider2')
+          expect(form_data_result).not_to have_key('additionalProvider6')
+        end
+      end
+
+      context 'with nil value' do
+        let(:form_data) { { 'providerFacility' => nil } }
+
+        it 'returns early without modifying form_data' do
+          original_data = form_data.dup
+          new_form_class.expand_providers
+          form_data_result = JSON.parse(class_form_data.to_json)
+
+          expect(form_data_result).to eq(JSON.parse(original_data.to_json))
+        end
+      end
     end
   end
 
