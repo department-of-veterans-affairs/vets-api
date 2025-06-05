@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'hexapdf'
+require 'hexapdf/cli'
 
 require 'common/file_helpers'
 
@@ -142,11 +143,10 @@ module PDFUtilities
 
       stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
 
-      if multistamp
-        PDFUtilities::PDFTK.multistamp(pdf_path, stamp_path, stamped_pdf)
-      else
-        PDFUtilities::PDFTK.stamp(pdf_path, stamp_path, stamped_pdf)
-      end
+      reader = PDF::Reader.new(stamp_path)
+      pages = (multistamp) ? [*1..reader.page_count].join(',') : '1'
+
+      HexaPDF::CLI::run(['watermark', '-w', stamp_path, '-i', pages, '-t', 'stamp', pdf_path, stamped_pdf])
 
       raise StampGenerationError, 'Stamped PDF was not created' unless File.exist?(stamped_pdf)
 
