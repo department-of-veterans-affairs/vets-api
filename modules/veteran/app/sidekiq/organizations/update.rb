@@ -42,20 +42,20 @@ module Organizations
     def process_org_data(org_data)
       return unless record_can_be_updated?(org_data)
 
-      address_validation_api_response = nil
-
-      if org_data['address_changed']
-        api_response = get_best_address_candidate(org_data['address'])
-
-        # Don't update the record if there is not a valid address with non-zero lat and long at this point
-        if api_response.nil?
-          return
-        else
-          address_validation_api_response = api_response
-        end
-      end
-
       begin
+        address_validation_api_response = nil
+
+        if org_data['address_changed']
+          api_response = get_best_address_candidate(org_data['address'])
+
+          # Don't update the record if there is not a valid address with non-zero lat and long at this point
+          if api_response.nil?
+            return
+          else
+            address_validation_api_response = api_response
+          end
+        end
+
         update_org_record(org_data, address_validation_api_response)
       rescue Common::Exceptions::BackendServiceException => e
         log_error("Address validation failed for Org id: #{org_data['id']}: #{e.message}")

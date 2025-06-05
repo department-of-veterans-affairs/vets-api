@@ -42,21 +42,20 @@ module Representatives
     def process_rep_data(rep_data)
       return unless record_can_be_updated?(rep_data)
 
-      address_validation_api_response = nil
-
-      if rep_data['address_changed']
-
-        api_response = get_best_address_candidate(rep_data['address'])
-
-        # don't update the record if there is not a valid address with non-zero lat and long at this point
-        if api_response.nil?
-          return
-        else
-          address_validation_api_response = api_response
-        end
-      end
-
       begin
+        address_validation_api_response = nil
+
+        if rep_data['address_changed']
+          api_response = get_best_address_candidate(rep_data['address'])
+
+          # don't update the record if there is not a valid address with non-zero lat and long at this point
+          if api_response.nil?
+            return
+          else
+            address_validation_api_response = api_response
+          end
+        end
+
         update_rep_record(rep_data, address_validation_api_response)
       rescue Common::Exceptions::BackendServiceException => e
         log_error("Address validation failed for Rep id: #{rep_data['id']}: #{e.message}")
