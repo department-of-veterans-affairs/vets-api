@@ -177,6 +177,15 @@ describe PdfFill::HashConverter do
         verify_hash(foo: 'bar')
       end
     end
+
+    context 'when called with a non-overflowing field without PDF key' do
+      it 'sends non-overflowed text to extras generator without affecting output hash' do
+        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil, overflow: false)
+
+        call_set_value({ limit: 3, question_num: 1, question_text: 'foo' }, nil)
+        verify_hash({})
+      end
+    end
   end
 
   describe '#transform_data' do
