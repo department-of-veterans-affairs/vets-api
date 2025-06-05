@@ -58,10 +58,10 @@ module Organizations
 
         update_org_record(org_data, address_validation_api_response)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Address validation failed for Org id: #{org_data['id']}: #{e.message}")
+        log_error("Address validation failed for Org id: #{org_data}: #{e.message}")
         nil
       rescue => e
-        log_error("Update failed for Org id: #{org_data['id']}: #{e.message}")
+        log_error("Update failed for Org id: #{org_data}: #{e.message}")
         nil
       end
     end
@@ -217,6 +217,7 @@ module Organizations
     # @return [Hash] the response from the address validation service
     def modified_validation(address, retry_count)
       address_attempt = address.dup
+      @slack_messages << "Modified address validation.  Address: #{address_attempt}" if send_to_slack
       case retry_count
       when 1 # only use the original address_line1
       when 2 # set address_line1 to the original address_line2
@@ -246,13 +247,16 @@ module Organizations
     def retry_validation(org_address)
       # the address validation service requires at least one of address_line1, address_line2, and address_line3 to
       #   exist. No need to run the retry if we know it will fail before attempting the api call.
+      @slack_messages << 'Modified address validation attempt 1' if send_to_slack
       api_response = modified_validation(org_address, 1) if org_address['address_line1'].present?
 
       if retriable?(api_response) && org_address['address_line2'].present?
+        @slack_messages << 'Modified address validation attempt 2' if send_to_slack
         api_response = modified_validation(org_address, 2)
       end
 
       if retriable?(api_response) && org_address['address_line3'].present?
+        @slack_messages << 'Modified address validation attempt 3' if send_to_slack
         api_response = modified_validation(org_address, 3)
       end
 
