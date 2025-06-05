@@ -45,6 +45,7 @@ GIT
       nokogiri (>= 1.13.6)
       savon (~> 2.15.1)
 
+      faraday (>= 1.2.0, < 3.0)
 GIT
   remote: https://github.com/department-of-veterans-affairs/fhir_client.git
   revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
