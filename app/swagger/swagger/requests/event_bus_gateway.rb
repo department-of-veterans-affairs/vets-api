@@ -16,10 +16,10 @@ module Swagger
 
           parameter do
             key :name, :template_id
-            key :in, :body
             key :description, 'VA Notify template ID'
+            key :in, :formData
             key :required, true
-            key :type, :string
+            key :type, :integer
           end
 
           response 200 do
