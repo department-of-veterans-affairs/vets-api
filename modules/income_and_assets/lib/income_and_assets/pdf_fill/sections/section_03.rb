@@ -25,7 +25,7 @@ module IncomeAndAssets
           first_key: 'otherRecipientRelationshipType',
           # Q1
           'recipientRelationship' => {
-            key: generate_key('3B-F', "IncomeRecipient.Relationship[#{ITERATOR}]")
+            key: generate_key('3B-F(1)', "IncomeRecipient.Relationship[#{ITERATOR}]")
           },
           'recipientRelationshipOverflow' => {
             question_num: 3,
@@ -34,7 +34,7 @@ module IncomeAndAssets
             question_label: 'Relationship'
           },
           'otherRecipientRelationshipType' => {
-            key: generate_key('3B-F', "IncomeRecipient.RelationshipOther[#{ITERATOR}]"),
+            key: generate_key('3B-F(1)', "IncomeRecipient.RelationshipOther[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
@@ -42,7 +42,7 @@ module IncomeAndAssets
           },
           # Q2
           'recipientName' => {
-            key: generate_key('3B-F', "IncomeRecipient.Name[#{ITERATOR}]"),
+            key: generate_key('3B-F(2)', "IncomeRecipient.Name[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(2)',
             question_text:
@@ -51,7 +51,7 @@ module IncomeAndAssets
           },
           # Q3
           'incomeType' => {
-            key: generate_key('3B-F', "IncomeType[#{ITERATOR}]")
+            key: generate_key('3B-F(3)', "IncomeType[#{ITERATOR}]")
           },
           'incomeTypeOverflow' => {
             question_num: 3,
@@ -60,7 +60,7 @@ module IncomeAndAssets
             question_label: 'Income Type'
           },
           'otherIncomeType' => {
-            key: generate_key('3B-F', "IncomeTypeOther[#{ITERATOR}]"),
+            key: generate_key('3B-F(3)', "IncomeTypeOther[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(3)',
             question_text: 'SPECIFY THE TYPE OF INCOME',
@@ -69,13 +69,13 @@ module IncomeAndAssets
           # Q4
           'grossMonthlyIncome' => {
             'thousands' => {
-              key: generate_key('3B-F', "GrossMonthlyIncome1[#{ITERATOR}]")
+              key: generate_key('3B-F(4)', "GrossMonthlyIncome1[#{ITERATOR}]")
             },
             'dollars' => {
-              key: generate_key('3B-F', "GrossMonthlyIncome2[#{ITERATOR}]")
+              key: generate_key('3B-F(4)', "GrossMonthlyIncome2[#{ITERATOR}]")
             },
             'cents' => {
-              key: generate_key('3B-F', "GrossMonthlyIncome3[#{ITERATOR}]")
+              key: generate_key('3B-F(4)', "GrossMonthlyIncome3[#{ITERATOR}]")
             }
           },
           'grossMonthlyIncomeOverflow' => {
@@ -87,7 +87,7 @@ module IncomeAndAssets
           },
           # Q5
           'payer' => {
-            key: generate_key('3B-F', "IncomePayer[#{ITERATOR}]"),
+            key: generate_key('3B-F(5)', "IncomePayer[#{ITERATOR}]"),
             question_num: 3,
             question_suffix: '(5)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)',
