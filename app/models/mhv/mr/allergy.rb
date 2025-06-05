@@ -19,6 +19,8 @@ module MHV
       attribute :notes,            String
       attribute :provider,         String
 
+      default_sort_by date: :desc
+
       def self.map_fhir(fhir)
         {
           id: fhir.id,

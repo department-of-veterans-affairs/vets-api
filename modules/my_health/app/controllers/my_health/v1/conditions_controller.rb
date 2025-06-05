@@ -8,7 +8,7 @@ module MyHealth
           use_cache = params.key?(:use_cache) ? ActiveModel::Type::Boolean.new.cast(params[:use_cache]) : true
 
           with_patient_resource(client.list_conditions(@current_user.uuid, use_cache:)) do |resource|
-            resource = resource.sort('-date')
+            resource = resource.sort
             if pagination_params[:per_page]
               resource = resource.paginate(**pagination_params)
               links = pagination_links(resource) if pagination_params[:per_page]
