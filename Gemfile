@@ -18,6 +18,7 @@ path 'modules' do
   gem 'claims_evidence_api'
   gem 'debts_api'
   gem 'decision_reviews'
+  gem 'dependents_verification'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'income_and_assets'
@@ -56,7 +57,7 @@ gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.g
 gem 'blind_index'
 gem 'blueprinter'
 gem 'bootsnap', require: false
-gem 'breakers'
+gem 'breakers', git: 'https://github.com/department-of-veterans-affairs/breakers', tag: '1.0.1'
 gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clamav-client', require: 'clamav/client'
