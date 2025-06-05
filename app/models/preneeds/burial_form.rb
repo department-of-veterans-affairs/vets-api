@@ -51,14 +51,11 @@ module Preneeds
     # keeping this name because it matches the previous attribute
     # @return [Boolean]
     #
-    # rubocop:disable Naming/PredicateName
-    def has_attachments
+    def attachments?
       preneed_attachments.present?
     end
-    # rubocop:enable Naming/PredicateName
 
     # @return [Array<Preneeds::Attachment>] #preneed_attachments converted to Array of {Preneeds::Attachment}
-    #
     def attachments
       @attachments ||= preneed_attachments.map(&:to_attachment)
     end
@@ -85,7 +82,7 @@ module Preneeds
         applicant: applicant&.as_eoas, applicationStatus: application_status,
         attachments: attachments.map(&:as_eoas),
         claimant: claimant&.as_eoas, currentlyBuriedPersons: currently_buried_persons.map(&:as_eoas),
-        hasAttachments: has_attachments, hasCurrentlyBuried: has_currently_buried,
+        hasAttachments: attachments?, hasCurrentlyBuried: has_currently_buried,
         sendingApplication: sending_application, sendingCode: sending_code || '', sentTime: sent_time.iso8601,
         trackingNumber: tracking_number, veteran: veteran&.as_eoas
       }

@@ -623,7 +623,7 @@ module EVSS
           dis.disability_action_type = disability_source['disabilityActionType']
           dis.name = disability_source['name']
           if toxic_exposure_conditions.present? && toxic_exposure_conditions.any?
-            dis.is_related_to_toxic_exposure = is_related_to_toxic_exposure(dis.name, toxic_exposure_conditions)
+            dis.is_related_to_toxic_exposure = related_to_toxic_exposure?(dis.name, toxic_exposure_conditions)
           end
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
           dis.service_relevance = disability_source['serviceRelevance'] || ''
@@ -646,13 +646,11 @@ module EVSS
         related_to_toxic_exposure ? cause_text.sub!(/[.]?$/, '; toxic exposure.') : cause_text
       end
 
-      # rubocop:disable Naming/PredicateName
-      def is_related_to_toxic_exposure(condition_name, toxic_exposure_conditions)
+      def related_to_toxic_exposure?(condition_name, toxic_exposure_conditions)
         regex_non_word = /[^\w]/
         normalized_condition_name = condition_name.gsub(regex_non_word, '').downcase
         toxic_exposure_conditions[normalized_condition_name].present?
       end
-      # rubocop:enable Naming/PredicateName
 
       def transform_secondary_disabilities(disability_source)
         disability_source['secondaryDisabilities'].map do |secondary_disability_source|

@@ -69,7 +69,7 @@ module Preneeds
       headers = {}
 
       body =
-        if burial_form.has_attachments
+        if burial_form.attachments?
           multipart = build_multipart(soap, burial_form.attachments)
 
           multipart.header.fields.each do |field|
