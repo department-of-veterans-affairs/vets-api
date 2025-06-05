@@ -5,7 +5,9 @@ module MyHealth
     class AllergiesController < MRController
       def index
         if Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
-          with_patient_resource(client.list_allergies(@current_user.uuid)) do |resource|
+          use_cache = params.key?(:use_cache) ? ActiveModel::Type::Boolean.new.cast(params[:use_cache]) : true
+
+          with_patient_resource(client.list_allergies(@current_user.uuid, use_cache:)) do |resource|
             resource = resource.sort('-date')
             if pagination_params[:per_page]
               resource = resource.paginate(**pagination_params)

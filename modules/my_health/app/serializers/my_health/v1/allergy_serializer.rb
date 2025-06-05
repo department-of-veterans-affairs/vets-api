@@ -11,7 +11,7 @@ module MyHealth
       attribute :categories
       attribute :reactions
       attribute :location
-      attribute :observedHistoric, String # 'o' or 'h'
+      attribute :observedHistoric
       attribute :notes
       attribute :provider
 
