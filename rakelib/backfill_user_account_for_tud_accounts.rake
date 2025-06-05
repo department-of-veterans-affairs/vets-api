@@ -16,7 +16,7 @@ task backfill_user_account_for_tud_accounts: :environment do
   nil_user_account_ids_count_message(starting_nil_user_account_ids.count)
 
   starting_nil_user_account_ids.each do |record|
-    account = Account.find_by(account_uuid: record.account_uuid)
+    account = Account.find_by(uuid: record.account_uuid)
     user_account = UserAccount.find_by(icn: account&.icn) ||
                    UserVerification.find_by(idme_uuid: record.idme_uuid)&.user_account ||
                    UserVerification.find_by(backing_idme_uuid: record.idme_uuid)&.user_account ||
