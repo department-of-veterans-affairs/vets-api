@@ -225,7 +225,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
         context 'when submitting the ITF to BGS is NOT successful' do
           it "adds a 'ClaimsApi::IntentToFile' record" do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_404') do
                 data[:data][:attributes] = { type: 'pension' }
                 expect do
                   post path, params: data.to_json, headers: headers.merge(auth_header)
