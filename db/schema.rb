@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_30_183256) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_05_162756) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1542,7 +1542,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_30_183256) do
     t.boolean "is_manual_checkin"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_account_id"
     t.index ["account_uuid"], name: "tud_account_availability_logs"
+    t.index ["user_account_id"], name: "index_test_user_dashboard_tud_account_availability_logs_on_user_account_id"
   end
 
   create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
@@ -1566,6 +1568,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_30_183256) do
     t.string "mfa_code"
     t.uuid "logingov_uuid"
     t.text "id_types", default: [], array: true
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_test_user_dashboard_tud_accounts_on_user_account_id"
   end
 
   create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -2041,6 +2045,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_30_183256) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
+  add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
+  add_foreign_key "test_user_dashboard_tud_accounts", "user_accounts"
   add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_actions", "user_action_events"
