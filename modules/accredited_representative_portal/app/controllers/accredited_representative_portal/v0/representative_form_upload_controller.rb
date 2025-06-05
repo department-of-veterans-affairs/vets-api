@@ -12,7 +12,6 @@ module AccreditedRepresentativePortal
         authorize(get_icn, policy_class: RepresentativeFormUploadPolicy)
         Datadog::Tracing.active_trace&.set_tag('form_id', form_data[:formNumber])
         status, confirmation_number = upload_response
-        send_confirmation_email(params, confirmation_number) if status == 200
         render json: { status:, confirmation_number: }
       end
 
@@ -37,7 +36,7 @@ module AccreditedRepresentativePortal
       end
 
       def upload_response
-        file_path = find_attachment_path(params[:confirmationCode])
+        file_path = find_attachment_path(form_params[:confirmationCode])
         stamper = SimpleFormsApi::PdfStamper.new(
           stamped_template_path: file_path,
           current_loa: @current_user.loa[:current],
@@ -101,19 +100,6 @@ module AccreditedRepresentativePortal
           document: file_path,
           upload_url: location
         )
-      end
-
-      def send_confirmation_email(_params, confirmation_number)
-        new_form_data = create_new_form_data
-        config = {
-          form_number: form_data[:formNumber],
-          form_data: new_form_data,
-          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
-          confirmation_number:
-        }
-
-        notification_email = SimpleFormsApi::Notification::FormUploadEmail.new(config, notification_type: :confirmation)
-        notification_email.send
       end
 
       def get_icn
