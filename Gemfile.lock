@@ -45,7 +45,16 @@ GIT
       nokogiri (>= 1.13.6)
       savon (~> 2.15.1)
 
+GIT
+  remote: https://github.com/department-of-veterans-affairs/breakers
+  revision: dcc742969ab10ba3403c7e973f460723b9d1083e
+  tag: 1.0.1
+  specs:
+    breakers (1.0)
+      base64 (~> 0.2)
       faraday (>= 1.2.0, < 3.0)
+      multi_json (~> 1.0)
+
 GIT
   remote: https://github.com/department-of-veterans-affairs/fhir_client.git
   revision: 52e0197dcb1f940a1f0b28bfa983699f0c199696
