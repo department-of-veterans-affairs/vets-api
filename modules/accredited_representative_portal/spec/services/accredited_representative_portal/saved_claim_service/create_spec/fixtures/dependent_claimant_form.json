@@ -1,0 +1,45 @@
+{
+  "veteran": {
+    "name": {
+      "first": "John",
+      "middle": "Middle",
+      "last": "Doe"
+    },
+    "address": {
+      "addressLine1": "123 Main St",
+      "addressLine2": "Apt 1",
+      "city": "Springfield",
+      "stateCode": "IL",
+      "country": "US",
+      "zipCode": "62704",
+      "zipCodeSuffix": "6789"
+    },
+    "ssn": "6789",
+    "vaFileNumber": "6789",
+    "dateOfBirth": "1980-12-31",
+    "serviceNumber": "123456789",
+    "serviceBranch": "ARMY",
+    "phone": "1234567890",
+    "email": "veteran@example.com"
+  },
+  "dependent": {
+    "name": {
+      "first": "John",
+      "middle": "Middle",
+      "last": "Doe"
+    },
+    "address": {
+      "addressLine1": "123 Main St",
+      "addressLine2": "Apt 1",
+      "city": "Springfield",
+      "stateCode": "IL",
+      "country": "US",
+      "zipCode": "62704",
+      "zipCodeSuffix": "6789"
+    },
+    "dateOfBirth": "1980-12-31",
+    "relationship": "Spouse",
+    "phone": "1234567890",
+    "email": "veteran@example.com"
+  }
+}

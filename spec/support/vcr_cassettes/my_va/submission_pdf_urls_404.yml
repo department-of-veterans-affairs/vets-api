@@ -1,7 +1,7 @@
 ---
 http_interactions:
 - request:
-    method: head
+    method: get
     uri: https://example.com/file1.pdf
     body:
       encoding: US-ASCII
