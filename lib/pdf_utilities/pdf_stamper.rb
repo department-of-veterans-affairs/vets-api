@@ -42,6 +42,7 @@ module PDFUtilities
     def run(pdf_path, timestamp: nil, append_to_stamp: nil)
       raise PdfMissingError, 'Original PDF is missing' unless File.exist?(pdf_path)
 
+      # assigning all here to prevent error in rescue
       previous = stamp_path = stamped = pdf_path
 
       stamps.each do |stamp|
@@ -56,21 +57,24 @@ module PDFUtilities
         stamp_path = generate_stamp
         stamped = stamp_pdf(previous, stamp_path)
 
-        Common::FileHelpers.delete_file_if_exists(previous)
+        Common::FileHelpers.delete_file_if_exists(previous) unless previous == pdf_path
         Common::FileHelpers.delete_file_if_exists(stamp_path)
       end
 
       stamped
     rescue => e
-      Common::FileHelpers.delete_file_if_exists(previous)
+      Common::FileHelpers.delete_file_if_exists(previous) unless previous == pdf_path
+      Common::FileHelpers.delete_file_if_exists(stamped) unless stamped == pdf_path
       Common::FileHelpers.delete_file_if_exists(stamp_path)
-      Common::FileHelpers.delete_file_if_exists(stamped)
       log_and_raise_error('Failed to generate datestamp file', e)
+    ensure
+      Common::FileHelpers.delete_file_if_exists(previous) unless previous == pdf_path
+      Common::FileHelpers.delete_file_if_exists(stamp_path)
     end
 
     private
 
-    attr_reader :stamps, :text, :text_only, :timestamp, :append_to_stamp, :x, :y, :size, :page_number, :template, :multistamp
+    attr_reader :stamps, :text, :text_only, :timestamp, :append_to_stamp, :x, :y, :font, :size, :page_number, :template, :multistamp
 
     # @see #run
     def default_settings
@@ -81,6 +85,7 @@ module PDFUtilities
         append_to_stamp: nil,
         x: 5,
         y: 5,
+        font: 'Helvetica',
         size: 10,
         page_number: nil,
         template: nil,
@@ -91,18 +96,23 @@ module PDFUtilities
     # generate the stamp/background pdf
     # @see https://www.rubydoc.info/github/sandal/prawn/Prawn/Document
     def generate_stamp
-      stamp_path = Common::FileHelpers.random_file_path
-      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
+      stamp_path = "#{Common::FileHelpers.random_file_path}.pdf"
+
+      HexaPDF::Composer.create(stamp_path) do |composer|
         if page_number.present? && template.present?
           raise PdfMissingError, "Template PDF missing: #{template}" unless File.exist?(template)
 
           reader = PDF::Reader.new(template)
-          page_number.times { pdf.start_new_page }
-          pdf.draw_text(stamp_text, at: [x, y], size:)
-          pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
-          (reader.page_count - page_number).times { pdf.start_new_page }
+          page_number.times { composer.new_page }
+
+          composer.canvas.font(font, size:)
+          composer.canvas.text(stamp_text, at: [x, y])
+          composer.canvas.text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12])
+
+          (reader.page_count - page_number).times { composer.new_page }
         else
-          pdf.draw_text(stamp_text, at: [x, y], size:)
+          composer.canvas.font(font, size:)
+          composer.canvas.text(stamp_text, at: [x, y])
         end
       end
 
