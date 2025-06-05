@@ -166,15 +166,8 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
   describe '#to_pdf' do
     it 'calls PdfFill::Filler.fill_form' do
-      expect(PdfFill::Filler).to receive(:fill_form).with(saved_claim, nil, {})
+      expect(PdfFill::Filler).to receive(:fill_form).with(saved_claim, nil)
       saved_claim.to_pdf
-    end
-
-    [true, false].each do |extras_redesign|
-      it "calls PdfFill::Filler.fill_form with extras_redesign: #{extras_redesign}" do
-        expect(PdfFill::Filler).to receive(:fill_form).with(saved_claim, nil, { extras_redesign: })
-        saved_claim.to_pdf(nil, { extras_redesign: })
-      end
     end
   end
 

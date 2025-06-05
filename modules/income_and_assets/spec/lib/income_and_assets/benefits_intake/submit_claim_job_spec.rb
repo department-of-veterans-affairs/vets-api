@@ -22,7 +22,7 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
         let(:location) { 'test_location' }
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:pension_income_and_assets_extras_redesign,
+          allow(Flipper).to receive(:enabled?).with(:pension_income_and_assets_overflow_pdf_redesign,
                                                     anything).and_return(extras_redesign)
           job.instance_variable_set(:@claim, claim)
           allow(IncomeAndAssets::SavedClaim).to receive(:find).and_return(claim)

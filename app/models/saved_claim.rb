@@ -106,8 +106,8 @@ class SavedClaim < ApplicationRecord
     schema_errors.empty? && validation_errors.empty?
   end
 
-  def to_pdf(file_name = nil, fill_options = {})
-    PdfFill::Filler.fill_form(self, file_name, fill_options)
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name)
   end
 
   def update_form(key, value)

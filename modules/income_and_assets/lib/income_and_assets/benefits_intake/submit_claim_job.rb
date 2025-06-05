@@ -182,7 +182,7 @@ module IncomeAndAssets
         return false if @user_account_uuid.nil?
 
         user = OpenStruct.new({ flipper_id: @user_account_uuid })
-        Flipper.enabled?(:pension_income_and_assets_extras_redesign, user)
+        Flipper.enabled?(:pension_income_and_assets_overflow_pdf_redesign, user)
       end
     end
   end
