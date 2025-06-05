@@ -26,7 +26,9 @@ module ClaimsApi
     private
 
     def get_exception
-      if not_found?
+      if veteran_not_found?
+        { status: '404', detail: 'Veteran ID not found' }
+      elsif not_found?
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found.')
       elsif bnft_claim_not_found?
         {}
@@ -40,8 +42,6 @@ module ClaimsApi
         )
       elsif record_not_found?
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Record not found.')
-      elsif veteran_not_found?
-        { status: '404', detail: 'Veteran ID not found' }
       else
         soap_logging('500')
         raise ::Common::Exceptions::ServiceError.new(detail: 'An external server is experiencing difficulty.')
