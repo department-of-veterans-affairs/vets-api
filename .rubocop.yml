@@ -96,6 +96,7 @@ Rails/Output:
   Exclude:
     - 'lib/tasks/**/*'
     - 'bin/lib/vets-api/**/*'
+    - 'modules/ivc_champva/app/services/ivc_champva/prod_support_utilities/missing_status_cleanup.rb'
 
 Metrics/MethodLength:
   Max: 20
