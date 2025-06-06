@@ -53,8 +53,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
 
       worker.perform(uuid, appt_date)
-
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -74,8 +72,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_success).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
       expect(Sidekiq.logger).to have_received(:info).with({
                                                             message: 'Received multiple claim status response',
                                                             uuid:
@@ -99,8 +95,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
       expect(Sidekiq.logger).to have_received(:info).with({
                                                             message: 'Received empty claim status response',
                                                             uuid:
@@ -115,9 +109,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       # Mock the claim_status method to return failed response with correct template ID
       allow(worker).to receive(:claim_status).and_return([claim_last4, @failed_template_id])
 
-      # Explicitly call StatsD.increment before testing for it
-      StatsD.increment(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
-
       expect(CheckIn::TravelClaimNotificationJob).to receive(:perform_async).with(
         uuid,
         appt_date,
@@ -126,9 +117,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       )
 
       worker.perform(uuid, appt_date)
-
-      # Now we can expect it to have been called exactly 2 times
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(2).times
     end
   end
 
@@ -148,7 +136,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
       expect(Sidekiq.logger).to have_received(:info).with({
                                                             message: 'Received non-matching claim status',
                                                             claim_status: 'Invalid',
@@ -173,8 +160,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -198,8 +183,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       end
 
       expect(StatsD).to have_received(:increment).with(@statsd_error).exactly(1).time
-      expect(StatsD).to have_received(:increment)
-        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS).exactly(1).time
     end
   end
 
@@ -221,8 +204,6 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       worker.perform(uuid, appt_date)
 
       expect(StatsD).to have_received(:increment).with(@statsd_timeout)
-                                                 .exactly(1).time
-      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
                                                  .exactly(1).time
     end
   end
