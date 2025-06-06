@@ -9,6 +9,10 @@ module AccreditedRepresentativePortal
       @email = email
     end
 
+    def set_all_emails(all_emails)
+      @all_emails = all_emails
+    end
+
     def active_power_of_attorney_holders
       power_of_attorney_holders
         .select(&:accepts_digital_power_of_attorney_requests?)
@@ -30,10 +34,56 @@ module AccreditedRepresentativePortal
       @email.present? or
         raise ArgumentError, 'Must set user email'
 
-      @registrations ||=
-        UserAccountAccreditedIndividual.for_user_account_email(
+      if Flipper.enabled?(:accredited_representative_portal_self_service_auth)
+        @registration_numbers ||= registration_numbers
+
+        @registrations ||= @registration_numbers.map do |user_type, registration_number|
+          OpenStruct.new(
+            accredited_individual_registration_number: registration_number,
+            power_of_attorney_holder_type: map_user_type(user_type)
+          )
+        end
+      else
+        # When we remove this we can also remove email as a single field
+        @registrations ||= UserAccountAccreditedIndividual.for_user_account_email(
           @email, user_account_icn: icn
         )
+      end
+    end
+
+    def map_user_type(user_type)
+      case user_type
+      when 'veteran_service_officer'
+        PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION
+      else
+        user_type
+      end
+    end
+
+    def registration_numbers
+      registration_nums = AccreditedRepresentativePortal::OgcClient.new.find_registration_numbers_for_icn(icn)
+
+      if registration_nums.blank?
+        representatives = Veteran::Service::Representative.where(email: @all_emails)
+
+        if representatives.empty?
+          raise Common::Exceptions::Forbidden, detail: 'No representatives found for this user.'
+        elsif representatives.group_by(&:user_type).any? { |_, group| group.many? }
+          raise Common::Exceptions::Forbidden, detail: 'Multiple representatives of the same type found for this user.'
+        end
+
+        representatives.each do |rep|
+          AccreditedRepresentativePortal::OgcClient.new.post_icn_and_registration_combination(icn,
+                                                                                              rep.representative_id)
+        end
+      else
+        # find types for numbers from api
+        representatives = Veteran::Service::Representative.where(representative_id: registration_nums)
+      end
+
+      representatives.each_with_object({}) do |rep, map|
+        map[rep.user_type] = rep.representative_id
+      end
     end
 
     def power_of_attorney_holders

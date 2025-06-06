@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_05_180405) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1165,6 +1165,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "lighthouse_submission_id", null: false
+    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.jsonb "metadata_ciphertext", comment: "encrypted metadata sent with the submission"
     t.jsonb "error_message_ciphertext", comment: "encrypted error message from the lighthouse submission"
     t.jsonb "response_ciphertext", comment: "encrypted response from the lighthouse submission"
@@ -1172,7 +1173,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.string "benefits_intake_uuid"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt sensitive data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["lighthouse_submission_id"], name: "idx_on_lighthouse_submission_id_e6e3dbad55"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submission_attempts_on_needs_kms_rotation"
   end
@@ -1181,11 +1181,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "saved_claim_id", comment: "ID of the saved claim in vets-api"
+    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.string "form_id", null: false, comment: "form type of the submission"
     t.jsonb "reference_data_ciphertext", comment: "encrypted data that can be used to identify the resource - ie, ICN, etc"
     t.text "encrypted_kms_key", comment: "KMS key used to encrypt the reference data"
     t.boolean "needs_kms_rotation", default: false, null: false
-    t.enum "latest_status", default: "pending", enum_type: "lighthouse_submission_status"
     t.index ["needs_kms_rotation"], name: "index_lighthouse_submissions_on_needs_kms_rotation"
   end
 
@@ -1274,6 +1274,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.boolean "needs_kms_rotation", default: false, null: false
+    t.integer "doctype"
     t.index ["guid"], name: "index_persistent_attachments_on_guid", unique: true
     t.index ["id", "type"], name: "index_persistent_attachments_on_id_and_type"
     t.index ["needs_kms_rotation"], name: "index_persistent_attachments_on_needs_kms_rotation"
@@ -1541,7 +1542,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.boolean "is_manual_checkin"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_account_id"
     t.index ["account_uuid"], name: "tud_account_availability_logs"
+    t.index ["user_account_id"], name: "idx_on_user_account_id_2569a82908"
   end
 
   create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
@@ -1565,6 +1568,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
     t.string "mfa_code"
     t.uuid "logingov_uuid"
     t.text "id_types", default: [], array: true
+    t.uuid "user_account_id"
+    t.index ["user_account_id"], name: "index_test_user_dashboard_tud_accounts_on_user_account_id"
   end
 
   create_table "tooltips", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -2040,6 +2045,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_29_154621) do
   add_foreign_key "oauth_sessions", "user_verifications"
   add_foreign_key "schema_contract_validations", "user_accounts", validate: false
   add_foreign_key "terms_of_use_agreements", "user_accounts"
+  add_foreign_key "test_user_dashboard_tud_account_availability_logs", "user_accounts"
+  add_foreign_key "test_user_dashboard_tud_accounts", "user_accounts"
   add_foreign_key "tooltips", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_actions", "user_action_events"
