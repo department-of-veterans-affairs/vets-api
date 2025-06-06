@@ -31,11 +31,6 @@ module Mobile
 
         render json: TravelPayClaimSummarySerializer.new(new_claim_hash),
                status: :created
-        # TODO: error handling is now happening in SMOC service now, do we need this?
-        # rescue ArgumentError => e
-        #   raise Common::Exceptions::BadRequest, detail: e.message
-        # rescue Faraday::ClientError, Faraday::ServerError => e
-        #   raise Common::Exceptions::InternalServerError, exception: e
       end
 
       private
@@ -75,7 +70,7 @@ module Mobile
       end
 
       def smoc_service
-        @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user, '[VAHB]')
+        @smoc_service ||= TravelPay::SmocService.new(auth_manager, @current_user, 'VAHB')
       end
 
       def clear_appointments_cache
