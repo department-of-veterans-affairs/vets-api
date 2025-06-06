@@ -98,7 +98,7 @@ describe FakeController do
         it 'raises "Ambiguous VSO Representative Results"' do
           expect do
             subject.valid_poa_code_for_current_user?(poa_code)
-          end.to raise_error(Common::Exceptions::Unauthorized)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
         end
       end
     end
