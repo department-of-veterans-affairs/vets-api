@@ -64,8 +64,8 @@ FactoryBot.define do
     trait :with_form_blocked do
       user_account_id { '' }
       form_type { 'NOT-WHITELISTED' }
-      updated_at { '2024-04-13' }
-      created_at { '2024-04-12' }
+      updated_at { 6.days.ago }
+      created_at { 7.days.ago }
       form_submission_attempts do
         create_list(:form_submission_attempt, 1, benefits_intake_uuid: '84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c')
       end
