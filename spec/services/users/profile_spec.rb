@@ -21,9 +21,9 @@ RSpec.describe Users::Profile do
 
     context 'when initialized with a non-User object' do
       it 'raises an exception' do
-        account = build(:account)
+        user_account = build(:user_account)
 
-        expect { Users::Profile.new(account) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { Users::Profile.new(user_account) }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end
   end

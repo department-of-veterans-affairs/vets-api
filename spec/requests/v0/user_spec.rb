@@ -382,8 +382,7 @@ RSpec.describe 'V0::User', type: :request do
   end
 
   def new_user(type = :loa3)
-    user = build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
-    user
+    build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
   end
 
   def stub_mpi_failure
