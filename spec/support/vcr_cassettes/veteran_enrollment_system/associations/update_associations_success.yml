@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://localhost:4430/ves-associate-gateway-svc/associations/person/1012829228V424035
+    uri: <VETERAN_ENROLLMENT_SYSTEM_BASE_URI>/ves-associate-gateway-svc/associations/person/1012829228V424035
     body:
       encoding: UTF-8
       string: '{"associations":[{"address":{"city":"Ontario","country":"CAN","line1":"834

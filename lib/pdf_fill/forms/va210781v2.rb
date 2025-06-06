@@ -642,6 +642,9 @@ module PdfFill
           y: 25,
           width: 190,
           overflow_destination: 'overflow_section_Section VII'
+          question_label: 'Signature',
+          question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE'
+
         },
         'signatureDate' => {
           'month' => {
@@ -668,6 +671,11 @@ module PdfFill
             question_text: 'DATE SIGNED. Enter 4 digit Year.',
             hide_from_overflow: true
           }
+        },
+        'signatureDateOverflow' => {
+          question_num: 16,
+          question_suffix: 'B',
+          question_label: 'Date signed'
         }
       }.freeze
       # rubocop:enable Layout/LineLength
@@ -758,8 +766,9 @@ module PdfFill
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
-        formatted_date = DateTime.parse(@form_data['signatureDate']).strftime('%Y-%m-%d')
-        @form_data['signatureDate'] = split_date(formatted_date)
+        signature_date = DateTime.parse(@form_data['signatureDate'])
+        @form_data['signatureDate'] = split_date(signature_date.strftime('%Y-%m-%d'))
+        @form_data['signatureDateOverflow'] = signature_date.strftime('%m-%d-%Y')
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data
@@ -847,8 +856,20 @@ module PdfFill
       def process_unlisted_reports(unlisted_reports, extras_redesign)
         return if unlisted_reports.empty?
 
-        @form_data['reportsDetails']['other'] = unlisted_reports.join('; ')
-        @form_data['reportsDetails']['otherOverflow'] = unlisted_reports if extras_redesign
+        joined = unlisted_reports.join('; ')
+        @form_data['reportsDetails']['other'] = joined
+
+        limit = KEY['reportsDetails']['other'][:limit] || 0
+
+        if extras_redesign && (joined.length > limit || police_report_overflowing?)
+          @form_data['reportsDetails']['otherOverflow'] = unlisted_reports
+        end
+      end
+
+      def police_report_overflowing?
+        police = @form_data.dig('reportsDetails', 'police')
+        limit = KEY['reportsDetails']['police'][:limit] || 0
+        police && police.length > limit
       end
 
       def process_treatment_dates

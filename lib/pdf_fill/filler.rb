@@ -21,6 +21,7 @@ require 'pdf_fill/forms/va5655'
 require 'pdf_fill/forms/va2210216'
 require 'pdf_fill/forms/va2210215'
 require 'utilities/date_parser'
+require 'pdf_fill/pdf_post_processor'
 
 # rubocop:disable Metrics/ModuleLength
 module PdfFill
@@ -93,7 +94,13 @@ module PdfFill
         original_page_count = main_reader.page_count
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
+
         add_annotations(file_path, extras_generator, original_page_count, hash_converter)
+
+        # Adds links and destintions to the combined PDF
+        pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates)
+        pdf_post_processor.process!
+
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -103,6 +110,7 @@ module PdfFill
         old_file_path
       end
     end
+
 
     def add_annotations(doc_path, extras_generator, original_page_count, hash_converter = nil)
       doc = HexaPDF::Document.open(doc_path)
@@ -272,6 +280,7 @@ module PdfFill
         height: 20
       }
     end
+
 
     ##
     # Fills a form based on the provided saved claim and options.

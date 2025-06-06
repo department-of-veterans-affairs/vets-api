@@ -3,13 +3,14 @@
 require 'va_profile/prefill/military_information'
 require 'claims_api/service_branch_mapper'
 require 'form_profile'
+require 'vets/model'
 
 module Pension21p527ez
   ##
   # extends FormMilitaryInformation to add additional military information fields to Pension prefill.
   # @see app/models/form_profile.rb FormMilitaryInformation
   class PensionFormMilitaryInformation < FormMilitaryInformation
-    include Virtus.model
+    include Vets::Model
 
     attribute :first_uniformed_entry_date, String
     attribute :last_active_discharge_date, String

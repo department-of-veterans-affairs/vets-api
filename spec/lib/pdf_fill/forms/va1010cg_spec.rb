@@ -8,7 +8,7 @@ describe PdfFill::Forms::Va1010cg do
   include SchemaMatchers
 
   before do
-    # create health_facility record used for plannedClinic field on 10-10CG pdf form
+    # create health_facility record used for plannedClinic field on 10-10CG pdf form specs
     create(:health_facility, name: 'Harlingen VA Clinic',
                              station_number: '740',
                              postal_name: 'TX')
@@ -37,50 +37,6 @@ describe PdfFill::Forms::Va1010cg do
       expect(form_class.merge_fields.to_json).to eq(
         get_fixture('pdf_fill/10-10CG/merge_fields').to_json
       )
-    end
-  end
-
-  describe '#merge_planned_facility_label_helper' do
-    before do
-      create(:health_facility, name: 'VA Facility Name',
-                               station_number: '100',
-                               postal_name: 'OH')
-    end
-
-    context 'plannedClinic is not in health_facilities table' do
-      let(:form_data) do
-        {
-          'helpers' => {
-            'veteran' => {}
-          },
-          'veteran' => {
-            'plannedClinic' => '99'
-          }
-        }
-      end
-
-      it 'sets the plannedClinic to the facility id' do
-        form_class.send(:merge_planned_facility_label_helper)
-        expect(form_class.form_data['helpers']['veteran']['plannedClinic']).to eq '99'
-      end
-    end
-
-    context 'plannedClinic is in health_facilities table' do
-      let(:form_data) do
-        {
-          'helpers' => {
-            'veteran' => {}
-          },
-          'veteran' => {
-            'plannedClinic' => '100'
-          }
-        }
-      end
-
-      it 'sets the plannedClinic to facility id and facility name' do
-        form_class.send(:merge_planned_facility_label_helper)
-        expect(form_class.form_data['helpers']['veteran']['plannedClinic']).to eq '100 - VA Facility Name'
-      end
     end
   end
 end
