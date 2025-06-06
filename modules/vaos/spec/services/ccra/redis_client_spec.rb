@@ -42,20 +42,27 @@ describe Ccra::RedisClient do
 
   describe '#save_referral_data' do
     it 'saves the referral data to cache and returns true' do
-      expect(subject.save_referral_data(id:, icn:, referral_data:)).to be(true)
+      Timecop.freeze(Time.current) do
+        expected_booking_start_time = Time.current.to_f
+        referral_with_timing = referral_data.attributes.merge(
+          'booking_start_time' => expected_booking_start_time
+        )
 
-      # Generate the cache key in the same way as the class
-      cache_key = "#{Ccra::RedisClient::REFERRAL_CACHE_KEY}#{icn}_#{id}"
-      saved_data = Rails.cache.read(
-        cache_key,
-        namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
-      )
+        expect(subject.save_referral_data(id:, icn:, referral_data: referral_with_timing)).to be(true)
 
-      # Verify the data was cached - it's stored as JSON string so no need to check type
-      expect(saved_data).to include('referral_number')
-      expect(saved_data).to include('12345')
-      expect(saved_data).to include('appointment_type_id')
-      expect(saved_data).to include('ov')
+        # Generate the cache key in the same way as the class
+        cache_key = "#{Ccra::RedisClient::REFERRAL_CACHE_KEY}#{icn}_#{id}"
+        saved_data = Rails.cache.read(
+          cache_key,
+          namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
+        )
+
+        # Parse the JSON string to verify the data
+        parsed_data = JSON.parse(saved_data)
+        expect(parsed_data['referral_number']).to eq('12345')
+        expect(parsed_data['appointment_type_id']).to eq('ov')
+        expect(parsed_data['booking_start_time']).to eq(expected_booking_start_time)
+      end
     end
   end
 
@@ -68,14 +75,32 @@ describe Ccra::RedisClient do
 
     context 'when cache exists' do
       before do
-        subject.save_referral_data(id:, icn:, referral_data:)
+        Timecop.freeze(Time.current) do
+          @expected_booking_start_time = Time.current.to_f
+          referral_with_timing = referral_data.attributes.merge(
+            'booking_start_time' => @expected_booking_start_time
+          )
+          subject.save_referral_data(id:, icn:, referral_data: referral_with_timing)
+        end
       end
 
-      it 'returns the cached referral detail' do
+      it 'returns the cached referral detail with timing data' do
+        # Get the raw cached data
+        cache_key = "#{Ccra::RedisClient::REFERRAL_CACHE_KEY}#{icn}_#{id}"
+        cached_data = Rails.cache.read(
+          cache_key,
+          namespace: Ccra::RedisClient::REFERRAL_CACHE_NAMESPACE
+        )
+        parsed_data = JSON.parse(cached_data)
+
+        # Verify the referral data
         result = subject.fetch_referral_data(id:, icn:)
         expect(result).to be_a(Ccra::ReferralDetail)
         expect(result.referral_number).to eq('12345')
         expect(result.appointment_type_id).to eq('ov')
+
+        # Verify the timing data in the raw cached data
+        expect(parsed_data['booking_start_time']).to eq(@expected_booking_start_time)
       end
     end
 
