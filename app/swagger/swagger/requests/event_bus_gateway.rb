@@ -25,6 +25,17 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
           end
+
+          response 401 do
+            key :description, 'Not authorized'
+            schema do
+              key :type, :object
+              property :errors do
+                key :type, :string
+                key :example, 'Service Account access token JWT is malformed'
+              end
+            end
+          end
         end
       end
     end
