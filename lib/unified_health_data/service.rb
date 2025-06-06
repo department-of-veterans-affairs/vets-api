@@ -92,6 +92,8 @@ module UnifiedHealthData
 
       attributes = build_lab_or_test_attributes(record)
 
+      puts "attributes: #{attributes.display}"
+
       UnifiedHealthData::LabOrTest.new(
         id: record['resource']['id'],
         type: record['resource']['resourceType'],
@@ -110,7 +112,7 @@ module UnifiedHealthData
       ordered_by = fetch_ordered_by(record)
 
       UnifiedHealthData::Attributes.new(
-        display: record['resource']['code'] ? record['resource']['code']['text'] : '',
+        display: fetch_display(record),
         test_code: code,
         date_completed: record['resource']['effectiveDateTime'],
         sample_tested:,
@@ -257,6 +259,20 @@ module UnifiedHealthData
 
     def extract_reference_id(reference)
       reference.split('/').last
+    end
+
+    def fetch_display(record)
+      contained = record['resource']['contained']
+      if contained&.any? { |r| r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present? }
+        puts 'Fetching display from ServiceRequest'
+        service_request = contained.find do |r|
+          r['resourceType'] == 'ServiceRequest' && r['code']&.dig('text').present?
+        end
+        service_request['code']['text']
+      else
+        puts 'Fetching display from DiagnosticReport code'
+        record['resource']['code'] ? record['resource']['code']['text'] : ''
+      end
     end
   end
 end
