@@ -6,7 +6,7 @@ describe PersistentAttachmentSerializer, type: :serializer do
   subject { serialize(attachment, serializer_class: described_class) }
 
   # requires create instead of build for the attached file
-  let(:attachment) { create(:pension_burial) }
+  let(:attachment) { create(:claim_evidence) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
