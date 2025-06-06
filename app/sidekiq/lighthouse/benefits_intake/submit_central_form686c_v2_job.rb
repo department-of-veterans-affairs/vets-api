@@ -14,9 +14,7 @@ module Lighthouse
       include SentryLogging
 
       FOREIGN_POSTALCODE = '00000'
-      FORM_ID = '686C-674'
       FORM_ID_V2 = '686C-674-V2'
-      FORM_ID_674 = '21-674'
       FORM_ID_674_V2 = '21-674-V2'
       STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
       ZSF_DD_TAG_FUNCTION = 'submit_686c_674_backup_submission'
@@ -43,10 +41,11 @@ module Lighthouse
       def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
         vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
         user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
+        @monitor = init_monitor(saved_claim_id)
+        @monitor.track_event('info', 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!',
+                             "#{STATSD_KEY_PREFIX}.begin")
         # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
         # have to re-find the claim and add the relevant veteran info
-        Rails.logger.info('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob running!',
-                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
         @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
         claim.add_veteran_info(vet_info)
 
@@ -55,8 +54,8 @@ module Lighthouse
         check_success(result, saved_claim_id, user_struct)
       rescue => e
         # if we fail, update the associated central mail record to failed and send the user the failure email
-        Rails.logger.warn('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob failed!',
-                          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message }) # rubocop:disable Layout/LineLength
+        @monitor.track_event('warn', 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob failed!',
+                             "#{STATSD_KEY_PREFIX}.failure", { error: e.message })
         update_submission('failed')
         raise
       ensure
@@ -64,12 +63,12 @@ module Lighthouse
       end
 
       def upload_to_lh
-        Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Initiate Submission Attempt',
-                            claim_id: claim.id })
+        @monitor.track_event('info', 'SubmitCentralForm686cJob Lighthouse Initiate Submission Attempt',
+                             "#{STATSD_KEY_PREFIX}.init_attempt")
         lighthouse_service = BenefitsIntakeService::Service.new(with_upload_location: true)
         uuid = lighthouse_service.uuid
-        Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Submission Attempt', claim_id: claim.id,
-                            uuid: })
+        @monitor.track_event('info', 'SubmitCentralForm686cJob Lighthouse Submission Attempt',
+                             "#{STATSD_KEY_PREFIX}.attempt", { uuid: })
         response = lighthouse_service.upload_form(
           main_document: split_file_and_path(form_path),
           attachments: attachment_paths.map(&method(:split_file_and_path)),
@@ -77,18 +76,13 @@ module Lighthouse
         )
         create_form_submission_attempt(uuid)
 
-        Rails.logger.info({ message: 'SubmitCentralForm686cJob Lighthouse Submission Successful', claim_id: claim.id,
-                            uuid: })
+        @monitor.track_event('info', 'SubmitCentralForm686cJob Lighthouse Submission Successful',
+                             "#{STATSD_KEY_PREFIX}.success", { uuid: })
         response
       end
 
       def create_form_submission_attempt(intake_uuid)
-        v2 = Flipper.enabled?(:va_dependents_v2)
-        form_type = if v2
-                      claim.submittable_686? ? FORM_ID_V2 : FORM_ID_674_V2
-                    else
-                      claim.submittable_686? ? FORM_ID : FORM_ID_674
-                    end
+        form_type = claim.submittable_686? ? FORM_ID_V2 : FORM_ID_674_V2
         FormSubmissionAttempt.transaction do
           form_submission = FormSubmission.create(
             form_type:,
@@ -101,18 +95,13 @@ module Lighthouse
 
       def get_files_from_claim
         # process the main pdf record and the attachments as we would for a vbms submission
-        v2 = Flipper.enabled?(:va_dependents_v2)
         if claim.submittable_674?
           form_674_paths = []
-          if v2
-            claim.parsed_form['dependents_application']['student_information'].each do |student|
-              form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674_V2, student:), claim.created_at, FORM_ID_674_V2) # rubocop:disable Layout/LineLength
-            end
-          else
-            form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674)
+          claim.parsed_form['dependents_application']['student_information'].each do |student|
+            form_674_paths << process_pdf(claim.to_pdf(form_id: FORM_ID_674_V2, student:), claim.created_at, FORM_ID_674_V2) # rubocop:disable Layout/LineLength
           end
         end
-        form_id = v2 ? FORM_ID_V2 : FORM_ID
+        form_id = FORM_ID_V2
         form_686c_path = process_pdf(claim.to_pdf(form_id:), claim.created_at, form_id) if claim.submittable_686?
         # set main form_path to be first 674 in array if needed
         @form_path = form_686c_path || form_674_paths.first
@@ -134,7 +123,7 @@ module Lighthouse
       def check_success(response, saved_claim_id, user_struct)
         if response.success?
           Rails.logger.info('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob succeeded!',
-                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
+                            { user_uuid: user_struct['uuid'], saved_claim_id: })
           update_submission('success')
           send_confirmation_email(OpenStruct.new(user_struct))
         else
@@ -198,8 +187,7 @@ module Lighthouse
         form_pdf_metadata = get_hash_and_pages(form_path)
         address = form['veteran_contact_information']['veteran_address']
         is_usa = address['country_name'] == 'USA'
-        v2 = Flipper.enabled?(:va_dependents_v2)
-        zip_code = v2 ? address['postal_code'] : address['zip_code']
+        zip_code = address['postal_code']
         metadata = {
           'veteranFirstName' => veteran_information['full_name']['first'],
           'veteranLastName' => veteran_information['full_name']['last'],
@@ -257,7 +245,7 @@ module Lighthouse
 
         return if user.va_profile_email.blank?
 
-        form_id = Flipper.enabled?(:va_dependents_v2) ? FORM_ID_V2 : FORM_ID
+        form_id = FORM_ID_V2
         VANotify::ConfirmationEmail.send(
           email_address: user.va_profile_email,
           template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
@@ -276,7 +264,7 @@ module Lighthouse
         claim.send_failure_email(email)
       rescue => e
         # If we fail in the above failure events, this is a critical error and silent failure.
-        v2 = claim&.use_v2
+        v2 = true
         Rails.logger.error('Lighthouse::BenefitsIntake::SubmitCentralForm686cJob silent failure!', { e:, msg:, v2: })
         StatsD.increment("#{Lighthouse::BenefitsIntake::SubmitCentralForm686cV2Job::STATSD_KEY_PREFIX}}.silent_failure")
       end
@@ -286,11 +274,11 @@ module Lighthouse
       def stamped_pdf_with_form(form_id, path, timestamp)
         PDFUtilities::DatestampPdf.new(path).run(
           text: 'Application Submitted on va.gov',
-          x: %w[686C-674 686C-674-V2].include?(form_id) ? 400 : 300,
-          y: %w[686C-674 686C-674-V2].include?(form_id) ? 675 : 775,
+          x: %w[686C-674-V2].include?(form_id) ? 400 : 300,
+          y: %w[686C-674-V2].include?(form_id) ? 675 : 775,
           text_only: true, # passing as text only because we override how the date is stamped in this instance
           timestamp:,
-          page_number: %w[686C-674 686C-674-V2].include?(form_id) ? 6 : 0,
+          page_number: %w[686C-674-V2].include?(form_id) ? 6 : 0,
           template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
           multistamp: true
         )
@@ -312,6 +300,10 @@ module Lighthouse
 
       def split_file_and_path(path)
         { file: path, file_name: path.split('/').last }
+      end
+
+      def init_monitor(saved_claim_id)
+        @monitor ||= Dependents::Monitor.new(saved_claim_id)
       end
     end
   end

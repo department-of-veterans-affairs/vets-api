@@ -57,7 +57,6 @@ module BGSDependentsV2
 
     def initialize(child_info) # rubocop:disable Lint/MissingSuper
       @child_info = child_info
-      @is_v2 = v2?
 
       assign_attributes
     end
@@ -79,7 +78,7 @@ module BGSDependentsV2
       dependent_address(
         dependents_application:,
         lives_with_vet: @child_info['does_child_live_with_you'],
-        alt_address: @is_v2 ? @child_info['address'] : @child_info.dig('child_address_info', 'address')
+        alt_address: @child_info['address']
       )
     end
 
@@ -94,7 +93,7 @@ module BGSDependentsV2
       @place_of_birth_city = place_of_birth['city']
       @reason_marriage_ended = reason_marriage_ended
       @ever_married_ind = marriage_indicator
-      @child_income = formatted_boolean(@is_v2 ? @child_info['income_in_last_year'] : @child_info['child_income'])
+      @child_income = formatted_boolean(@child_info['income_in_last_year'])
       @not_self_sufficient = formatted_boolean(@child_info['not_self_sufficient'])
       @first = @child_info['full_name']['first']
       @middle = @child_info['full_name']['middle']
@@ -103,31 +102,19 @@ module BGSDependentsV2
     end
 
     def place_of_birth
-      @is_v2 ? @child_info.dig('birth_location', 'location') : @child_info['place_of_birth']
+      @child_info.dig('birth_location', 'location')
     end
 
     def child_status
-      if @is_v2
-        CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
-      else
-        CHILD_STATUS[@child_info['child_status']&.key(true)]
-      end
+      CHILD_STATUS[@child_info['relationship_to_child']&.key(true)]
     end
 
     def marriage_indicator
-      if @is_v2
-        @child_info['has_child_ever_been_married'] ? 'Y' : 'N'
-      else
-        @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
-      end
+      @child_info['has_child_ever_been_married'] ? 'Y' : 'N'
     end
 
     def reason_marriage_ended
-      if @is_v2
-        @child_info['marriage_end_reason']
-      else
-        @child_info.dig('previous_marriage_details', 'reason_marriage_ended')
-      end
+      @child_info['marriage_end_reason']
     end
   end
 end

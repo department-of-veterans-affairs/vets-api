@@ -31,7 +31,6 @@ module BGSV2
       @proc_state = 'Ready'
       @note_text = nil
       @proc_id = nil
-      @v2 = Flipper.enabled?(:va_dependents_v2)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -70,21 +69,14 @@ module BGSV2
         if vnp_proc_state_type_cd == 'MANUAL_VAGOV'
           prep_manual_claim(benefit_claim_id)
         else
-          Rails.logger.info("686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
-                            saved_claim_id: @saved_claim.id,
-                            proc_id: @proc_id,
-                            automatic: true)
-          StatsD.increment("#{stats_key}.automatic")
+          monitor.track_event('info',
+                              "686C Saved Claim submitted automatically to RBPS with proc_state of #{@proc_state}",
+                              "#{stats_key}.automatic", { proc_id: @proc_id, automatic: true })
         end
         bgs_service.update_proc(@proc_id, proc_state: @proc_state)
       rescue => e
-        Rails.logger.warning('BGS::Form686c.submit failed after creating benefit claim in BGS',
-                             {
-                               user_uuid: user.uuid,
-                               saved_claim_id: saved_claim.id,
-                               icn: user.icn,
-                               error: e.message
-                             })
+        monitor.track_event('warn', 'BGS::Form686c.submit failed after creating benefit claim in BGS',
+                            "#{stats_key}.failure", { user_uuid: user.uuid, error: e.message })
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -132,7 +124,7 @@ module BGSV2
       # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
       if selectable_options['add_spouse'] && MARRIAGE_TYPES.any? do |m|
            current_marriage_info = dependents_app['current_marriage_information']
-           m == (@v2 ? current_marriage_info['type_of_marriage'] : current_marriage_info['type'])
+           m == current_marriage_info['type_of_marriage']
          end
         return set_to_manual_vagov('add_spouse')
       end
@@ -205,15 +197,10 @@ module BGSV2
     def prep_manual_claim(benefit_claim_id)
       @proc_state = 'MANUAL_VAGOV'
       if @saved_claim.submittable_674?
-        Rails.logger.info(@note_text,
-                          saved_claim_id: @saved_claim.id,
-                          proc_id: @proc_id,
-                          manual: true,
-                          combination_claim: true)
-        StatsD.increment("#{stats_key}.manual.combo")
+        monitor.track_event('info', @note_text, "#{stats_key}.manual.combo",
+                            { proc_id: @proc_id, manual: true, combination_claim: true })
       else
-        Rails.logger.info(@note_text, saved_claim_id: @saved_claim.id, proc_id: @proc_id, manual: true)
-        StatsD.increment("#{stats_key}.manual")
+        monitor.track_event('info', @note_text, "#{stats_key}.manual", { proc_id: @proc_id, manual: true })
       end
       bgs_service.create_note(benefit_claim_id, @note_text)
     end
@@ -241,6 +228,10 @@ module BGSV2
 
     def stats_key
       'bgs.form686c'
+    end
+
+    def monitor
+      @monitor ||= ::Dependents::Monitor.new(@saved_claim.id)
     end
   end
 end

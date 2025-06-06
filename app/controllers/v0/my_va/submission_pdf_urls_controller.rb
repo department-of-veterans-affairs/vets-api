@@ -19,7 +19,7 @@ module V0
 
         # Check to make sure the returned URL is found in S3
         Faraday::Connection.new do |conn|
-          response = conn.head(url)
+          response = conn.get(url)
           raise Common::Exceptions::RecordNotFound, request_params[:submission_guid] if response.status != 200
         end
         render json: { url: }

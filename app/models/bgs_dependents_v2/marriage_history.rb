@@ -4,9 +4,8 @@ module BGSDependentsV2
   class MarriageHistory < Base
     def initialize(former_spouse) # rubocop:disable Lint/MissingSuper
       @former_spouse = former_spouse
-      @is_v2 = v2?
-      @start_source = @is_v2 ? @former_spouse.dig('start_location', 'location') : @former_spouse['start_location']
-      @end_source = @is_v2 ? @former_spouse.dig('end_location', 'location') : @former_spouse['end_location']
+      @start_source = @former_spouse.dig('start_location', 'location')
+      @end_source = @former_spouse.dig('end_location', 'location')
     end
 
     def format_info

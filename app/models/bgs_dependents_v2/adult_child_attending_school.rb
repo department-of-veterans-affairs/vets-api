@@ -32,17 +32,13 @@ module BGSDependentsV2
     validates :last, presence: true
 
     def initialize(dependents_application) # rubocop:disable Lint/MissingSuper
-      @dependents_application = dependents_application
-      @is_v2 = v2?
-      # with v2 handling, dependents_application is one to many hashes within the student_information array
-      @source = @is_v2 ? @dependents_application : @dependents_application['student_name_and_ssn']
+      @source = dependents_application
       @ssn = @source['ssn']
       @full_name = @source['full_name']
       @birth_date = @source['birth_date']
-      @was_married = @is_v2 ? @source['was_married'] : @dependents_application['student_address_marriage_tuition']['was_married'] # rubocop:disable Layout/LineLength
-      @dependent_income = @is_v2 ? @source['student_income'] : @source['dependent_income']
+      @was_married = @source['was_married']
       @ever_married_ind = formatted_boolean(@was_married)
-      @dependent_income = formatted_boolean(@dependent_income)
+      @dependent_income = formatted_boolean(@source['student_income'])
       @first = @full_name['first']
       @middle = @full_name['middle']
       @last = @full_name['last']
@@ -62,7 +58,7 @@ module BGSDependentsV2
     # @return [Hash] the student's address
     #
     def address
-      @is_v2 ? @source['address'] : @dependents_application['student_address_marriage_tuition']['address']
+      @source['address']
     end
   end
 end
