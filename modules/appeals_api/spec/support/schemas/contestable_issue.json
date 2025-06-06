@@ -71,7 +71,7 @@
         },
         "activeReview": {
           "type": "boolean",
-          "description": "Indicates whether a contestable issue is already part of an active Decision Review that is being processed by VA. Submitting an issue with an activeReview of true will result in the creation of a duplicate Decision Review.",
+          "description": "Indicates whether this issue is already part of an active Decision Review that is being processed by VA. Submitting a Decision Review that includes a listed issue with an activeReview of true may result in VA rejecting the submission.",
           "example": false
         },
         "latestIssuesInChain": {
