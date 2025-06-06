@@ -10,34 +10,41 @@ module PDFUtilities
   # @see https://github.com/jkraemer/pdf-forms
   PDFTK = PdfForms.new(Settings.binaries.pdftk)
 
-  # add a watermark datestamp to an existing pdf
+  # add a watermark datestamp to an existing pdf using a set of established stamps
   class PDFStamper
     include PDFUtilities::ExceptionHandling
 
+    # defined stamp sets to be used
     STAMP_SETS = {} # rubocop:disable Style/MutableConstant
 
-    ##
     # Registers a stamp set with a specific identifier.
     #
-    # @param identifier [String] The ID to register.
+    # @param identifier [String|Symbol] The ID to register.
     # @param stamps [Array<Hash>] The set of stamps associated with the ID.
-    #
+    # => [{text: 'VA.GOV', x: 5, y: 5 }, {text: 'Test', x: 400, y: 700, text_only: true }, ... ]
     def self.register_stamps(identifier, stamps)
       STAMP_SETS[identifier] = stamps
     end
 
+    # Retrieve a set of stamps; useful if needing to redefine properties based on a set
+    #
+    # @param identifier [String|Symbol] The ID of the set.
+    #
+    # @return [Array<Hash>] the stamp set or empty array if not registered
+    def self.get_stamp_set(identifier)
+      STAMP_SETS[identifier] || []
+    end
+
     # prepare to datestamp an existing pdf document
     def initialize(id, stamps: nil)
-      @stamps = stamps || STAMP_SETS[id] || []
+      @stamps = stamps || PDFStamper.get_stamp_set(id)
     end
 
     # stamp a generated pdf
-    # if there is an error stamping the pdf, the original path is returned
-    # - user uploaded attachments can be malformed
-    #
-    # @see PDFUtilites::DatestampPdf#run
     #
     # @param pdf_path [String] the path to a generated pdf; ie. claim.to_pdf
+    # @param timestamps [DateTime] timestamp to override what is defined in the stamps
+
     #
     # @return [String] the path to the stamped pdf
     def run(pdf_path, timestamp: nil, append_to_stamp: nil)
@@ -49,11 +56,7 @@ module PDFUtilities
       stamps.each do |stamp|
         previous = stamped
 
-        stamp = default_settings.merge(stamp)
-        stamp.each { |key, value| instance_variable_set("@#{key}", value) }
-
-        @timestamp ||= timestamp || Time.zone.now
-        @append_to_stamp ||= append_to_stamp
+        init_stamp(stamp, timestamp:, append_to_stamp:)
 
         stamp_path = generate_stamp
         stamped = stamp_pdf(previous, stamp_path)
@@ -64,9 +67,7 @@ module PDFUtilities
 
       stamped
     rescue => e
-      Common::FileHelpers.delete_file_if_exists(previous) unless previous == pdf_path
       Common::FileHelpers.delete_file_if_exists(stamped) unless stamped == pdf_path
-      Common::FileHelpers.delete_file_if_exists(stamp_path)
       log_and_raise_error('Failed to generate datestamp file', e)
     ensure
       Common::FileHelpers.delete_file_if_exists(previous) unless previous == pdf_path
@@ -75,7 +76,17 @@ module PDFUtilities
 
     private
 
-    attr_reader :stamps, :text, :text_only, :timestamp, :append_to_stamp, :x, :y, :font, :size, :page_number, :template, :multistamp
+    attr_reader :stamps, :text, :text_only, :timestamp, :append_to_stamp, :x, :y, :font, :size, :page_number,
+                :template, :multistamp
+
+    # establish the instance values for the current stamp
+    def init_stamp(stamp, timestamp: nil, append_to_stamp: nil)
+      stamp = default_settings.merge(stamp)
+      stamp.each { |key, value| instance_variable_set("@#{key}", value) }
+
+      @timestamp ||= timestamp || Time.zone.now
+      @append_to_stamp ||= append_to_stamp
+    end
 
     # @see #run
     def default_settings
@@ -144,9 +155,9 @@ module PDFUtilities
       stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
 
       reader = PDF::Reader.new(stamp_path)
-      pages = (multistamp) ? [*1..reader.page_count].join(',') : '1'
+      pages = multistamp ? [*1..reader.page_count].join(',') : '1'
 
-      HexaPDF::CLI::run(['watermark', '-w', stamp_path, '-i', pages, '-t', 'stamp', pdf_path, stamped_pdf])
+      HexaPDF::CLI.run(['watermark', '-w', stamp_path, '-i', pages, '-t', 'stamp', pdf_path, stamped_pdf])
 
       raise StampGenerationError, 'Stamped PDF was not created' unless File.exist?(stamped_pdf)
 
@@ -155,6 +166,5 @@ module PDFUtilities
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
       log_and_raise_error('Failed to generate stamp', e)
     end
-
   end
 end

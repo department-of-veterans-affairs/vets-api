@@ -2,7 +2,6 @@
 
 module PDFUtilities
   module ExceptionHandling
-
     class PdfMissingError < StandardError; end
     class StampGenerationError < StandardError; end
     class PdfStampingError < StandardError; end
