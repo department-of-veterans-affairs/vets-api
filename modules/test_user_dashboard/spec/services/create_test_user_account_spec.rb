@@ -6,11 +6,12 @@ describe TestUserDashboard::CreateTestUserAccount do
   subject { described_class.new }
 
   let(:file_path) { Rails.root.join('modules', 'test_user_dashboard', 'spec', 'support', 'spec_users.csv') }
-  let(:users) { CSV.read(file_path, headers: true) }
+  let(:user) { CSV.read(file_path, headers: true).first }
+
+  before { create(:user_account, id: user.to_hash['user_account_id']) }
 
   describe '#call' do
     it 'sets the user_account_id and services' do
-      user = users[0]
       TestUserDashboard::CreateTestUserAccount.new(user).call
       tud_account = TestUserDashboard::TudAccount.find_by(email: user.to_hash['email'])
 

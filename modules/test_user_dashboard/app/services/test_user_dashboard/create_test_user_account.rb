@@ -22,8 +22,10 @@ module TestUserDashboard
 
     private
 
-    def id_uuid
-      SecureRandom.uuid
+    def user_account_id
+      return unless row.key?('user_account_id')
+
+      row.delete('user_account_id')
     end
 
     def id_types
