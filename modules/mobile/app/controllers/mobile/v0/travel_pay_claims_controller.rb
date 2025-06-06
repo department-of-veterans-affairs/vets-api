@@ -41,6 +41,7 @@ module Mobile
         smoc_params = {
           appointment_date_time: params['appointment_date_time'],
           facility_station_number: params['facility_station_number'],
+          facility_name: params['facility_name'],
           appointment_type: params['appointment_type'] || 'Other',
           is_complete: params['is_complete'] || false
         }
@@ -91,7 +92,7 @@ module Mobile
                                                 claimStatus: submitted_claim['status'].underscore.humanize,
                                                 appointmentDateTime: validated_params[:appointment_date_time],
                                                 facilityId: validated_params[:facility_station_number],
-                                                facilityName: '',
+                                                facilityName: validated_params[:facility_name],
                                                 totalCostRequested: 0,
                                                 reimbursementAmount: 0,
                                                 createdOn: submitted_claim['createdOn'],

@@ -22934,6 +22934,7 @@
         "required": [
           "appointmentDateTime",
           "facilityStationNumber",
+          "facilityName",
           "appointmentType",
           "isComplete"
         ],
@@ -22947,6 +22948,11 @@
             "type": "string",
             "description": "The station number of the VA facility where the appointment is registered.",
             "example": "983GC"
+          },
+          "facilityName": {
+            "type": "string",
+            "description": "The name of the VA facility where the appointment is registered.",
+            "example": "Cheyenne VA Medical Center"
           },
           "appointmentType": {
             "type": "string",
