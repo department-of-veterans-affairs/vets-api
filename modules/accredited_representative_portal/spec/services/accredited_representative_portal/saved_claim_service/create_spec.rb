@@ -7,8 +7,18 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
   subject(:perform) do
     described_class.perform(
       type: AccreditedRepresentativePortal::SavedClaim::BenefitsIntake::DependencyClaim,
-      attachment_guids: attachments.map(&:guid),
-      metadata:
+      attachment_guids: attachments.map(&:guid), metadata:,
+      claimant_representative:
+    )
+  end
+
+  let(:claimant_representative) do
+    AccreditedRepresentativePortal::ClaimantRepresentative.new(
+      claimant_id: Faker::Internet.uuid,
+      power_of_attorney_holder_type:
+        AccreditedRepresentativePortal::PowerOfAttorneyHolder::Types::VETERAN_SERVICE_ORGANIZATION,
+      power_of_attorney_holder_poa_code: Faker::Alphanumeric.alphanumeric(number: 3),
+      accredited_individual_registration_number: Faker::Number.number(digits: 5).to_s
     )
   end
 
@@ -68,7 +78,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'none already parented' do
           let(:attachments) { [form_a] }
 
-          it 'returns a saved claim and enqueues the submission job' do
+          it 'returns a saved claim, enqueues the submission job, claimant representative was associated' do
             claim = perform
 
             expect(claim).to be_a(
@@ -77,6 +87,17 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
 
             expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
               have_enqueued_sidekiq_job(claim.id)
+            )
+
+            claimant_representative_associated =
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
+                **claimant_representative.to_h,
+                saved_claim_id: claim.id,
+                claimant_type: 'dependent'
+              )
+
+            expect(claimant_representative_associated).to(
+              be(true)
             )
           end
         end
@@ -96,7 +117,7 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
         context 'with a main form' do
           let(:attachments) { [form_a, attachment_a, attachment_b] }
 
-          it 'returns a saved claim and enqueues the submission job' do
+          it 'returns a saved claim, enqueues the submission job, claimant representative was associated' do
             claim = perform
 
             expect(claim).to be_a(
@@ -105,6 +126,17 @@ RSpec.describe AccreditedRepresentativePortal::SavedClaimService::Create do
 
             expect(AccreditedRepresentativePortal::SubmitBenefitsIntakeClaimJob).to(
               have_enqueued_sidekiq_job(claim.id)
+            )
+
+            claimant_representative_associated =
+              AccreditedRepresentativePortal::SavedClaimClaimantRepresentative.exists?(
+                **claimant_representative.to_h,
+                saved_claim_id: claim.id,
+                claimant_type: 'dependent'
+              )
+
+            expect(claimant_representative_associated).to(
+              be(true)
             )
           end
 
