@@ -46,7 +46,6 @@ module TravelPay
           Rails.logger.error(message:)
           raise Common::Exceptions::ServiceUnavailable, message:
         end
-
         begin
           Rails.logger.info(message: 'SMOC transaction START')
 
