@@ -300,14 +300,14 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['pagination']['perPage']).to eq(20)
       end
 
-      it 'responds to GET #index with prescription name as primary sort parameter' do
-        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_prescription_name') do
-          get '/my_health/v1/prescriptions?page=1&per_page=20&sort[]=prescription_name&sort[]=dispensed_date'
+      it 'responds to GET #index with custom sort parameter alphabetical-rx-name' do
+        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list') do
+          get '/my_health/v1/prescriptions?sort=alphabetical-rx-name'
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
         response_data = JSON.parse(response.body)['data']
         objects = skip_pending_meds(response_data).map do |item|
           {
@@ -315,33 +315,85 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
             'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s
           }
         end
-        expect(objects).to eq(objects.sort_by { |object| [object['prescription_name'], object['sorted_dispensed_date']] })
+        # Expect alphabetical order of prescription names
+        expect(objects.map { |o| o['prescription_name'] }).to eq(objects.map { |o| o['prescription_name'] }.sort)
+
+        # If prescription is the same, verify sort is by newest sorted_dispensed_date to oldest
+        objects.group_by { |o| o['prescription_name'] }.each_value do |meds|
+          # Separate empty dates (Date.new(0)) and actual dates
+          empty_dates, with_dates = meds.partition { |m| m['sorted_dispensed_date'] == Date.new(0).to_s }
+
+          # Get dates from non-empty group and sort them newest to oldest
+          sorted_dates = with_dates.map { |m| m['sorted_dispensed_date'] }.sort.reverse
+
+          # Verify that actual dates match expected order (empty dates, then sorted dates)
+          actual_dates = meds.map { |m| m['sorted_dispensed_date'] }
+          expected_dates = empty_dates.map { |m| m['sorted_dispensed_date'] } + sorted_dates
+
+          expect(actual_dates).to eq(expected_dates)
+        end
       end
 
-      it 'responds to GET #index with custom sort parameter last-fill-date' do
-        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_last_fill_date') do
-          get '/my_health/v1/prescriptions?page=1&per_page=20&sort=last-fill-date'
+      it 'responds to GET #index with custom sort parameter last-fill-date with expected sort strategy' do
+        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list') do
+          get '/my_health/v1/prescriptions?sort=last-fill-date'
         end
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
         response_data = JSON.parse(response.body)['data']
         objects = skip_pending_meds(response_data).map do |item|
           {
             'prescription_name' => item.dig('attributes', 'prescription_name'),
-            'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s
+            'sorted_dispensed_date' => item.dig('attributes', 'sorted_dispensed_date') || Date.new(0).to_s,
+            'prescription_source' => item.dig('attributes', 'prescription_source')
           }
         end
+
+        last_filled_index = objects.rindex { |obj| obj['sorted_dispensed_date'].present? }
+        last_va_med_index = objects.rindex { |obj| obj['prescription_source'] != 'NV' }
+
+        if last_filled_index && last_va_med_index && last_filled_index < last_va_med_index
+          meds_between_indices = objects[(last_filled_index + 1)..last_va_med_index]
+
+          if meds_between_indices.any?
+            # Verify alphabetical order of empty sorted dispensed date va meds
+            sorted_meds_between_indices = meds_between_indices.sort_by { |med| med['prescription_name'].downcase }
+            expect(meds_between_indices).to eq(sorted_meds_between_indices)
+          end
+        end
+
+        if last_filled_index
+          meds_after_last_dispensed_med = objects[(last_filled_index + 1)..]
+          if last_va_med_index < objects.size - 1
+            meds_after_last_non_nv_med = objects[(last_va_med_index + 1)..]
+            # Verify alphabetical order of empty sorted dispensed date non va meds
+            if meds_after_last_non_nv_med.any?
+              sorted_meds_after_last_non_nv_med = meds_after_last_non_nv_med.sort_by { |med| med['prescription_name'].downcase }
+
+              expect(meds_after_last_non_nv_med).to eq(sorted_meds_after_last_non_nv_med)
+            end
+            # Verify that there are no more va meds
+            expect(meds_after_last_non_nv_med.all? { |obj| obj['prescription_source'] == 'NV' }).to be true
+          end
+
+          # Verify alphabetical order of empty non va meds
+          expect(meds_after_last_dispensed_med).to be_empty
+          expect(meds_after_last_dispensed_med.all? { |obj| obj['sorted_dispensed_date'].blank? }).to be true
+        end
+
         objects.reject! { |obj| obj['sorted_dispensed_date'] == Date.new(0).to_s }
-        dates = objects.map { |obj| Date.parse(obj['sorted_dispensed_date']) }
-        is_descending = dates.each_cons(2).all? { |a, b| a >= b }
-        expect(is_descending).to be true
+        # Verify that sorted dispensed date is in order of newest to oldest
+        is_descending = objects.map { |obj| Date.parse(obj['sorted_dispensed_date']) }
+        sort = is_descending.each_cons(2).all? { |a, b| a >= b }
+
+        expect(sort).to be true
       end
 
-      it 'responds to GET #index with disp_status as primary sort parameter' do
-        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list_by_prescription_name') do
-          get '/my_health/v1/prescriptions?page=1&per_page=20&sort[]=disp_status&sort[]=prescription_name'
+      it 'responds to GET #index with default sort order when no sort params are present' do
+        VCR.use_cassette('rx_client/prescriptions/gets_sorted_list') do
+          get '/my_health/v1/prescriptions?page=1&per_page=99'
         end
 
         expect(response).to be_successful
@@ -474,26 +526,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
-        end
-
-        it 'responds to GET #index with sorted_dispensed_date' do
-          VCR.use_cassette('rx_client/prescriptions/gets_a_sorted_by_custom_field_list_of_all_prescriptions_v1') do
-            get '/my_health/v1/prescriptions?sort[]=-dispensed_date&sort[]=prescription_name', headers: inflection_header
-          end
-
-          res = JSON.parse(response.body)
-          dates = res['data'].map do |d|
-            sorted_date_str = d.dig('attributes', 'sortedDispensedDate')
-            Time.zone.parse(sorted_date_str) unless sorted_date_str.nil?
-          end
-          is_sorted = dates.compact_blank.each_cons(2).all? { |item1, item2| item1 >= item2 }
-          expect(response).to be_successful
-          expect(response.body).to be_a(String)
-          expect(is_sorted).to be_truthy
-          expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
-
-          metadata = { 'dispensedDate' => 'DESC', 'prescriptionName' => 'ASC' }
-          expect(JSON.parse(response.body)['meta']['sort']).to eq(metadata)
         end
 
         it 'responds to GET #show of nested tracking resource when camel-inflected' do

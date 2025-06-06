@@ -96,7 +96,7 @@ module MyHealth
           a_date = a.sorted_dispensed_date || Date.new(0, 1, 1)
           b_date = b.sorted_dispensed_date || Date.new(0, 1, 1)
 
-          # Handle nulls first, then newest to oldest
+          # move nils to top, then newest to oldest
           null_comparison = (a_date.nil? ? -1 : 0) <=> (b_date.nil? ? -1 : 0)
           next null_comparison if null_comparison != 0
 
@@ -106,48 +106,54 @@ module MyHealth
       end
 
       def last_fill_date_sort(resource)
-        null_dispensed_dates = resource.records.select { |med| med.sorted_dispensed_date.nil? }
-        non_null_dispensed_dates = resource.records.reject { |med| med.sorted_dispensed_date.nil? }
+        empty_dispense_date_meds = []
+        filled_meds = []
 
-        # Sort non-null dispensed dates
-        non_null_dispensed_dates.sort_by! do |first_med, second_med|
-          first_med_priority = get_medication_priority(first_med)
-          second_med_priority = get_medication_priority(second_med)
-
-          priority_comparison = first_med_priority <=> second_med_priority
-          next priority_comparison if priority_comparison != 0
-
-          case first_med_priority
-          when 0 # Filled medications
-            # Compare by fill date - newest first
-            date_comparison = compare_dispensed_dates(first_med.sorted_dispensed_date, second_med.sorted_dispensed_date)
-            next date_comparison if date_comparison != 0
-
-            # If same date, sort by name
-            (first_med.prescription_name || '') <=> (second_med.prescription_name || '')
-          when 1, 2 # Not-yet-filled and Non-VA medications
-            # Sort alphabetically by name
-            (first_med.prescription_name || '') <=> (second_med.prescription_name || '')
+        # Separate meds into empty_field and filled
+        resource.records.each do |med|
+          if empty_field?(med.sorted_dispensed_date)
+            empty_dispense_date_meds << med
+          else
+            filled_meds << med
           end
         end
 
-        resource.records = null_dispensed_dates + non_null_dispensed_dates
+        # Sort filled records order: newest dates first, any ties are sorted in alphabetical order
+        filled_meds = filled_meds.sort_by do |med|
+          [
+            -med.sorted_dispensed_date.to_time.to_i,
+            med.prescription_name.to_s.downcase
+          ]
+        end
+
+         # Separate empty dispense date meds by va meds and non va meds
+        non_va_meds = empty_dispense_date_meds.select { |med| med.prescription_source == 'NV' }
+        va_meds = empty_dispense_date_meds.reject { |med| med.prescription_source == 'NV' }
+
+        # Sort both arrays alphabetically
+        non_va_meds.sort_by! { |med| med.prescription_name.to_s.downcase }
+        va_meds.sort_by! { |med| med.prescription_name.to_s.downcase }
+
+        # Order: filled meds first, empty va non filled meds second, then empty non filled non va meds last.
+        resource.records = filled_meds + non_va_meds + non_va_meds
+
         resource
       end
 
       def alphabetical_sort(resource)
-        resource.records = resource.records.sort do |first_med, second_med|
-          # First compare by medication names
-          first_name = get_medication_name(first_med)
-          second_name = get_medication_name(second_med)
-          name_comparison = first_name <=> second_name
-          next name_comparison if name_comparison != 0
+        # First sort by name alphabetically
+        sorted_records = resource.records.sort_by { |med| get_medication_name(med) }
 
-          # If names are same, sort by fill date -nnewest first
-          first_fill_date = first_med.sorted_dispensed_date || Date.new(0)
-          second_fill_date = second_med.sorted_dispensed_date || Date.new(0)
-          second_fill_date <=> first_fill_date
+        # Then group by name and sort each group by date
+        sorted_records = sorted_records.group_by { |med| get_medication_name(med) }.flat_map do |_name, meds|
+          # Within each name group, empty dates go first, then sort by date (newest to oldest)
+          empty_dates, with_dates = meds.partition { |med| empty_field?(med.sorted_dispensed_date) }
+          sorted_with_dates = with_dates.sort_by { |med| -med.sorted_dispensed_date.to_time.to_i }
+
+          empty_dates + sorted_with_dates
         end
+
+        resource.records = sorted_records
         resource
       end
 
@@ -170,6 +176,10 @@ module MyHealth
         return 2 if med.prescription_source == 'NV'
 
         1
+      end
+
+      def empty_field?(value)
+        value.nil? || value.to_s.strip.empty?
       end
 
       module_function :apply_sorting
