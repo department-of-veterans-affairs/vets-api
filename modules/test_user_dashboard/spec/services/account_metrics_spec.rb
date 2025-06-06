@@ -5,7 +5,7 @@ require 'rails_helper'
 describe TestUserDashboard::AccountMetrics do
   describe '#initialize' do
     let!(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
-    let!(:tud_account) { create(:tud_account, user_account_id: user.user_account_id) }
+    let!(:tud_account) { create(:tud_account, user_account_id: user.user_account_uuid) }
     let!(:availability_log) { nil }
 
     before do
@@ -16,9 +16,9 @@ describe TestUserDashboard::AccountMetrics do
       # rubocop:enable RSpec/MessageChain
     end
 
-    it 'instantiates the test account by account_uuid' do
+    it 'instantiates the test account by user_account_id' do
       metrics = TestUserDashboard::AccountMetrics.new(user)
-      expect(metrics.tud_account[:account_uuid]).to eq(user.account_uuid)
+      expect(metrics.tud_account[:user_account_id]).to eq(user.user_account_uuid)
       expect(metrics.availability_log).to be_nil
 
       # rubocop:disable RSpec/MessageChain
@@ -46,9 +46,9 @@ describe TestUserDashboard::AccountMetrics do
     end
 
     context 'TUD account does exist' do
-      let!(:user) { create(:user) }
-      let(:tud_account) { create(:tud_account, user_account_id: user.user_account_id) }
-      let(:availability_log) { create(:tud_account_availability_log, user_account_id: user.user_account_id) }
+      let!(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+      let(:tud_account) { create(:tud_account, user_account_id: user.user_account_uuid) }
+      let(:availability_log) { create(:tud_account_availability_log, user_account_id: user.user_account_uuid) }
 
       before do
         allow(TestUserDashboard::TudAccount).to receive(:find_by).and_return(tud_account)
@@ -85,9 +85,9 @@ describe TestUserDashboard::AccountMetrics do
     end
 
     context 'TUD account does exist' do
-      let!(:user) { create(:user) }
-      let(:tud_account) { create(:tud_account, user_account_id: user.user_account_id) }
-      let(:availability_log) { create(:tud_account_availability_log, user_account_id: user.user_account_id) }
+      let!(:user) { create(:user, :loa3, :with_terms_of_use_agreement) }
+      let(:tud_account) { create(:tud_account, user_account_id: user.user_account_uuid) }
+      let(:availability_log) { create(:tud_account_availability_log, user_account_id: user.user_account_uuid) }
 
       before do
         allow(TestUserDashboard::TudAccount).to receive(:find_by).and_return(tud_account)

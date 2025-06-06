@@ -2,10 +2,11 @@
 
 module TestUserDashboard
   class AccountMetrics
-    attr_reader :tud_account, :availability_log
+    attr_reader :tud_account, :availability_log, :user_account_id
 
     def initialize(user)
-      @tud_account = TudAccount.find_by(user_account_id: user.user_account_id)
+      @user_account_id = user.user_account_uuid
+      @tud_account = TudAccount.find_by(user_account_id:)
       @availability_log = last_tud_account_availability_log
     end
 
@@ -20,16 +21,13 @@ module TestUserDashboard
 
       availability_log.update(has_checkin_error: true) if last_checkin_time_nil?
 
-      TestUserDashboard::TudAccountAvailabilityLog.create(
-        user_account_id: tud_account.user_account_id,
-        checkout_time: Time.now.utc
-      )
+      TestUserDashboard::TudAccountAvailabilityLog.create(user_account_id:, checkout_time: Time.now.utc)
     end
 
     private
 
     def last_tud_account_availability_log
-      TestUserDashboard::TudAccountAvailabilityLog.where(user_account_id: tud_account.user_account_id).last if tud_account
+      TestUserDashboard::TudAccountAvailabilityLog.where(user_account_id:).last if tud_account
     end
 
     def last_checkin_time_nil?
