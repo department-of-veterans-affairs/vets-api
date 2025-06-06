@@ -30,13 +30,13 @@ RSpec.describe VANotify::EmailDeliveryStatusCallback do
       it 'increments delivery and silent failure metrics' do
         expect(StatsD).to receive(:increment).with(
           'api.vanotify.notifications.delivered',
-          service: 'representation-management',
-          function: 'appoint_a_representative_confirmation_email'
+          'service' => 'representation-management',
+          'function' => 'appoint_a_representative_confirmation_email'
         )
         expect(StatsD).to receive(:increment).with(
           'silent_failure_avoided',
-          service: 'representation-management',
-          function: 'appoint_a_representative_confirmation_email'
+          'service' => 'representation-management',
+          'function' => 'appoint_a_representative_confirmation_email'
         )
 
         described_class.call(build_notification(status: 'delivered'))
@@ -47,8 +47,8 @@ RSpec.describe VANotify::EmailDeliveryStatusCallback do
       it "logs error and increments #{status} metric" do
         expect(StatsD).to receive(:increment).with(
           "api.vanotify.notifications.#{status}",
-          service: 'representation-management',
-          function: 'appoint_a_representative_confirmation_email'
+          'service' => 'representation-management',
+          'function' => 'appoint_a_representative_confirmation_email'
         )
         expect(Rails.logger).to receive(:error).with(
           a_string_including(%("status":"#{status}"))
@@ -65,8 +65,8 @@ RSpec.describe VANotify::EmailDeliveryStatusCallback do
       it 'logs a warning and increments other metric' do
         expect(StatsD).to receive(:increment).with(
           'api.vanotify.notifications.other',
-          service: 'representation-management',
-          function: 'appoint_a_representative_confirmation_email'
+          'service' => 'representation-management',
+          'function' => 'appoint_a_representative_confirmation_email'
         )
         expect(Rails.logger).to receive(:warn).with(
           a_string_including('"message":"Unhandled callback status"')
@@ -82,13 +82,13 @@ RSpec.describe VANotify::EmailDeliveryStatusCallback do
 
         expect(StatsD).to receive(:increment).with(
           'api.vanotify.notifications.delivered',
-          service: 'va_notify',
-          function: 'callback_status_email'
+          'service' => 'va_notify',
+          'function' => 'callback_status_email'
         )
         expect(StatsD).to receive(:increment).with(
           'silent_failure_avoided',
-          service: 'va_notify',
-          function: 'callback_status_email'
+          'service' => 'va_notify',
+          'function' => 'callback_status_email'
         )
 
         described_class.call(build_notification(status: 'delivered', metadata:))
