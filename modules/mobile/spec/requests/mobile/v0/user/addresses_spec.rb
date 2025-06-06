@@ -8,7 +8,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
   let!(:user) { sis_user(icn: '123498767V234859') }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     Timecop.freeze(Time.zone.parse('2024-08-27T18:51:06.012Z'))
   end
 
@@ -332,7 +331,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
       let(:invalid_address) { build(:va_profile_v3_validation_address) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
         post '/mobile/v0/user/addresses/validate',
              params: invalid_address.to_json, headers: sis_headers(json: true)
       end
@@ -392,7 +390,6 @@ RSpec.describe 'Mobile::V0::User::Address', type: :request do
       let(:multiple_match_address) { build(:va_profile_v3_validation_address, :multiple_matches) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:remove_pciu).and_return(true)
         VCR.use_cassette(
           'va_profile/v3/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_profile/v2/person/service'
 
-describe VAProfile::V2::Person::Service, :skip_vet360 do
+describe VAProfile::V2::Person::Service do
   before { Timecop.freeze('2024-09-16T16:09:37.000Z') }
 
   after  { Timecop.return }
@@ -12,10 +12,6 @@ describe VAProfile::V2::Person::Service, :skip_vet360 do
     subject { described_class.new(user) }
 
     let(:user) { build(:user, :loa3) }
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-    end
 
     context 'with a user present, that has a icn_with_aaid' do
       it 'returns a status of 200', :aggregate_failures do

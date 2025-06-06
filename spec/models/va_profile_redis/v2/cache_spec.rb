@@ -2,12 +2,11 @@
 
 require 'rails_helper'
 
-describe VAProfileRedis::V2::Cache, :skip_vet360 do
+describe VAProfileRedis::V2::Cache do
   let(:user) { build(:user, :loa3) }
 
   describe 'ContactInformationServiceV2' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     end
 

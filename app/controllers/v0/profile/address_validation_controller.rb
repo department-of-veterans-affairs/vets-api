@@ -13,17 +13,8 @@ module V0
       skip_before_action :authenticate, only: [:create]
 
       def create
-        address = if Flipper.enabled?(:remove_pciu)
-                    VAProfile::Models::V3::ValidationAddress.new(address_params)
-                  else
-                    VAProfile::Models::ValidationAddress.new(address_params)
-                  end
-
+        address = VAProfile::Models::V3::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
-
-        if Settings.vsp_environment == 'staging'
-          Rails.logger.info("Staging Address valid: #{address.valid?}, Address POU: #{address.address_pou}")
-        end
 
         Rails.logger.warn('AddressValidationController#create request completed', sso_logging_info)
 
@@ -51,11 +42,7 @@ module V0
       end
 
       def service
-        @service ||= if Flipper.enabled?(:remove_pciu)
-                       VAProfile::V3::AddressValidation::Service.new
-                     else
-                       VAProfile::AddressValidation::Service.new
-                     end
+        @service ||= VAProfile::V3::AddressValidation::Service.new
       end
     end
   end

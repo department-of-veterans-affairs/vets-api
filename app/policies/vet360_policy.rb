@@ -10,10 +10,6 @@ Vet360Policy = Struct.new(:user, :vet360) do
   end
 
   def profile_access?
-    if Flipper.enabled?(:remove_pciu, user)
-      user.icn.present?
-    else
-      user.vet360_id.present?
-    end
+    user.icn.present?
   end
 end

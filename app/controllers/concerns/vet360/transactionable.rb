@@ -23,11 +23,7 @@ module Vet360
     private
 
     def service
-      if Flipper.enabled?(:remove_pciu, @current_user)
-        VAProfile::V2::ContactInformation::Service.new @current_user
-      else
-        VAProfile::ContactInformation::Service.new @current_user
-      end
+      VAProfile::V2::ContactInformation::Service.new @current_user
     end
   end
 end

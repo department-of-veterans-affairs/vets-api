@@ -26,27 +26,20 @@ module Vet360
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
       record = build_record(type, params)
       validate!(record)
-      if Settings.vsp_environment == 'staging'
-        Rails.logger.info("ContactInformationV2 #{type} #{http_verb} Request Initiated")
-      end
       response = write_valid_record!(http_verb, type, record)
       create_user_audit_log(type) if PROFILE_AUDIT_LOG_TYPES[type].present?
       render_new_transaction!(type, response)
     end
 
     def invalidate_cache
-      if Flipper.enabled?(:remove_pciu, @current_user)
-        VAProfileRedis::V2::Cache.invalidate(@current_user)
-      else
-        VAProfileRedis::Cache.invalidate(@current_user)
-      end
+      VAProfileRedis::V2::Cache.invalidate(@current_user)
     end
 
     private
 
     def build_record(type, params)
       # This needs to be refactored after V2 upgrade is complete
-      if type == 'address' && Flipper.enabled?(:remove_pciu, @current_user)
+      if type == 'address'
         model = 'VAProfile::Models::V3::Address'
         Rails.logger.info("Override Key Present? #{params[:override_validation_key].present?},
                            Validation present? #{params[:validation_key].present?}")
@@ -80,11 +73,7 @@ module Vet360
     end
 
     def service
-      if Flipper.enabled?(:remove_pciu, @current_user)
-        VAProfile::V2::ContactInformation::Service.new @current_user
-      else
-        VAProfile::ContactInformation::Service.new @current_user
-      end
+      VAProfile::V2::ContactInformation::Service.new @current_user
     end
 
     def write_valid_record!(http_verb, type, record)

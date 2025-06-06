@@ -3,14 +3,10 @@
 require 'rails_helper'
 require 'va_profile/v2/contact_information/service'
 
-describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
+describe VAProfile::V2::ContactInformation::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-
-  before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
-  end
 
   describe '#get_person' do
     context 'when successful' do
@@ -142,12 +138,12 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#put_email when vet360_id is null' do
-    let(:verified_user) { build(:user, :loa3, vet360_id: nil) }
+    let(:user) { build(:user, :loa3, vet360_id: nil) }
 
     let(:email) do
       build(
         :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  source_system_user: verified_user.icn
+                                  source_system_user: user.icn
       )
     end
 
@@ -434,7 +430,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
-  describe '#send_contact_change_notification', :skip_vet360 do
+  describe '#send_contact_change_notification' do
     let(:transaction) { double }
     let(:transaction_status) do
       OpenStruct.new(
