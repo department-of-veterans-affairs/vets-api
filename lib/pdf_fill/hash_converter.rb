@@ -103,14 +103,8 @@ module PdfFill
     def set_value(v, key_data, i, from_array_overflow = false)
       k = key_data[:key]
 
-      # Handle overflow fields with empty keys (like eventOverflow)
-      if k.blank?
-        # These are typically overflow-only fields, check if they should be tracked
-        if key_data[:question_num] && v.present?
-          track_placeholder_link("overflow_field_#{key_data[:question_num]}", key_data)
-        end
-        return
-      end
+      return if k.blank?
+    
 
       k = k.gsub(ITERATOR, i.to_s) unless i.nil?
 
@@ -146,21 +140,21 @@ module PdfFill
     end
 
     def handle_overflow_and_label_all(form_data, pdftk_keys)
-      form_data.each_with_index do |item, idx|
-        item.each do |k, v|
-          key_data = pdftk_keys[k]
-          next unless key_data.is_a?(Hash)
+        form_data.each_with_index do |item, idx|
+          item.each do |k, v|
+            key_data = pdftk_keys[k]
+            next unless key_data.is_a?(Hash)
 
-          if overflow?(key_data, v)
-            text = placeholder_text
-            track_overflow_field_link(key_data, idx)
-          else
-            text = v
+            if overflow?(key_data, v)
+              text = placeholder_text
+              track_placeholder_link(nil, key_data, idx)
+            else
+              text = v
+            end
+
+            set_value(text, key_data, idx, true)
           end
-
-          set_value(text, key_data, idx, true)
         end
-      end
     end
 
     def handle_overflow_and_label_first_key(pdftk_keys)
@@ -223,67 +217,39 @@ module PdfFill
 
     private
 
-    def track_placeholder_link(field_key, key_data)
-      # Determine which section this field should link to based on question_num
+    def track_placeholder_link(field_key, key_data, idx = nil)
       question_num = key_data[:question_num]
       return unless question_num
 
+      if idx
+        modified_key_data = key_data.dup
+        if key_data[:page] && key_data[:x] && key_data[:y]
+          # Support coordinate arrays (if implemented) or fall back to mathematical offset
+          if key_data[:x].is_a?(Array) && key_data[:y].is_a?(Array)
+            # Use array coordinates if available
+            modified_key_data[:x] = key_data[:x][idx] || key_data[:x].first
+            modified_key_data[:y] = key_data[:y][idx] || key_data[:y].first
+            modified_key_data[:page] = key_data[:page][idx] || key_data[:page].first
+          else
+            # Fall back to current mathematical offset approach
+            modified_key_data[:x] = key_data[:x]
+            modified_key_data[:y] = key_data[:y] - (idx * 50)
+          end
+        end
+        
+        key_data = modified_key_data
+      end
+
       # Store the field info for later link creation
       @placeholder_links << {
-        field_key:,
         question_num:,
-        dest_name: determine_destination_name(question_num),
+        dest_name: key_data[:overflow_destination],
+        label: key_data[:question_text],
         page: key_data[:page],
         x: key_data[:x],
         y: key_data[:y],
         width: key_data[:width]
       }
-    end
-
-    def determine_destination_name(question_num)
-      # This will need to be customized based on your form's section mapping
-      # For now, using a generic pattern - you'll want to make this smarter
-      case question_num.to_f
-      when 1..7
-        'overflow_section_Section I'
-      when 8..9
-        'overflow_section_Section II'
-      when 10..12
-        'overflow_section_Section III'
-      when 13
-        'overflow_section_Section IV'
-      when 14
-        'overflow_section_Section V'
-      when 16
-        'overflow_section_Section VII'
-      end
-    end
-
-    def track_overflow_field_link(key_data, idx)
-      # Create field key for the overflow field
-      field_key = if key_data[:key].present?
-                    key_data[:key].gsub(ITERATOR, idx.to_s)
-                  else
-                    "overflow_field_#{key_data[:question_num]}_#{idx}"
-                  end
-
-      # Create modified key_data with adjusted coordinates for each item
-      modified_key_data = key_data.dup
-      if key_data[:page] && key_data[:x] && key_data[:y]
-        # Support coordinate arrays (if implemented) or fall back to mathematical offset
-        if key_data[:x].is_a?(Array) && key_data[:y].is_a?(Array)
-          # Use array coordinates if available
-          modified_key_data[:x] = key_data[:x][idx] || key_data[:x].first
-          modified_key_data[:y] = key_data[:y][idx] || key_data[:y].first
-          modified_key_data[:page] = key_data[:page][idx] || key_data[:page].first
-        else
-          # Fall back to current mathematical offset approach
-          modified_key_data[:x] = key_data[:x]
-          modified_key_data[:y] = key_data[:y] - (idx * 50)
-        end
-      end
-
-      track_placeholder_link(field_key, modified_key_data)
     end
   end
 end

@@ -109,6 +109,7 @@ module PdfFill
       main_form_destinations = prepare_destinations_to_main_form(doc)
       overflow_form_destinations = prepare_destinations_to_overflow_form(doc, extras_generator, original_page_count)
       all_destinations = main_form_destinations + overflow_form_destinations
+      add_text_styling(doc, hash_converter)
       add_all_destinations(doc, all_destinations)
       add_links(doc, extras_generator, original_page_count)
 
@@ -117,6 +118,41 @@ module PdfFill
 
       doc.write(doc_path)
       doc_path
+    end
+
+    def add_text_styling(doc, hash_converter)
+      return unless hash_converter.respond_to?(:placeholder_links)
+
+      hash_converter.placeholder_links.each do |link_info|
+        page = doc.pages[link_info[:page]]
+        canvas = page.canvas(type: :overlay)
+        add_white_rectangle(canvas,link_info)
+        add_overlay_text(canvas, link_info)
+      end
+    end
+
+    def add_white_rectangle(canvas, link_info)
+      canvas.save_graphics_state do
+        canvas.fill_color("FFFFFF")
+        canvas.rectangle(link_info[:x], link_info[:y]+3, link_info[:width], 15)
+        canvas.fill
+      end
+    end
+
+    def add_overlay_text(canvas, link_info)
+      y_offset = 8
+      x_offset = 3
+      canvas.save_graphics_state do
+        canvas.stroke_color("0000FF")
+          canvas.fill_color("0000FF")
+          canvas.font("Helvetica", size: 10)
+          text = 'See attachment'
+          text_width = 70
+          canvas.text(text, at: [link_info[:x] + x_offset, link_info[:y] + y_offset])
+          underline_y = (link_info[:y] + y_offset) -1
+          canvas.line(link_info[:x] + x_offset, underline_y, link_info[:x] + text_width + x_offset, underline_y)
+          canvas.stroke
+      end
     end
 
     def add_all_destinations(doc, destination_array)
@@ -200,8 +236,8 @@ module PdfFill
                   field_coords[:x] + field_coords[:width],
                   field_coords[:y] + field_coords[:height]
                 ],
-                Border: [0, 0, 1], # No border
-                C: [1, 0, 0], # Blue color
+                Border: [0, 0, 0], # No border
+                C: [0, 0, 0], # Blue color
                 A: {
                   Type: :Action,
                   S: :GoTo,
