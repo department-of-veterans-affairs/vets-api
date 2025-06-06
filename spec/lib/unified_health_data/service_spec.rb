@@ -62,7 +62,82 @@ describe UnifiedHealthData::Service, type: :service do
                   'effectiveDateTime' => '2024-06-02T00:00:00Z',
                   'contained' => [
                     { 'resourceType' => 'Organization', 'name' => 'Oracle Lab' },
-                    { 'resourceType' => 'Practitioner', 'name' => [{ 'given' => ['Jane'], 'family' => 'Smith' }] }
+                    { 'resourceType' => 'Practitioner', 'name' => [{ 'given' => ['Jane'], 'family' => 'Smith' }] },
+                    {
+                      'resourceType' => 'ServiceRequest',
+                      'id' => '15207872423',
+                      'meta' => {},
+                      'text' => {
+                        'status' => 'generated',
+                        'div' => '<div xmlns=\'http://www.w3.org/1999/xhtml\'><p><b>Service Request</b></p><p><b>Patient</b>: SILVA, ALEXANDER RICARDO</p><p><b>Code</b>: CBC w/ Diff</p><p><b>Occurrence Start</b>: Jan 27, 2025  8:45 A.M. CST</p><p><b>Occurrence End</b>: Jan 27, 2025  9:42 A.M. CST</p><p><b>Priority</b>: STAT</p><p><b>Reason</b>:</p><ul><li>Lethargy</li></ul><p><b>Status</b>: Completed</p><p><b>Intent</b>: Order</p><p><b>Requester</b>: Borland, Victoria A</p><p><b>Order Detail</b>: 01/27/25 9:40:00 EST, Whole Blood, Stat, Nurse collect</p></div>'
+                      },
+                      'status' => 'completed',
+                      'intent' => 'order',
+                      'category' => [
+                        {
+                          'coding' => [
+                            {
+                              'system' => 'https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/6000',
+                              'code' => '2513',
+                              'display' => 'Laboratory',
+                              'userSelected' => true
+                            },
+                            {
+                              'system' => 'http://snomed.info/sct',
+                              'code' => '108252007',
+                              'display' => 'Laboratory procedure (procedure)',
+                              'userSelected' => false
+                            }
+                          ],
+                          'text' => 'Laboratory'
+                        }
+                      ],
+                      'priority' => 'stat',
+                      'code' => {
+                        'coding' => [
+                          {
+                            'system' => 'https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/200',
+                            'code' => '2921414',
+                            'userSelected' => true
+                          }
+                        ],
+                        'text' => 'CBC w/ Diff'
+                      },
+                      'orderDetail' => [
+                        {
+                          'text' => '01/27/25 9:40:00 EST, Whole Blood, Stat, Nurse collect'
+                        }
+                      ],
+                      'subject' => {
+                        'reference' => 'Patient/66415180',
+                        'display' => 'SILVA, ALEXANDER RICARDO'
+                      },
+                      'encounter' => {
+                        'reference' => 'Encounter/248195800'
+                      },
+                      'occurrencePeriod' => {
+                        'start' => '2025-01-27T14:45:00Z',
+                        'end' => '2025-01-27T15:42:10Z'
+                      },
+                      'authoredOn' => '2025-01-27T14:40:48Z',
+                      'requester' => {
+                        'reference' => 'Practitioner/63662034',
+                        'display' => 'Borland, Victoria A'
+                      },
+                      'reasonCode' => [
+                        {
+                          'coding' => [
+                            {
+                              'system' => 'http://hl7.org/fhir/sid/icd-10-cm',
+                              'code' => 'R53.83',
+                              'display' => 'Other fatigue',
+                              'userSelected' => true
+                            }
+                          ],
+                          'text' => 'Lethargy'
+                        }
+                      ]
+                    }
                   ],
                   'presentedForm' => [{ 'data' => 'def456' }]
                 }
@@ -288,6 +363,108 @@ describe UnifiedHealthData::Service, type: :service do
         result = service.send(:fetch_observations, record)
         expect(result.size).to eq(1)
         expect(result.first.reference_range).to eq('8.5-10.5 mg/dL, Lab-specific: 9-11 mg/dL')
+      end
+
+      it 'returns observations with low/high values in reference range' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'TSH' },
+                'valueQuantity' => { 'value' => 1.8, 'unit' => 'mIU/L' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 0.7,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 4.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Within normal limits' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L')
+      end
+
+      it 'returns observations with multiple low/high reference ranges joined' do
+        record = {
+          'resource' => {
+            'contained' => [
+              {
+                'resourceType' => 'Observation',
+                'code' => { 'text' => 'Comprehensive Metabolic Panel' },
+                'valueQuantity' => { 'value' => 1.8, 'unit' => 'mIU/L' },
+                'referenceRange' => [
+                  {
+                    'low' => {
+                      'value' => 0.7,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 4.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'normal',
+                          'display' => 'Normal Range'
+                        }
+                      ],
+                      'text' => 'Normal Range'
+                    }
+                  },
+                  {
+                    'low' => {
+                      'value' => 0.5,
+                      'unit' => 'mIU/L'
+                    },
+                    'high' => {
+                      'value' => 5.0,
+                      'unit' => 'mIU/L'
+                    },
+                    'type' => {
+                      'coding' => [
+                        {
+                          'system' => 'http://terminology.hl7.org/CodeSystem/referencerange-meaning',
+                          'code' => 'treatment',
+                          'display' => 'Treatment Range'
+                        }
+                      ],
+                      'text' => 'Treatment Range'
+                    }
+                  }
+                ],
+                'status' => 'final',
+                'note' => [{ 'text' => 'Multiple reference ranges' }]
+              }
+            ]
+          }
+        }
+        result = service.send(:fetch_observations, record)
+        expect(result.size).to eq(1)
+        expect(result.first.reference_range).to eq('Normal Range: 0.7 mIU/L - 4.5 mIU/L, Treatment Range: 0.5 mIU/L - 5.0 mIU/L')
       end
 
       it 'returns empty string for reference range if not present' do
