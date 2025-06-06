@@ -103,7 +103,8 @@ RSpec.describe 'VAOS::V2::EpsAppointments', :skip_mvi, type: :request do
             VCR.use_cassette('vaos/eps/get_appointment/draft_200', match_requests_on: %i[method path]) do
               get '/vaos/v2/eps_appointments/qdm61cJ5', headers: inflection_header
 
-              expect(response).to have_http_status(:not_found)
+              expect(response).to have_http_status(:success)
+              expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('proposed')
             end
           end
         end
