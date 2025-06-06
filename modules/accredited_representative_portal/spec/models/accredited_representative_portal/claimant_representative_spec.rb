@@ -115,7 +115,7 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           end
 
           context 'and a claimant that does not have poa with one of them' do
-            alphabet = (?a..?z).to_a
+            alphabet = ('a'..'z').to_a
             let(:claimant_poa_code) do
               ##
               # This avoids the other POA codes.
