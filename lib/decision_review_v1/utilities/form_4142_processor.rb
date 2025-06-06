@@ -39,6 +39,10 @@ module DecisionReviewV1
         Flipper.enabled?(:decision_review_form4142_use_2024_template)
       end
 
+      def should_validate_schema?
+        Flipper.enabled?(:decision_review_form4142_validate_schema)
+      end
+
       private
 
       def uuid

@@ -38,7 +38,11 @@ module EVSS
 
       # Flip this on to use the 2024 template, teams can make independent decisions about when to use the 2024 version
       def generate_2024_version?
-        Flipper.enabled?(:evss_form4142_use_2024_template)
+        Flipper.enabled?(:disability_526_form4142_use_2024_template)
+      end
+
+      def should_validate_schema?
+        Flipper.enabled?(:disability_526_form4142_validate_schema)
       end
     end
   end

@@ -61,6 +61,11 @@ module Processors
       false
     end
 
+    # Template method - subclasses can override to skip schema validation
+    def should_validate_schema?
+      false
+    end
+
     def form_data
       raise NotImplementedError, 'Subclasses must implement form_data method'
     end
@@ -183,7 +188,7 @@ module Processors
     end
 
     def validate_form4142
-      return unless Flipper.enabled?(:form4142_validate_schema)
+      return unless should_validate_schema?
 
       schema = VetsJsonSchema::SCHEMAS[FORM_SCHEMA_ID]
       errors = JSON::Validator.fully_validate(schema, form_data, errors_as_objects: true)
