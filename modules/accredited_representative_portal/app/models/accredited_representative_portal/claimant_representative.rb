@@ -31,7 +31,8 @@ module AccreditedRepresentativePortal
 
         poa_holders.each do |h|
           ##
-          # Would be nice to be able to use `PowerOfAttorneyHolder#==` instead.
+          # Might be nice to instead have a `PowerOfAttorneyHolder#==` with a
+          # semantics that matches what is needed here.
           #
           next unless h.poa_code == poa_holder.poa_code
           next unless h.type == poa_holder.type
@@ -115,9 +116,10 @@ module AccreditedRepresentativePortal
     end
 
     class Representative
-      def initialize(icn:, email:)
+      def initialize(icn:, email:, all_emails:)
         @icn = icn
         @email = email
+        @all_emails = all_emails
       end
 
       delegate(
@@ -140,6 +142,7 @@ module AccreditedRepresentativePortal
         @representative_user_account ||=
           RepresentativeUserAccount.find_by!(icn: @icn).tap do |account|
             account.set_email(@email)
+            account.set_all_emails(@all_emails)
           end
       end
     end

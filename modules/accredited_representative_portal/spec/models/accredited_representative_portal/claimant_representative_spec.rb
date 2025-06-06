@@ -25,7 +25,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
 
           finder.for_representative(
             icn: representative_icn,
-            email: representative_email
+            email: representative_email,
+            all_emails: [representative_email]
           )
         end
       end
@@ -38,7 +39,8 @@ RSpec.describe AccreditedRepresentativePortal::ClaimantRepresentative, type: :mo
           representative =
             create(
               :representative, :vso,
-              poa_codes: [vso_a.poa, vso_b.poa]
+              poa_codes: [vso_a.poa, vso_b.poa],
+              email: representative_email
             )
 
           create(
