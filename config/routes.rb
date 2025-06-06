@@ -395,7 +395,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
   # Modules
@@ -406,6 +405,7 @@ Rails.application.routes.draw do
   mount CheckIn::Engine, at: '/check_in'
   mount ClaimsEvidenceApi::Engine, at: '/claims_evidence_api'
   mount DebtsApi::Engine, at: '/debts_api'
+  mount DependentsVerification::Engine, at: '/dependents_verification'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount IncomeAndAssets::Engine, at: '/income_and_assets'

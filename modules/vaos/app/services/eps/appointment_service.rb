@@ -15,9 +15,7 @@ module Eps
 
       response = perform(:get, "/#{config.base_path}/appointments/#{appointment_id}#{query_params}", {},
                          request_headers)
-      log_response(response, 'EPS Get Appointment')
 
-      Rails.logger.info("EPS Get Appointment - Data: #{response.body}")
       OpenStruct.new(response.body)
     end
 
@@ -29,7 +27,6 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, request_headers)
-      log_response(response, 'EPS Get Appointments')
 
       appointments = response.body[:appointments]
       merged_appointments = merge_provider_data_with_appointments(appointments)
@@ -44,7 +41,6 @@ module Eps
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referral: { referralNumber: referral_id } }, request_headers)
-      log_response(response, 'EPS Create Draft Appointment')
 
       OpenStruct.new(response.body)
     end
@@ -75,24 +71,11 @@ module Eps
 
       EpsAppointmentWorker.perform_async(appointment_id, user)
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
-      log_response(response, 'EPS Submit Appointment')
 
       OpenStruct.new(response.body)
     end
 
     private
-
-    ##
-    # Log API response details for debugging
-    #
-    # @param response [Faraday::Response] The API response
-    # @param description [String] Description of the API call
-    # @return [void]
-    def log_response(response, description)
-      response_body = response.body.is_a?(String) ? response.body : response.body.inspect
-      Rails.logger.info("#{description} - Content-Type: #{response.response_headers['Content-Type']}, " \
-                        "Body Class: #{response.body.class}, Body: #{response_body}...")
-    end
 
     ##
     # Merge provider data with appointment data

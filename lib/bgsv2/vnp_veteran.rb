@@ -99,7 +99,7 @@ module BGSV2
     end
 
     def veteran
-      @veteran ||= BGSDependents::Veteran.new(@proc_id, @user)
+      @veteran ||= BGSDependentsV2::Veteran.new(@proc_id, @user)
     end
 
     def bgs_service

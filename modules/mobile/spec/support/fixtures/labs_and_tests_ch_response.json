@@ -1,10 +1,10 @@
 {
-  "id": "0e8fbc99-62da-44c7-b758-6e61b58d49be",
+  "id": "9fc29a49-16d1-4a19-b5a1-fa8c9b2bf2b7",
   "type": "DiagnosticReport",
   "attributes": {
     "display": "CH",
     "testCode": "CH",
-    "dateCompleted": "2025-01-23T21:06:02Z",
+    "dateCompleted": "2025-01-23T21:06:20+00:00",
     "sampleTested": "SERUM",
     "encodedData": "",
     "location": "CHYSHR TEST LAB",
@@ -16,7 +16,7 @@
         "value": { "text": "99.0 mg/dL", "type": "quantity" },
         "referenceRange": "70 - 110",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       },
@@ -25,7 +25,7 @@
         "value": { "text": "200.0 mg/dL", "type": "quantity" },
         "referenceRange": "7 - 18",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       },
@@ -34,7 +34,7 @@
         "value": { "text": "5.0 mg/dL", "type": "quantity" },
         "referenceRange": "0.6 - 1.3",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       },
@@ -43,7 +43,7 @@
         "value": { "text": "8.0 meq/L", "type": "quantity" },
         "referenceRange": "136 - 145",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       },
@@ -52,7 +52,7 @@
         "value": { "text": "24.0 meq/L", "type": "quantity" },
         "referenceRange": "3.5 - 5.1",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       },
@@ -61,7 +61,7 @@
         "value": { "text": "2.0 meq/L", "type": "quantity" },
         "referenceRange": "98 - 107",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       },
@@ -70,7 +70,7 @@
         "value": { "text": "2.0 meq/L", "type": "quantity" },
         "referenceRange": "22 - 29",
         "status": "final",
-        "comments": "",
+        "comments": "**TEST COMMENT** RESULTS CONTAIN CRITICAL HIGH AND LOW VALUES Ordering Provider: Marci P Mcguire Report Released Date/Time: Jan 26, 2025@15:37\r\n Performing Lab: CHYSHR TEST LAB\r\n                2360 E PERSHING BLVD CHEYENNE, FL 82001-5356",
         "bodySite": "SERUM",
         "sampleTested": "SERUM"
       }
