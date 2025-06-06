@@ -17,9 +17,9 @@ module TestUserDashboard
     end
 
     def user_identity
-      unless (identity = UserIdentity.find(account_uuid))
+      unless (identity = UserIdentity.find(user_account_id))
         identity = UserIdentity.create(
-          uuid: account_uuid,
+          uuid: user_account_id,
           email:,
           first_name:,
           last_name:,
@@ -46,7 +46,7 @@ module TestUserDashboard
     def user
       # ensure we have a user identity before instantiating
       user_identity
-      User.new(uuid: user_identity.uuid)
+      User.new(uuid: user_identity.idme_uuid || user_identity.logingov_uuid)
     end
 
     private

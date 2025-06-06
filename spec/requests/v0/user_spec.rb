@@ -16,7 +16,6 @@ RSpec.describe 'V0::User', type: :request do
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
@@ -383,9 +382,7 @@ RSpec.describe 'V0::User', type: :request do
   end
 
   def new_user(type = :loa3)
-    user = build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
-    create(:account, idme_uuid: user.uuid)
-    user
+    build(:user, type, icn: SecureRandom.uuid, uuid: rand(1000..100_000))
   end
 
   def stub_mpi_failure

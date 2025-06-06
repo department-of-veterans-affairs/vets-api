@@ -25,8 +25,8 @@ RSpec.describe UserSerializer do
     expect(attributes['services']).to eq pre_serialized_profile.services
   end
 
-  it 'returns serialized #account data' do
-    expect(attributes['account']).to eq pre_serialized_profile.account.deep_stringify_keys
+  it 'returns serialized #user_account data' do
+    expect(attributes['user_account']).to eq JSON.parse(pre_serialized_profile.user_account.to_json)
   end
 
   it 'returns serialized #profile data' do

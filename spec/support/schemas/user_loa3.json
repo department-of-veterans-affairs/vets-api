@@ -80,7 +80,7 @@
                 null
               ]
             },
-            "account": {
+            "user_account": {
               "type": "object",
               "required": [
                 "account_uuid"
