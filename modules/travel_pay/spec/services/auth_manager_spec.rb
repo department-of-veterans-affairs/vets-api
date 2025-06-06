@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe TravelPay::AuthManager do
   context 'get_tokens' do
-    let(:user) { build(:user) }
+    let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }
     let(:tokens) do
       {
         veis_token: 'fake_veis_token',
@@ -13,7 +13,7 @@ describe TravelPay::AuthManager do
     end
     let(:cached_tokens) do
       {
-        user_account_uuid: user.user_account_uuid,
+        user_account_id: user.user_account_uuid,
         veis_token: 'cached_veis_token',
         btsss_token: 'cached_btsss_token'
       }

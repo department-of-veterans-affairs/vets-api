@@ -37,9 +37,9 @@ module TravelPay
       end
     end
 
-    def save_tokens!(account_uuid, tokens)
+    def save_tokens!(user_account_id, tokens)
       token_record = TravelPayStore.new(
-        account_uuid:,
+        user_account_id:,
         veis_token: tokens[:veis_token],
         btsss_token: tokens[:btsss_token]
       )

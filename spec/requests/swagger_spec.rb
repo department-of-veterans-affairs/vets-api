@@ -3400,7 +3400,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
 
     context 'create' do
-      let(:mhv_user) { build(:user, :loa3) }
+      let(:mhv_user) { build(:user, :loa3, :with_terms_of_use_agreement) }
 
       it 'returns unauthorized for unauthorized user' do
         expect(subject).to validate(:post, '/travel_pay/v0/claims', 401)
