@@ -212,8 +212,6 @@ module Form1010Ezr
       parsed_form.delete('nextOfKins')
       parsed_form.delete('emergencyContacts')
 
-      debugger
-
       parsed_form
     end
   end
