@@ -570,6 +570,7 @@ module PdfFill
           limit: 50, # TODO: This is a guess.  Need to confirm.
           question_num: 16,
           question_suffix: 'A',
+          question_label: 'Signature',
           question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE'
         },
         'signatureDate' => {
@@ -597,6 +598,11 @@ module PdfFill
             question_text: 'DATE SIGNED. Enter 4 digit Year.',
             hide_from_overflow: true
           }
+        },
+        'signatureDateOverflow' => {
+          question_num: 16,
+          question_suffix: 'B',
+          question_label: 'Date signed'
         }
       }.freeze
       # rubocop:enable Layout/LineLength
@@ -669,8 +675,9 @@ module PdfFill
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
-        formatted_date = DateTime.parse(@form_data['signatureDate']).strftime('%Y-%m-%d')
-        @form_data['signatureDate'] = split_date(formatted_date)
+        signature_date = DateTime.parse(@form_data['signatureDate'])
+        @form_data['signatureDate'] = split_date(signature_date.strftime('%Y-%m-%d'))
+        @form_data['signatureDateOverflow'] = signature_date.strftime('%m-%d-%Y')
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data
