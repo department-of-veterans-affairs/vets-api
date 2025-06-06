@@ -1,0 +1,474 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/medications"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 30 May 2025 01:10:18 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '76215'
+      X-Amzn-Requestid:
+      - 7bb5e665-48a1-498b-814f-67066ea264a1
+      X-Oneagent-Js-Injection:
+      - 'true'
+      X-Amzn-Remapped-Connection:
+      - keep-alive
+      X-Amz-Apigw-Id:
+      - LW3LLEq3vHMFSCw=
+      Server-Timing:
+      - dtRpid;desc="2123721185", dtSInfo;desc="0"
+      X-Amzn-Remapped-Date:
+      - Fri, 30 May 2025 01:10:18 GMT
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Thu,
+        29 May 2025 12:04:10 EDT","medicationList":{"medication":[{"refillStatus":"discontinued","refillSubmitDate":"Tue,
+        28 Jan 2025 00:00:00 EST","refillDate":"Wed, 20 Nov 2024 00:00:00 EST","refillRemaining":11,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25008639,"sig":"TAKE
+        100MG WEEKLY FOR 30 DAYS TEST","orderedDate":"Wed, 20 Nov 2024 00:00:00 EST","quantity":50,"expirationDate":"Fri,
+        21 Nov 2025 00:00:00 EST","prescriptionNumber":"2721224","prescriptionName":"LOSARTAN
+        POTASSIUM 100MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25008639,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00006-0960-58","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"LOSARTAN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Duplicate
+        Rx Renewal Request.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Wed,
+        20 Nov 2024 00:00:00 EST","refillRemaining":5,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25008640,"sig":"INJECT
+        50MG IV WEEKLY FOR 90 DAYS","orderedDate":"Wed, 20 Nov 2024 00:00:00 EST","quantity":100,"expirationDate":"Fri,
+        21 Nov 2025 00:00:00 EST","prescriptionNumber":"2721225","prescriptionName":"METOPROLOL
+        5MG/5ML INJ","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25008640,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00028-4201-33","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"METOPROLOL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
+        Discontinued more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Tue,
+        18 Feb 2025 00:00:00 EST","refillDate":"Mon, 03 Feb 2025 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25008641,"sig":"TAKE
+        1 TEASPOONFUL BY AS DIRECTED DAILY","orderedDate":"Thu, 21 Nov 2024 00:00:00
+        EST","quantity":2,"expirationDate":"Sat, 22 Nov 2025 00:00:00 EST","prescriptionNumber":"2721226","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25008641,"userId":24745714,"providerFirstName":"RAJASREE","providerLastName":"VENKATESH","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"GLUCOSE TEST","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Duplicate
+        Rx Renewal Request.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Thu,
+        21 Nov 2024 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25435322,"sig":null,"orderedDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","quantity":1,"expirationDate":null,"prescriptionNumber":"2721226","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":"Thu, 20 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25435322,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":null,"reason":null,"prescriptionNumberIndex":"PF1","prescriptionSource":"PF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Fri,
+        03 Jan 2025 00:00:00 EST","refillDate":"Thu, 21 Nov 2024 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25086159,"sig":null,"orderedDate":"Mon,
+        03 Feb 2025 00:00:00 EST","quantity":2,"expirationDate":null,"prescriptionNumber":"2721226","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":"Tue, 04 Feb 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1226","cmopNdcNumber":"00013264681","id":25086159,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721226","dispStatus":"Discontinued","ndc":null,"reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Duplicate
+        Rx Renewal Request.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Sat, 17 May 2025 00:00:00 EDT","refillRemaining":8,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25008642,"sig":"TAKE
+        ONE CAPSULE BY MOUTH DAILY FOR 12 DAYS --TAKE WITH FOOD IF GI UPSET OCCURS--","orderedDate":"Tue,
+        03 Dec 2024 00:00:00 EST","quantity":12,"expirationDate":"Thu, 04 Dec 2025
+        00:00:00 EST","prescriptionNumber":"2721241","prescriptionName":"CELECOXIB
+        100MG CAP","dispensedDate":"Thu, 05 Dec 2024 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25008642,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00025-1520-31","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"CELECOXIB","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Tue, 03 Dec 2024 00:00:00 EST","refillRemaining":8,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25694578,"sig":null,"orderedDate":"Sat,
+        17 May 2025 00:00:00 EDT","quantity":12,"expirationDate":null,"prescriptionNumber":"2721241","prescriptionName":"CELECOXIB
+        100MG CAP","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25694578,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00025-1520-31","reason":null,"prescriptionNumberIndex":"RF3","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Tue, 03 Dec 2024 00:00:00 EST","refillRemaining":9,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25528051,"sig":null,"orderedDate":"Sun,
+        13 Apr 2025 00:00:00 EDT","quantity":12,"expirationDate":null,"prescriptionNumber":"2721241","prescriptionName":"CELECOXIB
+        100MG CAP","dispensedDate":"Mon, 14 Apr 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25528051,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00025-1520-31","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Wed,
+        05 Feb 2025 00:00:00 EST","refillDate":"Tue, 03 Dec 2024 00:00:00 EST","refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25242887,"sig":null,"orderedDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","quantity":12,"expirationDate":null,"prescriptionNumber":"2721241","prescriptionName":"CELECOXIB
+        100MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25242887,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00025-1520-31","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":null,"refillDate":"Tue,
+        03 Dec 2024 00:00:00 EST","refillRemaining":8,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25438114,"sig":null,"orderedDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","quantity":2,"expirationDate":null,"prescriptionNumber":"2721241","prescriptionName":"CELECOXIB
+        100MG CAP","dispensedDate":"Mon, 24 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25438114,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00025-1520-31","reason":null,"prescriptionNumberIndex":"PF1","prescriptionSource":"PF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"active","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Sat, 17 May 2025 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25082068,"sig":"INJECT
+        1 IV DAILY FOR 10 DAYS","orderedDate":"Fri, 03 Jan 2025 00:00:00 EST","quantity":10,"expirationDate":"Sun,
+        04 Jan 2026 00:00:00 EST","prescriptionNumber":"2721288","prescriptionName":"METOPROLOL
+        5MG/5ML INJ","dispensedDate":"Sun, 05 Jan 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25082068,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00028-4201-33","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"METOPROLOL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Fri, 03 Jan 2025 00:00:00 EST","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25694579,"sig":null,"orderedDate":"Sat,
+        17 May 2025 00:00:00 EDT","quantity":10,"expirationDate":null,"prescriptionNumber":"2721288","prescriptionName":"METOPROLOL
+        5MG/5ML INJ","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25694579,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00028-4201-33","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"active","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Sat, 17 May 2025 00:00:00 EDT","refillRemaining":8,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":25182306,"sig":"TAKE
+        4G MOUTH 1XD FOR 30 DAYS","orderedDate":"Tue, 24 Dec 2024 00:00:00 EST","quantity":30,"expirationDate":"Thu,
+        25 Dec 2025 00:00:00 EST","prescriptionNumber":"2721300","prescriptionName":"CHOLESTYRAMINE
+        4GM/5GM (LIGHT) ORAL PWD","dispensedDate":"Tue, 17 Dec 2024 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25182306,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00087-0589-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"CHOLESTYRAMINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Tue, 24 Dec 2024 00:00:00 EST","refillRemaining":8,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25694580,"sig":null,"orderedDate":"Sat,
+        17 May 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721300","prescriptionName":"CHOLESTYRAMINE
+        4GM/5GM (LIGHT) ORAL PWD","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25694580,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00087-0589-01","reason":null,"prescriptionNumberIndex":"RF3","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Wed,
+        05 Feb 2025 00:00:00 EST","refillDate":"Tue, 24 Dec 2024 00:00:00 EST","refillRemaining":9,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25242888,"sig":null,"orderedDate":"Wed,
+        12 Feb 2025 00:00:00 EST","quantity":30,"expirationDate":null,"prescriptionNumber":"2721300","prescriptionName":"CHOLESTYRAMINE
+        4GM/5GM (LIGHT) ORAL PWD","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25242888,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00087-0589-01","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Thu,
+        23 Jan 2025 00:00:00 EST","refillDate":"Tue, 24 Dec 2024 00:00:00 EST","refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25182507,"sig":null,"orderedDate":"Mon,
+        13 Jan 2025 00:00:00 EST","quantity":30,"expirationDate":null,"prescriptionNumber":"2721300","prescriptionName":"CHOLESTYRAMINE
+        4GM/5GM (LIGHT) ORAL PWD","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25182507,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00087-0589-01","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"Deleted","refillSubmitDate":null,"refillDate":null,"refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25205220,"sig":"TAKE
+        ONE TABLET BY MOUTH BEFORE SUPPER","orderedDate":"Tue, 28 Jan 2025 00:00:00
+        EST","quantity":30,"expirationDate":null,"prescriptionNumber":"2068238","prescriptionName":"ACETAMINOPHEN
+        325MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25205220,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        20 Mar 2025 10:15:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Deleted","ndc":"51111-0488-93","reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":"TEST
+        YULIA ","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"ACETAMINOPHEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"newOrder","refillSubmitDate":null,"refillDate":null,"refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25208100,"sig":"TAKE
+        1 TEASPOONFUL BY MOUTH BEFORE BREAKFAST","orderedDate":"Tue, 28 Jan 2025 00:00:00
+        EST","quantity":2,"expirationDate":null,"prescriptionNumber":"2068239","prescriptionName":"ACETAMINOPHEN
+        325MG U/D (CUP)","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25208100,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"NewOrder","ndc":"00121-0657-11","reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":"TEST","indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ACETAMINOPHEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"Deleted","refillSubmitDate":null,"refillDate":null,"refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25208101,"sig":"TAKE
+        1 TEASPOONFUL BY AS DIRECTED DAILY","orderedDate":"Tue, 28 Jan 2025 00:00:00
+        EST","quantity":2,"expirationDate":null,"prescriptionNumber":"2068241","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25208101,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Mon,
+        07 Apr 2025 09:10:56 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Deleted","ndc":null,"reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"GLUCOSE TEST","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"newOrder","refillSubmitDate":null,"refillDate":null,"refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25208102,"sig":"TAKE
+        1 TABLET BY MOUTH TWICE A DAY AS NEEDED","orderedDate":"Tue, 28 Jan 2025 00:00:00
+        EST","quantity":5,"expirationDate":null,"prescriptionNumber":"2068242","prescriptionName":"ALLHAT","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25208102,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"NewOrder","ndc":null,"reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":"TEST
+        YULIA 3","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"ALLHAT","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"renew","refillSubmitDate":null,"refillDate":null,"refillRemaining":11,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25208103,"sig":"TAKE
+        100MG WEEKLY FOR 30 DAYS TEST","orderedDate":"Tue, 28 Jan 2025 00:00:00 EST","quantity":50,"expirationDate":null,"prescriptionNumber":"2068243","prescriptionName":"LOSARTAN
+        POTASSIUM 100MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25208103,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Renew","ndc":"00006-0960-58","reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"LOSARTAN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"newOrder","refillSubmitDate":null,"refillDate":null,"refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25246537,"sig":"TAKE
+        ONE TABLET BY MOUTH BEFORE BREAKFAST --TAKE WITH FOOD TO DECREASE GI UPSET--","orderedDate":"Thu,
+        06 Feb 2025 00:00:00 EST","quantity":30,"expirationDate":null,"prescriptionNumber":"2068245","prescriptionName":"ACETAZOLAMIDE
+        250MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25246537,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"NewOrder","ndc":"0036-0400-01","reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":"TEST
+        PEN","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"ACETAZOLAMIDE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"newOrder","refillSubmitDate":null,"refillDate":null,"refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25246538,"sig":"TAKE
+        10MG BY MOUTH BEFORE SUPPER --TAKE WITH JUICE(PREFERABLY ORANGE JUICE)/DO
+        NOT CRUSH OR CHEW--","orderedDate":"Thu, 06 Feb 2025 00:00:00 EST","quantity":2,"expirationDate":null,"prescriptionNumber":"2068246","prescriptionName":"FERROUS
+        GLUCONATE  325MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25246538,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"NewOrder","ndc":"0187-0256-10","reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":"TEST
+        NEW ORDER","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"FERROUS
+        GLUCONATE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"renew","refillSubmitDate":null,"refillDate":null,"refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25246539,"sig":"INJECT
+        50MG IV WEEKLY FOR 90 DAYS","orderedDate":"Thu, 06 Feb 2025 00:00:00 EST","quantity":95,"expirationDate":null,"prescriptionNumber":"2068247","prescriptionName":"METOPROLOL
+        5MG/5ML INJ","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25246539,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Renew","ndc":"0028-4201-33","reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"METOPROLOL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"newOrder","refillSubmitDate":null,"refillDate":null,"refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25210610,"sig":"TAKE
+        100MG BY MOUTH WEEKLY FOR 30 DAYS TEST","orderedDate":"Wed, 29 Jan 2025 00:00:00
+        EST","quantity":50,"expirationDate":null,"prescriptionNumber":"2068244","prescriptionName":null,"dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25210610,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":null,"modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"NewOrder","ndc":null,"reason":null,"prescriptionNumberIndex":"PD","prescriptionSource":"PD","disclaimer":null,"indicationForUse":"TEST
+        29","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"LOSARTAN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Sun,
+        07 Apr 2024 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25508736,"sig":"APPLY
+        LIBERAL AMOUNT TO AFFECTED AREA DAILY FOR 30 DAYS TEST INDI TEST PI","orderedDate":"Sun,
+        07 Apr 2024 00:00:00 EDT","quantity":1,"expirationDate":"Tue, 08 Apr 2025
+        00:00:00 EDT","prescriptionNumber":"2721355","prescriptionName":"BACITRACIN
+        500 UNIT/GM OINT 30GM","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25508736,"userId":24745714,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"TEST
+        RE","divisionName":"DAYTON","modifiedDate":"Thu, 10 Apr 2025 09:06:48 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00713-0280-31","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
+        INDI","indicationForUseFlag":"1","category":"Rx Medication","orderableItem":"BACITRACIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Mon, 07 Apr 2025 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25508737,"sig":"TAKE
+        1 TEASPOONFUL BY AS DIRECTED DAILY","orderedDate":"Tue, 28 Jan 2025 00:00:00
+        EST","quantity":2,"expirationDate":"Thu, 29 Jan 2026 00:00:00 EST","prescriptionNumber":"2721226A","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25508737,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":"RENEWED
+        FROM RX # 2721226","divisionName":"DAYTON","modifiedDate":"Thu, 29 May 2025
+        12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"GLUCOSE TEST","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        29 May 2025 00:00:00 EDT","refillDate":"Thu, 10 Apr 2025 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25431884,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY FOR 30 DAYS --AVOID GRAPEFRUIT JUICE/AVOID ANTACIDS--","orderedDate":"Mon,
+        17 Feb 2025 00:00:00 EST","quantity":30,"expirationDate":"Wed, 18 Feb 2026
+        00:00:00 EST","prescriptionNumber":"2721335","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":"Tue, 31 Dec 2024 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25431884,"userId":24745714,"providerFirstName":"RAJASREE","providerLastName":"VENKATESH","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00071-0155-23","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ATORVASTATIN 10MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25528052,"sig":null,"orderedDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721335","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25528052,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00071-0155-23","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Wed,
+        19 Mar 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25431956,"sig":null,"orderedDate":"Sun,
+        16 Mar 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721335","prescriptionName":"ATORVASTATIN
+        CALCIUM 10MG TAB","dispensedDate":"Mon, 17 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1335","cmopNdcNumber":"00013264681","id":25431956,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721335","dispStatus":"Active:
+        Submitted","ndc":"00071-0155-23","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Thu,
+        29 May 2025 00:00:00 EDT","refillDate":"Sat, 17 May 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25431885,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY --TAKE WITH FOOD--","orderedDate":"Mon, 17 Feb 2025
+        00:00:00 EST","quantity":30,"expirationDate":"Wed, 18 Feb 2026 00:00:00 EST","prescriptionNumber":"2721336","prescriptionName":"BACLOFEN
+        10MG TAB","dispensedDate":"Tue, 17 Dec 2024 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25431885,"userId":24745714,"providerFirstName":"RAJASREE","providerLastName":"VENKATESH","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00603-2408-32","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"BACLOFEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        20 May 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25694581,"sig":null,"orderedDate":"Sat,
+        17 May 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721336","prescriptionName":"BACLOFEN
+        10MG TAB","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25694581,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00603-2408-32","reason":null,"prescriptionNumberIndex":"RF3","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Tue,
+        01 Apr 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25486779,"sig":null,"orderedDate":"Wed,
+        09 Apr 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721336","prescriptionName":"BACLOFEN
+        10MG TAB","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25486779,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Submitted","ndc":"00603-2408-32","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Wed,
+        19 Mar 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25431957,"sig":null,"orderedDate":"Sun,
+        16 Mar 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721336","prescriptionName":"BACLOFEN
+        10MG TAB","dispensedDate":"Mon, 17 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1336","cmopNdcNumber":"00013264681","id":25431957,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721336","dispStatus":"Active:
+        Submitted","ndc":"00603-2408-32","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Fri, 09 May 2025 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25431886,"sig":"TAKE
+        1 BY MOUTH DAILY","orderedDate":"Mon, 17 Feb 2025 00:00:00 EST","quantity":5,"expirationDate":"Wed,
+        18 Feb 2026 00:00:00 EST","prescriptionNumber":"2721337","prescriptionName":"ACETAMINOPHEN
+        160MG/5ML ELIXIR (OZ)","dispensedDate":"Wed, 01 Jan 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25431886,"userId":24745714,"providerFirstName":"RAJASREE","providerLastName":"VENKATESH","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":"00054-3010-63","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ACETAMINOPHEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25528054,"sig":null,"orderedDate":"Fri,
+        09 May 2025 00:00:00 EDT","quantity":5,"expirationDate":null,"prescriptionNumber":"2721337","prescriptionName":"ACETAMINOPHEN
+        160MG/5ML ELIXIR (OZ)","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25528054,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00054-3010-63","reason":null,"prescriptionNumberIndex":"RF3","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"suspended","refillSubmitDate":null,"refillDate":"Tue,
+        18 Feb 2025 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25528053,"sig":null,"orderedDate":"Thu,
+        10 Apr 2025 00:00:00 EDT","quantity":5,"expirationDate":null,"prescriptionNumber":"2721337","prescriptionName":"ACETAMINOPHEN
+        160MG/5ML ELIXIR (OZ)","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25528053,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00054-3010-63","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"suspended","refillSubmitDate":"Wed,
+        19 Mar 2025 00:00:00 EDT","refillDate":"Tue, 18 Feb 2025 00:00:00 EST","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25431958,"sig":null,"orderedDate":"Sun,
+        16 Mar 2025 00:00:00 EDT","quantity":5,"expirationDate":null,"prescriptionNumber":"2721337","prescriptionName":"ACETAMINOPHEN
+        160MG/5ML ELIXIR (OZ)","dispensedDate":"Mon, 17 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1337","cmopNdcNumber":"00013264681","id":25431958,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721337","dispStatus":"Suspended","ndc":"00054-3010-63","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","refillRemaining":-1,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25438115,"sig":"INJECT
+        5MG IVP EVERY 12 HOURS FOR 10 DAYS NO Y","orderedDate":"Thu, 20 Mar 2025 00:00:00
+        EDT","quantity":10,"expirationDate":"Sat, 19 Apr 2025 00:00:00 EDT","prescriptionNumber":"2721339","prescriptionName":"FAMOTIDINE
+        10MG/ML 4ML VIAL","dispensedDate":"Mon, 24 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25438115,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
+        21 Apr 2025 10:08:27 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00006-3541-14","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"FAMOTIDINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","refillRemaining":-1,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25566799,"sig":null,"orderedDate":"Fri,
+        18 Apr 2025 00:00:00 EDT","quantity":5,"expirationDate":null,"prescriptionNumber":"2721339","prescriptionName":"FAMOTIDINE
+        10MG/ML 4ML VIAL","dispensedDate":"Fri, 18 Apr 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25566799,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"0006-3541-14","reason":null,"prescriptionNumberIndex":"PF2","prescriptionSource":"PF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","refillRemaining":-1,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25452366,"sig":null,"orderedDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","quantity":5,"expirationDate":null,"prescriptionNumber":"2721339","prescriptionName":"FAMOTIDINE
+        10MG/ML 4ML VIAL","dispensedDate":"Mon, 24 Mar 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25452366,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"0006-3541-14","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","refillRemaining":-1,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25452367,"sig":null,"orderedDate":"Sun,
+        23 Mar 2025 00:00:00 EDT","quantity":2,"expirationDate":null,"prescriptionNumber":"2721339","prescriptionName":"FAMOTIDINE
+        10MG/ML 4ML VIAL","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25452367,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"0006-3541-14","reason":null,"prescriptionNumberIndex":"PF1","prescriptionSource":"PF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Thu,
+        20 Mar 2025 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25438116,"sig":"TAKE
+        ONE TABLET BY MOUTH BEFORE SUPPER TEST YULIA","orderedDate":"Tue, 28 Jan 2025
+        00:00:00 EST","quantity":30,"expirationDate":"Sat, 19 Apr 2025 00:00:00 EDT","prescriptionNumber":"2721340","prescriptionName":"ACETAMINOPHEN
+        325MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25438116,"userId":24745714,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
+        21 Apr 2025 10:08:27 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"51111-0488-93","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
+        YULIA ","indicationForUseFlag":"1","category":"Rx Medication","orderableItem":"ACETAMINOPHEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Fri,
+        09 May 2025 00:00:00 EDT","refillDate":"Tue, 13 May 2025 00:00:00 EDT","refillRemaining":9,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25452368,"sig":"INJECT
+        5MG DAILY FOR 5 DAYS","orderedDate":"Mon, 24 Mar 2025 00:00:00 EDT","quantity":60,"expirationDate":"Wed,
+        25 Mar 2026 00:00:00 EDT","prescriptionNumber":"2721346","prescriptionName":"SODIUM
+        ACETATE 2MEQ/ML INJ 20ML","dispensedDate":"Fri, 07 Mar 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25452368,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":"00074-7299-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"SODIUM ACETATE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Fri,
+        09 May 2025 00:00:00 EDT","refillDate":"Mon, 24 Mar 2025 00:00:00 EDT","refillRemaining":9,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25648744,"sig":null,"orderedDate":"Tue,
+        13 May 2025 00:00:00 EDT","quantity":60,"expirationDate":null,"prescriptionNumber":"2721346","prescriptionName":"SODIUM
+        ACETATE 2MEQ/ML INJ 20ML","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25648744,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00074-7299-01","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"suspended","refillSubmitDate":null,"refillDate":"Mon,
+        24 Mar 2025 00:00:00 EDT","refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25452369,"sig":null,"orderedDate":"Sun,
+        13 Apr 2025 00:00:00 EDT","quantity":60,"expirationDate":null,"prescriptionNumber":"2721346","prescriptionName":"SODIUM
+        ACETATE 2MEQ/ML INJ 20ML","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25452369,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00074-7299-01","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        12 May 2025 00:00:00 EDT","refillDate":"Tue, 13 May 2025 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25572583,"sig":"TAKE
+        1 TEASPOONFUL BY AS DIRECTED DAILY","orderedDate":"Sun, 23 Mar 2025 00:00:00
+        EDT","quantity":30,"expirationDate":"Tue, 24 Mar 2026 00:00:00 EDT","prescriptionNumber":"2721368","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":"Wed, 05 Feb 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25572583,"userId":24745714,"providerFirstName":"RAJASREE","providerLastName":"VENKATESH","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"GLUCOSE TEST","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Mon,
+        12 May 2025 00:00:00 EDT","refillDate":"Mon, 24 Mar 2025 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25651252,"sig":null,"orderedDate":"Tue,
+        13 May 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721368","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25651252,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":null,"reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"suspended","refillSubmitDate":"Tue,
+        22 Apr 2025 00:00:00 EDT","refillDate":"Mon, 24 Mar 2025 00:00:00 EDT","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25572688,"sig":null,"orderedDate":"Sat,
+        19 Apr 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721368","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":"Sat, 26 Apr 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1368","cmopNdcNumber":"00013264681","id":25572688,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721368","dispStatus":"Suspended","ndc":null,"reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Thu,
+        01 May 2025 00:00:00 EDT","refillDate":"Tue, 13 May 2025 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25572584,"sig":"TAKE
+        ONE TABLET BY MOUTH DAILY","orderedDate":"Sun, 23 Mar 2025 00:00:00 EDT","quantity":30,"expirationDate":"Tue,
+        24 Mar 2026 00:00:00 EDT","prescriptionNumber":"2721369","prescriptionName":"ACETAMINOPHEN
+        325MG TAB","dispensedDate":"Mon, 06 Jan 2025 00:00:00 EST","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25572584,"userId":24745714,"providerFirstName":"RAJASREE","providerLastName":"VENKATESH","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":"51111-0488-93","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ACETAMINOPHEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Thu,
+        01 May 2025 00:00:00 EDT","refillDate":"Mon, 24 Mar 2025 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25612832,"sig":null,"orderedDate":"Tue,
+        13 May 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721369","prescriptionName":"ACETAMINOPHEN
+        325MG TAB","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25612832,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"51111-0488-93","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"suspended","refillSubmitDate":"Tue,
+        22 Apr 2025 00:00:00 EDT","refillDate":"Mon, 24 Mar 2025 00:00:00 EDT","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25572689,"sig":null,"orderedDate":"Sat,
+        19 Apr 2025 00:00:00 EDT","quantity":30,"expirationDate":null,"prescriptionNumber":"2721369","prescriptionName":"ACETAMINOPHEN
+        325MG TAB","dispensedDate":"Sun, 20 Apr 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1369","cmopNdcNumber":"00013264681","id":25572689,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721369","dispStatus":"Suspended","ndc":"51111-0488-93","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"hold","refillSubmitDate":null,"refillDate":"Fri,
+        18 Apr 2025 00:00:00 EDT","refillRemaining":7,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25566800,"sig":"TAKE
+        ONE TABLET BY MOUTH WEEKLY FOR 9 DAYS","orderedDate":"Fri, 18 Apr 2025 00:00:00
+        EDT","quantity":2,"expirationDate":"Sun, 19 Apr 2026 00:00:00 EDT","prescriptionNumber":"2721364","prescriptionName":"ENALAPRIL
+        MALEATE 5MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25566800,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        On Hold","ndc":"00006-0712-68","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ENALAPRIL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
+        is in a Non-Renewable Status.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        12 May 2025 00:00:00 EDT","refillDate":"Thu, 08 May 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25566801,"sig":"TAKE
+        5 BY MOUTH WEEKLY FOR 5 DAYS","orderedDate":"Fri, 18 Apr 2025 00:00:00 EDT","quantity":10,"expirationDate":"Sun,
+        19 Apr 2026 00:00:00 EDT","prescriptionNumber":"2721365","prescriptionName":"ATAZANAVIR
+        SO4 150MG CAP","dispensedDate":"Fri, 02 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25566801,"userId":24745714,"providerFirstName":"YULIA","providerLastName":"MELNIKOVA","remarks":null,"divisionName":"DAYTON","modifiedDate":"Thu,
+        29 May 2025 12:04:10 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":"00003-3624-12","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ATAZANAVIR","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Mon,
+        12 May 2025 00:00:00 EDT","refillDate":"Fri, 18 Apr 2025 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":25651251,"sig":null,"orderedDate":"Thu,
+        08 May 2025 00:00:00 EDT","quantity":10,"expirationDate":null,"prescriptionNumber":"2721365","prescriptionName":"ATAZANAVIR
+        SO4 150MG CAP","dispensedDate":"Wed, 21 May 2025 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":25651251,"userId":24745714,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00003-3624-12","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false}]},"errors":[],"infoMessages":[]}'
+  recorded_at: Fri, 30 May 2025 01:10:18 GMT
+recorded_with: VCR 6.3.1
