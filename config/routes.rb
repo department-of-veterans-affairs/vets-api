@@ -174,11 +174,6 @@ Rails.application.routes.draw do
 
     resource :rated_disabilities, only: %i[show]
 
-    namespace :virtual_agent do
-      get 'claims', to: 'virtual_agent_claim_status#index'
-      get 'claims/:id', to: 'virtual_agent_claim_status#show'
-    end
-
     namespace :chatbot do
       get 'claims', to: 'claim_status#index'
       get 'claims/:id', to: 'claim_status#show'
