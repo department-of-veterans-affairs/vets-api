@@ -11,10 +11,27 @@ module PDFUtilities
   class PDFStamper
     include PDFUtilities::ExceptionHandling
 
+    # metric stat key
+    STATS_KEY = 'api.pdf_stamper.error'
+
     # defined stamp sets to be used
     STAMP_SETS = {} # rubocop:disable Style/MutableConstant
 
     # Registers a stamp set with a specific identifier.
+    # stamp default_settings:
+    #   {
+    #     text: 'VA.gov',
+    #     text_only: false,     # do NOT include timestamp or append_to_stamp
+    #     timestamp: nil,       # DateTime to be output; override in #run
+    #     append_to_stamp: nil, # additional text to append; override in #run
+    #     x: 5,                 # page x coordinate to place stamp; left to right
+    #     y: 5,                 # page y coordinate to place stamp; bottom to top
+    #     font: 'Helvetica',    # font family
+    #     size: 10,             # font size
+    #     page_number: nil,     # page on which to put the stamp
+    #     template: nil,        # used with page_number to create a multipage stamp PDF
+    #     multistamp:           # used all pages of generated stamp PDF to watermark source
+    #   }
     #
     # @param identifier [String|Symbol] The ID to register.
     # @param stamps [Array<Hash>] The set of stamps associated with the ID.
@@ -33,6 +50,9 @@ module PDFUtilities
     end
 
     # prepare to datestamp an existing pdf document
+    #
+    # @param id [String|Symbol] The ID of the set.
+    # @param stamps [Array<Hash>] The set of stamps to use instead of a predefined set
     def initialize(id, stamps: nil)
       @stamps = stamps || PDFStamper.get_stamp_set(id)
     end
@@ -40,8 +60,8 @@ module PDFUtilities
     # stamp a generated pdf
     #
     # @param pdf_path [String] the path to a generated pdf; ie. claim.to_pdf
-    # @param timestamps [DateTime] timestamp to override what is defined in the stamps
-
+    # @param timestamp [DateTime] timestamp to override
+    # @param append_to_stamp [String] text to override append_to_stamp
     #
     # @return [String] the path to the stamped pdf
     def run(pdf_path, timestamp: nil, append_to_stamp: nil)
@@ -65,7 +85,7 @@ module PDFUtilities
       stamped
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped) unless stamped == pdf_path
-      log_and_raise_error('Failed to generate datestamp file', e)
+      log_and_raise_error('Failed to generate datestamp file', e, STATS_KEY)
     ensure
       Common::FileHelpers.delete_file_if_exists(previous) unless previous == pdf_path
       Common::FileHelpers.delete_file_if_exists(stamp_path)
@@ -89,16 +109,16 @@ module PDFUtilities
     def default_settings
       {
         text: 'VA.gov',
-        text_only: false,
-        timestamp: nil,
-        append_to_stamp: nil,
-        x: 5,
-        y: 5,
-        font: 'Helvetica',
-        size: 10,
-        page_number: nil,
-        template: nil,
-        multistamp: false
+        text_only: false,     # do NOT include timestamp or append_to_stamp
+        timestamp: nil,       # DateTime to be output; override in #run
+        append_to_stamp: nil, # additional text to append (if not text_only); override in #run
+        x: 5,                 # page x coordinate to place stamp; left to right
+        y: 5,                 # page y coordinate to place stamp; bottom to top
+        font: 'Helvetica',    # font family
+        size: 10,             # font size
+        page_number: nil,     # page on which to put the stamp; start = 0
+        template: nil,        # used with page_number to create a multipage stamp PDF
+        multistamp: false     # use all pages of generated stamp PDF to watermark source
       }.freeze
     end
 
@@ -127,7 +147,7 @@ module PDFUtilities
 
       stamp_path
     rescue => e
-      log_and_raise_error('Failed to generate stamp', e)
+      log_and_raise_error('Failed to generate stamp', e, STATS_KEY)
     end
 
     # create the stamp text to be used
@@ -161,7 +181,7 @@ module PDFUtilities
       stamped_pdf
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      log_and_raise_error('Failed to generate stamp', e)
+      log_and_raise_error('Failed to generate stamp', e, STATS_KEY)
     end
   end
 end

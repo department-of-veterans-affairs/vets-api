@@ -12,6 +12,9 @@ module PDFUtilities
   class DatestampPdf
     include PDFUtilities::ExceptionHandling
 
+    # metric stat key
+    STATS_KEY = 'api.datestamp_pdf.error'
+
     # prepare to datestamp an existing pdf document
     #
     # @param file_path [String] path to the PDF file
@@ -24,7 +27,7 @@ module PDFUtilities
 
       raise PdfMissingError, 'Original PDF is missing' unless File.exist?(file_path)
     rescue => e
-      log_and_raise_error('Failed to initialize DatestampPdf', e)
+      log_and_raise_error('Failed to initialize DatestampPdf', e, STATS_KEY)
     end
 
     # create a datestamped pdf copy of `file_path`
@@ -50,7 +53,7 @@ module PDFUtilities
       stamp_pdf
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      log_and_raise_error('Failed to generate datestamp file', e)
+      log_and_raise_error('Failed to generate datestamp file', e, STATS_KEY)
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path)
     end
@@ -105,7 +108,7 @@ module PDFUtilities
 
       stamp_path
     rescue => e
-      log_and_raise_error('Failed to generate stamp', e)
+      log_and_raise_error('Failed to generate stamp', e, STATS_KEY)
     end
 
     # create the stamp text to be used
@@ -144,16 +147,7 @@ module PDFUtilities
       stamped_pdf
     rescue => e
       Common::FileHelpers.delete_file_if_exists(stamped_pdf)
-      log_and_raise_error('PDF stamping failed', e)
-    end
-
-    def log_and_raise_error(message, e)
-      combined_message = "#{message}: #{e.message}"
-      monitor = Logging::Monitor.new('pdf_utilities')
-      monitor.track_request(:error, combined_message, 'api.datestamp_pdf.error', exception: e.message,
-                                                                                 backtrace: e.backtrace)
-
-      raise e.class, combined_message, e.backtrace
+      log_and_raise_error('PDF stamping failed', e, STATS_KEY)
     end
 
     # DatestampPdf class

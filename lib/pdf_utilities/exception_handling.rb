@@ -6,9 +6,9 @@ module PDFUtilities
     class StampGenerationError < StandardError; end
     class PdfStampingError < StandardError; end
 
-    def log_and_raise_error(message, e)
+    def log_and_raise_error(message, e, stats_key)
       combined_message = "#{message}: #{e.message}"
-      monitor.track(:error, combined_message, 'api.pdf_stamper.error', exception: e.message, backtrace: e.backtrace)
+      monitor.track_request(:error, combined_message, stats_key, exception: e.message, backtrace: e.backtrace)
 
       raise e.class, combined_message, e.backtrace
     end
