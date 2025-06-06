@@ -2,6 +2,7 @@
 
 require 'pdf_fill/extras_generator'
 require 'pdf_fill/extras_generator_v2'
+require 'pdf_fill/pdf_post_processor'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va2141422024'
 require 'pdf_fill/forms/va210781a'
@@ -102,7 +103,9 @@ module PdfFill
         original_page_count = main_reader.page_count
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
-        add_annotations(file_path, extras_generator, original_page_count)
+        # Adds links and destintions to the combined PDF
+        pdf_post_processor = PdfPostProcessor.new(old_file_path, file_path, extras_generator.section_coordinates)
+        pdf_post_processor.process!
 
         File.delete(extras_path)
         File.delete(old_file_path)
@@ -110,63 +113,6 @@ module PdfFill
         file_path
       else
         old_file_path
-      end
-    end
-
-    def add_annotations(doc_path, extras_generator, original_page_count)
-      doc = HexaPDF::Document.open(doc_path)
-      add_destinations(doc)
-      add_links(doc, extras_generator, original_page_count)
-
-      doc.write(doc_path)
-      doc_path
-    end
-
-    def add_destinations(doc)
-      form_class = PdfFill::Forms::Va210781v2
-
-      names_array = []
-      form_class::SECTIONS.each do |section|
-        page = section[:page] - 1
-        x = 0
-        y = section[:dest_y_coord]
-        dest_name = section[:dest_name]
-        dest = doc.wrap([doc.pages[page], :XYZ, x, y, nil]) # doc.pages[page] is 0-based index
-        names_array << dest_name
-        names_array << dest
-      end
-      doc.catalog[:Names] ||= doc.wrap({})
-      doc.catalog[:Names][:Dests] = doc.add({ Names: names_array })
-    end
-
-    def prepare_link(coord, doc, original_page_count)
-      coord[:page] # gets the correct overflow page based on main doc length
-      doc.pages[coord[:page] + original_page_count - 1] # coord[:page] is 1-based, convert to 0-based index
-    end
-
-    def create_link(doc, coord)
-      doc.add({
-                Type: :Annot,
-                Subtype: :Link,
-                Rect: [coord[:x], coord[:y], coord[:x] + coord[:width], coord[:y] + coord[:height]],
-                Border: [0, 0, 0],
-                A: {
-                  Type: :Action,
-                  S: :GoTo,
-                  D: coord[:dest]
-                }
-              })
-    end
-
-    def add_links(doc, extras_generator, original_page_count)
-      if extras_generator.respond_to?(:section_coordinates)
-        extras_generator.section_coordinates.each do |coord|
-          page = prepare_link(coord, doc, original_page_count)
-          next unless page # Skip if page doesn't exist
-
-          page[:Annots] ||= []
-          page[:Annots] << create_link(doc, coord)
-        end
       end
     end
 
