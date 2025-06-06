@@ -42,7 +42,7 @@ module Chatbot
     end
 
     def send_to_cxi(dataverse_uri, icn, conversation_id, token)
-      cxi_table_prefix = Settings.chatbot.cxdw_table_prefix
+      cxi_table_prefix = Settings.virtual_agent.cxdw_table_prefix
       response = Net::HTTP.post URI("#{dataverse_uri}/api/data/v9.2//#{cxi_table_prefix}claimsqueries"),
                                 {
                                   "#{cxi_table_prefix}id" => "#{conversation_id} - #{Time.current}",
