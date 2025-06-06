@@ -121,17 +121,17 @@ class VcrRecorder
       if options.include?(':record')
         match
       elsif options.empty?
-        # Add :record => :once option
-        "VCR.use_cassette('#{cassette_name}', :record => :once)"
+        # Add :record => :all option
+        "VCR.use_cassette('#{cassette_name}', :record => :all)"
       else
-        "VCR.use_cassette('#{cassette_name}', #{options}, :record => :once)"
+        "VCR.use_cassette('#{cassette_name}', #{options}, :record => :all)"
       end
     end
 
     if content != new_content
       @modified = true
       File.write(spec_path, new_content)
-      puts "Modified #{spec_path} to include :record => :once for VCR cassettes"
+      puts "Modified #{spec_path} to include :record => :all for VCR cassettes"
       puts "Found cassettes: #{@cassette_names.join(', ')}" if @cassette_names.any?
     end
   end
