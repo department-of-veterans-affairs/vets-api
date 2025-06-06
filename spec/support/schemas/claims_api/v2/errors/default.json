@@ -21,7 +21,7 @@
           },
           "code": {
             "type": "string",
-            "description": "HTTP error code"
+            "description": "HTTP error status code"
           },
           "source": {
             "type": "object",
