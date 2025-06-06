@@ -100,10 +100,10 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
   let(:associations_with_delete_indicators) do
     updated_associations.map { |association| association.deep_dup.merge('deleteIndicator' => true) }
   end
-  let(:associations_with_missing_required_fields) do
+  let(:associations_with_missing_fields) do
     updated_associations.map { |association| association.except('contactType', 'relationship') }
   end
-  let(:current_user) do
+  let(:user) do
     create(
       :evss_user,
       :loa3,
@@ -117,7 +117,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
       gender: 'F'
     )
   end
-  let(:current_user_with_invalid_icn) do
+  let(:user_with_invalid_icn) do
     create(
       :evss_user,
       :loa3,
@@ -171,7 +171,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         'form1010_ezr/veteran_enrollment_system/associations/create_associations_success',
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
-        response = described_class.new(current_user).reconcile_and_update_associations(associations)
+        response = described_class.new(user).reconcile_and_update_associations(associations)
 
         expect_successful_response_output(response, '2025-06-05T20:31:42Z')
       end
@@ -185,7 +185,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
         { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
       ) do
         response =
-          described_class.new(current_user).reconcile_and_update_associations(associations_with_delete_indicators)
+          described_class.new(user).reconcile_and_update_associations(associations_with_delete_indicators)
 
         expect_successful_response_output(response, '2025-06-05T20:31:42Z')
       end
@@ -199,7 +199,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
             'form1010_ezr/veteran_enrollment_system/associations/update_associations_success',
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
-            response = described_class.new(current_user).reconcile_and_update_associations(updated_associations)
+            response = described_class.new(user).reconcile_and_update_associations(updated_associations)
             expect_successful_response_output(response, '2025-06-05T20:31:42Z')
           end
         end
@@ -210,7 +210,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
           allow_any_instance_of(
             VeteranEnrollmentSystem::Associations::Service
           ).to receive(:reorder_associations).and_return(
-            described_class.new(current_user).send(
+            described_class.new(user).send(
               :transform_associations,
               associations_with_delete_indicators
             )
@@ -224,7 +224,7 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
             { match_requests_on: %i[method uri body_ignoring_last_update_date], erb: true }
           ) do
             response =
-              described_class.new(current_user).reconcile_and_update_associations(associations_with_delete_indicators)
+              described_class.new(user).reconcile_and_update_associations(associations_with_delete_indicators)
 
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.partial_success'
@@ -277,13 +277,11 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
               'required, associations[2].role: Role is required, associations[2].relationType: Relation type is ' \
               'required'
 
-            expect do
-              described_class.new(current_user).reconcile_and_update_associations(associations_with_missing_required_fields)
-            end
+            expect { described_class.new(user).reconcile_and_update_associations(associations_with_missing_fields) }
               .to raise_error do |e|
-                expect(e).to be_a(Common::Exceptions::BadRequest)
-                expect(e.errors[0].detail).to eq(failure_message)
-              end
+              expect(e).to be_a(Common::Exceptions::BadRequest)
+              expect(e.errors[0].detail).to eq(failure_message)
+            end
             expect(StatsD).to have_received(:increment).with(
               'api.veteran_enrollment_system.associations.update_associations.failed'
             )
