@@ -53,7 +53,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(3)',
             question_text: 'SPECIFY HOW INCOME IS GENERATED',
-            question_label: 'Income Generation Method'
+            question_label: 'Income Generation Method',
+            format_options: {
+              humanize: {
+                'MINERALS_LUMBER' => 'Minerals / Lumber'
+                # All other values are humanized versions of IncomeAndAssets::Constants::INCOME_GENERATION_TYPES
+              }
+            }
           },
           'otherIncomeType' => {
             limit: 73,

@@ -365,9 +365,12 @@ module PdfFill
       set_markup_options(pdf)
     end
 
-    def add_text(value, metadata)
+    def add_text(value, metadata) # rubocop:disable Metrics/MethodLength
       metadata[:format_options] ||= {}
       metadata[:format_options][:label_width] ||= @default_label_width
+
+      value = apply_humanization(value, metadata[:format_options]) if should_humanize?(metadata[:format_options])
+
       question_num = metadata[:question_num]
       if @questions[question_num].blank?
         question_text = @question_key[question_num]
@@ -633,6 +636,49 @@ module PdfFill
         },
         list: { bullet: { char: '✓', margin: 0 }, content: { margin: 4 }, vertical_margin: 0 }
       }
+    end
+
+    private
+
+    def should_humanize?(format_options)
+      format_options&.dig(:humanize).present?
+    end
+
+    def apply_humanization(value, format_options)
+      humanize_config = format_options[:humanize]
+
+      return value unless humanize_config
+
+      case humanize_config
+      when true
+        # Use Rails' built-in humanize method
+        humanize_value(value)
+      when Hash
+        # Use custom mapping with Rails humanize as fallback
+        humanize_config[value.to_s] || humanize_value(value)
+      else
+        value
+      end
+    end
+
+    def humanize_value(value)
+      return value unless value.respond_to?(:to_s)
+
+      # Convert to snake_case manually to avoid inflection rules affecting `underscore` method
+      # This handles SOCIAL_SECURITY -> "Social Security", CIVIL_SERVICE -> "Civil Service", etc.
+      value.to_s
+           # Convert consecutive uppercase letters followed by lowercase (e.g., "SSNNumber" -> "SSN_Number")
+           .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+           # Convert camelCase to snake_case (e.g., "firstName" -> "first_name")
+           .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+           # Replace hyphens with underscores
+           .tr('-', '_')
+           # Convert all characters to lowercase
+           .downcase
+           # Convert snake_case to space-separated words and capitalize first letter
+           .humanize
+           # Capitalize first letter of each word
+           .titleize
     end
   end
 end
