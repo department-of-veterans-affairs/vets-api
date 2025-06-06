@@ -7,9 +7,6 @@ require 'common/file_helpers'
 
 # Utility classes and functions for VA PDF
 module PDFUtilities
-  # @see https://github.com/jkraemer/pdf-forms
-  PDFTK = PdfForms.new(Settings.binaries.pdftk)
-
   # add a watermark datestamp to an existing pdf using a set of established stamps
   class PDFStamper
     include PDFUtilities::ExceptionHandling
@@ -88,7 +85,7 @@ module PDFUtilities
       @append_to_stamp ||= append_to_stamp
     end
 
-    # @see #run
+    # @see #init_stamp
     def default_settings
       {
         text: 'VA.gov',
@@ -106,7 +103,7 @@ module PDFUtilities
     end
 
     # generate the stamp/background pdf
-    # @see https://www.rubydoc.info/github/sandal/prawn/Prawn/Document
+    # @see https://hexapdf.gettalong.org/documentation/api/HexaPDF/Composer.html
     def generate_stamp
       stamp_path = "#{Common::FileHelpers.random_file_path}.pdf"
 
@@ -145,7 +142,7 @@ module PDFUtilities
     end
 
     # combine the input and background pdfs into the stamped_pdf
-    # @see https://www.pdflabs.com/docs/pdftk-man-page/#dest-op-stamp
+    # @see https://github.com/gettalong/hexapdf/blob/master/lib/hexapdf/cli/watermark.rb
     def stamp_pdf(pdf_path, stamp_path)
       Rails.logger.info("Stamping PDF: #{pdf_path} with stamp: #{stamp_path}")
 
