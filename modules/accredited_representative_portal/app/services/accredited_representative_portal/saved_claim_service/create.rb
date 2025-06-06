@@ -34,6 +34,10 @@ module AccreditedRepresentativePortal
             end
 
             claim.save!
+
+            SubmitBenefitsIntakeClaimJob.perform_async(
+              claim.id
+            )
           end
 
         ##
