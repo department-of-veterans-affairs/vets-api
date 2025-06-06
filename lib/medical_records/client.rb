@@ -94,17 +94,36 @@ module MedicalRecords
       resource
     end
 
-    def list_allergies
+    def list_allergies(user_uuid, use_cache: true)
       return :patient_not_found unless patient_found?
 
-      bundle = fhir_search(FHIR::AllergyIntolerance,
-                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
-                                                   'verification-status:not': 'entered-in-error' } })
-      sort_bundle(bundle, :recordedDate, :desc)
+      # Only use cache if the feature flag is enabled
+      use_cache &&= Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
+
+      cache_key = "#{user_uuid}-allergies"
+      get_cached_or_fetch_data(use_cache, cache_key, MHV::MR::Allergy) do
+        bundle = fhir_search(FHIR::AllergyIntolerance,
+                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active',
+                                                     'verification-status:not': 'entered-in-error' } })
+
+        if Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
+          allergies = bundle.entry.map { |e| MHV::MR::Allergy.from_fhir(e.resource) }.compact
+          data = Vets::Collection.new(allergies, MHV::MR::Allergy)
+          MHV::MR::Allergy.set_cached(cache_key, data.records)
+          data
+        else
+          sort_bundle(bundle, :recordedDate, :desc)
+        end
+      end
     end
 
     def get_allergy(allergy_id)
-      fhir_read(FHIR::AllergyIntolerance, allergy_id)
+      result = fhir_read(FHIR::AllergyIntolerance, allergy_id)
+      if Flipper.enabled?(:mhv_medical_records_support_new_model_allergy)
+        MHV::MR::Allergy.from_fhir(result)
+      else
+        result
+      end
     end
 
     def list_vaccines(user_uuid, use_cache: true)
