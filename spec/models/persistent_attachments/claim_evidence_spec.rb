@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
-  let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-  let(:instance) { described_class.new(form_id: 'T-123') }
+RSpec.describe PersistentAttachments::ClaimEvidence, :uploader_helpers do
+  let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'marriage-certificate.pdf') }
+  let(:instance) { described_class.new(form_id: '28-1880') }
 
   before do
     allow(Common::VirusScan).to receive(:scan).and_return(true)
@@ -23,7 +23,9 @@ RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
 
   context 'stamp_text', run_at: '2017-08-01 01:01:00 EDT' do
     it 'offsets a user timestamp by their browser data' do
-      instance.saved_claim = create(:burial_claim)
+      instance.saved_claim = create(
+        :dependency_claim
+      )
       expect(instance.send(:stamp_text)).to eq('2017-08-01')
     end
   end
