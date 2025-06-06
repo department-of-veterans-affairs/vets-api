@@ -207,14 +207,21 @@ module BenefitsIntake
     # @return [Hash] context of attempt result, payload suited for logging and handlers
     def attempt_status_result_context(uuid, status)
       submission_attempt = pending_attempts_hash[uuid]
+      if submission_attempt.is_a?(Lighthouse::SubmissionAttempt)
+        submission = submission_attempt.submission
+        form_id = submission.form_id
+      else
+        submission = submission_attempt.form_submission
+        form_id = submission.form_type
+      end
 
       queue_time = (Time.zone.now - submission_attempt.created_at).truncate
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
       {
-        form_id: submission_attempt.submission.form_id,
-        saved_claim_id: submission_attempt.submission.saved_claim_id,
+        form_id:,
+        saved_claim_id: submission.saved_claim_id,
         uuid:,
         status:,
         result:,
