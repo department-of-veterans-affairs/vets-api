@@ -6,19 +6,23 @@ module AccreditedRepresentativePortal
       skip_after_action :verify_pundit_authorization, only: :index
 
       def index
-        authorize nil, policy_class: SubmissionPolicy
-        render json: { data: sort(demo_data), meta: pagination_meta(demo_data) }, status: :ok
+        authorize nil, policy_class: SavedClaimClaimantRepresentativePolicy
+        serializer = SavedClaimClaimantRepresentativeSerializer.new(form_submissions)
+        render json: {
+          data: serializer.serializable_hash,
+          meta: pagination_meta(form_submissions)
+        }, status: :ok
       end
 
       private
 
-      def pagination_meta(_submissions)
+      def pagination_meta(submissions)
         {
           page: {
-            number: 1,
-            size: 20,
-            total: 45,
-            totalPages: 3
+            number: submissions.current_page,
+            size: submissions.limit_value,
+            total: submissions.total_entries,
+            totalPages: submissions.total_pages
           }
         }
       end
@@ -46,11 +50,11 @@ module AccreditedRepresentativePortal
       def sort(data)
         if sort_params[:by] == 'submittedDate'
           if sort_params[:order] == 'asc'
-            data.sort do |a, b| 
+            data.sort do |a, b|
               Date.strptime(a[:submittedDate]) <=> Date.strptime(b[:submittedDate])
             end
           elsif sort_params[:order] == 'desc'
-            data.sort do |a, b| 
+            data.sort do |a, b|
               Date.strptime(b[:submittedDate]) <=> Date.strptime(a[:submittedDate])
             end
           end
@@ -59,52 +63,19 @@ module AccreditedRepresentativePortal
         end
       end
 
-      def demo_data
+      def form_submissions
+        policy_scope(SavedClaimClaimantRepresentative)
+          .then { |it| sort_params.present? ? it.sorted_by(sort_params[:by], sort_params[:order]) : it }
+          .preload(scope_includes)
+          .paginate(page:, per_page:)
+      end
+
+      def scope_includes
         [
-          {
-            submittedDate: '2025-04-01',
-            firstName: 'John',
-            lastName: 'Snyder',
-            formType: '21-686c',
-            packet: true,
-            confirmationNumber: 'e3bd5925-6902-4b94-acbc-49b554ffcec1',
-            vbmsStatus: 'awaiting_receipt',
-            vbmsReceivedDate: '2025-04-19',
-            url: nil
-          },
-          {
-            submittedDate: '2025-04-03',
-            firstName: 'Montgomery',
-            lastName: 'Anderson',
-            formType: '21-686c',
-            packet: false,
-            confirmationNumber: '58d1c6a3-f970-48cb-bc92-65403e2a0c16',
-            vbmsStatus: 'received',
-            vbmsReceivedDate: '2025-04-15',
-            url: nil
-          },
-          {
-            submittedDate: '2025-04-19',
-            firstName: 'Glady',
-            lastName: 'Bahringer',
-            formType: '21-686c',
-            packet: true,
-            confirmationNumber: '68d7b9b2-c7c4-4a98-83cc-faa9a6fd7c18',
-            vbmsStatus: 'received',
-            vbmsReceivedDate: '2025-04-19',
-            url: nil
-          },
-          {
-            submittedDate: '2025-04-09',
-            firstName: 'Isias',
-            lastName: 'Fahey',
-            formType: '21-686c',
-            packet: false,
-            confirmationNumber: 'f344d484-8b4b-4e81-93dc-5f6b6ef52bac',
-            vbmsStatus: 'processing_error',
-            vbmsReceivedDate: '2025-04-15',
-            url: nil
-          }
+          { saved_claim: %i[
+            lighthouse_submissions
+            persistent_attachments
+          ] }
         ]
       end
     end
