@@ -507,6 +507,8 @@ gclaws:
     api_key: <%= ENV['gclaws__accreditation__api_key'] %>
     attorneys:
       url: <%= ENV['gclaws__accreditation__attorneys__url'] %>
+    icn:
+      url: <%= ENV['gclaws__accreditation__icn__url'] %>
     origin: <%= ENV['gclaws__accreditation__origin'] %>
     representatives:
       url: <%= ENV['gclaws__accreditation__representatives__url'] %>
@@ -648,6 +650,10 @@ lighthouse:
       use_mocks: <%= ENV['lighthouse__benefits_claims__form526__use_mocks'] %>
     host: <%= ENV['lighthouse__benefits_claims__host'] %>
     use_mocks: <%= ENV['lighthouse__benefits_claims__use_mocks'] %>
+  benefits_discovery:
+    host: <%= ENV['lighthouse__benefits_discovery__host'] %>
+    x_api_key: <%= ENV['lighthouse__benefits_discovery__x_api_key'] %>
+    x_app_id: <%= ENV['lighthouse__benefits_discovery__x_app_id'] %>
   benefits_documents:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__benefits_documents__access_token__aud_claim_url'] %>
@@ -902,6 +908,7 @@ mhv:
     security_host: <%= ENV['mhv__uhd__security_host'] %>
     subject: "Proxy Client"
     user_type: <%= ENV['mhv__uhd__user_type'] %>
+    x_api_key: <%= ENV['mhv__uhd__x_api_key'] %>
 mhv_mobile:
   rx:
     app_token: <%= ENV['mhv_mobile__rx__app_token'] %>

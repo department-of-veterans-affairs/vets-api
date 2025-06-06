@@ -506,6 +506,8 @@ gclaws:
     api_key: fake_key
     attorneys:
       url: http://localhost:5000/api/v2/accreditations/attorneys
+    icn:
+      url: http://localhost:5000/api/v2/accreditations/icn
     origin: fake_origin
     representatives:
       url: http://localhost:5000/api/v2/accreditations/representatives
@@ -647,6 +649,10 @@ lighthouse:
       use_mocks: false
     host: https://sandbox-api.va.gov
     use_mocks: false
+  benefits_discovery:
+    host: 'https://sandbox.lighthouse.va.gov'
+    x_api_key: ~
+    x_app_id: ~
   benefits_documents:
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -916,6 +922,7 @@ mhv:
     security_host: https://security.example.myhealth.va.gov
     subject: "Proxy Client"
     user_type: usertype
+    x_api_key: fake-x-api-key
 mhv_mobile:
   rx:
     app_token: fake-app-token
