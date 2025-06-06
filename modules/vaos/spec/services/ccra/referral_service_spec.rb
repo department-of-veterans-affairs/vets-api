@@ -154,4 +154,52 @@ describe Ccra::ReferralService do
       end
     end
   end
+
+  describe '#fetch_booking_start_time' do
+    let(:referral_number) { 'VA0000005681' }
+    let(:icn) { '1012845331V153043' }
+    let(:booking_start_time) { Time.current.to_f }
+    let(:referral_data) { { 'booking_start_time' => booking_start_time } }
+
+    context 'when referral data exists in cache' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data)
+          .with(id: referral_number, icn:)
+          .and_return(referral_data)
+      end
+
+      it 'returns the booking start time from the cache' do
+        result = subject.fetch_booking_start_time(referral_number, icn)
+        expect(result).to eq(booking_start_time)
+      end
+    end
+
+    context 'when referral data does not exist in cache' do
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data)
+          .with(id: referral_number, icn:)
+          .and_return(nil)
+      end
+
+      it 'returns nil' do
+        result = subject.fetch_booking_start_time(referral_number, icn)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when referral data exists but has no booking start time' do
+      let(:referral_data) { { 'some_other_data' => 'value' } }
+
+      before do
+        allow(referral_cache).to receive(:fetch_referral_data)
+          .with(id: referral_number, icn:)
+          .and_return(referral_data)
+      end
+
+      it 'returns nil' do
+        result = subject.fetch_booking_start_time(referral_number, icn)
+        expect(result).to be_nil
+      end
+    end
+  end
 end

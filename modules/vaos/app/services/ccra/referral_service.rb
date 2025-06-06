@@ -63,6 +63,16 @@ module Ccra
       referral_cache.clear_referral_data(id:, icn:)
     end
 
+    # Gets the booking start time for a referral from the cache
+    #
+    # @param id [String] The referral ID
+    # @param icn [String] The ICN of the patient
+    # @return [Float, nil] The booking start time as a float timestamp, or nil if not found
+    def fetch_booking_start_time(id, icn)
+      cached_data = referral_cache.fetch_referral_data(id:, icn:)
+      cached_data&.[]('booking_start_time')
+    end
+
     private
 
     # Caches the entire referral object for future use
