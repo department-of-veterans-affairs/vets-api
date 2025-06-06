@@ -6,7 +6,8 @@ require_relative 'mvi_profile_ids'
 module MPI
   module Models
     class MviProfileRelationship
-      include Virtus.model
+      include ActiveModel::Model
+      include ActiveModel::Attributes
       include MviProfileIdentity
       include MviProfileIds
     end
