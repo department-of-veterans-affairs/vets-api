@@ -23,9 +23,7 @@ RSpec.describe PersistentAttachments::ClaimEvidence, :uploader_helpers do
 
   context 'stamp_text', run_at: '2017-08-01 01:01:00 EDT' do
     it 'offsets a user timestamp by their browser data' do
-      instance.saved_claim = create(
-        :dependency_claim
-      )
+      instance.saved_claim = create(:fake_saved_claim)
       expect(instance.send(:stamp_text)).to eq('2017-08-01')
     end
   end

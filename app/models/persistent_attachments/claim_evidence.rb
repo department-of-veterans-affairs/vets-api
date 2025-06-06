@@ -5,10 +5,8 @@
 # based on form_id. It provides the default override for claim evidence uploads.
 #
 # See ClaimDocumentsController#klass for how this class is selected.
-#
-# Note: The line `include ::ClaimDocumentation::Uploader::Attachment.new(:file)` leverages the Shrine gem library
-# to provide file attachment functionality for this model.
 class PersistentAttachments::ClaimEvidence < PersistentAttachment
+  # Leverages the Shrine gem library to provide file attachment functionality for this model.
   include ::ClaimDocumentation::Uploader::Attachment.new(:file)
 
   before_destroy(:delete_file)
