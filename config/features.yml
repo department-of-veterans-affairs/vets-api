@@ -108,10 +108,6 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to upload benefits documents.
     enable_in_development: false
-  benefits_education_use_lighthouse:
-    actor_type: user
-    description: Use lighthouse instead of EVSS to retrieve GI Bill Statement of benefits
-    enable_in_development: true
   benefits_require_gateway_origin:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
@@ -1309,6 +1305,10 @@ features:
     actor_type: user
     description: >
       When enabled, 21P-527EZ will display additional explanations for the income and assets requirement.
+  pension_income_and_assets_overflow_pdf_redesign:
+    actor_type: user
+    description: >
+      When enabled, 21P-0969 will use the new extras redesign when generating the overflow pdf.
   pension_medical_evidence_clarification:
     actor_type: user
     description: >

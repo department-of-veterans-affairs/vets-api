@@ -1,7 +1,7 @@
 ---
 http_interactions:
 - request:
-    method: head
+    method: get
     uri: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
     body:
       encoding: US-ASCII
