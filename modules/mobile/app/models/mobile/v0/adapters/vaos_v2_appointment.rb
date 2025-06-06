@@ -459,7 +459,6 @@ module Mobile
         end
 
         def travel_pay_eligible?
-          # TODO: verify if va_video_connect_atlas + va_video_connect_onsite should both be included
           [APPOINTMENT_TYPES[:va], APPOINTMENT_TYPES[:va_video_connect_atlas],
            APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type) &&
             appointment.status == 'booked' && # only confirmed (i.e. booked) appointments are eligible
