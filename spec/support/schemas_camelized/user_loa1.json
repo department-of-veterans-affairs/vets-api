@@ -76,7 +76,7 @@
                 null
               ]
             },
-            "account": {
+            "userAccount": {
               "type": "object",
               "required": [
                 "accountUuid"

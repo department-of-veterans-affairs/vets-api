@@ -14,8 +14,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
   context 'when logged in' do
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
-    let(:account_uuid) { user_account.id }
-    let(:user) { create(:user, account_uuid:) }
+    let(:user) { create(:user, icn: user_account.icn) }
     let(:feature) { 'secure_messaging' }
 
     before do
@@ -27,7 +26,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
       let(:opt_in_flag_attributes) { JSON.parse(response.body)['mhv_opt_in_flag'] }
 
       it 'returns the user_account_id' do
-        expect(opt_in_flag_attributes['user_account_id']).to eq(account_uuid)
+        expect(opt_in_flag_attributes['user_account_id']).to eq(user_account.id)
       end
 
       it 'returns the feature flag' do
