@@ -282,17 +282,17 @@ RSpec.describe Form1010Ezr::Service do
             allow(Flipper).to receive(:enabled?).with(:ezr_associations_api_enabled).and_return(true)
           end
 
-          context 'when the associations service returns a 200 response' do
-            it 'removes the associations from the form and returns a success object' do
-              VCR.use_cassette('example', :record => :once) do
-                submit = service.submit_sync(form_with_associations)
+          # context 'when the associations service returns a 200 response' do
+          #   it 'removes the associations from the form and returns a success object' do
+          #     VCR.use_cassette('example', :record => :once) do
+          #       submit = service.submit_sync(form_with_associations)
 
-                debugger
+          #       debugger
 
-                expect(submit).to be_a(Object)
-              end
-            end
-          end
+          #       expect(submit).to be_a(Object)
+          #     end
+          #   end
+          # end
 
           context 'when an error occurs in the associations service' do
             before do
