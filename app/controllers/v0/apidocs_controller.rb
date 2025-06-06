@@ -135,6 +135,7 @@ module V0
       Swagger::Requests::DisabilityCompensationInProgressForms,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Efolder,
+      Swagger::Requests::EventBusGateway,
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
       Swagger::Requests::Form1010cg::Attachments,
