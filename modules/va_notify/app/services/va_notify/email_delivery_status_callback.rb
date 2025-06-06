@@ -18,14 +18,20 @@ module VANotify
 
     def self.extract_tags(notification)
       metadata = begin
-        notification.callback_metadata.to_h.deep_symbolize_keys
+        notification.callback_metadata.to_h.deep_stringify_keys
       rescue
         {}
       end
 
-      metadata[:statsd_tags].presence || {
-        service: 'va_notify',
-        function: "callback_status_#{notification.notification_type || 'unknown'}"
+      statsd_tags = metadata['statsd_tags'] || {}
+
+      # Ensure both keys and values are strings
+      tags = statsd_tags.to_h { |k, v| [k.to_s, v.to_s] }
+
+      # Provide fallback if tags are missing or empty
+      tags.presence || {
+        'service' => 'va_notify',
+        'function' => "callback_status_#{notification.notification_type || 'unknown'}"
       }
     end
 
