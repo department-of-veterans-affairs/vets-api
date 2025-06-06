@@ -24,6 +24,11 @@ module Mobile
           upcoming_days_limit: UPCOMING_DAYS_LIMIT
         )
 
+        # Only attempt to count travel pay eligible appointments if include_claims flag is true
+        include_claims? && page_meta_data[:meta].merge!(
+          travel_pay_eligible_count: travel_pay_eligible_count(appointments)
+        )
+
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
       end
 
@@ -127,6 +132,12 @@ module Mobile
         appointments.count do |appt|
           appt.is_pending == false && appt.status == 'BOOKED' && appt.start_date_utc > Time.now.utc &&
             appt.start_date_utc <= UPCOMING_DAYS_LIMIT.days.from_now.end_of_day.utc
+        end
+      end
+
+      def travel_pay_eligible_count(appointments)
+        appointments.count do |appt|
+          appt.travel_pay_eligible == true
         end
       end
 
