@@ -62,7 +62,7 @@ describe PdfFill::Forms::Va2141422024 do
   end
 
   describe '#expand_email_address' do
-    context 'when email is exactly 15 characters' do
+    context 'when email is less than 15 characters' do
       let(:form_data) do
         {
           'email' => 'test1@gmail.com'
@@ -481,7 +481,11 @@ describe PdfFill::Forms::Va2141422024 do
         expect(provider1['dateRangeEnd']['year']).to eq('2011')
 
         # Verify no overflow for normal providers
-        expect(provider1).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider1']).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider2']).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider3']).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider4']).not_to have_key('completeProviderInfo')
+        expect(form_data_result['provider5']).not_to have_key('completeProviderInfo')
       end
     end
 

@@ -217,7 +217,6 @@ module PdfFill
             question_suffix: 'A',
             question_text: 'Number and Street'
           },
-          # TODO: Confirm that extra page is created for "See additional" when apt/unit number is used
           'street2' => {
             key: 'F[0].Page_1[0].MailingAddress_ApartmentOrUnitNumber[0]',
             limit: 5,
@@ -497,19 +496,26 @@ module PdfFill
       end
 
       def handle_provider_overflow(providers)
+        first_four_no_overflow = true
         providers.each_with_index do |provider, index|
-          if provider['addressOverflows'] ||
-             (provider['providerFacilityName']&.size || 0) > 100 ||
-             (provider['conditionsTreated']&.size || 0) > 100
+          break if index > 4 # We only need to do these checks for the first 5 providers
+
+          if provider_info_overflows?(provider)
             generate_overflow_provider_info(provider)
+            first_four_no_overflow = false
           end
 
-          # Always force provider 5 to show continuation when there are 6+ providers
-          if index == 4 && providers.count > 5
+          # Force provider 5 to overflow when there are 6+ providers AND the first four providers don't overflow
+          if index == 4 && providers.count > 5 && first_four_no_overflow
             generate_overflow_provider_info(provider)
             provider['providerFacilityName'] = "See add'l info page"
           end
         end
+      end
+
+      def provider_info_overflows?(provider)
+        provider['addressOverflows'] || (provider['providerFacilityName']&.size || 0) > 100 ||
+          (provider['conditionsTreated']&.size || 0) > 100
       end
 
       def generate_overflow_provider_info(provider)
@@ -531,6 +537,9 @@ module PdfFill
       end
 
       def expand_providers
+        # Provider fields for the 2024 form are complex; overflow logic handles facility addresses, conditions, facility
+        # names, and treatment dates. If any of these fields are too long, the provider info will overflow to the
+        # additional page with all of it's content.
         providers = @form_data['providerFacility']
         return if providers.blank?
 
