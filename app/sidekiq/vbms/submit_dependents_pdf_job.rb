@@ -54,7 +54,9 @@ module VBMS
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"
 
-          claim.upload_to_vbms(path: file_path, doc_type: get_doc_type(attachment.guid, claim.parsed_form))
+          doc_type = attachment.doctype || get_doc_type(attachment.guid, claim.parsed_form)
+
+          claim.upload_to_vbms(path: file_path, doc_type:)
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
         attachment.update(completed_at: Time.zone.now)
