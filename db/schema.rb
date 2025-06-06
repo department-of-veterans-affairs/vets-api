@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_05_180405) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_06_192323) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1322,6 +1322,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_05_180405) do
     t.datetime "updated_at", null: false
     t.index ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true
     t.index ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true
+  end
+
+  create_table "representation_management_accreditation_api_entity_counts", force: :cascade do |t|
+    t.integer "agents"
+    t.integer "attorneys"
+    t.integer "representatives"
+    t.integer "veteran_service_organizations"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "saved_claims", id: :serial, force: :cascade do |t|
