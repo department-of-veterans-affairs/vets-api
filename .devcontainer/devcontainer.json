@@ -23,7 +23,7 @@
   },
 
   "features": {
-    "ghcr.io/devcontainers-contrib/features/ruby-asdf:0": {
+    "ghcr.io/devcontainers-extra/features/ruby-asdf:0": {
       "version": "3.3.6"
     },
     "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
