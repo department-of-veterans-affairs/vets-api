@@ -21,7 +21,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       callback_metadata: {
         statsd_tags: {
           service: 'accredited-representative-portal',
-          function: 'poa_request_submission'
+          function: "poa_request_#{type}_email"
         }
       }
     }
@@ -48,10 +48,14 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestEmailJob, t
       expect(power_of_attorney_request_notification.notification_id).to eq(response.id)
     end
 
-    it 'uses email_delivery_callback when initializing VaNotify::Service' do
-      expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+    context 'when building callback options based on notification type' do
+      let(:type) { 'requested' }
 
-      described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
+      it 'passes callback options with the correct function tag to VaNotify::Service' do
+        expect(VaNotify::Service).to receive(:new).with(api_key, callback_options).and_return(client)
+
+        described_class.new.perform(power_of_attorney_request_notification.id, personalisation, api_key)
+      end
     end
 
     it 'handles VANotify::Error with status code 400 and does not update the poa_request_notification record' do
