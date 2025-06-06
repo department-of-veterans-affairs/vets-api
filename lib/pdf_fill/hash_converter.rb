@@ -6,7 +6,7 @@ module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
 
-    attr_reader :extras_generator
+    attr_reader :extras_generator, :placeholder_links
 
     delegate :placeholder_text, to: :extras_generator
 
@@ -14,6 +14,7 @@ module PdfFill
       @pdftk_form = {}
       @date_strftime = date_strftime
       @extras_generator = extras_generator
+      @placeholder_links = [] # Track fields that got placeholder text
     end
 
     def convert_value(v, key_data, is_overflow = false)
@@ -107,11 +108,26 @@ module PdfFill
 
     def set_value(v, key_data, i, from_array_overflow = false)
       k = key_data[:key]
+
+
+      return if k.blank?
+    
+
+      k = k.gsub(ITERATOR, i.to_s) unless i.nil?
+
+      new_value = convert_value(v, key_data)
+
+      if overflow?(key_data, new_value, from_array_overflow)
+
+
       new_value = convert_value(v, key_data)
 
       if k.present? && overflow?(key_data, new_value, from_array_overflow)
+
         add_to_extras(key_data, new_value, i)
 
+        # Track this field for linking
+        track_placeholder_link(k, key_data)
         new_value = placeholder_text
       elsif !from_array_overflow
         add_to_extras(key_data, new_value, i, overflow: false)
@@ -139,17 +155,34 @@ module PdfFill
     end
 
     def handle_overflow_and_label_all(form_data, pdftk_keys)
-      form_data.each_with_index do |item, idx|
-        item.each do |k, v|
-          text = overflow?(pdftk_keys[k], v) ? placeholder_text : v
+        form_data.each_with_index do |item, idx|
+          item.each do |k, v|
+            key_data = pdftk_keys[k]
+            next unless key_data.is_a?(Hash)
 
-          set_value(text, pdftk_keys[k], idx, true) if pdftk_keys[k].is_a?(Hash)
+            if overflow?(key_data, v)
+              text = placeholder_text
+              track_placeholder_link(nil, key_data, idx)
+            else
+              text = v
+            end
+
+            set_value(text, key_data, idx, true)
+          end
         end
-      end
     end
 
     def handle_overflow_and_label_first_key(pdftk_keys)
       first_key = pdftk_keys[:first_key]
+
+      # Track this as a placeholder link since we're setting placeholder text
+      if pdftk_keys[:question_num] && pdftk_keys[first_key]
+        first_key_data = pdftk_keys[first_key]
+        # Create a field key for the first field that will get placeholder text
+        field_key = first_key_data[:key]&.gsub(ITERATOR, '0') || "array_overflow_#{pdftk_keys[:question_num]}"
+        track_placeholder_link(field_key, first_key_data)
+      end
+
       transform_data(
         form_data: { first_key => placeholder_text },
         pdftk_keys:,
@@ -195,6 +228,43 @@ module PdfFill
       end
 
       @pdftk_form
+    end
+
+    private
+
+    def track_placeholder_link(field_key, key_data, idx = nil)
+      question_num = key_data[:question_num]
+      return unless question_num
+
+      if idx
+        modified_key_data = key_data.dup
+        if key_data[:page] && key_data[:x] && key_data[:y]
+          # Support coordinate arrays (if implemented) or fall back to mathematical offset
+          if key_data[:x].is_a?(Array) && key_data[:y].is_a?(Array)
+            # Use array coordinates if available
+            modified_key_data[:x] = key_data[:x][idx] || key_data[:x].first
+            modified_key_data[:y] = key_data[:y][idx] || key_data[:y].first
+            modified_key_data[:page] = key_data[:page][idx] || key_data[:page].first
+          else
+            # Fall back to current mathematical offset approach
+            modified_key_data[:x] = key_data[:x]
+            modified_key_data[:y] = key_data[:y] - (idx * 50)
+          end
+        end
+        
+        key_data = modified_key_data
+      end
+
+      # Store the field info for later link creation
+      @placeholder_links << {
+        question_num:,
+        dest_name: key_data[:overflow_destination],
+        label: key_data[:question_text],
+        page: key_data[:page],
+        x: key_data[:x],
+        y: key_data[:y],
+        width: key_data[:width]
+      }
     end
   end
 end
