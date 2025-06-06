@@ -106,16 +106,7 @@ module MyHealth
       end
 
       def last_fill_date_sort(resource)
-        empty_dispense_date_meds = []
-        filled_meds = []
-
-        resource.records.each do |med|
-          if empty_field?(med.sorted_dispensed_date)
-            empty_dispense_date_meds << med
-          else
-            filled_meds << med
-          end
-        end
+        empty_dispense_date_meds, filled_meds = partition_meds_by_date(resource.records)
 
         # Sort filled records order: newest dates first, any ties are sorted in alphabetical order
         filled_meds = filled_meds.sort_by do |med|
@@ -124,15 +115,12 @@ module MyHealth
             med.prescription_name.to_s.downcase
           ]
         end
-
         # Separate empty dispense date meds by va meds and non va meds
         non_va_meds = empty_dispense_date_meds.select { |med| med.prescription_source == 'NV' }
         va_meds = empty_dispense_date_meds.reject { |med| med.prescription_source == 'NV' }
-
         # Sort both arrays alphabetically
         non_va_meds.sort_by! { |med| med.prescription_name.to_s.downcase }
         va_meds.sort_by! { |med| med.prescription_name.to_s.downcase }
-
         # Order: filled meds first, empty va non filled meds second, then empty non filled non va meds last.
         resource.records = filled_meds + non_va_meds + non_va_meds
 
@@ -154,6 +142,21 @@ module MyHealth
 
         resource.records = sorted_records
         resource
+      end
+
+      def partition_meds_by_date(records)
+        empty_dispense_date_meds = []
+        filled_meds = []
+
+        records.each do |med|
+          if empty_field?(med.sorted_dispensed_date)
+            empty_dispense_date_meds << med
+          else
+            filled_meds << med
+          end
+        end
+
+        [empty_dispense_date_meds, filled_meds]
       end
 
       def compare_dispensed_dates(first_date, second_date)
