@@ -50,7 +50,12 @@ module Mobile
                      end
                    else
                      letters = evss_service.get_letters.letters
-                     letters.map { |letter| Mobile::V0::Letter.new(letter_type: letter.letter_type, name: letter.name) }
+                     letters.filter_map do |letter|
+                       # The following letters need to be filtered out due to outdated content
+                       next if FILTERED_LETTER_TYPES.include? letter.letter_type
+
+                       Mobile::V0::Letter.new(letter_type: letter.letter_type, name: letter.name)
+                     end
                    end
 
         render json: Mobile::V0::LettersSerializer.new(@current_user, response.select(&:displayable?))

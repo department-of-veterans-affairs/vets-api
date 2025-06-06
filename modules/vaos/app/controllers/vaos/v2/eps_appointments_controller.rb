@@ -9,8 +9,6 @@ module VAOS
           retrieve_latest_details: true
         )
 
-        raise Common::Exceptions::RecordNotFound, message: 'Record not found' if appointment[:state] == 'draft'
-
         response_object = assemble_appt_response_object(appointment)
         render json: response_object
       end
