@@ -53,15 +53,17 @@ module BenefitsIntake
 
       log(:info, 'started')
 
-      pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission).to_a
+      pending_attempts_new = Lighthouse::SubmissionAttempt.where(status: 'pending').includes(:submission).to_a
+      pending_attempts_old = FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission).to_a
 
       # filter running this job to the specific form_id
       form_ids = FORM_HANDLERS.keys.map(&:to_s)
       form_ids &= [form_id.to_s] if form_id
       log(:info, "processing forms #{form_ids}")
 
-      pending_attempts.select! { |pa| form_ids.include?(pa.form_submission.form_type) }
-
+      pending_attempts_new.select! { |pa| form_ids.include?(pa.submission.form_id) }
+      pending_attempts_old.select! { |pa| form_ids.include?(pa.form_submission.form_type) }
+      pending_attempts = pending_attempts_new + pending_attempts_old
       batch_process(pending_attempts) unless pending_attempts.empty?
 
       log(:info, 'ended')
@@ -87,7 +89,8 @@ module BenefitsIntake
 
     # process a set of pending attempts
     #
-    # @param pending_attempts [Array<FormSubmissionAttempt>] list of pending attempts to process
+    # @param pending_attempts [Array<FormSubmissionAttempt + Lighthouse::SubmissionAttempts>]
+    # list of pending attempts to process
     def batch_process(pending_attempts)
       intake_service = BenefitsIntake::Service.new
 
@@ -106,11 +109,14 @@ module BenefitsIntake
       end
     end
 
-    # mapping of benefits_intake_uuid to FormSubmissionAttempt
+    # mapping of benefits_intake_uuid to FormSubmissionAttempt or Lighthouse::SubmissionAttempt
     # improves lookup during processing
     def pending_attempts_hash
-      @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
-                                    .index_by(&:benefits_intake_uuid)
+      @pah ||= Lighthouse::SubmissionAttempt.where(status: 'pending').includes(:submission)
+                                            .index_by(&:benefits_intake_uuid)
+                                            .merge(FormSubmissionAttempt.where(aasm_state: 'pending')
+                                            .includes(:form_submission)
+                                            .index_by(&:benefits_intake_uuid))
     end
 
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
@@ -137,26 +143,26 @@ module BenefitsIntake
     # @param status [String] the returned status
     # @param submission [Hash] the full data hash returned for this record
     def update_attempt_record(uuid, status, submission)
-      form_submission_attempt = pending_attempts_hash[uuid]
-      form_submission_attempt.update(lighthouse_updated_at: submission.dig('attributes', 'updated_at'))
+      submission_attempt = pending_attempts_hash[uuid]
+      submission_attempt.update(lighthouse_updated_at: submission.dig('attributes', 'updated_at'))
 
       case status
       when 'expired'
         # Indicates that documents were not successfully uploaded within the 15-minute window.
         error_message = 'expired'
-        form_submission_attempt.fail!
+        submission_attempt.fail!
 
       when 'error'
         # Indicates that there was an error. Refer to the error code and detail for further information.
         error_message = "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
-        form_submission_attempt.fail!
+        submission_attempt.fail!
 
       when 'vbms'
         # Submission was successfully uploaded into a Veteran's eFolder within VBMS
-        form_submission_attempt.vbms!
+        submission_attempt.vbms!
       end
 
-      form_submission_attempt.update(error_message:)
+      submission_attempt.update(error_message:)
     end
 
     # monitoring of the submission attempt status
@@ -200,20 +206,20 @@ module BenefitsIntake
     #
     # @return [Hash] context of attempt result, payload suited for logging and handlers
     def attempt_status_result_context(uuid, status)
-      form_submission_attempt = pending_attempts_hash[uuid]
+      submission_attempt = pending_attempts_hash[uuid]
 
-      queue_time = (Time.zone.now - form_submission_attempt.created_at).truncate
+      queue_time = (Time.zone.now - submission_attempt.created_at).truncate
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
       {
-        form_id: form_submission_attempt.form_submission.form_type,
-        saved_claim_id: form_submission_attempt.form_submission.saved_claim_id,
+        form_id: submission_attempt.submission.form_id,
+        saved_claim_id: submission_attempt.submission.saved_claim_id,
         uuid:,
         status:,
         result:,
         queue_time:,
-        error_message: form_submission_attempt.error_message
+        error_message: submission_attempt.error_message
       }
     end
 
