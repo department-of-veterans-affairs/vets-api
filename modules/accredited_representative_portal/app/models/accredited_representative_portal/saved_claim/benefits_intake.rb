@@ -65,11 +65,7 @@ module AccreditedRepresentativePortal
       end
 
       def claimant_info
-        if parsed_form.key?('dependent')
-          parsed_form['dependent']
-        else
-          parsed_form['veteran']
-        end
+        parsed_form.key?('dependent') ? parsed_form['dependent'] : parsed_form['veteran']
       end
 
       def latest_lighthouse_submission

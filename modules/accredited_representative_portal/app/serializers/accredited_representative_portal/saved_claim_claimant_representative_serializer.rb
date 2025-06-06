@@ -39,8 +39,5 @@ module AccreditedRepresentativePortal
         latest_lighthouse_submission(object).updated_at.to_date.iso8601
       end
     end
-
-    attribute :url do |object|
-    end
   end
 end

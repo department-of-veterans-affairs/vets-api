@@ -50,13 +50,9 @@ module AccreditedRepresentativePortal
       def sort(data)
         if sort_params[:by] == 'submittedDate'
           if sort_params[:order] == 'asc'
-            data.sort do |a, b|
-              Date.strptime(a[:submittedDate]) <=> Date.strptime(b[:submittedDate])
-            end
+            data.sort { |a, b| Date.strptime(a[:submittedDate]) <=> Date.strptime(b[:submittedDate]) }
           elsif sort_params[:order] == 'desc'
-            data.sort do |a, b|
-              Date.strptime(b[:submittedDate]) <=> Date.strptime(a[:submittedDate])
-            end
+            data.sort { |a, b| Date.strptime(b[:submittedDate]) <=> Date.strptime(a[:submittedDate]) }
           end
         else
           data
@@ -71,12 +67,7 @@ module AccreditedRepresentativePortal
       end
 
       def scope_includes
-        [
-          { saved_claim: %i[
-            lighthouse_submissions
-            persistent_attachments
-          ] }
-        ]
+        [{ saved_claim: %i[lighthouse_submissions persistent_attachments] }]
       end
     end
   end
