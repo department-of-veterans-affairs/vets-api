@@ -134,7 +134,7 @@ RSpec.describe PDFUtilities::DatestampPdf do
 
         let(:template) { './nonexistent_template.pdf' }
 
-        it 'raises a StampGenerationError during stamp generation' do
+        it 'raises a PdfMissingError during stamp generation' do
           expect { run }.to raise_error(PDFUtilities::ExceptionHandling::PdfMissingError, /Template PDF missing/)
         end
       end
