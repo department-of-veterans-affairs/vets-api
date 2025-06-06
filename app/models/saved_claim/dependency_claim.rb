@@ -177,7 +177,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
       doc_type:
     )
 
-    uploader.upload!
+    uploader.upload! unless Rails.env.development?
   end
 
   # temporarily commented out before v2 rolls out. will be updated before v2's release.
