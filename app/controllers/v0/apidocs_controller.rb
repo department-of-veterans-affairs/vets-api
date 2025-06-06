@@ -172,7 +172,6 @@ module V0
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
-      Swagger::Requests::VirtualAgentToken,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,
@@ -245,7 +244,6 @@ module V0
       Swagger::Schemas::Vet360::Countries,
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
-      Swagger::Schemas::VirtualAgentWebchatToken,
       FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze
