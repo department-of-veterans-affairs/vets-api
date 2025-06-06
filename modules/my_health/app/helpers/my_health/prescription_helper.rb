@@ -109,7 +109,6 @@ module MyHealth
         empty_dispense_date_meds = []
         filled_meds = []
 
-        # Separate meds into empty_field and filled
         resource.records.each do |med|
           if empty_field?(med.sorted_dispensed_date)
             empty_dispense_date_meds << med
@@ -126,7 +125,7 @@ module MyHealth
           ]
         end
 
-         # Separate empty dispense date meds by va meds and non va meds
+        # Separate empty dispense date meds by va meds and non va meds
         non_va_meds = empty_dispense_date_meds.select { |med| med.prescription_source == 'NV' }
         va_meds = empty_dispense_date_meds.reject { |med| med.prescription_source == 'NV' }
 
