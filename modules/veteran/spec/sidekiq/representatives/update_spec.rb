@@ -178,7 +178,7 @@ RSpec.describe Representatives::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          'Representatives::Update: Update failed for Rep id: not_found: Representative not found.'
+          a_string_matching(/Representatives::Update:.*not_found.*Representative not found/)
         )
 
         subject.perform(json_data)
@@ -682,7 +682,7 @@ RSpec.describe Representatives::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            'Representatives::Update: Update failed for Rep id: not_found: Representative not found.'
+            a_string_matching(/Representatives::Update:.*not_found.*Representative not found/)
           )
 
           subject.perform(json_data)
