@@ -277,7 +277,9 @@ RSpec.describe Form1010Ezr::VeteranEnrollmentSystem::Associations::Service do
               'required, associations[2].role: Role is required, associations[2].relationType: Relation type is ' \
               'required'
 
-            expect { described_class.new(current_user).reconcile_and_update_associations(associations_with_missing_required_fields) }
+            expect do
+              described_class.new(current_user).reconcile_and_update_associations(associations_with_missing_required_fields)
+            end
               .to raise_error do |e|
                 expect(e).to be_a(Common::Exceptions::BadRequest)
                 expect(e.errors[0].detail).to eq(failure_message)
