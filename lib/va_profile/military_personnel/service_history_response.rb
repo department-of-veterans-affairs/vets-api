@@ -23,7 +23,7 @@ module VAProfile
           episodes: episodes ? sort_by_begin_date(episodes) : episodes,
           uniformed_service_initial_entry_date: get_uniformed_service_initial_entry_date(body),
           release_from_active_duty_date: get_release_from_active_duty_date(body),
-          vet_status_eligibility: get_eligibility(episodes)
+          vet_status_eligibility: get_eligibility(episodes, current_user)
         )
       end
 
@@ -74,8 +74,8 @@ module VAProfile
         Flipper.enabled?(:profile_show_military_academy_attendance, current_user)
       end
 
-      def self.get_eligibility(episodes)
-        VAProfile::Models::ServiceHistory.determine_eligibility(episodes)
+      def self.get_eligibility(episodes, current_user)
+        VAProfile::Models::ServiceHistory.determine_eligibility(episodes, current_user)
       end
     end
   end

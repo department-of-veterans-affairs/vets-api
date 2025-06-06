@@ -15,6 +15,7 @@ RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
     before do
       sign_in(user)
       Flipper.disable(:vet_status_stage_1) # rubocop:disable Naming/VariableNumber
+      Flipper.disable(:vet_status_stage_1, user) # rubocop:disable Naming/VariableNumber
     end
 
     # The following provides a description of the different termination reason codes:
