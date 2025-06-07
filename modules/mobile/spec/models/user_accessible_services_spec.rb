@@ -58,38 +58,17 @@ describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model d
     end
 
     describe 'claims' do
-      context 'with mobile_lighthouse_claims flag off' do
-        before { Flipper.disable(:mobile_lighthouse_claims) }
-        after { Flipper.enable(:mobile_lighthouse_claims) }
+      context 'when user does not have lighthouse access' do
+        let(:user) { non_lighthouse_user }
 
-        context 'when user does not have evss access' do
-          let(:user) { non_evss_user }
-
-          it 'is false' do
-            expect(user_services.service_auth_map[:claims]).to be(false)
-          end
-        end
-
-        context 'when user does have evss access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:claims]).to be_truthy
-          end
+        it 'is false' do
+          expect(user_services.service_auth_map[:claims]).to be(false)
         end
       end
 
-      context 'with mobile_lighthouse_claims flag on' do
-        context 'when user does not have lighthouse access' do
-          let(:user) { non_lighthouse_user }
-
-          it 'is false' do
-            expect(user_services.service_auth_map[:claims]).to be(false)
-          end
-        end
-
-        context 'when user does have lighthouse access' do
-          it 'is true' do
-            expect(user_services.service_auth_map[:claims]).to be_truthy
-          end
+      context 'when user does have lighthouse access' do
+        it 'is true' do
+          expect(user_services.service_auth_map[:claims]).to be_truthy
         end
       end
     end
