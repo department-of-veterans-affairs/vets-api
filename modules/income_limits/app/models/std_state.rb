@@ -10,6 +10,8 @@ class StdState < ApplicationRecord
   validates :version, presence: true
   validates :created, presence: true
 
-  has_many :institution_facilities_street, class_name: 'StdInstitutionFacility', foreign_key: 'street_state_id'
-  has_many :institution_facilities_mailing, class_name: 'StdInstitutionFacility', foreign_key: 'mailing_state_id'
+  has_many :institution_facilities_street, class_name: 'StdInstitutionFacility', foreign_key: 'street_state_id',
+                                           inverse_of: :street_state, dependent: :destroy
+  has_many :institution_facilities_mailing, class_name: 'StdInstitutionFacility', foreign_key: 'mailing_state_id',
+                                            inverse_of: :mailing_state, dependent: :destroy
 end

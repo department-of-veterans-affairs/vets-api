@@ -112,6 +112,7 @@ Metrics/ClassLength:
 Rails/LexicallyScopedActionFilter:
   Exclude:
     - "app/controllers/concerns/filterable.rb"
+    - 'modules/mobile/app/controllers/mobile/application_controller.rb'
 
 # Blocks are limited to 25 lines or less
 # removing block length rule for rspec DSL
@@ -155,6 +156,8 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/education_benefits_claim.rb"
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
+    - 'modules/accredited_representative_portal/app/models/accredited_representative_portal/*'
+    - 'modules/accredited_representative_portal/app/models/accredited_representative_portal/saved_claim/benefits_intake.rb'
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
@@ -375,3 +378,24 @@ Layout/EmptyLineBetweenDefs:
 
 Cops/AmsSerializer:
   Enabled: true
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/Exit:
+  Exclude:
+    - 'bin/lib/vets-api/*/*'
+    - 'modules/mobile/lib/scripts/parse_rspec_xml.rb'
+
+Rails/UnusedIgnoredColumns:
+  Exclude:
+    - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
+
+Rails/UniqueValidationWithoutIndex:
+  Exclude:
+    - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
+
+
+Lint/DuplicateMethods:
+  Exclude:
+    - 'modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v4/form_data.rb'
