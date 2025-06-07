@@ -22,12 +22,11 @@ describe VAProfileRedis::V2::ContactInformation do
   end
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
   [404, 400].each do |status|
-    context "with a #{status} from get_person", :skip_vet360 do
+    context "with a #{status} from get_person" do
       let(:get_person_calls) { 'once' }
 
       before do

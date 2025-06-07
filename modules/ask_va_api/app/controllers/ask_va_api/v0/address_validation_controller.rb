@@ -12,11 +12,7 @@ module AskVAApi
       service_tag 'profile'
 
       def create
-        address = if Flipper.enabled?(:remove_pciu)
-                    VAProfile::Models::V3::ValidationAddress.new(address_params)
-                  else
-                    VAProfile::Models::ValidationAddress.new(address_params)
-                  end
+        address = VAProfile::Models::V3::ValidationAddress.new(address_params)
 
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
@@ -49,11 +45,7 @@ module AskVAApi
       end
 
       def service
-        @service ||= if Flipper.enabled?(:remove_pciu)
-                       VAProfile::V3::AddressValidation::Service.new
-                     else
-                       VAProfile::AddressValidation::Service.new
-                     end
+        @service ||= VAProfile::V3::AddressValidation::Service.new
       end
     end
   end
