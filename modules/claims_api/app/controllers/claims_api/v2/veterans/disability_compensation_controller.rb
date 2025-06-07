@@ -110,6 +110,17 @@ module ClaimsApi
             auto_claim.reload
           end
 
+          # Rescue possible timeout exceptions.
+          rescue Faraday::TimeoutError, ::Common::Exceptions::GatewayTimeout,
+                Timeout::Error, Breakers::OutageException, Net::HTTPGatewayTimeout,
+                ClaimsApi::Common::Exceptions::Lighthouse::Timeout => e
+
+          # Log timeout exception.
+          ClaimsApi::Logger.log('Form526_timeout', detail: "#{e.class} - #{e.message}", claim_id: auto_claim&.id)?
+
+          # Raise 504 exception (default status code returned in timeout exception handler).
+          raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout.new
+
           render json: ClaimsApi::V2::Blueprints::MetaBlueprint.render(
             auto_claim, async: false
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
