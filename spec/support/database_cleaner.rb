@@ -8,7 +8,7 @@ end
 
 RSpec.configure do |config|
   config.before(:suite) do
-    DatabaseCleaner.clean_with(:deletion)
+    DatabaseCleaner.clean_with(:deletion) if defined?(ParallelTests) && ParallelTests.first_process?
   end
 
   config.before(:all, :cleaner_for_context) do
