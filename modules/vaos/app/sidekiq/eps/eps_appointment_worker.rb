@@ -32,12 +32,12 @@ module Eps
         elsif retry_count < MAX_RETRIES
           self.class.perform_in(1.minute, appointment_id, user, retry_count + 1)
         else
-          send_vanotify_message(user:, error: 'Could not complete booking')
+          Eps::VaNotifyAppointmentWorker.perform_async(user, 'Could not complete booking')
         end
       rescue Common::Exceptions::BackendServiceException
-        send_vanotify_message(user:, error: 'Service error, please contact support')
+        Eps::VaNotifyAppointmentWorker.perform_async(user, 'Service error, please contact support')
       rescue => e
-        send_vanotify_message(user:, error: e.message)
+        Eps::VaNotifyAppointmentWorker.perform_async(user, e.message)
       end
     end
 
@@ -50,20 +50,6 @@ module Eps
     # @return [Boolean] true if the appointment is finished, false otherwise
     def appointment_finished?(response)
       response.state == 'completed' || response.appointmentDetails&.status == 'booked'
-    end
-
-    ##
-    # Sends a failure message via VaNotify with error details.
-    #
-    # @param user [User] the user to send the message to
-    # @param error [String, nil] the error message (default: nil)
-    def send_vanotify_message(user:, error: nil)
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-      notify_client.send_email(email_address: user.va_profile_email,
-                               template_id: Settings.vanotify.services.va_gov.template_id.va_appointment_failure,
-                               parameters: {
-                                 'error' => error
-                               })
     end
   end
 end
