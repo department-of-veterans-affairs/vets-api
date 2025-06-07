@@ -69,7 +69,7 @@ module Eps
 
       payload = build_submit_payload(params)
 
-      EpsAppointmentWorker.perform_async(appointment_id, user)
+      EpsAppointmentWorker.perform_async(appointment_id, user.uuid)
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, request_headers)
 
       OpenStruct.new(response.body)
