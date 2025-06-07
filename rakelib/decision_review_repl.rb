@@ -2,7 +2,6 @@
 
 # run this by starting a rails console and running: require_relative 'rakelib/decision_review_repl'
 
-# rubocop:disable Lint/ShadowingOuterLocalVariable
 # rubocop:disable Style/MultilineBlockChain
 
 require_relative 'piilog_repl/piilog_helpers'
@@ -381,8 +380,10 @@ end
 # takes in an array of wrapped-PiiLogs and returns a hash where they're
 # sorted by error_class and then by error message category
 def by_error_class(array)
-  new_hash = Hash.new do |hash, key|
-    hash[key] = Hash.new { |hash, key| hash[key] = [] }
+  new_hash = Hash.new do |outer_hash, error_class|
+    outer_hash[error_class] = Hash.new do |inner_hash, category|
+      inner_hash[category] = []
+    end
   end
 
   array.each do |piilog|
@@ -430,5 +431,4 @@ end
 Q = PersonalInformationLogQueryBuilder
 puts recipes
 
-# rubocop:enable Lint/ShadowingOuterLocalVariable
 # rubocop:enable Style/MultilineBlockChain
