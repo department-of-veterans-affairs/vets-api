@@ -4,6 +4,7 @@ MyHealth::Engine.routes.draw do
   namespace :v2 do
     scope :medical_records do
       resources :labs_and_tests, only: %i[index], defaults: { format: :json }
+      resources :immunizations, only: %i[index], defaults: { format: :json }
     end
   end
 
