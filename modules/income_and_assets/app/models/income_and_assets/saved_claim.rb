@@ -21,6 +21,10 @@ module IncomeAndAssets
        'Janesville, Wisconsin 53547-5365']
     end
 
+    def to_pdf(file_name = nil, file_options = {})
+      ::PdfFill::Filler.fill_form(self, file_name, file_options)
+    end
+
     ##
     # Returns the business line associated with this process
     #

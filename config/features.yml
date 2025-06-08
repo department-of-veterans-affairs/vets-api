@@ -1313,6 +1313,10 @@ features:
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  pension_0969_pdf_overflow:
+    actor_type: user
+    description: >
+      Toggle overflow redesign. Will enable use of new pdf overflow logic.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
