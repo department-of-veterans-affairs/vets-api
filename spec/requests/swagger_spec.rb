@@ -2566,16 +2566,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
-    describe 'virtual agent' do
-      describe 'POST v0/virtual_agent_token' do
-        it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token_success') do
-            expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
-          end
-        end
-      end
-    end
-
     describe 'dependents applications' do
       context 'when :va_dependents_v2 is disabled' do
         before do
