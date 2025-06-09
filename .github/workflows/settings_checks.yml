@@ -31,14 +31,14 @@ jobs:
         run: bundle exec rake settings:validate
 
       - name: Add Settings Failure label
-        if: failure() && github.event_name == 'pull_request'
+        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'settings-failure')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: settings-failure
 
       - name: Remove Settings Failure label
-        if: success() && github.event_name == 'pull_request'
+        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'settings-failure')
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}

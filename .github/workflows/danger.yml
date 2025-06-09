@@ -27,7 +27,7 @@ jobs:
         run: bundle exec danger --verbose
 
       - name: Add Danger Label
-        if: ${{ failure() }}
+        if: ${{ failure() && !contains(github.event.pull_request.labels.*.name, 'danger-alert') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
