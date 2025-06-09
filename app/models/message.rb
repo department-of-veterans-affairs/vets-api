@@ -74,7 +74,7 @@ class Message
   attribute :attachment3_id, Integer
   attribute :attachment4_id, Integer
   attribute :suggested_name_display, String
-  attribute :is_oh_message, Boolean
+  attribute :is_oh_message, Bool, default: false
   attribute :metadata, Hash, default: {} # rubocop:disable Rails/AttributeDefaultBlockValue
 
   # This is only used for validating uploaded files, never rendered
