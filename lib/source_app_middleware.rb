@@ -134,6 +134,7 @@ class SourceAppMiddleware
     'secure-messaging-pilot',
     'sign-in-changes',
     'Survivor and Dependent Benefits 22-5490',
+    'survivor-dependent-education-benefit-22-5490',
     'static-pages',
     'submitted-appeal',
     'terms-of-use',

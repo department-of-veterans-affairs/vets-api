@@ -59,9 +59,19 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
         end
       end
 
-      it 'posts a 404 error with detail when BGS returns a 500 response' do
+      it 'posts a 500 error with detail when BGS returns a 500 response' do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+            data[:data][:attributes] = { type: 'pension' }
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response).to have_http_status(:internal_server_error)
+          end
+        end
+      end
+
+      it 'posts a 404 error with detail when BGS returns a Veteran Not Found' do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_404') do
             data[:data][:attributes] = { type: 'pension' }
             post path, params: data.to_json, headers: headers.merge(auth_header)
             expect(response).to have_http_status(:not_found)
@@ -225,7 +235,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::0966', type: :request do
         context 'when submitting the ITF to BGS is NOT successful' do
           it "adds a 'ClaimsApi::IntentToFile' record" do
             mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+              VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/insert_intent_to_file_404') do
                 data[:data][:attributes] = { type: 'pension' }
                 expect do
                   post path, params: data.to_json, headers: headers.merge(auth_header)
