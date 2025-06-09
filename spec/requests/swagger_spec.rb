@@ -576,6 +576,51 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
           end
         end
       end
+
+      context 'digital disputes' do
+        let(:pdf_file) do
+          fixture_file_upload('spec/fixtures/pdf_fill/686C-674/tester.pdf', 'application/pdf')
+        end
+        
+        it 'validates the route for successful submission' do
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            200,
+            headers.merge(
+              '_data' => { files: [pdf_file] }
+            )
+          )
+        end
+
+        it 'validates the route for validation errors' do
+          image_file = fixture_file_upload('doctors-note.png', 'image/png')
+          
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            422,
+            headers.merge(
+              '_data' => { files: [image_file] }
+            )
+          )
+        end
+
+        it 'validates the route for server errors' do
+          allow_any_instance_of(DebtsApi::V0::DigitalDisputeSubmissionService)
+            .to receive(:call)
+            .and_raise(StandardError.new('Unexpected error'))
+          
+          expect(subject).to validate(
+            :post,
+            '/debts_api/v0/digital_disputes',
+            500,
+            headers.merge(
+              '_data' => { files: [pdf_file] }
+            )
+          )
+        end
+      end
     end
 
     context 'medical copays tests' do
