@@ -33,30 +33,7 @@ module Ccra
     #
     # @return [ReferralDetail] A ReferralDetail object representing the detailed referral information.
     def get_referral(id, icn)
-      # Check if referral data is in cache
-      cached_referral = referral_cache.fetch_referral_data(id:, icn:)
-      if cached_referral
-        # Update the booking start time since we're starting the appointment creation process
-        cached_referral.booking_start_time = Time.current.to_f
-        referral_cache.save_referral_data(id:, icn:, referral_data: cached_referral)
-        return cached_referral
-      end
-
-      # If not in cache, fetch from API and cache the result
-      params = {}
-      with_monitoring do
-        response = perform(
-          :get,
-          "/#{config.base_path}/#{icn}/referrals/#{id}",
-          params,
-          request_headers
-        )
-
-        referral = ReferralDetail.new(response.body)
-        cache_referral_data(referral, id, icn)
-
-        referral
-      end
+      fetch_and_update_cached_referral(id, icn) || fetch_and_cache_referral(id, icn)
     end
 
     # Clears the referral data from the cache
@@ -81,6 +58,24 @@ module Ccra
     end
 
     private
+
+    def fetch_and_update_cached_referral(id, icn)
+      cached_referral = referral_cache.fetch_referral_data(id:, icn:)
+      return unless cached_referral
+
+      cached_referral.booking_start_time = Time.current.to_f
+      referral_cache.save_referral_data(id:, icn:, referral_data: cached_referral)
+      cached_referral
+    end
+
+    def fetch_and_cache_referral(id, icn)
+      with_monitoring do
+        response = perform(:get, "/#{config.base_path}/#{icn}/referrals/#{id}", {}, request_headers)
+        referral = ReferralDetail.new(response.body)
+        cache_referral_data(referral, id, icn)
+        referral
+      end
+    end
 
     # Caches the entire referral object for future use
     #
