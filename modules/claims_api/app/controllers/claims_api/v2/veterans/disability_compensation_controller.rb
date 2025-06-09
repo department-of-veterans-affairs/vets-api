@@ -111,9 +111,9 @@ module ClaimsApi
             # https://vscode.dev/github/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/custom_error.rb#L24
             rescue Faraday::TimeoutError, ::Common::Exceptions::GatewayTimeout,
                    Timeout::Error, Breakers::OutageException, Net::HTTPGatewayTimeout => e
-              ClaimsApi::Logger.log('526_synchronous_timeout', 
+              ClaimsApi::Logger.log('526_synchronous_timeout',
                                     detail: "#{e.class} - #{e.message}",
-                                    claim_id: auto_claim&.id, 
+                                    claim_id: auto_claim&.id,
                                     transaction_id: auto_claim&.transaction_id)
 
               raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout
