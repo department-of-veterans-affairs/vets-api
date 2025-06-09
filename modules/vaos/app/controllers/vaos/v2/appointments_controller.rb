@@ -12,6 +12,7 @@ module VAOS
       APPT_DRAFT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_draft_creation.failure'
       APPT_CREATION_SUCCESS_METRIC = 'api.vaos.appointment_creation.success'
       APPT_CREATION_FAILURE_METRIC = 'api.vaos.appointment_creation.failure'
+      APPT_CREATION_DURATION_METRIC = 'api.vaos.appointment_creation.duration'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
       APPT_INDEX_VAOS = "GET '/vaos/v1/patients/<icn>/appointments'"
@@ -798,7 +799,7 @@ module VAOS
         return unless start_time
 
         duration_ms = ((Time.current.to_f - start_time) * 1000).round
-        StatsD.measure('api.vaos.referral.booking.duration', duration_ms)
+        StatsD.measure(APPT_CREATION_DURATION_METRIC, duration_ms)
       end
     end
   end

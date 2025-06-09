@@ -1149,7 +1149,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                   expect(response).to have_http_status(:created)
                 end
 
-                expect(StatsD).to have_received(:measure).with('api.vaos.referral.booking.duration', kind_of(Numeric))
+                expect(StatsD).to have_received(:measure).with(described_class::APPT_CREATION_DURATION_METRIC,
+                                                               kind_of(Numeric))
               end
             end
           end

@@ -120,7 +120,7 @@ RSpec.describe VAOS::V2::AppointmentsController, type: :request do
           )
           expect(StatsD).to have_received(:increment).with('api.vaos.appointment_creation.success')
           expect(StatsD).to have_received(:measure).with(
-            'api.vaos.referral.booking.duration',
+            described_class::APPT_CREATION_DURATION_METRIC,
             5000
           )
         end
