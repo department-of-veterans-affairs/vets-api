@@ -189,7 +189,6 @@ RSpec.describe 'MyHealth::V1::Messaging::Folders', type: :request do
             post "/my_health/v1/messaging/folders/#{id}/search?requires_oh_messages=1", params: { subject: 'THREAD' }
           end
 
-          puts "RESPONSE: #{response.inspect}"
           expect(response).to be_successful
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('my_health/messaging/v1/folder_search')
