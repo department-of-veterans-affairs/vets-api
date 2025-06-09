@@ -37,7 +37,7 @@ namespace :decision_reviews do
 
             # Update the return_url
             metadata['return_url'] = new_return_url unless metadata['return_url'] == new_return_url
-            in_progress_form.metadata = metadata.to_json
+            in_progress_form.metadata = metadata
 
             if in_progress_form.save
               updated_count += 1
