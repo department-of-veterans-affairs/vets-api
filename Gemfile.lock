@@ -1305,6 +1305,7 @@ DEPENDENCIES
   lockbox
   mail
   meb_api!
+  medical_expense_reports!
   memoist
   mimemagic
   mini_magick
