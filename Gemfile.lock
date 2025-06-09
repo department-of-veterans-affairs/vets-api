@@ -286,7 +286,7 @@ GEM
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
-    breakers (1.0)
+    breakers (1.0.1)
       base64 (~> 0.2)
       faraday (>= 1.2.0, < 3.0)
       multi_json (~> 1.0)
