@@ -782,9 +782,6 @@ features:
     actor_type: user
     description: Enables declination reason feature for frontend and backend
     enable_in_development: true
-  form4142_validate_schema:
-    actor_type: user
-    description: Enable validation of form 4142 in Form4142Processor
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
