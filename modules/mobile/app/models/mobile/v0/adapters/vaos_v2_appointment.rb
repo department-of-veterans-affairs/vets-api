@@ -422,14 +422,6 @@ module Mobile
             }
           end
 
-          unless phone.nil?
-            # this logging is intended to be temporary. Remove if it's not occurring
-            Rails.logger.warn(
-              'mobile appointments failed to parse VAOS V2 phone number',
-              phone:
-            )
-          end
-
           { area_code: nil, number: nil, extension: nil }
         end
 

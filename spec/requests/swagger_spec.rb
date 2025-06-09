@@ -1577,6 +1577,32 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
     end
 
+    describe 'Event Bus Gateway' do
+      include_context 'with service account authentication', 'eventbus', ['http://www.example.com/v0/event_bus_gateway/send_email'], { user_attributes: { participant_id: '1234' } }
+
+      context 'when sending emails' do
+        let(:params) do
+          {
+            template_id: '5678'
+          }
+        end
+
+        it 'documents an unauthenticated request' do
+          expect(subject).to validate(:post, '/v0/event_bus_gateway/send_email', 401)
+        end
+
+        it 'documents a success' do
+          expect(subject).to validate(
+            :post,
+            '/v0/event_bus_gateway/send_email',
+            200,
+            '_headers' => service_account_auth_header,
+            '_data' => params
+          )
+        end
+      end
+    end
+
     describe 'appeals' do
       it 'documents appeals 401' do
         expect(subject).to validate(:get, '/v0/appeals', 401)
@@ -2959,16 +2985,6 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
         context 'not logged in' do
           it 'returns a 401' do
             expect(subject).to validate(:get, '/v0/contact_us/inquiries', 401)
-          end
-        end
-      end
-    end
-
-    describe 'virtual agent' do
-      describe 'POST v0/virtual_agent_token' do
-        it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token_success') do
-            expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
           end
         end
       end
