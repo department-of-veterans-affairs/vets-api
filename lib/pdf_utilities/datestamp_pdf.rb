@@ -99,7 +99,12 @@ module PDFUtilities
           reader = PDF::Reader.new(template)
           page_number.times { pdf.start_new_page }
           pdf.draw_text(stamp_text, at: [x, y], size:)
-          pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
+          if timestamp.present?
+            # Form 4142 uses this class to create a signature stamp, which doesn't need a timestamp.
+            # In theory, the text_only option should be used to the time stamp, but this is a workaround
+            # to ensure the timestamp is not added to the signature stamp.
+            pdf.draw_text(timestamp.strftime('%Y-%m-%d %I:%M %p %Z'), at: [x, y - 12], size:)
+          end
           (reader.page_count - page_number).times { pdf.start_new_page }
         else
           pdf.draw_text(stamp_text, at: [x, y], size:)
