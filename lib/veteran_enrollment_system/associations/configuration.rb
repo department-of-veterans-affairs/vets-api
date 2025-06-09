@@ -13,10 +13,6 @@ module VeteranEnrollmentSystem
         "#{Settings.veteran_enrollment_system.host}:#{Settings.veteran_enrollment_system.port}/" \
           'ves-associate-gateway-svc/associations/person/'
       end
-
-      def service_name
-        'VeteranEnrollmentSystem/Associations'
-      end
     end
   end
 end

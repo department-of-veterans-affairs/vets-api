@@ -5,7 +5,7 @@ require 'rails_helper'
 describe SearchGsa::Configuration do
   describe '#service_name' do
     it 'has the expected service name' do
-      expect(described_class.instance.service_name).to eq('SearchGsa/Results')
+      expect(described_class.instance.service_name).to eq('Search/Results')
     end
   end
 
