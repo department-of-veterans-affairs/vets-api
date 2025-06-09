@@ -169,6 +169,17 @@ RSpec.describe 'VAOS V2 Referrals', type: :request do
 
         expect(response_data['data']['attributes']).to have_key('referralNumber')
       end
+
+      it 'increments the view metric' do
+        expect(StatsD).to receive(:increment)
+          .with(VAOS::V2::ReferralsController::REFERRAL_DETAIL_VIEW_METRIC)
+          .once
+        expect(StatsD).to receive(:increment)
+          .with('api.rack.request', any_args)
+          .once
+
+        get "/vaos/v2/referrals/#{encrypted_uuid}"
+      end
     end
 
     context 'when using invalid referral id' do
