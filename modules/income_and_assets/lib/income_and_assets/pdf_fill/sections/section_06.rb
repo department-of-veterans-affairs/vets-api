@@ -26,7 +26,10 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship6[#{ITERATOR}]",
@@ -86,7 +89,10 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(4)',
             question_text: 'GROSS MONTHLY INCOME',
-            question_label: 'Gross Monthly Income'
+            question_label: 'Gross Monthly Income',
+            format_options: {
+              humanize: true
+            }
           },
           # Q5
           'fairMarketValue' => {
@@ -118,7 +124,13 @@ module IncomeAndAssets
             question_num: 6,
             question_suffix: '(6)',
             question_text: 'CAN THIS ASSET BE SOLD?',
-            question_label: 'Can Be Sold'
+            question_label: 'Can Be Sold',
+            format_options: {
+              humanize: {
+                'false' => 'No',
+                'true' => 'Yes'
+              }
+            }
           },
           # Q7
           'mitigatingCircumstances' => {

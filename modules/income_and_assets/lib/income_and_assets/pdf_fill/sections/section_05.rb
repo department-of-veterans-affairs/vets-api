@@ -26,7 +26,10 @@ module IncomeAndAssets
             question_num: 5,
             question_suffix: '(1)',
             question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherRecipientRelationshipType' => {
             key: "F[0].OtherRelationship5[#{ITERATOR}]",
@@ -52,7 +55,10 @@ module IncomeAndAssets
             question_num: 5,
             question_suffix: '(3)',
             question_text: 'IDENTIFY THE TYPE OF ASSET AND SUBMIT THE REQUIRED FORM ASSOCIATED',
-            question_label: 'Asset Type'
+            question_label: 'Asset Type',
+            format_options: {
+              humanize: true
+            }
           },
           # Q4
           'grossMonthlyIncome' => {
@@ -71,7 +77,10 @@ module IncomeAndAssets
             question_num: 5,
             question_suffix: '(4)',
             question_text: 'GROSS MONTHLY INCOME',
-            question_label: 'Gross Monthly Income'
+            question_label: 'Gross Monthly Income',
+            format_options: {
+              humanize: true
+            }
           },
           # Q5
           'ownedPortionValue' => {

@@ -26,7 +26,10 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(1)',
             question_text: "SPECIFY ASSET'S ORIGINAL OWNER'S RELATIONSHIP TO VETERAN",
-            question_label: 'Relationship'
+            question_label: 'Relationship',
+            format_options: {
+              humanize: true
+            }
           },
           'otherOriginalOwnerRelationshipType' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
@@ -43,7 +46,10 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(2)',
             question_text: 'SPECIFY HOW THE ASSET WAS TRANSFERRED',
-            question_label: 'Transfer Method'
+            question_label: 'Transfer Method',
+            format_options: {
+              humanize: true
+            }
           },
           'otherTransferMethod' => {
             key: "F[0].OtherRelationship7[#{ITERATOR}]",
@@ -60,7 +66,10 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(3)',
             question_text: 'WHAT ASSET WAS TRANSFERRED?',
-            question_label: 'What Was Transferred'
+            question_label: 'What Was Transferred',
+            format_options: {
+              humanize: true
+            }
           },
           # Q4
           'newOwnerName' => {
@@ -80,7 +89,10 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(5)',
             question_text: 'RELATIONSHIP TO NEW OWNER',
-            question_label: 'Relationship to New Owner'
+            question_label: 'Relationship to New Owner',
+            format_options: {
+              humanize: true
+            }
           },
           # Q6
           'saleReportedToIrs' => {
@@ -88,7 +100,13 @@ module IncomeAndAssets
             question_num: 7,
             question_suffix: '(6)',
             question_text: 'WAS THE SALE REPORTED TO THE IRS?',
-            question_label: 'Sale Reported to IRS'
+            question_label: 'Sale Reported to IRS',
+            format_options: {
+              humanize: {
+                '0' => 'No',
+                '1' => 'Yes'
+              }
+            }
           },
           # Q7
           'transferDate' => {

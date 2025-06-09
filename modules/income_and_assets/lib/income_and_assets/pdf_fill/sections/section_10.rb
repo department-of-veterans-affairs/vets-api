@@ -22,7 +22,13 @@ module IncomeAndAssets
             question_num: 10,
             question_suffix: '(1)',
             question_text: "SPECIFY ASSET OWNER'S RELATIONSHIP TO THE VETERAN",
-            question_label: 'Asset Owner Relationship'
+            question_label: 'Asset Owner Relationship',
+            format_options: {
+              humanize: {
+                '0' => 'No',
+                '1' => 'Yes'
+              }
+            }
           },
           'otherRelationshipType' => {
             key: "F[0].OtherRelationship10[#{ITERATOR}]",
@@ -37,7 +43,10 @@ module IncomeAndAssets
             question_num: 10,
             question_suffix: '(2)',
             question_text: 'SPECIFY TYPE OF ASSET (Cash, art, etc.)',
-            question_label: 'Asset Type'
+            question_label: 'Asset Type',
+            format_options: {
+              humanize: true
+            }
           },
           # Q3
           'ownedPortionValue' => {
