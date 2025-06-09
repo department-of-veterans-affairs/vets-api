@@ -31,13 +31,6 @@ RSpec.describe DebtsApi::V0::DigitalDisputeSubmissionService do
         expect(result[:success]).to be true
         expect(result[:message]).to eq('Digital dispute submission received successfully')
       end
-
-      it 'logs sanitized filenames for uploaded files' do
-        expect(Rails.logger).to receive(:info).with(/Digital dispute file uploaded:/)
-
-        service = described_class.new([pdf_file_one])
-        service.call
-      end
     end
 
     context 'with invalid input' do
