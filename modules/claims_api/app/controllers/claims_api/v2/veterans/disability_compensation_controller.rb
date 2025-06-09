@@ -106,7 +106,7 @@ module ClaimsApi
             begin
               generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
               docker_container_service.upload(auto_claim.id)
-              
+
             # Referencing commmon timeout exceptions used elsewhere:
             # https://vscode.dev/github/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/custom_error.rb#L24
             rescue Faraday::TimeoutError, ::Common::Exceptions::GatewayTimeout,
@@ -114,9 +114,9 @@ module ClaimsApi
               ClaimsApi::Logger.log('526_synchronous_timeout', detail: "#{e.class} - #{e.message}",
                                     claim_id: auto_claim&.id, transaction_id: auto_claim&.transaction_id)
 
-              raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout.new
+              raise ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout
             end
-            
+
             queue_flash_updater(auto_claim.flashes, auto_claim.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
