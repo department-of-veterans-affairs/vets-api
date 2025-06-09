@@ -13,7 +13,7 @@ module Ccra
                 :referral_date, :station_id, :referral_consult_id, :appointment_type_id,
                 :treating_facility_name, :treating_facility_code, :treating_facility_phone,
                 :treating_facility_address
-    attr_accessor :uuid
+    attr_accessor :uuid, :booking_start_time
 
     ##
     # Initializes a new instance of ReferralDetail.
@@ -32,6 +32,7 @@ module Ccra
       @station_id = attributes[:station_id]
       @uuid = nil # Will be set by controller
       @has_appointments = attributes[:appointments].present?
+      @booking_start_time = attributes[:booking_start_time]
       # NOTE: appointment_type_id defaulted to 'ov' for phase 1 implementation, needed for EPS provider
       # slots fetching
       @appointment_type_id = 'ov'
@@ -79,7 +80,8 @@ module Ccra
         'station_id' => @station_id,
         'referral_consult_id' => @referral_consult_id,
         'appointment_type_id' => @appointment_type_id,
-        'uuid' => @uuid
+        'uuid' => @uuid,
+        'booking_start_time' => @booking_start_time
       }
     end
 
@@ -112,6 +114,7 @@ module Ccra
       @referral_consult_id = hash['referral_consult_id']
       @appointment_type_id = hash['appointment_type_id'] || 'ov'
       @uuid = hash['uuid']
+      @booking_start_time = hash['booking_start_time']
     end
 
     # Assign provider information
