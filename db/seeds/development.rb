@@ -88,6 +88,18 @@ sample_client_api.update!(authentication: SignIn::Constants::Auth::API,
                           logout_redirect_uri: 'http://localhost:4567',
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
+# Create Config for example Private Key JWT client
+sample_pkey_jwt_client = SignIn::ClientConfig.find_or_initialize_by(client_id: 'sample_client_pkey_jwt')
+sample_pkey_jwt_client.update!(authentication: SignIn::Constants::Auth::API,
+                               anti_csrf: false,
+                               pkce: false,
+                               redirect_uri: 'http://localhost:4567/auth/result',
+                               access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+                               access_token_audience: 'sample_client',
+                               logout_redirect_uri: 'http://localhost:4567',
+                               refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES,
+                               certificates: [File.read('spec/fixtures/sign_in/sample_client.crt')])
+
 # Create Config for example sts service account
 sample_sts_config = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: 'sample_sts_service_account')
 sample_sts_config.update!(
@@ -132,7 +144,7 @@ identity_dashboard_service_account_config.update!(service_account_id: vaid_servi
 chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '03f8a6cf626527942e45348f3e40b2ad')
 chatbot.update!(
   description: 'Chatbot User Auth',
-  scopes: ['http://localhost:3000/v0/virtual_agent/user', 'http://localhost:3000/v0/chatbot/user'],
+  scopes: ['http://localhost:3000/v0/chatbot/user'],
   access_token_audience: 'http://localhost:3978/api/messages',
   access_token_user_attributes: [],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
@@ -143,7 +155,7 @@ chatbot.update!(
 chatbot = SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: '88a6d94a3182fd63279ea5565f26bcb4')
 chatbot.update!(
   description: 'Chatbot',
-  scopes: ['http://localhost:3000/v0/map_services/chatbot/token', 'http://localhost:3000/v0/virtual_agent/claims', 'http://localhost:3000/v0/chatbot/claims'],
+  scopes: ['http://localhost:3000/v0/map_services/chatbot/token', 'http://localhost:3000/v0/chatbot/claims'],
   access_token_audience: 'http://localhost:3978/api/messages',
   access_token_user_attributes: ['icn'],
   access_token_duration: SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES,

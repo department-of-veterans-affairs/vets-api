@@ -650,6 +650,10 @@ lighthouse:
       use_mocks: <%= ENV['lighthouse__benefits_claims__form526__use_mocks'] %>
     host: <%= ENV['lighthouse__benefits_claims__host'] %>
     use_mocks: <%= ENV['lighthouse__benefits_claims__use_mocks'] %>
+  benefits_discovery:
+    host: <%= ENV['lighthouse__benefits_discovery__host'] %>
+    x_api_key: <%= ENV['lighthouse__benefits_discovery__x_api_key'] %>
+    x_app_id: <%= ENV['lighthouse__benefits_discovery__x_app_id'] %>
   benefits_documents:
     access_token:
       aud_claim_url: <%= ENV['lighthouse__benefits_documents__access_token__aud_claim_url'] %>
@@ -1749,15 +1753,7 @@ virtual_agent:
   cxdw_client_secret: <%= ENV['virtual_agent__cxdw_client_secret'] %>
   cxdw_dataverse_uri: <%= ENV['virtual_agent__cxdw_dataverse_uri'] %>
   cxdw_table_prefix: <%= ENV['virtual_agent__cxdw_table_prefix'] %>
-  lighthouse_api_key: <%= ENV['virtual_agent__lighthouse_api_key'] %>
-  lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
-  speech_token_request_uri: <%= ENV['virtual_agent__speech_token_request_uri'] %>
-  speech_token_subscription_key: <%= ENV['virtual_agent__speech_token_subscription_key'] %>
-  webchat_pva2_secret: <%= ENV['virtual_agent__webchat_pva2_secret'] %>
   webchat_root_bot_secret: <%= ENV['virtual_agent__webchat_root_bot_secret'] %>
-  webchat_secret: <%= ENV['virtual_agent__webchat_secret'] %>
-  webchat_secret_msft: <%= ENV['virtual_agent__webchat_secret_msft'] %>
-  webchat_secret_nlu: <%= ENV['virtual_agent__webchat_secret_nlu'] %>
 virtual_hosts: <%= ENV['virtual_hosts'] %>
 vre_counseling:
   prefill: true
