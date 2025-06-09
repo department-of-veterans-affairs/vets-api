@@ -41,9 +41,10 @@ RSpec.describe IncomeAndAssets::BenefitsIntake::SubmitClaimJob, :uploader_helper
 
         it 'submits the saved claim successfully' do
           allow(job).to receive(:process_document).and_return(pdf_path)
+
           expect(claim).to receive(:to_pdf).with(claim.id, { extras_redesign: }).and_return(pdf_path)
-          expect(FormSubmission).to receive(:create)
-          expect(FormSubmissionAttempt).to receive(:create)
+          expect(Lighthouse::Submission).to receive(:create)
+          expect(Lighthouse::SubmissionAttempt).to receive(:create)
           expect(Datadog::Tracing).to receive(:active_trace)
           expect(UserAccount).to receive(:find)
 
