@@ -4409,5 +4409,34 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
     end
+
+    context 'when Form526 processing times out' do
+      it 'returns a 504 gateway timeout to v2 consumers' do
+        allow_any_instance_of(ClaimsApi::DisabilityCompensation::DockerContainerService)
+          .to receive(:upload).and_raise(Faraday::TimeoutError.new('Form526 submission timed out'))
+
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+          post synchronous_path, params: data, headers: auth_header
+          
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response['errors'][0]['status']).to eq('504')
+        end
+      end
+
+      it 'logs the timeout appropriately' do
+        allow_any_instance_of(ClaimsApi::DisabilityCompensation::DockerContainerService)
+          .to receive(:upload).and_raise(Faraday::TimeoutError.new('Form526 submission timed out'))
+
+        expect(ClaimsApi::Logger).to receive(:log).with(
+          '526_synchronous_timeout',
+          hash_including(detail: 'Faraday::TimeoutError - Form526 submission timed out')
+        )
+
+        mock_ccg_for_fine_grained_scope(synchronous_scopes) do |auth_header|
+          post synchronous_path, params: data, headers: auth_header
+          expect(response).to have_http_status(:gateway_timeout)
+        end
+      end
+    end
   end
 end
