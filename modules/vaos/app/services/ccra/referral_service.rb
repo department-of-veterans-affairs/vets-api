@@ -59,6 +59,13 @@ module Ccra
 
     private
 
+    # Retrieves a referral from the cache and updates its booking start time.
+    # If the referral is found in cache, updates its booking start time to the current time
+    # and saves it back to the cache.
+    #
+    # @param id [String] The ID of the referral to fetch
+    # @param icn [String] The ICN of the patient
+    # @return [ReferralDetail, nil] The cached referral with updated booking start time, or nil if not found
     def fetch_and_update_cached_referral(id, icn)
       cached_referral = referral_cache.fetch_referral_data(id:, icn:)
       return unless cached_referral
@@ -68,6 +75,12 @@ module Ccra
       cached_referral
     end
 
+    # Fetches a referral from the CCRA API and caches it.
+    # Sets the initial booking start time and stores the referral in the cache.
+    #
+    # @param id [String] The ID of the referral to fetch
+    # @param icn [String] The ICN of the patient
+    # @return [ReferralDetail] The newly fetched and cached referral
     def fetch_and_cache_referral(id, icn)
       with_monitoring do
         response = perform(:get, "/#{config.base_path}/#{icn}/referrals/#{id}", {}, request_headers)
