@@ -79,10 +79,10 @@
             "userAccount": {
               "type": "object",
               "required": [
-                "accountUuid"
+                "id"
               ],
               "properties": {
-                "accountUuid": {
+                "id": {
                   "type": [
                     "string",
                     null
