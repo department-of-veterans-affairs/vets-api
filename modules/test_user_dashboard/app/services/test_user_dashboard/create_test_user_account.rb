@@ -9,7 +9,7 @@ module TestUserDashboard
     end
 
     def call
-      return unless row['idme_uuid'] || row['logingov_uuid']
+      return unless (row['idme_uuid'] || row['logingov_uuid']) && row['user_account_id']
 
       account_details = row.merge(user_account_id:,
                                   id_types:,

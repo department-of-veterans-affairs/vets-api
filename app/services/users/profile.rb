@@ -58,7 +58,7 @@ module Users
     end
 
     def user_account
-      { account_uuid: user.user_account_uuid }
+      { id: user.user_account_uuid }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'UserAccount').serialize_error
       nil
