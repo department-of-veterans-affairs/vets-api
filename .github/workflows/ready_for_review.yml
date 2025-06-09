@@ -62,6 +62,7 @@ jobs:
               echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
               echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
               echo "pr_requested_teams=$(echo "$PR_INFO" | jq -c '.requested_teams')" >> $GITHUB_OUTPUT
+              echo "***DEBUG***: $PR_INFO"
             else
               echo "Workflow run has no associated pull requests. Labeling not performed."
               exit 0
