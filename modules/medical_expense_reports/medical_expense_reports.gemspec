@@ -9,8 +9,8 @@ require 'medical_expense_reports/version'
 Gem::Specification.new do |spec|
   spec.name        = 'medical_expense_reports'
   spec.version     = MedicalExpenseReports::VERSION
-  spec.authors     = ['Jerek Shoemaker']
-  spec.email       = ['jerek.shoemaker@adhocteam.us']
+  spec.authors     = ['VA Benefits Lifestage']
+  spec.email       = []
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
   spec.description = 'This module was auto-generated please update this description'
