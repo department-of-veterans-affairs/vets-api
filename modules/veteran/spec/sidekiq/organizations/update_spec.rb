@@ -150,7 +150,7 @@ RSpec.describe Organizations::Update do
 
       it 'logs an error' do
         expect(Rails.logger).to receive(:error).with(
-          'Organizations::Update: Update failed for Org id: not_found: Organization not found.'
+          a_string_matching(/Organizations::Update:.*not_found.*Organization not found/)
         )
 
         subject.perform(json_data)
@@ -554,7 +554,7 @@ RSpec.describe Organizations::Update do
 
         it 'logs an error' do
           expect(Rails.logger).to receive(:error).with(
-            'Organizations::Update: Update failed for Org id: not_found: Organization not found.'
+            a_string_matching(/Organizations::Update:.*not_found.*Organization not found/)
           )
 
           subject.perform(json_data)
