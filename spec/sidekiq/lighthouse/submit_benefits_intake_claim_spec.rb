@@ -5,8 +5,7 @@ require 'rails_helper'
 RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
   stub_virus_scan
   let(:job) { described_class.new }
-  let(:claim_evidence) { create(:claim_evidence) }
-  let(:claim) { claim_evidence.saved_claim }
+  let(:claim) { create(:pensions_saved_claim) }
 
   describe '#perform' do
     let(:service) { double('service') }
