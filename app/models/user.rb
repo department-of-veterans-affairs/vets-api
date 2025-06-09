@@ -210,14 +210,14 @@ class User < Common::RedisStore
   end
 
   def address
-    address = mpi_profile&.address || {}
+    address = mpi_profile&.address
     {
-      street: address[:street],
-      street2: address[:street2],
-      city: address[:city],
-      state: address[:state],
-      country: address[:country],
-      postal_code: address[:postal_code]
+      street: address&.street,
+      street2: address&.street2,
+      city: address&.city,
+      state: address&.state,
+      country: address&.country,
+      postal_code: address&.postal_code
     }
   end
 
